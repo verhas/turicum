@@ -1,0 +1,15 @@
+package javax0.genai.pl.commands;
+
+import javax0.genai.pl.memory.Context;
+
+/**
+ * An identifier that identifies something, like a variable, a class or object.
+ * Executing this "expression" will search the identified object and then return the value.
+ * The search very much depends on the context.
+ */
+public record Identifier(String name) implements Command {
+    @Override
+    public Object execute(Context ctx) throws ExecutionException {
+        return ctx.get(name);
+    }
+}
