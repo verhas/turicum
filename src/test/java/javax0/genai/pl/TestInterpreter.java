@@ -149,7 +149,7 @@ public class TestInterpreter {
     void testFunctionDeclaration() throws Exception {
         test("""
                 fn function x2, z, h {
-                } null; 'anything undefined is null
+                } null; //anything undefined is null
                 """, null);
     }
 
@@ -216,6 +216,7 @@ public class TestInterpreter {
                     fn a {1}
                     fn b {2}
                 }
+                some =  "it works";
                 some + meClass.a() + meClass.b();
                 """, "it works12");
     }
@@ -302,6 +303,19 @@ public class TestInterpreter {
                 child = Child();
                 child.child();
                 """, 1L);
+    }
+
+    @Test
+    void testThisIsFinal() throws Exception {
+        testE("""
+                class Class {
+                 fn fun {
+                   this = 55;
+                  }
+                }
+                `class` = Class();
+                `class`.fun();
+                """);
     }
 
 }

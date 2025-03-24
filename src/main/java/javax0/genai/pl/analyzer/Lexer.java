@@ -22,7 +22,7 @@ public class Lexer {
                 in.skip(1);
                 continue;
             }
-            if (in.charAt(0) == '\'') {
+            if (in.length() >=2 && in.charAt(0) == '/' && in.charAt(1) == '/') {
                 in.skip(1);
                 skipComment(in, list);
                 continue;

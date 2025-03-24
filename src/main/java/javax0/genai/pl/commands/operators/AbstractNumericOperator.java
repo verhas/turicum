@@ -11,7 +11,8 @@ public abstract class AbstractNumericOperator implements Operator {
                             final Object op1, final Object op2,
                             final BiFunction<Long, Long, Long> longOp,
                             final BiFunction<Double, Double, Double> doubleOp
-    ) {
+    ) throws ExecutionException {
+        ExecutionException.when(op1 == null || op2 == null, "You cannot " + name + " on undefined value");
         if (Cast.isLong(op1) && Cast.isLong(op2)) {
             return longOp.apply(Cast.toLong(op1), Cast.toLong(op2));
         }
@@ -28,10 +29,10 @@ public abstract class AbstractNumericOperator implements Operator {
                            final Function<Long, Long> longOp,
                            final Function<Double, Double> doubleOp
     ) {
-        if (Cast.isLong(op) ) {
+        if (Cast.isLong(op)) {
             return longOp.apply(Cast.toLong(op));
         }
-        if (Cast.isDouble(op) ) {
+        if (Cast.isDouble(op)) {
             return doubleOp.apply(Cast.toDouble(op));
         }
 
