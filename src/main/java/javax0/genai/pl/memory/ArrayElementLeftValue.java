@@ -5,7 +5,7 @@ import javax0.genai.pl.commands.ExecutionException;
 
 import java.util.Objects;
 
-public record ArrayElementLeftValue(LeftValue object, Command index) implements LeftValue {
+public record ArrayElementLeftValue(LeftValue arrayLeftValue, Command index) implements LeftValue {
 
     public ArrayElementLeftValue {
         Objects.requireNonNull(index);
@@ -14,10 +14,10 @@ public record ArrayElementLeftValue(LeftValue object, Command index) implements 
     @Override
     public HasFields getObject(Context ctx) {
         final var indexValue = index.execute(ctx);
-        final var guaranteedObject = object.getArray(ctx);
+        final var guaranteedObject = arrayLeftValue.getIndexable(ctx, indexValue);
         final var existing = guaranteedObject.getIndex(indexValue);
         if (existing == null) {
-            final var newObject = new LngObject(null , ctx.open());
+            final var newObject = new LngObject(null, ctx.open());
             guaranteedObject.setIndex(indexValue, newObject);
             return newObject;
         } else {
@@ -26,21 +26,28 @@ public record ArrayElementLeftValue(LeftValue object, Command index) implements 
     }
 
     @Override
-    public HasIndex getArray(Context ctx) {
-        final var indexValue = index.execute(ctx);
-        final var guaranteedObject = object.getArray(ctx);
-        final var existing = guaranteedObject.getIndex(indexValue);
+    public HasIndex getIndexable(Context ctx, Object indexValue) {
+        final var leftValueIndex = index.execute(ctx);
+        final var guaranteedObject = arrayLeftValue.getIndexable(ctx, leftValueIndex);
+        final var existing = guaranteedObject.getIndex(leftValueIndex);
         if (existing == null) {
-            final var newArray = new LngArray();
-            guaranteedObject.setIndex(indexValue, newArray);
-            return newArray;
+            // Create a new array without setting an initial index
+            final HasIndex newIndexable = HasIndex.createFor(indexValue, ctx);
+            guaranteedObject.setIndex(leftValueIndex, newIndexable);
+            return newIndexable;
         } else {
-            return LeftValue.toArray(existing);
+            return LeftValue.toIndexable(existing, indexValue);
         }
     }
 
     @Override
     public void assign(Context ctx, Object value) throws ExecutionException {
-        object.getArray(ctx).setIndex(index.execute(ctx), value);
+        final var indexValue = index.execute(ctx);
+        arrayLeftValue.getIndexable(ctx, indexValue).setIndex(indexValue, value);
+    }
+
+    @Override
+    public String toString() {
+        return arrayLeftValue.toString() + "[" + index.toString() + "]";
     }
 }

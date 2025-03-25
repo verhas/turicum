@@ -25,19 +25,24 @@ public class VariableLeftValue implements LeftValue {
     }
 
     @Override
-    public HasIndex getArray(Context ctx) {
+    public HasIndex getIndexable(Context ctx,Object indexValue) {
         final var existing = ctx.get(variable);
         if (existing == null) {
-            final var newArray = new LngArray();
-            ctx.let(variable, newArray);
-            return newArray;
+            final var newIndexable = HasIndex.createFor(indexValue,ctx);
+            ctx.let(variable, newIndexable);
+            return newIndexable;
         } else {
-            return LeftValue.toArray(existing);
+            return LeftValue.toIndexable(existing,indexValue);
         }
     }
 
     @Override
     public void assign(Context ctx, Object value) throws ExecutionException {
         ctx.let(variable, value);
+    }
+
+    @Override
+    public String toString() {
+        return variable;
     }
 }

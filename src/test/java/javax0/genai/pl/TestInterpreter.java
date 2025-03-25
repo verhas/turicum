@@ -11,7 +11,7 @@ public class TestInterpreter {
         Assertions.assertEquals(expected, result);
     }
 
-    private void testE(String input) throws Exception {
+    private void testE(String input) {
         Assertions.assertThrows(ExecutionException.class, () -> new Interpreter(input).execute());
     }
 
@@ -19,9 +19,9 @@ public class TestInterpreter {
     void testBasicCommands() throws Exception {
         test("""
                 a.x = 10;
-                b["key"] = 20;
                 c = 30;
-                a.x + b["key"] + c;
+                b[c] = 20;
+                a.x + b[30] + c;
                 """, 60L);
     }
 
@@ -36,10 +36,18 @@ public class TestInterpreter {
     }
 
     @Test
+    void testArrayAccess() throws Exception {
+        test("""
+                arr[3] = 42;
+                z["kaka"] = "suss"
+                z.kaka + arr[3] * 2;
+                """, "suss84");
+    }
+    @Test
     void testNestedArrayAccess() throws Exception {
         test("""
-                arr["outer"]["inner"] = 42;
-                arr["outer"]["inner"] * 2;
+                arr[3][2] = 42;
+                arr[3][2] * 2;
                 """, 84L);
     }
 
@@ -48,8 +56,8 @@ public class TestInterpreter {
         test("""
                 obj.a = 5;
                 obj.b = obj.a * 3;
-                arr["x"] = obj.b + 2;
-                arr["x"];
+                arr[1] = obj.b + 2;
+                arr[1];
                 """, 17L);
     }
 
@@ -57,9 +65,9 @@ public class TestInterpreter {
     void testComplexExpressions() throws Exception {
         test("""
                 x.val = 10;
-                y[{"num"}] = 5;
+                y[{7}] = 5;
                 z = 2;
-                result = (x.val + y["num"]) * z;
+                result = (x.val + y[7]) * z;
                 result;
                 """, 30L);
     }
@@ -306,7 +314,7 @@ public class TestInterpreter {
     }
 
     @Test
-    void testThisIsFinal() throws Exception {
+    void testThisIsFinal() {
         testE("""
                 class Class {
                  fn fun {

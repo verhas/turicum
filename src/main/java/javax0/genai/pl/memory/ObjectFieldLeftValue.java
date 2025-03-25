@@ -15,7 +15,7 @@ public record ObjectFieldLeftValue(LeftValue object, String field) implements Le
         final var guaranteedObject = object.getObject(ctx);
         final var existing = guaranteedObject.getField(field);
         if (existing == null) {
-            final var newObject = new LngObject(null,ctx.open());
+            final var newObject = new LngObject(null, ctx.open());
             guaranteedObject.setField(field, newObject);
             return newObject;
         } else {
@@ -24,15 +24,15 @@ public record ObjectFieldLeftValue(LeftValue object, String field) implements Le
     }
 
     @Override
-    public HasIndex getArray(Context ctx) {
+    public HasIndex getIndexable(Context ctx, Object indexValue) {
         final var guaranteedObject = object.getObject(ctx);
         final var existing = guaranteedObject.getField(field);
         if (existing == null) {
-            final var newArray = new LngArray();
-            guaranteedObject.setField(field, newArray);
-            return newArray;
+            final HasIndex newIndexable = HasIndex.createFor(indexValue, ctx);
+            guaranteedObject.setField(field, newIndexable);
+            return newIndexable;
         } else {
-            return LeftValue.toArray(existing);
+            return LeftValue.toIndexable(existing, indexValue);
         }
     }
 

@@ -12,4 +12,9 @@ public record IntegerConstant(long value) implements Command {
     public Long execute(Context ctx) throws ExecutionException {
         return value;
     }
+
+    @Override
+    public String toString() {
+        return Long.toString(value);
+    }
 }

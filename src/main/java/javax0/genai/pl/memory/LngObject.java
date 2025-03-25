@@ -5,7 +5,7 @@ import javax0.genai.pl.commands.ExecutionException;
 /**
  * An object in the language
  */
-public record LngObject(LngClass lngClass, Context context) implements HasFields {
+public record LngObject(LngClass lngClass, Context context) implements HasFields, HasIndex {
 
     @Override
     public void setField(String name, Object value) {
@@ -15,9 +15,19 @@ public record LngObject(LngClass lngClass, Context context) implements HasFields
     @Override
     public Object getField(String name) throws ExecutionException {
         final var value = context.get(name);
-        if( value != null ) {
+        if (value != null) {
             return value;
         }
         return lngClass.getField(name);
+    }
+
+    @Override
+    public void setIndex(Object index, Object value) throws ExecutionException {
+        setField(index.toString(), value);
+    }
+
+    @Override
+    public Object getIndex(Object index) throws ExecutionException {
+        return getField(index.toString());
     }
 }
