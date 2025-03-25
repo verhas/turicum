@@ -12,7 +12,6 @@ public interface HasIndex {
         final HasIndex newIndexable;
         if (Cast.isLong(indexValue)) {
             newIndexable = new LngList();
-            newIndexable.setIndex(indexValue, null);
         } else {
             newIndexable = new LngObject(null, ctx.open());
         }
