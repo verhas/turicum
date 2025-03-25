@@ -2,18 +2,43 @@ package javax0.genai.pl.analyzer;
 
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 
 public class Lexer {
 
-    final static private Set<String> RESERVED = Set.of(
+    final static private Set<String> RESERVED = new HashSet<>(Set.of(
             //snipline RESERVED
-            "class", "final", "fn", "local", "global", "if", "else", "elseif", "then", "endif", "while", "wend", "for", "next", "do", "until", "and", "or", "not", "to", "step", "end"
-    );
-    final static private String[] OPERANDS = {
-            ":=", "==", "!=", "<=", ">=", "<<", "!", "=", "+", "-", "*", "/", "%", "(", ")", "<", ">", ",", ".", "&&", "||",
-            "{", "}", "[", "]", ";", ":"
-    };
+            "class", "final", "fn", "local", "global", "if", "else", "elseif"
+    ));
+    final static private ArrayList<String> _OPERANDS = new ArrayList<>(Arrays.asList(
+            ":=", "=", "(", ")", ",", ".",
+            "{", "}", "[", "]", ";", ":", "|"
+    ));
+
+    static {
+        Arrays.stream(BinaryExpressionAnalyzer.binaryOperators).flatMap(Arrays::stream).forEach(
+                s -> {
+                    if (Character.isAlphabetic(s.charAt(0))) {
+                        RESERVED.add(s);
+                    } else {
+                        _OPERANDS.add(s);
+                    }
+                }
+        );
+        Arrays.stream(UnaryExpressionAnalyzer.unaryOperators).forEach(
+                s -> {
+                    if (Character.isAlphabetic(s.charAt(0))) {
+                        RESERVED.add(s);
+                    } else {
+                        _OPERANDS.add(s);
+                    }
+                }
+        );
+    }
+
+    final static private String[] OPERANDS = _OPERANDS.toArray(String[]::new);
 
     public Lex.List analyze(javax0.genai.pl.analyzer.Input in) throws BadSyntax {
         final var list = new ArrayList<Lex>();
@@ -22,9 +47,9 @@ public class Lexer {
                 in.skip(1);
                 continue;
             }
-            if (in.length() >=2 && in.charAt(0) == '/' && in.charAt(1) == '/') {
+            if (in.length() >= 2 && in.charAt(0) == '/' && in.charAt(1) == '/') {
                 in.skip(1);
-                skipComment(in, list);
+                skipComment(in);
                 continue;
             }
             if (in.charAt(0) == '`') {
@@ -88,9 +113,8 @@ public class Lexer {
      * Skip the comment until the end of the line. The end of the line is not skipped.
      *
      * @param in   the input
-     * @param list the lexical list, where an '\n' is added.
      */
-    private static void skipComment(final javax0.genai.pl.analyzer.Input in, final ArrayList<Lex> list) {
+    private static void skipComment(final javax0.genai.pl.analyzer.Input in) {
         while (!in.isEmpty() && in.charAt(0) != '\n') {
             in.skip(1);
         }

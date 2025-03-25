@@ -6,7 +6,8 @@ import javax0.genai.pl.commands.Operation;
 public class BinaryExpressionAnalyzer implements Analyzer {
     static final Analyzer INSTANCE = new BinaryExpressionAnalyzer();
 
-    private static final String[][] binaryOperators = {
+    static final String[][] binaryOperators = {
+            {"or"},
             {"||"},
             {"&&"},
             {"|"},

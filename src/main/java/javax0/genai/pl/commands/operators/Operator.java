@@ -18,7 +18,7 @@ public interface Operator {
             new Compare.Equal(),
             new Compare.LessOrEqual(), new Compare.LessThan(),
             new Compare.GreaterOrEqual(), new Compare.GreaterThan(),
-            new And(), new Or(), new Not(),
+            new And(), new Or(), new Not(), new Pipe()
     };
 
     Map<String, Operator> OPERATORS = register();

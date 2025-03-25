@@ -325,5 +325,16 @@ public class TestInterpreter {
                 `class`.fun();
                 """);
     }
+    @Test
+    void testPipeOperator() throws Exception {
+        test("""
+                a = 1;
+                b = a or 2;
+                """,1L);
+        test("""
+                a = 1;
+                b = c or 2;
+                """,2L);
+    }
 
 }

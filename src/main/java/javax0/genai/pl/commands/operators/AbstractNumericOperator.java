@@ -13,10 +13,10 @@ public abstract class AbstractNumericOperator implements Operator {
                             final BiFunction<Double, Double, Double> doubleOp
     ) throws ExecutionException {
         ExecutionException.when(op1 == null || op2 == null, "You cannot " + name + " on undefined value");
-        if (Cast.isLong(op1) && Cast.isLong(op2)) {
+        if (longOp != null && Cast.isLong(op1) && Cast.isLong(op2)) {
             return longOp.apply(Cast.toLong(op1), Cast.toLong(op2));
         }
-        if (Cast.isDouble(op1) || Cast.isDouble(op2)) {
+        if (doubleOp != null && (Cast.isDouble(op1) || Cast.isDouble(op2))) {
             return doubleOp.apply(Cast.toDouble(op1), Cast.toDouble(op2));
         }
 
