@@ -1,0 +1,110 @@
+The following is the non-standard EBNF definition of the programming language called Turicum.
+It is not intended to be used by syntax analyzer generators.
+Strings between ' characters are literal keywords.
+Syntax between [ and ] are optional
+Syntax between { and } are repeated zero or more times
+Syntax between ( and ) is a group with alternatives
+Alternative syntaxes are separated using the | character.
+Non-terminal symbols are all capital letters.
+EBNF non-terminals are followed by ::= and then the definition closed by ;
+Non-literal terminal symbols are:
+
+ * IDENTIFIER
+ * number
+ * string
+
+PROGRAM ::= { COMMAND [;] } ;
+COMMAND ::= ASSIGNMENT |
+            EXPRESSION |
+            IF |
+            LOOP |
+            CLASS |
+            FN |
+            LOCAL |
+            GLOBAL |
+            PIN ;
+
+// if the condition expression is missing after 'for' or 'while' it is true
+// the expression following the 'until' is not optional, but the whole 'until' EXPRESSION is optional
+LOOP ::= 'while' [EXPRESSION] ( BLOCK | ':' COMMAND ) [ 'until' EXPRESSION] |
+         // semicolons are optional, but are needed if COMMAND or EXPRESSION is missing
+         'for' COMMAND [EXPRESSION] COMMAND ( BLOCK | ':' COMMAND ) [ 'until' EXPRESSION] |
+         // equivalent to: for(init; condition; step)
+         'for' '(' COMMAND [EXPRESSION] COMMAND ')' ( COMMAND | BLOCK | ':' COMMAND ) [ 'until' EXPRESSION] |
+         'foreach' identifier 'in' EXPRESSION ( BLOCK | ':' COMMAND ) [ 'until' EXPRESSION] |
+         'foreach' '(' identifier 'in' EXPRESSION ')' ( COMMAND | BLOCK | ':' COMMAND ) [ 'until' EXPRESSION]
+         ;
+
+IF ::= 'if' EXPRESSION ( ':' COMMAND | BLOCK ) [ 'else' ( ':' COMMAND | BLOCK )] ;
+CLASS ::= 'class' [IDENTIFIER] [ ':' IDENTIFIER_LIST ] BLOCK ;
+
+FN ::= FN_EXPR | FN_BLOCK ;
+// For functions with an expression body:
+// - If a function name is provided, the parameter list is optional.
+// - If no name is provided, the parameter list is mandatory.
+FN_EXPR   ::= 'fn' IDENTIFIER [ '(' IDENTIFIER_LIST ')' ] '=' EXPRESSION
+          | 'fn' '(' IDENTIFIER_LIST ')' '=' EXPRESSION ;
+// For functions with a block body, both the function name and parameter list are optional.
+FN_BLOCK  ::= 'fn' [ IDENTIFIER ] [ '(' IDENTIFIER_LIST ')' ] BLOCK ;
+
+LOCAL ::= 'local' IDENTIFIER_LIST;
+GLOBAL ::= 'global' IDENTIFIER_LIST;
+PIN ::= 'pin' IDENTIFIER_LIST;
+// it is valid to have no identifiers in an identifier list, a.k.a. having an empty identifier list
+IDENTIFIER_LIST ::= [ IDENTIFIER { ',' IDENTIFIER } ];
+
+// using '=' updated a local variable or creates a new one
+// ':=' updates an existing local variable just like '=' if it exists, but creates a new one in the enclosing environment
+ASSIGNMENT ::= LEFT_VALUE '=' EXPRESSION | LEFT_VALUE ':=' EXPRESSION;
+LEFT_VALUE ::= IDENTIFIER { '.' IDENTIFIER | '[' EXPRESSION ']'};
+EXPRESSION ::= BINARY_EXPRESSION[0];
+
+// Define precedence levels using indexed rules
+N=10;
+BINARY_EXPRESSION[i <N ] ::= BINARY_EXPRESSION[i+1] { BINARY_OPERATOR[i] BINARY_EXPRESSION[i+1] };
+BINARY_EXPRESSION[i == N] ::= UNARY_EXPRESSION  ;// Highest precedence level
+
+// Unary operators and primary expressions
+UNARY_EXPRESSION ::= PREFIX_UNARY_OPERATOR UNARY_EXPRESSION | PRIMARY_EXPRESSION;
+
+PRIMARY_EXPRESSION ::= number | string
+| FN
+| CLASS
+| IDENTIFIER
+| '(' EXPRESSION ')'
+| FUNCTION_CALL
+| FIELD_ACCESS
+| METHOD_CALL
+| BLOCK
+| ARRAY_ACCESS
+;
+
+// Function call: name(params)
+FUNCTION_CALL ::= IDENTIFIER '(' [ EXPRESSION { ',' EXPRESSION } ] ')' ;
+
+// Field access: obj.field
+FIELD_ACCESS ::= PRIMARY_EXPRESSION '.' IDENTIFIER ;
+
+// Method call: obj.method(params)
+METHOD_CALL ::= PRIMARY_EXPRESSION '.' IDENTIFIER '(' [ EXPRESSION { ',' EXPRESSION } ] ')' ;
+
+// Block returning an expression value. The value of the block is always the last executed expression.
+BLOCK ::= '{' { COMMAND [';'] } '}' ;
+
+// Array element access: array[index]
+ARRAY_ACCESS ::= PRIMARY_EXPRESSION '[' EXPRESSION ']' ;
+
+// Unary operators
+PREFIX_UNARY_OPERATOR ::= '+' | '-' | '!' ;
+
+// Binary operators grouped by precedence (higher index = higher precedence)
+BINARY_OPERATOR[0] ::= '||' ; // Lowest precedence
+BINARY_OPERATOR[1] ::= '&&' ;
+BINARY_OPERATOR[2] ::= '|' ;
+BINARY_OPERATOR[3] ::= '^' ;
+BINARY_OPERATOR[4] ::= '&' ;
+BINARY_OPERATOR[5] ::= '==' | '!=' ;
+BINARY_OPERATOR[6] ::= '<' | '<=' | '>' | '>=' ;
+BINARY_OPERATOR[7] ::= '<<' | '>>' ;
+BINARY_OPERATOR[8] ::= '+' | '-' ;
+BINARY_OPERATOR[9] ::= '*' | '/' | '%' ; // Highest precedence for binary ops
