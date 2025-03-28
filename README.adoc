@@ -1,1 +1,1 @@
-= Turicum programming language
+= Turicum Programming Language
