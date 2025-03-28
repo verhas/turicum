@@ -1,6 +1,7 @@
 package javax0.turicum.analyzer;
 
 import javax0.turicum.memory.Context;
+import javax0.turicum.memory.InfinitValue;
 
 public class Constants {
 
@@ -8,6 +9,7 @@ public class Constants {
             "true", true,
             "false", false,
             "null", null,
+            "inf", InfinitValue.INF_POSITIVE
     };
 
     public static void register(Context context) {

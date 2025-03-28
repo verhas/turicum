@@ -1,6 +1,6 @@
 package javax0.turicum.memory;
 
-public record Range(long start, long end) {
+public record Range(Object start, Object end) {
 
     @Override
     public String toString() {

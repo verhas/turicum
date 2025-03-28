@@ -7,9 +7,16 @@ public record Closure(String[] parameters, Context wrapped, BlockCommand command
     public Object execute(final Context ctx) throws ExecutionException {
         ctx.step();
         Object result = null;
-        final var blockContext = ctx.wrap();
         for (final var command : command.commands()) {
-            result = command.execute(blockContext);
+            if (command instanceof BreakCommand brk) {
+                final var breakResult = brk.execute(ctx);
+                if (breakResult.doBreak()) {
+                    result = breakResult.result();
+                    break;
+                }
+            } else {
+                result = command.execute(ctx);
+            }
         }
         return result;
 

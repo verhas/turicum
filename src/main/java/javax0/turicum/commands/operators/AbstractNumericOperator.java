@@ -37,7 +37,7 @@ public abstract class AbstractNumericOperator implements Operator {
         }
 
         return Reflect.getUnaryMethod(name, op).map(Reflect.Op::callMethod)
-                .orElseThrow(() -> new ExecutionException("Cannot '%s' + '%s'", op));
+                .orElseThrow(() -> new ExecutionException("Cannot %s.%s()", op, name));
     }
 }
 

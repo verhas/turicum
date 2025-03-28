@@ -39,11 +39,10 @@ IF ::= 'if' EXPRESSION ( ':' COMMAND | BLOCK ) [ 'else' ( ':' COMMAND | BLOCK )]
 CLASS ::= 'class' [IDENTIFIER] [ ':' IDENTIFIER_LIST ] BLOCK ;
 
 FN ::= FN_EXPR | FN_BLOCK ;
-// For functions with an expression body:
-// - If a function name is provided, the parameter list is optional.
-// - If no name is provided, the parameter list is mandatory.
-FN_EXPR   ::= 'fn' IDENTIFIER [ '(' IDENTIFIER_LIST ')' ] '=' EXPRESSION
-          | 'fn' '(' IDENTIFIER_LIST ')' '=' EXPRESSION ;
+// For functions with an expression body following a '=' the parameter list is mandatory.
+// The parameter list may be empty having only '(' and ')'
+FN_EXPR   ::= 'fn' [ IDENTIFIER ] '(' IDENTIFIER_LIST ')' '=' EXPRESSION ;
+
 // For functions with a block body, both the function name and parameter list are optional.
 FN_BLOCK  ::= 'fn' [ IDENTIFIER ] [ '(' IDENTIFIER_LIST ')' ] BLOCK ;
 

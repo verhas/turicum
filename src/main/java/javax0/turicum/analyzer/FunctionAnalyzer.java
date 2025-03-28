@@ -1,8 +1,11 @@
 package javax0.turicum.analyzer;
 
+import javax0.turicum.commands.BlockCommand;
 import javax0.turicum.commands.Command;
 import javax0.turicum.commands.ExecutionException;
 import javax0.turicum.commands.FunctionDefinition;
+
+import java.util.List;
 
 /**
  * <pre>{@code
@@ -37,16 +40,24 @@ public class FunctionAnalyzer implements Analyzer {
             BadSyntax.when(!lexes.isIdentifier(), "function name expected after fn");
             fn = lexes.next().text;
         }
-        final boolean needsParenthesis = lexes.is("(");
-        if (needsParenthesis) {
+        final boolean hasParens = lexes.is("(");
+        if (hasParens) {
             lexes.next();
         }
         final var arguments = IdentifierList.INSTANCE.analyze(lexes);
-        if (needsParenthesis) {
+        if (hasParens) {
             ExecutionException.when(lexes.isNot(")"), "Function parameter list is opened, but not closed using parenthesis");
             lexes.next();
         }
-        final var block = BlockAnalyzer.INSTANCE.analyze(lexes);
+        final BlockCommand block;
+        if(lexes.is("=")){
+            BadSyntax.when( ! hasParens,"use must use parenthesis in function definition when using =expression as body");
+            lexes.next();
+            final var expression = ExpressionAnalyzer.INSTANCE.analyze(lexes);
+            block = new BlockCommand(List.of(expression),false);
+        }else {
+            block = BlockAnalyzer.INSTANCE.analyze(lexes);
+        }
         return new FunctionDefinition(fn, arguments, block);
     }
 }

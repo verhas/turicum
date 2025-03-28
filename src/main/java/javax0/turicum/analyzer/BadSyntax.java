@@ -9,7 +9,7 @@ public class BadSyntax extends Exception {
 
     public static void when(final boolean b, String msg, Object... parameters) throws BadSyntax {
         if (b) {
-            throw new BadSyntax(String.format(msg, parameters));
+            throw new BadSyntax(msg, parameters);
         }
     }
 

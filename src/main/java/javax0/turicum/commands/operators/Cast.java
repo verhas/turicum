@@ -12,7 +12,7 @@ public class Cast {
      */
     public static boolean isLong(Object obj) {
         return switch (obj) {
-            case Long ignore-> true;
+            case Long ignore -> true;
             case Integer ignore -> true;
             case Short ignore -> true;
             case Byte ignore -> true;
@@ -92,15 +92,15 @@ public class Cast {
     public static boolean isBoolean(final Object test) throws ExecutionException {
         return switch (test) {
             case null -> true;
-            case Boolean b -> b;
-            case Long l -> l != 0;
-            case Integer i -> i != 0;
-            case Short s -> s != 0;
-            case Byte b -> b != 0;
-            case Character c -> c != 0;
-            case Double d -> d != 0.0;
-            case Float f -> f != 0.0;
-            case String s -> !s.isEmpty();
+            case Boolean ignored1 -> true;
+            case Long ignored -> true;
+            case Integer ignored -> true;
+            case Short ignored -> true;
+            case Byte ignored -> true;
+            case Character ignored -> true;
+            case Double ignored -> true;
+            case Float ignored -> true;
+            case String ignored -> true;
             default -> false;
         };
     }

@@ -14,12 +14,7 @@ public class RangeOp extends AbstractNumericOperator {
         if (left == null) {
             return new Spread(right.execute(ctx));
         }
-        final var op1 = left.execute(ctx);
-        final var op2 = right.execute(ctx);
-        if (Cast.isLong(op1) && Cast.isLong(op2)) {
-            return new Range(Cast.toLong(op1), Cast.toLong(op2));
-        }
-        throw new ExecutionException("Range needs two numbers on the sides of  ':' got %s and %s", op1, op2);
+        return new Range(left.execute(ctx), right.execute(ctx));
     }
 
 }

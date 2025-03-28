@@ -15,6 +15,11 @@ public class LngList implements HasIndex, HasFields {
     public void setIndex(Object index, Object value) throws ExecutionException {
         assertNumerical(index);
         final var indexValue = Cast.toLong(index).intValue();
+        if (indexValue < 0) {
+            ExecutionException.when(array.size() + indexValue < offset, "Indexing error, %d is too small, %s-%s < %s.", indexValue,
+                    array.size(), -indexValue, offset);
+            array.set(array.size() + indexValue, value);
+        }
         ExecutionException.when(indexValue < 0, "Indexing error, %d is negative", indexValue);
         final var realIndex = indexValue - offset;
         array.ensureCapacity(realIndex + 1);
@@ -33,6 +38,34 @@ public class LngList implements HasIndex, HasFields {
             return null;
         } else {
             return array.get(indexValue - offset);
+        }
+    }
+
+    private int rangeEndToInt(Object rangeEnd) {
+        if (rangeEnd instanceof InfinitValue(boolean positive)) {
+            if (positive) {
+                return array.size();
+            } else {
+                return offset-1;
+            }
+        } else if (rangeEnd instanceof Long l) {
+            return l.intValue();
+        } else {
+            throw new ExecutionException("Invalid range for index %s", rangeEnd);
+        }
+    }
+
+    private int rangeStartToInt(Object rangeEnd) {
+        if (rangeEnd instanceof InfinitValue(boolean positive)) {
+            if (positive) {
+                return array.size()-1;
+            } else {
+                return offset;
+            }
+        } else if (rangeEnd instanceof Long l) {
+            return l.intValue();
+        } else {
+            throw new ExecutionException("Invalid range for index %s", rangeEnd);
         }
     }
 
@@ -67,4 +100,10 @@ public class LngList implements HasIndex, HasFields {
     public Iterator<Object> iterator() {
         return array.iterator();
     }
+
+    @Override
+    public String toString(){
+        return array.toString();
+    }
+
 }

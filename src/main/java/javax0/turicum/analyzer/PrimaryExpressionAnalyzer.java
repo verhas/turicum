@@ -2,6 +2,10 @@ package javax0.turicum.analyzer;
 
 
 import javax0.turicum.commands.*;
+import javax0.turicum.commands.operators.RangeOp;
+import javax0.turicum.memory.CompositionModifier;
+
+import java.util.ArrayList;
 
 /**
  * <pre>
@@ -52,14 +56,27 @@ public class PrimaryExpressionAnalyzer implements Analyzer {
                 expressionList.add(expression);
                 if (lexes.is(",")) {
                     lexes.next();
-                } else if (lexes.is("]")) {
-                    lexes.next();
+                } else if (lexes.is("]", "?", "->")) {
                     break;
                 } else {
                     throw new BadSyntax("Unexpected end of expression list in array literal");
                 }
             }
-            final var left = new ListComposition(expressionList.toArray(Command[]::new));
+            final var modifiers = new ArrayList<CompositionModifier>();
+            while (lexes.is("?", "->")) {
+                final var oper = lexes.next().text;
+                final var modifierExpression = ExpressionAnalyzer.INSTANCE.analyze(lexes);
+                modifiers.add(switch (oper) {
+                    case "->" -> new CompositionModifier.Mapper(modifierExpression);
+                    case "?" -> new CompositionModifier.Filter(modifierExpression);
+                    default ->
+                            throw new RuntimeException("Unexpected operator: " + oper + "this is an internal error");
+
+                });
+            }
+            final var left = new ListComposition(expressionList.toArray(Command[]::new),modifiers.toArray(CompositionModifier[]::new));
+            BadSyntax.when(lexes.isNot("]"),"list literal has to be closed using ']'");
+            lexes.next();
             return getAccessOrCall(lexes, left);
         }
         final var lex = lexes.next();

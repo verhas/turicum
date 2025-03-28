@@ -16,6 +16,7 @@ public interface LeftValue {
     static HasFields toObject(Object existing) {
         return switch (existing) {
             case LngObject obj -> obj;
+            case LngList list -> list;
             case LngClass cls -> cls;
             case Map<?, ?> map -> new MapObject(Map.copyOf(map));
             default -> new JavaObject(existing);

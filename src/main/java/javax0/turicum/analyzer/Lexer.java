@@ -13,7 +13,7 @@ public class Lexer {
     ));
     final static private ArrayList<String> _OPERANDS = new ArrayList<>(Arrays.asList(
             "->", ":=", "=", "(", ")", ",", ".",
-            "{", "}", "[", "]", ";", ":", "|"
+            "{", "}", "[", "]", ";", ":", "|", "?"
     ));
 
     static {
@@ -80,7 +80,7 @@ public class Lexer {
                 final var str = new StringBuilder();
                 str.append(in.fetchNumber());
                 final Lex.Type type;
-                if (in.length() >=2 && in.charAt(0) == '.' && Character.isDigit(in.charAt(1))) {
+                if (in.length() >= 2 && in.charAt(0) == '.' && Character.isDigit(in.charAt(1))) {
                     str.append('.');
                     in.skip(1);
                     str.append(in.fetchNumber());

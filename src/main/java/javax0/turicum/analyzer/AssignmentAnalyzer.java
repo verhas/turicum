@@ -14,7 +14,7 @@ public class AssignmentAnalyzer implements Analyzer {
         final var opSymbol = lexes.next();
         BadSyntax.when(!(opSymbol.type == Lex.Type.RESERVED
                         && (opSymbol.text.equals("=") || opSymbol.text.equals(":="))),
-                "Expected '=' or ':=' after the left value but got '" + opSymbol.text + "'");
+                "Expected '=' or ':=' after the left value but got '%s'", opSymbol.text);
         final var expression = ExpressionAnalyzer.INSTANCE.analyze(lexes);
         if (opSymbol.text.equals("=")) {
 
@@ -22,7 +22,7 @@ public class AssignmentAnalyzer implements Analyzer {
         } else {
             if (leftValue instanceof VariableLeftValue vLeftValue) {
                 return new ExportAssignment(vLeftValue, expression);
-            }else{
+            } else {
                 throw new BadSyntax("Expected variable left value but got '" + leftValue + "'");
             }
         }
