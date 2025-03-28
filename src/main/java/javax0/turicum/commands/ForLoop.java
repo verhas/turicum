@@ -10,7 +10,7 @@ public record ForLoop(Command startCommand, Command loopCondition, Command exitC
         context.step();
         final var loopContext = context.wrap();
         startCommand.execute(loopContext);
-        while (Cast.isBoolean(loopCondition.execute(loopContext))) {
+        while (Cast.toBoolean(loopCondition.execute(loopContext))) {
             if (body instanceof BlockCommand block) {
                 final var lp = block.loop(loopContext);
                 if (lp.broken()) {

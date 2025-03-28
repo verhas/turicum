@@ -7,11 +7,11 @@ public class BlockOrClosureAnalyser implements Analyzer {
 
     @Override
     public Command analyze(Lex.List lexes) throws BadSyntax {
-        if (lexes.isAt(1,"|")) {
-            lexes.next();
+        if (ClosureAnalyzer.blockStartsClosure(lexes)) {
             lexes.next();
             return ClosureAnalyzer.INSTANCE.analyze(lexes);
         }
         return BlockAnalyzer.INSTANCE.analyze(lexes);
     }
+
 }

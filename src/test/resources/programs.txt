@@ -542,3 +542,23 @@ a = [1..4];
 k = 0;
 for each z in a : k = k + z
 
+
+// snippet pinExample
+// String
+// "3 7 7 7"
+"""
+pin signals that a variable cannot be modified any more in the given scope.
+It does not prevent code in enclosing scopes.
+It also does not prevent any inner/enclosed scopes to use the variable as modifiable, however any modification will
+be local to that level.
+"""
+i = 3; pin i; j = 3; s = 5;
+{
+   s = s + 1;
+   pin s;
+   i = i + 4; k:= i
+   j = j + 4;
+}
+s = s + 1;
+""+i+" "+k+" "+j+" "+s
+

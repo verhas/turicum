@@ -12,8 +12,11 @@ Non-literal terminal symbols are:
  * IDENTIFIER
  * number
  * string
-
+// a program is simply a series of commands
+// commands may be separated by ';' character and it is recommended to use it, but it is not required
 PROGRAM ::= { COMMAND [;] } ;
+
+// commands also have/return values
 COMMAND ::= ASSIGNMENT |
             EXPRESSION |
             IF |
@@ -26,6 +29,7 @@ COMMAND ::= ASSIGNMENT |
 
 // if the condition expression is missing after 'for' or 'while' it is true
 // the expression following the 'until' is not optional, but the whole 'until' EXPRESSION is optional
+// the value of a loop is the last executed command
 LOOP ::= 'while' [EXPRESSION] ( BLOCK | ':' COMMAND ) [ 'until' EXPRESSION] |
          // semicolons are optional, but are needed if COMMAND or EXPRESSION is missing
          'for' COMMAND [EXPRESSION] COMMAND ( BLOCK | ':' COMMAND ) [ 'until' EXPRESSION] |
@@ -35,10 +39,15 @@ LOOP ::= 'while' [EXPRESSION] ( BLOCK | ':' COMMAND ) [ 'until' EXPRESSION] |
          'foreach' '(' identifier 'in' EXPRESSION ')' ( COMMAND | BLOCK | ':' COMMAND ) [ 'until' EXPRESSION]
          ;
 
+// the value of an IF command is the value of the first or the second block, whichever is executed
 IF ::= 'if' EXPRESSION ( ':' COMMAND | BLOCK ) [ 'else' ( ':' COMMAND | BLOCK )] ;
+
+// the result of a CLASS declaration is the class itself
 CLASS ::= 'class' [IDENTIFIER] [ ':' IDENTIFIER_LIST ] BLOCK ;
 
+// the result of a function declaration is the function itself
 FN ::= FN_EXPR | FN_BLOCK ;
+
 // For functions with an expression body following a '=' the parameter list is mandatory.
 // The parameter list may be empty having only '(' and ')'
 FN_EXPR   ::= 'fn' [ IDENTIFIER ] '(' IDENTIFIER_LIST ')' '=' EXPRESSION ;
@@ -46,13 +55,27 @@ FN_EXPR   ::= 'fn' [ IDENTIFIER ] '(' IDENTIFIER_LIST ')' '=' EXPRESSION ;
 // For functions with a block body, both the function name and parameter list are optional.
 FN_BLOCK  ::= 'fn' [ IDENTIFIER ] [ '(' IDENTIFIER_LIST ')' ] BLOCK ;
 
-LOCAL ::= 'local' IDENTIFIER_LIST;
-GLOBAL ::= 'global' IDENTIFIER_LIST;
-PIN ::= 'pin' IDENTIFIER_LIST;
+// variables declared as local will be local to the scope, even if the same name is used in some enclosing scope
+// or as a global variable
+// the value of the local declaration is the value of the last assignment in the command
+LOCAL ::= 'local' IDENTIFIER_ASSIGNMENT_LIST;
+
+// variables declared global will refer to the global variable
+// the value of the global declaration is the value of the last assignment in the command
+GLOBAL ::= 'global' IDENTIFIER_ASSIGNMENT_LIST;
+
+// variables pinned cannot be changed in the local scope
+// pinning has no effect to outer scopes or inner scopes
+// if a variable is changed in an inner scope that is pinned in its defining scope it will be created anew in the scope
+PIN ::= 'pin' IDENTIFIER_ASSIGNMENT_LIST;
+
+IDENTIFIER_ASSIGNMENT_LIST ::= [identifier ['=' expression]] { ',' identifier [ '=' expression] };
+
+
 // it is valid to have no identifiers in an identifier list, a.k.a. having an empty identifier list
 IDENTIFIER_LIST ::= [ IDENTIFIER { ',' IDENTIFIER } ];
 
-// using '=' updated a local variable or creates a new one
+// using '=' updates a local variable or creates a new one, unless the variable was declared as global
 // ':=' updates an existing local variable just like '=' if it exists, but creates a new one in the enclosing environment
 ASSIGNMENT ::= LEFT_VALUE '=' EXPRESSION | LEFT_VALUE ':=' EXPRESSION;
 LEFT_VALUE ::= IDENTIFIER { '.' IDENTIFIER | '[' EXPRESSION ']'};

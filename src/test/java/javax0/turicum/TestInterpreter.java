@@ -18,9 +18,15 @@ public class TestInterpreter {
     @Test
     void test() throws Exception {
         test("""
-                fn z(a)=a*2;
-                a = [1,2,3,4,5 ? {|a| a % 2 == 0 || a == 5 } -> z -> {|x| x / 2}];
-                """, "[2, 4, 5]");
+                class MyObject {
+                    bibas = 13;
+                    fn zee(){
+                     
+                      1
+                    }
+                }
+                MyObject().zee()
+                """, "1");
     }
 
 }

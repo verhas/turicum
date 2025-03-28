@@ -28,6 +28,7 @@ public class Context {
      * @param identifier the identifier to freeze
      */
     public void freeze(String identifier) {
+        ExecutionException.when(frozen.contains(identifier), "variable is already pinned '" + identifier + "'");
         frozen.add(identifier);
     }
 
@@ -37,19 +38,18 @@ public class Context {
         frame.put(local, value);
     }
 
-    public Object global(String global) throws ExecutionException {
+    public void global(String global) throws ExecutionException {
         ExecutionException.when(frame.containsKey(global), "Global variable is already defined as local '" + global + "'");
         ExecutionException.when(globals.contains(global), "Global variable is already defined '" + global + "'");
         globals.add(global);
-        return heap.get(global);
+        heap.get(global);
     }
 
-    public Object global(String global, Object value) throws ExecutionException {
+    public void global(String global, Object value) throws ExecutionException {
         ExecutionException.when(frame.containsKey(global), "Global variable is already defined as local '" + global + "'");
         ExecutionException.when(globals.contains(global), "Global variable is already defined '" + global + "'");
         globals.add(global);
         heap.put(global, value);
-        return value;
     }
 
     /**
@@ -156,10 +156,13 @@ public class Context {
      * @param key   the name of the variable.
      * @param value the new value for the variable if it already exists.
      * @return {@code true} if a variable was found and redefined, and {@code false} is the variable was not found.
+     *         {@code false} if a variable was not found ior was found frozen (in which case like we did not find it)
      */
     private boolean redefine(final String key, final Object value) {
         if (frame.containsKey(key)) {
-            ExecutionException.when(frozen.contains(key), "Redefining final variable '" + key + "'");
+            if (frozen.contains(key)) {
+                return false;
+            }
             frame.put(key, value);
             return true;
         }
@@ -187,7 +190,8 @@ public class Context {
      * Assing a value to the local symbol key in the current context does not matter if it is defined there or
      * in the wrapped context global.
      * It is a primitive call used in for each loop.
-     * @param key the loop identifier
+     *
+     * @param key   the loop identifier
      * @param value the value in the loop
      */
     public void let0(final String key, final Object value) {

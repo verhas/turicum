@@ -9,7 +9,7 @@ public record WhileLoop(Command startCondition, Command exitCondition, Command b
         Object result = null;
         context.step();
         final var loopContext = context.wrap();
-        while (Cast.isBoolean(startCondition.execute(loopContext))) {
+        while (Cast.toBoolean(startCondition.execute(loopContext))) {
             if (body instanceof BlockCommand block) {
                 final var lp = block.loop(loopContext);
                 if (lp.broken()) {

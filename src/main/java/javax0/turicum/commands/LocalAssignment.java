@@ -12,13 +12,17 @@ public record LocalAssignment(AssignmentList.Pair[] assignments, boolean freeze)
         for (var assignment : assignments) {
             ctx.step();
             if (assignment.expression() == null) {
-                value = null;
+                if (freeze) {
+                    ctx.freeze(assignment.identifier());
+                }else{
+                    ctx.local(assignment.identifier(), value);
+                }
             } else {
                 value = assignment.expression().execute(ctx);
-            }
-            ctx.local(assignment.identifier(), value);
-            if (freeze) {
-                ctx.freeze(assignment.identifier());
+                ctx.local(assignment.identifier(), value);
+                if (freeze) {
+                    ctx.freeze(assignment.identifier());
+                }
             }
         }
         return value;
