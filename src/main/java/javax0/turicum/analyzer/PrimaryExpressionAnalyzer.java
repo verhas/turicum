@@ -62,18 +62,8 @@ public class PrimaryExpressionAnalyzer implements Analyzer {
                     throw new BadSyntax("Unexpected end of expression list in array literal");
                 }
             }
-            final var modifiers = new ArrayList<CompositionModifier>();
-            while (lexes.is("?", "->")) {
-                final var oper = lexes.next().text;
-                final var modifierExpression = ExpressionAnalyzer.INSTANCE.analyze(lexes);
-                modifiers.add(switch (oper) {
-                    case "->" -> new CompositionModifier.Mapper(modifierExpression);
-                    case "?" -> new CompositionModifier.Filter(modifierExpression);
-                    default -> throw new RuntimeException("Unexpected operator: " + oper + "this is an internal error");
-
-                });
-            }
-            final var left = new ListComposition(expressionList.toArray(Command[]::new), modifiers.toArray(CompositionModifier[]::new));
+            final var modifiers = getModifierChain(lexes);
+            final var left = new ListComposition(expressionList.toArray(Command[]::new), modifiers);
             BadSyntax.when(lexes.isNot("]"), "list literal has to be closed using ']'");
             lexes.next();
             return getAccessOrCall(lexes, left);
@@ -88,6 +78,31 @@ public class PrimaryExpressionAnalyzer implements Analyzer {
         }
 
                 ;
+    }
+
+    /**
+     * Get the array of filters and mappers until some stops the parsing.
+     * <p>
+     * The current lexical element should be the first '{@code ?}' or '{@code ->}'.
+     *
+     * @param lexes the lexical elements
+     * @return the array of the composition modifiers
+     * @throws BadSyntax if there is an error in one of the expressions following the '{@code ?}' and/or '{@code ->}'
+     *                   symbols.
+     */
+    private static CompositionModifier[] getModifierChain(Lex.List lexes) throws BadSyntax {
+        final var modifiers = new ArrayList<CompositionModifier>();
+        while (lexes.is("?", "->")) {
+            final var oper = lexes.next().text;
+            final var modifierExpression = ExpressionAnalyzer.INSTANCE.analyze(lexes);
+            modifiers.add(switch (oper) {
+                case "->" -> new CompositionModifier.Mapper(modifierExpression);
+                case "?" -> new CompositionModifier.Filter(modifierExpression);
+                default -> throw new RuntimeException("Unexpected operator: " + oper + "this is an internal error");
+
+            });
+        }
+        return modifiers.toArray(CompositionModifier[]::new);
     }
 
     private Command getAccessOrCall(Lex.List lexes, Command left) throws BadSyntax {
