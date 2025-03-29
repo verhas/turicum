@@ -12,7 +12,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Keep a context of the current threads executing environment.
  */
-public class Context implements javax0.turicum.Context{
+public class Context implements javax0.turicum.Context {
     public final int stepLimit;
     public final AtomicInteger steps;
     private final Map<String, Object> heap;
@@ -21,6 +21,7 @@ public class Context implements javax0.turicum.Context{
     private final Set<String> frozen = new HashSet<>();
     private final Context wrapped;
     public final GlobalContext globalContext;
+    public final ThreadContext threadContext;
 
     /**
      * Freeze a local variable adding it to the frozen names. It means that it cannot be changed anymore after this
@@ -110,7 +111,7 @@ public class Context implements javax0.turicum.Context{
      * Create a new context with 100_0000 as a step limit
      */
     public Context() {
-        this(new GlobalContext(), -1);
+        this(new GlobalContext(), new ThreadContext(), -1);
     }
 
     /**
@@ -119,13 +120,14 @@ public class Context implements javax0.turicum.Context{
      *
      * @param stepLimit the number of steps the interpreter will execute in this context.
      */
-    public Context(final GlobalContext globalContext, final int stepLimit) {
+    public Context(final GlobalContext globalContext, final ThreadContext threadContext, final int stepLimit) {
         this.stepLimit = stepLimit;
         this.steps = new AtomicInteger();
         this.wrapped = null;
         this.heap = new HashMap<>();
         this.frame = heap;
         this.globalContext = globalContext;
+        this.threadContext = threadContext;
     }
 
     /**
@@ -145,6 +147,7 @@ public class Context implements javax0.turicum.Context{
         this.steps = clone.steps;
         this.heap = clone.heap;
         this.globalContext = clone.globalContext;
+        this.threadContext = clone.threadContext;
         this.frame = new HashMap<>();
         this.wrapped = wrapped;
     }

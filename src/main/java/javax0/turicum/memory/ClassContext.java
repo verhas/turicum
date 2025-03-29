@@ -4,7 +4,7 @@ public class ClassContext extends Context {
     private final LngClass[] parents;
 
     public ClassContext(Context context, LngClass[] parents) {
-        super(context.globalContext, context.stepLimit);
+        super(context.globalContext, context.threadContext, context.stepLimit);
         this.parents = parents;
     }
 
