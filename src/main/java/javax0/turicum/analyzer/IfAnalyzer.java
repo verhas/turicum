@@ -1,6 +1,7 @@
 package javax0.turicum.analyzer;
 
 
+import javax0.turicum.BadSyntax;
 import javax0.turicum.commands.BlockCommand;
 import javax0.turicum.commands.Command;
 

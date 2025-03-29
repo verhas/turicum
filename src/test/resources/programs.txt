@@ -387,7 +387,7 @@ false = 0
 // snippet constantNull
 // Exception
 // ""
-null = 0
+none = 0
 
 // snippet conditionalBreak
 // Long
@@ -561,4 +561,5 @@ i = 3; pin i; j = 3; s = 5;
 }
 s = s + 1;
 ""+i+" "+k+" "+j+" "+s
-
+// fn reducer(acc,item)= acc+item
+// { burst init_expression ; generator_expression ? filter -> map ? filter ... >>= reducer with unit=expression}

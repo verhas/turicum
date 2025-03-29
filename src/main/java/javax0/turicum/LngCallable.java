@@ -1,6 +1,5 @@
-package javax0.turicum.memory;
+package javax0.turicum;
 
-import javax0.turicum.commands.ExecutionException;
 
 public interface LngCallable {
     Object call(Context ctx, Object[] arguments)throws ExecutionException;

@@ -1,5 +1,6 @@
 package javax0.turicum.commands;
 
+import javax0.turicum.ExecutionException;
 import javax0.turicum.memory.ClassContext;
 import javax0.turicum.memory.Context;
 import javax0.turicum.memory.LngClass;
@@ -22,7 +23,7 @@ public record ClassDefinition(String className, String[] parents, String[] param
                 throw new ExecutionException("'" + parents[i] + "' is not defined or not a LngClass");
             }
         }
-        final var ctx = new ClassContext(parentClasses);
+        final var ctx = new ClassContext(context, parentClasses);
         klass = new LngClass(ctx, parameters, Objects.requireNonNullElse(className,"#undefined"));
         body.execute(ctx);
 

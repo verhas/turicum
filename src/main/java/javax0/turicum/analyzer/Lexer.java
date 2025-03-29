@@ -1,6 +1,8 @@
 package javax0.turicum.analyzer;
 
 
+import javax0.turicum.BadSyntax;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;

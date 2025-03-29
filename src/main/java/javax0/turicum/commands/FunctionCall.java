@@ -1,9 +1,8 @@
 package javax0.turicum.commands;
 
-import javax0.turicum.memory.Context;
-import javax0.turicum.memory.LeftValue;
-import javax0.turicum.memory.LngCallable;
-import javax0.turicum.memory.LngObject;
+import javax0.turicum.ExecutionException;
+import javax0.turicum.LngCallable;
+import javax0.turicum.memory.*;
 
 /**
  * An expression that calls a method or a function.
@@ -16,16 +15,16 @@ public record FunctionCall(Command object, Command[] arguments) implements Comma
         for (int i = 0; i < arguments.length; i++) {
             arguments[i] = this.arguments[i].execute(context);
         }
-        final Object function;
         final Command myObject = myFunctionObject(context);
+        final Object function;
         if (myObject instanceof FieldAccess(Command objectCommand, String identifier)) {
             final var obj = LeftValue.toObject(objectCommand.execute(context));
-            function = obj.getField(identifier);
+            function = getMethod(context, obj, identifier);
             if (function instanceof Closure closure) {
                 if (obj instanceof LngObject lngObject) {
                     ExecutionException.when(closure.parameters().length != arguments.length, "The number of parameters does not match the number of arguments");
                     final var ctx = context.wrap(lngObject.context());
-                    if(ctx.contains("this")){
+                    if (ctx.contains("this")) {
                         ctx.freeze("this");// better do not change 'this' inside methods
                     }
                     for (int i = 0; i < arguments.length; i++) {
@@ -33,24 +32,59 @@ public record FunctionCall(Command object, Command[] arguments) implements Comma
                     }
                     return closure.execute(ctx);
                 }
+                if (obj instanceof LngClass lngClass) {
+                    ExecutionException.when(closure.parameters().length != arguments.length, "The number of parameters does not match the number of arguments");
+                    final var ctx = context.wrap(lngClass.context());
+                    for (int i = 0; i < arguments.length; i++) {
+                        ctx.local(closure.parameters()[i], arguments[i]);
+                    }
+                    return closure.execute(ctx);
+                }
             }
+            if (function instanceof LngCallable callable) {
+                return callable.call(context, arguments);
+            }
+            throw new ExecutionException("It is not possible to invoke %s.%s %s.%s", obj, identifier, objectCommand, identifier);
         } else {
             function = myObject.execute(context);
-        }
-        if (function instanceof Closure closure) {
-            ExecutionException.when(closure.parameters().length != arguments.length, "The number of parameters does not match the number of arguments");
-            final var ctx = context.wrap(closure.wrapped());
-            for (int i = 0; i < arguments.length; i++) {
-                ctx.local(closure.parameters()[i], arguments[i]);
-            }
-            return closure.execute(ctx);
+            if (function instanceof Closure closure) {
+                ExecutionException.when(closure.parameters().length != arguments.length, "The number of parameters does not match the number of arguments");
+                final var ctx = context.wrap(closure.wrapped());
+                for (int i = 0; i < arguments.length; i++) {
+                    ctx.local(closure.parameters()[i], arguments[i]);
+                }
+                return closure.execute(ctx);
 
+            }
+            if (function instanceof LngCallable callable) {
+                return callable.call(context, arguments);
+            }
+            throw new ExecutionException("It is not possible to invoke the value '" + function + "' " + object);
         }
-        if (function instanceof LngCallable callable) {
-            return callable.call(context, arguments);
-        }
-        throw new ExecutionException("It is not possible to invoke the value '" + function + "' " + object);
     }
+
+    /**
+     * Get the method from the object. If it is a JavaObject, but the contained object has a TuriClass implementing
+     * functionality, then get that functionality instead.
+     *
+     * @param context    the context to get access to the interpreter and through that to the registered TuriClasses
+     * @param obj        the object for which we are searching the method
+     * @param identifier the name of the method
+     * @return the method object that can be a closure
+     */
+    private static Object getMethod(Context context, HasFields obj, String identifier) {
+        return switch (obj) {
+            case JavaObject jo -> {
+                final var turi = context.globalContext.getTuriClass(jo.object().getClass());
+                if (turi != null) {
+                    yield turi.getMethod(jo.object(), identifier);
+                }
+                yield jo.getField(identifier);
+            }
+            default -> obj.getField(identifier);
+        };
+    }
+
     /**
      * Handle the method calls when there is no preceding "this" in front of the method name.
      * <p>

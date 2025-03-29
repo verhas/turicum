@@ -1,6 +1,6 @@
 package javax0.turicum.memory;
 
-import javax0.turicum.commands.ExecutionException;
+import javax0.turicum.ExecutionException;
 
 import java.util.List;
 import java.util.Map;
@@ -14,13 +14,13 @@ public interface LeftValue {
     void assign(Context ctx, Object value) throws ExecutionException;
 
     static HasFields toObject(Object existing) {
-        return switch (existing) {
-            case LngObject obj -> obj;
-            case LngList list -> list;
-            case LngClass cls -> cls;
-            case Map<?, ?> map -> new MapObject(Map.copyOf(map));
-            default -> new JavaObject(existing);
-        };
+        if (existing instanceof LngObject || existing instanceof LngClass || existing instanceof LngList) {
+            return (HasFields) existing;
+        }
+        if (existing instanceof Map<?, ?> map) {
+            return new MapObject(Map.copyOf(map));
+        }
+        return new JavaObject(existing);
     }
 
     static HasIndex toIndexable(final Object existing) {

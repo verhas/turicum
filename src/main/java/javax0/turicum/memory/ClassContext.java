@@ -3,7 +3,8 @@ package javax0.turicum.memory;
 public class ClassContext extends Context {
     private final LngClass[] parents;
 
-    public ClassContext(LngClass[] parents) {
+    public ClassContext(Context context, LngClass[] parents) {
+        super(context.globalContext, context.stepLimit);
         this.parents = parents;
     }
 
@@ -23,10 +24,10 @@ public class ClassContext extends Context {
     @Override
     public boolean contains(String key) {
         final var thisContains = super.contains(key);
-        if (thisContains ) return true;
+        if (thisContains) return true;
         for (final var parent : parents) {
             final var inheritedContains = parent.context().contains(key);
-            if (inheritedContains ) {
+            if (inheritedContains) {
                 return inheritedContains;
             }
         }

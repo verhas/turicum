@@ -1,7 +1,7 @@
 package javax0.turicum.memory;
 
 import javax0.turicum.commands.Closure;
-import javax0.turicum.commands.ExecutionException;
+import javax0.turicum.ExecutionException;
 import javax0.turicum.commands.operators.Cast;
 
 import java.util.Objects;

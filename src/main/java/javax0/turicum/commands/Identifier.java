@@ -1,5 +1,6 @@
 package javax0.turicum.commands;
 
+import javax0.turicum.ExecutionException;
 import javax0.turicum.memory.Context;
 
 /**
@@ -11,5 +12,10 @@ public record Identifier(String name) implements Command {
     @Override
     public Object execute(Context ctx) throws ExecutionException {
         return ctx.get(name);
+    }
+
+    @Override
+    public String toString() {
+        return name;
     }
 }

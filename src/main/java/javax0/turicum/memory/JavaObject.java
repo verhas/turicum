@@ -1,13 +1,8 @@
 package javax0.turicum.memory;
 
-import javax0.turicum.commands.ExecutionException;
+import javax0.turicum.ExecutionException;
 
-public class JavaObject implements HasFields {
-    private final Object object;
-
-    public JavaObject(Object object) {
-        this.object = object;
-    }
+public record JavaObject(Object object) implements HasFields {
 
     @Override
     public void setField(String name, Object value) {

@@ -1,6 +1,8 @@
 package javax0.turicum.analyzer;
 
 
+import javax0.turicum.BadSyntax;
+
 public class Lex {
     public Lex(final Type type, final String text) {
         this.type = type;

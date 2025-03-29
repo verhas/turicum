@@ -1,6 +1,6 @@
 package javax0.turicum.memory;
 
-import javax0.turicum.commands.ExecutionException;
+import javax0.turicum.ExecutionException;
 import javax0.turicum.commands.operators.Cast;
 
 import java.util.ArrayList;
@@ -38,34 +38,6 @@ public class LngList implements HasIndex, HasFields {
             return null;
         } else {
             return array.get(indexValue - offset);
-        }
-    }
-
-    private int rangeEndToInt(Object rangeEnd) {
-        if (rangeEnd instanceof InfinitValue(boolean positive)) {
-            if (positive) {
-                return array.size();
-            } else {
-                return offset-1;
-            }
-        } else if (rangeEnd instanceof Long l) {
-            return l.intValue();
-        } else {
-            throw new ExecutionException("Invalid range for index %s", rangeEnd);
-        }
-    }
-
-    private int rangeStartToInt(Object rangeEnd) {
-        if (rangeEnd instanceof InfinitValue(boolean positive)) {
-            if (positive) {
-                return array.size()-1;
-            } else {
-                return offset;
-            }
-        } else if (rangeEnd instanceof Long l) {
-            return l.intValue();
-        } else {
-            throw new ExecutionException("Invalid range for index %s", rangeEnd);
         }
     }
 

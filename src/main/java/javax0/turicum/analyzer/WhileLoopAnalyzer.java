@@ -1,5 +1,6 @@
 package javax0.turicum.analyzer;
 
+import javax0.turicum.BadSyntax;
 import javax0.turicum.commands.Command;
 import javax0.turicum.commands.ConstantExpression;
 import javax0.turicum.commands.WhileLoop;

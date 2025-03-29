@@ -1,6 +1,8 @@
 package javax0.turicum.analyzer;
 
 
+import javax0.turicum.BadSyntax;
+
 /**
  * A utility class that handles string parsing from input, supporting both quoted and unquoted strings,
  * as well as multi-line strings delimited by triple quotes.

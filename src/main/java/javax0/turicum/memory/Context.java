@@ -1,7 +1,7 @@
 package javax0.turicum.memory;
 
 
-import javax0.turicum.commands.ExecutionException;
+import javax0.turicum.ExecutionException;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -12,14 +12,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Keep a context of the current threads executing environment.
  */
-public class Context {
-    private final int stepLimit;
-    private final AtomicInteger steps;
+public class Context implements javax0.turicum.Context{
+    public final int stepLimit;
+    public final AtomicInteger steps;
     private final Map<String, Object> heap;
     final Map<String, Object> frame;
     private final Set<String> globals = new HashSet<>();
     private final Set<String> frozen = new HashSet<>();
     private final Context wrapped;
+    public final GlobalContext globalContext;
 
     /**
      * Freeze a local variable adding it to the frozen names. It means that it cannot be changed anymore after this
@@ -109,7 +110,7 @@ public class Context {
      * Create a new context with 100_0000 as a step limit
      */
     public Context() {
-        this(100_000);
+        this(new GlobalContext(), -1);
     }
 
     /**
@@ -118,12 +119,13 @@ public class Context {
      *
      * @param stepLimit the number of steps the interpreter will execute in this context.
      */
-    public Context(final int stepLimit) {
+    public Context(final GlobalContext globalContext, final int stepLimit) {
         this.stepLimit = stepLimit;
         this.steps = new AtomicInteger();
         this.wrapped = null;
         this.heap = new HashMap<>();
         this.frame = heap;
+        this.globalContext = globalContext;
     }
 
     /**
@@ -142,6 +144,7 @@ public class Context {
         this.stepLimit = clone.stepLimit;
         this.steps = clone.steps;
         this.heap = clone.heap;
+        this.globalContext = clone.globalContext;
         this.frame = new HashMap<>();
         this.wrapped = wrapped;
     }
@@ -156,7 +159,7 @@ public class Context {
      * @param key   the name of the variable.
      * @param value the new value for the variable if it already exists.
      * @return {@code true} if a variable was found and redefined, and {@code false} is the variable was not found.
-     *         {@code false} if a variable was not found ior was found frozen (in which case like we did not find it)
+     * {@code false} if a variable was not found ior was found frozen (in which case like we did not find it)
      */
     private boolean redefine(final String key, final Object value) {
         if (frame.containsKey(key)) {
@@ -260,6 +263,9 @@ public class Context {
     }
 
     public void step() throws ExecutionException {
+        if (stepLimit < 0) {
+            return;
+        }
         if (stepLimit <= steps.get()) {
             throw new ExecutionException("Step limit %d reached", stepLimit);
         }

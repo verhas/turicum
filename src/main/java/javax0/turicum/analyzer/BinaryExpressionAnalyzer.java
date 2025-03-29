@@ -1,5 +1,6 @@
 package javax0.turicum.analyzer;
 
+import javax0.turicum.BadSyntax;
 import javax0.turicum.commands.Command;
 import javax0.turicum.commands.Operation;
 
@@ -18,7 +19,7 @@ public class BinaryExpressionAnalyzer implements Analyzer {
             {"<", "<=", ">", ">="},
             {"<<", ">>"},
             {"+", "-"},
-            {"*", "/", "%"},
+            {"*", "/", "%"}
     };
     private static final int N = binaryOperators.length;
 

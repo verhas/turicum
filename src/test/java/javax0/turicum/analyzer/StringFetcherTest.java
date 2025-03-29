@@ -1,5 +1,6 @@
 package javax0.turicum.analyzer;
 
+import javax0.turicum.BadSyntax;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

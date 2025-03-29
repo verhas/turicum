@@ -1,6 +1,6 @@
 package javax0.turicum.commands.operators;
 
-import javax0.turicum.commands.ExecutionException;
+import javax0.turicum.ExecutionException;
 
 public class Cast {
 

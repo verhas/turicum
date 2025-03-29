@@ -1,6 +1,7 @@
 package javax0.turicum.commands;
 
 
+import javax0.turicum.ExecutionException;
 import javax0.turicum.memory.Context;
 
 public record FloatConstant(double value) implements Command {

@@ -1,8 +1,8 @@
 package javax0.turicum.analyzer;
 
 
+import javax0.turicum.BadSyntax;
 import javax0.turicum.commands.*;
-import javax0.turicum.commands.operators.RangeOp;
 import javax0.turicum.memory.CompositionModifier;
 
 import java.util.ArrayList;
@@ -69,22 +69,21 @@ public class PrimaryExpressionAnalyzer implements Analyzer {
                 modifiers.add(switch (oper) {
                     case "->" -> new CompositionModifier.Mapper(modifierExpression);
                     case "?" -> new CompositionModifier.Filter(modifierExpression);
-                    default ->
-                            throw new RuntimeException("Unexpected operator: " + oper + "this is an internal error");
+                    default -> throw new RuntimeException("Unexpected operator: " + oper + "this is an internal error");
 
                 });
             }
-            final var left = new ListComposition(expressionList.toArray(Command[]::new),modifiers.toArray(CompositionModifier[]::new));
-            BadSyntax.when(lexes.isNot("]"),"list literal has to be closed using ']'");
+            final var left = new ListComposition(expressionList.toArray(Command[]::new), modifiers.toArray(CompositionModifier[]::new));
+            BadSyntax.when(lexes.isNot("]"), "list literal has to be closed using ']'");
             lexes.next();
             return getAccessOrCall(lexes, left);
         }
         final var lex = lexes.next();
         return switch (lex.type) {
             case IDENTIFIER -> getAccessOrCall(lexes, new Identifier(lex.text));
-            case STRING -> new StringConstant(lex.text);
-            case INTEGER -> new IntegerConstant(lex.text);
-            case FLOAT -> new FloatConstant(lex.text);
+            case STRING -> getAccessOrCall(lexes, new StringConstant(lex.text));
+            case INTEGER -> getAccessOrCall(lexes, new IntegerConstant(lex.text));
+            case FLOAT -> getAccessOrCall(lexes, new FloatConstant(lex.text));
             default -> throw new BadSyntax("Expression: expected identifier, or constant, got " + lex.text);
         }
 

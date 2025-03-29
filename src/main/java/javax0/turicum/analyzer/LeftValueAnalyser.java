@@ -1,5 +1,6 @@
 package javax0.turicum.analyzer;
 
+import javax0.turicum.BadSyntax;
 import javax0.turicum.memory.ArrayElementLeftValue;
 import javax0.turicum.memory.LeftValue;
 import javax0.turicum.memory.ObjectFieldLeftValue;

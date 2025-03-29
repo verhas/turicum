@@ -1,8 +1,8 @@
 package javax0.turicum.memory;
 
-import javax0.turicum.commands.ExecutionException;
+import javax0.turicum.LngCallable;
+import javax0.turicum.ExecutionException;
 
-import java.util.Arrays;
 import java.util.Objects;
 
 /**
@@ -39,8 +39,11 @@ public record LngClass(ClassContext context, String[] parameters, String name) i
     }
 
     @Override
-    public Object call(Context context, Object[] arguments) throws ExecutionException {
-        final var ctx = context.wrap(this.context);
+    public Object call(javax0.turicum.Context cntxt, Object[] arguments) throws ExecutionException {
+        if( ! (cntxt instanceof Context callerCtx)){
+            throw new RuntimeException();
+        }
+        final var ctx = callerCtx.wrap(context);
         ExecutionException.when(arguments.length != parameters.length, "Parameter mismatch in constructor");
         for (int i = 0; i < parameters.length; i++) {
             ctx.local(parameters[i], arguments[i]);
@@ -53,7 +56,6 @@ public record LngClass(ClassContext context, String[] parameters, String name) i
 
     @Override
     public String toString() {
-        return String.format("class %s(%s):%s}", name, String.join(",",parameters),String.join(",",
-                Arrays.stream(context().parents()).map(t -> t.name).toArray(String[]::new)));
+        return String.format("class %s", name);
     }
 }

@@ -1,5 +1,6 @@
 package javax0.turicum.commands;
 
+import javax0.turicum.ExecutionException;
 import javax0.turicum.memory.Context;
 
 public record ClosureDefinition( String[] arguments, BlockCommand body) implements Command {

@@ -2,7 +2,6 @@ package javax0.turicum;
 
 import javax0.turicum.analyzer.*;
 import javax0.turicum.commands.Command;
-import javax0.turicum.commands.ExecutionException;
 import javax0.turicum.memory.Context;
 
 /**
@@ -43,7 +42,7 @@ public class Interpreter {
         Command localCode = code; // Read volatile field only once
         if (localCode == null) {
             synchronized (lock) {
-                localCode = code;
+                localCode = code; // may have changed since we syncronized
                 if (localCode == null) {
                     localCode = ProgramAnalyzer.INSTANCE.analyze(new Lexer().analyze(Input.fromString(source)));
                     code = localCode;
@@ -51,7 +50,7 @@ public class Interpreter {
             }
         }
         final var ctx = new Context();
-        Constants.register(ctx);
+        BuiltIns.register(ctx);
         return localCode.execute(ctx);
     }
 }

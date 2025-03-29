@@ -1,4 +1,4 @@
-package javax0.turicum.commands;
+package javax0.turicum;
 
 import java.util.function.Supplier;
 

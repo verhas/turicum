@@ -1,5 +1,6 @@
 package javax0.turicum.analyzer;
 
+import javax0.turicum.BadSyntax;
 import javax0.turicum.commands.ClassDefinition;
 import javax0.turicum.commands.Command;
 

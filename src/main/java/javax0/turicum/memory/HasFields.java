@@ -1,6 +1,6 @@
 package javax0.turicum.memory;
 
-import javax0.turicum.commands.ExecutionException;
+import javax0.turicum.ExecutionException;
 
 public interface HasFields {
     void setField(String name, Object value) throws ExecutionException;

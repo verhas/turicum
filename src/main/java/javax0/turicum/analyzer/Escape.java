@@ -1,6 +1,8 @@
 package javax0.turicum.analyzer;
 
 
+import javax0.turicum.BadSyntax;
+
 class Escape {
     private static char octal(Input in, int maxLen) {
         int i = maxLen;

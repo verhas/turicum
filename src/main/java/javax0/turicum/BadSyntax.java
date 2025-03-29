@@ -1,4 +1,4 @@
-package javax0.turicum.analyzer;
+package javax0.turicum;
 
 import java.util.function.Supplier;
 
