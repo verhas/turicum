@@ -17,16 +17,16 @@ public class LeftValueAnalyser {
     public LeftValue analyze(Lex.List lexes) throws BadSyntax {
         BadSyntax.when(lexes.isEmpty(), "Left value can't be empty");
         final var lex = lexes.peek();
-        if (lex.type == Lex.Type.IDENTIFIER) {
-            LeftValue left = new VariableLeftValue(lex.text);
+        if (lex.type()== Lex.Type.IDENTIFIER) {
+            LeftValue left = new VariableLeftValue(lex.text());
             lexes.next();
             while (lexes.is(".") || lexes.is("[")) {
-                switch (lexes.peek().text) {
+                switch (lexes.peek().text()) {
                     case ".":
                         lexes.next();
                         final var fieldName = lexes.next();
-                        BadSyntax.when(fieldName.type != Lex.Type.IDENTIFIER, "Field name is invalid");
-                        left = new ObjectFieldLeftValue(left, fieldName.text);
+                        BadSyntax.when(fieldName.type()!= Lex.Type.IDENTIFIER, "Field name is invalid");
+                        left = new ObjectFieldLeftValue(left, fieldName.text());
                         break;
                     case "[":
                         lexes.next();

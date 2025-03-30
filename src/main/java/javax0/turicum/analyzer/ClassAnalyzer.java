@@ -27,7 +27,7 @@ public class ClassAnalyzer implements Analyzer {
     public Command analyze(Lex.List lexes) throws BadSyntax {
         final String cn;
         if( lexes.isIdentifier() ) {
-            cn = lexes.next().text;
+            cn = lexes.next().text();
         }else{
             cn = null;
         }

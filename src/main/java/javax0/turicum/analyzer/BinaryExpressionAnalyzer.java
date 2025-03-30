@@ -34,7 +34,7 @@ public class BinaryExpressionAnalyzer implements Analyzer {
 
         var left = analyze(precedenceLevel + 1, lexes);
         while (lexes.is(binaryOperators[precedenceLevel])) {
-            final var op = lexes.next().text;
+            final var op = lexes.next().text();
             final var right = analyze(precedenceLevel + 1, lexes);
             left = new Operation(op, left, right);
         }

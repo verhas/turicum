@@ -12,13 +12,14 @@ public record BlockCommand(List<Command> commands, boolean wrap) implements Comm
         ctx.step();
         if (wrap) {
             final var blockContext = ctx.wrap();
-            return loop(blockContext).result();
+            return conditionalOrResult(loop(blockContext));
         } else {
-            return loop(ctx).result();
+            return conditionalOrResult(loop(ctx));
         }
     }
 
-    record LoopResult(boolean broken, Object result) {
+    private static Object conditionalOrResult(Conditional cResult){
+        return (cResult.isDone() ? cResult : cResult.result());
     }
 
     /**
@@ -28,15 +29,15 @@ public record BlockCommand(List<Command> commands, boolean wrap) implements Comm
      * @param context the contex to execute the commands in
      * @return the Loop result including the break flag and the result
      */
-    LoopResult loop(Context context) {
+    Conditional loop(final Context context) {
         Object result = null;
         for (final var cmd : commands) {
             result = cmd.execute(context);
-            if (result instanceof BreakCommand.BreakResult(Object breakResult, boolean doBreak) && doBreak) {
-                return new LoopResult(true, breakResult);
+            if (result instanceof Conditional cResult && cResult.isDone()) {
+                return cResult;
             }
         }
-        return new LoopResult(false, result);
+        return Conditional.result(result);
     }
 }
 

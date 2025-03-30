@@ -21,7 +21,7 @@ public abstract class AbstractNumericOperator implements Operator {
         }
 
         return Reflect.getBinaryMethod(name, op1, op2).map(Reflect.Op::callMethod)
-                .orElseThrow(() -> new ExecutionException("Cannot '%s' + '%s'", op1, op2));
+                .orElseThrow(() -> new ExecutionException("Cannot calculate '%s' + '%s'", op1, op2));
     }
 
     protected Object unary(final String name,

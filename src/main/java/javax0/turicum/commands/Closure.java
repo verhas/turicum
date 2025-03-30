@@ -9,17 +9,12 @@ public record Closure(String[] parameters, Context wrapped, BlockCommand command
         ctx.step();
         Object result = null;
         for (final var command : command.commands()) {
-            if (command instanceof BreakCommand brk) {
-                final var breakResult = brk.execute(ctx);
-                if (breakResult.doBreak()) {
-                    result = breakResult.result();
-                    break;
-                }
-            } else {
-                result = command.execute(ctx);
+            ExecutionException.when(command instanceof BreakCommand, "You cannot break from a function or closure. Use Return");
+            result = command.execute(ctx);
+            if (result instanceof Conditional.ReturnResult returnResult && returnResult.isDone()) {
+                return returnResult.result();
             }
         }
         return result;
-
     }
 }

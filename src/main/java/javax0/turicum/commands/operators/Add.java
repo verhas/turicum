@@ -2,6 +2,7 @@ package javax0.turicum.commands.operators;
 
 import javax0.turicum.commands.Command;
 import javax0.turicum.ExecutionException;
+import javax0.turicum.commands.Conditional;
 import javax0.turicum.memory.Context;
 
 @Operator.Symbol("+")
@@ -18,6 +19,7 @@ public class Add extends AbstractNumericOperator {
 
             // if the left side is a string, then convert it to a string
             if (op1 instanceof CharSequence s) {
+                ExecutionException.when( op2 instanceof Conditional,"Cannot append break or return value to a string.");
                 return s.toString() + op2;
             }
 

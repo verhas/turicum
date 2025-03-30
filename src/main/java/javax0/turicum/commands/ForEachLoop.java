@@ -19,10 +19,10 @@ public record ForEachLoop(Identifier identifier, Command expression, Command bod
             loopContext.let0(id, item);
             if (body instanceof BlockCommand block) {
                 final var lp = block.loop(loopContext);
-                if (lp.broken()) {
-                    break;
-                }
                 result = lp.result();
+                if (lp.isDone()) {
+                    return lp.result();
+                }
             } else {
                 result = body.execute(loopContext);
             }

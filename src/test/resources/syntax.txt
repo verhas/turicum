@@ -25,6 +25,7 @@ COMMAND ::= ASSIGNMENT |
             FN |
             LOCAL |
             GLOBAL |
+            BREAK | YIELD | RETURN
             PIN ;
 
 // if the condition expression is missing after 'for' or 'while' it is true
@@ -112,6 +113,11 @@ METHOD_CALL ::= PRIMARY_EXPRESSION '.' IDENTIFIER '(' [ EXPRESSION { ',' EXPRESS
 
 // Block returning an expression value. The value of the block is always the last executed expression.
 BLOCK ::= '{' { COMMAND [';'] } '}' ;
+
+BREAK  ::= 'break' CONDITIONAL_VALUE ;
+RETURN  ::= 'return' CONDITIONAL_VALUE ;
+YIELD ::= 'yield' CONDITIONAL_VALUE ;
+CONDITIONAL_VALUE = EXPRESSION [ ('if' | 'when') EXPRESSION ];
 
 // Array element access: array[index]
 ARRAY_ACCESS ::= PRIMARY_EXPRESSION '[' EXPRESSION ']' ;

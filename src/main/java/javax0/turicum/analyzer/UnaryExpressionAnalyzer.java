@@ -11,7 +11,7 @@ public class UnaryExpressionAnalyzer implements Analyzer {
 
     public Command analyze(final Lex.List lexes) throws BadSyntax {
         if (lexes.is(unaryOperators)) {
-            final var op = lexes.next().text;
+            final var op = lexes.next().text();
             return new Operation(op, null, analyze(lexes));
         }
         return PrimaryExpressionAnalyzer.INSTANCE.analyze(lexes);

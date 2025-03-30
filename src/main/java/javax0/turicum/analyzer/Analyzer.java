@@ -17,15 +17,18 @@ public interface Analyzer {
     Command analyze(final Lex.List lexes) throws BadSyntax;
 
     static void checkCommandTermination(Lex.List lexes) throws BadSyntax {
-        if(lexes.isEmpty()) {
+        if (lexes.isEmpty()) {
             return;
         }
         final var lex = lexes.peek();
-        if (lex.type == Lex.Type.RESERVED) {
-            if (lex.text.equals(";") && lexes.hasNext()) {
-                lexes.next(); // step over the ';'
-            }
+        if (lexes.is(";")) {
+            lexes.next(); // step over the ';'
+            return;
         }
+        if (lex.type() == Lex.Type.RESERVED  || lex.atLineStart()) {
+            return;
+        }
+        throw new BadSyntax("Command must be terminated by a semicolon or new line");
     }
 
 }

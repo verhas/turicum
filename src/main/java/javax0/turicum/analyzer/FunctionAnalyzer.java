@@ -39,7 +39,7 @@ public class FunctionAnalyzer implements Analyzer {
             fn = null;
         } else {
             BadSyntax.when(!lexes.isIdentifier(), "function name expected after fn");
-            fn = lexes.next().text;
+            fn = lexes.next().text();
         }
         final boolean hasParens = lexes.is("(");
         if (hasParens) {

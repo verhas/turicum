@@ -13,15 +13,10 @@ public class AdHocTest {
     @Test
     void test() throws Exception {
         test("""
-                class meClass {
-                    global some =  "it works";
-                    other = "local";
-                    fn a {1}
-                    fn b {2}
+                for i=1 ; i < 10 ; i = i +1 {
+                   {{{break i when i == 3}}}
                 }
-                some =  "it works";
-                some + meClass.a() + meClass.b();
-                """, "it works12");
+                """, "3");
     }
 
 }

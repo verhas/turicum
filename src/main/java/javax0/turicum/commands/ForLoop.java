@@ -4,7 +4,8 @@ import javax0.turicum.ExecutionException;
 import javax0.turicum.commands.operators.Cast;
 import javax0.turicum.memory.Context;
 
-public record ForLoop(Command startCommand, Command loopCondition, Command exitCondition, Command stepCommand, Command body) implements Command {
+public record ForLoop(Command startCommand, Command loopCondition, Command exitCondition, Command stepCommand,
+                      Command body) implements Command {
     @Override
     public Object execute(Context context) throws ExecutionException {
         Object result = null;
@@ -14,10 +15,10 @@ public record ForLoop(Command startCommand, Command loopCondition, Command exitC
         while (Cast.toBoolean(loopCondition.execute(loopContext))) {
             if (body instanceof BlockCommand block) {
                 final var lp = block.loop(loopContext);
-                if (lp.broken()) {
-                    break;
-                }
                 result = lp.result();
+                if (lp.isDone()) {
+                    return lp.result();
+                }
             } else {
                 result = body.execute(loopContext);
             }

@@ -44,6 +44,8 @@ public class CommandAnalyzer implements Analyzer {
         analyzers.put(Keywords.CLASS, ClassAnalyzer.INSTANCE);
         analyzers.put(Keywords.IF, IfAnalyzer.INSTANCE);
         analyzers.put(Keywords.BREAK, BreakAnalyzer.INSTANCE);
+        analyzers.put(Keywords.RETURN, ReturnAnalyzer.INSTANCE);
+        analyzers.put(Keywords.YIELD, YieldAnalyzer.INSTANCE);
         analyzers.put(Keywords.WHILE, WhileLoopAnalyzer.INSTANCE);
         analyzers.put(Keywords.FOR, ForLoopAnalyzer.INSTANCE);
     }
@@ -56,7 +58,7 @@ public class CommandAnalyzer implements Analyzer {
      * @return the command created later used to execute
      */
     private Command analyzeKeywordCommand(final Lex.List lexes) throws BadSyntax {
-        final var keyword = lexes.peek().text;
+        final var keyword = lexes.peek().text();
         return switch (keyword) {
             // commands that end in a block and do not need terminating ;
             case Keywords.IF,
@@ -72,6 +74,8 @@ public class CommandAnalyzer implements Analyzer {
                  Keywords.PIN,
                  Keywords.GLOBAL,
                  Keywords.BREAK,
+                 Keywords.RETURN,
+                 Keywords.YIELD,
                  Keywords.LET -> {
                 lexes.next();// eat the keyword
                 final var command = analyzers.get(keyword).analyze(lexes);

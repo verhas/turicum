@@ -9,6 +9,7 @@ public interface Keywords {
     String FN = "fn";
     String CLASS = "class";
     String IF = "if";
+    String WHEN = "when";
     String WHILE = "while";
     String FOR = "for";
     String EACH = "each";
@@ -17,4 +18,6 @@ public interface Keywords {
     String OR = "or";
     String IN = "in";
     String UNTIL = "until";
+    String RETURN = "return";
+    String YIELD = "yield";
 }

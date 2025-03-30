@@ -5,14 +5,13 @@ import javax0.turicum.commands.operators.Cast;
 import javax0.turicum.memory.Context;
 
 public record BreakCommand(Command expression, Command condition) implements Command {
-    public record BreakResult(Object result, boolean doBreak){}
 
     @Override
-    public BreakResult execute(Context context) throws ExecutionException {
+    public Conditional execute(Context context) throws ExecutionException {
         if( Cast.toBoolean(condition.execute(context))) {
-            return new BreakResult(expression.execute(context),true);
+            return Conditional.doBreak(expression.execute(context));
         }else{
-            return new BreakResult(null,false);
+            return Conditional.result(null);
         }
     }
 }

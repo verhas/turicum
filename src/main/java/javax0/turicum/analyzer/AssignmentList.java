@@ -32,7 +32,7 @@ public class AssignmentList {
      */
     public Pair[] analyze(final Lex.List lexes) throws BadSyntax {
         final var pairs = new ArrayList<AssignmentList.Pair>();
-        while (lexes.peek().type == Lex.Type.IDENTIFIER) {
+        while (lexes.peek().type()== Lex.Type.IDENTIFIER) {
             final var identifier = lexes.next();
             Command expression;
             if (lexes.is("=")) {
@@ -41,7 +41,7 @@ public class AssignmentList {
             } else {
                 expression = null;
             }
-            pairs.add(new Pair(identifier.text, expression));
+            pairs.add(new Pair(identifier.text(), expression));
             if (lexes.is(",")) {
                 lexes.next();
                 BadSyntax.when(!lexes.isIdentifier(), "Identifier missing after , ");

@@ -13,7 +13,7 @@ public class ForEachLoopAnalyzer implements Analyzer {
             lexes.next();
         }
         lexes.peek(Lex.Type.IDENTIFIER, null, "'for each' needs an identifier");
-        final var name = lexes.next().text;
+        final var name = lexes.next().text();
         final var identifier = new Identifier(name);
         if (lexes.is(Keywords.IN)) {
             lexes.next();

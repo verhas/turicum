@@ -69,12 +69,12 @@ public class PrimaryExpressionAnalyzer implements Analyzer {
             return getAccessOrCall(lexes, left);
         }
         final var lex = lexes.next();
-        return switch (lex.type) {
-            case IDENTIFIER -> getAccessOrCall(lexes, new Identifier(lex.text));
-            case STRING -> getAccessOrCall(lexes, new StringConstant(lex.text));
-            case INTEGER -> getAccessOrCall(lexes, new IntegerConstant(lex.text));
-            case FLOAT -> getAccessOrCall(lexes, new FloatConstant(lex.text));
-            default -> throw new BadSyntax("Expression: expected identifier, or constant, got " + lex.text);
+        return switch (lex.type()) {
+            case IDENTIFIER -> getAccessOrCall(lexes, new Identifier(lex.text()));
+            case STRING -> getAccessOrCall(lexes, new StringConstant(lex.text()));
+            case INTEGER -> getAccessOrCall(lexes, new IntegerConstant(lex.text()));
+            case FLOAT -> getAccessOrCall(lexes, new FloatConstant(lex.text()));
+            default -> throw new BadSyntax("Expression: expected identifier, or constant, got " + lex.text());
         }
 
                 ;
@@ -93,7 +93,7 @@ public class PrimaryExpressionAnalyzer implements Analyzer {
     private static CompositionModifier[] getModifierChain(Lex.List lexes) throws BadSyntax {
         final var modifiers = new ArrayList<CompositionModifier>();
         while (lexes.is("?", "->")) {
-            final var oper = lexes.next().text;
+            final var oper = lexes.next().text();
             final var modifierExpression = ExpressionAnalyzer.INSTANCE.analyze(lexes);
             modifiers.add(switch (oper) {
                 case "->" -> new CompositionModifier.Mapper(modifierExpression);
@@ -107,15 +107,15 @@ public class PrimaryExpressionAnalyzer implements Analyzer {
 
     private Command getAccessOrCall(Lex.List lexes, Command left) throws BadSyntax {
         while (lexes.is("(", ".", "[")) {
-            left = switch (lexes.next().text) {
+            left = switch (lexes.next().text()) {
                 case "(" -> new FunctionCall(left, analyzeArguments(lexes));
-                case "." -> new FieldAccess(left, lexes.next(Lex.Type.IDENTIFIER).text);
+                case "." -> new FieldAccess(left, lexes.next(Lex.Type.IDENTIFIER).text());
                 case "[" -> {
                     final var indexExpression = new ArrayAccess(left, ExpressionAnalyzer.INSTANCE.analyze(lexes));
                     lexes.next(Lex.Type.RESERVED, "]", "Array indexing is not close with ]");
                     yield indexExpression;
                 }
-                default -> throw new IllegalStateException("Unexpected value: " + lexes.next().text);
+                default -> throw new IllegalStateException("Unexpected value: " + lexes.next().text());
             };
         }
         return left;

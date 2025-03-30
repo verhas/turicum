@@ -1,6 +1,7 @@
 package javax0.turicum.commands.operators;
 
 import javax0.turicum.ExecutionException;
+import javax0.turicum.commands.Conditional;
 
 public class Cast {
 
@@ -44,6 +45,9 @@ public class Cast {
             case Float ignore -> true;
             case Boolean ignore -> false;
             case CharSequence cs -> {
+                if (cs.isEmpty()) {
+                    yield false;
+                }
                 int i = cs.charAt(0) == '+' || cs.charAt(0) == '-' ? 1 : 0;
                 while (i < cs.length()) {
                     if (cs.charAt(i) == '.') break;
@@ -151,9 +155,9 @@ public class Cast {
             case Short sh -> Long.valueOf(sh);
             case Byte b -> Long.valueOf(b);
             case Character c -> Long.valueOf(c);
-            case Double ignore -> throw new ExecutionException("Cannot cast double to long");
-            case Float ignore -> throw new ExecutionException("Cannot cast float to long");
-            case Boolean ignore -> throw new ExecutionException("Cannot cast boolean to long");
+            case Double ignore -> throw new ExecutionException("Cannot cast double to number");
+            case Float ignore -> throw new ExecutionException("Cannot cast float to number");
+            case Boolean ignore -> throw new ExecutionException("Cannot cast boolean to number");
             case CharSequence cs -> {
                 try {
                     yield Long.parseLong(cs.toString());
@@ -161,6 +165,7 @@ public class Cast {
                     throw new ExecutionException("Cannot cast string to long");
                 }
             }
+            case Conditional ignored -> throw new ExecutionException("Cannot cast break or return result to number");
             default ->
                     throw new ExecutionException("Cannot cast object of type '" + obj.getClass().getName() + "' to long");
         };
@@ -175,16 +180,17 @@ public class Cast {
             case Character c -> Double.valueOf(c);
             case Double d -> d;
             case Float f -> Double.valueOf(f);
-            case Boolean ignore -> throw new ExecutionException("Cannot cast boolean to long");
+            case Boolean ignore -> throw new ExecutionException("Cannot cast boolean to number");
             case CharSequence cs -> {
                 try {
                     yield Double.parseDouble(cs.toString());
                 } catch (NumberFormatException e) {
-                    throw new ExecutionException("Cannot cast string to long");
+                    throw new ExecutionException("Cannot cast string to number");
                 }
             }
+            case Conditional ignored -> throw new ExecutionException("Cannot cast break or return result to number");
             default ->
-                    throw new ExecutionException("Cannot cast object of type '" + obj.getClass().getName() + "' to long");
+                    throw new ExecutionException("Cannot cast object of type '" + obj.getClass().getName() + "' to number");
         };
     }
 
