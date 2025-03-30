@@ -13,10 +13,16 @@ public class AdHocTest {
     @Test
     void test() throws Exception {
         test("""
-                for i=1 ; i < 10 ; i = i +1 {
-                   {{{break i when i == 3}}}
+                try {
+                  a = 1;
+                  pin a;
+                  a = 2;
+                }catch(exception){
+                  print(exception,"\\n");
+                  print(exception.message);
                 }
-                """, "3");
+                5
+                """, "5");
     }
 
 }

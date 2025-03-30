@@ -11,7 +11,7 @@ public class CommandAnalyzer implements Analyzer {
 
     @Override
     public Command analyze(Lex.List lexes) throws BadSyntax {
-        if( lexes.is(";")) {
+        if (lexes.is(";")) {
             lexes.next();
             return null;
         }
@@ -34,7 +34,6 @@ public class CommandAnalyzer implements Analyzer {
     private static final Map<String, Analyzer> analyzers = new HashMap<>();
 
 
-
     static {
         analyzers.put(Keywords.LOCAL, LocalAnalyzer.INSTANCE);
         analyzers.put(Keywords.PIN, LocalAnalyzer.FINAL_INSTANCE);
@@ -43,6 +42,7 @@ public class CommandAnalyzer implements Analyzer {
         analyzers.put(Keywords.FN, FunctionAnalyzer.INSTANCE);
         analyzers.put(Keywords.CLASS, ClassAnalyzer.INSTANCE);
         analyzers.put(Keywords.IF, IfAnalyzer.INSTANCE);
+        analyzers.put(Keywords.TRY, TryCatchAnalyzer.INSTANCE);
         analyzers.put(Keywords.BREAK, BreakAnalyzer.INSTANCE);
         analyzers.put(Keywords.RETURN, ReturnAnalyzer.INSTANCE);
         analyzers.put(Keywords.YIELD, YieldAnalyzer.INSTANCE);
@@ -54,7 +54,7 @@ public class CommandAnalyzer implements Analyzer {
      * Analyze a command that starts with a reserved word, that is most of the commands except for
      * Assignment.
      *
-     * @param lexes   the lexical elements following the keyword
+     * @param lexes the lexical elements following the keyword
      * @return the command created later used to execute
      */
     private Command analyzeKeywordCommand(final Lex.List lexes) throws BadSyntax {
@@ -76,6 +76,7 @@ public class CommandAnalyzer implements Analyzer {
                  Keywords.BREAK,
                  Keywords.RETURN,
                  Keywords.YIELD,
+                 Keywords.TRY,
                  Keywords.LET -> {
                 lexes.next();// eat the keyword
                 final var command = analyzers.get(keyword).analyze(lexes);

@@ -4,14 +4,15 @@ import javax0.turicum.ExecutionException;
 import javax0.turicum.memory.Context;
 
 /**
- * A closure is a block of commands that can get evaluated with arguments.
+ * Macro is similar to a closure, but it gets the arguments as {@link Command} objects and not evaluated.
+ * After that the body of the macro can decide to evaluate none, one, some or all of the arguments each one or more
+ * times as it needs.
  *
- * @param parameters the name of the parameters that get values assigned to them before executing the closure
- * @param wrapped the context, possibly null if this closure comes from a 'fn' declaration, that was surrounding the
- *                definition of the closure.
- * @param command the block command that is the body of the closure.
+ * @param parameters the names of the parameters
+ * @param wrapped the wrapped context that was around the closure when defined
+ * @param command the block command of the closure
  */
-public record Closure(String[] parameters, Context wrapped, BlockCommand command) implements ClosureOrMacro {
+public record Macro(String[] parameters, Context wrapped, BlockCommand command) implements ClosureOrMacro {
     @Override
     public Object execute(final Context ctx) throws ExecutionException {
         ctx.step();

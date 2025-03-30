@@ -5,62 +5,91 @@ import javax0.turicum.LngCallable;
 import javax0.turicum.memory.*;
 
 /**
- * An expression that calls a method or a function.
+ * An expression that calls a method or a function/closure.
+ *
+ * @param object    is the closure or something that is to be called. It can be {@link LngCallable}, {@link Closure},
+ *                  {@link Macro}
+ * @param arguments are the arguments of the function call to be evaluated or passed to the implementation if the
+ *                  object is a {@link Macro}
  */
 public record FunctionCall(Command object, Command[] arguments) implements Command {
 
     @Override
     public Object execute(final Context context) throws ExecutionException {
-        final var arguments = this.arguments == null ? new Object[0] : new Object[this.arguments.length];
-        for (int i = 0; i < arguments.length; i++) {
-            arguments[i] = this.arguments[i].execute(context);
-        }
         final Command myObject = myFunctionObject(context);
         final Object function;
         if (myObject instanceof FieldAccess(Command objectCommand, String identifier)) {
             final var obj = LeftValue.toObject(objectCommand.execute(context));
             function = getMethod(context, obj, identifier);
-            if (function instanceof Closure closure) {
+            if (function instanceof ClosureOrMacro command) {
+                final var argValues = switch (command) {
+                    case Closure ignored -> evaluateArguments(context);
+                    case Macro ignored -> arguments;
+                };
                 if (obj instanceof LngObject lngObject) {
-                    ExecutionException.when(closure.parameters().length != arguments.length, "The number of parameters does not match the number of arguments");
-                    final var ctx = context.wrap(lngObject.context());
-                    if (ctx.contains("this")) {
-                        ctx.freeze("this");// better do not change 'this' inside methods
+                    ExecutionException.when(command.parameters().length != argValues.length, "The number of parameters does not match the number of arguments");
+                    final Context ctx;
+                    if (command.wrapped() == null) {
+                        ctx = context.wrap(lngObject.context());
+                    } else {
+                        ctx = context.wrap(command.wrapped());
+                        ctx.let0("this",obj);
                     }
-                    for (int i = 0; i < arguments.length; i++) {
-                        ctx.local(closure.parameters()[i], arguments[i]);
-                    }
-                    return closure.execute(ctx);
+                    freezeThis(ctx);
+                    defineArgumentsInContext(ctx, command.parameters(), argValues);
+                    return command.execute(ctx);
                 }
                 if (obj instanceof LngClass lngClass) {
-                    ExecutionException.when(closure.parameters().length != arguments.length, "The number of parameters does not match the number of arguments");
+                    ExecutionException.when(command.parameters().length != argValues.length, "The number of parameters does not match the number of arguments");
                     final var ctx = context.wrap(lngClass.context());
-                    for (int i = 0; i < arguments.length; i++) {
-                        ctx.local(closure.parameters()[i], arguments[i]);
-                    }
-                    return closure.execute(ctx);
+                    defineArgumentsInContext(ctx, command.parameters(), argValues);
+                    return command.execute(ctx);
                 }
             }
             if (function instanceof LngCallable callable) {
-                return callable.call(context, arguments);
+                final var argValues = evaluateArguments(context);
+                return callable.call(context, argValues);
             }
             throw new ExecutionException("It is not possible to invoke %s.%s %s.%s", obj, identifier, objectCommand, identifier);
         } else {
             function = myObject.execute(context);
-            if (function instanceof Closure closure) {
-                ExecutionException.when(closure.parameters().length != arguments.length, "The number of parameters does not match the number of arguments");
-                final var ctx = context.wrap(closure.wrapped());
-                for (int i = 0; i < arguments.length; i++) {
-                    ctx.local(closure.parameters()[i], arguments[i]);
-                }
-                return closure.execute(ctx);
+            if (function instanceof ClosureOrMacro command) {
+                final var argValues = switch (command) {
+                    case Closure ignored -> evaluateArguments(context);
+                    case Macro ignored -> arguments;
+                };
+                ExecutionException.when(command.parameters().length != argValues.length, "The number of parameters does not match the number of arguments");
+                final var ctx = context.wrap(command.wrapped());
+                defineArgumentsInContext(ctx, command.parameters(), argValues);
+                return command.execute(ctx);
 
             }
             if (function instanceof LngCallable callable) {
-                return callable.call(context, arguments);
+                final var argValues = evaluateArguments(context);
+                return callable.call(context, argValues);
             }
             throw new ExecutionException("It is not possible to invoke the value '" + function + "' " + object);
         }
+    }
+
+    private void defineArgumentsInContext(Context ctx, String[] names, Object[] argValues) {
+        for (int i = 0; i < argValues.length; i++) {
+            ctx.let0(names[i], argValues[i]);
+        }
+    }
+
+    private void freezeThis(Context ctx) {
+        if (ctx.contains("this")) {
+            ctx.freeze("this");// better do not change 'this' inside methods
+        }
+    }
+
+    private Object[] evaluateArguments(Context context) {
+        final var argValues = this.arguments == null ? new Object[0] : new Object[this.arguments.length];
+        for (int i = 0; i < argValues.length; i++) {
+            argValues[i] = this.arguments[i].execute(context);
+        }
+        return argValues;
     }
 
     /**

@@ -254,6 +254,12 @@ public class Context implements javax0.turicum.Context {
         return heap.containsKey(key);
     }
 
+    /**
+     * Get the value of a local variable from this field or from any of the wrapped context, but not a global variable.
+     *
+     * @param key the name of the variable
+     * @return the value of the variable
+     */
     public Object getLocal(String key) {
         var ctx = this;
         while (ctx != null) {

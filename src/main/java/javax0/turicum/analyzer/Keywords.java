@@ -15,6 +15,9 @@ public interface Keywords {
     String EACH = "each";
     String ELSE = "else";
     String ELSEIF = "elseif";
+    String TRY = "try";
+    String CATCH = "catch";
+    String FINALLY = "finally";
     String OR = "or";
     String IN = "in";
     String UNTIL = "until";

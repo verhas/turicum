@@ -13,7 +13,7 @@ public class Lexer {
     final static private Set<String> RESERVED = new HashSet<>(Set.of(
             Keywords.CLASS, Keywords.PIN, Keywords.FN, Keywords.LOCAL, Keywords.GLOBAL, Keywords.IF, Keywords.ELSE,
             Keywords.ELSEIF, Keywords.BREAK, Keywords.WHILE, Keywords.UNTIL, Keywords.FOR, Keywords.EACH, Keywords.IN,
-            Keywords.RETURN, Keywords.YIELD, Keywords.WHEN
+            Keywords.RETURN, Keywords.YIELD, Keywords.WHEN, Keywords.TRY, Keywords.CATCH, Keywords.FINALLY
     ));
     final static private ArrayList<String> _OPERANDS = new ArrayList<>(Arrays.asList(
             "->", ":=", "=", "(", ")", ",", ".",
@@ -48,14 +48,14 @@ public class Lexer {
         final var list = new ArrayList<Lex>();
         while (!in.isEmpty()) {
             boolean atLineStart = false;// the first line start does not matter
-            while( !in.isEmpty() && in.charAt(0) == '\n' ) {
+            while (!in.isEmpty() && in.charAt(0) == '\n') {
                 atLineStart = true;
                 in.skip(1);
             }
             while (!in.isEmpty() && Character.isWhitespace(in.charAt(0))) {
                 in.skip(1);
             }
-            if( in.isEmpty() ) {
+            if (in.isEmpty()) {
                 break;
             }
             if (in.length() >= 2 && in.charAt(0) == '/' && in.charAt(1) == '*') {
@@ -69,21 +69,21 @@ public class Lexer {
             }
             if (in.charAt(0) == '`') {
                 final var id = StringFetcher.fetchId(in);
-                list.add(new Lex(Lex.Type.IDENTIFIER, id,atLineStart));
+                list.add(new Lex(Lex.Type.IDENTIFIER, id, atLineStart));
                 continue;
             }
             if (Input.validId1stChar(in.charAt(0))) {
                 final var id = in.fetchId();
                 if (RESERVED.contains(id)) {
-                    list.add(new Lex(Lex.Type.RESERVED, id,atLineStart));
+                    list.add(new Lex(Lex.Type.RESERVED, id, atLineStart));
                 } else {
-                    list.add(new Lex(Lex.Type.IDENTIFIER, id,atLineStart));
+                    list.add(new Lex(Lex.Type.IDENTIFIER, id, atLineStart));
                 }
                 continue;
             }
             if (in.charAt(0) == '"') {
                 final var str = javax0.turicum.analyzer.StringFetcher.getString(in);
-                final var lex = new Lex(Lex.Type.STRING, str,atLineStart);
+                final var lex = new Lex(Lex.Type.STRING, str, atLineStart);
                 list.add(lex);
                 continue;
             }
@@ -108,13 +108,13 @@ public class Lexer {
                 } else {
                     type = Lex.Type.INTEGER;
                 }
-                final var lex = new Lex(type, str.toString(),atLineStart);
+                final var lex = new Lex(type, str.toString(), atLineStart);
                 list.add(lex);
                 continue;
             }
             int operandIndex = in.startsWith(OPERANDS);
             if (operandIndex >= 0) {
-                final var lex = new Lex(Lex.Type.RESERVED, OPERANDS[operandIndex],atLineStart);
+                final var lex = new Lex(Lex.Type.RESERVED, OPERANDS[operandIndex], atLineStart);
                 list.add(lex);
                 in.skip(OPERANDS[operandIndex].length());
                 continue;

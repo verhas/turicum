@@ -1,19 +1,31 @@
 package javax0.turicum.memory;
 
-import javax0.turicum.LngCallable;
 import javax0.turicum.ExecutionException;
+import javax0.turicum.LngCallable;
 
 import java.util.Objects;
 
 /**
  * Class information in the language
  */
-public record LngClass(ClassContext context, String[] parameters, String name) implements HasFields, LngCallable {
+public class LngClass implements HasFields, HasContext, LngCallable {
+
+    final ClassContext context;
+    final String[] parameters;
+    final String name;
 
     public LngClass(ClassContext context, String[] parameters, String name) {
         this.context = context;
         this.parameters = Objects.requireNonNullElse(parameters, new String[0]);
         this.name = name;
+    }
+
+    public Context context() {
+        return context;
+    }
+
+    public String name() {
+        return name;
     }
 
     @Override
@@ -40,7 +52,7 @@ public record LngClass(ClassContext context, String[] parameters, String name) i
 
     @Override
     public Object call(javax0.turicum.Context cntxt, Object[] arguments) throws ExecutionException {
-        if( ! (cntxt instanceof Context callerCtx)){
+        if (!(cntxt instanceof Context callerCtx)) {
             throw new RuntimeException();
         }
         final var ctx = callerCtx.wrap(context);

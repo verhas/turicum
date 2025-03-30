@@ -74,7 +74,7 @@ public class LngList implements HasIndex, HasFields {
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         return array.toString();
     }
 
