@@ -548,3 +548,26 @@ s = s + 1;
 ""+i+" "+k+" "+j+" "+s
 // fn reducer(acc,item)= acc+item
 // { burst init_expression ; generator_expression ? filter -> map ? filter ... >>= reducer with unit=expression}
+
+// snippet minusOperatorSample
+// Long
+// 3
+class A(zumba) {
+  fn `+`(right) {
+     if( right != null ) {
+          A(this.zumba + right.zumba)
+     } else {
+          this
+     }
+  }
+  `-` = macro({|right|
+         if( right != null ) {
+              A(this.zumba - evaluate(right).zumba)
+         } else {
+              A(-this.zumba)
+         }
+     })
+}
+a = -A(1);
+b = A(2);
+(b-a).zumba

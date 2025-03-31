@@ -5,11 +5,10 @@ import javax0.turicum.ExecutionException;
 import javax0.turicum.memory.Context;
 
 @Operator.Symbol("*")
-public class Multiply extends AbstractNumericOperator {
+public class Multiply extends AbstractOperator {
 
     @Override
-    public Object execute(Context ctx, Command left, Command right) throws ExecutionException {
-        final var op1 = left.execute(ctx);
+    public Object binaryOp(Context ctx, Object op1, Command right) throws ExecutionException {
         final var op2 = right.execute(ctx);
 
         // if the left side is a string, then convert it to a string

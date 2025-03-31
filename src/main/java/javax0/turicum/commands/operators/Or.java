@@ -5,11 +5,10 @@ import javax0.turicum.ExecutionException;
 import javax0.turicum.memory.Context;
 
 @Operator.Symbol("||")
-public class Or extends AbstractNumericOperator {
+public class Or extends AbstractOperator {
 
     @Override
-    public Object execute(Context ctx, Command left, Command right) throws ExecutionException {
-        final var op1 = left.execute(ctx);
+    public Object binaryOp(Context ctx, Object op1, Command right) throws ExecutionException {
         ExecutionException.when(!Cast.isBoolean(op1), "%s cannot be used as boolean", op1);
         if (Cast.toBoolean(op1)) {
             return true;

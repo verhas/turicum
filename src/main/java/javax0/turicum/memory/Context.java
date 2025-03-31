@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Context implements javax0.turicum.Context {
     public final int stepLimit;
     public final AtomicInteger steps;
-    private final Map<String, Object> heap;
+    protected final Map<String, Object> heap;
     final Map<String, Object> frame;
     private final Set<String> globals = new HashSet<>();
     private final Set<String> frozen = new HashSet<>();
@@ -128,6 +128,16 @@ public class Context implements javax0.turicum.Context {
         this.frame = heap;
         this.globalContext = globalContext;
         this.threadContext = threadContext;
+    }
+
+    public Context(Context heapContext, final GlobalContext globalContext, final ThreadContext threadContext, final int stepLimit) {
+        this.heap = heapContext.heap;
+        this.globalContext = globalContext;
+        this.threadContext = threadContext;
+        this.stepLimit = stepLimit;
+        this.steps = new AtomicInteger();
+        this.wrapped = null;
+        this.frame = new HashMap<>();
     }
 
     /**

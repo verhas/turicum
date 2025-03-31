@@ -23,10 +23,10 @@ COMMAND ::= ASSIGNMENT |
             LOOP |
             CLASS |
             FN |
-            LOCAL |
-            GLOBAL |
-            BREAK | YIELD | RETURN
-            PIN ;
+            LOCAL | GLOBAL | PIN
+            BREAK | YIELD | RETURN |
+            TRY |
+            ;
 
 // if the condition expression is missing after 'for' or 'while' it is true
 // the expression following the 'until' is not optional, but the whole 'until' EXPRESSION is optional

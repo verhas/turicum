@@ -50,7 +50,7 @@ public record FunctionCall(Command object, Command[] arguments) implements Comma
                 final var argValues = evaluateArguments(context);
                 return callable.call(context, argValues);
             }
-            throw new ExecutionException("It is not possible to invoke %s.%s %s.%s", obj, identifier, objectCommand, identifier);
+            throw new ExecutionException("It is not possible to invoke %s.%s() as %s.%s()", obj, identifier, objectCommand, identifier);
         } else {
             function = myObject.execute(context);
             if (function instanceof ClosureOrMacro command) {
@@ -68,17 +68,27 @@ public record FunctionCall(Command object, Command[] arguments) implements Comma
                 final var argValues = evaluateArguments(context);
                 return callable.call(context, argValues);
             }
-            throw new ExecutionException("It is not possible to invoke the value '" + function + "' " + object);
+            throw new ExecutionException("It is not possible to invoke the value '" + function + "' on " + object);
         }
     }
 
-    private void defineArgumentsInContext(Context ctx, String[] names, Object[] argValues) {
+    /**
+     * Assign the values to the parameter names in the context provided.
+     * @param ctx the context that will hold the values
+     * @param names the names of the parameters/arguments
+     * @param argValues the array holding the actual argument values
+     */
+    public static void defineArgumentsInContext(Context ctx, String[] names, Object[] argValues) {
         for (int i = 0; i < argValues.length; i++) {
             ctx.let0(names[i], argValues[i]);
         }
     }
 
-    private void freezeThis(Context ctx) {
+    /**
+     * Freeze the variable "this" in the context.
+     * @param ctx the context in which we have to freeze "this"
+     */
+    public static void freezeThis(Context ctx) {
         if (ctx.contains("this")) {
             ctx.freeze("this");// better do not change 'this' inside methods
         }

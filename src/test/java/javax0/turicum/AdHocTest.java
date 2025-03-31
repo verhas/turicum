@@ -13,16 +13,20 @@ public class AdHocTest {
     @Test
     void test() throws Exception {
         test("""
-                try {
-                  a = 1;
-                  pin a;
-                  a = 2;
-                }catch(exception){
-                  print(exception,"\\n");
-                  print(exception.message);
+                msg = ""
+                pin PrinterClass = class {
+                  print = fn (message){
+                    global msg;
+                    msg = msg + message
+                    }
                 }
-                5
-                """, "5");
+                
+                p = PrinterClass()
+                p.print("csaka haha ")
+                p.print("fogorvos hihi ")
+                p.print("segithet huhu")
+                1
+                """, "1");
     }
 
 }

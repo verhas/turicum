@@ -5,11 +5,10 @@ import javax0.turicum.ExecutionException;
 import javax0.turicum.memory.Context;
 
 @Operator.Symbol("/")
-public class Divide extends AbstractNumericOperator {
+public class Divide extends AbstractOperator {
 
     @Override
-    public Object execute(Context ctx, Command left, Command right) throws ExecutionException {
-        final var op1 = left.execute(ctx);
+    public Object binaryOp(Context ctx, Object op1, Command right) throws ExecutionException {
         final var op2 = right.execute(ctx);
 
         if (Cast.isLong(op1) && Cast.isLong(op2)) {

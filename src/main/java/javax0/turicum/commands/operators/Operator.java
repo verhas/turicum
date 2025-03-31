@@ -14,8 +14,8 @@ import java.util.Map;
 public interface Operator {
 
     Operator[] OPERATOR_ARRAY = {
-            new Add(), new Substract(), new Multiply(), new Divide(), new Mod(),
-            new Compare.Equal(),
+            new Add(), new Subtract(), new Multiply(), new Divide(), new Mod(),
+            new Compare.Equal(), new Compare.NotEqual(),
             new Compare.LessOrEqual(), new Compare.LessThan(),
             new Compare.GreaterOrEqual(), new Compare.GreaterThan(),
             new And(), new Or(), new Not(), new Pipe(), new RangeOp()

@@ -1,7 +1,7 @@
 package javax0.turicum;
 
 import javax0.turicum.memory.GlobalContext;
-import javax0.turicum.memory.InfinitValue;
+import javax0.turicum.memory.InfiniteValue;
 
 class BuiltIns {
 
@@ -9,7 +9,7 @@ class BuiltIns {
             "true", true,
             "false", false,
             "none", null,
-            "inf", InfinitValue.INF_POSITIVE
+            "inf", InfiniteValue.INF_POSITIVE
     };
 
     public static void register(Context context) {

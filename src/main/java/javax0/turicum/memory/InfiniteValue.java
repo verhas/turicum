@@ -1,14 +1,14 @@
 package javax0.turicum.memory;
 
-public record InfinitValue(boolean positive) {
-    public static final InfinitValue INF_POSITIVE = new InfinitValue(true);
-    public static final InfinitValue INF_NEGATIVE = new InfinitValue(false);
+public record InfiniteValue(boolean positive) {
+    public static final InfiniteValue INF_POSITIVE = new InfiniteValue(true);
+    public static final InfiniteValue INF_NEGATIVE = new InfiniteValue(false);
 
     public static boolean is(Object value) {
-        return value instanceof InfinitValue;
+        return value instanceof InfiniteValue;
     }
 
-    public InfinitValue negate(){
+    public InfiniteValue negate(){
         if( positive ){
             return INF_NEGATIVE;
         }else {

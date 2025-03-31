@@ -1,7 +1,7 @@
 package javax0.turicum.commands.operators;
 
-import javax0.turicum.commands.Command;
 import javax0.turicum.ExecutionException;
+import javax0.turicum.commands.Command;
 import javax0.turicum.memory.Context;
 
 import java.util.function.BiPredicate;
@@ -88,6 +88,22 @@ public abstract class Compare implements Operator {
                 return false;
             } else {
                 return op1.equals(op2);
+            }
+        }
+    }
+
+    @Operator.Symbol("!=")
+    public static class NotEqual extends Compare {
+        @Override
+        public Object execute(Context ctx, Command left, Command right) throws ExecutionException {
+            final var op1 = left.execute(ctx);
+            final var op2 = right.execute(ctx);
+            if (op1 == null && op2 == null) {
+                return false;
+            } else if (op1 == null || op2 == null) {
+                return true;
+            } else {
+                return !op1.equals(op2);
             }
         }
     }
