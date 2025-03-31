@@ -13,19 +13,29 @@ public class AdHocTest {
     @Test
     void test() throws Exception {
         test("""
-                msg = ""
-                pin PrinterClass = class {
+                class z{
+                    fn constructor {
+                      k = PrinterClass();
+                      k.msg = "Z says: "
+                      return k;
+                    }
+                }
+                class PrinterClass{
+                  fn constructor {
+                    msg = ""
+                    this
+                  }
                   print = fn (message){
                     global msg;
                     msg = msg + message
                     }
                 }
                 
-                p = PrinterClass()
+                p = z()
                 p.print("csaka haha ")
                 p.print("fogorvos hihi ")
                 p.print("segithet huhu")
-                1
+               1
                 """, "1");
     }
 

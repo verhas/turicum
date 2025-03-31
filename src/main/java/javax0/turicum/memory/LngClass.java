@@ -2,6 +2,7 @@ package javax0.turicum.memory;
 
 import javax0.turicum.ExecutionException;
 import javax0.turicum.LngCallable;
+import javax0.turicum.commands.ClosureOrMacro;
 
 import java.util.Objects;
 
@@ -51,18 +52,29 @@ public class LngClass implements HasFields, HasContext, LngCallable {
     }
 
     @Override
-    public Object call(javax0.turicum.Context cntxt, Object[] arguments) throws ExecutionException {
-        if (!(cntxt instanceof Context callerCtx)) {
-            throw new RuntimeException();
+    public Object call(javax0.turicum.Context callerContext, Object[] arguments) throws ExecutionException {
+        if (!(callerContext instanceof Context callerCtx)) {
+            throw new RuntimeException("Cannot work with this context implementation. This is an internal error.");
         }
-        final var ctx = callerCtx.wrap(context);
+        final var objectContext = callerCtx.wrap(context);
         ExecutionException.when(arguments.length != parameters.length, "Parameter mismatch in constructor");
         for (int i = 0; i < parameters.length; i++) {
-            ctx.local(parameters[i], arguments[i]);
+            objectContext.local(parameters[i], arguments[i]);
         }
-        final var object = new LngObject(this, ctx);
-        ctx.local("this", object);
-        ctx.freeze("this");
+        final var uninitialized = new LngObject(this, objectContext);
+        objectContext.local("this", uninitialized);
+        final var object = switch (uninitialized.getField("constructor")) {
+            case null -> uninitialized;
+            case ClosureOrMacro closure -> {
+                if (closure.parameters().length != 0) {
+                    throw new ExecutionException("constructor must be parameter less");
+                }
+                yield closure.execute(objectContext);
+            }
+            default -> throw new IllegalStateException("Unexpected value: " + uninitialized.getField("constructor"));
+        };
+        objectContext.local("this", object);
+        objectContext.freeze("this");
         return object;
     }
 
