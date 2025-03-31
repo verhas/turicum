@@ -16,7 +16,7 @@ import java.util.*;
  * This is a very general interface, it was copied here from the project
  * <a href="https://github.com/verhas/jamal">Jamal</a>.
  */
-public sealed interface ServiceLoaded permits TuriClass, TuriFunction {
+public interface ServiceLoaded {
 
     /**
      * Load the classes that implement the interface {@code service} and are provided by the modules or are available.

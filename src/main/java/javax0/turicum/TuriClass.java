@@ -12,7 +12,7 @@ import java.util.List;
  * To create such a callable see the implementation {@link javax0.turicum.builtins.classes.TuriString TuriString}
  * that implements methods callable on normal strings.
  */
-public non-sealed interface TuriClass extends ServiceLoaded {
+public interface TuriClass extends ServiceLoaded {
 
     static List<TuriClass> getInstances() {
         return ServiceLoaded.getInstances(TuriClass.class);
