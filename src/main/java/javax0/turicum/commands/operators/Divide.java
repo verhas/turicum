@@ -27,7 +27,9 @@ public class Divide extends AbstractNumericOperator {
             return dop1 / dop2;
         }
 
-        return Reflect.getBinaryMethod("divide", op1, op2).map(Reflect.Op::callMethod)
-                .orElseThrow(() -> new ExecutionException("Cannot '%s' + '%s'", op1, op2));
+        return Reflect.getBinaryMethod("divide", op1, op2)
+            .map(Reflect.Op::callMethod)
+            .orElseThrow(() -> new ExecutionException("Cannot '%s' + '%s'", op1, op2));
     }
+
 }

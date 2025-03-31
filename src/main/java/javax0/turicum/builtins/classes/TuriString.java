@@ -5,6 +5,7 @@ import javax0.turicum.commands.operators.Cast;
 import javax0.turicum.LngCallable;
 
 public class TuriString implements TuriClass {
+
     @Override
     public Class<?> forClass() {
         return String.class;
@@ -19,4 +20,5 @@ public class TuriString implements TuriClass {
             default -> null;
         };
     }
+
 }

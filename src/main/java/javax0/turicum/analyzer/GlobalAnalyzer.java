@@ -5,6 +5,7 @@ import javax0.turicum.commands.Command;
 import javax0.turicum.commands.GlobalAssignment;
 
 public class GlobalAnalyzer implements Analyzer {
+
     public static final GlobalAnalyzer INSTANCE = new GlobalAnalyzer();
 
     @Override
@@ -12,5 +13,6 @@ public class GlobalAnalyzer implements Analyzer {
         AssignmentList.Pair[] pairs = AssignmentList.INSTANCE.analyze(lexes);
         return new GlobalAssignment(pairs);
     }
+
 }
 

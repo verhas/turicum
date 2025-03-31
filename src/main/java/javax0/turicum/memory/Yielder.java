@@ -17,5 +17,7 @@ import javax0.turicum.ExecutionException;
 public interface Yielder {
 
     void send(Object o) throws ExecutionException;
+
     Object[] collect();
+
 }

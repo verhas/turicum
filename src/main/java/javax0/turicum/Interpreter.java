@@ -18,6 +18,7 @@ import javax0.turicum.memory.Context;
  * usage pattern, and the interpreter should ideally be used from a single thread.
  */
 public class Interpreter {
+
     private final String source;
     private volatile Command code = null;
     private final Object lock = new Object();
@@ -35,14 +36,14 @@ public class Interpreter {
      * Interpreter instance from a single thread.
      *
      * @return The result of executing the code
-     * @throws BadSyntax if the source code contains syntax errors
+     * @throws BadSyntax          if the source code contains syntax errors
      * @throws ExecutionException if an error occurs during execution
      */
     public Object execute() throws BadSyntax, ExecutionException {
         Command localCode = code; // Read volatile field only once
         if (localCode == null) {
             synchronized (lock) {
-                localCode = code; // may have changed since we syncronized
+                localCode = code; // may have changed since we synchronized
                 if (localCode == null) {
                     localCode = ProgramAnalyzer.INSTANCE.analyze(new Lexer().analyze(Input.fromString(source)));
                     code = localCode;
@@ -53,4 +54,5 @@ public class Interpreter {
         BuiltIns.register(ctx);
         return localCode.execute(ctx);
     }
+
 }

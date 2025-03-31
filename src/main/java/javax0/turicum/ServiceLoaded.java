@@ -16,18 +16,18 @@ import java.util.*;
  * This is a very general interface, it was copied here from the project
  * <a href="https://github.com/verhas/jamal">Jamal</a>.
  */
-public interface ServiceLoaded {
+public sealed interface ServiceLoaded permits TuriClass, TuriFunction {
 
     /**
      * Load the classes that implement the interface {@code service} and are provided by the modules or are available.
      *
      * @param service the interface for which the implementing class instances are needed
-     * @param <T>   the interface
+     * @param <T>     the interface
      * @return the list of instances
      */
     static <T> List<T> getInstances(Class<T> service) {
-        final var services =  getInstances(service, Thread.currentThread().getContextClassLoader());
-        if(!services.isEmpty()){
+        final var services = getInstances(service, Thread.currentThread().getContextClassLoader());
+        if (!services.isEmpty()) {
             return services;
         }
         return getInstances(service, ServiceLoaded.class.getClassLoader());
@@ -126,8 +126,8 @@ public interface ServiceLoaded {
     static List<URL> loadResources(String name, ClassLoader classLoader) throws IOException {
         final List<URL> list = new ArrayList<>();
         final Enumeration<URL> systemResources =
-                (classLoader == null ? ClassLoader.getSystemClassLoader() : classLoader)
-                        .getResources(name);
+            (classLoader == null ? ClassLoader.getSystemClassLoader() : classLoader)
+                .getResources(name);
         while (systemResources.hasMoreElements()) {
             list.add(systemResources.nextElement());
         }

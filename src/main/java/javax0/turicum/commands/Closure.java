@@ -12,6 +12,7 @@ import javax0.turicum.memory.Context;
  * @param command the block command that is the body of the closure.
  */
 public record Closure(String[] parameters, Context wrapped, BlockCommand command) implements ClosureOrMacro {
+
     @Override
     public Object execute(final Context ctx) throws ExecutionException {
         ctx.step();
@@ -25,4 +26,5 @@ public record Closure(String[] parameters, Context wrapped, BlockCommand command
         }
         return result;
     }
+
 }

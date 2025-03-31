@@ -7,14 +7,7 @@ import java.util.Iterator;
 /**
  * An object in the language
  */
-public class LngObject implements HasFields, HasIndex, HasContext {
-    final LngClass lngClass;
-    final Context context;
-
-    public LngObject(LngClass lngClass, Context context) {
-        this.lngClass = lngClass;
-        this.context = context;
-    }
+public record LngObject(LngClass lngClass, Context context) implements HasFields, HasIndex, HasContext {
 
     @Override
     public void setField(String name, Object value) {
@@ -56,4 +49,5 @@ public class LngObject implements HasFields, HasIndex, HasContext {
     public LngClass lngClass() {
         return lngClass;
     }
+
 }

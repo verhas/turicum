@@ -15,7 +15,7 @@ public record LocalAssignment(AssignmentList.Pair[] assignments, boolean freeze)
             if (assignment.expression() == null) {
                 if (freeze) {
                     ctx.freeze(assignment.identifier());
-                }else{
+                } else {
                     ctx.local(assignment.identifier(), value);
                 }
             } else {
@@ -28,4 +28,5 @@ public record LocalAssignment(AssignmentList.Pair[] assignments, boolean freeze)
         }
         return value;
     }
+
 }

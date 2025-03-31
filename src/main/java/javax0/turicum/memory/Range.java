@@ -6,4 +6,5 @@ public record Range(Object start, Object end) {
     public String toString() {
         return start + ".." + end;
     }
+
 }

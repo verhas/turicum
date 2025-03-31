@@ -11,6 +11,7 @@ import javax0.turicum.commands.Command;
  * }</pre>
  */
 public class ClosureAnalyzer implements Analyzer {
+
     public static final ClosureAnalyzer INSTANCE = new ClosureAnalyzer();
     private static final String[] EMPTY = new String[0];
 

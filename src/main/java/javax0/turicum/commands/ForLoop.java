@@ -6,6 +6,7 @@ import javax0.turicum.memory.Context;
 
 public record ForLoop(Command startCommand, Command loopCondition, Command exitCondition, Command stepCommand,
                       Command body) implements Command {
+
     @Override
     public Object execute(Context context) throws ExecutionException {
         Object result = null;
@@ -29,4 +30,5 @@ public record ForLoop(Command startCommand, Command loopCondition, Command exitC
         }
         return result;
     }
+
 }

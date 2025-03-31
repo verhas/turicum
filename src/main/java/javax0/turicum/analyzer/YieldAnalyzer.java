@@ -5,10 +5,12 @@ import javax0.turicum.commands.Command;
 import javax0.turicum.commands.YieldCommand;
 
 public class YieldAnalyzer implements Analyzer {
+
     public static final YieldAnalyzer INSTANCE = new YieldAnalyzer();
 
     @Override
     public Command analyze(Lex.List lexes) throws BadSyntax {
         return BrReYiAnalyzer.analyze(lexes, YieldCommand::new);
     }
+
 }

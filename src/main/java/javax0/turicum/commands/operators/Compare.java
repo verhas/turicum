@@ -9,10 +9,14 @@ import java.util.function.Predicate;
 
 public abstract class Compare implements Operator {
 
-    private static boolean compare(Context ctx, Command left, Command right,
-                                   BiPredicate<Long, Long> longComparator,
-                                   BiPredicate<Double, Double> doubleComparator,
-                                   Predicate<Integer> comparatorTest) throws ExecutionException {
+    private static boolean compare(
+        Context ctx,
+        Command left,
+        Command right,
+        BiPredicate<Long, Long> longComparator,
+        BiPredicate<Double, Double> doubleComparator,
+        Predicate<Integer> comparatorTest
+    ) throws ExecutionException {
         final var op1 = left.execute(ctx);
         final var op2 = right.execute(ctx);
 

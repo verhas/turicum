@@ -9,6 +9,7 @@ import java.util.Objects;
 
 public record ClassDefinition(String className, String[] parents, String[] parameters,
                               BlockCommand body) implements Command {
+
     public static final LngClass[] NO_PARENTS = new LngClass[0];
 
     @Override
@@ -24,7 +25,7 @@ public record ClassDefinition(String className, String[] parents, String[] param
             }
         }
         final var ctx = new ClassContext(context, parentClasses);
-        klass = new LngClass(ctx, parameters, Objects.requireNonNullElse(className,"#undefined"));
+        klass = new LngClass(ctx, parameters, Objects.requireNonNullElse(className, "#undefined"));
         body.execute(ctx);
 
         if (className != null) {
@@ -32,4 +33,5 @@ public record ClassDefinition(String className, String[] parents, String[] param
         }
         return klass;
     }
+
 }

@@ -17,6 +17,7 @@ class StringFetcherTest {
     @Nested
     @DisplayName("Simple String Tests")
     class SimpleStringTests {
+
         @Test
         @DisplayName("Empty string returns empty string")
         void emptyString() throws BadSyntax {
@@ -63,11 +64,13 @@ class StringFetcherTest {
             BadSyntax ex = assertThrows(BadSyntax.class, () -> StringFetcher.getString(input));
             assertTrue(ex.getMessage().startsWith("String not terminated before eol"));
         }
+
     }
 
     @Nested
     @DisplayName("Escape Sequence Tests")
     class EscapeSequenceTests {
+
         @ParameterizedTest(name = "Escape sequence \\{0} becomes {1}")
         @MethodSource("escapeSequences")
         void testEscapeSequences(String input, String expected) throws BadSyntax {
@@ -118,11 +121,13 @@ class StringFetcherTest {
             // Should read only "\\47" as octal, leaving "7" as a regular character
             assertEquals("\477", StringFetcher.getString(input));
         }
+
     }
 
     @Nested
     @DisplayName("Multi-line String Tests")
     class MultilineStringTests {
+
         @Test
         @DisplayName("Empty multi-line string")
         void emptyMultilineString() throws BadSyntax {
@@ -150,6 +155,7 @@ class StringFetcherTest {
             Input input = Input.fromString("\"\"\"Content");
             assertThrows(BadSyntax.class, () -> StringFetcher.getString(input));
         }
+
     }
 
     @Nested
@@ -169,5 +175,7 @@ class StringFetcherTest {
             Input input = Input.fromString("\"\"\"\n\\t First\n\\\"Second\\\"\\n\"\"\"");
             assertEquals("\n\t First\n\"Second\"\n", StringFetcher.getString(input));
         }
+
     }
-} 
+
+}

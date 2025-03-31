@@ -50,4 +50,5 @@ public record ArrayElementLeftValue(LeftValue arrayLeftValue, Command index) imp
     public String toString() {
         return arrayLeftValue.toString() + "[" + index.toString() + "]";
     }
+
 }

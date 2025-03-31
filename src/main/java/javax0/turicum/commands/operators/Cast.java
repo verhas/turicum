@@ -18,17 +18,11 @@ public class Cast {
             case Short ignore -> true;
             case Byte ignore -> true;
             case Character ignore -> true;
-            case Double ignore -> false;
-            case Float ignore -> false;
-            case Boolean ignore -> false;
             case CharSequence cs -> {
                 int start = cs.charAt(0) == '+' || cs.charAt(0) == '-' ? 1 : 0;
-                for (int i = start; i < cs.length(); i++) {
-                    if (!Character.isDigit(cs.charAt(i))) {
-                        yield false;
-                    }
-                }
-                yield true;
+                yield cs.subSequence(start, cs.length())
+                    .chars()
+                    .allMatch(Character::isDigit);
             }
             default -> false;
         };
@@ -43,14 +37,15 @@ public class Cast {
             case Character ignore -> true;
             case Double ignore -> true;
             case Float ignore -> true;
-            case Boolean ignore -> false;
             case CharSequence cs -> {
                 if (cs.isEmpty()) {
                     yield false;
                 }
                 int i = cs.charAt(0) == '+' || cs.charAt(0) == '-' ? 1 : 0;
                 while (i < cs.length()) {
-                    if (cs.charAt(i) == '.') break;
+                    if (cs.charAt(i) == '.') {
+                        break;
+                    }
                     if (!Character.isDigit(cs.charAt(i))) {
                         yield false;
                     }
@@ -64,7 +59,9 @@ public class Cast {
                 }
                 i++; // step over the '.'
                 while (i < cs.length()) {
-                    if (cs.charAt(i) == 'e' || cs.charAt(i) == 'E') break;
+                    if (cs.charAt(i) == 'e' || cs.charAt(i) == 'E') {
+                        break;
+                    }
                     if (!Character.isDigit(cs.charAt(i))) {
                         yield false;
                     }
@@ -96,7 +93,7 @@ public class Cast {
     public static boolean isBoolean(final Object test) throws ExecutionException {
         return switch (test) {
             case null -> true;
-            case Boolean ignored1 -> true;
+            case Boolean ignored -> true;
             case Long ignored -> true;
             case Integer ignored -> true;
             case Short ignored -> true;
@@ -166,8 +163,7 @@ public class Cast {
                 }
             }
             case Conditional ignored -> throw new ExecutionException("Cannot cast break or return result to number");
-            default ->
-                    throw new ExecutionException("Cannot cast object of type '" + obj.getClass().getName() + "' to long");
+            default -> throw new ExecutionException("Cannot cast object of type '" + obj.getClass().getName() + "' to long");
         };
     }
 
@@ -189,10 +185,8 @@ public class Cast {
                 }
             }
             case Conditional ignored -> throw new ExecutionException("Cannot cast break or return result to number");
-            default ->
-                    throw new ExecutionException("Cannot cast object of type '" + obj.getClass().getName() + "' to number");
+            default -> throw new ExecutionException("Cannot cast object of type '" + obj.getClass().getName() + "' to number");
         };
     }
-
 
 }

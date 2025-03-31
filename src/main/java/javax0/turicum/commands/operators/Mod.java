@@ -14,4 +14,5 @@ public class Mod extends AbstractNumericOperator {
 
         return binary("mod", op1, op2, (a, b) -> a % b, (a, b) -> a % b);
     }
+
 }

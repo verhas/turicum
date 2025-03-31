@@ -9,6 +9,7 @@ import java.util.List;
  * A special context holding constant values, like built-ins, one for the interpreter
  */
 public class ThreadContext {
+
     private final List<Yielder> yielders = new ArrayList<>();
 
     public Yielder currentYielder() throws ExecutionException {

@@ -6,6 +6,7 @@ import javax0.turicum.memory.Context;
 import javax0.turicum.memory.LeftValue;
 
 public record Assignment(LeftValue leftValue, Command expression) implements Command {
+
     @Override
     public Object execute(final Context ctx) throws ExecutionException {
         ctx.step();
@@ -13,4 +14,5 @@ public record Assignment(LeftValue leftValue, Command expression) implements Com
         leftValue.assign(ctx, value);
         return value;
     }
+
 }

@@ -5,13 +5,13 @@ import javax0.turicum.BadSyntax;
 import java.util.ArrayList;
 
 public class IdentifierList {
-    public static final IdentifierList INSTANCE = new IdentifierList();
 
+    public static final IdentifierList INSTANCE = new IdentifierList();
 
     public String[] analyze(final Lex.List lexes) throws BadSyntax {
         final var identifiers = new ArrayList<String>();
 
-        while (lexes.peek().type()== Lex.Type.IDENTIFIER) {
+        while (lexes.peek().type() == Lex.Type.IDENTIFIER) {
             identifiers.add(lexes.next().text());
             if (lexes.is(",")) {
                 lexes.next();
@@ -23,4 +23,5 @@ public class IdentifierList {
         }
         return identifiers.toArray(String[]::new);
     }
+
 }

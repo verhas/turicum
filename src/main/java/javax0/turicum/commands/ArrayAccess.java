@@ -6,6 +6,7 @@ import javax0.turicum.memory.Context;
 import javax0.turicum.memory.LeftValue;
 
 public record ArrayAccess(Command object, Command index) implements Command {
+
     @Override
     public Object execute(Context context) throws ExecutionException {
         // the execution order is array first, index afterward
@@ -14,4 +15,5 @@ public record ArrayAccess(Command object, Command index) implements Command {
         final var objectValue = LeftValue.toIndexable(lvalValue);
         return objectValue.getIndex(indexValue);
     }
+
 }

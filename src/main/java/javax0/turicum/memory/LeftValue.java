@@ -31,4 +31,5 @@ public interface LeftValue {
             default -> throw new ExecutionException("Unknown array type %s", existing);
         };
     }
+
 }

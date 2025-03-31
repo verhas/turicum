@@ -12,12 +12,13 @@ import javax0.turicum.memory.VariableLeftValue;
  * | LeftValue '[' Expression ']'
  */
 public class LeftValueAnalyser {
+
     public static final LeftValueAnalyser INSTANCE = new LeftValueAnalyser();
 
     public LeftValue analyze(Lex.List lexes) throws BadSyntax {
         BadSyntax.when(lexes.isEmpty(), "Left value can't be empty");
         final var lex = lexes.peek();
-        if (lex.type()== Lex.Type.IDENTIFIER) {
+        if (lex.type() == Lex.Type.IDENTIFIER) {
             LeftValue left = new VariableLeftValue(lex.text());
             lexes.next();
             while (lexes.is(".") || lexes.is("[")) {
@@ -25,7 +26,7 @@ public class LeftValueAnalyser {
                     case ".":
                         lexes.next();
                         final var fieldName = lexes.next();
-                        BadSyntax.when(fieldName.type()!= Lex.Type.IDENTIFIER, "Field name is invalid");
+                        BadSyntax.when(fieldName.type() != Lex.Type.IDENTIFIER, "Field name is invalid");
                         left = new ObjectFieldLeftValue(left, fieldName.text());
                         break;
                     case "[":
@@ -39,6 +40,6 @@ public class LeftValueAnalyser {
             return left;
         }
         throw new BadSyntax("Left value should start with identifier");
-
     }
+
 }

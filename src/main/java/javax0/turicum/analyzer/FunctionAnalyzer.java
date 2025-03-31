@@ -14,14 +14,14 @@ import java.util.List;
  * commands
  * }
  * }</pre>
- *
+ * <p>
  * OR
  * <pre>{@code
  * fn myFunction (a,b,c,d) {
  * commands
  * }
  * }</pre>
- *
+ * <p>
  * OR
  * <pre>{@code
  * fn (a,b,c,d) {
@@ -30,6 +30,7 @@ import java.util.List;
  * }</pre>
  */
 public class FunctionAnalyzer implements Analyzer {
+
     public static final FunctionAnalyzer INSTANCE = new FunctionAnalyzer();
 
     @Override
@@ -51,14 +52,15 @@ public class FunctionAnalyzer implements Analyzer {
             lexes.next();
         }
         final BlockCommand block;
-        if(lexes.is("=")){
-            BadSyntax.when( ! hasParens,"use must use parenthesis in function definition when using =expression as body");
+        if (lexes.is("=")) {
+            BadSyntax.when(!hasParens, "use must use parenthesis in function definition when using =expression as body");
             lexes.next();
             final var expression = ExpressionAnalyzer.INSTANCE.analyze(lexes);
-            block = new BlockCommand(List.of(expression),false);
-        }else {
+            block = new BlockCommand(List.of(expression), false);
+        } else {
             block = BlockAnalyzer.INSTANCE.analyze(lexes);
         }
         return new FunctionDefinition(fn, arguments, block);
     }
+
 }

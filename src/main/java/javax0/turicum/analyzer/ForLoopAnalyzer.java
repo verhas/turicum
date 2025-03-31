@@ -6,11 +6,12 @@ import javax0.turicum.commands.ConstantExpression;
 import javax0.turicum.commands.ForLoop;
 
 public class ForLoopAnalyzer implements Analyzer {
+
     public static final ForLoopAnalyzer INSTANCE = new ForLoopAnalyzer();
 
     @Override
     public Command analyze(Lex.List lexes) throws BadSyntax {
-        if( lexes.is(Keywords.EACH)){
+        if (lexes.is(Keywords.EACH)) {
             lexes.next();
             return ForEachLoopAnalyzer.INSTANCE.analyze(lexes);
         }
@@ -63,6 +64,7 @@ public class ForLoopAnalyzer implements Analyzer {
 
     /**
      * Get the loop body, the '{' or ':' starting if needed was already checked
+     *
      * @param lexes the current lexical sequence
      * @return the read command
      * @throws BadSyntax if any underlying analysis throws up
@@ -79,4 +81,5 @@ public class ForLoopAnalyzer implements Analyzer {
         }
         return body;
     }
+
 }

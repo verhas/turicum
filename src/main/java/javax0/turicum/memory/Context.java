@@ -13,6 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Keep a context of the current threads executing environment.
  */
 public class Context implements javax0.turicum.Context {
+
     public final int stepLimit;
     public final AtomicInteger steps;
     private final Map<String, Object> heap;
@@ -162,7 +163,7 @@ public class Context implements javax0.turicum.Context {
      * @param key   the name of the variable.
      * @param value the new value for the variable if it already exists.
      * @return {@code true} if a variable was found and redefined, and {@code false} is the variable was not found.
-     * {@code false} if a variable was not found ior was found frozen (in which case like we did not find it)
+     *     {@code false} if a variable was not found ior was found frozen (in which case like we did not find it)
      */
     private boolean redefine(final String key, final Object value) {
         if (frame.containsKey(key)) {
@@ -280,4 +281,5 @@ public class Context implements javax0.turicum.Context {
         }
         steps.incrementAndGet();
     }
+
 }

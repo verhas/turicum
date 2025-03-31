@@ -5,6 +5,7 @@ import javax0.turicum.ExecutionException;
 import java.util.Map;
 
 public class MapObject implements HasFields {
+
     final Map<Object, Object> map;
 
     public MapObject(Map<Object, Object> map) {
@@ -13,11 +14,12 @@ public class MapObject implements HasFields {
 
     @Override
     public void setField(String name, Object value) throws ExecutionException {
-        map.put(name,value);
+        map.put(name, value);
     }
 
     @Override
     public Object getField(String name) throws ExecutionException {
         return map.get(name);
     }
+
 }

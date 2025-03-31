@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class CommandAnalyzer implements Analyzer {
+
     public static final CommandAnalyzer INSTANCE = new CommandAnalyzer();
 
     @Override
@@ -32,7 +33,6 @@ public class CommandAnalyzer implements Analyzer {
     }
 
     private static final Map<String, Analyzer> analyzers = new HashMap<>();
-
 
     static {
         analyzers.put(Keywords.LOCAL, LocalAnalyzer.INSTANCE);

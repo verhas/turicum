@@ -1,22 +1,17 @@
 package javax0.turicum;
 
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 public class TestExpression {
 
-    private void test(final String input, final Object expected) throws Exception {
-        final var interpreter = new Interpreter(input);
-        final var result = interpreter.execute();
-        Assertions.assertEquals(expected, result);
-    }
-
     @DisplayName("Test various constant expressions")
     @Test
     void constantIsAValidExpression() throws Exception {
-        test("1 + { if true {3;} else {4} }* 4 ", 13L);
+        TuriTest
+            .input("1 + { if true {3;} else {4} }* 4 ")
+            .shouldResultIn(13L);
         //     test("+13", 13L);
         //     test("113", 113L);
         //     test("1+1", 2L);

@@ -87,11 +87,10 @@ class Reflect {
         Object callMethod() throws ExecutionException;
     }
 
-
     /**
      * Represents a binary operation (a method with one parameter).
      */
-    class Binary implements Op{
+    class Binary implements Op {
         public Object callMethod() throws ExecutionException {
             try {
                 return method.invoke(op1, op2);
@@ -100,10 +99,11 @@ class Reflect {
             }
         }
     }
+
     /**
      * Represents a unary operation (a method with no parameters).
      */
-    class Unary implements Op{
+    class Unary implements Op {
         public Object callMethod() throws ExecutionException {
             try {
                 return method.invoke(op1);

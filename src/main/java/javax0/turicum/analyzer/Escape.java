@@ -4,6 +4,7 @@ package javax0.turicum.analyzer;
 import javax0.turicum.BadSyntax;
 
 class Escape {
+
     private static char octal(Input in, int maxLen) {
         int i = maxLen;
         int occ = 0;
@@ -52,7 +53,7 @@ class Escape {
     static void handleNormalCharacter(Input input, StringBuilder output) throws BadSyntax {
         final char ch = input.charAt(0);
         BadSyntax.when(ch == '\n' || ch == '\r', () -> String.format("String not terminated before eol:\n%s...",
-                input.substring(1, Math.min(input.length(), 60))));
+            input.substring(1, Math.min(input.length(), 60))));
         output.append(ch);
         input.skip(1);
     }

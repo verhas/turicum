@@ -7,6 +7,7 @@ import javax0.turicum.memory.Context;
 import java.util.Objects;
 
 public record StringConstant(String value) implements Command {
+
     public StringConstant {
         Objects.requireNonNull(value);
     }
@@ -15,4 +16,5 @@ public record StringConstant(String value) implements Command {
     public String execute(Context ctx) throws ExecutionException {
         return value;
     }
+
 }

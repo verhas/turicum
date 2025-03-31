@@ -32,4 +32,5 @@ public record ForEachLoop(Identifier identifier, Command expression, Command bod
         }
         return result;
     }
+
 }

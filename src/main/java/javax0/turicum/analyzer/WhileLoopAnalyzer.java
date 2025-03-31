@@ -6,6 +6,7 @@ import javax0.turicum.commands.ConstantExpression;
 import javax0.turicum.commands.WhileLoop;
 
 public class WhileLoopAnalyzer implements Analyzer {
+
     public static final WhileLoopAnalyzer INSTANCE = new WhileLoopAnalyzer();
 
     @Override
@@ -20,9 +21,10 @@ public class WhileLoopAnalyzer implements Analyzer {
         } else {
             startCondition = ExpressionAnalyzer.INSTANCE.analyze(lexes);
         }
-        ForLoopAnalyzer.checkClosingParen(lexes,withParentheses);
+        ForLoopAnalyzer.checkClosingParen(lexes, withParentheses);
         final Command body = ForLoopAnalyzer.getLoopBody(lexes);
         final Command exitCondition = ForLoopAnalyzer.getOptionalExistCondition(lexes);
-        return new WhileLoop(startCondition,exitCondition,body);
+        return new WhileLoop(startCondition, exitCondition, body);
     }
+
 }

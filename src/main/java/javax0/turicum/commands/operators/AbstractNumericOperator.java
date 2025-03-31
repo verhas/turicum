@@ -7,10 +7,11 @@ import java.util.function.Function;
 
 public abstract class AbstractNumericOperator implements Operator {
 
-    protected Object binary(final String name,
-                            final Object op1, final Object op2,
-                            final BiFunction<Long, Long, Long> longOp,
-                            final BiFunction<Double, Double, Double> doubleOp
+    protected Object binary(
+        final String name,
+        final Object op1, final Object op2,
+        final BiFunction<Long, Long, Long> longOp,
+        final BiFunction<Double, Double, Double> doubleOp
     ) throws ExecutionException {
         ExecutionException.when(op1 == null || op2 == null, "You cannot " + name + " on undefined value");
         if (longOp != null && Cast.isLong(op1) && Cast.isLong(op2)) {
@@ -21,13 +22,14 @@ public abstract class AbstractNumericOperator implements Operator {
         }
 
         return Reflect.getBinaryMethod(name, op1, op2).map(Reflect.Op::callMethod)
-                .orElseThrow(() -> new ExecutionException("Cannot calculate '%s' + '%s'", op1, op2));
+            .orElseThrow(() -> new ExecutionException("Cannot calculate '%s' + '%s'", op1, op2));
     }
 
-    protected Object unary(final String name,
-                           final Object op,
-                           final Function<Long, Long> longOp,
-                           final Function<Double, Double> doubleOp
+    protected Object unary(
+        final String name,
+        final Object op,
+        final Function<Long, Long> longOp,
+        final Function<Double, Double> doubleOp
     ) {
         if (Cast.isLong(op)) {
             return longOp.apply(Cast.toLong(op));
@@ -37,7 +39,8 @@ public abstract class AbstractNumericOperator implements Operator {
         }
 
         return Reflect.getUnaryMethod(name, op).map(Reflect.Op::callMethod)
-                .orElseThrow(() -> new ExecutionException("Cannot %s.%s()", op, name));
+            .orElseThrow(() -> new ExecutionException("Cannot %s.%s()", op, name));
     }
+
 }
 

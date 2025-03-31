@@ -32,23 +32,23 @@ public class StringFetcher {
     /**
      * Parses a multi-line string delimited by triple quotes, handling escape sequences.
      *
-     * @param in The input to parse from
+     * @param input The input to parse from
      * @return The parsed multi-line string
      * @throws BadSyntax If the multi-line string is not properly terminated
      */
-    private static String getMultiLineString(Input in) throws BadSyntax {
+    private static String getMultiLineString(Input input) throws BadSyntax {
         final var output = new StringBuilder();
-        in.skip(MLSD_LENGTH);
-        while (in.length() >= MLSD_LENGTH && !in.subSequence(0, MLSD_LENGTH).equals(MULTI_LINE_STRING_DELIMITER)) {
-            final char ch = in.charAt(0);
+        input.skip(MLSD_LENGTH);
+        while (input.length() >= MLSD_LENGTH && !input.subSequence(0, MLSD_LENGTH).equals(MULTI_LINE_STRING_DELIMITER)) {
+            final char ch = input.charAt(0);
             if (ch == '\\') {
-                Escape.handleEscape(in, output);
+                Escape.handleEscape(input, output);
             } else {
-                Escape.handleNormalMultiLineStringCharacter(in, output);
+                Escape.handleNormalMultiLineStringCharacter(input, output);
             }
         }
-        BadSyntax.when(in.length() < MLSD_LENGTH, "Multi-line string is not terminated before eof");
-        in.skip(MLSD_LENGTH);
+        BadSyntax.when(input.length() < MLSD_LENGTH, "Multi-line string is not terminated before eof");
+        input.skip(MLSD_LENGTH);
         return output.toString();
     }
 
@@ -60,9 +60,13 @@ public class StringFetcher {
      * @throws BadSyntax If the string is not properly terminated
      */
     private static String getSimpleString(Input input) throws BadSyntax {
+        return getString(input, ENCLOSING_CH);
+    }
+
+    private static String getString(Input input, char enclosingCh) throws BadSyntax {
         final var output = new StringBuilder();
         input.skip(1);
-        while (!input.isEmpty() && input.charAt(0) != ENCLOSING_CH) {
+        while (!input.isEmpty() && input.charAt(0) != enclosingCh) {
             final char ch = input.charAt(0);
             if (ch == '\\') {
                 Escape.handleEscape(input, output);
@@ -76,19 +80,7 @@ public class StringFetcher {
     }
 
     public static String fetchId(Input input) throws BadSyntax {
-        final var output = new StringBuilder();
-        input.skip(1);
-        while (!input.isEmpty() && input.charAt(0) != IDENTIFIER_CH) {
-            final char ch = input.charAt(0);
-            if (ch == '\\') {
-                Escape.handleEscape(input, output);
-            } else {
-                Escape.handleNormalCharacter(input, output);
-            }
-        }
-        BadSyntax.when(input.isEmpty(), "String is not terminated before eol");
-        input.skip(1);
-        return output.toString();
+        return getString(input, IDENTIFIER_CH);
     }
 
 }

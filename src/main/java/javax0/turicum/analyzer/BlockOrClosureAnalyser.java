@@ -4,6 +4,7 @@ import javax0.turicum.BadSyntax;
 import javax0.turicum.commands.Command;
 
 public class BlockOrClosureAnalyser implements Analyzer {
+
     public static final BlockOrClosureAnalyser INSTANCE = new BlockOrClosureAnalyser();
 
     @Override

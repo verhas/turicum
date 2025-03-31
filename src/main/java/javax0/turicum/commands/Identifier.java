@@ -9,6 +9,7 @@ import javax0.turicum.memory.Context;
  * The search very much depends on the context.
  */
 public record Identifier(String name) implements Command {
+
     @Override
     public Object execute(Context ctx) throws ExecutionException {
         return ctx.get(name);
@@ -18,4 +19,5 @@ public record Identifier(String name) implements Command {
     public String toString() {
         return name;
     }
+
 }

@@ -41,7 +41,6 @@ public class Input implements CharSequence {
         return builder.subSequence(start, end);
     }
 
-
     /**
      * Checks if the internal {@code builder} starts with any of the given strings.
      * <p>
@@ -52,13 +51,15 @@ public class Input implements CharSequence {
      *
      * @param s one or more strings to check against the start of the {@code builder}'s content
      * @return the index of the first string that the {@code builder} starts with;
-     * -1 if no strings match
+     *     -1 if no strings match
      * @throws NullPointerException      if {@code s} or any of its elements are {@code null}
      * @throws IndexOutOfBoundsException if any string in {@code s} is longer than the builder's content
      */
     public int startsWith(final String... s) {
         for (int i = 0; i < s.length; i++) {
-            if (s[i].length() <= builder.length() && builder.subSequence(0, s[i].length()).equals(s[i])) return i;
+            if (s[i].length() <= builder.length() && builder.subSequence(0, s[i].length()).equals(s[i])) {
+                return i;
+            }
         }
         return -1;
     }
@@ -95,7 +96,7 @@ public class Input implements CharSequence {
     /**
      * @param c the character to check
      * @return {@code true} if the character can be used as the first character of a macro identifier. Currently, these
-     * are {@code $}, {@code _} (underscore), {@code :} (colon) and any alphabetic character.
+     *     are {@code $}, {@code _} (underscore), {@code :} (colon) and any alphabetic character.
      */
     static boolean validId1stChar(char c) {
         return c == '_' || Character.isAlphabetic(c);
@@ -104,7 +105,7 @@ public class Input implements CharSequence {
     /**
      * @param c the character to check
      * @return {@code true} if the character can be used in a macro identifier. These are the same characters that can
-     * be used as first characters (see {@link #validId1stChar(char)}) and also digits.
+     *     be used as first characters (see {@link #validId1stChar(char)}) and also digits.
      */
     static boolean validIdChar(char c) {
         return validId1stChar(c) || Character.isDigit(c);

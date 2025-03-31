@@ -1,11 +1,13 @@
 package javax0.turicum.commands;
 
-sealed public interface Conditional permits Conditional.Result {
+public sealed interface Conditional permits Conditional.Result {
+
     boolean isDone();
 
     Object result();
 
     sealed class Result implements Conditional permits BreakResult, ReturnResult {
+
         private final Object result;
         private final boolean done;
 
@@ -26,6 +28,7 @@ sealed public interface Conditional permits Conditional.Result {
         public String toString() {
             return "result{" + result() + "}";
         }
+
     }
 
     final class BreakResult extends Result {
@@ -38,9 +41,11 @@ sealed public interface Conditional permits Conditional.Result {
         public String toString() {
             return "break{" + result() + "}";
         }
+
     }
 
     final class ReturnResult extends Result {
+
         private ReturnResult(Object result, boolean done) {
             super(result, done);
         }
@@ -63,4 +68,5 @@ sealed public interface Conditional permits Conditional.Result {
     static Conditional result(Object result) {
         return new Result(result, false);
     }
+
 }

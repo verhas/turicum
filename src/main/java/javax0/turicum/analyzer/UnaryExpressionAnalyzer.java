@@ -5,9 +5,10 @@ import javax0.turicum.commands.Command;
 import javax0.turicum.commands.Operation;
 
 public class UnaryExpressionAnalyzer implements Analyzer {
+
     static final Analyzer INSTANCE = new UnaryExpressionAnalyzer();
 
-    static final String[] unaryOperators = {"+", "-", "!", ".."};
+    static final String[] unaryOperators = { "+", "-", "!", ".." };
 
     public Command analyze(final Lex.List lexes) throws BadSyntax {
         if (lexes.is(unaryOperators)) {
@@ -16,4 +17,5 @@ public class UnaryExpressionAnalyzer implements Analyzer {
         }
         return PrimaryExpressionAnalyzer.INSTANCE.analyze(lexes);
     }
+
 }

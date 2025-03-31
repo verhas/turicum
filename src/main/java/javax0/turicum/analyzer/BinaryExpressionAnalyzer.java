@@ -5,22 +5,24 @@ import javax0.turicum.commands.Command;
 import javax0.turicum.commands.Operation;
 
 public class BinaryExpressionAnalyzer implements Analyzer {
+
     static final Analyzer INSTANCE = new BinaryExpressionAnalyzer();
 
     static final String[][] binaryOperators = {
-            {Keywords.OR},
-            {"||"},
-            {"&&"},
-            {".."},
-            {"|"},
-            {"^"},
-            {"&"},
-            {"==", "!="},
-            {"<", "<=", ">", ">="},
-            {"<<", ">>"},
-            {"+", "-"},
-            {"*", "/", "%"}
+        { Keywords.OR },
+        { "||" },
+        { "&&" },
+        { ".." },
+        { "|" },
+        { "^" },
+        { "&" },
+        { "==", "!=" },
+        { "<", "<=", ">", ">=" },
+        { "<<", ">>" },
+        { "+", "-" },
+        { "*", "/", "%" }
     };
+
     private static final int N = binaryOperators.length;
 
     public Command analyze(final int precedenceLevel, final Lex.List lexes) throws BadSyntax {
@@ -45,4 +47,5 @@ public class BinaryExpressionAnalyzer implements Analyzer {
     public Command analyze(Lex.List lexes) throws BadSyntax {
         return analyze(0, lexes);
     }
+
 }

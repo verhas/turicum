@@ -7,7 +7,7 @@ import javax0.turicum.memory.Context;
 import java.util.regex.Pattern;
 
 @Operator.Symbol("-")
-public class Substract extends AbstractNumericOperator {
+public class Subtract extends AbstractNumericOperator {
 
     @Override
     public Object execute(Context ctx, Command left, Command right) throws ExecutionException {

@@ -8,10 +8,11 @@ public record BreakCommand(Command expression, Command condition) implements Com
 
     @Override
     public Conditional execute(Context context) throws ExecutionException {
-        if( Cast.toBoolean(condition.execute(context))) {
+        if (Cast.toBoolean(condition.execute(context))) {
             return Conditional.doBreak(expression.execute(context));
-        }else{
+        } else {
             return Conditional.result(null);
         }
     }
+
 }

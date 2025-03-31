@@ -20,13 +20,14 @@ public record BlockAnalyzer(boolean wrap) implements Analyzer {
 
     static ArrayList<Command> getCommands(Lex.List lexes) throws BadSyntax {
         final var commands = new ArrayList<Command>();
-        while( lexes.isNot("}")){
+        while (lexes.isNot("}")) {
             final var cmd = CommandAnalyzer.INSTANCE.analyze(lexes);
-            if( cmd != null ) {
+            if (cmd != null) {
                 commands.add(cmd);
             }
         }
         lexes.next(); // eat the closing '}'
         return commands;
     }
+
 }

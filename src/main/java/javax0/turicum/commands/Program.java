@@ -4,6 +4,7 @@ import javax0.turicum.ExecutionException;
 import javax0.turicum.memory.Context;
 
 public record Program(Command[] commands) implements Command {
+
     @Override
     public Object execute(Context ctx) throws ExecutionException {
         Object value = null;
@@ -12,4 +13,5 @@ public record Program(Command[] commands) implements Command {
         }
         return value;
     }
+
 }

@@ -14,4 +14,5 @@ public record FieldAccess(Command object, String identifier) implements Command 
         final var object = LeftValue.toObject(rawObject);
         return object.getField(identifier);
     }
+
 }

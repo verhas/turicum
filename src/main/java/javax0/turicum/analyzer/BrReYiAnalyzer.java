@@ -19,4 +19,5 @@ public class BrReYiAnalyzer {
         }
         return breyiCommandFunction.apply(expression, condition);
     }
+
 }

@@ -143,4 +143,5 @@ public record FunctionCall(Command object, Command[] arguments) implements Comma
         }
         return myObject;
     }
+
 }

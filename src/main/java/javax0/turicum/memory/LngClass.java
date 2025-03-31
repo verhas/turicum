@@ -70,4 +70,5 @@ public class LngClass implements HasFields, HasContext, LngCallable {
     public String toString() {
         return String.format("class %s", name);
     }
+
 }

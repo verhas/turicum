@@ -4,6 +4,7 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ResizableSemaphore extends Semaphore {
+
     private final AtomicInteger inUse = new AtomicInteger(0);
     private volatile int maxPermits;
 
@@ -54,4 +55,5 @@ public class ResizableSemaphore extends Semaphore {
             }
         }
     }
+
 }

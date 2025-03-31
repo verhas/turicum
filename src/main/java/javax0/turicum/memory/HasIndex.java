@@ -8,6 +8,7 @@ import java.util.Objects;
 import java.util.function.Function;
 
 public interface HasIndex extends Iterable<Object> {
+
     void setIndex(Object index, Object value) throws ExecutionException;
 
     Object getIndex(Object index) throws ExecutionException;
@@ -24,20 +25,23 @@ public interface HasIndex extends Iterable<Object> {
 
     /**
      * Filter the elements of an array or composition.
-     * @param start the start index inclusive
-     * @param end the end index exclusive
+     *
+     * @param start     the start index inclusive
+     * @param end       the end index exclusive
      * @param modifiers the array of the modifiers that can filter out elements or modify them on the fly
-     * @param context the context to wrap into a closure context when we execute the modifiers
-     * @param list is the target to which the non-filtere and possibly modified values will be added to
-     * @param fetch is used to fetch the element for the given index to be filtered out and modified
+     * @param context   the context to wrap into a closure context when we execute the modifiers
+     * @param list      is the target to which the non-filtered and possibly modified values will be added to
+     * @param fetch     is used to fetch the element for the given index to be filtered out and modified
      * @throws ExecutionException when some modifiers are not closures
      */
-    static void filterElements(final long start,
-                                      final long end,
-                                      final CompositionModifier[] modifiers,
-                                      final Context context,
-                                      final LngList list,
-                                      final Function<Long,Object> fetch) throws ExecutionException {
+    static void filterElements(
+        final long start,
+        final long end,
+        final CompositionModifier[] modifiers,
+        final Context context,
+        final LngList list,
+        final Function<Long, Object> fetch
+    ) throws ExecutionException {
         for (long i = start; !Objects.equals(i, end); i += i <= end ? 1 : -1) {
             boolean filtered = false;
             Object item = fetch.apply(i);
@@ -66,8 +70,7 @@ public interface HasIndex extends Iterable<Object> {
                                 throw new ExecutionException("you can map using only with closure or function");
                             }
                         }
-                        default ->
-                                throw new RuntimeException("unknown modifier type, this is an internal error " + modifier.getClass());
+                        default -> throw new RuntimeException("unknown modifier type, this is an internal error " + modifier.getClass());
                     }
                     if (filtered) {
                         break;

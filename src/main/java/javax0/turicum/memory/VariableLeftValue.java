@@ -4,9 +4,7 @@ import javax0.turicum.ExecutionException;
 
 import java.util.Objects;
 
-public class VariableLeftValue implements LeftValue {
-
-    public final String variable;
+public record VariableLeftValue(String variable) implements LeftValue {
 
     public VariableLeftValue(String variable) {
         this.variable = Objects.requireNonNull(variable);
@@ -25,10 +23,10 @@ public class VariableLeftValue implements LeftValue {
     }
 
     @Override
-    public HasIndex getIndexable(Context ctx,Object indexValue) {
+    public HasIndex getIndexable(Context ctx, Object indexValue) {
         final var existing = ctx.get(variable);
         if (existing == null) {
-            final var newIndexable = HasIndex.createFor(indexValue,ctx);
+            final var newIndexable = HasIndex.createFor(indexValue, ctx);
             ctx.let(variable, newIndexable);
             return newIndexable;
         } else {
@@ -45,4 +43,5 @@ public class VariableLeftValue implements LeftValue {
     public String toString() {
         return variable;
     }
+
 }

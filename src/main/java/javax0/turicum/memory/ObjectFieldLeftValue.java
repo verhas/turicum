@@ -40,4 +40,5 @@ public record ObjectFieldLeftValue(LeftValue object, String field) implements Le
     public void assign(Context ctx, Object value) throws ExecutionException {
         object.getObject(ctx).setField(field, value);
     }
+
 }

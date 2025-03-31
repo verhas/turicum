@@ -5,6 +5,7 @@ import javax0.turicum.commands.operators.Cast;
 import javax0.turicum.LngCallable;
 
 public class TuriLong implements TuriClass {
+
     @Override
     public Class<?> forClass() {
         return Long.class;
@@ -13,8 +14,7 @@ public class TuriLong implements TuriClass {
     @Override
     public LngCallable getMethod(Object target, String identifier) {
         return switch (identifier) {
-            case "times" ->
-                    new TuriMethodCallBuilder(target, (obj, args) -> times(obj,args[0]));
+            case "times" -> new TuriMethodCallBuilder(target, (obj, args) -> times(obj, args[0]));
             default -> null;
         };
     }
@@ -28,4 +28,5 @@ public class TuriLong implements TuriClass {
         }
         return arg.toString().repeat(Cast.toLong(target).intValue());
     }
+
 }

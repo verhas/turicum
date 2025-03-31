@@ -9,6 +9,7 @@ import javax0.turicum.commands.If;
 import java.util.List;
 
 public class IfAnalyzer implements Analyzer {
+
     public static final IfAnalyzer INSTANCE = new IfAnalyzer();
 
     public If analyze(final Lex.List lexes) throws BadSyntax {
@@ -20,7 +21,7 @@ public class IfAnalyzer implements Analyzer {
         } else if (lexes.is(":")) {
             lexes.next();
             thenBlock = CommandAnalyzer.INSTANCE.analyze(lexes);
-            BadSyntax.when( thenBlock == null ,"Empty command ( ';' ) must not be after 'if expression' or 'elseif expression'" );
+            BadSyntax.when(thenBlock == null, "Empty command ( ';' ) must not be after 'if expression' or 'elseif expression'");
         } else {
             throw new BadSyntax(": or {", "Expected ':' or '{' after if condition");
         }
@@ -39,7 +40,7 @@ public class IfAnalyzer implements Analyzer {
             } else if (lexes.is(":")) {
                 lexes.next();
                 elseBlock = CommandAnalyzer.INSTANCE.analyze(lexes);
-                BadSyntax.when( elseBlock == null ,"Empty command ( ';' ) must not be after 'else expression'");
+                BadSyntax.when(elseBlock == null, "Empty command ( ';' ) must not be after 'else expression'");
             } else {
                 throw new BadSyntax(": or {", "Expected '{' after if condition");
             }
@@ -47,4 +48,5 @@ public class IfAnalyzer implements Analyzer {
         }
         return new If(condition, thenBlock, null);
     }
+
 }

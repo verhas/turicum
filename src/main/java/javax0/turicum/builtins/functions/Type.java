@@ -13,6 +13,7 @@ import javax0.turicum.memory.LngObject;
  * Return the type of the argument as a string.
  */
 public class Type implements TuriFunction {
+
     @Override
     public String name() {
         return "type";
@@ -38,4 +39,5 @@ public class Type implements TuriFunction {
             default -> "JAVA#" + arg.getClass().getCanonicalName();
         };
     }
+
 }

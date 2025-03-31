@@ -5,6 +5,7 @@ import javax0.turicum.commands.operators.Cast;
 import javax0.turicum.memory.Context;
 
 public record WhileLoop(Command startCondition, Command exitCondition, Command body) implements Command {
+
     @Override
     public Object execute(Context context) throws ExecutionException {
         Object result = null;
@@ -26,4 +27,5 @@ public record WhileLoop(Command startCondition, Command exitCondition, Command b
         }
         return result;
     }
+
 }

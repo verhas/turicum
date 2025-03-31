@@ -4,6 +4,7 @@ import javax0.turicum.TuriClass;
 import javax0.turicum.LngCallable;
 
 public class TuriDouble implements TuriClass {
+
     @Override
     public Class<?> forClass() {
         return Double.class;
@@ -15,4 +16,5 @@ public class TuriDouble implements TuriClass {
             default -> null;
         };
     }
+
 }

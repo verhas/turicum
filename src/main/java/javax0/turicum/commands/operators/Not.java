@@ -9,9 +9,10 @@ public class Not extends AbstractNumericOperator {
 
     @Override
     public Object execute(Context ctx, Command left, Command right) throws ExecutionException {
-        ExecutionException.when(left != null,"Somehow '!' is used as a binary operator");
+        ExecutionException.when(left != null, "Somehow '!' is used as a binary operator");
         final var op2 = right.execute(ctx);
         ExecutionException.when(!Cast.isBoolean(op2), "%s cannot be used as boolean", op2);
         return !Cast.toBoolean(op2);
     }
+
 }

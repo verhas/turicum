@@ -5,6 +5,7 @@ import javax0.turicum.ExecutionException;
 import javax0.turicum.memory.Context;
 
 public record IntegerConstant(long value) implements Command {
+
     public IntegerConstant(String value) {
         this(Long.parseLong(value));
     }
@@ -18,4 +19,5 @@ public record IntegerConstant(long value) implements Command {
     public String toString() {
         return Long.toString(value);
     }
+
 }

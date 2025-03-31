@@ -8,7 +8,7 @@ public record JavaObject(Object object) implements HasFields {
     public void setField(String name, Object value) {
         try {
             final var field = object.getClass().getField(name);
-            field.set(object,value);
+            field.set(object, value);
         } catch (NoSuchFieldException | IllegalAccessException e) {
             throw new ExecutionException("Cannot set the value of the field '" + name + "' ", e);
         }
@@ -23,4 +23,5 @@ public record JavaObject(Object object) implements HasFields {
             throw new ExecutionException("Cannot get the value of the field '" + name + "' ", e);
         }
     }
+
 }

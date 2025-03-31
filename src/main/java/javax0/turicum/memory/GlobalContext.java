@@ -12,11 +12,14 @@ import java.util.Map;
 public class GlobalContext {
 
     private final Map<Class<?>, TuriClass> turiClasses = new HashMap<>();
+
     public TuriClass getTuriClass(Class<?> clazz) {
         return turiClasses.get(clazz);
     }
+
     public void addTuriClass(Class<?> clazz, TuriClass turiClass) throws ExecutionException {
-        ExecutionException.when( turiClasses.containsKey(clazz),"Class " + clazz.getName() + " already exists as a turi class." );
-        turiClasses.put(clazz,turiClass);
+        ExecutionException.when(turiClasses.containsKey(clazz), "Class " + clazz.getName() + " already exists as a turi class.");
+        turiClasses.put(clazz, turiClass);
     }
+
 }

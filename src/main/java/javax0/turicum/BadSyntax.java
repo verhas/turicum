@@ -3,6 +3,7 @@ package javax0.turicum;
 import java.util.function.Supplier;
 
 public class BadSyntax extends Exception {
+
     public BadSyntax(String s, Object... params) {
         super(String.format(s, params));
     }
@@ -18,4 +19,5 @@ public class BadSyntax extends Exception {
             throw new BadSyntax(msg.get());
         }
     }
+
 }

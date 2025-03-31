@@ -21,34 +21,36 @@ import javax0.turicum.commands.Command;
  * '{@code : a,b,c,d}' parent classes definitions are optional.
  */
 public class ClassAnalyzer implements Analyzer {
+
     public static final ClassAnalyzer INSTANCE = new ClassAnalyzer();
 
     @Override
     public Command analyze(Lex.List lexes) throws BadSyntax {
         final String cn;
-        if( lexes.isIdentifier() ) {
+        if (lexes.isIdentifier()) {
             cn = lexes.next().text();
-        }else{
+        } else {
             cn = null;
         }
         String[] parameters;
-        if( lexes.is("(")){
+        if (lexes.is("(")) {
             lexes.next();
             parameters = IdentifierList.INSTANCE.analyze(lexes);
-            BadSyntax.when(!lexes.is(")"),"Constructor parameters should be followed by ')'");
+            BadSyntax.when(!lexes.is(")"), "Constructor parameters should be followed by ')'");
             lexes.next();
-        }else{
+        } else {
             parameters = null;
         }
         final String[] parents;
         if (lexes.is(":")) {
             lexes.next();
             parents = IdentifierList.INSTANCE.analyze(lexes);
-            BadSyntax.when( parents.length == 0 ,"The list of the parents must not be empty following the ':'. Just leave the ':'.");
+            BadSyntax.when(parents.length == 0, "The list of the parents must not be empty following the ':'. Just leave the ':'.");
         } else {
             parents = null;
         }
         final var block = BlockAnalyzer.UNWRAPPED.analyze(lexes);
-        return new ClassDefinition(cn, parents, parameters,block);
+        return new ClassDefinition(cn, parents, parameters, block);
     }
+
 }

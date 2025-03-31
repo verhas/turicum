@@ -18,10 +18,11 @@ public record Lex(Type type, String text, boolean atLineStart) {
         if (type != Type.RESERVED) {
             return false;
         }
-        for (final var s : textAlternatives)
+        for (final var s : textAlternatives) {
             if (this.text().equals(s)) {
                 return true;
             }
+        }
         return false;
     }
 
@@ -63,26 +64,26 @@ public record Lex(Type type, String text, boolean atLineStart) {
 
         public Lex next(Lex.Type expectedType) throws BadSyntax {
             final var lex = next();
-            BadSyntax.when(lex.type()!= expectedType, "%s was expected and got '%s' which is %s", expectedType.name(), lex.text(), lex.type.name());
+            BadSyntax.when(lex.type() != expectedType, "%s was expected and got '%s' which is %s", expectedType.name(), lex.text(), lex.type.name());
             return lex;
         }
 
         public Lex next(Type type, String msg) throws BadSyntax {
-            if (index >= lexes.length || lexes[index].type()!= type) {
+            if (index >= lexes.length || lexes[index].type() != type) {
                 throw new BadSyntax(msg);
             }
             return next();
         }
 
         public Lex next(Type type, String text, String msg) throws BadSyntax {
-            if (index >= lexes.length || lexes[index].type()!= type || !lexes[index].text().equals(text)) {
+            if (index >= lexes.length || lexes[index].type() != type || !lexes[index].text().equals(text)) {
                 throw new BadSyntax(msg);
             }
             return next();
         }
 
         public void peek(Type type, String text, String msg) throws BadSyntax {
-            if (index >= lexes.length || lexes[index].type()!= type || (text != null && !text.equals(lexes[index].text()))) {
+            if (index >= lexes.length || lexes[index].type() != type || (text != null && !text.equals(lexes[index].text()))) {
                 throw new BadSyntax(msg);
             }
         }
@@ -111,7 +112,7 @@ public record Lex(Type type, String text, boolean atLineStart) {
         }
 
         public boolean isKeyword() {
-            return hasNext() && lexes[index].type()== Type.RESERVED && Character.isAlphabetic(lexes[index].text().charAt(0));
+            return hasNext() && lexes[index].type() == Type.RESERVED && Character.isAlphabetic(lexes[index].text().charAt(0));
         }
 
         public boolean isNot(String... textAlternatives) {
@@ -127,7 +128,7 @@ public record Lex(Type type, String text, boolean atLineStart) {
         }
 
         public boolean isIdentifier() {
-            return hasNext() && lexes[index].type()== Type.IDENTIFIER;
+            return hasNext() && lexes[index].type() == Type.IDENTIFIER;
         }
 
 

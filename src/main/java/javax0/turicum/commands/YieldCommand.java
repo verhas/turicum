@@ -8,12 +8,13 @@ public record YieldCommand(Command expression, Command condition) implements Com
 
     @Override
     public Object execute(Context context) throws ExecutionException {
-        if( Cast.toBoolean(condition.execute(context))) {
+        if (Cast.toBoolean(condition.execute(context))) {
             final var result = expression.execute(context);
             context.threadContext.currentYielder().send(result);
             return result;
-        }else{
+        } else {
             return null;
         }
     }
+
 }

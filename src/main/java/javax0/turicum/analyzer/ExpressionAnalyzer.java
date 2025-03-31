@@ -54,13 +54,14 @@ import javax0.turicum.commands.Command;
  * binary_operators[9] ::= '*' | '/' | '%'  // Highest precedence for binary ops
  * }
  * </pre>
- *
  */
 
 public class ExpressionAnalyzer implements Analyzer {
-    public final static Analyzer INSTANCE = new ExpressionAnalyzer();
+
+    public static final Analyzer INSTANCE = new ExpressionAnalyzer();
 
     public Command analyze(final Lex.List lexes) throws BadSyntax {
         return BinaryExpressionAnalyzer.INSTANCE.analyze(lexes);
     }
+
 }

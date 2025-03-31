@@ -31,32 +31,32 @@ public class TestInterpreter {
 
         // Create a dynamic test for each snippet.
         return snippets.stream().map(snippet ->
-                DynamicTest.dynamicTest(
-                        snippet.name() + " " + snippet.name() + ":" + snippet.lineNumber(),
-                        () -> {
-                            // Handle cases where an exception is expected.
-                            if ("Exception".equals(snippet.expectedClass())) {
-                                assertThrows(Exception.class, () -> new Interpreter(snippet.programCode()).execute(),
-                                        "Expected exception for snippet: " + snippet.name());
-                            } else {
-                                // Execute the snippet.
-                                Object result = new Interpreter(snippet.programCode()).execute();
-                                // If expected class is "null", assert that result is null.
-                                if ("null".equals(snippet.expectedClass())) {
-                                    assertNull(result, "Expected null result for snippet: " + snippet.name() + ":" + snippet.lineNumber());
-                                } else {
-                                    // Otherwise, the result should not be null.
-                                    assertNotNull(result, "Expected non-null result for snippet: " + snippet.name() + ":" + snippet.lineNumber());
-                                    // Verify the class name.
-                                    assertEquals(snippet.expectedClass(), result.getClass().getSimpleName(),
-                                            "Expected class mismatch in snippet: " + snippet.name() + ":" + snippet.lineNumber());
-                                    // Verify the string representation.
-                                    assertEquals(snippet.expectedValue(), result.toString(),
-                                            "Expected value mismatch in snippet: " + snippet.name() + ":" + snippet.lineNumber());
-                                }
-                            }
+            DynamicTest.dynamicTest(
+                snippet.name() + " " + snippet.name() + ":" + snippet.lineNumber(),
+                () -> {
+                    // Handle cases where an exception is expected.
+                    if ("Exception".equals(snippet.expectedClass())) {
+                        assertThrows(Exception.class, () -> new Interpreter(snippet.programCode()).execute(),
+                            "Expected exception for snippet: " + snippet.name());
+                    } else {
+                        // Execute the snippet.
+                        Object result = new Interpreter(snippet.programCode()).execute();
+                        // If expected class is "null", assert that result is null.
+                        if ("null".equals(snippet.expectedClass())) {
+                            assertNull(result, "Expected null result for snippet: " + snippet.name() + ":" + snippet.lineNumber());
+                        } else {
+                            // Otherwise, the result should not be null.
+                            assertNotNull(result, "Expected non-null result for snippet: " + snippet.name() + ":" + snippet.lineNumber());
+                            // Verify the class name.
+                            assertEquals(snippet.expectedClass(), result.getClass().getSimpleName(),
+                                "Expected class mismatch in snippet: " + snippet.name() + ":" + snippet.lineNumber());
+                            // Verify the string representation.
+                            assertEquals(snippet.expectedValue(), result.toString(),
+                                "Expected value mismatch in snippet: " + snippet.name() + ":" + snippet.lineNumber());
                         }
-                )
+                    }
+                }
+            )
         );
     }
 

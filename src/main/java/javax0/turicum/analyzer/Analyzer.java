@@ -12,8 +12,8 @@ import javax0.turicum.commands.Command;
  * <p>
  * Analysers can eventually invoke each others following the syntax descriptions.
  */
-
 public interface Analyzer {
+
     Command analyze(final Lex.List lexes) throws BadSyntax;
 
     static void checkCommandTermination(Lex.List lexes) throws BadSyntax {
@@ -25,7 +25,7 @@ public interface Analyzer {
             lexes.next(); // step over the ';'
             return;
         }
-        if (lex.type() == Lex.Type.RESERVED  || lex.atLineStart()) {
+        if (lex.type() == Lex.Type.RESERVED || lex.atLineStart()) {
             return;
         }
         throw new BadSyntax("Command must be terminated by a semicolon or new line");

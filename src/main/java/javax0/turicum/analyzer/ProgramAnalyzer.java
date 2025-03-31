@@ -7,6 +7,7 @@ import javax0.turicum.commands.Program;
 import java.util.ArrayList;
 
 public class ProgramAnalyzer implements Analyzer {
+
     public static final ProgramAnalyzer INSTANCE = new ProgramAnalyzer();
 
     @Override
@@ -14,10 +15,11 @@ public class ProgramAnalyzer implements Analyzer {
         final var list = new ArrayList<Command>();
         while (lexes.hasNext()) {
             final var cmd = CommandAnalyzer.INSTANCE.analyze(lexes);
-            if( cmd != null ) {
+            if (cmd != null) {
                 list.add(cmd);
             }
         }
         return new Program(list.toArray(Command[]::new));
     }
+
 }

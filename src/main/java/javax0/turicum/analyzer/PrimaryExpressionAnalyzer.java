@@ -25,6 +25,7 @@ import java.util.ArrayList;
  * </pre>
  */
 public class PrimaryExpressionAnalyzer implements Analyzer {
+
     public static final PrimaryExpressionAnalyzer INSTANCE = new PrimaryExpressionAnalyzer();
 
     @Override
@@ -75,9 +76,7 @@ public class PrimaryExpressionAnalyzer implements Analyzer {
             case INTEGER -> getAccessOrCall(lexes, new IntegerConstant(lex.text()));
             case FLOAT -> getAccessOrCall(lexes, new FloatConstant(lex.text()));
             default -> throw new BadSyntax("Expression: expected identifier, or constant, got " + lex.text());
-        }
-
-                ;
+        };
     }
 
     /**
@@ -143,4 +142,5 @@ public class PrimaryExpressionAnalyzer implements Analyzer {
         lexes.next(); // consume the ')'
         return arguments.toArray(Command[]::new);
     }
+
 }

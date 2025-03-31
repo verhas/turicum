@@ -4,6 +4,7 @@ import javax0.turicum.BadSyntax;
 import javax0.turicum.commands.*;
 
 public class ForEachLoopAnalyzer implements Analyzer {
+
     public static final ForEachLoopAnalyzer INSTANCE = new ForEachLoopAnalyzer();
 
     @Override
@@ -25,4 +26,5 @@ public class ForEachLoopAnalyzer implements Analyzer {
         final Command exitCondition = ForLoopAnalyzer.getOptionalExistCondition(lexes);
         return new ForEachLoop(identifier, expression, body, exitCondition);
     }
+
 }

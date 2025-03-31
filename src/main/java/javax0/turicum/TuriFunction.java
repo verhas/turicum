@@ -2,7 +2,7 @@ package javax0.turicum;
 
 import java.util.List;
 
-public interface TuriFunction extends LngCallable, ServiceLoaded {
+public non-sealed interface TuriFunction extends LngCallable, ServiceLoaded {
 
     static List<TuriFunction> getInstances() {
         return ServiceLoaded.getInstances(TuriFunction.class);

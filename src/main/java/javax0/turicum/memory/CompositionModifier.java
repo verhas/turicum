@@ -3,6 +3,7 @@ package javax0.turicum.memory;
 import javax0.turicum.commands.Command;
 
 public class CompositionModifier {
+
     public static class Filter extends CompositionModifier {
         public final Command expression;
 

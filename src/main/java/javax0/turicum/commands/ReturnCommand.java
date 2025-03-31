@@ -8,10 +8,11 @@ public record ReturnCommand(Command expression, Command condition) implements Co
 
     @Override
     public Conditional execute(Context context) throws ExecutionException {
-        if( Cast.toBoolean(condition.execute(context))) {
+        if (Cast.toBoolean(condition.execute(context))) {
             return Conditional.doReturn(expression.execute(context));
-        }else{
+        } else {
             return Conditional.result(null);
         }
     }
+
 }
