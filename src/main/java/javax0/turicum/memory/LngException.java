@@ -5,6 +5,7 @@ import javax0.turicum.ExecutionException;
 import java.util.Iterator;
 
 public class LngException extends LngObject {
+
     private static final LngClass exceptionClass = new LngClass(null, null, "EXCEPTION");
     private final Throwable e;
 
@@ -49,11 +50,11 @@ public class LngException extends LngObject {
         return switch (name) {
             case "message" -> e.getMessage();
             case "cause" -> new LngException(e.getCause());
-            case "supressed" -> {
+            case "suppressed" -> {
                 final var lngList = new LngList();
-                final var supressed = e.getSuppressed();
-                for (int i = 0; i < supressed.length; i++) {
-                    lngList.setIndex(i, supressed[i]);
+                final var suppressed = e.getSuppressed();
+                for (int i = 0; i < suppressed.length; i++) {
+                    lngList.setIndex(i, suppressed[i]);
                 }
                 yield lngList;
             }

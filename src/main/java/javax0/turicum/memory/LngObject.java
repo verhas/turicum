@@ -3,11 +3,20 @@ package javax0.turicum.memory;
 import javax0.turicum.ExecutionException;
 
 import java.util.Iterator;
+import java.util.Objects;
 
 /**
  * An object in the language
  */
-public record LngObject(LngClass lngClass, Context context) implements HasFields, HasIndex, HasContext {
+public class LngObject implements HasFields, HasIndex, HasContext {
+
+    private final LngClass lngClass;
+    private final Context context;
+
+    public LngObject(LngClass lngClass, Context context) {
+        this.lngClass = lngClass;
+        this.context = context;
+    }
 
     @Override
     public void setField(String name, Object value) {
