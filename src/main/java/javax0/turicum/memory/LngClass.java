@@ -63,23 +63,21 @@ public class LngClass implements HasFields, HasContext, LngCallable {
         }
         final var uninitialized = new LngObject(this, objectContext);
         objectContext.local("this", uninitialized);
-        final var object = switch (uninitialized.getField("constructor")) {
-            case null -> uninitialized;
-            case ClosureOrMacro closure -> {
-                if (closure.parameters().length != 0) {
-                    throw new ExecutionException("constructor must be parameter less");
-                }
-                yield closure.execute(objectContext);
+        final var constructor = uninitialized.getField("constructor");
+        if (constructor != null) {
+            if ((constructor instanceof ClosureOrMacro closure) && closure.parameters().length == 0) {
+                closure.execute(objectContext);
+            } else {
+                throw new ExecutionException("Constructor function has parameters or uncallable");
             }
-            default -> throw new IllegalStateException("Unexpected value: " + uninitialized.getField("constructor"));
-        };
-        objectContext.local("this", object);
+        }
+        final var object = objectContext.getLocal("this");
         objectContext.freeze("this");
         return object;
-    }
+}
 
-    @Override
-    public String toString() {
-        return String.format("class %s", name);
-    }
+@Override
+public String toString() {
+    return String.format("class %s", name);
+}
 }

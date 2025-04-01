@@ -15,15 +15,13 @@ public class AdHocTest {
         test("""
                 class z{
                     fn constructor {
-                      k = PrinterClass();
-                      k.msg = "Z says: "
-                      return k;
+                      this = PrinterClass();
+                      this.msg = "Z says: "
                     }
                 }
                 class PrinterClass{
                   fn constructor {
                     msg = ""
-                    this
                   }
                   print = fn (message){
                     global msg;
