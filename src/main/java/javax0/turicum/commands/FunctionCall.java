@@ -1,7 +1,5 @@
 package javax0.turicum.commands;
 
-import java.util.Objects;
-
 import javax0.turicum.ExecutionException;
 import javax0.turicum.LngCallable;
 import javax0.turicum.memory.*;
