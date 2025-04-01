@@ -203,7 +203,7 @@ public class Context implements javax0.turicum.Context {
     }
 
     /**
-     * Assing a value to the local symbol key in the current context does not matter if it is defined there or
+     * Assign a value to the local symbol key in the current context does not matter if it is defined there or
      * in the wrapped context global.
      * It is a primitive call used in for each loop.
      *

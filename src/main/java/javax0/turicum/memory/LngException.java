@@ -38,22 +38,16 @@ public class LngException extends LngObject {
         super.setIndex(index, value);
     }
 
-
-    @Override
-    public Iterator<Object> iterator() {
-        return super.iterator();
-    }
-
     @Override
     public Object getField(String name) throws ExecutionException {
         return switch (name) {
             case "message" -> e.getMessage();
             case "cause" -> new LngException(e.getCause());
-            case "supressed" -> {
+            case "suppressed" -> {
                 final var lngList = new LngList();
-                final var supressed = e.getSuppressed();
-                for (int i = 0; i < supressed.length; i++) {
-                    lngList.setIndex(i, supressed[i]);
+                final var suppressed = e.getSuppressed();
+                for (int i = 0; i < suppressed.length; i++) {
+                    lngList.setIndex(i, suppressed[i]);
                 }
                 yield lngList;
             }

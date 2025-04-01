@@ -18,9 +18,6 @@ public class Cast {
             case Short ignore -> true;
             case Byte ignore -> true;
             case Character ignore -> true;
-            case Double ignore -> false;
-            case Float ignore -> false;
-            case Boolean ignore -> false;
             case CharSequence cs -> {
                 int start = cs.charAt(0) == '+' || cs.charAt(0) == '-' ? 1 : 0;
                 for (int i = start; i < cs.length(); i++) {
@@ -43,7 +40,6 @@ public class Cast {
             case Character ignore -> true;
             case Double ignore -> true;
             case Float ignore -> true;
-            case Boolean ignore -> false;
             case CharSequence cs -> {
                 if (cs.isEmpty()) {
                     yield false;

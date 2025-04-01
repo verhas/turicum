@@ -30,7 +30,7 @@ public class ThreadContext {
         }
 
         @Override
-        public void close() throws Exception {
+        public void close() {
             if (yielders.isEmpty()) {
                 throw new ExecutionException("No Yielder to close");
             }

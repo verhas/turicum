@@ -30,8 +30,8 @@ sealed public interface Conditional permits Conditional.Result {
 
     final class BreakResult extends Result {
 
-        private BreakResult(Object result, boolean done) {
-            super(result, done);
+        private BreakResult(Object result) {
+            super(result, true);
         }
 
         @Override
@@ -41,8 +41,8 @@ sealed public interface Conditional permits Conditional.Result {
     }
 
     final class ReturnResult extends Result {
-        private ReturnResult(Object result, boolean done) {
-            super(result, done);
+        private ReturnResult(Object result) {
+            super(result, true);
         }
 
         @Override
@@ -53,11 +53,11 @@ sealed public interface Conditional permits Conditional.Result {
     }
 
     static Conditional doReturn(Object result) {
-        return new ReturnResult(result, true);
+        return new ReturnResult(result);
     }
 
     static Conditional doBreak(Object result) {
-        return new BreakResult(result, true);
+        return new BreakResult(result);
     }
 
     static Conditional result(Object result) {

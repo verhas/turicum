@@ -28,7 +28,7 @@ public class ClassContext extends Context {
         for (final var parent : parents) {
             final var inheritedContains = parent.context().contains(key);
             if (inheritedContains) {
-                return inheritedContains;
+                return true;
             }
         }
         return false;
