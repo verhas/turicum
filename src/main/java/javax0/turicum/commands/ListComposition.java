@@ -24,7 +24,7 @@ public record ListComposition(Command[] array, CompositionModifier[] modifiers) 
                         list.array.add(longItem);
                     }
                 } else {
-                    throw new ExecutionException("cannot use non finit range or range with non numeric ends in a list literal");
+                    throw new ExecutionException("cannot use non-finite range or range with non numeric ends in a list literal");
                 }
             } else {
                 list.array.add(item);

@@ -26,7 +26,7 @@ public record BlockCommand(List<Command> commands, boolean wrap) implements Comm
      * Same as execute, but it returns a record that also tells if the block executed a 'break' command.
      * It is used inside loop constructs, as well as it is used in the main implementation of the block command above.
      *
-     * @param context the contex to execute the commands in
+     * @param context the context to execute the commands in
      * @return the Loop result including the break flag and the result
      */
     Conditional loop(final Context context) {

@@ -42,7 +42,7 @@ public class Interpreter {
         Command localCode = code; // Read volatile field only once
         if (localCode == null) {
             synchronized (lock) {
-                localCode = code; // may have changed since we syncronized
+                localCode = code; // may have changed since we synhcronized
                 if (localCode == null) {
                     localCode = ProgramAnalyzer.INSTANCE.analyze(new Lexer().analyze(Input.fromString(source)));
                     code = localCode;
