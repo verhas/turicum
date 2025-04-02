@@ -13,27 +13,15 @@ public class AdHocTest {
     @Test
     void test() throws Exception {
         test("""
-                class z{
-                    fn constructor {
-                      this = PrinterClass();
-                      this.msg = "Z says: "
-                    }
+                z = 55;
+                x = {|| print(z,"\\n")};
+                x();
+                {
+                  local z = 63;
+                  x();
+                  reclose(x)();
                 }
-                class PrinterClass{
-                  fn constructor {
-                    msg = ""
-                  }
-                  print = fn (message){
-                    global msg;
-                    msg = msg + message
-                    }
-                }
-                
-                p = z()
-                p.print("csaka haha ")
-                p.print("fogorvos hihi ")
-                p.print("segithet huhu")
-               1
+                1
                 """, "1");
     }
 

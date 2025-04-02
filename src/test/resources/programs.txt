@@ -574,13 +574,7 @@ b = A(2);
 
 // snippet constructorAsFactory
 // String
-// "Z says: csaka haha fogorvos hihi segithet huhu"
-class z{
-    fn constructor {
-      this = PrinterClass();
-      this.msg = "Z says: "
-    }
-}
+// "Y says: csaka haha fogorvos hihi segithet huhu"
 class PrinterClass{
   fn constructor {
     msg = ""
@@ -591,8 +585,28 @@ class PrinterClass{
     }
 }
 
-p = z()
+class z{
+    fn constructor {
+      this = PrinterClass();
+      this.msg = "Z says: "
+    }
+}
+class y : PrinterClass {
+    fn constructor {
+      this.msg = "Y says: "
+    }
+}
+
+p = PrinterClass()
 p.print("csaka haha ")
 p.print("fogorvos hihi ")
-p.print("segithet huhu")
+p.print("segithet huhu\n")
+z = z()
+z.print("csaka haha ")
+z.print("fogorvos hihi ")
+z.print("segithet huhu\n")
+y = y()
+y.print("csaka haha ")
+y.print("fogorvos hihi ")
+y.print("segithet huhu")
 

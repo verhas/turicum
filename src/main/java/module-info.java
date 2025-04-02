@@ -7,6 +7,6 @@ import javax0.turicum.builtins.functions.*;
 
 module com.javax0.turicum {
     exports javax0.turicum;
-    provides TuriFunction with Len, Type, Macro, Evaluate, Print;
+    provides TuriFunction with Len, Type, Macro, Evaluate, Print,Reclose;
     provides TuriClass with TuriString, TuriLong, TuriDouble;
 }
