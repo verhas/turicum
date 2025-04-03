@@ -7,21 +7,62 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Keep a context of the current threads executing environment.
  */
 public class Context implements javax0.turicum.Context {
-    public final int stepLimit;
-    public final AtomicInteger steps;
-    protected final Map<String, Object> heap;
     final Map<String, Object> frame;
     private final Set<String> globals = new HashSet<>();
     private final Set<String> frozen = new HashSet<>();
     private final Context wrapped;
     public final GlobalContext globalContext;
     public final ThreadContext threadContext;
+
+
+    /**
+     * Create a new context with -1 as a step limit, a.k.a. unlimited, for example, a server application.
+     */
+    public Context() {
+        this(-1);
+    }
+
+    /**
+     * Create a new context with limited steps
+     * @param stepLimit the number of maximal steps before killing the interpreter
+     */
+    public Context(int stepLimit) {
+        this.globalContext = new GlobalContext(stepLimit);
+        this.wrapped = null;
+        this.frame = globalContext.heap;
+        this.threadContext = new ThreadContext();
+    }
+
+    public Context(final GlobalContext globalContext, final ThreadContext threadContext) {
+        this.wrapped = null;
+        this.frame = new HashMap<>();
+        this.globalContext = globalContext;
+        this.threadContext = threadContext;
+    }
+
+    /**
+     * Clone the context creating a new stack frame. The new context inherits the heap and the step limit and the
+     * already consumed steps' counter.
+     * <p>
+     * The new context has its own heap.
+     * <p>
+     * The set of globals is also inherited (copied). If a global declaration is used in a context it will not affect
+     * the surrounding context.
+     *
+     * @param clone   the current context when starting a new frame
+     * @param wrapped is the context wrapped by this context
+     */
+    private Context(final Context clone, final Context wrapped) {
+        this.globalContext = clone.globalContext;
+        this.threadContext = clone.threadContext;
+        this.frame = new HashMap<>();
+        this.wrapped = wrapped;
+    }
 
     /**
      * Freeze a local variable adding it to the frozen names. It means that it cannot be changed anymore after this
@@ -44,14 +85,14 @@ public class Context implements javax0.turicum.Context {
         ExecutionException.when(frame.containsKey(global), "Global variable is already defined as local '" + global + "'");
         ExecutionException.when(globals.contains(global), "Global variable is already defined '" + global + "'");
         globals.add(global);
-        heap.get(global);
+        globalContext.heap.get(global);
     }
 
     public void global(String global, Object value) throws ExecutionException {
         ExecutionException.when(frame.containsKey(global), "Global variable is already defined as local '" + global + "'");
         ExecutionException.when(globals.contains(global), "Global variable is already defined '" + global + "'");
         globals.add(global);
-        heap.put(global, value);
+        globalContext.heap.put(global, value);
     }
 
     /**
@@ -107,60 +148,6 @@ public class Context implements javax0.turicum.Context {
         return new Context(this, wrapped);
     }
 
-    /**
-     * Create a new context with 100_0000 as a step limit
-     */
-    public Context() {
-        this(new GlobalContext(), new ThreadContext(), -1);
-    }
-
-    /**
-     * Create a new top-level context with the given step limit. Since it is top-level, the frame is the same as the
-     * heap.
-     *
-     * @param stepLimit the number of steps the interpreter will execute in this context.
-     */
-    public Context(final GlobalContext globalContext, final ThreadContext threadContext, final int stepLimit) {
-        this.stepLimit = stepLimit;
-        this.steps = new AtomicInteger();
-        this.wrapped = null;
-        this.heap = new HashMap<>();
-        this.frame = heap;
-        this.globalContext = globalContext;
-        this.threadContext = threadContext;
-    }
-
-    public Context(Context heapContext, final GlobalContext globalContext, final ThreadContext threadContext, final int stepLimit) {
-        this.heap = heapContext.heap;
-        this.globalContext = globalContext;
-        this.threadContext = threadContext;
-        this.stepLimit = stepLimit;
-        this.steps = new AtomicInteger();
-        this.wrapped = null;
-        this.frame = new HashMap<>();
-    }
-
-    /**
-     * Clone the context creating a new stack frame. The new context inherits the heap and the step limit and the
-     * already consumed steps' counter.
-     * <p>
-     * The new context has its own heap.
-     * <p>
-     * The set of globals is also inherited (copied). If a global declaration is used in a context it will not affect
-     * the surrounding context.
-     *
-     * @param clone   the current context when starting a new frame
-     * @param wrapped is the context wrapped by this context
-     */
-    private Context(final Context clone, final Context wrapped) {
-        this.stepLimit = clone.stepLimit;
-        this.steps = clone.steps;
-        this.heap = clone.heap;
-        this.globalContext = clone.globalContext;
-        this.threadContext = clone.threadContext;
-        this.frame = new HashMap<>();
-        this.wrapped = wrapped;
-    }
 
     /**
      * Redefine the value of a variable in the frame of the context or in the wrapped context transitively.
@@ -194,7 +181,7 @@ public class Context implements javax0.turicum.Context {
      */
     public void let(final String key, final Object value) {
         if (isGlobal(key)) {
-            heap.put(key, value);
+            globalContext.heap.put(key, value);
         }
         if (!redefine(key, value)) {
             ExecutionException.when(frozen.contains(key), "Redefining final variable '" + key + "'");
@@ -251,7 +238,7 @@ public class Context implements javax0.turicum.Context {
         if (wrapped != null && wrapped.contains(key)) {
             return wrapped.get(key);
         }
-        return heap.get(key);
+        return globalContext.heap.get(key);
     }
 
     public boolean contains(String key) {
@@ -261,7 +248,7 @@ public class Context implements javax0.turicum.Context {
         if (wrapped != null && wrapped.contains(key)) {
             return true;
         }
-        return heap.containsKey(key);
+        return globalContext.heap.containsKey(key);
     }
 
     /**
@@ -282,12 +269,6 @@ public class Context implements javax0.turicum.Context {
     }
 
     public void step() throws ExecutionException {
-        if (stepLimit < 0) {
-            return;
-        }
-        if (stepLimit <= steps.get()) {
-            throw new ExecutionException("Step limit %d reached", stepLimit);
-        }
-        steps.incrementAndGet();
+        globalContext.step();
     }
 }
