@@ -1,7 +1,7 @@
 package javax0.turicum.memory;
 
-import javax0.turicum.commands.Command;
 import javax0.turicum.ExecutionException;
+import javax0.turicum.commands.Command;
 
 import java.util.Objects;
 
@@ -43,7 +43,12 @@ public record ArrayElementLeftValue(LeftValue arrayLeftValue, Command index) imp
     @Override
     public void assign(Context ctx, Object value) throws ExecutionException {
         final var indexValue = index.execute(ctx);
-        arrayLeftValue.getIndexable(ctx, indexValue).setIndex(indexValue, value);
+        final var indexable = arrayLeftValue.getIndexable(ctx, indexValue);
+        indexable.setIndex(indexValue, value);
+        // IndexedString is a copy of the string, after the change we have to replace the left value
+        if (indexable instanceof IndexedString(StringBuilder string)) {
+            arrayLeftValue.assign(ctx, string.toString());
+        }
     }
 
     @Override

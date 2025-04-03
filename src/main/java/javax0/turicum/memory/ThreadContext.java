@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A special context holding constant values, like built-ins, one for the interpreter
+ * A special context holding constant string, like built-ins, one for the interpreter
  */
 public class ThreadContext {
     private final List<Yielder> yielders = new ArrayList<>();

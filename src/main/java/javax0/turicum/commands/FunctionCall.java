@@ -33,15 +33,23 @@ public record FunctionCall(Command object, Command[] arguments) implements Comma
                         ctx = context.wrap(lngObject.context());
                     } else {
                         ctx = context.wrap(command.wrapped());
-                        ctx.let0("this",obj);
                     }
-                    freezeThis(ctx);
+                    ctx.let0("this", lngObject);
+                    ctx.let0("cls", lngObject.lngClass());
+                    freezeThisAndCls(ctx);
                     defineArgumentsInContext(ctx, command.parameters(), argValues);
                     return command.execute(ctx);
                 }
                 if (obj instanceof LngClass lngClass) {
                     ExecutionException.when(command.parameters().length != argValues.length, "The number of parameters does not match the number of arguments");
                     final var ctx = context.wrap(lngClass.context());
+                    if ("constructor".equals(identifier)) {
+                        // this will make in a chained constructor call set 'this' to the object created
+                        // 'cls' point to the class, but 'this.cls' point to the class which is going to be initialized
+                        ctx.let0("this", context.getLocal("this"));
+                        ctx.let0("cls", lngClass);
+                        freezeThisAndCls(ctx);
+                    }
                     defineArgumentsInContext(ctx, command.parameters(), argValues);
                     return command.execute(ctx);
                 }
@@ -73,10 +81,11 @@ public record FunctionCall(Command object, Command[] arguments) implements Comma
     }
 
     /**
-     * Assign the values to the parameter names in the context provided.
-     * @param ctx the context that will hold the values
-     * @param names the names of the parameters/arguments
-     * @param argValues the array holding the actual argument values
+     * Assign the string to the parameter names in the context provided.
+     *
+     * @param ctx       the context that will hold the string
+     * @param names     the names of the parameters/arguments
+     * @param argValues the array holding the actual argument string
      */
     public static void defineArgumentsInContext(Context ctx, String[] names, Object[] argValues) {
         for (int i = 0; i < argValues.length; i++) {
@@ -85,12 +94,24 @@ public record FunctionCall(Command object, Command[] arguments) implements Comma
     }
 
     /**
-     * Freeze the variable "this" in the context.
+     * Freeze the variable "this" and "cls" in the context.
+     *
      * @param ctx the context in which we have to freeze "this"
      */
-    public static void freezeThis(Context ctx) {
+    public static void freezeThisAndCls(Context ctx) {
         if (ctx.contains("this")) {
             ctx.freeze("this");// better do not change 'this' inside methods
+        }
+        freezeCls(ctx);
+    }
+
+    /**
+     * Freeze only the "cls" object when it is a constructor, then 'this' is not frozen.
+     * @param ctx the context in which to freeze 'cls'
+     */
+    public static void freezeCls(Context ctx) {
+        if (ctx.contains("cls")) {
+            ctx.freeze("cls");// better do not change 'this' inside methods
         }
     }
 

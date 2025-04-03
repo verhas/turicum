@@ -4,7 +4,7 @@ public class ClassContext extends Context {
     private final LngClass[] parents;
 
     public ClassContext(Context context, LngClass[] parents) {
-        super(context, context.globalContext, context.threadContext, context.stepLimit);
+        super(context.globalContext, context.threadContext);
         this.parents = parents;
     }
 
@@ -18,7 +18,7 @@ public class ClassContext extends Context {
                 return inherited;
             }
         }
-        return heap.get(key);
+        return globalContext.heap.get(key);
     }
 
     @Override

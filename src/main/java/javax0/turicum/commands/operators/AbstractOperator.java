@@ -30,7 +30,7 @@ public abstract class AbstractOperator implements Operator {
                     ctx = context.wrap(command.wrapped());
                     ctx.let0("this", lngObject);
                 }
-                FunctionCall.freezeThis(ctx);
+                FunctionCall.freezeThisAndCls(ctx);
                 FunctionCall.defineArgumentsInContext(ctx, command.parameters(), argValues);
                 return command.execute(ctx);
             } else {
@@ -60,7 +60,7 @@ public abstract class AbstractOperator implements Operator {
                 ctx = context.wrap(command.wrapped());
                 ctx.let0("this", lngObject);
             }
-            FunctionCall.freezeThis(ctx);
+            FunctionCall.freezeThisAndCls(ctx);
             FunctionCall.defineArgumentsInContext(ctx, command.parameters(), argValues);
             return command.execute(ctx);
         }

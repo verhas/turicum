@@ -25,6 +25,7 @@ public interface LeftValue {
 
     static HasIndex toIndexable(final Object existing) {
         return switch (existing) {
+            case String s -> new IndexedString(s);
             case LngList arr -> arr;
             case Object[] arr -> new JavaArray(arr);
             case List<?> list -> new JavaArray(list.toArray(Object[]::new));
