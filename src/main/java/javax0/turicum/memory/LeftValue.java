@@ -23,13 +23,26 @@ public interface LeftValue {
         return new JavaObject(existing);
     }
 
+    static HasIndex toIndexable(final Object existing, Object indexValue) {
+        if (indexValue instanceof CharSequence) {
+            ExecutionException.when(existing == null, "Cannot used None as object.");
+            return switch (existing) {
+                case LngObject object -> object;
+                default -> throw new ExecutionException("Unknown object type '%s'", existing);
+            };
+        } else {
+            return toIndexable(existing);
+        }
+    }
+
     static HasIndex toIndexable(final Object existing) {
+        ExecutionException.when(existing == null, "Cannot used None as list.");
         return switch (existing) {
             case String s -> new IndexedString(s);
             case LngList arr -> arr;
             case Object[] arr -> new JavaArray(arr);
             case List<?> list -> new JavaArray(list.toArray(Object[]::new));
-            default -> throw new ExecutionException("Unknown array type %s", existing);
+            default -> throw new ExecutionException("Unknown list type %s", existing);
         };
     }
 }

@@ -4,9 +4,10 @@ import javax0.turicum.builtins.classes.TuriDouble;
 import javax0.turicum.builtins.classes.TuriLong;
 import javax0.turicum.builtins.classes.TuriString;
 import javax0.turicum.builtins.functions.*;
+import javax0.turicum.builtins.functions.ObjectFunction;
 
 module com.javax0.turicum {
     exports javax0.turicum;
-    provides TuriFunction with Len, Type, Macro, Evaluate, Print,Reclose;
+    provides TuriFunction with Len, Type, Macro, Evaluate, Print,Reclose, ObjectFunction;
     provides TuriClass with TuriString, TuriLong, TuriDouble;
 }

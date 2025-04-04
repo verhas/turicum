@@ -5,7 +5,7 @@ import javax0.turicum.ExecutionException;
 import javax0.turicum.analyzer.AssignmentList;
 import javax0.turicum.memory.Context;
 
-public record LocalAssignment(AssignmentList.Pair[] assignments, boolean freeze) implements Command {
+public record LetAssignment(AssignmentList.Pair[] assignments, boolean freeze) implements Command {
 
     @Override
     public Object execute(final Context ctx) throws ExecutionException {
@@ -16,9 +16,10 @@ public record LocalAssignment(AssignmentList.Pair[] assignments, boolean freeze)
                 if (freeze) {
                     ctx.freeze(assignment.identifier());
                 }else{
-                    ctx.local(assignment.identifier(), value);
+                    ctx.local(assignment.identifier(), null);
                 }
             } else {
+                ctx.local(assignment.identifier(), null);
                 value = assignment.expression().execute(ctx);
                 ctx.local(assignment.identifier(), value);
                 if (freeze) {

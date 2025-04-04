@@ -23,14 +23,14 @@ public class LngObject implements HasFields, HasIndex, HasContext {
 
     @Override
     public Object getField(String name) throws ExecutionException {
-        final var value = context.get(name);
+        final var value = context.getLocal(name);
         if (value != null) {
             return value;
         }
-        if (lngClass == null) {
-            return null;
+        if (lngClass != null) {
+            return lngClass.getField(name);
         }
-        return lngClass.getField(name);
+        return null;
     }
 
     @Override

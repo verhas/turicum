@@ -4,3 +4,4 @@ javax0.turicum.builtins.functions.Macro
 javax0.turicum.builtins.functions.Evaluate
 javax0.turicum.builtins.functions.Print
 javax0.turicum.builtins.functions.Reclose
+javax0.turicum.builtins.functions.ObjectFunction

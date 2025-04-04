@@ -77,8 +77,7 @@ IDENTIFIER_ASSIGNMENT_LIST ::= [identifier ['=' expression]] { ',' identifier [ 
 IDENTIFIER_LIST ::= [ IDENTIFIER { ',' IDENTIFIER } ];
 
 // using '=' updates a local variable or creates a new one, unless the variable was declared as global
-// ':=' updates an existing local variable just like '=' if it exists, but creates a new one in the enclosing environment
-ASSIGNMENT ::= LEFT_VALUE '=' EXPRESSION | LEFT_VALUE ':=' EXPRESSION;
+ASSIGNMENT ::= LEFT_VALUE '=' EXPRESSION ;
 LEFT_VALUE ::= IDENTIFIER { '.' IDENTIFIER | '[' EXPRESSION ']'};
 EXPRESSION ::= BINARY_EXPRESSION[0];
 

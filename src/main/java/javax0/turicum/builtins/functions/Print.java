@@ -17,7 +17,7 @@ public class Print implements TuriFunction {
     public Object call(Context context, Object[] args) throws ExecutionException {
         for (final var arg : args) {
             System.out.print(switch (arg) {
-                case null -> "None";
+                case null -> "none";
                 default -> "" + arg;
             });
         }

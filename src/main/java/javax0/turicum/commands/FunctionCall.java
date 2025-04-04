@@ -58,7 +58,7 @@ public record FunctionCall(Command object, Command[] arguments) implements Comma
                 final var argValues = evaluateArguments(context);
                 return callable.call(context, argValues);
             }
-            throw new ExecutionException("It is not possible to invoke %s.%s() as %s.%s()", obj, identifier, objectCommand, identifier);
+            throw new ExecutionException("It is not possible to invoke %s.%s() as %s.%s()", obj, function, objectCommand, identifier);
         } else {
             function = myObject.execute(context);
             if (function instanceof ClosureOrMacro command) {
@@ -76,7 +76,7 @@ public record FunctionCall(Command object, Command[] arguments) implements Comma
                 final var argValues = evaluateArguments(context);
                 return callable.call(context, argValues);
             }
-            throw new ExecutionException("It is not possible to invoke the value '" + function + "' on " + object);
+            throw new ExecutionException("It is not possible to invoke '%s' because it is '%s'", object, function);
         }
     }
 
@@ -107,6 +107,7 @@ public record FunctionCall(Command object, Command[] arguments) implements Comma
 
     /**
      * Freeze only the "cls" object when it is a constructor, then 'this' is not frozen.
+     *
      * @param ctx the context in which to freeze 'cls'
      */
     public static void freezeCls(Context ctx) {
@@ -164,7 +165,7 @@ public record FunctionCall(Command object, Command[] arguments) implements Comma
         final Command myObject;
         if (object instanceof Identifier(String name) && context.contains("this")) {
             final var thisObject = context.get("this");
-            if (thisObject instanceof LngObject lngObject && lngObject.context().contains(name)) {
+            if (thisObject instanceof LngObject lngObject && lngObject.context().containsLocal(name)) {
                 myObject = new FieldAccess(new Identifier("this"), name);
             } else {
                 myObject = object;

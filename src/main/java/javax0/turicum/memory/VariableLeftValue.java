@@ -1,12 +1,9 @@
 package javax0.turicum.memory;
 
 import javax0.turicum.ExecutionException;
-
 import java.util.Objects;
 
-public class VariableLeftValue implements LeftValue {
-
-    public final String variable;
+public record VariableLeftValue(String variable) implements LeftValue {
 
     public VariableLeftValue(String variable) {
         this.variable = Objects.requireNonNull(variable);
@@ -15,25 +12,13 @@ public class VariableLeftValue implements LeftValue {
     @Override
     public HasFields getObject(Context ctx) {
         final var existing = ctx.get(variable);
-        if (existing == null) {
-            final var newObject = new LngObject(null, ctx.open());
-            ctx.let(variable, newObject);
-            return newObject;
-        } else {
-            return LeftValue.toObject(existing);
-        }
+        return LeftValue.toObject(existing);
     }
 
     @Override
-    public HasIndex getIndexable(Context ctx,Object indexValue) {
+    public HasIndex getIndexable(Context ctx, Object indexValue) {
         final var existing = ctx.get(variable);
-        if (existing == null) {
-            final var newIndexable = HasIndex.createFor(indexValue,ctx);
-            ctx.let(variable, newIndexable);
-            return newIndexable;
-        } else {
-            return LeftValue.toIndexable(existing);
-        }
+        return LeftValue.toIndexable(existing, indexValue);
     }
 
     @Override

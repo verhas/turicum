@@ -1,6 +1,7 @@
-// snippet EmptyBlockIsUndef
+// snippet EmptyBlockIsObject
 // null
-{}
+let a = {}
+a.field
 
 // snippet singleLineComments
 // null
@@ -35,9 +36,12 @@ null
 // snippet basicCommands
 // Long
 // 60
+let h = []
+h[3].b = []
 h[3].b[2] = 5
-z = h[3].b[2]
-a.x = 10; c = 30; b[c] = 20; a.x + b[30] + c
+let z = h[3].b[2]
+let a = {}
+a.x = 10; let c = 30; let b = []; b[c] = 20; a.x + b[30] + c
 
 //
 // Each snippet entry is formatted as follows:
@@ -51,62 +55,71 @@ a.x = 10; c = 30; b[c] = 20; a.x + b[30] + c
 // snippet testArithmeticOperations
 // Long
 // "0"
-x = 100;
-y = 50;
-z = x - y * 2;
+let x = 100;
+let y = 50;
+let z = x - y * 2;
 z;
 
 // snippet testFieldAccess
 // String
 // "suss84"
+let arr =  {}
+, z = {}
 arr.h = 42;
-z["kaka"] = "suss"
-z.kaka + {arr}.h * 2;
+z["field"] = "suss"
+z.field + ({arr}.h + arr["h"]);
 
 
 // snippet testArrayAccess
 // String
 // "suss84"
+let arr = []
 arr[3] = 42;
-z["kaka"] = "suss"
-z.kaka + {arr}[3] * 2;
+let z = {}
+z["field"] = "suss"
+z.field + {arr}[3] * 2;
 
 // snippet testNestedArrayAccess
 // Long
 // "84"
+let arr = []
 arr[3][2] = 42;
 arr[3][2] * 2;
 
 // snippet testMultipleAssignments
 // Long
 // "17"
+let obj = {}
 obj.a = 5;
 obj.b = obj.a * 3;
+let arr = []
 arr[1] = obj.b + 2;
 arr[1];
 
 // snippet testComplexExpressions
 // Long
 // "30"
+let x = {}
 x.val = 10;
+let y = []
 y[{7}] = 5;
-z = 2;
-result = (x.val + y[7]) * z;
+let z = 2;
+let result = (x.val + y[7]) * z;
 result;
 
 // snippet testFloatingPointOperations
 // Double
 // "18.3125"
-x = 10.5;
-y = 3.25;
-z = x * y + 2.5;
+let x = 10.5;
+let y = 3.25;
+let z = x * y + 2.5;
 z / 2;
 
 // snippet testIfStatement1
 // Long
 // "20"
-x = 10;
-result ={
+let x = 10;
+let result = {
     if x > 5 {
         result = x * 2;
     } else {
@@ -118,8 +131,8 @@ result;
 // snippet testIfStatement2
 // Double
 // "1.5"
-x = 3;
-result = {if x > 5 {
+let x = 3;
+let result = {if x > 5 {
     x * 2;
 } else {
     x / 2;
@@ -129,43 +142,32 @@ result;
 // snippet testExportAssignment1
 // String
 // "ok"
-x = 10;
-{ z = 1 }
+let x = 10;
+{ let z = 1 }
 { if z {"not ok"} else {"ok"} }
 
 // snippet testExportAssignment2
 // Long
 // "20"
-x = 10;
-z = 7;
-{ z := 2 }
+let x = 10;
+let z = 7;
+{ z = 2 }
 x * z;
 
 // snippet testExportAssignment3
 // Long
 // "20"
-x = 10;
-z = 7;
-{{{{{{ z := 2 }}}}}}
+let x = 10;
+let z = 7;
+{{{{{{ z = 2 }}}}}}
 x * z;
-
-// snippet testLocalAssignment
-// Long
-// "10"
-x = 10;
-z = 7;
-h = 6;
-{ h= {z = 1};
-  local z,h=2;
-  z = 2 }
-x * z * h;
 
 // snippet testGlobalDeclaration
 // Long
 // "5"
-x = 10;
-z = 7;
-h = 6;
+let x = 10;
+let z = 7;
+let h = 6;
 { global x,z,h }
 5;
 
@@ -184,7 +186,7 @@ a*b;
 // Exception
 // ""
 final a=1, b=2;
-a = 3;
+let a = 3;
 
 // snippet NoEmptyParentList
 // Exception
@@ -216,17 +218,18 @@ f(1,1,1);
 // snippet testCallingFunction2
 // Long
 // "3"
-f = {fn(a,b,c) {
+let f = fn(a,b,c) {
     a + b + c
-}}
+}
 f(1,1,1);
 
 // snippet testCallingFunction3
 // Long
 // "3"
-f.k = {fn z(a,b,c) {
+let f = {}
+f.k = fn z(a,b,c) {
     a + b + c
-}}
+}
 f.k(1,1,1);
 
 // snippet testClassDeclaration
@@ -234,11 +237,11 @@ f.k(1,1,1);
 // "it works12"
 class meClass {
     global some =  "it works";
-    other = "local";
+    let other = "local";
     fn a {1}
     fn b {2}
 }
-some =  "it works";
+let some = "it works";
 some + meClass.a() + meClass.b();
 
 // snippet testClassInstanceCreation
@@ -248,7 +251,7 @@ class meClass {
     fn a {1}
     fn b {2}
 }
-object = meClass();
+let object = meClass();
 object.a() + object.b();
 
 // snippet testClassInheritance
@@ -260,7 +263,7 @@ class Parent {
 class meClass : Parent {
     fn b {2}
 }
-object = meClass();
+let object = meClass();
 object.a() + object.b();
 
 // snippet testMultipleInheritance
@@ -278,7 +281,7 @@ class P3 {
 class P4 : P3, P2 {
     fn p4 {4}
 }
-object = P4();
+let object = P4();
 "" + object.p1() + object.p2() + object.p3() + object.p4();
 
 // snippet testConstructorInheritance
@@ -299,7 +302,7 @@ class P4(a,b,c) : P3, P2 {
         p1()
     }
 }
-object = P4(1,2,3);
+let object = P4(1,2,3);
 "" + object.p1() + object.p2() + object.p3() + object.p4();
 
 // snippet testMethodInheritance
@@ -311,7 +314,7 @@ class Parent {
 class Child : Parent {
  fn child { parent() }
 }
-child = Child();
+let child = Child();
 child.child();
 
 // snippet testThisIsFinal
@@ -328,14 +331,14 @@ class Class {
 // snippet testPipeOperator1
 // Long
 // "1"
-a = 1
-b = a or 2
+let a = 1
+let b = a or 2
 
 // snippet testPipeOperator2
 // Long
 // "2"
-a = 1
-b = c
+let a = 1
+let b = c
 or 2
 
 // snippet testClassExtension
@@ -350,15 +353,15 @@ Class().z();
 // snippet classDefinedWithAssignment
 // String
 // "csaka haha fogorvos hihi segithet huhu"
-msg = ""
+let msg = ""
 pin PrinterClass = class {
-  print = fn (message){
+  let print = fn (message){
     global msg;
     msg = msg + message
     }
 }
 
-p = PrinterClass()
+pin p = PrinterClass()
 p.print("csaka haha ")
 p.print("fogorvos hihi ")
 p.print("segithet huhu")
@@ -371,17 +374,17 @@ if 1: 1 else: 2
 // snippet constantTrue
 // Exception
 // ""
-true = 0
+let true = 0
 
 // snippet constantFalse
 // Exception
 // ""
-false = 0
+let false = 0
 
-// snippet constantNull
+// snippet constantNone
 // Exception
 // ""
-none = 0
+let none = 0
 
 // snippet looping1
 // Long
@@ -389,24 +392,27 @@ none = 0
 /*
  while loop condition and body is executed in a local loop environment
 */
-i = 1
+let i = 1
 while i < 10 : i = i + 1
 
 // snippet looping2
 // Long
 // 10
-i = 1
+let i = 1
+let z
 while i < 10 { i = i + 1;
-  z := i}
+  z = i}
 z
 
 // snippet looping3
-// null
-i = 1
+// Long
+// 10
+let i = 1
 fn inci {
   global i
   i =  i + 1
 }
+let z
 while i < 10 : z = inci()
 z
 
@@ -419,67 +425,66 @@ here we define a function that increments the loop variable, which is a global v
 Even the loop body is not enclosed between '{' and '}' it is executed in a new local environment
 
  */
-i = 1
+let i = 1
 fn inci {
   global i
   i =  i + 1
 }
-while i < 10 : z := inci()
+global z = 0
+while i < 10 : z = inci()
 z
 
 // snippet looping5
 // Long
 // 9
-i = 1
+let i = 1
 while i < 10 { i = i + 1 } until i == 9;;;;
 
 // snippet looping6
 // Long
 // 9
-i = 1
+let i = 1
 while( i < 10 )  i = i + 1 ; until i == 9;;;;
 
 // snippet forLoop1
 // Long
 // 9
-for i=1 ; i<10 ; i=i+1 : z:=i
+let z = 0
+for i=1 ; i<10 ; i=i+1 : z=i
 z
 
 // snippet forLoop2
 // Long
 // 9
-for i=1 ; i<10 ; i=i+1 : z:=i
+let z = 0
+for let i=1 ; i<10 ; i=i+1 : z=i
 z
 
 // snippet forLoop3
 // Long
 // 9
-for( i=1 ; i<10 ; i=i+1 ): z:=i
-z
-
-// snippet forLoop4
-// Long
-// 9
-for { i:=1} ; i<10 ; i=i+1 : z:=i
+let z = 0
+for( i=1 ; i<10 ; i=i+1 ): z=i
 z
 
 // snippet forLoop5
 // Long
 // 8
-for { i:=1}
- ; i<10 ; i=i+1 : z:=i until i == 8
+let z = 0
+for i=1 ; i<10 ; i=i+1 : z=i until i == 8
 z
 
 // snippet forLoop6
 // Long
 // 9
-for (i=1 ; i<10 ; i=i+1 )  z:=i
+let z = 0
+for (i=1 ; i<10 ; i=i+1 )  z=i
 z
 
 // snippet closure1
 // Long
 // 3
- z = {| a,b,c | a+1 } ; z(2,3,4)
+let z = {| a,b,c | a+1 } ; z(2,3,4)
 
 // snippet closure2
 // Long
@@ -489,7 +494,7 @@ z
 // snippet closure3
 // Long
 // 3
- z = {| a,b,c | a+1 } ; z(2,3,4)
+let z = {| a,b,c | a+1 } ; z(2,3,4)
 
 // snippet boost
 // Long
@@ -517,14 +522,14 @@ z
 // snippet listLiteral3
 // Long
 // 2
-a = [1..3];
+let a = [1..3];
 [..a,7][1]
 
 // snippet forEachLoop1
 // Long
 // 6
-a = [1..4];
-k = 0;
+let a = [1..4];
+let k = 0;
 for each z in a : k = k + z
 
 
@@ -537,11 +542,14 @@ It does not prevent code in enclosing scopes.
 It also does not prevent any inner/enclosed scopes to use the variable as modifiable, however any modification will
 be local to that level.
 """
-i = 3; pin i; j = 3; s = 5;
+let i = 3; pin i; let j = 3, s = 5, k = 0;
 {
    s = s + 1;
    pin s;
-   i = i + 4; k:= i
+   // you cannot do that, if 'i' is local then it is local
+   // you cannot eat your cake and have it, not even if you are the UB
+   // let i = i + 4;
+   k= i + 4
    j = j + 4;
 }
 s = s + 1;
@@ -560,7 +568,7 @@ class A(zumba) {
           this
      }
   }
-  `-` = macro({|right|
+  let `-` = macro({|right|
          if( right != null ) {
               A(this.zumba - evaluate(right).zumba)
          } else {
@@ -568,8 +576,8 @@ class A(zumba) {
          }
      })
 }
-a = -A(1);
-b = A(2);
+let a = -A(1);
+let b = A(2);
 (b-a).zumba
 
 // snippet constructorAsFactory
@@ -577,11 +585,10 @@ b = A(2);
 // "Y says: csaka haha fogorvos hihi segithet huhu"
 class PrinterClass{
   fn constructor {
-    msg = ""
+    this.msg = ""
   }
-  print = fn (message){
-    global msg;
-    msg = msg + message
+  let print = fn (message){
+    this.msg = this.msg + message
     }
 }
 
@@ -597,7 +604,7 @@ class y : PrinterClass {
     }
 }
 
-p = PrinterClass()
+let p = PrinterClass()
 p.print("csaka haha ")
 p.print("fogorvos hihi ")
 p.print("segithet huhu\n")
@@ -610,17 +617,18 @@ y.print("csaka haha ")
 y.print("fogorvos hihi ")
 y.print("segithet huhu")
 
+
 // snippet stringIndexing1
 // String
 // "zebra"
-string = "zabraa"
+let string = "zabraa"
 string[1] = "e"
 string[0..-1]
 
 // snippet StringIndexing2
 // String
 // 17754
-MESSAGE = "1234"
+let MESSAGE = "1234"
 // you can replace part of the string in an assignment
 // it can be longer than the part replaces, can be shorter, even empty
 MESSAGE[1..3] = 775
@@ -629,6 +637,7 @@ MESSAGE
 // snippet StringIndexing3
 // String
 // 13
+let X = {}
 X.MESSAGE = "1234"
 X.MESSAGE[1..3] = 32
 X.MESSAGE[-inf..2] // bad luck
@@ -636,15 +645,15 @@ X.MESSAGE[-inf..2] // bad luck
 // snippet reclosingClosure
 // String
 // "55 77 63 63 99 77"
-MESSAGE = ""
-z = 55;
-y = 77;
-x = {|| MESSAGE = MESSAGE + z + " "
+let MESSAGE = ""
+let z = 55;
+let y = 77;
+let x = {|| MESSAGE = MESSAGE + z + " "
         z = y;
     };
 x(); // 55, z <- 77
 {
-  local z = 63;
+  let z = 63;
   x(); // 77
   MESSAGE = MESSAGE + z + " " // 77
   y = 99;
@@ -653,3 +662,14 @@ x(); // 55, z <- 77
 }
 MESSAGE = MESSAGE + z + " " // 77
 MESSAGE = MESSAGE[0..-1]
+
+// snippet catchingException
+// String
+// "It is not possible to invoke 'nonexistent' because it is 'null'"
+let MESSAGE = ""
+try {
+  let h = nonexistent()
+}catch exception {
+  MESSAGE = exception.message
+}
+MESSAGE

@@ -22,6 +22,9 @@ public class Cast {
             case Float ignore -> false;
             case Boolean ignore -> false;
             case CharSequence cs -> {
+                if(cs.isEmpty()){
+                    yield false;
+                }
                 int start = cs.charAt(0) == '+' || cs.charAt(0) == '-' ? 1 : 0;
                 for (int i = start; i < cs.length(); i++) {
                     if (!Character.isDigit(cs.charAt(i))) {

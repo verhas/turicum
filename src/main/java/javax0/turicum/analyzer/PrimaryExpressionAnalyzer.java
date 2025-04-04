@@ -26,6 +26,7 @@ import java.util.ArrayList;
  */
 public class PrimaryExpressionAnalyzer implements Analyzer {
     public static final PrimaryExpressionAnalyzer INSTANCE = new PrimaryExpressionAnalyzer();
+    public static final Command[] EMPTY_COMMAND_ARRAY = new Command[0];
 
     @Override
     public Command analyze(Lex.List lexes) throws BadSyntax {
@@ -45,11 +46,20 @@ public class PrimaryExpressionAnalyzer implements Analyzer {
             return getAccessOrCall(lexes, left);
         }
         if (lexes.is("{")) {
+            if (lexes.isAt(1, "}")) {
+                lexes.next();
+                lexes.next();
+                return getAccessOrCall(lexes, new EmptyObject());
+            }
             final var left = BlockOrClosureAnalyser.INSTANCE.analyze(lexes);
             return getAccessOrCall(lexes, left);
         }
         if (lexes.is("[")) {
             lexes.next();
+            if (lexes.is("]")) {
+                lexes.next();
+                return getAccessOrCall(lexes, new ListComposition(EMPTY_COMMAND_ARRAY, null));
+            }
             final var expressionList = new java.util.ArrayList<Command>();
             while (true) {
                 final var expression = ExpressionAnalyzer.INSTANCE.analyze(lexes);

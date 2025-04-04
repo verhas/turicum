@@ -37,15 +37,15 @@ public class LngClass implements HasFields, HasContext, LngCallable {
 
     @Override
     public Object getField(String name) throws ExecutionException {
-        final var selfField = context.getLocal(name);
-        if (selfField != null) {
-            return selfField;
+        final var fieldInSelf = context.getLocal(name);
+        if (fieldInSelf != null) {
+            return fieldInSelf;
         }
         if (context.parents() != null) {
             for (var parent : context.parents()) {
-                final var parentField = parent.getField(name);
-                if (parentField != null) {
-                    return parentField;
+                final var fieldInParent = parent.getField(name);
+                if (fieldInParent != null) {
+                    return fieldInParent;
                 }
             }
         }

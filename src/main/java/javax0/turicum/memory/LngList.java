@@ -19,8 +19,8 @@ public class LngList implements HasIndex, HasFields {
             ExecutionException.when(array.size() + indexValue < offset, "Indexing error, %d is too small, %s-%s < %s.", indexValue,
                     array.size(), -indexValue, offset);
             array.set(array.size() + indexValue, value);
+            return;
         }
-        ExecutionException.when(indexValue < 0, "Indexing error, %d is negative", indexValue);
         final var realIndex = indexValue - offset;
         array.ensureCapacity(realIndex + 1);
         while (realIndex >= array.size()) {

@@ -11,7 +11,7 @@ import java.util.Set;
 public class Lexer {
 
     final static private Set<String> RESERVED = new HashSet<>(Set.of(
-            Keywords.CLASS, Keywords.PIN, Keywords.FN, Keywords.LOCAL, Keywords.GLOBAL, Keywords.IF, Keywords.ELSE,
+            Keywords.CLASS, Keywords.PIN, Keywords.FN, Keywords.LET, Keywords.GLOBAL, Keywords.IF, Keywords.ELSE,
             Keywords.ELSEIF, Keywords.BREAK, Keywords.WHILE, Keywords.UNTIL, Keywords.FOR, Keywords.EACH, Keywords.IN,
             Keywords.RETURN, Keywords.YIELD, Keywords.WHEN, Keywords.TRY, Keywords.CATCH, Keywords.FINALLY
     ));

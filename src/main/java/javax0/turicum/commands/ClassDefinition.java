@@ -25,6 +25,7 @@ public record ClassDefinition(String className, String[] parents, String[] param
         }
         final var ctx = new ClassContext(context, parentClasses);
         klass = new LngClass(ctx, parameters, Objects.requireNonNullElse(className,"#undefined"));
+        ctx.local("cls",klass);
         body.execute(ctx);
 
         if (className != null) {

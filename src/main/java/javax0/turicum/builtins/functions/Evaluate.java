@@ -23,4 +23,5 @@ public class Evaluate implements TuriFunction {
         }
         throw new ExecutionException("Cannot get the macro(%s) for the value of %s", arg.getClass().getCanonicalName(), arg);
     }
+
 }

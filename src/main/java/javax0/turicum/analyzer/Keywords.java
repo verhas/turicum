@@ -5,7 +5,6 @@ public interface Keywords {
     String GLOBAL = "global";
     String BREAK = "break";
     String LET = "let";
-    String LOCAL = "local";
     String FN = "fn";
     String CLASS = "class";
     String IF = "if";

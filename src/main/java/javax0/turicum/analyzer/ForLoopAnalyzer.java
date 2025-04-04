@@ -1,16 +1,16 @@
 package javax0.turicum.analyzer;
 
 import javax0.turicum.BadSyntax;
-import javax0.turicum.commands.Command;
-import javax0.turicum.commands.ConstantExpression;
-import javax0.turicum.commands.ForLoop;
+import javax0.turicum.commands.*;
+import javax0.turicum.memory.LeftValue;
+import javax0.turicum.memory.VariableLeftValue;
 
 public class ForLoopAnalyzer implements Analyzer {
     public static final ForLoopAnalyzer INSTANCE = new ForLoopAnalyzer();
 
     @Override
     public Command analyze(Lex.List lexes) throws BadSyntax {
-        if( lexes.is(Keywords.EACH)){
+        if (lexes.is(Keywords.EACH)) {
             lexes.next();
             return ForEachLoopAnalyzer.INSTANCE.analyze(lexes);
         }
@@ -18,7 +18,7 @@ public class ForLoopAnalyzer implements Analyzer {
         if (withParentheses) {
             lexes.next();
         }
-        final Command startCommand = CommandAnalyzer.INSTANCE.analyze(lexes);
+        final Command startCommand = getInitialAssignmentCommand(lexes);
         if (lexes.is(";")) {
             lexes.next();
         }
@@ -38,6 +38,30 @@ public class ForLoopAnalyzer implements Analyzer {
         final Command body = getLoopBody(lexes);
         final Command exitCondition = getOptionalExistCondition(lexes);
         return new ForLoop(startCommand, loopCondition, exitCondition, stepCommand, body);
+    }
+
+    /**
+     * Parses and returns the initialization command of a 'for' loop.
+     * <p>
+     * If the command following the 'for' keyword is a simple variable assignment (i.e., assigning a value to a standalone
+     * variable, not to a field, array element, or any other complex expression), then the assignment is converted into
+     * a {@link LetAssignment}. Otherwise, the original command is returned unchanged.
+     * </p>
+     * That way you do not need to write '{@code for let i = 0 ; ...}' instead of '{@code for i = 0 ; ...}'
+     * @param lexes the list of lexical tokens representing the initialization part of the 'for' loop
+     * @return a {@code LetAssignment} if the command is a simple variable assignment, or the original command otherwise
+     * @throws BadSyntax if the initialization command contains invalid syntax
+     */
+    private Command getInitialAssignmentCommand(Lex.List lexes) throws BadSyntax {
+        final Command startCommand = CommandAnalyzer.INSTANCE.analyze(lexes);
+        if (startCommand instanceof Assignment(LeftValue leftValue, Command expression)
+                && leftValue instanceof VariableLeftValue(String variable)) {
+            return new LetAssignment(new AssignmentList.Pair[]{
+                    new AssignmentList.Pair(variable, expression)
+            }, false);
+        } else {
+            return startCommand;
+        }
     }
 
     static void checkClosingParen(Lex.List lexes, boolean withParentheses) throws BadSyntax {
@@ -63,6 +87,7 @@ public class ForLoopAnalyzer implements Analyzer {
 
     /**
      * Get the loop body, the '{' or ':' starting if needed was already checked
+     *
      * @param lexes the current lexical sequence
      * @return the read command
      * @throws BadSyntax if any underlying analysis throws up

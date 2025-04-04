@@ -35,10 +35,9 @@ public class CommandAnalyzer implements Analyzer {
 
 
     static {
-        analyzers.put(Keywords.LOCAL, LocalAnalyzer.INSTANCE);
-        analyzers.put(Keywords.PIN, LocalAnalyzer.FINAL_INSTANCE);
+        analyzers.put(Keywords.LET, LetAnalyzer.INSTANCE);
+        analyzers.put(Keywords.PIN, PinAnalyzer.INSTANCE);
         analyzers.put(Keywords.GLOBAL, GlobalAnalyzer.INSTANCE);
-        analyzers.put(Keywords.LET, AssignmentAnalyzer.INSTANCE);
         analyzers.put(Keywords.FN, FunctionAnalyzer.INSTANCE);
         analyzers.put(Keywords.CLASS, ClassAnalyzer.INSTANCE);
         analyzers.put(Keywords.IF, IfAnalyzer.INSTANCE);
@@ -70,8 +69,7 @@ public class CommandAnalyzer implements Analyzer {
                 yield analyzers.get(keyword).analyze(lexes);
             }
             // commands that may have terminating ;
-            case Keywords.LOCAL,
-                 Keywords.PIN,
+            case Keywords.PIN,
                  Keywords.GLOBAL,
                  Keywords.BREAK,
                  Keywords.RETURN,

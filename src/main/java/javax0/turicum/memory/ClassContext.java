@@ -26,9 +26,20 @@ public class ClassContext extends Context {
         final var thisContains = super.contains(key);
         if (thisContains) return true;
         for (final var parent : parents) {
-            final var inheritedContains = parent.context().contains(key);
-            if (inheritedContains) {
-                return inheritedContains;
+            if (parent.context().contains(key)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean containsLocal(String key) {
+        if (super.containsLocal(key)) {
+            return true;
+        }
+        for (final var parent : parents) {
+            if (parent.context().containsLocal(key)) {
+                return true;
             }
         }
         return false;
