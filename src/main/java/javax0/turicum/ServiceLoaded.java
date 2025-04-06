@@ -60,7 +60,7 @@ public interface ServiceLoaded {
      *
      * @param klass the interface for which the classes are to be loaded
      * @param list  the list to fill the instances to
-     * @param <T>   the klass type
+     * @param <T>   the klass types
      */
     static <T> void loadViaMetaInf(final Class<T> klass, final List<T> list, final ClassLoader cl) {
         try {
@@ -104,7 +104,7 @@ public interface ServiceLoaded {
      * need to implement the service interface.
      *
      * @param klass the provider class
-     * @param <T>   the klass type
+     * @param <T>   the klass types
      * @return the provider method or {@code null} if there is no provider method in the class
      */
     private static <T> Method getProvider(Class<T> klass) {

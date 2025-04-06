@@ -12,7 +12,7 @@ import java.util.Set;
  * Keep a context of the current threads executing environment.
  */
 public class Context implements javax0.turicum.Context {
-    final Map<String, Object> frame;
+    private final Map<String, Variable> frame;
     private final Set<String> globals = new HashSet<>();
     private final Set<String> nonlocal = new HashSet<>();
     private final Set<String> frozen = new HashSet<>();
@@ -77,11 +77,31 @@ public class Context implements javax0.turicum.Context {
         frozen.add(identifier);
     }
 
+    /**
+     * Define a variable with the types 'typeNames'.
+     *
+     * @param key       the name of the variable
+     * @param value     the value of the new variable
+     * @param typeNames the names of the accepted types
+     */
+    public void define(String key, Object value, String[] typeNames) {
+        ExecutionException.when(globals.contains(key), "Local variable is already defined as global '" + key + "'");
+        ExecutionException.when(nonlocal.contains(key), "Variable cannot be local, it is already used as non-local '" + key + "'");
+        ExecutionException.when(frozen.contains(key), "final variable cannot be altered '" + key + "'");
+        if (frame.containsKey(key)) {
+            throw new ExecutionException("Variable '%s' is already defined.", key);
+        }
+        final var v = new Variable(key);
+        v.value = value;
+        v.types = Variable.getTypes(this, typeNames);
+        frame.put(key, v);
+    }
+
     public void local(String key, Object value) throws ExecutionException {
         ExecutionException.when(globals.contains(key), "Local variable is already defined as global '" + key + "'");
         ExecutionException.when(nonlocal.contains(key), "Variable cannot be local, it is already used as non-local '" + key + "'");
         ExecutionException.when(frozen.contains(key), "final variable cannot be altered '" + key + "'");
-        frame.put(key, value);
+        frame.computeIfAbsent(key, x -> new Variable(key)).set(value);
     }
 
     public void global(String global) throws ExecutionException {
@@ -92,7 +112,7 @@ public class Context implements javax0.turicum.Context {
 
     public void global(String global, Object value) throws ExecutionException {
         global(global);
-        globalContext.heap.put(global, value);
+        globalContext.heap.computeIfAbsent(global, Variable::new).set(value);
     }
 
     /**
@@ -143,7 +163,7 @@ public class Context implements javax0.turicum.Context {
         if (globals.contains(key)) {
             // when we set a global value, it does not matter if it is already defined because it is declared or
             // was already declared as 'global'
-            globalContext.heap.put(key, value);
+            globalContext.heap.computeIfAbsent(key, Variable::new).set(value);
             return;
         }
 
@@ -155,7 +175,7 @@ public class Context implements javax0.turicum.Context {
                 if (ctx != this) {
                     nonlocal.add(key);
                 }
-                ctx.frame.put(key, value);
+                ctx.frame.computeIfAbsent(key, Variable::new).set(value);
                 return;
             }
         }
@@ -173,7 +193,7 @@ public class Context implements javax0.turicum.Context {
      * @param value the value in the loop
      */
     public void let0(final String key, final Object value) {
-        frame.put(key, value);
+        frame.computeIfAbsent(key, Variable::new).set(value);
     }
 
     /**
@@ -184,19 +204,19 @@ public class Context implements javax0.turicum.Context {
      */
     public Object get(String key) {
         if (globals.contains(key)) {
-            return globalContext.heap.get(key);
+            return globalContext.heap.get(key).get();
         }
         for (var ctx = this; ctx != null; ctx = ctx.wrapped) {
             if (ctx.frame.containsKey(key)) {
                 if (ctx != this) {
                     nonlocal.add(key);
                 }
-                return ctx.frame.get(key);
+                return ctx.frame.get(key).get();
             }
         }
         if (globalContext.heap.containsKey(key)) {
             nonlocal.add(key);
-            return globalContext.heap.get(key);
+            return globalContext.heap.get(key).get();
         }
         return null;
     }
@@ -227,7 +247,7 @@ public class Context implements javax0.turicum.Context {
     public Object getLocal(String key) {
         for (var ctx = this; ctx != null; ctx = ctx.wrapped) {
             if (ctx.frame.containsKey(key)) {
-                return ctx.frame.get(key);
+                return ctx.frame.get(key).get();
             }
         }
         return null;

@@ -236,12 +236,12 @@ f.k(1,1,1);
 // String
 // "it works12"
 class meClass {
-    global some =  "it works";
+    global some = "it works";
     let other = "local";
     fn a {1}
     fn b {2}
 }
-let some = "it works";
+some = "it works";
 some + meClass.a() + meClass.b();
 
 // snippet testClassInstanceCreation
@@ -673,3 +673,18 @@ try {
   MESSAGE = exception.message
 }
 MESSAGE
+
+// snippet DeclareType
+// String
+// "alma ata"
+
+let a : any|str = "alma ata"
+
+// snippet badType
+// String
+// "Cannot set variable 'a' to value '13' as it does not fit any of the accepted type of the variable (str)"
+let ex;
+try {
+    let a: str = 13
+    }catch exception: ex = exception
+"" + ex

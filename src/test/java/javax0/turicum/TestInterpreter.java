@@ -86,7 +86,7 @@ public class TestInterpreter {
                 snippetNames.add(snippetName);
                 i++;
 
-                // Expected result type.
+                // Expected result types.
                 if (i >= lines.size()) break;
                 String classLine = lines.get(i).trim();
                 String expectedClass;

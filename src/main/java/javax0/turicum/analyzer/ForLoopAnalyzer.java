@@ -57,7 +57,7 @@ public class ForLoopAnalyzer implements Analyzer {
         if (startCommand instanceof Assignment(LeftValue leftValue, Command expression)
                 && leftValue instanceof VariableLeftValue(String variable)) {
             return new LetAssignment(new AssignmentList.Pair[]{
-                    new AssignmentList.Pair(variable, expression)
+                    new AssignmentList.Pair(variable, null, expression)
             }, false);
         } else {
             return startCommand;

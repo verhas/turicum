@@ -170,7 +170,7 @@ public class Cast {
             }
             case Conditional ignored -> throw new ExecutionException("Cannot cast break or return result to number");
             default ->
-                    throw new ExecutionException("Cannot cast object of type '" + obj.getClass().getName() + "' to long");
+                    throw new ExecutionException("Cannot cast object of types '" + obj.getClass().getName() + "' to long");
         };
     }
 
@@ -193,7 +193,7 @@ public class Cast {
             }
             case Conditional ignored -> throw new ExecutionException("Cannot cast break or return result to number");
             default ->
-                    throw new ExecutionException("Cannot cast object of type '" + obj.getClass().getName() + "' to number");
+                    throw new ExecutionException("Cannot cast object of types '" + obj.getClass().getName() + "' to number");
         };
     }
 

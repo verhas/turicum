@@ -1,6 +1,7 @@
 package javax0.turicum.analyzer;
 
 import javax0.turicum.BadSyntax;
+import javax0.turicum.ExecutionException;
 import javax0.turicum.commands.Command;
 
 import java.util.ArrayList;
@@ -8,7 +9,7 @@ import java.util.ArrayList;
 public class AssignmentList {
     public static final AssignmentList INSTANCE = new AssignmentList();
 
-    public record Pair(String identifier, Command expression) {
+    public record Pair(String identifier, String[] types, Command expression) {
     }
 
     /**
@@ -32,8 +33,19 @@ public class AssignmentList {
      */
     public Pair[] analyze(final Lex.List lexes) throws BadSyntax {
         final var pairs = new ArrayList<AssignmentList.Pair>();
-        while (lexes.peek().type()== Lex.Type.IDENTIFIER) {
+        while (lexes.peek().type() == Lex.Type.IDENTIFIER) {
             final var identifier = lexes.next();
+            final var type = new ArrayList<String>();
+            if (lexes.is(":")) { // process types, optional
+                lexes.next();
+                ExecutionException.when(!lexes.isIdentifier(), "following the ':' the types identifier has to follow");
+                type.add(lexes.next().text());
+                while (lexes.is("|")) {
+                    lexes.next();
+                    ExecutionException.when(!lexes.isIdentifier(), "following the '|' a types identifier has to follow");
+                    type.add(lexes.next().text());
+                }
+            }
             Command expression;
             if (lexes.is("=")) {
                 lexes.next();
@@ -41,7 +53,7 @@ public class AssignmentList {
             } else {
                 expression = null;
             }
-            pairs.add(new Pair(identifier.text(), expression));
+            pairs.add(new Pair(identifier.text(), type.toArray(String[]::new), expression));
             if (lexes.is(",")) {
                 lexes.next();
                 BadSyntax.when(!lexes.isIdentifier(), "Identifier missing after , ");

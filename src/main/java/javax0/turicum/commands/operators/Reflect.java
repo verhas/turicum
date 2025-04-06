@@ -38,7 +38,7 @@ class Reflect {
 
     /**
      * Attempts to retrieve a binary instance method from {@code op1}'s class with the given name,
-     * accepting a single argument of {@code op2}'s class type.
+     * accepting a single argument of {@code op2}'s class types.
      * <p>
      * The method must not be static or synthetic.
      *

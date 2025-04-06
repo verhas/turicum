@@ -57,7 +57,7 @@ public class LngClass implements HasFields, HasContext, LngCallable {
      *
      * @param callerContext the context of the caller used to create the context for the object. Only the global (heap)
      *                      and global and thread context is inherited
-     * @param arguments the evaluated values of the arguments.
+     * @param arguments     the evaluated values of the arguments.
      * @return the new object instance initialized
      * @throws ExecutionException if there is some error during the initialization
      */
@@ -86,10 +86,22 @@ public class LngClass implements HasFields, HasContext, LngCallable {
         final var object = objectContext.getLocal("this");
         objectContext.freeze("this");
         return object;
-}
+    }
 
-@Override
-public String toString() {
-    return String.format("class %s", name);
-}
+    public boolean assignableTo(LngClass other) {
+        if( other == this ){
+            return true;
+        }
+        for( final var parent : context.parents()) {
+            if( parent.assignableTo(other) ){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("class %s", name);
+    }
 }

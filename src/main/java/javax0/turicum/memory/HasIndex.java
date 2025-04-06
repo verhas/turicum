@@ -67,7 +67,7 @@ public interface HasIndex extends Iterable<Object> {
                             }
                         }
                         default ->
-                                throw new RuntimeException("unknown modifier type, this is an internal error " + modifier.getClass());
+                                throw new RuntimeException("unknown modifier types, this is an internal error " + modifier.getClass());
                     }
                     if (filtered) {
                         break;

@@ -10,7 +10,7 @@ import javax0.turicum.memory.LngList;
 import javax0.turicum.memory.LngObject;
 
 /**
- * Return the type of the argument as a string.
+ * Return the types of the argument as a string.
  */
 public class Type implements TuriFunction {
     @Override
@@ -20,7 +20,7 @@ public class Type implements TuriFunction {
 
     @Override
     public Object call(Context context, Object[] args) throws ExecutionException {
-        ExecutionException.when(args.length != 1, "Built-in function type needs exactly one argument");
+        ExecutionException.when(args.length != 1, "Built-in function types needs exactly one argument");
         final var arg = args[0];
         return switch (arg) {
             case LngClass ignore -> "CLASS";

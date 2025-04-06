@@ -45,7 +45,7 @@ public class LngObject implements HasFields, HasIndex, HasContext {
 
     @Override
     public Iterator<Object> iterator() {
-        return context().frame.values().iterator();
+        throw new ExecutionException("You cannot iterate over the field values.");
     }
 
     @Override
@@ -56,4 +56,12 @@ public class LngObject implements HasFields, HasIndex, HasContext {
     public LngClass lngClass() {
         return lngClass;
     }
+
+    public boolean instanceOf(LngClass lngClass) {
+        if (lngClass == null) {
+            return true;
+        }
+        return this.lngClass.assignableTo(lngClass);
+    }
+
 }

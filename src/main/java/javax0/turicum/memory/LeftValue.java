@@ -28,7 +28,7 @@ public interface LeftValue {
             ExecutionException.when(existing == null, "Cannot used None as object.");
             return switch (existing) {
                 case LngObject object -> object;
-                default -> throw new ExecutionException("Unknown object type '%s'", existing);
+                default -> throw new ExecutionException("Unknown object types '%s'", existing);
             };
         } else {
             return toIndexable(existing);
@@ -42,7 +42,7 @@ public interface LeftValue {
             case LngList arr -> arr;
             case Object[] arr -> new JavaArray(arr);
             case List<?> list -> new JavaArray(list.toArray(Object[]::new));
-            default -> throw new ExecutionException("Unknown list type %s", existing);
+            default -> throw new ExecutionException("Unknown list types %s", existing);
         };
     }
 }

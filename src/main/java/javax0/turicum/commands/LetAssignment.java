@@ -15,11 +15,16 @@ public record LetAssignment(AssignmentList.Pair[] assignments, boolean freeze) i
             if (assignment.expression() == null) {
                 if (freeze) {
                     ctx.freeze(assignment.identifier());
-                }else{
+                } else {
+                    ctx.define(assignment.identifier(),
+                            null,
+                            assignment.types());
                     ctx.local(assignment.identifier(), null);
                 }
             } else {
-                ctx.local(assignment.identifier(), null);
+                ctx.define(assignment.identifier(),
+                        null,
+                        assignment.types());
                 value = assignment.expression().execute(ctx);
                 ctx.local(assignment.identifier(), value);
                 if (freeze) {

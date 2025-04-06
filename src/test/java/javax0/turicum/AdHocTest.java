@@ -13,14 +13,12 @@ public class AdHocTest {
     @Test
     void test() throws Exception {
         test("""
-                class Parent {
-                 fn parent {1}
-                }
-                class Child : Parent {
-                 fn child { parent() }
-                }
-                let child = Child();
-                child.child();
+let ex;
+try {
+    let a: str = 13
+    }catch exception: ex = exception
+ex
+1
                 """, "1");
     }
 

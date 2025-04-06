@@ -7,7 +7,7 @@ public record Lex(Type type, String text, boolean atLineStart) {
 
     @Override
     public String toString() {
-        return String.format("Lex{type=%s, text='%s'}", type, text);
+        return String.format("Lex{types=%s, text='%s'}", type, text);
     }
 
     public enum Type {

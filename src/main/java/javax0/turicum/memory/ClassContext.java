@@ -18,7 +18,7 @@ public class ClassContext extends Context {
                 return inherited;
             }
         }
-        return globalContext.heap.get(key);
+        return globalContext.heap.get(key).get();
     }
 
     @Override
