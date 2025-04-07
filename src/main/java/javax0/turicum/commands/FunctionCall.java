@@ -27,7 +27,7 @@ public record FunctionCall(Command object, Command[] arguments) implements Comma
                     case Macro ignored -> arguments;
                 };
                 if (obj instanceof LngObject lngObject) {
-                    ExecutionException.when(command.parameters().length != argValues.length, "The number of parameters does not match the number of arguments");
+                    ExecutionException.when(command.parameters().parameters().length != argValues.length, "The number of parameters does not match the number of arguments");
                     final Context ctx;
                     if (command.wrapped() == null) {
                         ctx = context.wrap(lngObject.context());
@@ -41,7 +41,7 @@ public record FunctionCall(Command object, Command[] arguments) implements Comma
                     return command.execute(ctx);
                 }
                 if (obj instanceof LngClass lngClass) {
-                    ExecutionException.when(command.parameters().length != argValues.length, "The number of parameters does not match the number of arguments");
+                    ExecutionException.when(command.parameters().parameters().length != argValues.length, "The number of parameters does not match the number of arguments");
                     final var ctx = context.wrap(lngClass.context());
                     if ("constructor".equals(identifier)) {
                         // this will make in a chained constructor call set 'this' to the object created
@@ -66,7 +66,7 @@ public record FunctionCall(Command object, Command[] arguments) implements Comma
                     case Closure ignored -> evaluateArguments(context);
                     case Macro ignored -> arguments;
                 };
-                ExecutionException.when(command.parameters().length != argValues.length, "The number of parameters does not match the number of arguments");
+                ExecutionException.when(command.parameters().parameters().length != argValues.length, "The number of parameters does not match the number of arguments");
                 final var ctx = context.wrap(command.wrapped());
                 defineArgumentsInContext(ctx, command.parameters(), argValues);
                 return command.execute(ctx);
@@ -84,12 +84,12 @@ public record FunctionCall(Command object, Command[] arguments) implements Comma
      * Assign the string to the parameter names in the context provided.
      *
      * @param ctx       the context that will hold the string
-     * @param names     the names of the parameters/arguments
+     * @param pList     the names of the parameters/arguments
      * @param argValues the array holding the actual argument string
      */
-    public static void defineArgumentsInContext(Context ctx, String[] names, Object[] argValues) {
+    public static void defineArgumentsInContext(Context ctx, ParameterList pList, Object[] argValues) {
         for (int i = 0; i < argValues.length; i++) {
-            ctx.let0(names[i], argValues[i]);
+            ctx.let0(pList.parameters()[i].identifier(), argValues[i]);
         }
     }
 

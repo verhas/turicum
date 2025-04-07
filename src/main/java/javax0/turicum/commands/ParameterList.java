@@ -57,10 +57,11 @@ public record ParameterList(Parameter[] parameters, String rest, String meta, St
      * <ul>
      *     <li>all names are unique
      * </ul>
+     *
      * @param parameters the parameter array
-     * @param rest the rest parameter name or null
-     * @param meta the meta parameter name or null
-     * @param closure the closure parameter name or null
+     * @param rest       the 'rest' parameter name or null
+     * @param meta       the 'meta' parameter name or null
+     * @param closure    the 'closure' parameter name or null
      */
     public ParameterList {
         final var others = Arrays.stream(parameters).map(Parameter::identifier).toArray(String[]::new);
@@ -96,7 +97,17 @@ public record ParameterList(Parameter[] parameters, String rest, String meta, St
     private static boolean violatesUniqueName(String identifier, String other1, String other2, String[] others) {
         if (identifier == null) return false;
         if (identifier.equals(other1) || identifier.equals(other2)) return true;
-        return Arrays.stream(others).anyMatch(identifier::equals);
+        return Arrays.asList(others).contains(identifier);
     }
 
+
+    public boolean fitOperator() {
+        return parameters.length == 1 && parameters[0].type == Parameter.Type.POSITIONAL_ONLY &&
+                rest == null && meta == null && closure == null;
+    }
+
+    public boolean noArg() {
+        return parameters.length == 0 &&
+                rest == null && meta == null && closure == null;
+    }
 }

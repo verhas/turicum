@@ -3,7 +3,7 @@ package javax0.turicum.commands;
 import javax0.turicum.ExecutionException;
 import javax0.turicum.memory.Context;
 
-public record FunctionDefinition(String functionName, String[] arguments, BlockCommand body) implements Command {
+public record FunctionDefinition(String functionName, ParameterList arguments, BlockCommand body) implements Command {
     @Override
     public Object execute(Context context) throws ExecutionException {
             final var closure = new Closure(arguments,null,body);

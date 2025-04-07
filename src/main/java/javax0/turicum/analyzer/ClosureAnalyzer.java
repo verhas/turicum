@@ -4,6 +4,7 @@ import javax0.turicum.BadSyntax;
 import javax0.turicum.commands.BlockCommand;
 import javax0.turicum.commands.ClosureDefinition;
 import javax0.turicum.commands.Command;
+import javax0.turicum.commands.ParameterList;
 
 /**
  * <pre>{@code
@@ -12,7 +13,7 @@ import javax0.turicum.commands.Command;
  */
 public class ClosureAnalyzer implements Analyzer {
     public static final ClosureAnalyzer INSTANCE = new ClosureAnalyzer();
-    private static final String[] EMPTY = new String[0];
+    private static final ParameterList EMPTY = new ParameterList(new ParameterList.Parameter[0],null,null,null);
 
     /**
      * Analyze a closure.
@@ -27,9 +28,9 @@ public class ClosureAnalyzer implements Analyzer {
     @Override
     public Command analyze(Lex.List lexes) throws BadSyntax {
         final var opening = lexes.next();
-        final String[] identifiers;
+        final ParameterList identifiers;
         if (opening.is("|")) {// if it is '||' then there are no identifiers
-            identifiers = IdentifierList.INSTANCE.analyze(lexes);
+            identifiers = ParameterDefinition.INSTANCE.analyze(lexes);
             lexes.peek(Lex.Type.RESERVED, "|", "Closure arguments but be between two '|' characters");
             lexes.next();
         } else {

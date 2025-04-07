@@ -5,6 +5,7 @@ import javax0.turicum.ExecutionException;
 import javax0.turicum.TuriFunction;
 import javax0.turicum.commands.Closure;
 import javax0.turicum.commands.Macro;
+import javax0.turicum.commands.ParameterList;
 
 /**
  * Convert the argument to a macro from a closure
@@ -20,12 +21,12 @@ public class Reclose implements TuriFunction {
         ExecutionException.when(args.length != 1, "Built-in function reclose needs exactly one argument");
         final var arg = args[0];
         if (arg instanceof Closure(
-                String[] parameters, javax0.turicum.memory.Context ignore, javax0.turicum.commands.BlockCommand command
+                ParameterList parameters, javax0.turicum.memory.Context ignore, javax0.turicum.commands.BlockCommand command
         )) {
             return new Closure(parameters, (javax0.turicum.memory.Context) context, command);
         }
         if (arg instanceof Macro(
-                String[] parameters, javax0.turicum.memory.Context ignore, javax0.turicum.commands.BlockCommand command
+                ParameterList parameters, javax0.turicum.memory.Context ignore, javax0.turicum.commands.BlockCommand command
         )) {
             return new Macro(parameters, (javax0.turicum.memory.Context) context, command);
         }

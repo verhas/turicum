@@ -5,6 +5,7 @@ import javax0.turicum.commands.BlockCommand;
 import javax0.turicum.commands.Command;
 import javax0.turicum.ExecutionException;
 import javax0.turicum.commands.FunctionDefinition;
+import javax0.turicum.commands.ParameterList;
 
 import java.util.List;
 
@@ -45,7 +46,7 @@ public class FunctionAnalyzer implements Analyzer {
         if (hasParens) {
             lexes.next();
         }
-        final var arguments = IdentifierList.INSTANCE.analyze(lexes);
+        final var arguments = ParameterDefinition.INSTANCE.analyze(lexes);
         if (hasParens) {
             ExecutionException.when(lexes.isNot(")"), "Function parameter list is opened, but not closed using parenthesis");
             lexes.next();

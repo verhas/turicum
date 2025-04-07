@@ -77,7 +77,7 @@ public class LngClass implements HasFields, HasContext, LngCallable {
         FunctionCall.freezeCls(objectContext);
         final var constructor = uninitialized.getField("constructor");
         if (constructor != null) {
-            if ((constructor instanceof HasParametersWrapped closure) && closure.parameters().length == 0) {
+            if ((constructor instanceof HasParametersWrapped closure) && closure.parameters().noArg()) {
                 closure.execute(objectContext);
             } else {
                 throw new ExecutionException("Constructor function has parameters or uncallable");

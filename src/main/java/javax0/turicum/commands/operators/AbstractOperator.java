@@ -21,7 +21,7 @@ public abstract class AbstractOperator implements Operator {
                 return unaryOp(context, op2);
             }
             if (operatorMethod instanceof HasParametersWrapped command) {
-                ExecutionException.when(command.parameters().length != 1, "Operator methods must have exactly one argument");
+                ExecutionException.when(!command.parameters().fitOperator(), "Operator methods must have exactly one argument");
                 final var argValues = new Object[]{null};
                 final Context ctx;
                 if (command.wrapped() == null) {
@@ -46,7 +46,7 @@ public abstract class AbstractOperator implements Operator {
             return binaryOp(context, op1, right);
         }
         if (operatorMethod instanceof HasParametersWrapped command) {
-            ExecutionException.when(command.parameters().length != 1, "Operator methods must have exactly one argument");
+            ExecutionException.when(!command.parameters().fitOperator(), "Operator methods must have exactly one argument");
             final var argValues = new Object[]{
                     switch (command) {
                         case Closure ignored -> right.execute(context);

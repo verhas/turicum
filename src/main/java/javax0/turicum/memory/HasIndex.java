@@ -47,9 +47,9 @@ public interface HasIndex extends Iterable<Object> {
                         case CompositionModifier.Filter f -> {
                             final var expression = f.expression.execute(context);
                             if (expression instanceof Closure closure) {
-                                ExecutionException.when(closure.parameters().length != 1, "Filter closure or function must have exactly one parameter");
+                                ExecutionException.when(closure.parameters().fitOperator(), "Filter closure or function must have exactly one parameter");
                                 final var ctx = context.wrap(context);
-                                ctx.local(closure.parameters()[0], item);
+                                ctx.local(closure.parameters().parameters()[0].identifier(), item);
                                 filtered = !Cast.toBoolean(closure.execute(ctx));
                             } else {
                                 throw new ExecutionException("you can filter using only with closure or function");
@@ -58,9 +58,9 @@ public interface HasIndex extends Iterable<Object> {
                         case CompositionModifier.Mapper m -> {
                             final var expression = m.expression.execute(context);
                             if (expression instanceof Closure closure) {
-                                ExecutionException.when(closure.parameters().length != 1, "Modifier closure or function must have exactly one parameter");
+                                ExecutionException.when(closure.parameters().fitOperator(), "Modifier closure or function must have exactly one parameter");
                                 final var ctx = context.wrap(context);
-                                ctx.local(closure.parameters()[0], item);
+                                ctx.local(closure.parameters().parameters()[0].identifier(), item);
                                 item = closure.execute(ctx);
                             } else {
                                 throw new ExecutionException("you can map using only with closure or function");
