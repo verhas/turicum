@@ -13,7 +13,6 @@ import javax0.turicum.commands.ParameterList;
  */
 public class ClosureAnalyzer implements Analyzer {
     public static final ClosureAnalyzer INSTANCE = new ClosureAnalyzer();
-    private static final ParameterList EMPTY = new ParameterList(new ParameterList.Parameter[0],null,null,null);
 
     /**
      * Analyze a closure.
@@ -34,7 +33,7 @@ public class ClosureAnalyzer implements Analyzer {
             lexes.peek(Lex.Type.RESERVED, "|", "Closure arguments but be between two '|' characters");
             lexes.next();
         } else {
-            identifiers = EMPTY;
+            identifiers = ParameterList.EMPTY;
         }
         final var commands = BlockAnalyzer.getCommands(lexes);
         final var block = new BlockCommand(commands, true);

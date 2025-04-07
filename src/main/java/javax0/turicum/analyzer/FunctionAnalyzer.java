@@ -1,9 +1,9 @@
 package javax0.turicum.analyzer;
 
 import javax0.turicum.BadSyntax;
+import javax0.turicum.ExecutionException;
 import javax0.turicum.commands.BlockCommand;
 import javax0.turicum.commands.Command;
-import javax0.turicum.ExecutionException;
 import javax0.turicum.commands.FunctionDefinition;
 import javax0.turicum.commands.ParameterList;
 
@@ -15,14 +15,14 @@ import java.util.List;
  * commands
  * }
  * }</pre>
- *
+ * <p>
  * OR
  * <pre>{@code
  * fn myFunction (a,b,c,d) {
  * commands
  * }
  * }</pre>
- *
+ * <p>
  * OR
  * <pre>{@code
  * fn (a,b,c,d) {
@@ -46,18 +46,23 @@ public class FunctionAnalyzer implements Analyzer {
         if (hasParens) {
             lexes.next();
         }
-        final var arguments = ParameterDefinition.INSTANCE.analyze(lexes);
+        final ParameterList arguments;
+        if (hasParens || lexes.isNot("{")) {
+            arguments = ParameterDefinition.INSTANCE.analyze(lexes);
+        } else {
+            arguments = ParameterList.EMPTY;
+        }
         if (hasParens) {
             ExecutionException.when(lexes.isNot(")"), "Function parameter list is opened, but not closed using parenthesis");
             lexes.next();
         }
         final BlockCommand block;
-        if(lexes.is("=")){
-            BadSyntax.when( ! hasParens,"use must use parenthesis in function definition when using =expression as body");
+        if (lexes.is("=")) {
+            BadSyntax.when(!hasParens, "use must use parenthesis in function definition when using =expression as body");
             lexes.next();
             final var expression = ExpressionAnalyzer.INSTANCE.analyze(lexes);
-            block = new BlockCommand(List.of(expression),false);
-        }else {
+            block = new BlockCommand(List.of(expression), false);
+        } else {
             block = BlockAnalyzer.INSTANCE.analyze(lexes);
         }
         return new FunctionDefinition(fn, arguments, block);

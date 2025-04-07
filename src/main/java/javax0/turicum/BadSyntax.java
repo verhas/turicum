@@ -2,7 +2,7 @@ package javax0.turicum;
 
 import java.util.function.Supplier;
 
-public class BadSyntax extends Exception {
+public class BadSyntax extends RuntimeException {
     public BadSyntax(String s, Object... params) {
         super(String.format(s, params));
     }

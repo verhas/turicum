@@ -1,6 +1,6 @@
 package javax0.turicum.commands;
 
-import javax0.turicum.ExecutionException;
+import javax0.turicum.BadSyntax;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -41,6 +41,8 @@ import java.util.HashSet;
  */
 
 public record ParameterList(Parameter[] parameters, String rest, String meta, String closure) {
+    public static final ParameterList EMPTY = new ParameterList(new ParameterList.Parameter[0], null, null, null);
+
     public record Parameter(String identifier,
                             Type type,
                             String[] types,
@@ -65,7 +67,7 @@ public record ParameterList(Parameter[] parameters, String rest, String meta, St
      */
     public ParameterList {
         final var others = Arrays.stream(parameters).map(Parameter::identifier).toArray(String[]::new);
-        ExecutionException.when(violatesUniqueName(rest, meta, closure, others) ||
+        BadSyntax.when(violatesUniqueName(rest, meta, closure, others) ||
                 violatesUniqueName(closure, rest, meta, others) ||
                 violatesUniqueName(meta, closure, rest, others) ||
                 violatesUniqueName(others), "The parameter names have to be unique in a single declaration");
@@ -102,7 +104,7 @@ public record ParameterList(Parameter[] parameters, String rest, String meta, St
 
 
     public boolean fitOperator() {
-        return parameters.length == 1 && parameters[0].type == Parameter.Type.POSITIONAL_ONLY &&
+        return parameters.length == 1 && parameters[0].type != Parameter.Type.NAMED_ONLY &&
                 rest == null && meta == null && closure == null;
     }
 
