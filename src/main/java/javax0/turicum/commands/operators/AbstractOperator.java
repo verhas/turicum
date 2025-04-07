@@ -20,7 +20,7 @@ public abstract class AbstractOperator implements Operator {
             if (operatorMethod == null) {
                 return unaryOp(context, op2);
             }
-            if (operatorMethod instanceof ClosureOrMacro command) {
+            if (operatorMethod instanceof HasParametersWrapped command) {
                 ExecutionException.when(command.parameters().length != 1, "Operator methods must have exactly one argument");
                 final var argValues = new Object[]{null};
                 final Context ctx;
@@ -45,7 +45,7 @@ public abstract class AbstractOperator implements Operator {
         if (operatorMethod == null) {
             return binaryOp(context, op1, right);
         }
-        if (operatorMethod instanceof ClosureOrMacro command) {
+        if (operatorMethod instanceof HasParametersWrapped command) {
             ExecutionException.when(command.parameters().length != 1, "Operator methods must have exactly one argument");
             final var argValues = new Object[]{
                     switch (command) {

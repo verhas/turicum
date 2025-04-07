@@ -5,7 +5,7 @@ import javax0.turicum.ExecutionException;
 import javax0.turicum.analyzer.AssignmentList;
 import javax0.turicum.memory.Context;
 
-public record LetAssignment(AssignmentList.Pair[] assignments, boolean freeze) implements Command {
+public record LetAssignment(AssignmentList.Assignment[] assignments, boolean freeze) implements Command {
 
     @Override
     public Object execute(final Context ctx) throws ExecutionException {

@@ -9,8 +9,8 @@ public class GlobalAnalyzer implements Analyzer {
 
     @Override
     public Command analyze(Lex.List lexes) throws BadSyntax {
-        AssignmentList.Pair[] pairs = AssignmentList.INSTANCE.analyze(lexes);
-        return new GlobalAssignment(pairs);
+        AssignmentList.Assignment[] assignments = AssignmentList.INSTANCE.analyze(lexes);
+        return new GlobalAssignment(assignments);
     }
 }
 

@@ -1,6 +1,7 @@
 package javax0.turicum.memory;
 
 import javax0.turicum.ExecutionException;
+import javax0.turicum.commands.Identifier;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
@@ -14,13 +15,13 @@ public class Variable {
     }
 
     /**
-     * @param javaType the declared types of the variable or null if there is no declared types
+     * @param javaType the declared types of the variable or null if there are no declared types
      * @param lngClass the class object if the types is LngObject, otherwise null and ignored
      */
-    public record Type(Class<?> javaType, LngClass lngClass, String declaration) {
+    public record Type(Class<?> javaType, LngClass lngClass, Identifier declaration) {
         @Override
         public String toString() {
-            return declaration;
+            return declaration.name();
         }
     }
 
@@ -84,17 +85,17 @@ public class Variable {
      */
     public static Type getTypeFromName(Context context, String name) {
         return switch (name) {
-            case "bool" -> new Variable.Type(Boolean.class, null, name);
-            case "str" -> new Variable.Type(String.class, null, name);
-            case "num" -> new Variable.Type(Long.class, null, name);
-            case "any" -> new Variable.Type(null, null, name);
+            case "bool" -> new Variable.Type(Boolean.class, null, new Identifier(name));
+            case "str" -> new Variable.Type(String.class, null, new Identifier(name));
+            case "num" -> new Variable.Type(Long.class, null, new Identifier(name));
+            case "any" -> new Variable.Type(null, null, new Identifier(name));
             case "obj",
-                 "lst" -> new Variable.Type(LngObject.class, null, name);
-            case "cls" -> new Variable.Type(LngClass.class, null, name);
+                 "lst" -> new Variable.Type(LngObject.class, null, new Identifier(name));
+            case "cls" -> new Variable.Type(LngClass.class, null, new Identifier(name));
             default -> {
                 if (name.startsWith("java.")) {
                     try {
-                        yield new Variable.Type(Class.forName(name.substring(5)), null, name);
+                        yield new Variable.Type(Class.forName(name.substring(5)), null, new Identifier(name));
                     } catch (ClassNotFoundException e) {
                         throw new ExecutionException("Type '%s' could not be found.", name);
                     }
@@ -102,7 +103,7 @@ public class Variable {
                 ExecutionException.when(!context.contains(name), "Type '%s' is not defined.", name);
                 final var classObject = context.get(name);
                 if (classObject instanceof LngClass lngClass) {
-                    yield new Variable.Type(LngObject.class, lngClass, name);
+                    yield new Variable.Type(LngObject.class, lngClass, new Identifier(name));
                 } else {
                     throw new ExecutionException("Type '%s' is not a class.", name);
                 }

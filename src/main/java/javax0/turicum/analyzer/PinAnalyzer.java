@@ -9,7 +9,7 @@ public record PinAnalyzer() implements Analyzer {
 
     @Override
     public Command analyze(Lex.List lexes) throws BadSyntax {
-        AssignmentList.Pair[] pairs = AssignmentList.INSTANCE.analyze(lexes);
-        return new LetAssignment(pairs, true);
+        AssignmentList.Assignment[] assignments = AssignmentList.INSTANCE.analyze(lexes);
+        return new LetAssignment(assignments, true);
     }
 }

@@ -12,7 +12,7 @@ import javax0.turicum.memory.Context;
  * @param wrapped the wrapped context that was around the closure when defined
  * @param command the block command of the closure
  */
-public record Macro(String[] parameters, Context wrapped, BlockCommand command) implements ClosureOrMacro {
+public record Macro(String[] parameters, Context wrapped, BlockCommand command) implements HasParametersWrapped {
     @Override
     public Object execute(final Context ctx) throws ExecutionException {
         ctx.step();

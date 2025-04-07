@@ -4,7 +4,7 @@ import javax0.turicum.ExecutionException;
 import javax0.turicum.analyzer.AssignmentList;
 import javax0.turicum.memory.Context;
 
-public record GlobalAssignment(AssignmentList.Pair[] assignments) implements Command {
+public record GlobalAssignment(AssignmentList.Assignment[] assignments) implements Command {
     @Override
     public Object execute(Context ctx) throws ExecutionException {
         Object value = null;

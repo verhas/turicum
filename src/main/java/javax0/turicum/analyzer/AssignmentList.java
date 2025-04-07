@@ -9,7 +9,7 @@ import java.util.ArrayList;
 public class AssignmentList {
     public static final AssignmentList INSTANCE = new AssignmentList();
 
-    public record Pair(String identifier, String[] types, Command expression) {
+    public record Assignment(String identifier, String[] types, Command expression) {
     }
 
     /**
@@ -28,11 +28,11 @@ public class AssignmentList {
      * the next token is not an identifier or when the input ends.
      *
      * @param lexes the lexical token list to analyze; must be positioned at the start of an identifier
-     * @return an array of {@link AssignmentList.Pair} objects representing the identifier-expression pairs
+     * @return an array of {@link Assignment} objects representing the identifier-expression pairs
      * @throws BadSyntax if the syntax is incorrect, such as a missing identifier after a comma
      */
-    public Pair[] analyze(final Lex.List lexes) throws BadSyntax {
-        final var pairs = new ArrayList<AssignmentList.Pair>();
+    public Assignment[] analyze(final Lex.List lexes) throws BadSyntax {
+        final var pairs = new ArrayList<Assignment>();
         while (lexes.peek().type() == Lex.Type.IDENTIFIER) {
             final var identifier = lexes.next();
             final var type = new ArrayList<String>();
@@ -53,7 +53,7 @@ public class AssignmentList {
             } else {
                 expression = null;
             }
-            pairs.add(new Pair(identifier.text(), type.toArray(String[]::new), expression));
+            pairs.add(new Assignment(identifier.text(), type.toArray(String[]::new), expression));
             if (lexes.is(",")) {
                 lexes.next();
                 BadSyntax.when(!lexes.isIdentifier(), "Identifier missing after , ");
@@ -61,6 +61,6 @@ public class AssignmentList {
                 break;
             }
         }
-        return pairs.toArray(AssignmentList.Pair[]::new);
+        return pairs.toArray(Assignment[]::new);
     }
 }

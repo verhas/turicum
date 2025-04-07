@@ -21,7 +21,7 @@ public record FunctionCall(Command object, Command[] arguments) implements Comma
         if (myObject instanceof FieldAccess(Command objectCommand, String identifier)) {
             final var obj = LeftValue.toObject(objectCommand.execute(context));
             function = getMethod(context, obj, identifier);
-            if (function instanceof ClosureOrMacro command) {
+            if (function instanceof HasParametersWrapped command) {
                 final var argValues = switch (command) {
                     case Closure ignored -> evaluateArguments(context);
                     case Macro ignored -> arguments;
@@ -61,7 +61,7 @@ public record FunctionCall(Command object, Command[] arguments) implements Comma
             throw new ExecutionException("It is not possible to invoke %s.%s() as %s.%s()", obj, function, objectCommand, identifier);
         } else {
             function = myObject.execute(context);
-            if (function instanceof ClosureOrMacro command) {
+            if (function instanceof HasParametersWrapped command) {
                 final var argValues = switch (command) {
                     case Closure ignored -> evaluateArguments(context);
                     case Macro ignored -> arguments;

@@ -7,6 +7,7 @@ import javax0.turicum.builtins.functions.*;
 import javax0.turicum.builtins.functions.ObjectFunction;
 
 module com.javax0.turicum {
+    requires java.desktop;
     exports javax0.turicum;
     provides TuriFunction with Len, Type, Macro, Evaluate, Print,Reclose, ObjectFunction;
     provides TuriClass with TuriString, TuriLong, TuriDouble;
