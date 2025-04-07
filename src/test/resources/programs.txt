@@ -481,6 +481,45 @@ let z = 0
 for (i=1 ; i<10 ; i=i+1 )  z=i
 z
 
+// snippet forLoop7
+// String
+// 1234567890
+let i = 0
+let msg : str = ""
+// the loop variable is local for the loop and
+// you do not explicitly write it to be 'let i ='...
+for i=1 ; i<10 ; i=i+1 :  msg = msg + i
+msg + i
+
+// snippet forLoop8
+// String
+// 1234567890
+let i = 0
+let msg : str = ""
+// the loop variable is local for the loop and
+// you can explicitly write it to be 'let i ='... even with a type
+for let i : num =1 ; i<10 ; i=i+1 :  msg = msg + i
+msg + i
+
+// snippet forLoop9
+// String
+// 1234567890
+let i = 0
+let msg : str = ""
+// the loop variable is local for the loop and
+// you can explicitly write it to be 'let i ='... even with a type
+for let i : float  =1 ; i<10 ; i=i+1 :  msg = msg + i
+msg + i
+
+// snippet forLoop10
+// String
+// 12345678910
+let i = 0
+let msg : str = ""
+// the loop variable is inherited in this case
+for {i=1} ; i<10 ; i=i+1 :  msg = msg + i
+msg + i
+
 // snippet closure1
 // Long
 // 3
@@ -688,3 +727,4 @@ try {
     let a: str = 13
     }catch exception: ex = exception
 "" + ex
+

@@ -2,6 +2,7 @@ package javax0.turicum.memory;
 
 import javax0.turicum.ExecutionException;
 import javax0.turicum.commands.Identifier;
+import javax0.turicum.commands.operators.Cast;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
@@ -68,6 +69,7 @@ public class Variable {
      *   <li>{@code "bool"} boolean type stored as a {@link Boolean}</li>
      *   <li>{@code "str"} is a string stored as {@link String}</li>
      *   <li>{@code "num"} a number stored as {@link Long}</li>
+     *   <li>{@code "float"} a number stored as {@link Double}</li>
      *   <li>{@code "any"} any type, it is represented by the {@code null} value as a type</li>
      *   <li>{@code "obj"}, {@code "lst"} any object without defining the actual class {@link LngObject}</li>
      *   <li>{@code "cls"} a class type{@link LngClass}</li>
@@ -88,6 +90,7 @@ public class Variable {
             case "bool" -> new Variable.Type(Boolean.class, null, new Identifier(name));
             case "str" -> new Variable.Type(String.class, null, new Identifier(name));
             case "num" -> new Variable.Type(Long.class, null, new Identifier(name));
+            case "float" -> new Variable.Type(Double.class, null, new Identifier(name));
             case "any" -> new Variable.Type(null, null, new Identifier(name));
             case "obj",
                  "lst" -> new Variable.Type(LngObject.class, null, new Identifier(name));
@@ -122,7 +125,8 @@ public class Variable {
                 return false;
             }
         } else {
-            return javaType.isAssignableFrom(newValue.getClass());
+            return (javaType == Double.class || javaType == Float.class && Cast.isDouble(newValue)) ||
+                    javaType.isAssignableFrom(newValue.getClass());
         }
     }
 

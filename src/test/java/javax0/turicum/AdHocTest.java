@@ -13,13 +13,10 @@ public class AdHocTest {
     @Test
     void test() throws Exception {
         test("""
-let ex;
-try {
-    let a: str = 13
-    }catch exception: ex = exception
-ex
-1
-                """, "1");
+let i = 1;
+for {i = 1}; i < 10; i = i + 1 : print(i);
+print(i);
+                """, null);
     }
 
 }

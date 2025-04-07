@@ -6,39 +6,40 @@ import java.util.Arrays;
 import java.util.HashSet;
 
 /**
- * Describes the parameter list of a closure or function or macro or anything that can have parameters.
- * <p>
- * Classes, functions and closures can declare formal parameters, like:
- * <pre>
- *     {@code
- *     fn myFunction(!a,b,c=13,@d,[rest],{meta},|closure|): body
- *     }
- * </pre>
- * <p>
- * In the above example
+ * Represents the parameter list of a closure, function, macro, or any callable entity that can declare parameters.
+ *
+ * <p>This class is a semantic data holder only. It assumes that syntax analysis has already validated the structure,
+ * order, and legality of parameters. It does not perform syntactic validation, such as enforcing ordering rules
+ * or ensuring correct default usage.</p>
+ *
+ * <p>For example, a parameter list like the following:
+ * <pre>{@code
+ * fn myFunction(!a, b, c = 13, @d, [rest], {meta}, |closure|): body
+ * }</pre>
+ * will be represented as:
  * <ul>
- * <li>{@code a} is a positional parameter and cannot be specified as named parameter.
- * <li>{@code b} is a positional or named. It can be specified as the second argument expression or as {@code b=...}
- * <li>{@code c} is also positional or named, and also optional, because it has a default expression.
- * <li>{@code d} is a named expression, does not have a default value, it has to be specified when the function is
- * called as {@code d=...}
- * <li>{@code rest} will become a list holding all the extra positional parameters
- * <li>{@code meta} will become a classless object list holding all the extra named parameters. Note that an extra named
- * parameter may use the identifier as a positional parameter, in the example {@code a}.
- * <li>{@code closure} will hold the value of the last parameter that MUST be a closure or function or something that
- * itself {@link HasParametersWrapped}
+ *     <li>{@code a} is positional-only (must be passed positionally)</li>
+ *     <li>{@code b} is positional or named, and required</li>
+ *     <li>{@code c} is positional or named, and optional (has a default expression)</li>
+ *     <li>{@code d} is keyword-only, and required (has no default)</li>
+ *     <li>{@code rest} will collect any extra positional arguments into a list</li>
+ *     <li>{@code meta} will collect any unmatched named arguments into an object (classless)</li>
+ *     <li>{@code closure} will hold the last argument, which must be a callable
+ *         (a closure, function, macro, or anything implementing {@link HasParametersWrapped})</li>
  * </ul>
- * <p>
- *     Describing this structure, each parameter has a
+ *
+ * <p>Each regular parameter is represented as a {@link Parameter} object, which includes:
  * <ul>
- *     <li>{@code identifier} that identifies it
- *     <li>{@code type} which is {@link ParameterList.Parameter.Type#POSITIONAL_ONLY POSITIONAL},
- *     {@link ParameterList.Parameter.Type#NAMED_ONLY NAMED}, or
- *     {@link ParameterList.Parameter.Type#POSITIONAL_OR_NAMED ANY}
- *     <li>{@code types} that define the types of the parameter or null or empty string if no type is defined
- *     <li>{@code defaultExpression} or null if there is no default expression, which means the parameter is mandatory
+ *     <li>{@code identifier}: the parameter's name</li>
+ *     <li>{@code type}: whether the parameter is {@code POSITIONAL}, {@code NAMED}, or {@code ANY}</li>
+ *     <li>{@code types}: a type declaration, if any (maybe null or empty)</li>
+ *     <li>{@code defaultExpression}: a default value, or null if the parameter is required</li>
  * </ul>
+ *
+ * <p>The parameters {@code rest}, {@code meta}, and {@code closure} are stored separately and are optional.
+ * If present, their names must be unique and not conflict with any regular parameter identifiers.</p>
  */
+
 public record ParameterList(Parameter[] parameters, String rest, String meta, String closure) {
     public record Parameter(String identifier,
                             Type type,
@@ -95,7 +96,7 @@ public record ParameterList(Parameter[] parameters, String rest, String meta, St
     private static boolean violatesUniqueName(String identifier, String other1, String other2, String[] others) {
         if (identifier == null) return false;
         if (identifier.equals(other1) || identifier.equals(other2)) return true;
-        return Arrays.stream(others).filter(identifier::equals).findFirst().isPresent();
+        return Arrays.stream(others).anyMatch(identifier::equals);
     }
 
 }
