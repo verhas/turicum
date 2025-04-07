@@ -727,3 +727,88 @@ try {
     }catch exception: ex = exception
 "" + ex
 
+// snippet fnPositionalOnly
+// null
+fn f(!a, !b, !c) { }
+none
+
+// snippet fnPositionalAndOptional
+// null
+fn f(a, b = 2, c = 3) { }
+none
+
+// snippet fnNamedOnly
+// null
+fn f(@a = 1, @b = 2) { }
+none
+
+// snippet fnMixedParams
+// null
+fn f(!a, b, c = 3, @d = 4) { }
+none
+
+// snippet fnWithRestParam
+// null
+fn f(a, [args]) { }
+none
+
+// snippet fnWithMetaParam
+// null
+fn f(a, {kwargs}) { }
+none
+
+// snippet fnWithClosureParam
+// null
+fn f(a, ^block) { }
+none
+
+// snippet fnWithAllParamKinds
+// null
+fn f(!a, b = 2, @x = 3, [rest], {meta}, ^closure) { }
+none
+
+// snippet fnClosureOnly
+// null
+fn f(^callback) { }
+none
+
+// snippet fnRestBeforeMeta
+// Exception
+// ""
+fn f({meta}, [rest]) { }
+
+// snippet fnMetaBeforeClosure
+// null
+fn f(@a = 1, {meta}, ^block) { }
+none
+
+// snippet fnClosureNotLast
+// Exception
+// ""
+fn f(^block, a) { }
+
+// snippet fnDuplicateParamNames
+// Exception
+// ""
+fn f(a, a) { }
+
+// snippet fnDuplicateRestMetaClosure
+// Exception
+// ""
+fn f([x], [x]) { }
+
+// snippet closureWithNamedOnly
+// null
+let f = {| @x=1, @y=(2|3) | }
+none
+
+// snippet closureWithAllParamKinds
+// null
+let f = {| !a, b = 2, @x = 3, [rest], {meta}, ^block| }
+none
+
+// snippet closureRestAfterClosure
+// Exception
+// ""
+let f = {| a, ^block, [rest] | }
+

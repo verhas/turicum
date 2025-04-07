@@ -40,7 +40,7 @@ public class ParameterDefinitionTest {
 
     @Test
     void restMetaClosureParameters() throws Exception {
-        var list = parseParams("a, [r], {m}, |block|");
+        var list = parseParams("a, [r], {m}, ^block");
         assertEquals("r", list.rest());
         assertEquals("m", list.meta());
         assertEquals("block", list.closure());
@@ -48,7 +48,7 @@ public class ParameterDefinitionTest {
 
     @Test
     void restMustComeBeforeMetaAndClosure() {
-        assertThrows(BadSyntax.class, () -> parseParams("{m}, [r], |c|"));
+        assertThrows(BadSyntax.class, () -> parseParams("{m}, [r], ^c"));
     }
 
     @Test
@@ -56,19 +56,19 @@ public class ParameterDefinitionTest {
         assertThrows(BadSyntax.class, () -> parseParams("a, a"));
         assertThrows(BadSyntax.class, () -> parseParams("a, [a]"));
         assertThrows(BadSyntax.class, () -> parseParams("a, {a}"));
-        assertThrows(BadSyntax.class, () -> parseParams("a, |a|"));
+        assertThrows(BadSyntax.class, () -> parseParams("a, ^a"));
     }
 
     @Test
     void cannotUsePrefixWithRestMetaClosure() {
         assertThrows(BadSyntax.class, () -> parseParams("@[r]"));
         assertThrows(BadSyntax.class, () -> parseParams("!{m}"));
-        assertThrows(BadSyntax.class, () -> parseParams("!|c|"));
+        assertThrows(BadSyntax.class, () -> parseParams("!^c"));
     }
 
     @Test
     void correctTrailingCommaBehavior() throws Exception {
-        var list = parseParams("a, b=1, [r], {m}, |c|");
+        var list = parseParams("a, b=1, [r], {m}, ^c");
         assertEquals(2, list.parameters().length);
         assertEquals("a", list.parameters()[0].identifier());
         assertEquals("b", list.parameters()[1].identifier());

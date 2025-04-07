@@ -17,7 +17,7 @@ public class ParameterDefinition {
         String meta = null;
         String closure = null;
 
-        while (lexes.peek().type() == Lex.Type.IDENTIFIER || lexes.is("@", "[", "!", "{", "|")) {
+        while (lexes.peek().type() == Lex.Type.IDENTIFIER || lexes.is("@", "[", "!", "{", "^")) {
             final ParameterList.Parameter.Type type;
             if (lexes.is("!")) {
                 type = ParameterList.Parameter.Type.POSITIONAL_ONLY;
@@ -28,7 +28,7 @@ public class ParameterDefinition {
             } else {
                 type = ParameterList.Parameter.Type.POSITIONAL_OR_NAMED;
             }
-            boolean extraParam = lexes.is("[", "{", "|");
+            boolean extraParam = lexes.is("[", "{", "^");
             BadSyntax.when(extraParam && type != ParameterList.Parameter.Type.POSITIONAL_OR_NAMED, "The parameter [rest], {meta} or |closure| cannot be named or positional, do not use ! or @ before it.");
             final String id;
             if (extraParam) {
@@ -37,26 +37,28 @@ public class ParameterDefinition {
                 id = lexes.next().text();
                 final var closing = switch (opening) {
                     case "[" -> {
-                        BadSyntax.when(rest != null , "You cannot have more than one [rest] parameter");
+                        BadSyntax.when(rest != null, "You cannot have more than one [rest] parameter");
                         rest = id;
                         BadSyntax.when(meta != null || closure != null, "[rest] must not come after {meta} or |closure|.");
                         yield "]";
                     }
                     case "{" -> {
-                        BadSyntax.when(meta != null , "You cannot have more than one {meta} parameter");
+                        BadSyntax.when(meta != null, "You cannot have more than one {meta} parameter");
                         meta = id;
                         BadSyntax.when(closure != null, "{meta} must not come after |closure|.");
                         yield "}";
                     }
-                    case "|" -> {
-                        BadSyntax.when(closure != null , "You cannot have more than one |closure| parameter");
+                    case "^" -> {
+                        BadSyntax.when(closure != null, "You cannot have more than one |closure| parameter");
                         closure = id;
-                        yield "|";
+                        yield null;
                     }
                     default -> throw new BadSyntax("Something went wrong 7639/a2");
                 };
-                BadSyntax.when(lexes.isNot(closing), "'%s%s must be followed by %s", opening, id, closing);
-                lexes.next();
+                if (closing != null) {
+                    BadSyntax.when(lexes.isNot(closing), "'%s%s must be followed by %s", opening, id, closing);
+                    lexes.next();
+                }
                 if (lexes.is(",")) {
                     lexes.next();
                     continue;
@@ -82,14 +84,21 @@ public class ParameterDefinition {
             final Command defaultExpression;
             if (lexes.is("=")) {
                 lexes.next();
-                defaultExpression = ExpressionAnalyzer.INSTANCE.analyze(lexes);
+                if (lexes.is("(")) {
+                    lexes.next();
+                    defaultExpression = ExpressionAnalyzer.INSTANCE.analyze(lexes);
+                    BadSyntax.when(lexes.isNot(")"), "Parenthesis is not closed");
+                    lexes.next();
+                }else{
+                    defaultExpression = DefaultExpressionAnalyzer.INSTANCE.analyze(lexes);
+                }
             } else {
                 defaultExpression = null;
             }
             commonParameters.add(new ParameterList.Parameter(id, type, types.toArray(String[]::new), defaultExpression));
             if (lexes.is(",")) {
                 lexes.next();
-                BadSyntax.when(lexes.peek().type() != Lex.Type.IDENTIFIER && lexes.isNot("@", "[", "!", "{", "|"), "Identifier expected after ',' in parameter list");
+                BadSyntax.when(lexes.peek().type() != Lex.Type.IDENTIFIER && lexes.isNot("@", "[", "!", "{", "^"), "Identifier expected after ',' in parameter list");
             } else {
                 break;
             }
