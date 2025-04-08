@@ -20,7 +20,7 @@ public class ClosureAnalyzer implements Analyzer {
      * When this method is invoked, then the syntax analyzer already knows that what we see is a closure and not a
      * block. It analyzes the code and returns a command that, when evaluated, will return a closure.
      *
-     * @param lexes the lexical elements. The current lexical element has to be the opening '{'
+     * @param lexes the lexical elements. The current lexical element has to be after the opening '{'
      * @return the command resulting in a closure
      * @throws BadSyntax obviously, when there is a syntax error
      */

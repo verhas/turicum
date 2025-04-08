@@ -21,6 +21,10 @@ public class Context implements javax0.turicum.Context {
     public final ThreadContext threadContext;
 
 
+    public Set<String> keys() {
+        return frame.keySet();
+    }
+
     /**
      * Create a new context with -1 as a step limit, a.k.a. unlimited, for example, a server application.
      */
@@ -85,6 +89,34 @@ public class Context implements javax0.turicum.Context {
      * @param typeNames the names of the accepted types
      */
     public void define(String key, Object value, String[] typeNames) {
+        final var v = createVariable(key, typeNames);
+        v.value = value;
+        frame.put(key, v);
+    }
+
+    /**
+     * Same as {@link #define(String, Object, String[]) define()} but it throws exception if the type does not fit the
+     * value.
+     *
+     * @param key       the name of the variable
+     * @param value     the value of the new variable
+     * @param typeNames the names of the accepted types
+     */
+    public void defineTypeChecked(String key, Object value, String[] typeNames) {
+        final var v = createVariable(key, typeNames);
+        v.set(value);
+    }
+
+    /**
+     * Create a new variable. Also check that the name is not global, not non-local and not frozen.
+     * <p>
+     * The variable is also added to the local frame with the name, but it does not have value (it has null).
+     *
+     * @param key       the name of the variable
+     * @param typeNames the types for the variable
+     * @return the newly created variable object
+     */
+    private Variable createVariable(String key, String[] typeNames) {
         ExecutionException.when(globals.contains(key), "Local variable is already defined as global '" + key + "'");
         ExecutionException.when(nonlocal.contains(key), "Variable cannot be local, it is already used as non-local '" + key + "'");
         ExecutionException.when(frozen.contains(key), "final variable cannot be altered '" + key + "'");
@@ -92,9 +124,9 @@ public class Context implements javax0.turicum.Context {
             throw new ExecutionException("Variable '%s' is already defined.", key);
         }
         final var v = new Variable(key);
-        v.value = value;
         v.types = Variable.getTypes(this, typeNames);
         frame.put(key, v);
+        return v;
     }
 
     public void local(String key, Object value) throws ExecutionException {

@@ -12,7 +12,13 @@ import javax0.turicum.memory.*;
  * @param arguments are the arguments of the function call to be evaluated or passed to the implementation if the
  *                  object is a {@link Macro}
  */
-public record FunctionCall(Command object, Command[] arguments) implements Command {
+public record FunctionCall(Command object, Argument[] arguments) implements Command {
+    public record Argument(Identifier id, Command expression) {
+    }
+
+    public record ArgumentEvaluated(Identifier id, Object value) {
+    }
+
 
     @Override
     public Object execute(final Context context) throws ExecutionException {
@@ -21,10 +27,10 @@ public record FunctionCall(Command object, Command[] arguments) implements Comma
         if (myObject instanceof FieldAccess(Command objectCommand, String identifier)) {
             final var obj = LeftValue.toObject(objectCommand.execute(context));
             function = getMethod(context, obj, identifier);
-            if (function instanceof HasParametersWrapped command) {
+            if (function instanceof ClosureOrMacro command) {
                 final var argValues = switch (command) {
                     case Closure ignored -> evaluateArguments(context);
-                    case Macro ignored -> arguments;
+                    case Macro ignored -> passArgumentsUnevaluated();
                 };
                 if (obj instanceof LngObject lngObject) {
                     ExecutionException.when(command.parameters().parameters().length != argValues.length, "The number of parameters does not match the number of arguments");
@@ -61,23 +67,29 @@ public record FunctionCall(Command object, Command[] arguments) implements Comma
             throw new ExecutionException("It is not possible to invoke %s.%s() as %s.%s()", obj, function, objectCommand, identifier);
         } else {
             function = myObject.execute(context);
-            if (function instanceof HasParametersWrapped command) {
-                final var argValues = switch (command) {
+            if (function instanceof ClosureOrMacro command) {
+                final ArgumentEvaluated[] argValues = switch (command) {
                     case Closure ignored -> evaluateArguments(context);
-                    case Macro ignored -> arguments;
+                    case Macro ignored -> passArgumentsUnevaluated();
                 };
-                ExecutionException.when(command.parameters().parameters().length != argValues.length, "The number of parameters does not match the number of arguments");
                 final var ctx = context.wrap(command.wrapped());
                 defineArgumentsInContext(ctx, command.parameters(), argValues);
                 return command.execute(ctx);
 
             }
             if (function instanceof LngCallable callable) {
-                final var argValues = evaluateArguments(context);
-                return callable.call(context, argValues);
+                return callable.call(context, bareValues(evaluateArguments(context)));
             }
             throw new ExecutionException("It is not possible to invoke '%s' because it is '%s'", object, function);
         }
+    }
+
+    private Object[] bareValues(FunctionCall.ArgumentEvaluated[] arguments) {
+        final Object[] result = new Object[arguments.length];
+        for (int i = 0; i < arguments.length; i++) {
+            result[i] = arguments[i].value;
+        }
+        return result;
     }
 
     /**
@@ -87,10 +99,113 @@ public record FunctionCall(Command object, Command[] arguments) implements Comma
      * @param pList     the names of the parameters/arguments
      * @param argValues the array holding the actual argument string
      */
-    public static void defineArgumentsInContext(Context ctx, ParameterList pList, Object[] argValues) {
+    public static void defineArgumentsInContext(Context ctx, ParameterList pList, ArgumentEvaluated[] argValues) {
+        int positionalsIndex = 0;
+        final var filled = new boolean[pList.parameters().length];
+        final var rest = new LngList();
+        final var meta = new LngObject(null, ctx.open());
+        Object closure = null;
         for (int i = 0; i < argValues.length; i++) {
-            ctx.let0(pList.parameters()[i].identifier(), argValues[i]);
+            if (i == argValues.length - 1 && pList.closure() != null) {
+                closure = argValues[i].value;
+                break;
+            }
+            if (argValues[i].id == null) {
+                positionalsIndex = addPositionalParameter(ctx, pList, argValues[i], positionalsIndex, rest, filled);
+            } else {
+                addNamedParameter(ctx, pList, argValues[i], meta, filled);
+            }
         }
+        for (int i = 0; i < pList.parameters().length; i++) {
+            if (!filled[i]) {
+                final var parameter = pList.parameters()[i];
+                if (parameter.defaultExpression() == null) {
+                    throw new ExecutionException("Parameter '%s' is not defined", parameter.identifier());
+                } else {
+                    final var value = parameter.defaultExpression().execute(ctx);
+                    ctx.defineTypeChecked(parameter.identifier(), value, parameter.types());
+                }
+            }
+        }
+        if (pList.rest() != null) {
+            ctx.let0(pList.rest(), rest);
+        }
+        if (pList.meta() != null) {
+            ctx.let0(pList.meta(), meta);
+        }
+        if (pList.closure() != null) {
+            ctx.let0(pList.closure(), closure);
+        }
+    }
+
+    /**
+     * Add a named parameter. If the parameter with the given name is a positional only then add the value to the
+     * 'meta' parameter object if there is a meta or throw exception.
+     *
+     * @param ctx      the context to create the variable
+     * @param pList    the descriptor of the parameters
+     * @param argValue the argument values
+     * @param meta     the object holding the extra named parameters
+     * @param filled   the array keeping track of which parameters had got value from the caller
+     * @throws ExecutionException if there is no 'meta' and the name is not defined
+     */
+    private static void addNamedParameter(Context ctx, ParameterList pList, ArgumentEvaluated argValue, LngObject meta, boolean[] filled) {
+        for (int j = 0; j < pList.parameters().length; j++) {
+            final var parameter = pList.parameters()[j];
+            if (parameter.identifier().equals(argValue.id.name())) {
+                if (parameter.type() == ParameterList.Parameter.Type.POSITIONAL_ONLY) {
+                    if (pList.meta() != null) {
+                        meta.setField(argValue.id.name(), argValue.value);
+                        return;
+                    }
+                    throw new ExecutionException(
+                            "The parameter '%s' is positional only, specified by name and there is no {meta} parameter.",
+                            parameter.identifier());
+                }
+                if (filled[j]) {
+                    throw new ExecutionException("Parameter '%s' is already defined", argValue.id.name());
+                }
+                filled[j] = true;
+                ctx.defineTypeChecked(parameter.identifier(), argValue.value, parameter.types());
+                return;
+            }
+        }
+        if (pList.meta() != null) {
+            meta.setField(argValue.id.name(), argValue.value);
+            return;
+        }
+        throw new ExecutionException("The parameter '%s' is not defined and there is no {meta} parameter", argValue.id.name());
+    }
+
+    /**
+     * Add a positional parameter to the next non-named only free positional parameter.
+     *
+     * @param ctx      the context to create the variable
+     * @param pList    the descriptor of the parameters
+     * @param argValue the argument values
+     * @param index    the index of the first fill-able argument (may not be positional)
+     * @param rest     the rest object
+     * @param filled   the array keeping track of which parameters had got value from the caller
+     * @return the next index
+     * @throws ExecutionException if there is no rest and there are too many positional parameters
+     */
+    private static int addPositionalParameter(Context ctx, ParameterList pList, ArgumentEvaluated argValue, int index, LngList rest, boolean[] filled) {
+        while (true) {
+            if (index >= pList.parameters().length) {
+                if (pList.rest() == null) {
+                    throw new ExecutionException("Too many parameters and there is no [rest] specified");
+                }
+                rest.array.add(argValue.value);
+                break;
+            }
+            if (pList.parameters()[index].type() != ParameterList.Parameter.Type.NAMED_ONLY) {
+                ctx.defineTypeChecked(pList.parameters()[index].identifier(), argValue.value, pList.parameters()[index].types());
+                filled[index++] = true;
+                break;
+            }
+            index++;
+        }
+        return index;
     }
 
     /**
@@ -116,10 +231,18 @@ public record FunctionCall(Command object, Command[] arguments) implements Comma
         }
     }
 
-    private Object[] evaluateArguments(Context context) {
-        final var argValues = this.arguments == null ? new Object[0] : new Object[this.arguments.length];
+    private ArgumentEvaluated[] passArgumentsUnevaluated() {
+        final var argValues = this.arguments == null ? new ArgumentEvaluated[0] : new ArgumentEvaluated[this.arguments.length];
         for (int i = 0; i < argValues.length; i++) {
-            argValues[i] = this.arguments[i].execute(context);
+            argValues[i] = new ArgumentEvaluated(this.arguments[i].id, this.arguments[i].expression);
+        }
+        return argValues;
+    }
+
+    private ArgumentEvaluated[] evaluateArguments(Context context) {
+        final var argValues = this.arguments == null ? new ArgumentEvaluated[0] : new ArgumentEvaluated[this.arguments.length];
+        for (int i = 0; i < argValues.length; i++) {
+            argValues[i] = new ArgumentEvaluated(this.arguments[i].id, this.arguments[i].expression.execute(context));
         }
         return argValues;
     }

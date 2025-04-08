@@ -16,7 +16,7 @@ public class Lexer {
             Keywords.RETURN, Keywords.YIELD, Keywords.WHEN, Keywords.TRY, Keywords.CATCH, Keywords.FINALLY
     ));
     final static private ArrayList<String> _OPERANDS = new ArrayList<>(Arrays.asList(
-            "->", ":=", "=", "(", ")", ",", ".",
+            "->", "=", "(", ")", ",", ".",
             "{", "}", "[", "]", ";", ":", "|", "?", "@", "^"
     ));
 
@@ -42,7 +42,36 @@ public class Lexer {
         _OPERANDS.sort((a, b) -> Integer.compare(b.length(), a.length()));
     }
 
-    final static private String[] OPERANDS = _OPERANDS.toArray(String[]::new);
+    private static final String[] OPERANDS = _OPERANDS.toArray(String[]::new);
+
+    private static final String[] uniKeys = {
+            "\u221E", "inf",
+            "\u2205", "none"
+    };
+
+    private String getUnicodeKeyword(String ch) {
+        for (int i = 0; i < uniKeys.length; i += 2) {
+            if (ch.equals(uniKeys[i])) {
+                return uniKeys[i + 1];
+            }
+        }
+        return null;
+    }
+
+    private static final String[] uniSymbols = {
+            "\u2026", "..",
+            "\u2192", "->",
+            "\u2260", "!="
+    };
+
+    private String getUnicodeSymbol(String ch) {
+        for (int i = 0; i < uniSymbols.length; i += 2) {
+            if (ch.equals(uniSymbols[i])) {
+                return uniSymbols[i + 1];
+            }
+        }
+        return null;
+    }
 
     public Lex.List analyze(Input in) throws BadSyntax {
         final var list = new ArrayList<Lex>();
@@ -70,6 +99,16 @@ public class Lexer {
             if (in.charAt(0) == '`') {
                 final var id = StringFetcher.fetchId(in);
                 list.add(new Lex(Lex.Type.IDENTIFIER, id, atLineStart));
+                continue;
+            }
+            final var uniKeyword = getUnicodeKeyword("" + in.charAt(0));
+            if (uniKeyword != null) {
+                if (RESERVED.contains(uniKeyword)) {
+                    list.add(new Lex(Lex.Type.RESERVED, uniKeyword, atLineStart));
+                } else {
+                    list.add(new Lex(Lex.Type.IDENTIFIER, uniKeyword, atLineStart));
+                }
+                in.skip(1);
                 continue;
             }
             if (Input.validId1stChar(in.charAt(0))) {
@@ -110,6 +149,13 @@ public class Lexer {
                 }
                 final var lex = new Lex(type, str.toString(), atLineStart);
                 list.add(lex);
+                continue;
+            }
+            final var uniSym = getUnicodeSymbol("" + in.charAt(0));
+            if (uniSym != null) {
+                final var lex = new Lex(Lex.Type.RESERVED, uniSym, atLineStart);
+                list.add(lex);
+                in.skip(1);
                 continue;
             }
             int operandIndex = in.startsWith(OPERANDS);

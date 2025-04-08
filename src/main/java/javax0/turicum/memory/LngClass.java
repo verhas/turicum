@@ -2,7 +2,7 @@ package javax0.turicum.memory;
 
 import javax0.turicum.ExecutionException;
 import javax0.turicum.LngCallable;
-import javax0.turicum.commands.HasParametersWrapped;
+import javax0.turicum.commands.ClosureOrMacro;
 import javax0.turicum.commands.FunctionCall;
 
 import java.util.Objects;
@@ -77,7 +77,7 @@ public class LngClass implements HasFields, HasContext, LngCallable {
         FunctionCall.freezeCls(objectContext);
         final var constructor = uninitialized.getField("constructor");
         if (constructor != null) {
-            if ((constructor instanceof HasParametersWrapped closure) && closure.parameters().noArg()) {
+            if ((constructor instanceof ClosureOrMacro closure) && closure.parameters().noArg()) {
                 closure.execute(objectContext);
             } else {
                 throw new ExecutionException("Constructor function has parameters or uncallable");

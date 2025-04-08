@@ -17,7 +17,7 @@ public record TryCatch(Command tryBlock, Command catchBlock, Command finallyBloc
             catchBlock.execute(ctx);
         } finally {
             if (finallyBlock != null) {
-                catchBlock.execute(ctx);
+                finallyBlock.execute(ctx);
             }
         }
         return null;

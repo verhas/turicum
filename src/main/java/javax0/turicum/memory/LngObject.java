@@ -11,6 +11,15 @@ public class LngObject implements HasFields, HasIndex, HasContext {
     final LngClass lngClass;
     final Context context;
 
+    /**
+     * Create a new object.
+     *
+     * @param lngClass the object will be the instance of this class. It can be {@code null} if the object is class less,
+     *                 a.k.a. a simple dictionary/map.
+     * @param context is the context of the object. Must not be {@code null}, except special implementation.
+     *                This context will hold the data for the object. Usually this is a wrapping context of the context
+     *                from where the object was created.
+     */
     public LngObject(LngClass lngClass, Context context) {
         this.lngClass = lngClass;
         this.context = context;

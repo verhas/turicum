@@ -13,8 +13,16 @@ public class AdHocTest {
     @Test
     void test() throws Exception {
         test("""
-{|a,b=(2|3) | }
-none
+try {
+    println("trying")
+    call();
+}catch exception {
+    println("caught exception");
+    // call_again();
+}finally{
+    println("finally")
+}
+null
                 """, null);
     }
 

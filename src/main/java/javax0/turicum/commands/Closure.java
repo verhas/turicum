@@ -11,7 +11,7 @@ import javax0.turicum.memory.Context;
  *                definition of the closure.
  * @param command the block command that is the body of the closure.
  */
-public record Closure(ParameterList parameters, Context wrapped, BlockCommand command) implements HasParametersWrapped {
+public record Closure(ParameterList parameters, Context wrapped, BlockCommand command) implements ClosureOrMacro {
     @Override
     public Object execute(final Context ctx) throws ExecutionException {
         ctx.step();

@@ -141,16 +141,36 @@ public class PrimaryExpressionAnalyzer implements Analyzer {
         throw new BadSyntax("Expression is not well formed, missing ')'");
     }
 
-    private static Command[] analyzeArguments(Lex.List lexes) throws BadSyntax {
-        final var arguments = new java.util.ArrayList<Command>();
+    /**
+     * Analyse the actual arguments after a function call.
+     *
+     * @param lexes the lexical elements positioned after the opening "("
+     * @return the arguments
+     * @throws BadSyntax if the syntax is bad
+     */
+    private static FunctionCall.Argument[] analyzeArguments(Lex.List lexes) throws BadSyntax {
+        final var arguments = new java.util.ArrayList<FunctionCall.Argument>();
         while (lexes.isNot(")")) {
-            arguments.add(ExpressionAnalyzer.INSTANCE.analyze(lexes));
+            if (lexes.isIdentifier() && lexes.isAt(1, "=")) {
+                final var id = new Identifier(lexes.next().text());
+                lexes.next(); // over the '='
+                final var expression = ExpressionAnalyzer.INSTANCE.analyze(lexes);
+                arguments.add(new FunctionCall.Argument(id, expression));
+            } else {
+                final var expression = ExpressionAnalyzer.INSTANCE.analyze(lexes);
+                arguments.add(new FunctionCall.Argument(null, expression));
+            }
             if (lexes.is(",")) {
                 lexes.next();
             }
         }
         BadSyntax.when(lexes.isNot(")"), "Function call: expected ')' after the parents");
         lexes.next(); // consume the ')'
-        return arguments.toArray(Command[]::new);
+        if( lexes.is("{") && ClosureAnalyzer.blockStartsClosure(lexes) ) {
+            lexes.next();
+            final var closure = ClosureAnalyzer.INSTANCE.analyze(lexes);
+            arguments.add(new FunctionCall.Argument(null, closure));
+        }
+        return arguments.toArray(FunctionCall.Argument[]::new);
     }
 }

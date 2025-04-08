@@ -20,9 +20,9 @@ public abstract class AbstractOperator implements Operator {
             if (operatorMethod == null) {
                 return unaryOp(context, op2);
             }
-            if (operatorMethod instanceof HasParametersWrapped command) {
+            if (operatorMethod instanceof ClosureOrMacro command) {
                 ExecutionException.when(!command.parameters().fitOperator(), "Operator methods must have exactly one argument");
-                final var argValues = new Object[]{null};
+                final var argValues = new FunctionCall.ArgumentEvaluated[]{new FunctionCall.ArgumentEvaluated(null,null)};
                 final Context ctx;
                 if (command.wrapped() == null) {
                     ctx = context.wrap(lngObject.context());
@@ -45,12 +45,12 @@ public abstract class AbstractOperator implements Operator {
         if (operatorMethod == null) {
             return binaryOp(context, op1, right);
         }
-        if (operatorMethod instanceof HasParametersWrapped command) {
+        if (operatorMethod instanceof ClosureOrMacro command) {
             ExecutionException.when(!command.parameters().fitOperator(), "Operator methods must have exactly one argument");
-            final var argValues = new Object[]{
+            final var argValues = new FunctionCall.ArgumentEvaluated[]{
                     switch (command) {
-                        case Closure ignored -> right.execute(context);
-                        case Macro ignored -> right;
+                        case Closure ignored -> new FunctionCall.ArgumentEvaluated(null,right.execute(context));
+                        case Macro ignored -> new FunctionCall.ArgumentEvaluated(null, right);
                     }
             };
             final Context ctx;
