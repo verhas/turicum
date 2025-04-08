@@ -7,15 +7,20 @@
 {project turicum}
     {GAV :{GROUPID}:{ARTIFACTID}:{VERSION}}
     {description Generative AI programming Language}
-
     {build
         {plugins
             {plugin|{GAV :org.apache.maven.plugins:maven-source-plugin:3.3.1}}
             {plugin|{GAV :org.apache.maven.plugins:maven-compiler-plugin:3.13.0}
                 {configuration
+                    {encoding UTF-8}
                     {source 21}
                     {target 21}
                     {release 21}
+                }
+            }
+            {plugin|{GAV :org.apache.maven.plugins:maven-resources-plugin:3.3.1}
+                {configuration
+                    {encoding UTF-8}
                 }
             }
             {plugin|{GAV :org.apache.maven.plugins:maven-javadoc-plugin:3.11.2}}

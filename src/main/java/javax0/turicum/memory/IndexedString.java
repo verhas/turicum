@@ -79,7 +79,8 @@ public record IndexedString(StringBuilder string) implements HasIndex {
             if (end < 0) {
                 return inRange(string, string.length() + end);
             } else {
-                return inRange(string, end);
+                inRange(string, end-1);
+                return end;
             }
         }
         throw new ExecutionException("Cannot use '%s' as index", rangeStart);

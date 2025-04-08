@@ -7,22 +7,16 @@ public class AdHocTest {
 
     private void test(String input, String expected) throws Exception {
         final var result = new Interpreter(input).execute();
-        Assertions.assertEquals(""+expected, ""+result);
+        Assertions.assertEquals("" + expected, "" + result);
     }
 
     @Test
     void test() throws Exception {
         test("""
-try {
-    println("trying")
-    call();
-}catch exception {
-    println("caught exception");
-    // call_again();
-}finally{
-    println("finally")
-}
-null
+                let z :lst = [1,2,3,4,5,6,7,8,9]
+                z[inf..inf] = ["a"]
+                println(z)
+                null
                 """, null);
     }
 

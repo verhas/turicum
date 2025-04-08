@@ -92,8 +92,8 @@ public class Variable {
             case "num" -> new Variable.Type(Long.class, null, new Identifier(name));
             case "float" -> new Variable.Type(Double.class, null, new Identifier(name));
             case "any" -> new Variable.Type(null, null, new Identifier(name));
-            case "obj",
-                 "lst" -> new Variable.Type(LngObject.class, null, new Identifier(name));
+            case "obj" -> new Variable.Type(LngObject.class, null, new Identifier(name));
+            case "lst" -> new Variable.Type(LngList.class, null, new Identifier(name));
             case "cls" -> new Variable.Type(LngClass.class, null, new Identifier(name));
             default -> {
                 if (name.startsWith("java.")) {
