@@ -24,7 +24,7 @@ public class ClassAnalyzer implements Analyzer {
     public static final ClassAnalyzer INSTANCE = new ClassAnalyzer();
 
     @Override
-    public Command analyze(Lex.List lexes) throws BadSyntax {
+    public Command analyze(LexList lexes) throws BadSyntax {
         final String cn;
         if( lexes.isIdentifier() ) {
             cn = lexes.next().text();

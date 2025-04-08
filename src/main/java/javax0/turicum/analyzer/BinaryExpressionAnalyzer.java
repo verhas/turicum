@@ -38,7 +38,7 @@ public class BinaryExpressionAnalyzer implements Analyzer {
         N = binops.length;
     }
 
-    public Command analyze(final int precedenceLevel, final Lex.List lexes) throws BadSyntax {
+    public Command analyze(final int precedenceLevel, final LexList lexes) throws BadSyntax {
         if (lexes.isEmpty()) {
             throw new BadSyntax("Expression is empty");
         }
@@ -57,7 +57,7 @@ public class BinaryExpressionAnalyzer implements Analyzer {
     }
 
     @Override
-    public Command analyze(Lex.List lexes) throws BadSyntax {
+    public Command analyze(LexList lexes) throws BadSyntax {
         return analyze(0, lexes);
     }
 }

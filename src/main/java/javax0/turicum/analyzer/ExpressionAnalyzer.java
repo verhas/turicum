@@ -60,7 +60,7 @@ import javax0.turicum.commands.Command;
 public class ExpressionAnalyzer implements Analyzer {
     public final static Analyzer INSTANCE = new ExpressionAnalyzer();
 
-    public Command analyze(final Lex.List lexes) throws BadSyntax {
+    public Command analyze(final LexList lexes) throws BadSyntax {
         return BinaryExpressionAnalyzer.INSTANCE.analyze(lexes);
     }
 }

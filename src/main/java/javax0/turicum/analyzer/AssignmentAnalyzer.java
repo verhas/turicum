@@ -8,7 +8,7 @@ public class AssignmentAnalyzer implements Analyzer {
     public static final AssignmentAnalyzer INSTANCE = new AssignmentAnalyzer();
 
     @Override
-    public Command analyze(final Lex.List lexes) throws BadSyntax {
+    public Command analyze(final LexList lexes) throws BadSyntax {
         final var leftValue = LeftValueAnalyser.INSTANCE.analyze(lexes);
         final var opSymbol = lexes.next();
         BadSyntax.when(!(opSymbol.type() == Lex.Type.RESERVED) || !opSymbol.text().equals("="),

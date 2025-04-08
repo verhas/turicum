@@ -9,7 +9,7 @@ public class ForLoopAnalyzer implements Analyzer {
     public static final ForLoopAnalyzer INSTANCE = new ForLoopAnalyzer();
 
     @Override
-    public Command analyze(Lex.List lexes) throws BadSyntax {
+    public Command analyze(LexList lexes) throws BadSyntax {
         if (lexes.is(Keywords.EACH)) {
             lexes.next();
             return ForEachLoopAnalyzer.INSTANCE.analyze(lexes);
@@ -52,7 +52,7 @@ public class ForLoopAnalyzer implements Analyzer {
      * @return a {@code LetAssignment} if the command is a simple variable assignment, or the original command otherwise
      * @throws BadSyntax if the initialization command contains invalid syntax
      */
-    private Command getInitialAssignmentCommand(Lex.List lexes) throws BadSyntax {
+    private Command getInitialAssignmentCommand(LexList lexes) throws BadSyntax {
         final Command startCommand = CommandAnalyzer.INSTANCE.analyze(lexes);
         if (startCommand instanceof Assignment(LeftValue leftValue, Command expression)
                 && leftValue instanceof VariableLeftValue(String variable)) {
@@ -64,7 +64,7 @@ public class ForLoopAnalyzer implements Analyzer {
         }
     }
 
-    static void checkClosingParen(Lex.List lexes, boolean withParentheses) throws BadSyntax {
+    static void checkClosingParen(LexList lexes, boolean withParentheses) throws BadSyntax {
         if (withParentheses) {
             BadSyntax.when(lexes.isNot(")"), "You have to close the parentheses in the 'for' loop");
             lexes.next();
@@ -73,7 +73,7 @@ public class ForLoopAnalyzer implements Analyzer {
         }
     }
 
-    static Command getOptionalExistCondition(Lex.List lexes) throws BadSyntax {
+    static Command getOptionalExistCondition(LexList lexes) throws BadSyntax {
         final Command exitCondition;
         if (lexes.is(Keywords.UNTIL)) {
             lexes.next();
@@ -92,7 +92,7 @@ public class ForLoopAnalyzer implements Analyzer {
      * @return the read command
      * @throws BadSyntax if any underlying analysis throws up
      */
-    static Command getLoopBody(Lex.List lexes) throws BadSyntax {
+    static Command getLoopBody(LexList lexes) throws BadSyntax {
         Command body;
         if (lexes.is(":")) {
             lexes.next();

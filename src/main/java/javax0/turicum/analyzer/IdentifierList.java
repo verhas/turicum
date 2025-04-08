@@ -8,7 +8,7 @@ public class IdentifierList {
     public static final IdentifierList INSTANCE = new IdentifierList();
 
 
-    public String[] analyze(final Lex.List lexes) throws BadSyntax {
+    public String[] analyze(final LexList lexes) throws BadSyntax {
         final var identifiers = new ArrayList<String>();
 
         while (lexes.peek().type()== Lex.Type.IDENTIFIER) {

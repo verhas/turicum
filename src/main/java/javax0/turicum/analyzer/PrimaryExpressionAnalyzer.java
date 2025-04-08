@@ -29,7 +29,7 @@ public class PrimaryExpressionAnalyzer implements Analyzer {
     public static final Command[] EMPTY_COMMAND_ARRAY = new Command[0];
 
     @Override
-    public Command analyze(Lex.List lexes) throws BadSyntax {
+    public Command analyze(LexList lexes) throws BadSyntax {
         if (lexes.isEmpty()) {
             throw new BadSyntax("Expression is empty");
         }
@@ -100,7 +100,7 @@ public class PrimaryExpressionAnalyzer implements Analyzer {
      * @throws BadSyntax if there is an error in one of the expressions following the '{@code ?}' and/or '{@code ->}'
      *                   symbols.
      */
-    private static CompositionModifier[] getModifierChain(Lex.List lexes) throws BadSyntax {
+    private static CompositionModifier[] getModifierChain(LexList lexes) throws BadSyntax {
         final var modifiers = new ArrayList<CompositionModifier>();
         while (lexes.is("?", "->")) {
             final var oper = lexes.next().text();
@@ -115,7 +115,7 @@ public class PrimaryExpressionAnalyzer implements Analyzer {
         return modifiers.toArray(CompositionModifier[]::new);
     }
 
-    private Command getAccessOrCall(Lex.List lexes, Command left) throws BadSyntax {
+    private Command getAccessOrCall(LexList lexes, Command left) throws BadSyntax {
         while (lexes.is("(", ".", "[")) {
             left = switch (lexes.next().text()) {
                 case "(" -> new FunctionCall(left, analyzeArguments(lexes));
@@ -131,7 +131,7 @@ public class PrimaryExpressionAnalyzer implements Analyzer {
         return left;
     }
 
-    private static Command getExpressionBetweenParentheses(Lex.List lexes) throws BadSyntax {
+    private static Command getExpressionBetweenParentheses(LexList lexes) throws BadSyntax {
         lexes.next();
         final var expression = ExpressionAnalyzer.INSTANCE.analyze(lexes);
         if (lexes.is(")")) {
@@ -148,7 +148,7 @@ public class PrimaryExpressionAnalyzer implements Analyzer {
      * @return the arguments
      * @throws BadSyntax if the syntax is bad
      */
-    private static FunctionCall.Argument[] analyzeArguments(Lex.List lexes) throws BadSyntax {
+    private static FunctionCall.Argument[] analyzeArguments(LexList lexes) throws BadSyntax {
         final var arguments = new java.util.ArrayList<FunctionCall.Argument>();
         while (lexes.isNot(")")) {
             if (lexes.isIdentifier() && lexes.isAt(1, "=")) {

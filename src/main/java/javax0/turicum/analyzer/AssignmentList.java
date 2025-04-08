@@ -31,7 +31,7 @@ public class AssignmentList {
      * @return an array of {@link Assignment} objects representing the identifier-expression pairs
      * @throws BadSyntax if the syntax is incorrect, such as a missing identifier after a comma
      */
-    public Assignment[] analyze(final Lex.List lexes) throws BadSyntax {
+    public Assignment[] analyze(final LexList lexes) throws BadSyntax {
         final var pairs = new ArrayList<Assignment>();
         while (lexes.peek().type() == Lex.Type.IDENTIFIER) {
             final var identifier = lexes.next();

@@ -9,7 +9,7 @@ public class WhileLoopAnalyzer implements Analyzer {
     public static final WhileLoopAnalyzer INSTANCE = new WhileLoopAnalyzer();
 
     @Override
-    public Command analyze(Lex.List lexes) throws BadSyntax {
+    public Command analyze(LexList lexes) throws BadSyntax {
         final boolean withParentheses = lexes.is("(");
         if (withParentheses) {
             lexes.next();

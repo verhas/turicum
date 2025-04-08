@@ -14,7 +14,7 @@ import javax0.turicum.memory.VariableLeftValue;
 public class LeftValueAnalyser {
     public static final LeftValueAnalyser INSTANCE = new LeftValueAnalyser();
 
-    public LeftValue analyze(Lex.List lexes) throws BadSyntax {
+    public LeftValue analyze(LexList lexes) throws BadSyntax {
         BadSyntax.when(lexes.isEmpty(), "Left value can't be empty");
         final var lex = lexes.peek();
         if (lex.type()== Lex.Type.IDENTIFIER) {

@@ -8,7 +8,7 @@ public class BreakAnalyzer implements Analyzer {
     public static final BreakAnalyzer INSTANCE = new BreakAnalyzer();
 
     @Override
-    public Command analyze(Lex.List lexes) throws BadSyntax {
+    public Command analyze(LexList lexes) throws BadSyntax {
         return BrReYiAnalyzer.analyze(lexes, BreakCommand::new);
     }
 }

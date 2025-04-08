@@ -8,7 +8,7 @@ public class YieldAnalyzer implements Analyzer {
     public static final YieldAnalyzer INSTANCE = new YieldAnalyzer();
 
     @Override
-    public Command analyze(Lex.List lexes) throws BadSyntax {
+    public Command analyze(LexList lexes) throws BadSyntax {
         return BrReYiAnalyzer.analyze(lexes, YieldCommand::new);
     }
 }

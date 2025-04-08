@@ -4,19 +4,19 @@ import javax0.turicum.BadSyntax;
 import javax0.turicum.commands.Command;
 
 /**
- * An analyser reads the lexical elements, advances the {@link Lex.List} removing from the start the consumed elements
+ * An analyser reads the lexical elements, advances the {@link LexList} removing from the start the consumed elements
  * and returns a {@link Command} that can later be used to execute.
  * <p>
  * Analysers are usually singletons containing an {@code INSTANCE} field that can be used to invoke the method
- * {@link #analyze(Lex.List)}.
+ * {@link #analyze(LexList)}.
  * <p>
  * Analysers can eventually invoke each others following the syntax descriptions.
  */
 
 public interface Analyzer {
-    Command analyze(final Lex.List lexes) throws BadSyntax;
+    Command analyze(final LexList lexes) throws BadSyntax;
 
-    static void checkCommandTermination(Lex.List lexes) throws BadSyntax {
+    static void checkCommandTermination(LexList lexes) throws BadSyntax {
         if (lexes.isEmpty()) {
             return;
         }

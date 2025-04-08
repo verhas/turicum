@@ -9,7 +9,7 @@ public class UnaryExpressionAnalyzer implements Analyzer {
 
     static final String[] unaryOperators = {"+", "-", "!", ".."};
 
-    public Command analyze(final Lex.List lexes) throws BadSyntax {
+    public Command analyze(final LexList lexes) throws BadSyntax {
         if (lexes.is(unaryOperators)) {
             final var op = lexes.next().text();
             return new Operation(op, null, analyze(lexes));

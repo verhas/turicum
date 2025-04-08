@@ -3,7 +3,7 @@ package javax0.turicum;
 import javax0.turicum.memory.GlobalContext;
 import javax0.turicum.memory.InfiniteValue;
 
-class BuiltIns {
+public class BuiltIns {
 
     private final static Object[] values = new Object[]{
             "true", true,

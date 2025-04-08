@@ -34,7 +34,7 @@ public class FunctionAnalyzer implements Analyzer {
     public static final FunctionAnalyzer INSTANCE = new FunctionAnalyzer();
 
     @Override
-    public Command analyze(Lex.List lexes) throws BadSyntax {
+    public Command analyze(LexList lexes) throws BadSyntax {
         final String fn;
         if (lexes.is("(")) {
             fn = null;

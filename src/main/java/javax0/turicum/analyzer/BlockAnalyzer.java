@@ -12,13 +12,13 @@ public record BlockAnalyzer(boolean wrap) implements Analyzer {
     public static final BlockAnalyzer UNWRAPPED = new BlockAnalyzer(false);
 
     @Override
-    public BlockCommand analyze(final Lex.List lexes) throws BadSyntax {
+    public BlockCommand analyze(final LexList lexes) throws BadSyntax {
         lexes.next();
         final var commands = getCommands(lexes);
         return new BlockCommand(commands, wrap);
     }
 
-    static ArrayList<Command> getCommands(Lex.List lexes) throws BadSyntax {
+    static ArrayList<Command> getCommands(LexList lexes) throws BadSyntax {
         final var commands = new ArrayList<Command>();
         while( lexes.isNot("}")){
             final var cmd = CommandAnalyzer.INSTANCE.analyze(lexes);

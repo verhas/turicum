@@ -8,7 +8,7 @@ import javax0.turicum.commands.TryCatch;
 public class TryCatchAnalyzer implements Analyzer {
     public static final TryCatchAnalyzer INSTANCE = new TryCatchAnalyzer();
 
-    public TryCatch analyze(final Lex.List lexes) throws BadSyntax {
+    public TryCatch analyze(final LexList lexes) throws BadSyntax {
         final Command tryBlock;
         tryBlock = getCommand(lexes, Keywords.TRY);
         final Command catchBlock;
@@ -42,7 +42,7 @@ public class TryCatchAnalyzer implements Analyzer {
         return new TryCatch(tryBlock, catchBlock, finallyBlock, exception);
     }
 
-    private Command getCommand(Lex.List lexes, String msg) throws BadSyntax {
+    private Command getCommand(LexList lexes, String msg) throws BadSyntax {
         final Command command;
         if (lexes.is("{")) {
             command = BlockAnalyzer.INSTANCE.analyze(lexes);

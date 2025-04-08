@@ -7,7 +7,7 @@ public class BlockOrClosureAnalyser implements Analyzer {
     public static final BlockOrClosureAnalyser INSTANCE = new BlockOrClosureAnalyser();
 
     @Override
-    public Command analyze(Lex.List lexes) throws BadSyntax {
+    public Command analyze(LexList lexes) throws BadSyntax {
         if (ClosureAnalyzer.blockStartsClosure(lexes)) {
             lexes.next();
             return ClosureAnalyzer.INSTANCE.analyze(lexes);

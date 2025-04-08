@@ -11,7 +11,7 @@ public class ParameterDefinition {
     public static final ParameterDefinition INSTANCE = new ParameterDefinition();
 
 
-    public ParameterList analyze(final Lex.List lexes) throws BadSyntax {
+    public ParameterList analyze(final LexList lexes) throws BadSyntax {
         final var commonParameters = new ArrayList<ParameterList.Parameter>();
         String rest = null;
         String meta = null;

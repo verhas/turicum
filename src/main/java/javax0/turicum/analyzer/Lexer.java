@@ -17,7 +17,7 @@ public class Lexer {
     ));
     final static private ArrayList<String> _OPERANDS = new ArrayList<>(Arrays.asList(
             "->", "=", "(", ")", ",", ".",
-            "{", "}", "[", "]", ";", ":", "|", "?", "@", "^"
+            "{", "}", "[", "]", ";", ":", "|", "?", "@", "^", "#"
     ));
 
     static {
@@ -73,7 +73,7 @@ public class Lexer {
         return null;
     }
 
-    public Lex.List analyze(Input in) throws BadSyntax {
+    public LexList analyze(Input in) throws BadSyntax {
         final var list = new ArrayList<Lex>();
         while (!in.isEmpty()) {
             boolean atLineStart = false;// the first line start does not matter
@@ -167,7 +167,7 @@ public class Lexer {
             }
             throw new BadSyntax("Unexpected character '" + in.charAt(0) + "' in the input");
         }
-        return new Lex.List(list);
+        return new LexList(list);
     }
 
     /**

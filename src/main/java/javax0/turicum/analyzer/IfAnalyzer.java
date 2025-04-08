@@ -11,7 +11,7 @@ import java.util.List;
 public class IfAnalyzer implements Analyzer {
     public static final IfAnalyzer INSTANCE = new IfAnalyzer();
 
-    public If analyze(final Lex.List lexes) throws BadSyntax {
+    public If analyze(final LexList lexes) throws BadSyntax {
         // there is no need for '(' and ')' after the 'if'
         final var condition = ExpressionAnalyzer.INSTANCE.analyze(lexes);
         final Command thenBlock;

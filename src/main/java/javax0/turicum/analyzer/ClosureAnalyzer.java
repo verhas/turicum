@@ -25,7 +25,7 @@ public class ClosureAnalyzer implements Analyzer {
      * @throws BadSyntax obviously, when there is a syntax error
      */
     @Override
-    public Command analyze(Lex.List lexes) throws BadSyntax {
+    public Command analyze(LexList lexes) throws BadSyntax {
         final var opening = lexes.next();
         final ParameterList identifiers;
         if (opening.is("|")) {// if it is '||' then there are no identifiers
@@ -50,7 +50,7 @@ public class ClosureAnalyzer implements Analyzer {
      * @param lexes the lexical elements. The current lexical element has to be the opening '{'
      * @return {@code true} if this block is the start of a closure
      */
-    public static boolean blockStartsClosure(Lex.List lexes) {
+    public static boolean blockStartsClosure(LexList lexes) {
         return lexes.isAt(1, "|", "||");
     }
 

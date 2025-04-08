@@ -11,7 +11,7 @@ import javax0.turicum.commands.Command;
 public class DefaultExpressionAnalyzer implements Analyzer {
     public final static Analyzer INSTANCE = new DefaultExpressionAnalyzer();
 
-    public Command analyze(final Lex.List lexes) throws BadSyntax {
+    public Command analyze(final LexList lexes) throws BadSyntax {
         return BinaryExpressionAnalyzer.BINARY_DEFAULT_EXPRESSION_ANALYZER.analyze(lexes);
     }
 }

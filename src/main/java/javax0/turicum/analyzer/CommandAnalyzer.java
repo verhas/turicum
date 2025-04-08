@@ -10,7 +10,7 @@ public class CommandAnalyzer implements Analyzer {
     public static final CommandAnalyzer INSTANCE = new CommandAnalyzer();
 
     @Override
-    public Command analyze(Lex.List lexes) throws BadSyntax {
+    public Command analyze(LexList lexes) throws BadSyntax {
         if (lexes.is(";")) {
             lexes.next();
             return null;
@@ -56,7 +56,7 @@ public class CommandAnalyzer implements Analyzer {
      * @param lexes the lexical elements following the keyword
      * @return the command created later used to execute
      */
-    private Command analyzeKeywordCommand(final Lex.List lexes) throws BadSyntax {
+    private Command analyzeKeywordCommand(final LexList lexes) throws BadSyntax {
         final var keyword = lexes.peek().text();
         return switch (keyword) {
             // commands that end in a block and do not need terminating ;
