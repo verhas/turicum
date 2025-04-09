@@ -1,6 +1,8 @@
 package javax0.turicum;
 
-import javax0.turicum.analyzer.*;
+import javax0.turicum.analyzer.Input;
+import javax0.turicum.analyzer.Lexer;
+import javax0.turicum.analyzer.ProgramAnalyzer;
 import javax0.turicum.commands.Command;
 import javax0.turicum.memory.Context;
 
@@ -21,6 +23,7 @@ public class Interpreter {
     private final String source;
     private volatile Command code = null;
     private final Object lock = new Object();
+    private Context preprocessorContext;
 
     public Interpreter(String source) {
         this.source = source;
@@ -35,7 +38,7 @@ public class Interpreter {
      * Interpreter instance from a single thread.
      *
      * @return The result of executing the code
-     * @throws BadSyntax if the source code contains syntax errors
+     * @throws BadSyntax          if the source code contains syntax errors
      * @throws ExecutionException if an error occurs during execution
      */
     public Object execute() throws BadSyntax, ExecutionException {
@@ -44,13 +47,21 @@ public class Interpreter {
             synchronized (lock) {
                 localCode = code; // may have changed since we syncronized
                 if (localCode == null) {
-                    localCode = ProgramAnalyzer.INSTANCE.analyze(new Lexer().analyze(Input.fromString(source)));
+                    final var analyzer = new ProgramAnalyzer();
+                    localCode = analyzer.analyze(Lexer.analyze(Input.fromString(source)));
                     code = localCode;
+                    preprocessorContext = analyzer.context();
                 }
             }
         }
-        final var ctx = new Context();
-        BuiltIns.register(ctx);
+
+        final Context ctx;
+        if (preprocessorContext == null) {
+            ctx = new Context();
+            BuiltIns.register(ctx);
+        } else {
+            ctx = preprocessorContext.wrap();
+        }
         return localCode.execute(ctx);
     }
 }

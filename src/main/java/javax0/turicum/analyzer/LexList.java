@@ -1,9 +1,11 @@
 package javax0.turicum.analyzer;
 
 import javax0.turicum.BadSyntax;
+import javax0.turicum.memory.LngList;
 
-public class LexList {
-    private final Lex[] lexes;
+import java.util.List;
+
+public class LexList extends LngList {
 
     /**
      * Get the current index. It can be saved and in the case a syntax analysis fails that is not implemented using
@@ -13,6 +15,20 @@ public class LexList {
      */
     public int getIndex() {
         return index;
+    }
+
+
+    /**
+     * Purge the already used up elements of the lexical analyser.
+     * This is used by the preprocessing before passing the LexList to the preprocessor closure.
+     */
+    public void purge(){
+        array.subList(0,index).clear();
+        index = 0;
+    }
+
+    private Lex lexAt(int index) {
+        return (Lex) array.get(index);
     }
 
     /**
@@ -27,15 +43,15 @@ public class LexList {
 
     private int index;
 
-    public LexList(final java.util.List<Lex> lexes) {
-        this.lexes = lexes.toArray(Lex[]::new);
+    public LexList(final List<Lex> lexes) {
+        array.addAll(lexes);
     }
 
     public Lex next() throws BadSyntax {
-        if (index >= lexes.length) {
+        if (index >= array.size()) {
             throw new BadSyntax("more elements expected");
         }
-        return lexes[index++];
+        return lexAt(index++);
     }
 
     public Lex next(Lex.Type expectedType) throws BadSyntax {
@@ -45,21 +61,21 @@ public class LexList {
     }
 
     public Lex next(Lex.Type type, String msg) throws BadSyntax {
-        if (index >= lexes.length || lexes[index].type() != type) {
+        if (index >= array.size() || lexAt(index).type() != type) {
             throw new BadSyntax(msg);
         }
         return next();
     }
 
     public Lex next(Lex.Type type, String text, String msg) throws BadSyntax {
-        if (index >= lexes.length || lexes[index].type() != type || !lexes[index].text().equals(text)) {
+        if (index >= array.size() || lexAt(index).type() != type || !lexAt(index).text().equals(text)) {
             throw new BadSyntax(msg);
         }
         return next();
     }
 
     public void peek(Lex.Type type, String text, String msg) throws BadSyntax {
-        if (index >= lexes.length || lexes[index].type() != type || (text != null && !text.equals(lexes[index].text()))) {
+        if (index >= array.size() || lexAt(index).type() != type || (text != null && !text.equals(lexAt(index).text()))) {
             throw new BadSyntax(msg);
         }
     }
@@ -69,18 +85,18 @@ public class LexList {
     }
 
     public Lex peek() throws BadSyntax {
-        if (index >= lexes.length) {
+        if (index >= array.size()) {
             throw new BadSyntax("more elements expected");
         }
-        return lexes[index];
+        return lexAt(index);
     }
 
     public boolean hasNext() {
-        return index < lexes.length;
+        return index < array.size();
     }
 
     public boolean hasNext(int i) {
-        return index + i < lexes.length;
+        return index + i < array.size();
     }
 
     public boolean isEmpty() {
@@ -88,7 +104,7 @@ public class LexList {
     }
 
     public boolean isKeyword() {
-        return hasNext() && lexes[index].type() == Lex.Type.RESERVED && Character.isAlphabetic(lexes[index].text().charAt(0));
+        return hasNext() && lexAt(index).type() == Lex.Type.RESERVED && Character.isAlphabetic(lexAt(index).text().charAt(0));
     }
 
     public boolean isNot(String... textAlternatives) {
@@ -96,15 +112,15 @@ public class LexList {
     }
 
     public boolean isAt(int i, String... textAlternatives) {
-        return hasNext(i) && lexes[index + i].is(textAlternatives);
+        return hasNext(i) && lexAt(index + i).is(textAlternatives);
     }
 
     public boolean is(String... textAlternatives) {
-        return hasNext() && lexes[index].is(textAlternatives);
+        return hasNext() && lexAt(index).is(textAlternatives);
     }
 
     public boolean isIdentifier() {
-        return hasNext() && lexes[index].type() == Lex.Type.IDENTIFIER;
+        return hasNext() && lexAt(index).type() == Lex.Type.IDENTIFIER;
     }
 
 

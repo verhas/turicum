@@ -10,13 +10,13 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class ParameterDefinitionTest {
 
-    private ParameterList parseParams(String code) throws Exception {
-        final var lexes = new Lexer().analyze(Input.fromString(code));
+    private ParameterList parseParams(String code) {
+        final var lexes = Lexer.analyze(Input.fromString(code));
         return ParameterDefinition.INSTANCE.analyze(lexes);
     }
 
     @Test
-    void positionalAndOptional() throws Exception {
+    void positionalAndOptional() {
         var list = parseParams("a, b=2");
         assertEquals(2, list.parameters().length);
         assertEquals("a", list.parameters()[0].identifier());
@@ -26,20 +26,20 @@ public class ParameterDefinitionTest {
     }
 
     @Test
-    void positionalOnly() throws Exception {
+    void positionalOnly() {
         var list = parseParams("!a, b");
         assertEquals(ParameterList.Parameter.Type.POSITIONAL_ONLY, list.parameters()[0].type());
     }
 
     @Test
-    void namedOnly() throws Exception {
+    void namedOnly() {
         var list = parseParams("@a=1");
         assertEquals(ParameterList.Parameter.Type.NAMED_ONLY, list.parameters()[0].type());
         assertNotNull(list.parameters()[0].defaultExpression());
     }
 
     @Test
-    void restMetaClosureParameters() throws Exception {
+    void restMetaClosureParameters() {
         var list = parseParams("a, [r], {m}, ^block");
         assertEquals("r", list.rest());
         assertEquals("m", list.meta());
@@ -67,7 +67,7 @@ public class ParameterDefinitionTest {
     }
 
     @Test
-    void correctTrailingCommaBehavior() throws Exception {
+    void correctTrailingCommaBehavior() {
         var list = parseParams("a, b=1, [r], {m}, ^c");
         assertEquals(2, list.parameters().length);
         assertEquals("a", list.parameters()[0].identifier());

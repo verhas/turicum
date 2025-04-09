@@ -49,7 +49,7 @@ public class Lexer {
             "\u2205", "none"
     };
 
-    private String getUnicodeKeyword(String ch) {
+    private static String getUnicodeKeyword(String ch) {
         for (int i = 0; i < uniKeys.length; i += 2) {
             if (ch.equals(uniKeys[i])) {
                 return uniKeys[i + 1];
@@ -64,7 +64,7 @@ public class Lexer {
             "\u2260", "!="
     };
 
-    private String getUnicodeSymbol(String ch) {
+    private static String getUnicodeSymbol(String ch) {
         for (int i = 0; i < uniSymbols.length; i += 2) {
             if (ch.equals(uniSymbols[i])) {
                 return uniSymbols[i + 1];
@@ -73,7 +73,7 @@ public class Lexer {
         return null;
     }
 
-    public LexList analyze(Input in) throws BadSyntax {
+    public static LexList analyze(Input in) throws BadSyntax {
         final var list = new ArrayList<Lex>();
         while (!in.isEmpty()) {
             boolean atLineStart = false;// the first line start does not matter

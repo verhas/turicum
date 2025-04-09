@@ -177,7 +177,7 @@ public class Context implements javax0.turicum.Context {
      * This is the situation when we call a closure from somewhere. The context of the closure will not wrap the
      * current context, rather it will wrap the context in which it was created.
      *
-     * @param wrapped teh wrapped context, probably stored in a closure and queried from there
+     * @param wrapped the wrapped context, probably stored in a closure and queried from there
      * @return the new context
      */
     public Context wrap(Context wrapped) {

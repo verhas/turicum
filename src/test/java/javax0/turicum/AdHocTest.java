@@ -3,6 +3,9 @@ package javax0.turicum;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class AdHocTest {
 
     private void test(String input, String expected) throws Exception {
@@ -13,19 +16,21 @@ public class AdHocTest {
     @Test
     void test() throws Exception {
         test("""
-                class A {
-                    fn equals(other) {
-                      return a == other.a;
-                    }
+                fn adhoc(){
+                  "huhu "
                 }
-                let a = A()
-                a.a = 1
-                a.b = 4
-                let b = A()
-                b.a = 1
-                b.b = 3
-                println(a == b)
-                null
+                # {|lexes|
+                [""\"
+                    fn adhic(){
+                      println("hihi")
+                    }
+                    println("hello");
+                    println("1 ",adhoc());
+                    println("2 ",adhic());
+                ""\",..lexes]
+                }
+                println("hangyavadasz")
+                
                 """, null);
     }
 

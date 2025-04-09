@@ -972,3 +972,22 @@ fn fun(@a, {meta}, ^cb){
   cb(a, meta.x)
 }
 fun(a="META", x=3) {|a,b| "" + a + b }
+
+// snippet preprocessorSample
+// String
+// "hello huhu hihi hangyavadasz"
+fn adhoc(){ // this will be deleted, it only exists in the preprocessor context
+  "huhu "
+}
+# {|lexes|
+["""
+    let M:str = ""
+    fn adhic(){
+      "hihi "
+    }
+    M = M + "hello ";
+    M = M + (adhoc() or "none ");
+    M = M + adhic();
+""",..lexes]
+}
+M = M + "hangyavadasz"
