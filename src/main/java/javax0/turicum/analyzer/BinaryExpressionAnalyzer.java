@@ -17,9 +17,9 @@ public class BinaryExpressionAnalyzer implements Analyzer {
             {"|"},         // 4
             {"^"},
             {"&"},
-            {"==", "!="},
+            {"==", "!=", Keywords.IN},
             {"<", "<=", ">", ">="},
-            {"<<", ">>"},
+            {"<<", ">>", ">>>"},
             {"+", "-"},
             {"*", "/", "%"}
     };

@@ -26,7 +26,6 @@ public class Type implements TuriFunction {
             case LngClass ignore -> "CLASS";
             case LngList ignore -> "LIST";
             case LngObject object -> object.lngClass().name();
-            case LngCallable ignore -> "FUNCTION";
             case Closure closure -> {
                 if (closure.wrapped() == null) {
                     yield "FUNCTION";
@@ -34,6 +33,7 @@ public class Type implements TuriFunction {
                     yield "CLOSURE";
                 }
             }
+            case LngCallable ignore -> "FUNCTION";
             case null -> "none";
             default -> "JAVA#" + arg.getClass().getCanonicalName();
         };

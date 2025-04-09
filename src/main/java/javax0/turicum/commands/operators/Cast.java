@@ -22,7 +22,7 @@ public class Cast {
             case Float ignore -> false;
             case Boolean ignore -> false;
             case CharSequence cs -> {
-                if(cs.isEmpty()){
+                if (cs.isEmpty()) {
                     yield false;
                 }
                 int start = cs.charAt(0) == '+' || cs.charAt(0) == '-' ? 1 : 0;
@@ -158,7 +158,12 @@ public class Cast {
             case Short sh -> Long.valueOf(sh);
             case Byte b -> Long.valueOf(b);
             case Character c -> Long.valueOf(c);
-            case Double ignore -> throw new ExecutionException("Cannot cast double to number");
+            case Double d -> {
+                ExecutionException.when(d > Long.MAX_VALUE || d < Long.MIN_VALUE,
+                        "Value '%s' cannot be used as a long, too %s", d,d > 0 ? "large" : "small");
+                ExecutionException.when(d % 1 != 0, "Value '%s' cannot be used as a long, it has fractions", d);
+                yield d.longValue();
+            }
             case Float ignore -> throw new ExecutionException("Cannot cast float to number");
             case Boolean ignore -> throw new ExecutionException("Cannot cast boolean to number");
             case CharSequence cs -> {

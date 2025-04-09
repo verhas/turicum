@@ -1,7 +1,7 @@
 package javax0.turicum.commands.operators;
 
-import javax0.turicum.commands.Command;
 import javax0.turicum.ExecutionException;
+import javax0.turicum.commands.Command;
 import javax0.turicum.memory.Context;
 
 import java.lang.annotation.ElementType;
@@ -18,7 +18,8 @@ public interface Operator {
             new Compare.Equal(), new Compare.NotEqual(),
             new Compare.LessOrEqual(), new Compare.LessThan(),
             new Compare.GreaterOrEqual(), new Compare.GreaterThan(),
-            new And(), new Or(), new Not(), new Pipe(), new RangeOp()
+            new And(), new Or(), new Not(), new Pipe(), new RangeOp(),
+            new ShiftLeft(), new ShiftRight(), new ShiftRightSigned(), new Contains()
     };
 
     Map<String, Operator> OPERATORS = register();

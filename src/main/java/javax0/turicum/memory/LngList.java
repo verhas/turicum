@@ -3,8 +3,7 @@ package javax0.turicum.memory;
 import javax0.turicum.ExecutionException;
 import javax0.turicum.commands.operators.Cast;
 
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.*;
 
 public class LngList implements HasIndex, HasFields {
 
@@ -30,7 +29,7 @@ public class LngList implements HasIndex, HasFields {
         if (index instanceof Range range) {
             final var start = range.getStart(array.size());
             final var end = range.getEnd(array.size());
-            if( end < start ) {
+            if (end < start) {
                 throw new ExecutionException("reverse range [%d .. %d] cannot be set.", start, end);
             }
             if (value instanceof Iterable<?> iterable) {
@@ -104,6 +103,53 @@ public class LngList implements HasIndex, HasFields {
     @Override
     public String toString() {
         return array.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        final var lngList = (LngList) o;
+        if (array.size() != lngList.array.size()) {
+            return false;
+        }
+        final var compared = new HashSet<>();
+        compared.add(lngList);
+        compared.add(this);
+        for (int i = 0; i < array.size(); i++) {
+            final var thisField = array.get(i);
+            final var thatField = lngList.array.get(i);
+            if (!compared.contains(thisField) && !compared.contains(thatField) && !Objects.equals(thisField, thatField)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return computeHashCode(new IdentityHashMap<>());
+    }
+
+    private int computeHashCode(Map<Object, Boolean> visited) {
+        if (visited.containsKey(this)) {
+            return 0; // avoid cycles
+        }
+        visited.put(this, true);
+        int result = 1;
+        for (var item : array) {
+            if (visited.containsKey(item)) {
+                result = 31 * result;
+            } else {
+                result = 31 * result + (item == null ? 0 :
+                        (item instanceof LngList l ? l.computeHashCode(visited) : item.hashCode()));
+            }
+        }
+        return result;
     }
 
 }

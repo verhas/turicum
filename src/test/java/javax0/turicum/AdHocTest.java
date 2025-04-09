@@ -13,9 +13,18 @@ public class AdHocTest {
     @Test
     void test() throws Exception {
         test("""
-                let z :lst = [1,2,3,4,5,6,7,8,9]
-                z[inf..inf] = ["a"]
-                println(z)
+                class A {
+                    fn equals(other) {
+                      return a == other.a;
+                    }
+                }
+                let a = A()
+                a.a = 1
+                a.b = 4
+                let b = A()
+                b.a = 1
+                b.b = 3
+                println(a == b)
                 null
                 """, null);
     }
