@@ -45,14 +45,20 @@ public class PrimaryExpressionAnalyzer implements Analyzer {
             final var left = getExpressionBetweenParentheses(lexes);
             return getAccessOrCall(lexes, left);
         }
+        if (lexes.is("&{")) {
+            return getAccessOrCall(lexes, JsonStructureAnalyzer.INSTANCE.analyze(lexes));
+        }
         if (lexes.is("{")) {
             if (lexes.isAt(1, "}")) {
                 lexes.next();
                 lexes.next();
                 return getAccessOrCall(lexes, new EmptyObject());
             }
-            final var left = BlockOrClosureAnalyser.INSTANCE.analyze(lexes);
-            return getAccessOrCall(lexes, left);
+            if ((lexes.isAt(1, Lex.Type.IDENTIFIER) || lexes.isAt(1, Lex.Type.STRING)) &&
+                    lexes.isAt(2, ":")) {
+                return getAccessOrCall(lexes, JsonStructureAnalyzer.INSTANCE.analyze(lexes));
+            }
+            return getAccessOrCall(lexes, BlockOrClosureAnalyzer.INSTANCE.analyze(lexes));
         }
         if (lexes.is("[")) {
             lexes.next();
@@ -166,7 +172,7 @@ public class PrimaryExpressionAnalyzer implements Analyzer {
         }
         BadSyntax.when(lexes.isNot(")"), "Function call: expected ')' after the parents");
         lexes.next(); // consume the ')'
-        if( lexes.is("{") && ClosureAnalyzer.blockStartsClosure(lexes) ) {
+        if (lexes.is("{") && ClosureAnalyzer.blockStartsClosure(lexes)) {
             lexes.next();
             final var closure = ClosureAnalyzer.INSTANCE.analyze(lexes);
             arguments.add(new FunctionCall.Argument(null, closure));

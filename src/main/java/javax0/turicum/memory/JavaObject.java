@@ -6,6 +6,10 @@ public record JavaObject(Object object) implements HasFields {
 
     @Override
     public void setField(String name, Object value) {
+        if (object instanceof HasFields fielder) {
+            fielder.setField(name, value);
+            return;
+        }
         try {
             final var field = object.getClass().getField(name);
             field.set(object, value);
@@ -16,6 +20,9 @@ public record JavaObject(Object object) implements HasFields {
 
     @Override
     public Object getField(String name) throws ExecutionException {
+        if (object instanceof HasFields fielder) {
+            return fielder.getField(name);
+        }
         try {
             final var field = object.getClass().getField(name);
             return field.get(object);

@@ -5,6 +5,7 @@ import javax0.turicum.commands.Closure;
 import javax0.turicum.commands.operators.Cast;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * An object in the language
@@ -12,6 +13,7 @@ import java.util.*;
 public class LngObject implements HasFields, HasIndex, HasContext {
     final LngClass lngClass;
     final Context context;
+    final AtomicBoolean pinned = new AtomicBoolean(false);
 
     /**
      * Create a new object.
@@ -29,6 +31,7 @@ public class LngObject implements HasFields, HasIndex, HasContext {
 
     @Override
     public void setField(String name, Object value) {
+        ExecutionException.when(pinned.get(), "You cannot change a pinned object");
         context.local(name, value);
     }
 
@@ -46,6 +49,7 @@ public class LngObject implements HasFields, HasIndex, HasContext {
 
     @Override
     public void setIndex(Object index, Object value) throws ExecutionException {
+        ExecutionException.when(pinned.get(), "You cannot change a pinned object");
         setField(index.toString(), value);
     }
 

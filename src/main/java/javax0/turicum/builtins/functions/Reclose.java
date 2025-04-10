@@ -8,7 +8,7 @@ import javax0.turicum.commands.Macro;
 import javax0.turicum.commands.ParameterList;
 
 /**
- * Convert the argument to a macro from a closure
+ * Convert the argument to a lazy from a closure
  */
 public class Reclose implements TuriFunction {
     @Override
@@ -30,6 +30,6 @@ public class Reclose implements TuriFunction {
         )) {
             return new Macro(parameters, (javax0.turicum.memory.Context) context, command);
         }
-        throw new ExecutionException("Cannot get the macro(%s) for the value of %s", arg.getClass().getCanonicalName(), arg);
+        throw new ExecutionException("Cannot get the lazy(%s) for the value of %s", arg.getClass().getCanonicalName(), arg);
     }
 }

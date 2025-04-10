@@ -41,7 +41,7 @@ public class TestInterpreter {
                             } else {
                                 // Execute the snippet.
                                 Object result = new Interpreter(snippet.programCode()).execute();
-                                // If expected class is "null", assert that result is null.
+                                // If the expected class is "null", assert that the result is null.
                                 if ("null".equals(snippet.expectedClass())) {
                                     assertNull(result, "Expected null result for snippet: " + snippet.name() + ":" + snippet.lineNumber());
                                 } else {

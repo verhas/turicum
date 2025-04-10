@@ -3,9 +3,6 @@ package javax0.turicum;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class AdHocTest {
 
     private void test(String input, String expected) throws Exception {
@@ -16,22 +13,26 @@ public class AdHocTest {
     @Test
     void test() throws Exception {
         test("""
-                fn adhoc(){
-                  "huhu "
-                }
-                # {|lexes|
-                [""\"
-                    fn adhic(){
-                      println("hihi")
-                    }
-                    println("hello");
-                    println("1 ",adhoc());
-                    println("2 ",adhic());
-                ""\",..lexes]
-                }
-                println("hangyavadasz")
-                
-                """, null);
+class A(zumba) {
+  fn `+`(right) {
+     if( right != null ) {
+          A(this.zumba + right.zumba)
+     } else {
+          this
+     }
+  }
+  let `-` = macro({|right|
+         if( right ≠ null ) {
+              A(this.zumba - evaluate(right).zumba)
+         } else {
+              A(-this.zumba)
+         }
+     })
+}
+let a = -A(1);
+let b = A(2);
+(b-a).zumba
+                """, "3");
     }
 
 }

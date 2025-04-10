@@ -5,7 +5,7 @@ import javax0.turicum.memory.Context;
 
 /**
  * Macro is similar to a closure, but it gets the arguments as {@link Command} objects and not evaluated.
- * After that the body of the macro can decide to evaluate none, one, some or all of the arguments each one or more
+ * After that the body of the lazy can decide to evaluate none, one, some or all of the arguments each one or more
  * times as it needs.
  *
  * @param parameters the names of the parameters

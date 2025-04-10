@@ -21,7 +21,7 @@ public class Evaluate implements TuriFunction {
         if (arg instanceof Command command) {
             return command.execute((javax0.turicum.memory.Context) context);
         }
-        throw new ExecutionException("Cannot get the macro(%s) for the value of %s", arg.getClass().getCanonicalName(), arg);
+        throw new ExecutionException("Cannot get the lazy(%s) for the value of %s", arg.getClass().getCanonicalName(), arg);
     }
 
 }

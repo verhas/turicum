@@ -191,7 +191,7 @@ public class Context implements javax0.turicum.Context {
      * @param key   the identifier
      * @param value the value of the local whatnot
      */
-    public void let(final String key, final Object value) {
+    public void update(final String key, final Object value) {
         if (globals.contains(key)) {
             // when we set a global value, it does not matter if it is already defined because it is declared or
             // was already declared as 'global'
@@ -219,7 +219,10 @@ public class Context implements javax0.turicum.Context {
      * Assing a value to the local symbol key in the current context does not matter if it is defined there or
      * in the wrapped context or global or frozen.
      * <p>
-     * It is a primitive call used in for each loop or setting 'this', 'cls' or the exception variable in 'catch'
+     * It is a primitive call used in for each loop or setting 'this', 'cls' or the exception variable in 'catch'.
+     * Generally it is called from locations where it is guaranteed that the variable can be declared as local and
+     * it was NOT defined in the context before.
+     * (Hence ending 0 at the end of the name, that many times denotes internal or native methods in the JDK).
      *
      * @param key   the loop identifier
      * @param value the value in the loop

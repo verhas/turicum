@@ -23,7 +23,7 @@ public record VariableLeftValue(String variable) implements LeftValue {
 
     @Override
     public void assign(Context ctx, Object value) throws ExecutionException {
-        ctx.let(variable, value);
+        ctx.update(variable, value);
     }
 
     @Override

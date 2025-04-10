@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 
 /**
- * Represents the parameter list of a closure, function, macro, or any callable entity that can declare parameters.
+ * Represents the parameter list of a closure, function, lazy, or any callable entity that can declare parameters.
  *
  * <p>This class is a semantic data holder only. It assumes that syntax analysis has already validated the structure,
  * order, and legality of parameters. It does not perform syntactic validation, such as enforcing ordering rules
@@ -25,7 +25,7 @@ import java.util.HashSet;
  *     <li>{@code rest} will collect any extra positional arguments into a list</li>
  *     <li>{@code meta} will collect any unmatched named arguments into an object (classless)</li>
  *     <li>{@code closure} will hold the last argument, which must be a callable
- *         (a closure, function, macro, or anything implementing {@link ClosureOrMacro})</li>
+ *         (a closure, function, lazy, or anything implementing {@link ClosureOrMacro})</li>
  * </ul>
  *
  * <p>Each regular parameter is represented as a {@link Parameter} object, which includes:

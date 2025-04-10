@@ -991,3 +991,15 @@ fn adhoc(){ // this will be deleted, it only exists in the preprocessor context
 """,..lexes]
 }
 M = M + "hangyavadasz"
+
+// snippet jsonLazyObject
+// String
+// "12"
+let z = &{
+a : k, b : println("hubabba")
+}
+let M = ""
+let k = 1
+M = M + z.a
+k = 2
+M = M + z.a

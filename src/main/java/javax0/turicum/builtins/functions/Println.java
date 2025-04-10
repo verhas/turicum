@@ -16,11 +16,12 @@ public class Println implements TuriFunction {
     @Override
     public Object call(Context context, Object[] args) throws ExecutionException {
         for (final var arg : args) {
-            System.out.println(switch (arg) {
+            System.out.print(switch (arg) {
                 case null -> "none";
                 default -> "" + arg;
             });
         }
+        System.out.println();
         return null;
     }
 }
