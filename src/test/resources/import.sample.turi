@@ -1,0 +1,7 @@
+/**
+ * Imported structures
+ */
+
+fn myPrint(a){
+  println(a)
+  }

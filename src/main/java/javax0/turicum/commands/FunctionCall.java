@@ -61,8 +61,7 @@ public record FunctionCall(Command object, Argument[] arguments) implements Comm
                 }
             }
             if (function instanceof LngCallable callable) {
-                final var argValues = evaluateArguments(context);
-                return callable.call(context, argValues);
+                return callable.call(context, bareValues(evaluateArguments(context)));
             }
             throw new ExecutionException("It is not possible to invoke %s.%s() as %s.%s()", obj, function, objectCommand, identifier);
         } else {

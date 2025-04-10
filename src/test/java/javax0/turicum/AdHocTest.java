@@ -13,25 +13,8 @@ public class AdHocTest {
     @Test
     void test() throws Exception {
         test("""
-class A(zumba) {
-  fn `+`(right) {
-     if( right != null ) {
-          A(this.zumba + right.zumba)
-     } else {
-          this
-     }
-  }
-  let `-` = macro({|right|
-         if( right ≠ null ) {
-              A(this.zumba - evaluate(right).zumba)
-         } else {
-              A(-this.zumba)
-         }
-     })
-}
-let a = -A(1);
-let b = A(2);
-(b-a).zumba
+                let imp = import("/Users/verhasp/github/turicum/src/test/resources/import.sample.turi");
+                imp.myPrint("hello")
                 """, "3");
     }
 

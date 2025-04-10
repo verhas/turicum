@@ -24,9 +24,14 @@ public class Interpreter {
     private volatile Command code = null;
     private final Object lock = new Object();
     private Context preprocessorContext;
+    private Context ctx;
 
     public Interpreter(String source) {
         this.source = source;
+    }
+
+    public javax0.turicum.Context getImportContext() {
+        return ctx;
     }
 
     /**
@@ -55,7 +60,6 @@ public class Interpreter {
             }
         }
 
-        final Context ctx;
         if (preprocessorContext == null) {
             ctx = new Context();
             BuiltIns.register(ctx);

@@ -7,3 +7,4 @@ javax0.turicum.builtins.functions.Println
 javax0.turicum.builtins.functions.Reclose
 javax0.turicum.builtins.functions.ObjectFunction
 javax0.turicum.builtins.functions.Keys
+javax0.turicum.builtins.functions.Import
