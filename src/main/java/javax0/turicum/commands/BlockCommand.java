@@ -6,7 +6,24 @@ import javax0.turicum.memory.Context;
 
 import java.util.List;
 
-public record BlockCommand(List<Command> commands, boolean wrap) implements Command {
+public class BlockCommand extends AbstractCommand {
+    final List<Command> commands;
+
+    public List<Command> commands() {
+        return commands;
+    }
+
+    public boolean wrap() {
+        return wrap;
+    }
+
+    public BlockCommand(List<Command> commands, boolean wrap) {
+        this.commands = commands;
+        this.wrap = wrap;
+    }
+
+    final boolean wrap;
+
     @Override
     public Object execute(final Context ctx) throws ExecutionException {
         ctx.step();
@@ -18,7 +35,7 @@ public record BlockCommand(List<Command> commands, boolean wrap) implements Comm
         }
     }
 
-    private static Object conditionalOrResult(Conditional cResult){
+    private static Object conditionalOrResult(Conditional cResult) {
         return (cResult.isDone() ? cResult : cResult.result());
     }
 

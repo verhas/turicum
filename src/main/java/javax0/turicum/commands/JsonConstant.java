@@ -9,9 +9,22 @@ import javax0.turicum.memory.LazyObject;
 import java.util.Map;
 import java.util.Objects;
 
-public record JsonConstant(Map<String, Command> fields, boolean lazy) implements Command {
-    public JsonConstant {
+public class JsonConstant extends AbstractCommand {
+    final Map<String, Command> fields;
+    final boolean lazy;
+
+    public Map<String, Command> fields() {
+        return fields;
+    }
+
+    public boolean lazy() {
+        return lazy;
+    }
+
+    public JsonConstant(Map<String, Command> fields, boolean lazy) {
         Objects.requireNonNull(fields);
+        this.fields = fields;
+        this.lazy = lazy;
     }
 
     @Override

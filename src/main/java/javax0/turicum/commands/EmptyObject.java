@@ -5,7 +5,7 @@ import javax0.turicum.ExecutionException;
 import javax0.turicum.memory.Context;
 import javax0.turicum.memory.LngObject;
 
-public record EmptyObject() implements Command {
+public class EmptyObject extends AbstractCommand {
     @Override
     public Object execute(final Context ctx) throws ExecutionException {
         ctx.step();

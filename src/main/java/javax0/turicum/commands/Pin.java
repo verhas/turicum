@@ -6,7 +6,16 @@ import javax0.turicum.memory.Context;
 import javax0.turicum.memory.LngList;
 import javax0.turicum.memory.LngObject;
 
-public record Pin(Item[] items) implements Command {
+public class Pin extends AbstractCommand {
+    public Item[] items() {
+        return items;
+    }
+
+    public Pin(Item[] items) {
+        this.items = items;
+    }
+
+    final Item[] items;
 
     public record Item(Identifier id, Type type) {
         public enum Type {VARIABLE, OBJECT, LIST}

@@ -5,8 +5,36 @@ import javax0.turicum.commands.operators.Cast;
 import javax0.turicum.memory.Context;
 import javax0.turicum.memory.LeftValue;
 
-public record ForEachLoop(Identifier identifier, Command expression, Command body,
-                          Command exitCondition) implements Command {
+public class ForEachLoop extends AbstractCommand {
+    public final Identifier identifier;
+    public final Command expression;
+    public final Command body;
+    public final Command exitCondition;
+
+    public ForEachLoop(Identifier identifier, Command expression, Command body, Command exitCondition) {
+        this.identifier = identifier;
+        this.expression = expression;
+        this.body = body;
+        this.exitCondition = exitCondition;
+    }
+
+    public Command body() {
+        return body;
+    }
+
+    public Command exitCondition() {
+        return exitCondition;
+    }
+
+    public Command expression() {
+        return expression;
+    }
+
+    public Identifier identifier() {
+        return identifier;
+    }
+
+
     @Override
     public Object execute(Context context) throws ExecutionException {
         context.step();

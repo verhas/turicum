@@ -6,7 +6,24 @@ import javax0.turicum.memory.*;
 
 import java.util.Objects;
 
-public record ListComposition(Command[] array, CompositionModifier[] modifiers) implements Command {
+public class ListComposition extends AbstractCommand {
+    final Command[] array;
+
+    public Command[] array() {
+        return array;
+    }
+
+    public CompositionModifier[] modifiers() {
+        return modifiers;
+    }
+
+    public ListComposition(Command[] array, CompositionModifier[] modifiers) {
+        this.array = array;
+        this.modifiers = modifiers;
+    }
+
+    final CompositionModifier[] modifiers;
+
     @Override
     public Object execute(Context context) throws ExecutionException {
         LngList list = new LngList();
@@ -20,7 +37,7 @@ public record ListComposition(Command[] array, CompositionModifier[] modifiers) 
                 if (Cast.isLong(rangeStart) && Cast.isLong(rangeEnd)) {
                     final var start = Cast.toLong(rangeStart);
                     final var end = Cast.toLong(rangeEnd);
-                    for ( long longItem = start ; !Objects.equals(longItem, end); longItem += longItem <= end ? 1 : -1) {
+                    for (long longItem = start; !Objects.equals(longItem, end); longItem += longItem <= end ? 1 : -1) {
                         list.array.add(longItem);
                     }
                 } else {

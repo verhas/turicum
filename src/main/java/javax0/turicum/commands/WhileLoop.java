@@ -4,7 +4,30 @@ import javax0.turicum.ExecutionException;
 import javax0.turicum.commands.operators.Cast;
 import javax0.turicum.memory.Context;
 
-public record WhileLoop(Command startCondition, Command exitCondition, Command body) implements Command {
+public class WhileLoop extends AbstractCommand {
+    public final Command startCondition;
+    public final Command exitCondition;
+
+    public Command body() {
+        return body;
+    }
+
+    public Command exitCondition() {
+        return exitCondition;
+    }
+
+    public Command startCondition() {
+        return startCondition;
+    }
+
+    public WhileLoop(Command startCondition, Command exitCondition, Command body) {
+        this.body = body;
+        this.startCondition = startCondition;
+        this.exitCondition = exitCondition;
+    }
+
+    public final Command body;
+
     @Override
     public Object execute(Context context) throws ExecutionException {
         Object result = null;

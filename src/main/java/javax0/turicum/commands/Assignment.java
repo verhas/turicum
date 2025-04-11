@@ -5,7 +5,24 @@ import javax0.turicum.ExecutionException;
 import javax0.turicum.memory.Context;
 import javax0.turicum.memory.LeftValue;
 
-public record Assignment(LeftValue leftValue, Command expression) implements Command {
+public class Assignment extends AbstractCommand {
+    final LeftValue leftValue;
+
+    public Command expression() {
+        return expression;
+    }
+
+    public LeftValue leftValue() {
+        return leftValue;
+    }
+
+    public Assignment(LeftValue leftValue, Command expression) {
+        this.expression = expression;
+        this.leftValue = leftValue;
+    }
+
+    final Command expression;
+
     @Override
     public Object execute(final Context ctx) throws ExecutionException {
         ctx.step();

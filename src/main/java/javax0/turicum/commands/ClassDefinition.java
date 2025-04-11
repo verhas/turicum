@@ -7,8 +7,35 @@ import javax0.turicum.memory.LngClass;
 
 import java.util.Objects;
 
-public record ClassDefinition(String className, String[] parents, String[] parameters,
-                              BlockCommand body) implements Command {
+public class ClassDefinition extends AbstractCommand {
+    final String className;
+    final String[] parents;
+    final String[] parameters;
+
+    public BlockCommand body() {
+        return body;
+    }
+
+    public String className() {
+        return className;
+    }
+
+    public String[] parameters() {
+        return parameters;
+    }
+
+    public String[] parents() {
+        return parents;
+    }
+
+    public ClassDefinition(String className, String[] parents, String[] parameters, BlockCommand body) {
+        this.body = body;
+        this.className = className;
+        this.parents = parents;
+        this.parameters = parameters;
+    }
+
+    final BlockCommand body;
     public static final LngClass[] NO_PARENTS = new LngClass[0];
 
     @Override
@@ -24,8 +51,8 @@ public record ClassDefinition(String className, String[] parents, String[] param
             }
         }
         final var ctx = new ClassContext(context, parentClasses);
-        klass = new LngClass(ctx, parameters, Objects.requireNonNullElse(className,"#undefined"));
-        ctx.local("cls",klass);
+        klass = new LngClass(ctx, parameters, Objects.requireNonNullElse(className, "#undefined"));
+        ctx.local("cls", klass);
         body.execute(ctx);
 
         if (className != null) {

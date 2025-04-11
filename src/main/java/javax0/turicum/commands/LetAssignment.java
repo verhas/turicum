@@ -5,7 +5,16 @@ import javax0.turicum.ExecutionException;
 import javax0.turicum.analyzer.AssignmentList;
 import javax0.turicum.memory.Context;
 
-public record LetAssignment(AssignmentList.Assignment[] assignments) implements Command {
+public class LetAssignment extends AbstractCommand {
+    final AssignmentList.Assignment[] assignments;
+
+    public AssignmentList.Assignment[] assignments() {
+        return assignments;
+    }
+
+    public LetAssignment(AssignmentList.Assignment[] assignments) {
+        this.assignments = assignments;
+    }
 
     @Override
     public Object execute(final Context ctx) throws ExecutionException {

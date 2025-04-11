@@ -7,12 +7,31 @@ import javax0.turicum.memory.Context;
 
 import java.util.Objects;
 
-public record Operation(String operator, Command left, Command right) implements Command {
+public class Operation extends AbstractCommand {
+    final String operator;
+    final Command left;
+    final Command right;
 
-    public Operation {
+    public Command left() {
+        return left;
+    }
+
+    public String operator() {
+        return operator;
+    }
+
+    public Command right() {
+        return right;
+    }
+
+    public Operation(String operator, Command left, Command right) {
         Objects.requireNonNull(operator);
         Objects.requireNonNull(right);
+        this.operator = operator;
+        this.left = left;
+        this.right = right;
     }
+
 
     @Override
     public Object execute(final Context ctx) throws ExecutionException {

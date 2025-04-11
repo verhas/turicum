@@ -4,7 +4,22 @@ import javax0.turicum.ExecutionException;
 import javax0.turicum.commands.operators.Cast;
 import javax0.turicum.memory.Context;
 
-public record YieldCommand(Command expression, Command condition) implements Command {
+public class YieldCommand extends AbstractCommand {
+    final Command expression;
+    final Command condition;
+
+    public Command condition() {
+        return condition;
+    }
+
+    public Command expression() {
+        return expression;
+    }
+
+    public YieldCommand(Command expression, Command condition) {
+        this.expression = expression;
+        this.condition = condition;
+    }
 
     @Override
     public Object execute(Context context) throws ExecutionException {

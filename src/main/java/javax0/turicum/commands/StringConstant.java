@@ -6,10 +6,17 @@ import javax0.turicum.memory.Context;
 
 import java.util.Objects;
 
-public record StringConstant(String value) implements Command {
-    public StringConstant {
-        Objects.requireNonNull(value);
+public class StringConstant extends AbstractCommand {
+    public String value() {
+        return value;
     }
+
+    public StringConstant(String value) {
+        Objects.requireNonNull(value);
+        this.value = value;
+    }
+
+    final String value;
 
     @Override
     public String execute(Context ctx) throws ExecutionException {

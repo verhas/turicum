@@ -4,8 +4,38 @@ import javax0.turicum.ExecutionException;
 import javax0.turicum.memory.Context;
 import javax0.turicum.memory.LngException;
 
-public record TryCatch(Command tryBlock, Command catchBlock, Command finallyBlock,
-                       String exceptionVariable) implements Command {
+public class TryCatch extends AbstractCommand {
+
+    final Command tryBlock;
+    final Command catchBlock;
+    final Command finallyBlock;
+
+    public Command catchBlock() {
+        return catchBlock;
+    }
+
+    public String exceptionVariable() {
+        return exceptionVariable;
+    }
+
+    public Command finallyBlock() {
+        return finallyBlock;
+    }
+
+    public Command tryBlock() {
+        return tryBlock;
+    }
+
+    final String exceptionVariable;
+
+    public TryCatch(Command tryBlock, Command catchBlock, Command finallyBlock, String exceptionVariable) {
+        this.tryBlock = tryBlock;
+        this.catchBlock = catchBlock;
+        this.finallyBlock = finallyBlock;
+        this.exceptionVariable = exceptionVariable;
+    }
+
+
     @Override
     public Object execute(Context context) throws ExecutionException {
         Object result = null;

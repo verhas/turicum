@@ -54,10 +54,10 @@ public class ForLoopAnalyzer implements Analyzer {
      */
     private Command getInitialAssignmentCommand(LexList lexes) throws BadSyntax {
         final Command startCommand = CommandAnalyzer.INSTANCE.analyze(lexes);
-        if (startCommand instanceof Assignment(LeftValue leftValue, Command expression)
-                && leftValue instanceof VariableLeftValue(String variable)) {
+        if (startCommand instanceof Assignment assignment
+                && assignment.leftValue() instanceof VariableLeftValue variableLeftValue) {
             return new LetAssignment(new AssignmentList.Assignment[]{
-                    new AssignmentList.Assignment(variable, null, expression)
+                    new AssignmentList.Assignment(variableLeftValue.variable(), null, assignment.expression())
             });
         } else {
             return startCommand;

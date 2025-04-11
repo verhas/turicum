@@ -6,13 +6,33 @@ import javax0.turicum.memory.*;
 
 /**
  * An expression that calls a method or a function/closure.
- *
- * @param object    is the closure or something that is to be called. It can be {@link LngCallable}, {@link Closure},
- *                  {@link Macro}
- * @param arguments are the arguments of the function call to be evaluated or passed to the implementation if the
- *                  object is a {@link Macro}
  */
-public record FunctionCall(Command object, Argument[] arguments) implements Command {
+public class FunctionCall extends AbstractCommand {
+    /*
+     * object is the closure or something that is to be called. It can be {@link LngCallable}, {@link Closure},
+     * {@link Macro}
+     */
+    public final Command object;
+
+    public Argument[] arguments() {
+        return arguments;
+    }
+
+    public Command object() {
+        return object;
+    }
+
+    public FunctionCall(Command object, Argument[] arguments) {
+        this.arguments = arguments;
+        this.object = object;
+    }
+
+    /*
+     * arguments are the arguments of the function call to be evaluated or passed to the implementation if the
+     * object is a {@link Macro}
+     */
+    public final Argument[] arguments;
+
     public record Argument(Identifier id, Command expression) {
     }
 
@@ -24,9 +44,9 @@ public record FunctionCall(Command object, Argument[] arguments) implements Comm
     public Object execute(final Context context) throws ExecutionException {
         final Command myObject = myFunctionObject(context);
         final Object function;
-        if (myObject instanceof FieldAccess(Command objectCommand, String identifier)) {
-            final var obj = LeftValue.toObject(objectCommand.execute(context));
-            function = getMethod(context, obj, identifier);
+        if (myObject instanceof FieldAccess fieldAccess) {
+            final var obj = LeftValue.toObject(fieldAccess.object().execute(context));
+            function = getMethod(context, obj, fieldAccess.identifier());
             if (function instanceof ClosureOrMacro command) {
                 final var argValues = switch (command) {
                     case Closure ignored -> evaluateArguments(context);
@@ -42,7 +62,7 @@ public record FunctionCall(Command object, Argument[] arguments) implements Comm
                     }
                     ctx.let0("this", lngObject);
                     ctx.let0("cls", lngObject.lngClass());
-                    if( command instanceof Macro) {
+                    if (command instanceof Macro) {
                         ctx.setCaller(context);
                     }
                     freezeThisAndCls(ctx);
@@ -52,7 +72,7 @@ public record FunctionCall(Command object, Argument[] arguments) implements Comm
                 if (obj instanceof LngClass lngClass) {
                     ExecutionException.when(command.parameters().parameters().length != argValues.length, "The number of parameters does not match the number of arguments");
                     final var ctx = context.wrap(lngClass.context());
-                    if ("constructor".equals(identifier)) {
+                    if ("constructor".equals(fieldAccess.identifier())) {
                         // this will make in a chained constructor call set 'this' to the object created
                         // 'cls' point to the class, but 'this.cls' point to the class which is going to be initialized
                         ctx.let0("this", context.getLocal("this"));
@@ -66,7 +86,7 @@ public record FunctionCall(Command object, Argument[] arguments) implements Comm
             if (function instanceof LngCallable callable) {
                 return callable.call(context, bareValues(evaluateArguments(context)));
             }
-            throw new ExecutionException("It is not possible to invoke %s.%s() as %s.%s()", obj, function, objectCommand, identifier);
+            throw new ExecutionException("It is not possible to invoke %s.%s() as %s.%s()", obj, function, fieldAccess.object(), fieldAccess.identifier());
         } else {
             function = myObject.execute(context);
             if (function instanceof ClosureOrMacro command) {
@@ -76,7 +96,7 @@ public record FunctionCall(Command object, Argument[] arguments) implements Comm
                 };
                 final var ctx = context.wrap(command.wrapped());
                 defineArgumentsInContext(ctx, command.parameters(), argValues);
-                if( command instanceof Macro) {
+                if (command instanceof Macro) {
                     ctx.setCaller(context);
                 }
                 return command.execute(ctx);
@@ -291,10 +311,10 @@ public record FunctionCall(Command object, Argument[] arguments) implements Comm
      */
     private Command myFunctionObject(final Context context) {
         final Command myObject;
-        if (object instanceof Identifier(String name) && context.contains("this")) {
+        if (object instanceof Identifier id && context.contains("this")) {
             final var thisObject = context.get("this");
-            if (thisObject instanceof LngObject lngObject && lngObject.context().containsLocal(name)) {
-                myObject = new FieldAccess(new Identifier("this"), name);
+            if (thisObject instanceof LngObject lngObject && lngObject.context().containsLocal(id.name())) {
+                myObject = new FieldAccess(new Identifier("this"), id.name());
             } else {
                 myObject = object;
             }
