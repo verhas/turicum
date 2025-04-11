@@ -22,7 +22,7 @@ public class ReturnCommand extends AbstractCommand {
     }
 
     @Override
-    public Conditional execute(Context context) throws ExecutionException {
+    public Conditional _execute(Context context) throws ExecutionException {
         if (Cast.toBoolean(condition.execute(context))) {
             return Conditional.doReturn(expression.execute(context));
         } else {

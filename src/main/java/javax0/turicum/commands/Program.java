@@ -15,10 +15,10 @@ public class Program extends AbstractCommand {
     }
 
     @Override
-    public Object execute(Context ctx) throws ExecutionException {
+    public Object _execute(final Context context) throws ExecutionException {
         Object value = null;
         for (Command command : commands) {
-            value = command.execute(ctx);
+            value = command.execute(context);
         }
         return value;
     }

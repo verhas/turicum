@@ -28,7 +28,7 @@ public class FunctionDefinition extends AbstractCommand {
     public final BlockCommand body;
 
     @Override
-    public Object execute(Context context) throws ExecutionException {
+    public Object _execute(final Context context) throws ExecutionException {
         final var closure = new Closure(arguments, null, body);
         if (functionName != null) {
             context.local(functionName, closure);

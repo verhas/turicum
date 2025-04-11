@@ -22,7 +22,7 @@ public class BreakCommand extends AbstractCommand {
     }
 
     @Override
-    public Conditional execute(Context context) throws ExecutionException {
+    public Conditional _execute(Context context) throws ExecutionException {
         if (Cast.toBoolean(condition.execute(context))) {
             return Conditional.doBreak(expression.execute(context));
         } else {

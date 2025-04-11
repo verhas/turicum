@@ -22,7 +22,7 @@ public class YieldCommand extends AbstractCommand {
     }
 
     @Override
-    public Object execute(Context context) throws ExecutionException {
+    public Object _execute(final Context context) throws ExecutionException {
         if( Cast.toBoolean(condition.execute(context))) {
             final var result = expression.execute(context);
             context.threadContext.currentYielder().send(result);

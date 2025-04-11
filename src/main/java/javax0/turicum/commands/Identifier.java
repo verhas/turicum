@@ -12,8 +12,8 @@ public class Identifier extends AbstractCommand {
     final String name;
 
     @Override
-    public Object execute(Context ctx) throws ExecutionException {
-        return ctx.get(name);
+    public Object _execute(final Context context) throws ExecutionException {
+        return context.get(name);
     }
 
     public String name() {

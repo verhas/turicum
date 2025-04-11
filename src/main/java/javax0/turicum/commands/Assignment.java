@@ -24,7 +24,7 @@ public class Assignment extends AbstractCommand {
     final Command expression;
 
     @Override
-    public Object execute(final Context ctx) throws ExecutionException {
+    public Object _execute(final Context ctx) throws ExecutionException {
         ctx.step();
         final var value = expression.execute(ctx);
         leftValue.assign(ctx, value);

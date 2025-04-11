@@ -23,7 +23,7 @@ public class FieldAccess extends AbstractCommand {
     }
 
     @Override
-    public Object execute(Context context) throws ExecutionException {
+    public Object _execute(final Context context) throws ExecutionException {
         final var rawObject = this.object.execute(context);
         ExecutionException.when(rawObject == null, "Cannot access field '%s' because '%s' is undefined.", identifier, this.object);
         final var object = LeftValue.toObject(rawObject);

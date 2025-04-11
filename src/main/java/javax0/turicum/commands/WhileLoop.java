@@ -29,7 +29,7 @@ public class WhileLoop extends AbstractCommand {
     public final Command body;
 
     @Override
-    public Object execute(Context context) throws ExecutionException {
+    public Object _execute(final Context context) throws ExecutionException {
         Object result = null;
         context.step();
         final var loopContext = context.wrap();

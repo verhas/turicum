@@ -7,6 +7,10 @@ public class Pos {
     public int column;
     public String[] lines;
 
+    public Pos clone(){
+        return new Pos(file, line, column, lines);
+    }
+
     public Pos(String file, String[] lines) {
         this.file = file;
         this.lines = lines;

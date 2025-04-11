@@ -11,6 +11,33 @@ import java.util.List;
 public class ThreadContext {
     private final List<Yielder> yielders = new ArrayList<>();
 
+    private final List<StackFrame> trace = new ArrayList<>();
+
+    public int traceSize() {
+        return trace.size();
+    }
+
+    public void resetTrace(int size){
+        final var safe = new ArrayList<>(trace);
+        trace.clear();
+        for(int i = 0; i < size; i++){
+            trace.add(safe.get(i));
+        }
+    }
+
+    public List<StackFrame> getStackTrace() {
+        final var copy = new ArrayList<>(trace);
+        return copy;
+    }
+
+    public void push(StackFrame frame) {
+        trace.add(frame);
+    }
+
+    public void pop() {
+        trace.removeLast();
+    }
+
     public Yielder currentYielder() throws ExecutionException {
         if (yielders.isEmpty()) {
             throw new ExecutionException("No Yielder available");

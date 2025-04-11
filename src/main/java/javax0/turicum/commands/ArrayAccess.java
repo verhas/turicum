@@ -24,7 +24,7 @@ public class ArrayAccess extends AbstractCommand {
     final Command index;
 
     @Override
-    public Object execute(Context context) throws ExecutionException {
+    public Object _execute(final Context context) throws ExecutionException {
         // the execution order is array first, index afterward
         final var lvalValue = object.execute(context);
         final var indexValue = this.index.execute(context);

@@ -3,19 +3,22 @@ package javax0.turicum.memory;
 import javax0.turicum.ExecutionException;
 
 import java.util.Iterator;
+import java.util.List;
 
 public class LngException extends LngObject {
     private static final LngClass exceptionClass = new LngClass(null, null, "EXCEPTION");
     private final Throwable e;
+    private final List<StackFrame> stackTrace;
 
-    public LngException(Throwable e) {
+    public LngException(Throwable e, List<StackFrame> stackTrace) {
         super(exceptionClass, null);
         this.e = e;
+        this.stackTrace = stackTrace;
     }
 
     @Override
     public Context context() {
-        throw new ExecutionException("Exeptions do not have contex.");
+        throw new ExecutionException("Exceptions do not have contex.");
     }
 
     @Override
@@ -47,8 +50,9 @@ public class LngException extends LngObject {
     @Override
     public Object getField(String name) throws ExecutionException {
         return switch (name) {
+            case "stack_trace" -> stackTrace;
             case "message" -> e.getMessage();
-            case "cause" -> new LngException(e.getCause());
+            case "cause" -> new LngException(e.getCause(), stackTrace);
             case "supressed" -> {
                 final var lngList = new LngList();
                 final var supressed = e.getSuppressed();

@@ -39,7 +39,7 @@ public class ClassDefinition extends AbstractCommand {
     public static final LngClass[] NO_PARENTS = new LngClass[0];
 
     @Override
-    public Object execute(Context context) throws ExecutionException {
+    public Object _execute(final Context context) throws ExecutionException {
         final LngClass klass;
         final var parentClasses = parents == null ? NO_PARENTS : new LngClass[parents.length];
         for (int i = 0; parents != null && i < parents.length; i++) {

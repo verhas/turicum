@@ -25,7 +25,7 @@ public class BlockCommand extends AbstractCommand {
     final boolean wrap;
 
     @Override
-    public Object execute(final Context ctx) throws ExecutionException {
+    public Object _execute(final Context ctx) throws ExecutionException {
         ctx.step();
         if (wrap) {
             final var blockContext = ctx.wrap();

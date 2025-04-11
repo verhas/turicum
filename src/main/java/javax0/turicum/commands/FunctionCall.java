@@ -41,7 +41,7 @@ public class FunctionCall extends AbstractCommand {
 
 
     @Override
-    public Object execute(final Context context) throws ExecutionException {
+    public Object _execute(final Context context) throws ExecutionException {
         final Command myObject = myFunctionObject(context);
         final Object function;
         if (myObject instanceof FieldAccess fieldAccess) {

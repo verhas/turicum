@@ -29,7 +29,7 @@ public class If extends AbstractCommand {
     }
 
     @Override
-    public Object execute(final Context ctx) throws ExecutionException {
+    public Object _execute(final Context ctx) throws ExecutionException {
         ctx.step();
         if (Cast.toBoolean(condition.execute(ctx))) {
             return then.execute(ctx);

@@ -9,15 +9,34 @@ import java.util.Arrays;
 /**
  * A closure is a block of commands that can get evaluated with arguments.
  *
- * @param parameters the name of the parameters that get string assigned to them before executing the closure
- * @param wrapped    the context, possibly null if this closure comes from a 'fn' declaration, that was surrounding the
- *                   definition of the closure.
- * @param command    the block command that is the body of the closure.
  */
-public record Closure(ParameterList parameters, Context wrapped,
-                      BlockCommand command) implements ClosureOrMacro, LngCallable {
+public final class Closure extends AbstractCommand implements ClosureOrMacro, LngCallable {
+    public BlockCommand command() {
+        return command;
+    }
+
     @Override
-    public Object execute(final Context ctx) throws ExecutionException {
+    public ParameterList parameters() {
+        return parameters;
+    }
+
+    @Override
+    public Context wrapped() {
+        return wrapped;
+    }
+
+    public Closure(ParameterList parameters, Context wrapped, BlockCommand command) {
+        this.command = command;
+        this.parameters = parameters;
+        this.wrapped = wrapped;
+    }
+
+    final ParameterList parameters;
+    final Context wrapped;
+    final BlockCommand command;
+
+    @Override
+    public Object _execute(final Context ctx) throws ExecutionException {
         ctx.step();
         Object result = null;
         for (final var command : command.commands()) {

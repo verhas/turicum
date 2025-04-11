@@ -34,7 +34,7 @@ public class Operation extends AbstractCommand {
 
 
     @Override
-    public Object execute(final Context ctx) throws ExecutionException {
+    public Object _execute(final Context ctx) throws ExecutionException {
         ctx.step();
 
         if (Operator.OPERATORS.containsKey(operator)) {

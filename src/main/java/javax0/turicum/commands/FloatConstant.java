@@ -21,7 +21,7 @@ public class FloatConstant extends AbstractCommand {
     }
 
     @Override
-    public Double execute(Context ctx) throws ExecutionException {
+    public Double _execute(Context ctx) throws ExecutionException {
         return value;
     }
 }

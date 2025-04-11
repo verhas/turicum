@@ -15,7 +15,7 @@ public class ConstantExpression extends AbstractCommand {
     final Object value;
 
     @Override
-    public Object execute(Context context) throws ExecutionException {
+    public Object _execute(final Context context) throws ExecutionException {
         return value;
     }
 }

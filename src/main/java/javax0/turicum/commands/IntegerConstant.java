@@ -20,7 +20,7 @@ public class IntegerConstant extends AbstractCommand {
     }
 
     @Override
-    public Long execute(Context ctx) throws ExecutionException {
+    public Long _execute(Context ctx) throws ExecutionException {
         return value;
     }
 

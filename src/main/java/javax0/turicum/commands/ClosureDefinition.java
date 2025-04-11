@@ -22,7 +22,7 @@ public class ClosureDefinition extends AbstractCommand {
     public final BlockCommand body;
 
     @Override
-    public Object execute(Context context) throws ExecutionException {
+    public Object _execute(final Context context) throws ExecutionException {
         return new Closure(arguments, context, body);
     }
 }

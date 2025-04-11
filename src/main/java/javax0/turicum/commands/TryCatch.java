@@ -37,17 +37,19 @@ public class TryCatch extends AbstractCommand {
 
 
     @Override
-    public Object execute(Context context) throws ExecutionException {
+    public Object _execute(final Context context) throws ExecutionException {
         Object result = null;
         final var ctx = context.wrap();
+        final int traceSize = context.threadContext.traceSize();
         try {
             result = tryBlock.execute(ctx);
         } catch (ExecutionException e) {
-            if( catchBlock == null ) {
+            if (catchBlock == null) {
                 throw e;
             }
-            final var exception = new LngException(e);
+            final var exception = new LngException(e, context.threadContext.getStackTrace());
             ctx.let0(exceptionVariable, exception);
+            context.threadContext.resetTrace(traceSize);
             catchBlock.execute(ctx);
         } finally {
             if (finallyBlock != null) {

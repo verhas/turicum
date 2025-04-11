@@ -78,7 +78,7 @@ public class LexList extends LngList {
         if (index >= array.size() ){
             return lexAt(array.size()-1).position();
         }
-        return lexAt(index).position();
+        return lexAt(index).position().clone();
     }
 
     public void peek(Lex.Type type, String text, String msg) throws BadSyntax {

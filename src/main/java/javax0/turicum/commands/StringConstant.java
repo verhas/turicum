@@ -19,7 +19,7 @@ public class StringConstant extends AbstractCommand {
     final String value;
 
     @Override
-    public String execute(Context ctx) throws ExecutionException {
+    public String _execute(final Context context) throws ExecutionException {
         return value;
     }
 }

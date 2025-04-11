@@ -13,27 +13,29 @@ public class AdHocTest {
     @Test
     void test() throws Exception {
         test("""
-let turicum = 13
-let list = [1,2,3]
-let object = { x:1, y:2};
-pin turicum, [list], {object}
-
-try {
-  turicum = 14;
-}catch e: println("could not change the variable")
-
-try {
-  list[1] = 0;
-}catch e: println("could not change the list")
-list = [ 0, ..list, 4]
-println("variable 'list' still can be changed: ", list)
-
-try {
-  object.x = 3;
-}catch e: println("could not change the object")
-object = { x:1, y:3 }
-println("variable 'object' still can be changed: ", object)
+                
+                fn a {  b() }
+                fn b {  c() }
+                fn c {  d() }
+                fn d {  let a :str = 1; }
+                
+                try{
+                    a()
+                }catch e {
+                        for each st in e.stack_trace {
+                          println(st);
+                          }
+                }
+                println("--------------------")
+                try{
+                    a()
+                }catch e {
+                        for each st in e.stack_trace {
+                          println(st);
+                          }
+                }
+                
+                
                 """, null);
     }
-
 }

@@ -32,7 +32,7 @@ public class Lex implements HasFields {
         this.type = type;
         this.text = text;
         this.atLineStart = atLineStart;
-        this.position = new Pos(position.file, position.line, position.column, position.lines);
+        this.position = position.clone();
     }
 
     @Override

@@ -28,7 +28,7 @@ public class JsonConstant extends AbstractCommand {
     }
 
     @Override
-    public LngObject execute(Context ctx) throws ExecutionException {
+    public LngObject _execute(Context ctx) throws ExecutionException {
         if (lazy) {
             return new LazyObject(ctx.open(), fields);
         } else {

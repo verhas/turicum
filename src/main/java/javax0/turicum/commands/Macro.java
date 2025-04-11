@@ -8,13 +8,34 @@ import javax0.turicum.memory.Context;
  * After that the body of the lazy can decide to evaluate none, one, some or all of the arguments each one or more
  * times as it needs.
  *
- * @param parameters the names of the parameters
- * @param wrapped the wrapped context that was around the closure when defined
- * @param command the block command of the closure
  */
-public record Macro(ParameterList parameters, Context wrapped, BlockCommand command) implements ClosureOrMacro {
+public final class Macro extends AbstractCommand implements ClosureOrMacro {
+    final ParameterList parameters;
+    final Context wrapped;
+    final BlockCommand command;
+
+    public BlockCommand command() {
+        return command;
+    }
+
     @Override
-    public Object execute(final Context ctx) throws ExecutionException {
+    public ParameterList parameters() {
+        return parameters;
+    }
+
+    @Override
+    public Context wrapped() {
+        return wrapped;
+    }
+
+    public Macro(ParameterList parameters, Context wrapped, BlockCommand command) {
+        this.parameters = parameters;
+        this.wrapped = wrapped;
+        this.command = command;
+    }
+
+    @Override
+    public Object _execute(final Context ctx) throws ExecutionException {
         ctx.step();
         Object result = null;
         for (final var command : command.commands()) {

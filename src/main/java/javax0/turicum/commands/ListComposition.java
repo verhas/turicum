@@ -25,7 +25,7 @@ public class ListComposition extends AbstractCommand {
     final CompositionModifier[] modifiers;
 
     @Override
-    public Object execute(Context context) throws ExecutionException {
+    public Object _execute(final Context context) throws ExecutionException {
         LngList list = new LngList();
         for (final var command : array) {
             final var item = command.execute(context);

@@ -16,15 +16,15 @@ public class GlobalAssignment extends AbstractCommand {
     final AssignmentList.Assignment[] assignments;
 
     @Override
-    public Object execute(Context ctx) throws ExecutionException {
+    public Object _execute(final Context context) throws ExecutionException {
         Object value = null;
         for (var assignment : assignments) {
-            ctx.step();
+            context.step();
             if (assignment.expression() == null) {
-                ctx.global(assignment.identifier());
+                context.global(assignment.identifier());
             } else {
-                value = assignment.expression().execute(ctx);
-                ctx.global(assignment.identifier(), value);
+                value = assignment.expression().execute(context);
+                context.global(assignment.identifier(), value);
             }
         }
         return value;

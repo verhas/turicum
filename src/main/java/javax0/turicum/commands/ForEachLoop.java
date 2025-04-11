@@ -36,7 +36,7 @@ public class ForEachLoop extends AbstractCommand {
 
 
     @Override
-    public Object execute(Context context) throws ExecutionException {
+    public Object _execute(final Context context) throws ExecutionException {
         context.step();
         final var loopContext = context.wrap();
         final var id = identifier.name();
