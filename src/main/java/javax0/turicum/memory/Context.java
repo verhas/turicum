@@ -19,6 +19,7 @@ public class Context implements javax0.turicum.Context {
     private final Context wrapped;
     public final GlobalContext globalContext;
     public final ThreadContext threadContext;
+    public Context caller = null;
 
 
     public Set<String> keys() {
@@ -290,5 +291,17 @@ public class Context implements javax0.turicum.Context {
 
     public void step() throws ExecutionException {
         globalContext.step();
+    }
+
+    public Context caller() {
+        var ctx = this;
+        while( ctx.caller == null && ctx.wrapped != null ) {
+            ctx = ctx.wrapped;
+        }
+        return ctx.caller;
+    }
+
+    public void setCaller(Context caller) {
+        this.caller = caller;
     }
 }

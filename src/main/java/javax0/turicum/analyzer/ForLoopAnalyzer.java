@@ -58,7 +58,7 @@ public class ForLoopAnalyzer implements Analyzer {
                 && leftValue instanceof VariableLeftValue(String variable)) {
             return new LetAssignment(new AssignmentList.Assignment[]{
                     new AssignmentList.Assignment(variable, null, expression)
-            }, false);
+            });
         } else {
             return startCommand;
         }
@@ -66,10 +66,10 @@ public class ForLoopAnalyzer implements Analyzer {
 
     static void checkClosingParen(LexList lexes, boolean withParentheses) throws BadSyntax {
         if (withParentheses) {
-            BadSyntax.when(lexes.isNot(")"), "You have to close the parentheses in the 'for' loop");
+            BadSyntax.when(lexes, lexes.isNot(")"), "You have to close the parentheses in the 'for' loop");
             lexes.next();
         } else {
-            BadSyntax.when(lexes.isNot(":", "{"), "For loop body has to be after '{' or ':'");
+            BadSyntax.when(lexes, lexes.isNot(":", "{"), "For loop body has to be after '{' or ':'");
         }
     }
 

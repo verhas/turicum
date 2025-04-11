@@ -19,7 +19,12 @@ public class Evaluate implements TuriFunction {
         ExecutionException.when(args.length != 1, "Built-in function evaluate needs exactly one argument");
         final var arg = args[0];
         if (arg instanceof Command command) {
-            return command.execute((javax0.turicum.memory.Context) context);
+            final var ctx = (javax0.turicum.memory.Context) context;
+            final var caller = ctx.caller();
+            if( !(caller instanceof javax0.turicum.memory.Context callerContext)) {
+                throw new ExecutionException("caller is not a context");
+            }
+            return command.execute(callerContext);
         }
         throw new ExecutionException("Cannot get the lazy(%s) for the value of %s", arg.getClass().getCanonicalName(), arg);
     }

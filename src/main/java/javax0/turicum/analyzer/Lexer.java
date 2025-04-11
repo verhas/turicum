@@ -16,8 +16,10 @@ public class Lexer {
             Keywords.RETURN, Keywords.YIELD, Keywords.WHEN, Keywords.TRY, Keywords.CATCH, Keywords.FINALLY
     ));
     final static private ArrayList<String> _OPERANDS = new ArrayList<>(Arrays.asList(
-            "->", "=", "(", ")", ",", ".",
+            // snippet OPERANDS
+            "--", "++", "->", "=", "(", ")", ",", ".",
             "&{", "{", "}", "[", "]", ";", ":", "|", "?", "@", "^", "#"
+            // end snippet
     ));
 
     static {
@@ -76,6 +78,7 @@ public class Lexer {
     public static LexList analyze(Input in) throws BadSyntax {
         final var list = new ArrayList<Lex>();
         while (!in.isEmpty()) {
+            final var position = in.position;
             boolean atLineStart = false;// the first line start does not matter
             while (!in.isEmpty() && in.charAt(0) == '\n') {
                 atLineStart = true;
@@ -98,15 +101,15 @@ public class Lexer {
             }
             if (in.charAt(0) == '`') {
                 final var id = StringFetcher.fetchId(in);
-                list.add(new Lex(Lex.Type.IDENTIFIER, id, atLineStart));
+                list.add(new Lex(Lex.Type.IDENTIFIER, id, atLineStart, position));
                 continue;
             }
             final var uniKeyword = getUnicodeKeyword("" + in.charAt(0));
             if (uniKeyword != null) {
                 if (RESERVED.contains(uniKeyword)) {
-                    list.add(new Lex(Lex.Type.RESERVED, uniKeyword, atLineStart));
+                    list.add(new Lex(Lex.Type.RESERVED, uniKeyword, atLineStart, position));
                 } else {
-                    list.add(new Lex(Lex.Type.IDENTIFIER, uniKeyword, atLineStart));
+                    list.add(new Lex(Lex.Type.IDENTIFIER, uniKeyword, atLineStart, position));
                 }
                 in.skip(1);
                 continue;
@@ -114,15 +117,15 @@ public class Lexer {
             if (Input.validId1stChar(in.charAt(0))) {
                 final var id = in.fetchId();
                 if (RESERVED.contains(id)) {
-                    list.add(new Lex(Lex.Type.RESERVED, id, atLineStart));
+                    list.add(new Lex(Lex.Type.RESERVED, id, atLineStart, position));
                 } else {
-                    list.add(new Lex(Lex.Type.IDENTIFIER, id, atLineStart));
+                    list.add(new Lex(Lex.Type.IDENTIFIER, id, atLineStart, position));
                 }
                 continue;
             }
             if (in.charAt(0) == '"') {
                 final var str = javax0.turicum.analyzer.StringFetcher.getString(in);
-                final var lex = new Lex(Lex.Type.STRING, str, atLineStart);
+                final var lex = new Lex(Lex.Type.STRING, str, atLineStart, position);
                 list.add(lex);
                 continue;
             }
@@ -147,25 +150,25 @@ public class Lexer {
                 } else {
                     type = Lex.Type.INTEGER;
                 }
-                final var lex = new Lex(type, str.toString(), atLineStart);
+                final var lex = new Lex(type, str.toString(), atLineStart, position);
                 list.add(lex);
                 continue;
             }
             final var uniSym = getUnicodeSymbol("" + in.charAt(0));
             if (uniSym != null) {
-                final var lex = new Lex(Lex.Type.RESERVED, uniSym, atLineStart);
+                final var lex = new Lex(Lex.Type.RESERVED, uniSym, atLineStart, position);
                 list.add(lex);
                 in.skip(1);
                 continue;
             }
             int operandIndex = in.startsWith(OPERANDS);
             if (operandIndex >= 0) {
-                final var lex = new Lex(Lex.Type.RESERVED, OPERANDS[operandIndex], atLineStart);
+                final var lex = new Lex(Lex.Type.RESERVED, OPERANDS[operandIndex], atLineStart, position);
                 list.add(lex);
                 in.skip(OPERANDS[operandIndex].length());
                 continue;
             }
-            throw new BadSyntax("Unexpected character '" + in.charAt(0) + "' in the input");
+            throw new BadSyntax(in.position, "Unexpected character '" + in.charAt(0) + "' in the input");
         }
         return new LexList(list);
     }

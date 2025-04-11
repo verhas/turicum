@@ -11,8 +11,8 @@ public class AssignmentAnalyzer implements Analyzer {
     public Command analyze(final LexList lexes) throws BadSyntax {
         final var leftValue = LeftValueAnalyser.INSTANCE.analyze(lexes);
         final var opSymbol = lexes.next();
-        BadSyntax.when(!(opSymbol.type() == Lex.Type.RESERVED) || !opSymbol.text().equals("="),
-                "Expected '=' or ':=' after the left value but got '%s'", opSymbol.text());
+        BadSyntax.when(lexes, !(opSymbol.type() == Lex.Type.RESERVED) || !opSymbol.text().equals("="),
+                "Expected '=' after the left value but got '%s'", opSymbol.text());
         final var expression = ExpressionAnalyzer.INSTANCE.analyze(lexes);
         return new Assignment(leftValue, expression);
     }

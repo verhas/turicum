@@ -1,7 +1,9 @@
 package javax0.turicum.memory;
 
 import javax0.turicum.ExecutionException;
+import javax0.turicum.commands.Closure;
 import javax0.turicum.commands.Identifier;
+import javax0.turicum.commands.Macro;
 import javax0.turicum.commands.operators.Cast;
 
 import java.util.Arrays;
@@ -87,14 +89,30 @@ public class Variable {
      */
     public static Type getTypeFromName(Context context, String name) {
         return switch (name) {
+            // snippet types
             case "bool" -> new Variable.Type(Boolean.class, null, new Identifier(name));
+            // boolean type
             case "str" -> new Variable.Type(String.class, null, new Identifier(name));
+            // string
             case "num" -> new Variable.Type(Long.class, null, new Identifier(name));
+            // any numeric type, integer or float
             case "float" -> new Variable.Type(Double.class, null, new Identifier(name));
+            // float type
             case "any" -> new Variable.Type(null, null, new Identifier(name));
+            // the variable can hold any value
             case "obj" -> new Variable.Type(LngObject.class, null, new Identifier(name));
+            // the variable can hols any object without restriction on the class of that object
             case "lst" -> new Variable.Type(LngList.class, null, new Identifier(name));
+            // the variable has to be a list
             case "cls" -> new Variable.Type(LngClass.class, null, new Identifier(name));
+            // the variable has to be a class
+            case "fn" -> new Variable.Type(Closure.class, null, new Identifier(name));
+            // the variable value has to be a function of closure
+            case "macro" -> new Variable.Type(Macro.class, null, new Identifier(name));
+            // the variable value has to be a macro
+            case "none" -> new Variable.Type(NoneType.class, null, new Identifier(name));
+            // the variable can hold the value `none`
+            // end snippet
             default -> {
                 if (name.startsWith("java.")) {
                     try {
@@ -125,8 +143,10 @@ public class Variable {
                 return false;
             }
         } else {
-            return (javaType == Double.class || javaType == Float.class && Cast.isDouble(newValue)) ||
-                    javaType.isAssignableFrom(newValue.getClass());
+
+            return (javaType == NoneType.class && newValue == null) ||
+                    (javaType == Double.class || javaType == Float.class && Cast.isDouble(newValue)) ||
+                    (newValue != null && javaType.isAssignableFrom(newValue.getClass()));
         }
     }
 

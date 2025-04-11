@@ -1,6 +1,7 @@
 package javax0.turicum.commands;
 
 import javax0.turicum.BadSyntax;
+import javax0.turicum.analyzer.Pos;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -40,8 +41,8 @@ import java.util.HashSet;
  * If present, their names must be unique and not conflict with any regular parameter identifiers.</p>
  */
 
-public record ParameterList(Parameter[] parameters, String rest, String meta, String closure) {
-    public static final ParameterList EMPTY = new ParameterList(new ParameterList.Parameter[0], null, null, null);
+public record ParameterList(Parameter[] parameters, String rest, String meta, String closure, Pos position) {
+    public static final ParameterList EMPTY = new ParameterList(new ParameterList.Parameter[0], null, null, null, new Pos("", null));
 
     public record Parameter(String identifier,
                             Type type,
@@ -67,7 +68,7 @@ public record ParameterList(Parameter[] parameters, String rest, String meta, St
      */
     public ParameterList {
         final var others = Arrays.stream(parameters).map(Parameter::identifier).toArray(String[]::new);
-        BadSyntax.when(violatesUniqueName(rest, meta, closure, others) ||
+        BadSyntax.when(position, violatesUniqueName(rest, meta, closure, others) ||
                 violatesUniqueName(closure, rest, meta, others) ||
                 violatesUniqueName(meta, closure, rest, others) ||
                 violatesUniqueName(others), "The parameter names have to be unique in a single declaration");

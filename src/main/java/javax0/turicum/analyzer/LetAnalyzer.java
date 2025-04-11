@@ -10,6 +10,6 @@ public record LetAnalyzer() implements Analyzer {
     @Override
     public Command analyze(LexList lexes) throws BadSyntax {
         AssignmentList.Assignment[] assignments = AssignmentList.INSTANCE.analyze(lexes);
-        return new LetAssignment(assignments, false);
+        return new LetAssignment(assignments);
     }
 }

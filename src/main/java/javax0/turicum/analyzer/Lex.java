@@ -8,6 +8,12 @@ public class Lex implements HasFields {
     Type type;
     String text;
 
+    public Pos position() {
+        return position;
+    }
+
+    Pos position;
+
     public boolean atLineStart() {
         return atLineStart;
     }
@@ -22,10 +28,11 @@ public class Lex implements HasFields {
 
     boolean atLineStart;
 
-    public Lex(Type type, String text, boolean atLineStart) {
+    public Lex(Type type, String text, boolean atLineStart, Pos position) {
         this.type = type;
         this.text = text;
         this.atLineStart = atLineStart;
+        this.position = new Pos(position.file, position.line, position.column, position.lines);
     }
 
     @Override
@@ -52,7 +59,7 @@ public class Lex implements HasFields {
 
     @Override
     public Object getField(String name) throws ExecutionException {
-        return switch (name){
+        return switch (name) {
             case "type" -> type;
             case "text" -> text;
             case "atLineStart" -> atLineStart;

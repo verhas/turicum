@@ -1,15 +1,27 @@
 package javax0.turicum.analyzer;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
 public class Input implements CharSequence {
 
+    public final Pos position;
     private final StringBuilder builder;
 
-    public Input(StringBuilder builder) {
+    public Input(StringBuilder builder, String fn) {
+        final var lines = builder.toString().split("\n", -1);
+        position = new Pos(fn, lines);
         this.builder = builder;
     }
 
     public static Input fromString(final String s) {
-        return new Input(new StringBuilder(s));
+        return new Input(new StringBuilder(s), "none");
+    }
+
+    public static Input fromFile(final Path path) throws IOException {
+        return new Input(new StringBuilder(Files.readString(path, StandardCharsets.UTF_8)), path.normalize().toAbsolutePath().toString());
     }
 
     @Override
@@ -89,6 +101,12 @@ public class Input implements CharSequence {
     }
 
     public void skip(int numberOfCharacters) {
+        if (builder.charAt(0) == '\n') {
+            position.line++;
+            position.column = 0;
+        } else {
+            position.column += numberOfCharacters;
+        }
         builder.delete(0, numberOfCharacters);
     }
 

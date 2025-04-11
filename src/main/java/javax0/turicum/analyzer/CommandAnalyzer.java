@@ -81,7 +81,7 @@ public class CommandAnalyzer implements Analyzer {
                 Analyzer.checkCommandTermination(lexes);
                 yield command;
             }
-            default -> throw new BadSyntax("Keyword: " + keyword + " can not start a command");
+            default -> throw new BadSyntax(lexes.position(), "Keyword: " + keyword + " can not start a command");
         };
     }
 

@@ -32,7 +32,7 @@ class Escape {
      */
     static void handleEscape(Input input, StringBuilder output) throws BadSyntax {
         input.skip(1);
-        BadSyntax.when(input.isEmpty(), "Source ended inside a string.");
+        BadSyntax.when(input.position, input.isEmpty(), "Source ended inside a string.");
         final var nextCh = input.charAt(0);
         final int esindex = escapes.indexOf(nextCh);
         if (esindex == -1) {
@@ -41,7 +41,7 @@ class Escape {
             } else if (nextCh >= '4' && nextCh <= '7') {
                 output.append(octal(input, 2));
             } else {
-                throw new BadSyntax("Invalid escape sequence in string: \\" + nextCh);
+                throw new BadSyntax(input.position, "Invalid escape sequence in string: \\" + nextCh);
             }
         } else {
             output.append(escaped.charAt(esindex));
@@ -51,7 +51,7 @@ class Escape {
 
     static void handleNormalCharacter(Input input, StringBuilder output) throws BadSyntax {
         final char ch = input.charAt(0);
-        BadSyntax.when(ch == '\n' || ch == '\r', () -> String.format("String not terminated before eol:\n%s...",
+        BadSyntax.when(input.position, ch == '\n' || ch == '\r', () -> String.format("String not terminated before eol:\n%s...",
                 input.substring(1, Math.min(input.length(), 60))));
         output.append(ch);
         input.skip(1);

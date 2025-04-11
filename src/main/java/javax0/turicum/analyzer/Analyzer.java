@@ -28,7 +28,7 @@ public interface Analyzer {
         if (lex.type() == Lex.Type.RESERVED  || lex.atLineStart()) {
             return;
         }
-        throw new BadSyntax("Command must be terminated by a semicolon or new line");
+        throw new BadSyntax(lexes.position(), "Command must be terminated by a semicolon or new line");
     }
 
 }

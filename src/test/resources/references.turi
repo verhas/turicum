@@ -1,0 +1,175 @@
+// snippet blabla
+println("blala")
+// end snippet
+
+// snippet first_sample
+print("Hello,");
+println(" World")
+for i=1 ; i < 3 ; i = i+1 : println(i)
+// end snippet
+
+// snippet if_value
+let z : num = {if 232 % 2 == 0 : 1 else: 2 }
+println(z)
+// end snippet
+
+// snippet block_value
+let z = {
+    let k = "Hi";
+    k + "cory"
+    }
+println(z)
+// end snippet
+
+// snippet scope1
+let z = "cory"
+z = { // z is global
+    println("just a print")
+    let k = "Hi" // k is local
+         + z // z is accessible
+    // the value of the block is the last commands, value
+    // 'let' assignments result the value assigned
+    }
+println(z)
+println(k)
+// end snippet
+
+// snippet local_redefined_error
+let z = 5
+try{
+    z = {
+        println(z);
+        let z = 3
+        }
+}catch e {
+    println(e)
+}
+// end snippet
+
+// snippet function_scope
+let glb = "global variable";
+class A {
+  fn z(){
+    println("You can read glb, which is a " + glb)
+    try{
+       // you cannot change it without declaring that it is global
+       glb = 5;
+    }catch(e){
+        println("exception 1:",e)
+    }
+    try{
+       // you touched it as global, you cannot declare it as local anymore
+       let glb = 5;
+    }catch(e){
+        println("exception 2:",e)
+    }
+    global glb;
+    glb = "modified"
+    return "You can access glb here it is " + glb ;
+  }
+}
+let obj = A()
+println(obj.z())
+// end snippet
+
+// snippet class_definition
+class X {
+  let s = "hu"
+}
+println("class var ", X.s)
+let x = X();
+println("object var ", x.s)
+// end snippet
+
+// snippet object_scope
+class X {
+  let s = "class field"
+  cls.h = "another class field"
+  fn constructor {
+    let g = "object field"
+  }
+  fn t(){
+    // access object field explicitly through 'this'
+    println("this.g=",this.g)
+    // the object wraps the class scope and not the other way around
+    // there is no 'g' defined in the class
+    println("cls.g=",cls.g)
+    // 'g' is in the wrapped scope of the object scope
+    // this is same as 'this.g'
+    println("g=",g)
+    // 'this.h' is the same as 'cls.h' because of wrapping
+    println("this.h=",this.h)
+    println("cls.h=",cls.h)
+    println("h=",h)
+    // the same is true for the other field
+    // does not matter how it was defined
+    println("this.s=",this.s)
+    println("cls.s=",cls.s)
+    println("s=",s)
+  }
+}
+let x = X();
+x.t()
+// end snippet
+
+// snippet closure_example
+let c = {
+    let whom = "World!";
+    {|greeting|
+        println(greeting,whom);
+        whom = "Universe!"
+    }
+}
+c("Hello, ")
+c("Hi, ")
+// end snippet
+
+// snippet macro_example
+let c = macro(
+    {|condition,then,`else`|
+        if evaluate(condition) : evaluate(then) else: evaluate(`else`)
+    })
+
+print(
+
+    c(true,"yes, it is true",{ println("this will never be printed") })
+
+    );
+// end snippet
+
+// snippet let_with_types_example
+let c : str |num = 3;
+c = "" + c + " == " + c
+println(c)
+// end snippet
+
+// snippet pinning
+let turicum = 13
+let list = [1,2,3]
+let object = { x:1, y:2};
+pin turicum, [list], {object}
+
+try {
+  turicum = 14;
+}catch e: println("could not change the variable")
+
+try {
+  list[1] = 0;
+}catch e: println("could not change the list")
+list = [ 0, ..list, 4]
+println("variable 'list' still can be changed: ", list)
+
+try {
+  object.x = 3;
+}catch e: println("could not change the object")
+object = { x:1, y:3 }
+println("variable 'object' still can be changed: ", object)
+
+// end snippet
+
+// snippet ifCommand
+let a= 13
+if a%2 == 0: println("even") else: println("odd")
+a = {if a%2 == 0: "even" else: "odd"}
+print("again ",a)
+// end snippet

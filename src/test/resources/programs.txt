@@ -182,7 +182,8 @@ fn function x2, z, h {
 // snippet testFinalDeclaration1
 // Long
 // "2"
-pin a=1, b=2;
+let a=1, b=2;
+pin a, b;
 a*b;
 
 // snippet testFinalDeclaration2
@@ -201,13 +202,15 @@ class z : {
 // snippet testQuotedIdentifier1
 // Long
 // "2"
-pin `a`=1, `pin`=2;
+let `a`=1, `pin`=2
+pin `a`, `pin`;
 a*`pin`;
 
 // snippet testQuotedIdentifier2
 // Long
 // "2"
-pin a=1, `this is a\\nmulti-line identifier`=2;
+let a=1, `this is a\\nmulti-line identifier`=2;
+pin a, `this is a\\nmulti-line identifier`;
 a *`this is a\\nmulti-line identifier`;
 
 // snippet testCallingFunction1
@@ -357,14 +360,14 @@ Class().z();
 // String
 // "csaka haha fogorvos hihi segithet huhu"
 let msg = ""
-pin PrinterClass = class {
+let PrinterClass = class {
   let print = fn (message){
     global msg;
     msg = msg + message
     }
 }
-
-pin p = PrinterClass()
+pin PrinterClass
+let p = PrinterClass()
 p.print("csaka haha ")
 p.print("fogorvos hihi ")
 p.print("segithet huhu")
@@ -1003,3 +1006,41 @@ let k = 1
 M = M + z.a
 k = 2
 M = M + z.a
+
+// snippet defineEquals
+// String
+// "truefalse"
+
+class A {
+  fn `==`(other){
+    this.a == other.a
+  }
+}
+
+let x = A()
+let y = A()
+let z = {}
+
+x.a = 1
+x.b = "x"
+
+y.a = 1
+y.b = "y"
+
+z.a = 1
+z.b = "z"
+
+""+ (x == y) + (y == z)
+
+// snippet pinObject
+// null
+let a = {x:1,y:2};
+pin {a}
+let hu = { try {
+    a.x = 3
+    print("huhh")
+}catch e {
+    break 55
+}};
+
+hu

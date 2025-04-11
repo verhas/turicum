@@ -35,7 +35,7 @@ public class ClassAnalyzer implements Analyzer {
         if( lexes.is("(")){
             lexes.next();
             parameters = IdentifierList.INSTANCE.analyze(lexes);
-            BadSyntax.when(!lexes.is(")"),"Constructor parameters should be followed by ')'");
+            BadSyntax.when(lexes, !lexes.is(")"),"Constructor parameters should be followed by ')'");
             lexes.next();
         }else{
             parameters = null;
@@ -44,7 +44,7 @@ public class ClassAnalyzer implements Analyzer {
         if (lexes.is(":")) {
             lexes.next();
             parents = IdentifierList.INSTANCE.analyze(lexes);
-            BadSyntax.when( parents.length == 0 ,"The list of the parents must not be empty following the ':'. Just leave the ':'.");
+            BadSyntax.when(lexes, parents.length == 0 ,"The list of the parents must not be empty following the ':'. Just leave the ':'.");
         } else {
             parents = null;
         }

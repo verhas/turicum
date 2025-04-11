@@ -31,7 +31,7 @@ public class PrimaryExpressionAnalyzer implements Analyzer {
     @Override
     public Command analyze(LexList lexes) throws BadSyntax {
         if (lexes.isEmpty()) {
-            throw new BadSyntax("Expression is empty");
+            throw new BadSyntax(lexes.position(), "Expression is empty");
         }
         if (lexes.is(Keywords.CLASS)) {
             lexes.next();
@@ -75,12 +75,12 @@ public class PrimaryExpressionAnalyzer implements Analyzer {
                 } else if (lexes.is("]", "?", "->")) {
                     break;
                 } else {
-                    throw new BadSyntax("Unexpected end of expression list in array literal");
+                    throw new BadSyntax(lexes.position(), "Unexpected end of expression list in array literal");
                 }
             }
             final var modifiers = getModifierChain(lexes);
             final var left = new ListComposition(expressionList.toArray(Command[]::new), modifiers);
-            BadSyntax.when(lexes.isNot("]"), "list literal has to be closed using ']'");
+            BadSyntax.when(lexes, lexes.isNot("]"), "list literal has to be closed using ']'");
             lexes.next();
             return getAccessOrCall(lexes, left);
         }
@@ -90,7 +90,8 @@ public class PrimaryExpressionAnalyzer implements Analyzer {
             case STRING -> getAccessOrCall(lexes, new StringConstant(lex.text()));
             case INTEGER -> getAccessOrCall(lexes, new IntegerConstant(lex.text()));
             case FLOAT -> getAccessOrCall(lexes, new FloatConstant(lex.text()));
-            default -> throw new BadSyntax("Expression: expected identifier, or constant, got " + lex.text());
+            default ->
+                    throw new BadSyntax(lexes.position(), "Expression: expected identifier, or constant, got '%s'", lex.text());
         }
 
                 ;
@@ -144,7 +145,7 @@ public class PrimaryExpressionAnalyzer implements Analyzer {
             lexes.next();
             return expression;
         }
-        throw new BadSyntax("Expression is not well formed, missing ')'");
+        throw new BadSyntax(lexes.position(), "Expression is not well formed, missing ')'");
     }
 
     /**
@@ -170,7 +171,7 @@ public class PrimaryExpressionAnalyzer implements Analyzer {
                 lexes.next();
             }
         }
-        BadSyntax.when(lexes.isNot(")"), "Function call: expected ')' after the parents");
+        BadSyntax.when(lexes, lexes.isNot(")"), "Function call: expected ')' after the parents");
         lexes.next(); // consume the ')'
         if (lexes.is("{") && ClosureAnalyzer.blockStartsClosure(lexes)) {
             lexes.next();

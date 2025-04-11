@@ -60,6 +60,7 @@ public abstract class AbstractOperator implements Operator {
                 ctx = context.wrap(command.wrapped());
                 ctx.let0("this", lngObject);
             }
+            ctx.setCaller(context);
             FunctionCall.freezeThisAndCls(ctx);
             FunctionCall.defineArgumentsInContext(ctx, command.parameters(), argValues);
             return command.execute(ctx);

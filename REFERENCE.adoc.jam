@@ -1,0 +1,720 @@
+= Turicum Programming Language Reference
+
+{%@snip:collect from=src/main/java%}
+{%@snip:collect from=src/test/resources/references.turi%}
+{%@snip:collect from=src/test/resources/references_output%}
+
+{%@define sample($X)=
+.$X
+[source]
+----
+{%#trimLines
+{%@snip $X%}
+%}
+----
+{%#define [global] output()=
+.output $X
+[source]
+----
+{%@include [verbatim] src/test/resources/references_output/$X.txt%}
+----
+%}
+{%#define [global] result()=
+.result $X
+[source]
+----
+{%@include [verbatim] src/test/resources/references_output/$X_result.txt%}
+----
+%}
+%}
+{%@define S($X)={%sample $X%}
+
+The output of the program is
+
+{%output%}
+%}
+
+{%sample blabla%}
+{%output%}
+{%result%}
+
+== Introduction
+
+=== What is Turicum?
+
+Turicum is a modern programming language designed for expressiveness, safety, and concurrency.
+It combines functional and object-oriented paradigms in a clean and coherent syntax.
+The preprocessing capability and the dynamic nature of the language make it outstanding from a programming perspective.
+
+=== Turicum is
+
+* **Fuctional**
++
+Functions, closures, and macros are first-class citizens in Turicum, and any of them can be used as a value.
+Every command has a value, and thus any command can be part of an expression, and an expression is also a command.
+
+* **Object-Oriented**
++
+Programs can define classes, methods in classes, multiple inheritance, and objects that inherit properties.
+
+* **Dynamic**
++
+Everything is defined during run-time and can be changed during run-time.
+For example, a class of function is defined when the definition is executed and lives in the defining scope.
+Methods are fields with closure or function values and can be added to any class or object even after the creation.
+
+* **Flexible**
++
+The interpreter can execute already loaded code at any time passing the remaining of the lexical tokens to a preprocessor.
+The preprocessor can be a function or closure written in Turicum,
+It can modify the lexical stream introducing arbitrary syntactical extensions to the language.
+
+* **Multithread**
++
+The interpreter uses Java 21 and supports (planned) VirtualThreads using native language constructs.
+
+* **Typed and scoped**
++
+Variables can be typed and assignment types are dynamically checked.
+
+Turicum is both a scripting language and an embeddable engine.
+It can be run as a standalone command-line tool or integrated into Java or Kotlin applications as a library.
+
+Turicum is implemented in Java and designed to be approachable by JVM developers while introducing powerful abstractions.
+
+The name “Turicum” is the ancient Roman name for the city of Zürich, Switzerland, where the language is being developed.
+
+=== Design Goals and Philosophy
+
+Turicum was designed with the following principles:
+
+* **Concise syntax** that remains readable and expressive.
+* **Functional-first** execution model with support for **side effects** when needed.
+* **Multithreading and pipeline support** built into the language.
+* **Safe scoping and closures**, including *reclosable* closures which adapt to new context bindings.
+Closure eclosing is a unique language feature.
+* **Macro metaprogramming**, allowing deferred and explicit evaluation of arguments.
+* A flexible **parameter system**, supporting `normal`, positional-only, named-only, argument and special parameters for rest, meta, and trailing callable parameters.
+
+The language is designed for **experienced developers**, particularly those who work with the JVM and need a powerful scripting or DSL tool that feels natural but scales to complex architectural needs.
+
+=== Lexical and Syntax Conventions
+
+Turicum syntax is clean, indentation-insensitive, and mostly expression-oriented.
+It does not try to reinvent the syntax, so it will look familiar for Java, C and even in some cases for Python programmers.
+On the other hand, it does not require syntactically superfluous characters, like `(` and `)` around the conditions of the `if` statement.
+
+The basic syntactic conventions are:
+
+* Semicolons (`;`) can be used to separate commands but are mostly optional.
+* Blocks are defined with curly braces `{}` and return the result of the last evaluated command.
+* Comments start with `//` and continue to the end of the line.
+* Multiline comments start with `+/*+` and end with `*/` like in Java, and they can be nested unlike Java.
+* Identifiers follow conventional rules and are case-sensitive.
+* Any string between two `+`+` (back-tick) characters is an identifier (like in Kotlin).
+* All keywords are lowercase.
+* String between ``` are terminated on the same line and between ````` can be multi-line.
+
+More details about expressions, control flow, and declarations can be found in the chapters that follow.
+
+== Basic Concepts
+
+A Turicum program is a list of commands, which is executed from the start to the end.
+
+{%sample first_sample%}
+
+will print out
+
+{%output%}
+
+A command end is usually denoted by a new line or a `;`.
+At the end of the command a `;` can always be repaced by a new line, but not when the syntax requires the`;` inside the command, like the `for` loop.
+
+Commands can be grouped in to blocks enclosed between `{` and `}`.
+Everything has a value, even commands.
+For example, an `if` statement will result the value of the command after the `if` conditional if the conditional was true and the else block otherwise or `none` if there is no else block.
+
+{%sample if_value%}
+
+will output
+
+{%output%}
+
+Command blocks can be part of expressions.
+The value of a command block is the value of the last executed expression.
+
+{%sample block_value%}
+
+will output
+
+{%output%}
+
+Expressions can contain
+
+* literals,
+
+** string
+** numerical
+** JSON
+
+* variables,
+* operators,
+* function calls,
+* closure calls,
+* macro calls,
+* method calls,
+* and code blocks.
+
+Symbolic constants are {%#trimLines
+{%#replace (regex) /
+{%@snip builtins%}
+/"(.*?)",[^"]+/`$1`,/,$//%}
+ %} pinned (non-changeable, final) global variables.
+
+==== Whitespace and Line Breaks
+
+Whitespace (spaces, tabs, line breaks) is generally insignificant except where indentation affects readability.
+Multiple newlines are allowed between tokens and commands.
+Line breaks alone do not terminate statements.
+
+==== Identifiers
+
+Identifiers are names used for variables, functions, classes, and other user-defined symbols.
+
+* Identifiers must start with a Unicode letter or underscore (`_`), and may contain letters, digits, and underscores.
+* You can explicitly define an identifier using backticks: `+`non-standard-id`+`.
+Using backticks allows you to use any string as an identifier, even reserved words, or symbols.
+You can use it to override operators, like `+`==`+`.
+* Identifiers are case-sensitive.
+
+Some Unicode characters like `∞` (infinity) and `∅` (none) are automatically translated into meaningful identifiers (`inf`, `none`).
+
+==== Reserved Words
+
+Turicum has a set of reserved keywords that cannot be used as identifiers, unless you enclose the name between `+`+` backticks, like `+`if`+`.
+
+The keywords are:
+
+{%#sort
+{%#trimLines
+{%#replace (regex) /
+{%@snip KEYWORDS%}
+/String\s+\w+\s+=\s+"(\w+).*;/`$1`/%}
+%}%}
+
+== Expressions and Operators
+
+=== Literals
+
+Turicum supports a rich set of literals, including numeric values, strings, JSON-like constants, and lists.
+All literals are expressions that evaluate to immutable values.
+
+==== Numeric Literals
+
+Numeric literals can be either integers or floating-point numbers.
+
+* Integers are written as sequences of digits, e.g., `42`, `0`, `123456`.
+* Floating-point numbers contain a decimal point or exponent part, e.g., `3.14`, `2e10`, `1.0e-3`.
+
+There is no special suffix for numeric types.
+Type promotion is automatic and based on the context of usage.
+Internal implementation of numerical types uses `Long` and `Double`.
+
+==== String Literals
+
+Strings in Turicum are enclosed in double quotes (```), e.g., ``hello world``.
+
+Backslash escapes are supported:
+
+* `\n` — newline
+* `\t` — tab
+* `\\` — backslash
+* `\`` — double quote
+
+Example:
+
+[source]
+----
+`Hello`
+----
+
+==== Multiline Strings
+
+Multiline string literals are enclosed between triple quotes `+```+`.
+
+They preserve line breaks and indentation exactly as written. Escape sequences are still processed.
+
+Example:
+
+[source]
+----
+```
+Hello,
+  This is a multiline string.
+Goodbye.
+```
+----
+
+==== JSON Constants
+
+Turicum supports JSON-like literals directly in the language syntax. These can be written using JavaScript-style object and array literals:
+
+[source]
+----
+{
+  `name`: `Alice`,
+  age: 30,
+  `tags`: [`developer`, `java`]
+}
+----
+
+JSON keys can be identifiers or strings.
+The values can be presented by any Turicum expression.
+The value of a JSON expression is a class-less Turicum object.
+The values are evaluated when the literal is evaluated.
+
+==== Lazy JSON
+
+To defer the evaluation of a JSON literal until it is accessed, Turicum provides _lazy JSON_ literals.
+
+These are written with a `+&+` prefix before the JSON object:
+
+[source]
+----
+&{
+  `timestamp`: now(),
+  user: getCurrentUser()
+}
+----
+
+Lazy JSON is not evaluated at definition time.
+Each field is computed lazily, on demand, using the current execution context wrapping the context where the JSON was defined.
+This behavior is similar to that of closures.
+
+In the example above `getCurrentUser()` is only invoked if and when the field `user` is accessed.
+Lazy JSON objects are pinned, a.k.a. it is not possible to change any of their fields.
+
+==== List Literals
+
+Lists can be defined using square brackets `+[]+`.
+
+List elements are expressions and are separated by commas:
+
+[source]
+----
+[1, 2, 3, 4]
+[`apple`, `banana`, `cherry`]
+[1 + 2, `computed`]
+----
+
+Lists are mutable by default and can be indexed using the `+[]+` operator.
+They support iteration in `+for each+` loops.
+
+Empty lists can be written simply as `+[]+`.
+
+Lists can contain mixed types, but homogeneous lists are encouraged for clarity.
+
+List literals also support flattening other lists using the `..` prefix.
+For example:
+
+[source]
+----
+let a = [1, 2, 3, 4]
+let b = [`apple`, ..a, `banana`, `cherry`]
+----
+
+will make `b` contain ``apple``, `1`,`2`,`3`,`4`,``banana``, ``cherry``.
+
+List literals also support filters and mappers.
+For example:
+
+[source]
+----
+let a = [1, 2, 3, 4 ? {|a| a%2 == 0 } -> {|a| a / 2} ]
+----
+
+will select first `2` and `4` and then map them to `1` and `2`
+
+==== Operators and Symbols
+
+The lexer recognizes both symbolic and word-based operators.
+Operators are tokenized with priority for the **longest matching operator**.
+
+Recognized symbols are:
+
+{%#replace (regex) /
+{%#trimLines
+{%@snip OPERANDS%}
+ %}
+/`(.*?)`/`$1` /-/-/%}
+
+=== Operators
+
+Operators have precendence and are evaluated from left to right.
+You can use `(` and `)` to change the evaluation order.
+The operators are the followings in order of growing precedence:
+
+* `or` results the left side expression if it is defined and the right side if the left side value is `none` (undefined).
+The operator does short-cut evaluation.
+The right side is only evaluated if the left side is undefined.
+
+*  `||` logical OR operation, shortcut evaluated.
+
+* `&&` logical AND operation, shortcut evaluated.
+
+* `..` range operator. `start..end`` will result a range to index a list.
+The first index is `start`, the last is `end-1`.
+Ranges can be used to index lists as values and also in left values to replace a part of a list.
+When used as a unary prefix operator, it must be inside a list literal and in front of a list to flatten the list content into the literal.
+
+* `|` bitwise OR operation.
+
+* `^` bitwise XOR operation. (planned)
+
+* `&` bitwise AND operation.
+
+* `==`, `!=`, `in` equal, not equal and part-of operators.
+The `in` operator works on a list to check if an element is in that list,
+or on strings to check the existence of a substring.
+
+* `<`, `+<=+`, `>`, `>=` usual size comparision operators.
+
+* `<<`, `>>`, `>>>` left shift, right shift, and signed right shift operators.
+
+* `+`, `-` binary and unary plus and minus.
+
+* `*`, `/`, `%` binary multiply, divide, and remainder operators.
+
+.functions argument default values
+[NOTE]
+====
+The bitwise OR `|` is not allowed the expression specifies a default value for a function or closure argument.
+You can however freely enclose the expression or a part of it between `(` and `)` and use the operator freely.
+====
+
+.pre and post increment/decrement
+[NOTE]
+====
+The lexical elements `pass:[++]` and `--` are defined and recognized by the lexical analyzer.
+This is to avoid accidentally writing `++i` or `--i`, which would otherwise be valid expressions doing nothing.
+Their meaning would otherwise be `+(+i)` and `-(-i)`.
+====
+
+They work for numerical types, string types as usually, and they can also work on any object that defines them.
+The name of the method implementing the operator should be the operator itself.
+There is not any name association, like in Python dunder plus.
+Instead, you can use, for example, `pass:[`+`]` as an operator identifier.
+
+The operator methods must have one single positional arguments, usually named `other`.
+The functionality should implement the operation and return the result `this` operation `other`.
+When an operation is used as prefix unary operator the value of other will be `none` and `this` will hold the value on the right of the operator.
+
+Only `+`, `-`, `!`, `..` can be used as unary operators.
+
+== Variables and Scope
+
+Variables can be global or local.
+They are defined in scopes.
+Scopes are wrapped around each other.
+The top level scope is the global scope.
+
+Scopes are created in run-time, like everything in Turicum.
+
+=== Block scopes
+
+Code blocks open a new scope and they wrap the surrounding scope.
+
+{%sample scope1%}
+
+will output
+
+{%output%}
+
+The variable `k` is local inside the code block, and it has no value outside.
+The variable `z` is part of the wrapped context, and in this case it is global.
+The block executes in its own scope, and this scope wraps the global scope.
+
+You can nest scopes.
+
+When you use a variable defined in a wrapped (outer) scope you cannot define it anymore as local using `let`.
+For example, the following program:
+
+{%sample local_redefined_error%}
+
+will output:
+
+{%output%}
+
+=== Class, object and function scope
+
+Class declarations and functions do not wrap the surrounding scope.
+In the following example, modifying the global variable `glb` is not possible without declaration.
+The class and the function do not wrap the surrounding, global scope.
+
+{%sample function_scope%}
+
+The output of the program is:
+
+{%output%}
+
+The methods, a.k.a. functions defined inside a class wrap the context of the class.
+Whenever a method is called its own scope is created and the "local variables" `cls` and `this` are created.
+Unless the method is a constructor (named aptly as `constructor`) these variables are pinned, cannot be changed.
+
+Code inside a class, outside any method is executed when the class is defined.
+
+{%sample class_definition%}
+
+The code above defines a class named `X`.
+This class has a class scope variable `s`.
+It can be accessed as a field of the class itself `X.s`.
+
+Variable `x` is initialized to hold an instance of this class.
+Using `x.s` will reference the same variable, because objects wrap the scope of the class.
+
+{%output%}
+
+The following example details these different access scenarios:
+
+{%sample object_scope%}
+
+{%output%}
+
+=== Closure scopes
+
+Closures are blocks with arguments.
+The general syntax is:
+
+[source]
+----
+  {|arguments declaration| commands}
+----
+
+Note that executing a closure and calling a closure are two different things.
+When a closure is executed, it returns the closure.
+When a closure is called, the arguments are evaluated in the actual scope, and the closure is called in its scope.
+The scope of the closure does not wrap the scope of the caller.
+It does wrap the scope of the execution, where we created the closure.
+
+Technically functions are closures that do not wrap any other scope.
+
+The following example inside a block.
+the closure can access and even modify the variable `whom`.
+
+{%S closure_example%}
+
+The variable `whom` lives only inside the block.
+
+=== Macro scopes
+
+macro scopes are the same as closure scopes.
+Macros are closures that get their arguments unevaluated.
+You can create a macro using the built-in global function `macro` with a closure or function as an argument.
+Code inside macros can call the global function `evaluate` on the arguments.
+
+This way macros can decide which arguments to evaluate and what order, or how many times.
+The following simple macro reimplements the `if` command's functionality using it:
+
+{%S macro_example%}
+
+When a macro calls the function `evaluate` the evaluation happens in the caller scope.
+This ensures the same scope and variable visibility like calling a function or closure.
+The caller does not need to know that the implementation of the something it calls is a function, closure, or macro.
+
+=== Variable Declaration
+
+You can read an undefined variable.
+The value will be `none`.
+
+You cannot, however, assign value to an undefined variable.
+Upon first assignment the code has to use the keyword `let` to define the variable.
+
+NOTE: There is a subtle difference between an undefined variable and a defined variable having the value `none`.
+An undefined variable was never defined.
+As it was said it's value is `none`.
+An already defined variable can also have the value of `none`, but it also has an optional type declaration.
+
+The syntax of a `let` command is the following:
+
+[source]
+----
+let identifier : type = expression
+----
+
+The `: type` and the `= expression` parts are optional.
+If the type is not defined, then the variable can get any value.
+If the expression is missing the value will be `none`.
+There can be multiple `identifier : type = expression` after the `let` keyword comma separated.
+
+{%#trimLines
+{%#replaceLines replace="~case\\s+\"(\\w+)\".*~* `$1`~//~~"
+{%@snip types%}
+%}%}
+
+If the name starts with `java.` then the variable can hold a Java object.
+For example `java.java.math.BigInteger` can hold any `java.math.BigInteger` object.
+
+In other cases the type can be the name of a class defined in the program.
+The class has to be defined by the time the variable is defined.
+
+[NOTE]
+====
+Note that a variable can hold `none` only if
+
+* there is no type defined,
+
+* `none` is among the allowed types, or
+
+* `any` is among the allowed types.
+
+For example `let a:num;` will fail, because it allows only numerical values, but missing the initial value will try to set it to `none`.
+====
+
+You can define multiple types for a variable separating the types with `|`. For example `let a:num|str|myClass` makes `a` eligible to store a numeric value, a string or an instance of `MyClass`.
+
+The following example declares a variable that can hold a string or a numeric value.
+
+{%S let_with_types_example%}
+
+==== Pinned Variables
+
+Pinning a variable makes it illegal to change it in the scope.
+The syntax of the `pin` command is
+
+[source]
+----
+  pin list
+----
+
+The list is comma separated elements, can be
+
+* a variable name, like `turicum`,
+
+* a variable name enclosed between `{` and `}`, like `{object}`, or
+
+* a variable name enclosed between `[` and `]`, like `[list]`.
+
+A variable in the list will make the variable in the current context pinned.
+If the variable name is decorated with `{}` then the object, which is the value of the variable gets pinned.
+Note that this is changing the object itself and not the variable.
+
+If the variable name is decorated with `[]` then the list, which is the value of the variable gets pinned.
+Note that this is changing the list itself and not the variable.
+
+It is an error using the decoration on a variable that is not an object or list.
+
+The following example demonstrates the different pinning possibilities:
+
+{%S pinning%}
+
+== Control Flow
+
+=== Conditional Execution (`if` / `else`)
+
+Command `if` is very conventional and similar to any other programming language.
+
+[source]
+----
+'if' EXPRESSION ( ':' COMMAND | BLOCK ) [ 'else' ( ':' COMMAND | BLOCK )] ;
+----
+
+If the expression is `true` it executes the first command or block.
+If the expression is `false` it executes the second command or block.
+The second command or block along with the keyword `else` is optional.
+
+The block is a series of commands enclosed between `{` and `}`.
+If there is only a single command after the condition or the keyword `else` it has to be preceded with a `:`.
+
+The conditional expression may, but does not need to be enclosed between parentheses.
+
+The result of the command is the value of the command or block executed.
+If the condition is `false` and there is no "else" block or command, then the result is `none`.
+
+{%S ifCommand%}
+
+
+=== Loops
+
+==== `while`
+
+==== `for`
+
+==== `foreach`
+
+==== `until`
+
+=== Breaking and Yielding Control
+
+==== `break`
+
+==== `return`
+
+==== `yield`
+
+== Functions
+
+=== Function Declarations
+
+==== Expression-bodied Functions
+
+==== Block-bodied Functions
+
+=== Parameters and Arguments
+
+==== Positional and Named
+
+=== Closures and Context
+
+=== Function Calls
+
+== Classes and Objects
+
+=== Class Declaration
+
+=== Fields and Methods
+
+=== Object Construction
+
+=== Field Access and Method Invocation
+
+== Expressions and Operators
+
+=== Literals: Numbers and Strings
+
+=== Arithmetic and Logical Operators
+
+=== Precedence and Associativity
+
+=== Unary Operators
+
+=== Blocks as Expressions
+
+== Data Structures
+
+=== Arrays
+
+=== Indexing and Access
+
+=== Future Structures (TBD)
+
+== Error Handling
+
+=== Try-Catch (once supported — placeholder)
+
+== Metaprogramming (Planned)
+
+=== Macros and Reclosures (Future Design)
+
+== Language Grammar (Appendix)
+
+=== Full Annotated EBNF
+
+=== Notes on Non-standard Constructs
+
+== Keywords and Syntax Summary
+
+=== Reserved Words
+
+=== Operator Summary
+
+=== Syntax Summary Table

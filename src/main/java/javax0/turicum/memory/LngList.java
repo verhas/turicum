@@ -4,13 +4,15 @@ import javax0.turicum.ExecutionException;
 import javax0.turicum.commands.operators.Cast;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class LngList implements HasIndex, HasFields {
-
     public final ArrayList<Object> array = new ArrayList<>();
+    public final AtomicBoolean pinned = new AtomicBoolean(false);
 
     @Override
     public void setIndex(Object index, Object value) throws ExecutionException {
+        ExecutionException.when(pinned.get(), "Cannot change a pinned list.");
         if (Cast.isLong(index)) {
             final var indexValue = Cast.toLong(index).intValue();
             if (indexValue < 0) {
@@ -79,6 +81,7 @@ public class LngList implements HasIndex, HasFields {
 
     @Override
     public void setField(String name, Object value) throws ExecutionException {
+        ExecutionException.when(pinned.get(), "Cannot set a field a pinned list.");
         switch (name) {
             case "length":
                 throw new ExecutionException("Length field cannot be set");

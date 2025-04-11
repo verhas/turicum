@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class LngObject implements HasFields, HasIndex, HasContext {
     final LngClass lngClass;
     final Context context;
-    final AtomicBoolean pinned = new AtomicBoolean(false);
+    public final AtomicBoolean pinned = new AtomicBoolean(false);
 
     /**
      * Create a new object.
@@ -91,7 +91,7 @@ public class LngObject implements HasFields, HasIndex, HasContext {
         if (!Objects.equals(lngClass, lngObject.lngClass)) {
             return false;
         }
-        var method = lngObject.getField("equals");
+        var method = lngObject.getField("==");
         if (method instanceof Closure lngEquals) {
             return Cast.toBoolean(lngEquals.call(context(), o));
         }
@@ -124,7 +124,7 @@ public class LngObject implements HasFields, HasIndex, HasContext {
         int result = Objects.hashCode(lngClass);
 
         for (var key : context.keys()) {
-            if ("equals".equals(key)) {
+            if ("==".equals(key)) {
                 continue; // skip dynamic equals override field
             }
             Object value = getField(key);
@@ -140,6 +140,21 @@ public class LngObject implements HasFields, HasIndex, HasContext {
         }
 
         return result;
+    }
+
+    @Override
+    public String toString() {
+        final var builder = new StringBuilder("{");
+        String sep = "";
+        for (var key : context().keys()) {
+            final var object = context().get(key);
+            if (object != this) {
+                builder.append(sep).append(key).append(": ").append(object);
+            }
+            sep = ", ";
+        }
+        builder.append("}");
+        return builder.toString();
     }
 
 }

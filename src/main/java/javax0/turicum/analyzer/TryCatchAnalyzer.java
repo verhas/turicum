@@ -20,10 +20,10 @@ public class TryCatchAnalyzer implements Analyzer {
                 lexes.next();
             }
             final var id = lexes.next();
-            BadSyntax.when(id.type() != Lex.Type.IDENTIFIER, "Catch must have an identifier for the exception");
+            BadSyntax.when(lexes, id.type() != Lex.Type.IDENTIFIER, "Catch must have an identifier for the exception");
             exception = id.text();
             if (usesParen) {
-                BadSyntax.when(lexes.isNot(")"), "Missing ')' after the exception ");
+                BadSyntax.when(lexes, lexes.isNot(")"), "Missing ')' after the exception ");
                 lexes.next();
             }
             catchBlock = getCommand(lexes, Keywords.CATCH);
@@ -49,9 +49,9 @@ public class TryCatchAnalyzer implements Analyzer {
         } else if (lexes.is(":")) {
             lexes.next();
             command = CommandAnalyzer.INSTANCE.analyze(lexes);
-            BadSyntax.when(command == null, "Empty command ( ';' ) following " + msg);
+            BadSyntax.when(lexes, command == null, "Empty command ( ';' ) following " + msg);
         } else {
-            throw new BadSyntax(": or {", "Expected ':' or '{'");
+            throw new BadSyntax(lexes.position(), ": or {", "Expected ':' or '{'");
         }
         return command;
     }

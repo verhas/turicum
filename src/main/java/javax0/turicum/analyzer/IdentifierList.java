@@ -15,7 +15,7 @@ public class IdentifierList {
             identifiers.add(lexes.next().text());
             if (lexes.is(",")) {
                 lexes.next();
-                BadSyntax.when(!lexes.isIdentifier(), "Identifier missing after , in global declaration");
+                BadSyntax.when(lexes, !lexes.isIdentifier(), "Identifier missing after , in global declaration");
             } else {
                 break;
             }

@@ -6,10 +6,12 @@ import javax0.turicum.memory.InfiniteValue;
 public class BuiltIns {
 
     private final static Object[] values = new Object[]{
+            // snippet builtins
             "true", true,
             "false", false,
             "none", null,
             "inf", InfiniteValue.INF_POSITIVE
+            // end snippet
     };
 
     public static void register(Context context) {

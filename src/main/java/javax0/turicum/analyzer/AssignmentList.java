@@ -38,11 +38,11 @@ public class AssignmentList {
             final var type = new ArrayList<String>();
             if (lexes.is(":")) { // process types, optional
                 lexes.next();
-                ExecutionException.when(!lexes.isIdentifier(), "following the ':' the types identifier has to follow");
+                ExecutionException.when(!lexes.isIdentifier() && !lexes.isKeyword(), "following the ':' the types identifier has to follow");
                 type.add(lexes.next().text());
                 while (lexes.is("|")) {
                     lexes.next();
-                    ExecutionException.when(!lexes.isIdentifier(), "following the '|' a types identifier has to follow");
+                    ExecutionException.when(!lexes.isIdentifier() && !lexes.isKeyword(), "following the '|' a types identifier has to follow");
                     type.add(lexes.next().text());
                 }
             }
@@ -56,7 +56,7 @@ public class AssignmentList {
             pairs.add(new Assignment(identifier.text(), type.toArray(String[]::new), expression));
             if (lexes.is(",")) {
                 lexes.next();
-                BadSyntax.when(!lexes.isIdentifier(), "Identifier missing after , ");
+                BadSyntax.when(lexes, !lexes.isIdentifier(), "Identifier missing after , ");
             } else {
                 break;
             }

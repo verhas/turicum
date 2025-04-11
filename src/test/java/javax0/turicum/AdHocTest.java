@@ -13,9 +13,27 @@ public class AdHocTest {
     @Test
     void test() throws Exception {
         test("""
-                let imp = import("/Users/verhasp/github/turicum/src/test/resources/import.sample.turi");
-                imp.myPrint("hello")
-                """, "3");
+let turicum = 13
+let list = [1,2,3]
+let object = { x:1, y:2};
+pin turicum, [list], {object}
+
+try {
+  turicum = 14;
+}catch e: println("could not change the variable")
+
+try {
+  list[1] = 0;
+}catch e: println("could not change the list")
+list = [ 0, ..list, 4]
+println("variable 'list' still can be changed: ", list)
+
+try {
+  object.x = 3;
+}catch e: println("could not change the object")
+object = { x:1, y:3 }
+println("variable 'object' still can be changed: ", object)
+                """, null);
     }
 
 }

@@ -1,6 +1,7 @@
 package javax0.turicum.analyzer;
 
 public interface Keywords {
+    // snippet KEYWORDS
     String PIN = "pin";
     String GLOBAL = "global";
     String BREAK = "break";
@@ -22,4 +23,5 @@ public interface Keywords {
     String UNTIL = "until";
     String RETURN = "return";
     String YIELD = "yield";
+    // end snippet
 }

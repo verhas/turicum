@@ -49,34 +49,41 @@ public class LexList extends LngList {
 
     public Lex next() throws BadSyntax {
         if (index >= array.size()) {
-            throw new BadSyntax("more elements expected");
+            throw new BadSyntax(lexAt(array.size()-1).position(), "more elements expected");
         }
         return lexAt(index++);
     }
 
     public Lex next(Lex.Type expectedType) throws BadSyntax {
         final var lex = next();
-        BadSyntax.when(lex.type() != expectedType, "%s was expected and got '%s' which is %s", expectedType.name(), lex.text(), lex.type().name());
+        BadSyntax.when(lex.position(), lex.type() != expectedType, "%s was expected and got '%s' which is %s", expectedType.name(), lex.text(), lex.type().name());
         return lex;
     }
 
     public Lex next(Lex.Type type, String msg) throws BadSyntax {
         if (index >= array.size() || lexAt(index).type() != type) {
-            throw new BadSyntax(msg);
+            throw new BadSyntax(lexAt(index).position(), msg);
         }
         return next();
     }
 
     public Lex next(Lex.Type type, String text, String msg) throws BadSyntax {
         if (index >= array.size() || lexAt(index).type() != type || !lexAt(index).text().equals(text)) {
-            throw new BadSyntax(msg);
+            throw new BadSyntax(lexAt(index).position(), msg);
         }
         return next();
     }
 
+    public Pos position(){
+        if (index >= array.size() ){
+            return lexAt(array.size()-1).position();
+        }
+        return lexAt(index).position();
+    }
+
     public void peek(Lex.Type type, String text, String msg) throws BadSyntax {
         if (index >= array.size() || lexAt(index).type() != type || (text != null && !text.equals(lexAt(index).text()))) {
-            throw new BadSyntax(msg);
+            throw new BadSyntax(lexAt(index).position(), msg);
         }
     }
 
@@ -86,7 +93,7 @@ public class LexList extends LngList {
 
     public Lex peek() throws BadSyntax {
         if (index >= array.size()) {
-            throw new BadSyntax("more elements expected");
+            throw new BadSyntax(lexAt(array.size()-1).position(), "more elements expected");
         }
         return lexAt(index);
     }

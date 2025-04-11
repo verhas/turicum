@@ -42,6 +42,9 @@ public record FunctionCall(Command object, Argument[] arguments) implements Comm
                     }
                     ctx.let0("this", lngObject);
                     ctx.let0("cls", lngObject.lngClass());
+                    if( command instanceof Macro) {
+                        ctx.setCaller(context);
+                    }
                     freezeThisAndCls(ctx);
                     defineArgumentsInContext(ctx, command.parameters(), argValues);
                     return command.execute(ctx);
@@ -73,6 +76,9 @@ public record FunctionCall(Command object, Argument[] arguments) implements Comm
                 };
                 final var ctx = context.wrap(command.wrapped());
                 defineArgumentsInContext(ctx, command.parameters(), argValues);
+                if( command instanceof Macro) {
+                    ctx.setCaller(context);
+                }
                 return command.execute(ctx);
 
             }
@@ -197,7 +203,7 @@ public record FunctionCall(Command object, Argument[] arguments) implements Comm
                 rest.array.add(argValue.value);
                 break;
             }
-            if (pList.parameters()[index].type() != ParameterList.Parameter.Type.NAMED_ONLY) {
+            if (pList.parameters()[index].type() != ParameterList.Parameter.Type.NAMED_ONLY && !filled[index]) {
                 ctx.defineTypeChecked(pList.parameters()[index].identifier(), argValue.value, pList.parameters()[index].types());
                 filled[index++] = true;
                 break;

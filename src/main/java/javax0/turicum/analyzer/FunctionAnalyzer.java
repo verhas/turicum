@@ -39,7 +39,7 @@ public class FunctionAnalyzer implements Analyzer {
         if (lexes.is("(")) {
             fn = null;
         } else {
-            BadSyntax.when(!lexes.isIdentifier(), "function name expected after fn");
+            BadSyntax.when(lexes, !lexes.isIdentifier(), "function name expected after fn");
             fn = lexes.next().text();
         }
         final boolean hasParens = lexes.is("(");
@@ -58,7 +58,7 @@ public class FunctionAnalyzer implements Analyzer {
         }
         final BlockCommand block;
         if (lexes.is("=")) {
-            BadSyntax.when(!hasParens, "use must use parenthesis in function definition when using =expression as body");
+            BadSyntax.when(lexes, !hasParens, "use must use parenthesis in function definition when using =expression as body");
             lexes.next();
             final var expression = ExpressionAnalyzer.INSTANCE.analyze(lexes);
             block = new BlockCommand(List.of(expression), false);
