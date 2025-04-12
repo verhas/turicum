@@ -1,14 +1,13 @@
-import javax0.turicum.TuriClass;
-import javax0.turicum.TuriFunction;
-import javax0.turicum.builtins.classes.TuriDouble;
-import javax0.turicum.builtins.classes.TuriLong;
-import javax0.turicum.builtins.classes.TuriString;
-import javax0.turicum.builtins.functions.*;
+import ch.turic.builtins.classes.TuriDouble;
+import ch.turic.builtins.classes.TuriLong;
+import ch.turic.builtins.classes.TuriString;
+import ch.turic.builtins.functions.*;
 
-module com.javax0.turicum {
+module ch.turic {
     requires java.desktop;
     requires java.sql;
-    exports javax0.turicum;
-    provides TuriFunction with Len, Type, Macro, Evaluate, Println,Print,Reclose,Keys, Import;
-    provides TuriClass with TuriString, TuriLong, TuriDouble;
+    exports ch.turic;
+    provides ch.turic.TuriFunction with Len, Type, Macro, Evaluate, Println,
+            Print, Reclose, Keys, Import, JavaNewObject, JavaMethodCall, SysImport;
+    provides ch.turic.TuriClass with TuriString, TuriLong, TuriDouble;
 }

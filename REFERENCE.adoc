@@ -936,7 +936,7 @@ The syntax of the `pin` command is
 
 The list is comma separated elements, can be
 
-* a variable name, like `turicum`,
+* a variable name, like `turic`,
 
 * a variable name enclosed between `{` and `}`, like `{object}`, or
 
