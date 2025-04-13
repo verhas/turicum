@@ -32,15 +32,6 @@ public class ClassAnalyzer extends AbstractAnalyzer {
         } else {
             cn = null;
         }
-        String[] parameters;
-        if (lexes.is("(")) {
-            lexes.next();
-            parameters = IdentifierList.INSTANCE.analyze(lexes);
-            BadSyntax.when(lexes, !lexes.is(")"), "Constructor parameters should be followed by ')'");
-            lexes.next();
-        } else {
-            parameters = null;
-        }
         final String[] parents;
         if (lexes.is(":")) {
             lexes.next();
@@ -50,6 +41,6 @@ public class ClassAnalyzer extends AbstractAnalyzer {
             parents = null;
         }
         final var block = BlockAnalyzer.UNWRAPPED.analyze(lexes);
-        return new ClassDefinition(cn, parents, parameters, (BlockCommand) block);
+        return new ClassDefinition(cn, parents,  (BlockCommand) block);
     }
 }

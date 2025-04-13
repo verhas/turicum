@@ -18,7 +18,12 @@ public class ClassContext extends Context {
                 return inherited;
             }
         }
-        return globalContext.heap.get(key).get();
+        final var variable = globalContext.heap.get(key);
+        if (variable != null) {
+            return variable.get();
+        } else {
+            return null;
+        }
     }
 
     @Override

@@ -85,6 +85,29 @@ public class FunctionCall extends AbstractCommand {
                     return command.execute(ctx);
                 }
             }
+            if (function instanceof LngClass lngClass) {
+                final var constructor = lngClass.context().get("constructor");
+                if (constructor instanceof ClosureOrMacro command) {
+                    final ArgumentEvaluated[] argValues = switch (command) {
+                        case Closure ignored -> evaluateArguments(context);
+                        case Macro ignored -> passArgumentsUnevaluated();
+                    };
+                    final var objectContext = context.wrap(lngClass.context());
+                    final var uninitialized = new LngObject(lngClass, objectContext);
+                    defineArgumentsInContext(objectContext, command.parameters(), argValues);
+                    if (command instanceof Macro) {
+                        objectContext.setCaller(context);
+                    }
+                    objectContext.local("that", obj);
+                    objectContext.freeze("that");
+                    objectContext.local("this", uninitialized);
+                    objectContext.local("cls", lngClass);
+                    FunctionCall.freezeCls(objectContext);
+                    command.execute(objectContext);
+                    objectContext.freeze("this");
+                    return objectContext.get("this");
+                }
+            }
             if (function instanceof LngCallable callable) {
                 return callable.call(context, bareValues(evaluateArguments(context)));
             }
@@ -102,8 +125,30 @@ public class FunctionCall extends AbstractCommand {
                     ctx.setCaller(context);
                 }
                 return command.execute(ctx);
-
             }
+
+            if (function instanceof LngClass lngClass) {
+                final var constructor = lngClass.context().get("constructor");
+                if (constructor instanceof ClosureOrMacro command) {
+                    final ArgumentEvaluated[] argValues = switch (command) {
+                        case Closure ignored -> evaluateArguments(context);
+                        case Macro ignored -> passArgumentsUnevaluated();
+                    };
+                    final var objectContext = context.wrap(lngClass.context());
+                    final var uninitialized = new LngObject(lngClass, objectContext);
+                    defineArgumentsInContext(objectContext, command.parameters(), argValues);
+                    if (command instanceof Macro) {
+                        objectContext.setCaller(context);
+                    }
+                    objectContext.local("this", uninitialized);
+                    objectContext.local("cls", lngClass);
+                    FunctionCall.freezeCls(objectContext);
+                    command.execute(objectContext);
+                    objectContext.freeze("this");
+                    return objectContext.get("this");
+                }
+            }
+
             if (function instanceof LngCallable callable) {
                 return callable.call(context, bareValues(evaluateArguments(context)));
             }

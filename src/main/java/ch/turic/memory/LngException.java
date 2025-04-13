@@ -8,7 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 
 public class LngException extends LngObject {
-    private static final LngClass exceptionClass = new LngClass(null, null, "EXCEPTION");
+    private static final LngClass exceptionClass = new LngClass(null,  "EXCEPTION");
     private final Throwable e;
     private final LngList stackTrace;
     private final Context context;

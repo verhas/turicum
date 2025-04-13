@@ -13,19 +13,12 @@ public class AdHocTest {
     @Test
     void test() throws Exception {
         test("""
-// snippet pinObject
-// null
-let a = {x:1,y:2};
-pin {a}
-let hu = { try {
-    a.x = 3
-    print("huhh")
-}catch e {
-    break 55
-}};
-
-hu
-                
-                """, null);
+class meClass {
+    fn a {1}
+    fn b {2}
+}
+let object = meClass();
+object.a() + object.b();
+                """, "3");
     }
 }

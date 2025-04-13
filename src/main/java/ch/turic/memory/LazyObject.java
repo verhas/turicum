@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
  * it executes the command and returns the result as the value of the corresponding attribute.
  */
 public class LazyObject extends LngObject {
-    private static final LngClass macroObjectClass = new LngClass(null, null, "EXCEPTION");
+    private static final LngClass macroObjectClass = new LngClass(null,  "EXCEPTION");
 
     /**
      * Create a new closure object.

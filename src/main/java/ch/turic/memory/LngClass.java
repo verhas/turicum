@@ -13,12 +13,10 @@ import java.util.Objects;
 public class LngClass implements HasFields, HasContext, LngCallable {
 
     final ClassContext context;
-    final String[] parameters;
     final String name;
 
-    public LngClass(ClassContext context, String[] parameters, String name) {
+    public LngClass(ClassContext context, String name) {
         this.context = context;
-        this.parameters = Objects.requireNonNullElse(parameters, new String[0]);
         this.name = name;
     }
 
@@ -67,20 +65,16 @@ public class LngClass implements HasFields, HasContext, LngCallable {
             throw new RuntimeException("Cannot work with this context implementation. This is an internal error.");
         }
         final var objectContext = callerCtx.wrap(context);
-        ExecutionException.when(arguments.length != parameters.length, "Parameter mismatch in constructor");
-        for (int i = 0; i < parameters.length; i++) {
-            objectContext.local(parameters[i], arguments[i]);
-        }
         final var uninitialized = new LngObject(this, objectContext);
         objectContext.local("this", uninitialized);
         objectContext.local("cls", this);
         FunctionCall.freezeCls(objectContext);
         final var constructor = uninitialized.getField("constructor");
         if (constructor != null) {
-            if ((constructor instanceof ClosureOrMacro closure) && closure.parameters().noArg()) {
+            if ((constructor instanceof ClosureOrMacro closure)) {
                 closure.execute(objectContext);
             } else {
-                throw new ExecutionException("Constructor function has parameters or uncallable");
+                throw new ExecutionException("Constructor function is not callable");
             }
         }
         final var object = objectContext.getLocal("this");

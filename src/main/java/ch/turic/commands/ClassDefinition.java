@@ -10,7 +10,6 @@ import java.util.Objects;
 public class ClassDefinition extends AbstractCommand {
     final String className;
     final String[] parents;
-    final String[] parameters;
 
     public BlockCommand body() {
         return body;
@@ -20,19 +19,14 @@ public class ClassDefinition extends AbstractCommand {
         return className;
     }
 
-    public String[] parameters() {
-        return parameters;
-    }
-
     public String[] parents() {
         return parents;
     }
 
-    public ClassDefinition(String className, String[] parents, String[] parameters, BlockCommand body) {
+    public ClassDefinition(String className, String[] parents, BlockCommand body) {
         this.body = body;
         this.className = className;
         this.parents = parents;
-        this.parameters = parameters;
     }
 
     final BlockCommand body;
@@ -51,10 +45,9 @@ public class ClassDefinition extends AbstractCommand {
             }
         }
         final var ctx = new ClassContext(context, parentClasses);
-        klass = new LngClass(ctx, parameters, Objects.requireNonNullElse(className, "#undefined"));
+        klass = new LngClass(ctx, Objects.requireNonNullElse(className, "#undefined"));
         ctx.local("cls", klass);
         body.execute(ctx);
-
         if (className != null) {
             context.local(className, klass);
         }
