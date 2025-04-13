@@ -13,10 +13,9 @@ public class AdHocTest {
     @Test
     void test() throws Exception {
         test("""
-                let a = java_object("java.math.BigInteger","13227564339977585599444343999543452348834588845343232885343")
-                let b = java_object("java.math.BigInteger","13227564339977585599444343999543452348834588845343232885343")
-                let c = java_call(a,"add",b)
-                println(c);
+                let io = sys_import("turi.io")
+                let s = io.path.of("pom.xml")
+                println(s)
                 
                 """, null);
     }

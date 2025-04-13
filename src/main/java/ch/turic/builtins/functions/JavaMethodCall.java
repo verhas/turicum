@@ -19,6 +19,77 @@ public class JavaMethodCall implements TuriFunction {
     @Override
     public Object call(Context ctx, Object[] arguments) throws ExecutionException {
         ExecutionException.when(arguments.length < 2, "Function %s needs at least two argument.", name());
+        if (!(arguments[1] instanceof String methodName)) {
+            throw new ExecutionException("Function %s needs a method name as a second argument.", name());
+        }
+        final var klassAndObject = getKlassAndObject(arguments);
+        final var klass = klassAndObject.klass();
+        final var object = klassAndObject.object();
+        for (final var method : klass.getMethods()) {
+            if (!method.getName().equals(methodName) || method.isSynthetic()) {
+                continue;
+            }
+            if (method.isVarArgs()) {
+                if (method.getParameterCount() <= arguments.length - 2) {
+                    continue;
+                }
+            } else {
+                if (method.getParameterCount() != arguments.length - 2) {
+                    continue;
+                }
+            }
+            int i = 2;
+            if (method.isVarArgs()) {
+                for (int j = 0; j < method.getParameterTypes().length - 1; j++, i++) {
+                    final var pType = method.getParameterTypes()[j];
+                    if (!pType.isAssignableFrom(arguments[i].getClass())) {
+                        break;
+                    }
+                }
+                final var lastPType = method.getParameterTypes()[method.getParameterTypes().length - 1].arrayType();
+                while (i < arguments.length) {
+                    if (!lastPType.isAssignableFrom(arguments[i].getClass())) {
+                        break;
+                    }
+                    i++;
+                }
+
+            } else {
+                for (final var pType : method.getParameterTypes()) {
+                    if (!pType.isAssignableFrom(arguments[i].getClass())) {
+                        break;
+                    }
+                    i++;
+                }
+            }
+            if (i == arguments.length) {
+                try {
+                    if (method.isVarArgs()) {
+                        final Object[] args = new Object[method.getParameterCount()];
+                        int k = 2, h = 0;
+                        while ( h < method.getParameterCount() - 1) {
+                            args[h++] = arguments[k++];
+                        }
+                        Class<?> varargComponentType = method.getParameterTypes()[method.getParameterCount() - 1].getComponentType();
+                        Object varargs = java.lang.reflect.Array.newInstance(varargComponentType, arguments.length - k);
+                        for (int v = 0; k < arguments.length; k++, v++) {
+                            java.lang.reflect.Array.set(varargs, v, arguments[k]);
+                        }
+                        args[h] = varargs;
+                        return method.invoke(object, args);
+                    } else {
+                        final Object[] args = Arrays.copyOfRange(arguments, 2, arguments.length);
+                        return method.invoke(object, args);
+                    }
+                } catch (IllegalAccessException | InvocationTargetException e) {
+                    throw new ExecutionException("Cannot invoke method '" + methodName + "'.", e);
+                }
+            }
+        }
+        throw new ExecutionException("Cannot find method '" + methodName + "'.");
+    }
+
+    static KlassAndObject getKlassAndObject(Object[] arguments) {
         final Class<?> klass;
         final Object object;
         if (arguments[0] instanceof Class<?>) {// static method, we do not need to call any method on a Java Class object
@@ -35,30 +106,10 @@ public class JavaMethodCall implements TuriFunction {
             klass = arguments[0].getClass();
             object = arguments[0];
         }
-        if (!(arguments[1] instanceof String methodName)) {
-            throw new ExecutionException("Function %s needs a method name as a second argument.", name());
-        }
-
-        for (final var method : klass.getMethods()) {
-            if (method.getParameterCount() != arguments.length - 2 || method.isSynthetic() || !method.getName().equals(methodName)) {
-                continue;
-            }
-            int i = 2;
-            for (final var pType : method.getParameterTypes()) {
-                if (!pType.isAssignableFrom(arguments[i].getClass())) {
-                    break;
-                }
-                i++;
-            }
-            if (i == arguments.length) {
-                final Object[] args = Arrays.copyOfRange(arguments, 2, arguments.length);
-                try {
-                    return method.invoke(object, args);
-                } catch (IllegalAccessException | InvocationTargetException e) {
-                    throw new ExecutionException("Cannot invoke method '" + methodName + "'.", e);
-                }
-            }
-        }
-        throw new ExecutionException("Cannot find method '" + methodName + "'.");
+        return new KlassAndObject(klass, object);
     }
+
+    record KlassAndObject(Class<?> klass, Object object) {
+    }
+
 }

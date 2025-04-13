@@ -1,0 +1,15 @@
+{@snip:xml V=https://repo.maven.apache.org/maven2/com/javax0/jamal/jamal-api/maven-metadata.xml}\
+{#define RELEASE={V //metadata/versioning/release}}\
+{@define asciidoc:output=extensions.xml}\
+<!--
+{@rot13 Guvf svyr jnf trarengrq sebz rkgrafvbaf.wnz va gur fnzr qverpgbel nf rkgrafvbaf.kzy}
+
+The latest version is {RELEASE}.
+-->
+{#thinXml
+extensions>
+  extension>
+    groupId>com.javax0.jamal
+    artifactId>jamal-maven-extension
+    version>{RELEASE}
+}{@xmlFormat}

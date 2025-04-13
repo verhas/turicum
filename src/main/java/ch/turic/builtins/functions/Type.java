@@ -23,19 +23,16 @@ public class Type implements TuriFunction {
         ExecutionException.when(args.length != 1, "Built-in function types needs exactly one argument");
         final var arg = args[0];
         return switch (arg) {
-            case LngClass ignore -> "CLASS";
-            case LngList ignore -> "LIST";
+            case LngClass ignore -> "cls";
+            case LngList ignore -> "lst";
+            case String ignore -> "str";
+            case Double ignore -> "float";
+            case Long ignore -> "num";
             case LngObject object -> object.lngClass().name();
-            case Closure closure -> {
-                if (closure.wrapped() == null) {
-                    yield "FUNCTION";
-                } else {
-                    yield "CLOSURE";
-                }
-            }
-            case LngCallable ignore -> "FUNCTION";
+            case Closure ignore -> "fn";
+            case LngCallable ignore -> "fn";
             case null -> "none";
-            default -> "JAVA#" + arg.getClass().getCanonicalName();
+            default -> "java." + arg.getClass().getCanonicalName();
         };
     }
 }
