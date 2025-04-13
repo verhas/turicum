@@ -1,0 +1,9 @@
+this.g=object field
+cls.g=none
+g=object field
+this.h=another class field
+cls.h=another class field
+h=another class field
+this.s=class field
+cls.s=class field
+s=class field
