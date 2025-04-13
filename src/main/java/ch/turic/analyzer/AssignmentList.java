@@ -3,13 +3,28 @@ package ch.turic.analyzer;
 import ch.turic.BadSyntax;
 import ch.turic.ExecutionException;
 import ch.turic.commands.Command;
+import ch.turic.memory.Context;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class AssignmentList {
     public static final AssignmentList INSTANCE = new AssignmentList();
 
-    public record Assignment(String identifier, String[] types, Command expression) {
+    public record Assignment(String identifier, Type[] types, Command expression) {
+        public record Type(String identifier, Command expression) {
+            public static String[] calculateTypeNames(final Context ctx, Type[] types) {
+                return Arrays.stream(types).map(t -> t.calculateTypeName(ctx)).toArray(String[]::new);
+            }
+            public String calculateTypeName(Context context) {
+                if (expression == null) {
+                    return identifier;
+                } else {
+                    final var tValue = expression.execute(context);
+                    return tValue == null ? "none" : tValue.toString();
+                }
+            }
+        }
     }
 
     /**
@@ -35,17 +50,7 @@ public class AssignmentList {
         final var pairs = new ArrayList<Assignment>();
         while (lexes.peek().type() == Lex.Type.IDENTIFIER) {
             final var identifier = lexes.next();
-            final var type = new ArrayList<String>();
-            if (lexes.is(":")) { // process types, optional
-                lexes.next();
-                ExecutionException.when(!lexes.isIdentifier() && !lexes.isKeyword(), "following the ':' the types identifier has to follow");
-                type.add(lexes.next().text());
-                while (lexes.is("|")) {
-                    lexes.next();
-                    ExecutionException.when(!lexes.isIdentifier() && !lexes.isKeyword(), "following the '|' a types identifier has to follow");
-                    type.add(lexes.next().text());
-                }
-            }
+            final var type = getTheTypeDefinitions(lexes);
             Command expression;
             if (lexes.is("=")) {
                 lexes.next();
@@ -53,7 +58,7 @@ public class AssignmentList {
             } else {
                 expression = null;
             }
-            pairs.add(new Assignment(identifier.text(), type.toArray(String[]::new), expression));
+            pairs.add(new Assignment(identifier.text(), type, expression));
             if (lexes.is(",")) {
                 lexes.next();
                 BadSyntax.when(lexes, !lexes.isIdentifier(), "Identifier missing after , ");
@@ -62,5 +67,32 @@ public class AssignmentList {
             }
         }
         return pairs.toArray(Assignment[]::new);
+    }
+
+    public static Assignment.Type[] getTheTypeDefinitions(LexList lexes) {
+        final var types = new ArrayList<Assignment.Type>();
+        if (lexes.is(":")) { // process types, optional
+            lexes.next();
+            fetchNextType(lexes, types);
+            while (lexes.is("|")) {
+                lexes.next();// step over the |
+                fetchNextType(lexes, types);
+            }
+        }
+        return types.toArray(Assignment.Type[]::new);
+    }
+
+    public static void fetchNextType(LexList lexes, ArrayList<Assignment.Type> type) {
+        final boolean referenced = lexes.is("(");
+        if (referenced) {
+            lexes.next();
+            final var expression = ExpressionAnalyzer.INSTANCE.analyze(lexes);
+            ExecutionException.when(lexes.isNot(")"), "Type expression starting with '(' must finish with ')'");
+            lexes.next();
+            type.add(new Assignment.Type(null, expression));
+        } else {
+            ExecutionException.when(!lexes.isIdentifier() && !lexes.isKeyword(), "following the ':' and '|' a type identifier has to follow");
+            type.add(new Assignment.Type(lexes.next().text(), null));
+        }
     }
 }

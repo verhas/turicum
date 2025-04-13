@@ -1,7 +1,6 @@
 package ch.turic.analyzer;
 
 import ch.turic.BadSyntax;
-import ch.turic.ExecutionException;
 import ch.turic.commands.Command;
 import ch.turic.commands.ParameterList;
 
@@ -71,32 +70,15 @@ public class ParameterDefinition {
                 BadSyntax.when(lexes, rest != null || meta != null || closure != null, "[rest], {meta} , and |clore| can stand only at the end of the parameter list.");
                 id = lexes.next().text();
             }
-            final var types = new ArrayList<String>();
-            if (lexes.is(":")) { // process types, optional
-                lexes.next();
-                ExecutionException.when(!lexes.isIdentifier(), "following the ':' the types identifier has to follow");
-                types.add(lexes.next().text());
-                while (lexes.is("|")) {
-                    lexes.next();
-                    ExecutionException.when(!lexes.isIdentifier(), "following the '|' a types identifier has to follow");
-                    types.add(lexes.next().text());
-                }
-            }
+            final var types = AssignmentList.getTheTypeDefinitions(lexes);
             final Command defaultExpression;
             if (lexes.is("=")) {
                 lexes.next();
-                if (lexes.is("(")) {
-                    lexes.next();
-                    defaultExpression = ExpressionAnalyzer.INSTANCE.analyze(lexes);
-                    BadSyntax.when(lexes, lexes.isNot(")"), "Parenthesis is not closed");
-                    lexes.next();
-                }else{
-                    defaultExpression = DefaultExpressionAnalyzer.INSTANCE.analyze(lexes);
-                }
+                defaultExpression = DefaultExpressionAnalyzer.INSTANCE.analyze(lexes);
             } else {
                 defaultExpression = null;
             }
-            commonParameters.add(new ParameterList.Parameter(id, type, types.toArray(String[]::new), defaultExpression));
+            commonParameters.add(new ParameterList.Parameter(id, type, types, defaultExpression));
             if (lexes.is(",")) {
                 lexes.next();
                 BadSyntax.when(lexes, lexes.peek().type() != Lex.Type.IDENTIFIER && lexes.isNot("@", "[", "!", "{", "^"), "Identifier expected after ',' in parameter list");
@@ -105,6 +87,6 @@ public class ParameterDefinition {
             }
 
         }
-        return new ParameterList(commonParameters.toArray(ParameterList.Parameter[]::new), rest, meta, closure,position);
+        return new ParameterList(commonParameters.toArray(ParameterList.Parameter[]::new), rest, meta, closure, position);
     }
 }

@@ -13,9 +13,18 @@ public class AdHocTest {
     @Test
     void test() throws Exception {
         test("""
-                let io = sys_import("turi.io")
-                let s = io.path.of("pom.xml")
-                println(s)
+// snippet pinObject
+// null
+let a = {x:1,y:2};
+pin {a}
+let hu = { try {
+    a.x = 3
+    print("huhh")
+}catch e {
+    break 55
+}};
+
+hu
                 
                 """, null);
     }

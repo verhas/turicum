@@ -1044,3 +1044,8 @@ let hu = { try {
 }};
 
 hu
+
+// snippet typeExpression
+// String
+// "kuka"
+let a :("str") = "kuka"

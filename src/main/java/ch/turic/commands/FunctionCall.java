@@ -4,12 +4,14 @@ import ch.turic.ExecutionException;
 import ch.turic.LngCallable;
 import ch.turic.memory.*;
 
+import static ch.turic.analyzer.AssignmentList.Assignment.Type.calculateTypeNames;
+
 /**
  * An expression that calls a method or a function/closure.
  */
 public class FunctionCall extends AbstractCommand {
     /*
-     * object is the closure or something that is to be called. It can be {@link LngCallable}, {@link Closure},
+     * An object is the closure or something that is to be called. It can be {@link LngCallable}, {@link Closure},
      * {@link Macro}
      */
     public final Command object;
@@ -148,7 +150,7 @@ public class FunctionCall extends AbstractCommand {
                     throw new ExecutionException("Parameter '%s' is not defined", parameter.identifier());
                 } else {
                     final var value = parameter.defaultExpression().execute(ctx);
-                    ctx.defineTypeChecked(parameter.identifier(), value, parameter.types());
+                    ctx.defineTypeChecked(parameter.identifier(), value, calculateTypeNames(ctx, parameter.types()));
                 }
             }
         }
@@ -191,7 +193,7 @@ public class FunctionCall extends AbstractCommand {
                     throw new ExecutionException("Parameter '%s' is already defined", argValue.id.name());
                 }
                 filled[j] = true;
-                ctx.defineTypeChecked(parameter.identifier(), argValue.value, parameter.types());
+                ctx.defineTypeChecked(parameter.identifier(), argValue.value, calculateTypeNames(ctx, parameter.types()));
                 return;
             }
         }
@@ -224,7 +226,7 @@ public class FunctionCall extends AbstractCommand {
                 break;
             }
             if (pList.parameters()[index].type() != ParameterList.Parameter.Type.NAMED_ONLY && !filled[index]) {
-                ctx.defineTypeChecked(pList.parameters()[index].identifier(), argValue.value, pList.parameters()[index].types());
+                ctx.defineTypeChecked(pList.parameters()[index].identifier(), argValue.value, calculateTypeNames(ctx, pList.parameters()[index].types()));
                 filled[index++] = true;
                 break;
             }
