@@ -74,7 +74,7 @@ public class FunctionCall extends AbstractCommand {
                 if (obj instanceof LngClass lngClass) {
                     ExecutionException.when(command.parameters().parameters().length != argValues.length, "The number of parameters does not match the number of arguments");
                     final var ctx = context.wrap(lngClass.context());
-                    if ("constructor".equals(fieldAccess.identifier())) {
+                    if ("init".equals(fieldAccess.identifier())) {
                         // this will make in a chained constructor call set 'this' to the object created
                         // 'cls' point to the class, but 'this.cls' point to the class which is going to be initialized
                         ctx.let0("this", context.getLocal("this"));
@@ -86,7 +86,7 @@ public class FunctionCall extends AbstractCommand {
                 }
             }
             if (function instanceof LngClass lngClass) {
-                final var constructor = lngClass.context().get("constructor");
+                final var constructor = lngClass.context().get("init");
                 if (constructor instanceof ClosureOrMacro command) {
                     final ArgumentEvaluated[] argValues = switch (command) {
                         case Closure ignored -> evaluateArguments(context);
@@ -128,7 +128,7 @@ public class FunctionCall extends AbstractCommand {
             }
 
             if (function instanceof LngClass lngClass) {
-                final var constructor = lngClass.context().get("constructor");
+                final var constructor = lngClass.context().get("init");
                 if (constructor instanceof ClosureOrMacro command) {
                     final ArgumentEvaluated[] argValues = switch (command) {
                         case Closure ignored -> evaluateArguments(context);

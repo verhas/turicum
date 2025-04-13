@@ -5,8 +5,6 @@ import ch.turic.LngCallable;
 import ch.turic.commands.ClosureOrMacro;
 import ch.turic.commands.FunctionCall;
 
-import java.util.Objects;
-
 /**
  * Class information in the language
  */
@@ -69,7 +67,7 @@ public class LngClass implements HasFields, HasContext, LngCallable {
         objectContext.local("this", uninitialized);
         objectContext.local("cls", this);
         FunctionCall.freezeCls(objectContext);
-        final var constructor = uninitialized.getField("constructor");
+        final var constructor = uninitialized.getField("init");
         if (constructor != null) {
             if ((constructor instanceof ClosureOrMacro closure)) {
                 closure.execute(objectContext);
@@ -83,11 +81,11 @@ public class LngClass implements HasFields, HasContext, LngCallable {
     }
 
     public boolean assignableTo(LngClass other) {
-        if( other == this ){
+        if (other == this) {
             return true;
         }
-        for( final var parent : context.parents()) {
-            if( parent.assignableTo(other) ){
+        for (final var parent : context.parents()) {
+            if (parent.assignableTo(other)) {
                 return true;
             }
         }

@@ -290,7 +290,7 @@ class P4 : P3, P2 {
 let object = P4();
 "" + object.p1() + object.p2() + object.p3() + object.p4();
 
-// snippet testConstructorInheritance
+// snippet testinitInheritance
 // String
 // "1234"
 class P1 {
@@ -303,7 +303,7 @@ class P3 {
     fn p3 {this.c}
 }
 class P4 : P3, P2 {
-    fn constructor(a,b,c){}
+    fn init(a,b,c){}
     fn p4 {
         a =4;
         p1()
@@ -607,7 +607,7 @@ s = s + 1;
 // Long
 // 3
 class A {
-  fn constructor(zumba){}
+  fn init(zumba){}
   fn `+`(right) {
      if( right != null ) {
           A(this.zumba + right.zumba)
@@ -627,11 +627,11 @@ let a = -A(1);
 let b = A(2);
 (b-a).zumba
 
-// snippet constructorAsFactory
+// snippet initAsFactory
 // String
 // "Y says: csaka haha fogorvos hihi segithet huhu"
 class PrinterClass{
-  fn constructor {
+  fn init {
     this.msg = ""
   }
   let print = fn (message){
@@ -640,13 +640,13 @@ class PrinterClass{
 }
 
 class z{
-    fn constructor {
+    fn init {
       this = PrinterClass();
       this.msg = "Z says: "
     }
 }
 class y : PrinterClass {
-    fn constructor {
+    fn init {
       this.msg = "Y says: "
     }
 }

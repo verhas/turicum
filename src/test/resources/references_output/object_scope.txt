@@ -1,6 +1,6 @@
-this.g=object field
+this.g=none
 cls.g=none
-g=object field
+g=none
 this.h=another class field
 cls.h=another class field
 h=another class field
