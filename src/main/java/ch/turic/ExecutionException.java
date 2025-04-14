@@ -12,6 +12,10 @@ public class ExecutionException extends RuntimeException {
         super(String.format(s, params));
     }
 
+    public ExecutionException(Throwable throwable) {
+        super(throwable);
+    }
+
     public static void when(final boolean b, String msg, Object... parameters) throws ExecutionException {
         if (b) {
             throw new ExecutionException(String.format(msg, parameters));

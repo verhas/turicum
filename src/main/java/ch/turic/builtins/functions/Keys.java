@@ -22,9 +22,15 @@ public class Keys implements TuriFunction {
 
     @Override
     public Object call(Context context, Object[] args) throws ExecutionException {
-        ExecutionException.when(args.length != 1, "Built-in function keys needs exactly one argument");
-        final var arg = args[0];
+        if( args.length > 1 ){
+            throw new ExecutionException("Only one argument is allowed");
+        }
         final var result = new LngList();
+        if( args.length == 0 ){
+            result.array.addAll(((ch.turic.memory.Context)context).keys());
+            return result;
+        }
+        final var arg = args[0];
         return switch (arg) {
             case LngClass klass -> {
                 result.array.addAll(klass.context().keys());

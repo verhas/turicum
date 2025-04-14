@@ -7,33 +7,6 @@
 
 
 
-
-.blabla
-[source]
-----
-println("blala")
-
-
-----
-
-
-
-
-.output blabla
-[source]
-----
-blala
-
-----
-
-
-.result blabla
-[source]
-----
-null
-----
-
-
 == Introduction
 
 === What is Turicum?
@@ -710,9 +683,9 @@ x.t()
 .output object_scope
 [source]
 ----
-this.g=object field
+this.g=none
 cls.g=none
-g=object field
+g=none
 this.h=another class field
 cls.h=another class field
 h=another class field
@@ -849,6 +822,7 @@ The `: type` and the `= expression` parts are optional.
 If the type is not defined, then the variable can get any value.
 If the expression is missing the value will be `none`.
 There can be multiple `identifier : type = expression` after the `let` keyword comma separated.
+There are predefined type names.
 
 * `bool`
  boolean type
@@ -880,6 +854,8 @@ For example `java.java.math.BigInteger` can hold any `java.math.BigInteger` obje
 
 In other cases the type can be the name of a class defined in the program.
 The class has to be defined by the time the variable is defined.
+
+If the name of the type is specified between `(` and `)` then the expression between the parentheses is evaluated and the string value is used as a type name.
 
 [NOTE]
 ====
@@ -1054,33 +1030,634 @@ again odd
 
 === Loops
 
+There are three types of loops in Turicum:
+
+* `while`
+
+* `for`
+
+* `for each` loop.
+
+Loops, like any command, have a result value.
+The value of a loop
+
 ==== `while`
+
+A while loop is front and tail conditioned.
+The front condition, following the keyword `while` is checked before each execution of the loop body.
+The body of the loop will only be executed if the front fondition is `true`.
+
+The tail condition is optional, and follows the body of the loop with the `until` keyword.
+It is checked after the execution of the loop body.
+Execution of the loop stops when the tail condition is  `true`.
+
+
+.whileLoop
+[source]
+----
+let i = 1;
+while i < 5 {
+  print(i," ");
+  i = i + 1;
+}until i % 3 == 0;
+
+
+----
+
+
+
+
+The output of the program is
+
+
+.output whileLoop
+[source]
+----
+1 2 
+----
+
+
+
+The body of the loop can be a command block, or it can be a single command.
+If the body is a single command, not enclosed between `{` and `}` it has to be preceded by a `:`.
+
+
+.whileLoop2
+[source]
+----
+let i = 1;
+while i < 5 :
+  i = i + 1;
+until i % 3 == 0;
+println(i)
+
+
+----
+
+
+
+
+The output of the program is
+
+
+.output whileLoop2
+[source]
+----
+3
+
+----
+
+
 
 ==== `for`
 
+For loop is very much similar to the conventional `for` loop we have since it was invented in the language C.
+The difference is that the start, condition, and end steps do not need to be enclosed between `(` and `)`.
+The start, condition, and end parts are separated by `;` and they are commands.
+The `;` in this place is not optional.
+
+
+.for1
+[source]
+----
+for i = 1 ; i < 5 ; i=i+1 {
+  print(i," ")
+}until i%3 == 0 ;
+
+
+----
+
+
+
+
+The output of the program is
+
+
+.output for1
+[source]
+----
+1 2 3 
+----
+
+
+
+The `for` loop also has an optional `until` part the same way as `while`.
+The next example shows the same loop with the optional parentheses but without the tail condition.
+
+
+.for2
+[source]
+----
+for( i = 1 ; i < 5 ; i=i+1 ){
+  print(i," ")
+}
+
+
+----
+
+
+
+
+The output of the program is
+
+
+.output for2
+[source]
+----
+1 2 3 4 
+----
+
+
+
+If the start command is an assignment, it is interpreted as a local assignment.
+
+
+
+.for3
+[source]
+----
+// same as 'for( let i = 1 ;' ...
+for( i = 1 ; i < 5 ; i=i+1 ){
+  print(i," ")
+}until i%3 == 0 ;
+println("i at end=",i);
+
+
+----
+
+
+
+
+The output of the program is
+
+
+.output for3
+[source]
+----
+1 2 3 i at end=none
+
+----
+
+
+
+The variable `i` after the loop is still undefined.
+To use a variable from the enclosing wrapped scope, you can enclose the assignment into a block.
+
+
+.for4
+[source]
+----
+let i;
+for {i = 1} ; i < 5 ; i=i+1 :  print(i," "); until i%3 == 0;
+println("i at end=",i);
+
+
+----
+
+
+
+
+The output of the program is
+
+
+.output for4
+[source]
+----
+1 2 3 i at end=3
+
+----
+
+
+
+In this last example we also use a single command as the body of the loop.
+In this case the command is preceded by a `:` character.
+
 ==== `foreach`
 
-==== `until`
+Foreach iterate through a list
 
-=== Breaking and Yielding Control
+
+.foreach1
+[source]
+----
+for each i in [1,2,3,4]: print(i," ");
+
+
+----
+
+
+
+
+The output of the program is
+
+
+.output foreach1
+[source]
+----
+1 2 3 4 
+----
+
+
+
+The `for each` loop can also have a tail condition.
+
+
+.foreach2
+[source]
+----
+for each i in [1,2,3,4]: print(i," "); until i%3 == 0
+
+
+----
+
+
+
+
+The output of the program is
+
+
+.output foreach2
+[source]
+----
+1 2 3 
+----
+
+
 
 ==== `break`
 
+The command can break the execution of the loop and can also specify the value of the loop.
+
+=== Returning, Breaking and Yielding
+
+These three commands are in one family.
+each of them can pass a value, and each can have a conditionality following the expression.
+The syntax is
+
+[source]
+----
+break expression if condition
+return expression if condition
+yield expression if condition
+----
+
+The `if condition` part is optional.
+When it is missing the command is executed like if it was `if true`.
+
+==== `break`
+
+The command `break` stops the execution of a loop.
+If it is executed, the value of the loop will be the expression that follows the command.
+
 ==== `return`
+
+The command `return` stops the execution of a function, method, closure, or macro.
+If it is executed, the value of the function, method, closure, or macro will be the expression that follows the command.
 
 ==== `yield`
 
+The command yield produces a value, and the execution of the code continues.
+It can only be used when the code was started so that another thread is expecting the yielded value.
+The typical example is when you execute a command using the `stream()` function.
+
+
+.yield1
+[source]
+----
+fn gen_1_to_10 {
+    for i=1 ; i <= 10 ; i = i + 1:
+        yield i;
+}
+
+println([ .. stream(gen_1_to_10()) ])
+
+
+----
+
+
+
+
+The output of the program is
+
+
+.output yield1
+[source]
+----
+[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+
+----
+
+
+
+The return value can be used in a `for each` loop, or you can iterate through it the same way you would with any iterator.
+
+
+.yield2
+[source]
+----
+fn gen_1_to_10 {
+    for i=1 ; i <= 10 ; i = i + 1:
+        yield i;
+}
+
+let st = stream(gen_1_to_10());
+while st.has_next() :
+    println(st.next());
+
+
+----
+
+
+
+
+The output of the program is
+
+
+.output yield2
+[source]
+----
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+
+----
+
+
+
 == Functions
+
+Functions play a similar role as in other languages.
+They can be top-level functions and methods attached to classes or to objects.
 
 === Function Declarations
 
-==== Expression-bodied Functions
+A function declaration is a statement that defines the function.
+The function will be usable after the function definition was executed.
+The syntax of the function definition is
 
-==== Block-bodied Functions
+[source]
+----
+fn function_name (parameters) {
+   body
+}
+----
 
-=== Parameters and Arguments
 
-==== Positional and Named
+`fn` is a keyword, and it is never optional.
+
+
+.fun1
+[source]
+----
+fn inc(x) {
+  x+1
+}
+println(inc)
+println(inc(1))
+
+
+----
+
+
+
+
+The output of the program is
+
+
+.output fun1
+[source]
+----
+ch.turic.commands.Closure@1972e513
+2
+
+----
+
+
+
+`function_name` is the name of the function.
+It may be missing, typically when the result, the function itself is assigned to a variable or passed directly as an argument.
+
+
+.fun3
+[source]
+----
+fn inc x {
+  x+1
+}
+println(inc)
+println(inc(1))
+
+
+----
+
+
+
+
+The output of the program is
+
+
+.output fun3
+[source]
+----
+ch.turic.commands.Closure@61c4eee0
+2
+
+----
+
+
+
+
+`(parameters)` are the parameters, including default values and parameter types and parameter-passing requirements.
+The `(` and `)` is optional when the function has a name.
+When it has no name, then `(` and `)` must present even if there are zero arguments.
+
+
+.fun2
+[source]
+----
+let inc = fn (x) {
+  x+1
+}
+println(inc)
+println(inc(1))
+
+
+----
+
+
+
+
+The output of the program is
+
+
+.output fun2
+[source]
+----
+ch.turic.commands.Closure@548a24a
+2
+
+----
+
+
+
+The body of the function can be a block of statements or a single expression.
+The expression is specified following a `=` character and the parentheses are a must in this case also.
+This is to avoid the unreadable `fn = 2*3` to be declared as a function declaration but `pass:[`fn`]=2*3` an assignment.
+`fn = 2*3` is a syntax error.
+
+The parameter list is comma-separated.
+Each element defines a formal parameter.
+
+==== Parameter Passing
+
+When a function is invoked, the actual parameters can be passed to the function in two different ways:
+
+* by position, and
+* by name.
+
+Some parameters can be passed in both ways, some of them only positionally, some only by name.
+This is declared in the formal parameter list.
+Each parameter declaration starts with the identifier of the argument.
+This is the identifier how the function body can use the variable as well as the identifier the called can use if the parameter is passed by name.
+
+Parameters preceded with '!' can only be passed positionally.
+
+Parameters preceded with `@` can only be passed by name.
+
+
+.fun4
+[source]
+----
+fn inc !x, @how_much {
+  x+how_much
+}
+println(inc)
+println(inc(1,how_much=5))
+
+
+----
+
+
+
+
+The output of the program is
+
+
+.output fun4
+[source]
+----
+ch.turic.commands.Closure@3f4faf53
+6
+
+----
+
+
+
+Here `x` is a positional parameter.
+Passing a value as `x=1` would be an error.
+Parameter `how_much` must be passed by name.
+
+Parameters can also have type declarations and default values.
+If there is a type declaration passing a value that does not fit the type declaration is an error.
+Not passing a value for a parameter that does not have a default value is also an error.
+
+
+.fun5
+[source]
+----
+fn inc !x, @how_much=1 {
+  x+how_much
+}
+println(inc(1,how_much=5))
+println(inc(1))
+
+
+----
+
+
+
+
+The output of the program is
+
+
+.output fun5
+[source]
+----
+6
+2
+
+----
+
+
+
+Parameter types and the default value assignments have the same syntax as in the case of variable assignment.
+There is one notable difference: default value expressions can use the binary or `|` operator only if it is between parentheses.
+
+==== Positional and Named parameters order
+
+You are allowed to use positional and named parameters intermixed.
+There can be a named parameter and then a position following it.
+It may be beneficial in some special situations, but the general recommendation is not to overuse this feature.
+List the positional parameters first, named following and optional parameters (see soon) the last.
+
+The actual algorithm of parameter passing is the following:
+
+* The actual arguments are evaluated from left to right.
+* Named passings are assigned to the argument with the matching name.
+* Positional arguments are assigned to the first non-named only argument.
+  That is the first not-yet-assigned positional or positional/named argument.
+
+
+.fun6
+[source]
+----
+fn wrong !x, h, !k {
+  // just don't do
+}
+try: wrong(1,3, h= 2)
+catch e: println("There is an error",e)
+
+
+----
+
+
+
+
+The output of the program is
+
+
+.output fun6
+[source]
+----
+There is an errorParameter 'h' is already defined
+
+----
+
+
+
+==== Extra parameters
+
+In some cases you want to allow the callers to pass extra arguments and your function body to use them.
+To do that, there are three extra arguments you can use in your function definition:
+
+* `[rest]`,
+
+* `{meta}`, and
+
+* `^closure`.
+
+You can name them any way you want, but for the same of simplicity we will use the names above.
+The syntax distinguishing them from the other parameters is the use of the extra `[]`, `{}`, and `^` characters.
+If they are present, they have to be the last formal parameters in the order as listed above.
+Any of them may be missing, but if two present then `[rest]` should be before `{meta}` and `^closure`, and `{meta}` has to precede `^closure`.
+
 
 === Closures and Context
 

@@ -173,3 +173,117 @@ if a%2 == 0: println("even") else: println("odd")
 a = {if a%2 == 0: "even" else: "odd"}
 print("again ",a)
 // end snippet
+
+// snippet whileLoop
+let i = 1;
+while i < 5 {
+  print(i," ");
+  i = i + 1;
+}until i % 3 == 0;
+// end snippet
+
+// snippet whileLoop2
+let i = 1;
+while i < 5 :
+  i = i + 1;
+until i % 3 == 0;
+println(i)
+// end snippet
+
+// snippet for1
+for i = 1 ; i < 5 ; i=i+1 {
+  print(i," ")
+}until i%3 == 0 ;
+// end snippet
+// snippet for2
+for( i = 1 ; i < 5 ; i=i+1 ){
+  print(i," ")
+}
+// end snippet
+// snippet for3
+// same as 'for( let i = 1 ;' ...
+for( i = 1 ; i < 5 ; i=i+1 ){
+  print(i," ")
+}until i%3 == 0 ;
+println("i at end=",i);
+// end snippet
+// snippet for4
+let i;
+for {i = 1} ; i < 5 ; i=i+1 :  print(i," "); until i%3 == 0;
+println("i at end=",i);
+// end snippet
+// snippet foreach1
+for each i in [1,2,3,4]: print(i," ");
+// end snippet
+// snippet foreach2
+for each i in [1,2,3,4]: print(i," "); until i%3 == 0
+// end snippet
+
+// snippet yield1
+fn gen_1_to_10 {
+    for i=1 ; i <= 10 ; i = i + 1:
+        yield i;
+}
+
+println([ .. stream(gen_1_to_10()) ])
+// end snippet
+
+// snippet yield2
+fn gen_1_to_10 {
+    for i=1 ; i <= 10 ; i = i + 1:
+        yield i;
+}
+
+let st = stream(gen_1_to_10());
+while st.has_next() :
+    println(st.next());
+// end snippet
+
+// snippet fun1
+fn inc(x) {
+  x+1
+}
+println(inc)
+println(inc(1))
+// end snippet
+
+// snippet fun3
+fn inc x {
+  x+1
+}
+println(inc)
+println(inc(1))
+// end snippet
+
+// snippet fun2
+let inc = fn (x) {
+  x+1
+}
+println(inc)
+println(inc(1))
+// end snippet
+
+// snippet fun4
+fn inc !x, @how_much {
+  x+how_much
+}
+println(inc)
+println(inc(1,how_much=5))
+// end snippet
+
+// snippet fun5
+fn inc !x, @how_much=1 {
+  x+how_much
+}
+println(inc(1,how_much=5))
+println(inc(1))
+// end snippet
+
+// snippet fun6
+fn wrong !x, h, !k {
+  // just don't do
+}
+try: wrong(1,3, h= 2)
+catch e: println("There is an error",e)
+// end snippet
+

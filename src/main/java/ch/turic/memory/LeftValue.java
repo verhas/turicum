@@ -35,6 +35,18 @@ public interface LeftValue {
         }
     }
 
+    static Iterable<?> toIterable(final Object existing) {
+        ExecutionException.when(existing == null, "Cannot used None as list.");
+        return switch (existing) {
+            case String s -> new IndexedString(s);
+            case LngList arr -> arr;
+            case Object[] arr -> new JavaArray(arr);
+            case List<?> list -> new JavaArray(list.toArray(Object[]::new));
+            case Iterable<?> it -> it;
+            default -> throw new ExecutionException("Unknown list types %s", existing);
+        };
+    }
+
     static HasIndex toIndexable(final Object existing) {
         ExecutionException.when(existing == null, "Cannot used None as list.");
         return switch (existing) {

@@ -17,7 +17,7 @@ public class BuiltIns {
     public static void register(Context context) {
         if( context instanceof ch.turic.memory.Context ctx){
             registerGlobalConstants(ctx);
-            registerGlobalFunctions(ctx);
+            registerGlobalFunctionsAndMacros(ctx);
             registerTuriClasses(ctx.globalContext);
         }else{
             throw new RuntimeException("wtf");
@@ -28,8 +28,10 @@ public class BuiltIns {
         TuriClass.getInstances().forEach(turiClass -> globalContext.addTuriClass(turiClass.forClass(), turiClass));
     }
 
-    private static void registerGlobalFunctions(ch.turic.memory.Context context) {
+    private static void registerGlobalFunctionsAndMacros(ch.turic.memory.Context context) {
         TuriFunction.getInstances().forEach(
+                jif -> context.global(jif.name(), jif));
+        TuriMacro.getInstances().forEach(
                 jif -> context.global(jif.name(), jif));
     }
 

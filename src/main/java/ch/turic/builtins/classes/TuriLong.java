@@ -1,5 +1,6 @@
 package ch.turic.builtins.classes;
 
+import ch.turic.ExecutionException;
 import ch.turic.TuriClass;
 import ch.turic.commands.operators.Cast;
 import ch.turic.LngCallable;
@@ -12,20 +13,23 @@ public class TuriLong implements TuriClass {
 
     @Override
     public LngCallable getMethod(Object target, String identifier) {
+        if( !(target instanceof Long num)){
+            throw new ExecutionException("Wrong target type, need Long, probably internal error");
+        }
         return switch (identifier) {
             case "times" ->
-                    new TuriMethodCallBuilder(target, (obj, args) -> times(obj,args[0]));
+                    new TuriMethodCallBuilder<Long>(num, (obj, args) -> times(obj,args[0]));
             default -> null;
         };
     }
 
-    private Object times(Object target, Object arg) {
+    private Object times(Long num, Object arg) {
         if (Cast.isLong(arg)) {
-            return Cast.toLong(arg) * Cast.toLong(target);
+            return Cast.toLong(arg) * Cast.toLong(num);
         }
         if (Cast.isDouble(arg)) {
-            return Cast.toDouble(arg) * Cast.toDouble(target);
+            return Cast.toDouble(arg) * Cast.toDouble(num);
         }
-        return arg.toString().repeat(Cast.toLong(target).intValue());
+        return arg.toString().repeat(Cast.toLong(num).intValue());
     }
 }

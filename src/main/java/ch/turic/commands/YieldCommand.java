@@ -25,7 +25,7 @@ public class YieldCommand extends AbstractCommand {
     public Object _execute(final Context context) throws ExecutionException {
         if( Cast.toBoolean(condition.execute(context))) {
             final var result = expression.execute(context);
-            context.threadContext.currentYielder().send(result);
+            context.threadContext.yielder().send(result);
             return result;
         }else{
             return null;

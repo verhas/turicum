@@ -1,3 +1,5 @@
 ch.turic.builtins.classes.TuriString
 ch.turic.builtins.classes.TuriLong
 ch.turic.builtins.classes.TuriDouble
+ch.turic.builtins.classes.TuriFuture
+ch.turic.builtins.classes.TuriIterator

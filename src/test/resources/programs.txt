@@ -247,7 +247,7 @@ class meClass {
     fn a {1}
     fn b {2}
 }
-some = "it works";
+global some = "it works";
 some + meClass.a() + meClass.b();
 
 // snippet testClassInstanceCreation
@@ -360,7 +360,7 @@ Class().z();
 // snippet classDefinedWithAssignment
 // String
 // "csaka haha fogorvos hihi segithet huhu"
-let msg = ""
+global msg = ""
 let PrinterClass = class {
   let print = fn (message){
     global msg;
@@ -414,7 +414,7 @@ z
 // snippet looping3
 // Long
 // 10
-let i = 1
+global i = 1
 fn inci {
   global i
   i =  i + 1
@@ -432,13 +432,13 @@ here we define a function that increments the loop variable, which is a global v
 Even the loop body is not enclosed between '{' and '}' it is executed in a new local environment
 
  */
-let i = 1
+global i = 1
 fn inci {
   global i
   i =  i + 1
 }
 global z = 0
-while i < 10 : z = inci()
+while i < 10 : global z = inci()
 z
 
 // snippet looping5
@@ -1051,3 +1051,25 @@ hu
 // String
 // "kuka"
 let a :("str") = "kuka"
+
+// snippet async
+// null
+fn generator a=0, b=10 {
+    for( i = a; i < b; i = i + 1 ) {
+        println("sleeping")
+        sleep(0.1);
+        yield i;
+        }
+    }
+fn future {
+  global mikka_makka
+  "abraka dabra " + mikka_makka
+}
+let a = 1
+let b = 3
+let k = [ .. stream({let a = 7, b = 9 ;generator(a,b);},keys())]
+println("The value of a is ", a);
+println(k)
+global mikka_makka = "Maminti"
+let f = async({let a=5;future()})
+println(f.get())

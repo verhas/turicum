@@ -3,14 +3,15 @@ package ch.turic.commands;
 import ch.turic.ExecutionException;
 import ch.turic.LngCallable;
 import ch.turic.memory.Context;
+import ch.turic.memory.HasFields;
+import ch.turic.utils.NullableOptional;
 
 import java.util.Arrays;
 
 /**
  * A closure is a block of commands that can get evaluated with arguments.
- *
  */
-public final class Closure extends AbstractCommand implements ClosureOrMacro, LngCallable {
+public final class Closure extends AbstractCommand implements ClosureOrMacro, LngCallable.LngCallableClosure {
     public BlockCommand command() {
         return command;
     }
@@ -69,4 +70,24 @@ public final class Closure extends AbstractCommand implements ClosureOrMacro, Ln
                 toArray(FunctionCall.ArgumentEvaluated[]::new));
         return execute(ctx);
     }
+
+    @Override
+    public NullableOptional<Object> methodCall(Context context, HasFields obj, String methodName, FunctionCall.Argument[] arguments) {
+        final var argValues = evaluateArguments(context, arguments);
+        return ClosureOrMacro.callTheMethod(context, obj, methodName, argValues, this);
+    }
+
+    @Override
+    public FunctionCall.ArgumentEvaluated[] evaluateArguments(Context context, FunctionCall.Argument[] arguments) {
+        return evaluateClosureArguments(context, arguments);
+    }
+
+    public static FunctionCall.ArgumentEvaluated[] evaluateClosureArguments(Context context, FunctionCall.Argument[] arguments) {
+        final var argValues = arguments == null ? new FunctionCall.ArgumentEvaluated[0] : new FunctionCall.ArgumentEvaluated[arguments.length];
+        for (int i = 0; i < argValues.length; i++) {
+            argValues[i] = new FunctionCall.ArgumentEvaluated(arguments[i].id(), arguments[i].expression().execute(context));
+        }
+        return argValues;
+    }
+
 }

@@ -8,13 +8,10 @@ import java.util.Objects;
 
 public class ListComposition extends AbstractCommand {
     final Command[] array;
+    final CompositionModifier[] modifiers;
 
     public Command[] array() {
         return array;
-    }
-
-    public CompositionModifier[] modifiers() {
-        return modifiers;
     }
 
     public ListComposition(Command[] array, CompositionModifier[] modifiers) {
@@ -22,15 +19,13 @@ public class ListComposition extends AbstractCommand {
         this.modifiers = modifiers;
     }
 
-    final CompositionModifier[] modifiers;
-
     @Override
     public Object _execute(final Context context) throws ExecutionException {
         LngList list = new LngList();
         for (final var command : array) {
             final var item = command.execute(context);
             if (item instanceof Spread(Object spread)) {
-                for (final var subitem : LeftValue.toIndexable(spread)) {
+                for (final var subitem : LeftValue.toIterable(spread)) {
                     list.array.add(subitem);
                 }
             } else if (item instanceof Range(Object rangeStart, Object rangeEnd)) {

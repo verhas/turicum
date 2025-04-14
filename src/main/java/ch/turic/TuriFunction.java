@@ -2,7 +2,7 @@ package ch.turic;
 
 import java.util.List;
 
-public interface TuriFunction extends LngCallable, ServiceLoaded {
+public interface TuriFunction extends LngCallable.LngCallableClosure, ServiceLoaded {
 
     static List<TuriFunction> getInstances() {
         return ServiceLoaded.getInstances(TuriFunction.class);

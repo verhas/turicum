@@ -12,7 +12,7 @@ import java.util.Set;
  * Keep a context of the current threads executing environment.
  */
 public class Context implements ch.turic.Context {
-    private final Map<String, Variable> frame;
+    Map<String, Variable> frame;
     private final Set<String> globals = new HashSet<>();
     private final Set<String> nonlocal = new HashSet<>();
     private final Set<String> frozen = new HashSet<>();
@@ -39,7 +39,7 @@ public class Context implements ch.turic.Context {
      * @param stepLimit the number of maximal steps before killing the interpreter
      */
     public Context(int stepLimit) {
-        this.globalContext = new GlobalContext(stepLimit);
+        this.globalContext = new GlobalContext(stepLimit,this);
         this.wrapped = null;
         this.frame = globalContext.heap;
         this.threadContext = new ThreadContext();
@@ -138,8 +138,7 @@ public class Context implements ch.turic.Context {
     }
 
     public void global(String global) throws ExecutionException {
-        ExecutionException.when(frame.containsKey(global), "Global variable is already defined as local '" + global + "'");
-        ExecutionException.when(globals.contains(global), "Global variable is already defined '" + global + "'");
+        ExecutionException.when(frame != globalContext.heap && frame.containsKey(global), "Global variable '%s' is already defined as local.", global);
         globals.add(global);
     }
 
@@ -158,6 +157,10 @@ public class Context implements ch.turic.Context {
      */
     public Context open() {
         return new Context(this, null);
+    }
+
+    public Context thread() {
+      return new Context(globalContext,new ThreadContext());
     }
 
     /**
@@ -240,7 +243,11 @@ public class Context implements ch.turic.Context {
      */
     public Object get(String key) {
         if (globals.contains(key)) {
-            return globalContext.heap.get(key).get();
+            final var variable = globalContext.heap.get(key);
+            if( variable == null ) {
+                return null;
+            }
+            return variable.get();
         }
         for (var ctx = this; ctx != null; ctx = ctx.wrapped) {
             if (ctx.frame.containsKey(key)) {

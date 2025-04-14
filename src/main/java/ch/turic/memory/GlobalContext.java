@@ -5,6 +5,8 @@ import ch.turic.TuriClass;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -13,13 +15,16 @@ import java.util.concurrent.atomic.AtomicInteger;
  * This global context is shared for the whole interpreter for all the threads.
  */
 public class GlobalContext {
-    public final Map<String, Variable> heap = new HashMap<>();
+    public Map<String, Variable> heap = new HashMap<>();
+    private Context top;
+    public final AtomicBoolean isMultiThreading = new AtomicBoolean(false);
     public final int stepLimit;
     public final AtomicInteger steps = new AtomicInteger();
     private final Map<Class<?>, TuriClass> turiClasses = new HashMap<>();
 
-    public GlobalContext(int stepLimit) {
+    public GlobalContext(int stepLimit, Context top) {
         this.stepLimit = stepLimit;
+        this.top = top;
     }
 
     public TuriClass getTuriClass(Class<?> clazz) {
@@ -39,6 +44,24 @@ public class GlobalContext {
             throw new ExecutionException("Step limit %d reached", stepLimit);
         }
         steps.incrementAndGet();
+    }
+
+    /**
+     * This method does not need synchronization. When it is called first time, there are no multiple threads.
+     * The single main thread that is about to start other threads will wait till the heap is replaced.
+     * <p>
+     * On subsequent calls, when there are already multiple threads, the replacement does ot happen. It is already done.
+     * <p>
+     * The boolean flag needs to be atomic, so a second thread does not think she is the only one running and start
+     * the replacement of the heap map again.
+     * <p>
+     * The heap replacement to {@link ConcurrentHashMap} does not guarantee that the variables are also updated.
+     */
+    public void startMultithreading() {
+        if (isMultiThreading.compareAndSet(false, true)) {
+            heap = new ConcurrentHashMap<String, Variable>(heap);
+            top.frame = heap;
+        }
     }
 
 }

@@ -43,7 +43,7 @@ public class ForEachLoop extends AbstractCommand {
         loopContext.freeze(id);
         final var array = expression.execute(loopContext);
         Object result = null;
-        for (final var item : LeftValue.toIndexable(array)) {
+        for (final var item : LeftValue.toIterable(array)) {
             loopContext.let0(id, item);
             if (body instanceof BlockCommand block) {
                 final var lp = block.loop(loopContext);

@@ -6,7 +6,7 @@ import ch.turic.LngCallable;
 
 import java.util.function.BiFunction;
 
-public record TuriMethodCallBuilder(Object target, BiFunction<Object, Object[], Object> method) implements LngCallable {
+public record TuriMethodCallBuilder<T>(T target, BiFunction<T, Object[], Object> method) implements LngCallable.LngCallableClosure {
 
     @Override
     public Object call(Context ctx, Object[] arguments) throws ExecutionException {

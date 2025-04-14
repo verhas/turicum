@@ -5,6 +5,8 @@ import ch.turic.LngCallable;
 import ch.turic.memory.*;
 
 import static ch.turic.analyzer.AssignmentList.Assignment.Type.calculateTypeNames;
+import static ch.turic.commands.Closure.evaluateClosureArguments;
+import static ch.turic.commands.Macro.evaluateMacroArguments;
 
 /**
  * An expression that calls a method or a function/closure.
@@ -50,75 +52,25 @@ public class FunctionCall extends AbstractCommand {
             final var obj = LeftValue.toObject(fieldAccess.object().execute(context));
             function = getMethod(context, obj, fieldAccess.identifier());
             if (function instanceof ClosureOrMacro command) {
-                final var argValues = switch (command) {
-                    case Closure ignored -> evaluateArguments(context);
-                    case Macro ignored -> passArgumentsUnevaluated();
-                };
-                if (obj instanceof LngObject lngObject) {
-                    ExecutionException.when(command.parameters().parameters().length != argValues.length, "The number of parameters does not match the number of arguments");
-                    final Context ctx;
-                    if (command.wrapped() == null) {
-                        ctx = context.wrap(lngObject.context());
-                    } else {
-                        ctx = context.wrap(command.wrapped());
-                    }
-                    ctx.let0("this", lngObject);
-                    ctx.let0("cls", lngObject.lngClass());
-                    if (command instanceof Macro) {
-                        ctx.setCaller(context);
-                    }
-                    freezeThisAndCls(ctx);
-                    defineArgumentsInContext(ctx, command.parameters(), argValues);
-                    return command.execute(ctx);
-                }
-                if (obj instanceof LngClass lngClass) {
-                    ExecutionException.when(command.parameters().parameters().length != argValues.length, "The number of parameters does not match the number of arguments");
-                    final var ctx = context.wrap(lngClass.context());
-                    if ("init".equals(fieldAccess.identifier())) {
-                        // this will make in a chained constructor call set 'this' to the object created
-                        // 'cls' point to the class, but 'this.cls' point to the class which is going to be initialized
-                        ctx.let0("this", context.getLocal("this"));
-                        ctx.let0("cls", lngClass);
-                        freezeThisAndCls(ctx);
-                    }
-                    defineArgumentsInContext(ctx, command.parameters(), argValues);
-                    return command.execute(ctx);
+                final var nullableOptionalResult = command.methodCall(context, obj, fieldAccess.identifier(), this.arguments());
+                if (nullableOptionalResult.isPresent()) {
+                    return nullableOptionalResult.get();
                 }
             }
             if (function instanceof LngClass lngClass) {
-                final var constructor = lngClass.context().get("init");
-                if (constructor instanceof ClosureOrMacro command) {
-                    final ArgumentEvaluated[] argValues = switch (command) {
-                        case Closure ignored -> evaluateArguments(context);
-                        case Macro ignored -> passArgumentsUnevaluated();
-                    };
-                    final var objectContext = context.wrap(lngClass.context());
-                    final var uninitialized = new LngObject(lngClass, objectContext);
-                    defineArgumentsInContext(objectContext, command.parameters(), argValues);
-                    if (command instanceof Macro) {
-                        objectContext.setCaller(context);
-                    }
-                    objectContext.local("that", obj);
-                    objectContext.freeze("that");
-                    objectContext.local("this", uninitialized);
-                    objectContext.local("cls", lngClass);
-                    FunctionCall.freezeCls(objectContext);
-                    command.execute(objectContext);
-                    objectContext.freeze("this");
-                    return objectContext.get("this");
-                }
+                return lngClass.newInstance(obj, context, arguments);
             }
-            if (function instanceof LngCallable callable) {
-                return callable.call(context, bareValues(evaluateArguments(context)));
+            if (function instanceof LngCallable.LngCallableClosure callable) {
+                return callable.call(context, bareValues(evaluateClosureArguments(context, this.arguments)));
+            }
+            if (function instanceof LngCallable.LngCallableMacro callable) {
+                return callable.call(context, bareValues(evaluateMacroArguments(context, this.arguments)));
             }
             throw new ExecutionException("It is not possible to invoke %s.%s() as %s.%s()", obj, function, fieldAccess.object(), fieldAccess.identifier());
         } else {
             function = myObject.execute(context);
             if (function instanceof ClosureOrMacro command) {
-                final ArgumentEvaluated[] argValues = switch (command) {
-                    case Closure ignored -> evaluateArguments(context);
-                    case Macro ignored -> passArgumentsUnevaluated();
-                };
+                final ArgumentEvaluated[] argValues = command.evaluateArguments(context, this.arguments);
                 final var ctx = context.wrap(command.wrapped());
                 defineArgumentsInContext(ctx, command.parameters(), argValues);
                 if (command instanceof Macro) {
@@ -128,29 +80,14 @@ public class FunctionCall extends AbstractCommand {
             }
 
             if (function instanceof LngClass lngClass) {
-                final var constructor = lngClass.context().get("init");
-                if (constructor instanceof ClosureOrMacro command) {
-                    final ArgumentEvaluated[] argValues = switch (command) {
-                        case Closure ignored -> evaluateArguments(context);
-                        case Macro ignored -> passArgumentsUnevaluated();
-                    };
-                    final var objectContext = context.wrap(lngClass.context());
-                    final var uninitialized = new LngObject(lngClass, objectContext);
-                    defineArgumentsInContext(objectContext, command.parameters(), argValues);
-                    if (command instanceof Macro) {
-                        objectContext.setCaller(context);
-                    }
-                    objectContext.local("this", uninitialized);
-                    objectContext.local("cls", lngClass);
-                    FunctionCall.freezeCls(objectContext);
-                    command.execute(objectContext);
-                    objectContext.freeze("this");
-                    return objectContext.get("this");
-                }
+                return lngClass.newInstance(null, context, arguments);
             }
 
-            if (function instanceof LngCallable callable) {
-                return callable.call(context, bareValues(evaluateArguments(context)));
+            if (function instanceof LngCallable.LngCallableClosure callable) {
+                return callable.call(context, bareValues(evaluateClosureArguments(context, this.arguments)));
+            }
+            if (function instanceof LngCallable.LngCallableMacro callable) {
+                return callable.call(context, bareValues(evaluateMacroArguments(context, this.arguments)));
             }
             throw new ExecutionException("It is not possible to invoke '%s' because it is '%s'", object, function);
         }
@@ -303,22 +240,6 @@ public class FunctionCall extends AbstractCommand {
         }
     }
 
-    private ArgumentEvaluated[] passArgumentsUnevaluated() {
-        final var argValues = this.arguments == null ? new ArgumentEvaluated[0] : new ArgumentEvaluated[this.arguments.length];
-        for (int i = 0; i < argValues.length; i++) {
-            argValues[i] = new ArgumentEvaluated(this.arguments[i].id, this.arguments[i].expression);
-        }
-        return argValues;
-    }
-
-    private ArgumentEvaluated[] evaluateArguments(Context context) {
-        final var argValues = this.arguments == null ? new ArgumentEvaluated[0] : new ArgumentEvaluated[this.arguments.length];
-        for (int i = 0; i < argValues.length; i++) {
-            argValues[i] = new ArgumentEvaluated(this.arguments[i].id, this.arguments[i].expression.execute(context));
-        }
-        return argValues;
-    }
-
     /**
      * Get the method from the object. If it is a JavaObject, but the contained object has a TuriClass implementing
      * functionality, then get that functionality instead.
@@ -331,7 +252,27 @@ public class FunctionCall extends AbstractCommand {
     private static Object getMethod(Context context, HasFields obj, String identifier) {
         return switch (obj) {
             case JavaObject jo -> {
-                final var turi = context.globalContext.getTuriClass(jo.object().getClass());
+                var turi = context.globalContext.getTuriClass(jo.object().getClass());
+                if (turi == null) {
+                    var papi = jo.object().getClass();
+                    while (papi != null) {
+                        turi = context.globalContext.getTuriClass(papi);
+                        if (turi != null) {
+                            break;
+                        }
+                        for (final var face : papi.getInterfaces()) {
+                            turi = context.globalContext.getTuriClass(face);
+                            if (turi != null) {
+                                break;
+                            }
+                        }
+                        if (turi != null) {
+                            break;
+                        }
+                        papi = papi.getSuperclass();
+                    }
+
+                }
                 if (turi != null) {
                     yield turi.getMethod(jo.object(), identifier);
                 }

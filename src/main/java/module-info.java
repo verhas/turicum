@@ -1,7 +1,7 @@
-import ch.turic.builtins.classes.TuriDouble;
-import ch.turic.builtins.classes.TuriLong;
-import ch.turic.builtins.classes.TuriString;
+import ch.turic.builtins.classes.*;
 import ch.turic.builtins.functions.*;
+import ch.turic.builtins.macros.Async;
+import ch.turic.builtins.macros.Stream;
 
 module ch.turic {
     requires java.desktop;
@@ -10,6 +10,8 @@ module ch.turic {
     opens turi;
 
     provides ch.turic.TuriFunction with Len, Type, Macro, Evaluate, Println,
-            Print, Reclose, Keys, Import, JavaNewObject, JavaMethodCall, JavaMethodCallVararg, SysImport;
-    provides ch.turic.TuriClass with TuriString, TuriLong, TuriDouble;
+            Print, Reclose, Keys, Import, JavaNewObject, JavaMethodCall,
+            JavaMethodCallVararg, SysImport, Sleep;
+    provides ch.turic.TuriMacro with Async, Stream;
+    provides ch.turic.TuriClass with TuriString, TuriLong, TuriDouble, TuriFuture, TuriIterator;
 }

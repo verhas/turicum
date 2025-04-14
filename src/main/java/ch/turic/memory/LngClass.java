@@ -4,11 +4,14 @@ import ch.turic.ExecutionException;
 import ch.turic.LngCallable;
 import ch.turic.commands.ClosureOrMacro;
 import ch.turic.commands.FunctionCall;
+import ch.turic.commands.Macro;
+
+import static ch.turic.commands.FunctionCall.*;
 
 /**
  * Class information in the language
  */
-public class LngClass implements HasFields, HasContext, LngCallable {
+public class LngClass implements HasFields, HasContext, LngCallable.LngCallableClosure {
 
     final ClassContext context;
     final String name;
@@ -24,6 +27,37 @@ public class LngClass implements HasFields, HasContext, LngCallable {
 
     public String name() {
         return name;
+    }
+
+
+    public Object newInstance(Object that, Context callerContext, FunctionCall.Argument[] arguments) {
+        final var objectContext = callerContext.wrap(context());
+        final var uninitialized = new LngObject(this, objectContext);
+        if (that != null) {
+            objectContext.local("that", that);
+            objectContext.freeze("that");
+        }
+        objectContext.local("this", uninitialized);
+        objectContext.local("cls", this);
+        FunctionCall.freezeCls(objectContext);
+        final var constructor = context().get("init");
+        if (constructor instanceof ClosureOrMacro command) {
+            return callConstructor(callerContext, arguments, command, objectContext);
+        } else {
+            objectContext.freeze("this");
+            return uninitialized;
+        }
+    }
+
+    private Object callConstructor(Context callerContext, Argument[] arguments, ClosureOrMacro command, Context objectContext) {
+        if (command instanceof Macro) {
+            objectContext.setCaller(callerContext);
+        }
+        final var argValues = command.evaluateArguments(callerContext, arguments);
+        defineArgumentsInContext(objectContext, command.parameters(), argValues);
+        command.execute(objectContext);
+        objectContext.freeze("this");
+        return objectContext.get("this");
     }
 
     @Override
