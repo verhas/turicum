@@ -54,7 +54,7 @@ public class LngClass implements HasFields, HasContext, LngCallable.LngCallableC
             objectContext.setCaller(callerContext);
         }
         final var argValues = command.evaluateArguments(callerContext, arguments);
-        defineArgumentsInContext(objectContext, command.parameters(), argValues);
+        defineArgumentsInContext(objectContext, callerContext, command.parameters(), argValues);
         command.execute(objectContext);
         objectContext.freeze("this");
         return objectContext.get("this");

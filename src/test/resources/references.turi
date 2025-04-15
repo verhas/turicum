@@ -287,3 +287,46 @@ try: wrong(1,3, h= 2)
 catch e: println("There is an error",e)
 // end snippet
 
+// snippet restParameters
+let f = fn (a,b,[rest]) {
+  println("a=",a)
+  println("b=",b)
+  for each r in rest: print("%s " % r)
+}
+
+f(1,2,3,4,5,6)
+// end snippet
+
+// snippet metaParameters
+let f = fn (a,b,{meta}) {
+  println("a=",a)
+  println("b=",b)
+  for each r in keys(meta): print("%s=%s\n" % [r , meta[r]])
+}
+
+f(1,b=2,k=3,x=4,juice=5,six=6)
+// end snippet
+
+// snippet metaRestParameters
+let f = fn (a,b,[rest],{meta}) {
+  println("a=",a);
+  println("b=",b);
+  for each r in keys(meta): print("%s=%s\n" % [r , meta[r]]);
+  println("rest:");
+  for each r in rest: print("%s " % r);
+}
+
+f(1,b=2,k=3,x=4,juice=5,7,six=6);
+// end snippet
+
+// snippet closureArgument
+let f = fn (a,b,^closure) {
+  println("a=",a);
+  println("b=",b);
+  println(closure(a,b))
+}
+
+f(2,3){|x,y| x+y}
+f(2,3){|x,y| x*y}
+// end snippet
+

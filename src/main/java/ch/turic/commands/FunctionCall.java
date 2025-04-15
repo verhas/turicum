@@ -72,10 +72,12 @@ public class FunctionCall extends AbstractCommand {
             if (function instanceof ClosureOrMacro command) {
                 final ArgumentEvaluated[] argValues = command.evaluateArguments(context, this.arguments);
                 final var ctx = context.wrap(command.wrapped());
-                defineArgumentsInContext(ctx, command.parameters(), argValues);
                 if (command instanceof Macro) {
                     ctx.setCaller(context);
                 }
+                ctx.let0("me",function);
+                ctx.freeze("me");
+                defineArgumentsInContext(ctx, context,command.parameters(), argValues);
                 return command.execute(ctx);
             }
 
@@ -104,11 +106,13 @@ public class FunctionCall extends AbstractCommand {
     /**
      * Assign the string to the parameter names in the context provided.
      *
-     * @param ctx       the context that will hold the string
-     * @param pList     the names of the parameters/arguments
-     * @param argValues the array holding the actual argument string
+     * @param ctx           the context that will hold the string
+     * @param callerContext is the caller context in which the arguments were evaluated. This will be used to evaluate
+     *                      the default expressions.
+     * @param pList         the names of the parameters/arguments
+     * @param argValues     the array holding the actual argument string
      */
-    public static void defineArgumentsInContext(Context ctx, ParameterList pList, ArgumentEvaluated[] argValues) {
+    public static void defineArgumentsInContext(Context ctx, Context callerContext, ParameterList pList, ArgumentEvaluated[] argValues) {
         int positionalsIndex = 0;
         final var filled = new boolean[pList.parameters().length];
         final var rest = new LngList();
@@ -131,7 +135,7 @@ public class FunctionCall extends AbstractCommand {
                 if (parameter.defaultExpression() == null) {
                     throw new ExecutionException("Parameter '%s' is not defined", parameter.identifier());
                 } else {
-                    final var value = parameter.defaultExpression().execute(ctx);
+                    final var value = parameter.defaultExpression().execute(callerContext);
                     ctx.defineTypeChecked(parameter.identifier(), value, calculateTypeNames(ctx, parameter.types()));
                 }
             }

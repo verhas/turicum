@@ -13,16 +13,15 @@ public class AdHocTest {
     @Test
     void test() throws Exception {
         test("""
-fn gen_1_to_10 {
-    for i=1 ; i <= 10 ; i = i + 1:
-        yield i;
+println("%s = %s" % [4,3])
+{
+    fn k(x,this=me){
+        if x == 1 || x ==  0 : 1
+        else: me(x-1) + me(x-2)
+    }
+k(10)
 }
-
-let st = stream(gen_1_to_10());
-println( st );
-while st.has_next() :
-    println(st.next());
                         """
-                , null);
+                , "89");
     }
 }

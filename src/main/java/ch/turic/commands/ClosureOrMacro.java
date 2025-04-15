@@ -6,12 +6,10 @@ import ch.turic.memory.LngClass;
 import ch.turic.memory.LngObject;
 import ch.turic.utils.NullableOptional;
 
-import java.util.Optional;
-
 import static ch.turic.commands.FunctionCall.defineArgumentsInContext;
 import static ch.turic.commands.FunctionCall.freezeThisAndCls;
 
-public sealed interface ClosureOrMacro extends Command permits Closure,Macro {
+public sealed interface ClosureOrMacro extends Command permits Closure, Macro {
     static Context prepareObjectContext(Context context, LngObject lngObject, FunctionCall.ArgumentEvaluated[] argValues, ClosureOrMacro it) {
         final Context ctx;
         if (it.wrapped() == null) {
@@ -23,7 +21,7 @@ public sealed interface ClosureOrMacro extends Command permits Closure,Macro {
         ctx.let0("cls", lngObject.lngClass());
         ctx.setCaller(context);
         freezeThisAndCls(ctx);
-        defineArgumentsInContext(ctx, it.parameters(), argValues);
+        defineArgumentsInContext(ctx, context, it.parameters(), argValues);
         return ctx;
     }
 
@@ -36,7 +34,7 @@ public sealed interface ClosureOrMacro extends Command permits Closure,Macro {
             ctx.let0("cls", lngClass);
             freezeThisAndCls(ctx);
         }
-        defineArgumentsInContext(ctx, it.parameters(), argValues);
+        defineArgumentsInContext(ctx, context, it.parameters(), argValues);
         return ctx;
     }
 
@@ -53,7 +51,9 @@ public sealed interface ClosureOrMacro extends Command permits Closure,Macro {
     }
 
     ParameterList parameters();
+
     Context wrapped();
+
     NullableOptional<Object> methodCall(Context context, HasFields obj, String methodName, FunctionCall.Argument[] arguments);
 
     FunctionCall.ArgumentEvaluated[] evaluateArguments(Context context, FunctionCall.Argument[] arguments);

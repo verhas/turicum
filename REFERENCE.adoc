@@ -1434,7 +1434,7 @@ The output of the program is
 .output fun1
 [source]
 ----
-ch.turic.commands.Closure@1972e513
+ch.turic.commands.Closure@1608bcbd
 2
 
 ----
@@ -1466,7 +1466,7 @@ The output of the program is
 .output fun3
 [source]
 ----
-ch.turic.commands.Closure@61c4eee0
+ch.turic.commands.Closure@b2c5e07
 2
 
 ----
@@ -1500,7 +1500,7 @@ The output of the program is
 .output fun2
 [source]
 ----
-ch.turic.commands.Closure@548a24a
+ch.turic.commands.Closure@3c7c886c
 2
 
 ----
@@ -1553,7 +1553,7 @@ The output of the program is
 .output fun4
 [source]
 ----
-ch.turic.commands.Closure@3f4faf53
+ch.turic.commands.Closure@6b88ca8c
 6
 
 ----
@@ -1612,7 +1612,7 @@ The actual algorithm of parameter passing is the following:
 * The actual arguments are evaluated from left to right.
 * Named passings are assigned to the argument with the matching name.
 * Positional arguments are assigned to the first non-named only argument.
-  That is the first not-yet-assigned positional or positional/named argument.
+That is the first not-yet-assigned positional or positional/named argument.
 
 
 .fun6
@@ -1642,6 +1642,7 @@ There is an errorParameter 'h' is already defined
 
 
 
+[#_extra_parameters]
 ==== Extra parameters
 
 In some cases you want to allow the callers to pass extra arguments and your function body to use them.
@@ -1657,6 +1658,207 @@ You can name them any way you want, but for the same of simplicity we will use t
 The syntax distinguishing them from the other parameters is the use of the extra `[]`, `{}`, and `^` characters.
 If they are present, they have to be the last formal parameters in the order as listed above.
 Any of them may be missing, but if two present then `[rest]` should be before `{meta}` and `^closure`, and `{meta}` has to precede `^closure`.
+
+When the function code starts
+
+* `rest` will be a list containing the value of the positional arguments that were not yet assigned to any parameter.
+* `meta` will be an object with the named parameters not assigned as field names and the values holding the values.
+* `closure` will hold the last parameter of the function call that usually is a closure.
+
+The following example shows how you can use the rest-parameter:
+
+
+.restParameters
+[source]
+----
+let f = fn (a,b,[rest]) {
+  println("a=",a)
+  println("b=",b)
+  for each r in rest: print("%s " % r)
+}
+
+f(1,2,3,4,5,6)
+
+
+----
+
+
+
+
+The output of the program is
+
+
+.output restParameters
+[source]
+----
+a=1
+b=2
+3 4 5 6 
+----
+
+
+
+The following example demonstrates the use of the meta-parameter:
+
+
+.metaParameters
+[source]
+----
+let f = fn (a,b,{meta}) {
+  println("a=",a)
+  println("b=",b)
+  for each r in keys(meta): print("%s=%s\n" % [r , meta[r]])
+}
+
+f(1,b=2,k=3,x=4,juice=5,six=6)
+
+
+----
+
+
+
+
+The output of the program is
+
+
+.output metaParameters
+[source]
+----
+a=1
+b=2
+six=6
+x=4
+k=3
+juice=5
+
+----
+
+
+
+[NOTE]
+====
+When you
+
+* have a `!name` declared positional only parameter, and
+* you also have `{meta}` in the parameter list, and
+* and you call the function providing a `name=expression` named argument,
+
+it will not be assigned to the positional only parameter, and it is also not an error.
+It will be a field in the meta-parameter object created.
+
+The reason for this is that the naming of the positional only parameters is not part of the function signature.
+They are the internal business of the function itself, and as such must not have any effect how you call the function.
+
+On the other hand, no named parameter name, or named/positional parameter name will get into the meta-parameter.
+
+Also, you cannot use a parameter name in an argument list more than once.
+====
+
+
+You can also combine the two:
+
+
+.metaRestParameters
+[source]
+----
+let f = fn (a,b,[rest],{meta}) {
+  println("a=",a);
+  println("b=",b);
+  for each r in keys(meta): print("%s=%s\n" % [r , meta[r]]);
+  println("rest:");
+  for each r in rest: print("%s " % r);
+}
+
+f(1,b=2,k=3,x=4,juice=5,7,six=6);
+
+
+----
+
+
+
+
+The output of the program is
+
+
+.output metaRestParameters
+[source]
+----
+a=1
+b=2
+six=6
+x=4
+k=3
+juice=5
+rest:
+7 
+----
+
+
+
+The last argument, preceeded by the `^` character is special.
+When you call a function and the last argument is a closure then you can place that closure outside of the `(` and `)` of the arguments, but ONLY if the closure is defined right there.
+
+For example:
+
+
+.closureArgument
+[source]
+----
+let f = fn (a,b,^closure) {
+  println("a=",a);
+  println("b=",b);
+  println(closure(a,b))
+}
+
+f(2,3){|x,y| x+y}
+f(2,3){|x,y| x*y}
+
+
+----
+
+
+
+
+The output of the program is
+
+
+.output closureArgument
+[source]
+----
+a=2
+b=3
+5
+a=2
+b=3
+6
+
+----
+
+
+
+The function gets the closure adding the two numbers and then prints the numbers and the result.
+
+The example:
+
+.wrong example
+[source]
+----
+let f = fn (a,b,^closure) {
+  println("a=",a);
+  println("b=",b);
+  println(closure(a,b))
+}
+let closure = {|x,y| x+y}
+
+f(2,3)closure
+----
+
+does not even compile, since the mandatory `;` or new line is missing after the function call.
+Also, it would be unreadable to recognize `closure` as an argument.
+
+NOTE: The actual implemented syntax checks that the next two tokens following the `)` are `{`and `|`.
+
+This call can aid to create domain-specific languages.
 
 
 === Closures and Context

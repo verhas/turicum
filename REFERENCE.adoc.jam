@@ -827,10 +827,11 @@ The actual algorithm of parameter passing is the following:
 * The actual arguments are evaluated from left to right.
 * Named passings are assigned to the argument with the matching name.
 * Positional arguments are assigned to the first non-named only argument.
-  That is the first not-yet-assigned positional or positional/named argument.
+That is the first not-yet-assigned positional or positional/named argument.
 
 {%S fun6%}
 
+[#_extra_parameters]
 ==== Extra parameters
 
 In some cases you want to allow the callers to pass extra arguments and your function body to use them.
@@ -846,6 +847,75 @@ You can name them any way you want, but for the same of simplicity we will use t
 The syntax distinguishing them from the other parameters is the use of the extra `[]`, `{}`, and `^` characters.
 If they are present, they have to be the last formal parameters in the order as listed above.
 Any of them may be missing, but if two present then `[rest]` should be before `{meta}` and `^closure`, and `{meta}` has to precede `^closure`.
+
+When the function code starts
+
+* `rest` will be a list containing the value of the positional arguments that were not yet assigned to any parameter.
+* `meta` will be an object with the named parameters not assigned as field names and the values holding the values.
+* `closure` will hold the last parameter of the function call that usually is a closure.
+
+The following example shows how you can use the rest-parameter:
+
+{%S restParameters%}
+
+The following example demonstrates the use of the meta-parameter:
+
+{%S metaParameters%}
+
+[NOTE]
+====
+When you
+
+* have a `!name` declared positional only parameter, and
+* you also have `{meta}` in the parameter list, and
+* and you call the function providing a `name=expression` named argument,
+
+it will not be assigned to the positional only parameter, and it is also not an error.
+It will be a field in the meta-parameter object created.
+
+The reason for this is that the naming of the positional only parameters is not part of the function signature.
+They are the internal business of the function itself, and as such must not have any effect how you call the function.
+
+On the other hand, no named parameter name, or named/positional parameter name will get into the meta-parameter.
+
+Also, you cannot use a parameter name in an argument list more than once.
+====
+
+
+You can also combine the two:
+
+{%S metaRestParameters%}
+
+The last argument, preceeded by the `^` character is special.
+When you call a function and the last argument is a closure then you can place that closure outside of the `(` and `)` of the arguments, but ONLY if the closure is defined right there.
+
+For example:
+
+{%S closureArgument%}
+
+The function gets the closure adding the two numbers and then prints the numbers and the result.
+
+The example:
+
+.wrong example
+[source]
+----
+let f = fn (a,b,^closure) {
+  println("a=",a);
+  println("b=",b);
+  println(closure(a,b))
+}
+let closure = {|x,y| x+y}
+
+f(2,3)closure
+----
+
+does not even compile, since the mandatory `;` or new line is missing after the function call.
+Also, it would be unreadable to recognize `closure` as an argument.
+
+NOTE: The actual implemented syntax checks that the next two tokens following the `)` are `{`and `|`.
+
+This call can aid to create domain-specific languages.
 
 
 === Closures and Context

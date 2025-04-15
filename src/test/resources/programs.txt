@@ -1073,3 +1073,35 @@ println(k)
 global mikka_makka = "Maminti"
 let f = async({let a=5;future()})
 println(f.get())
+
+// snippet streaming
+// null
+fn gen_1_to_10 {
+    for i=1 ; i <= 10 ; i = i + 1:
+        yield i;
+}
+
+let st = stream(gen_1_to_10());
+println( st );
+while st.has_next() :
+    println(st.next());
+// snippet fibonaccy
+// Long
+// 89
+    fn k(x){
+        if x == 1 || x ==  0 : 1
+        else: k(x-1)+k(x-2)
+    }
+
+
+k(10)
+// snippet localFibonacci
+// Long
+// 89
+{
+    fn k(x,this=me){
+        if x == 1 || x ==  0 : 1
+        else: me(x-1) + me(x-2)
+    }
+k(10)
+}

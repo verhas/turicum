@@ -65,7 +65,7 @@ public final class Closure extends AbstractCommand implements ClosureOrMacro, Ln
             throw new RuntimeException("Cannot work with this context implementation. This is an internal error.");
         }
         final var ctx = context.wrap();
-        FunctionCall.defineArgumentsInContext(ctx, parameters, Arrays.stream(params)
+        FunctionCall.defineArgumentsInContext(ctx, context, parameters, Arrays.stream(params)
                 .map(param -> new FunctionCall.ArgumentEvaluated(null, param)).
                 toArray(FunctionCall.ArgumentEvaluated[]::new));
         return execute(ctx);
