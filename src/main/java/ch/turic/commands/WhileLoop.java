@@ -32,8 +32,10 @@ public class WhileLoop extends AbstractCommand {
     public Object _execute(final Context context) throws ExecutionException {
         Object result = null;
         context.step();
-        final var loopContext = context.wrap();
+        final var loopContext = context.loop();
+        int loopCounter = 0;
         while (Cast.toBoolean(startCondition.execute(loopContext))) {
+            loopContext.count(loopCounter++);
             if (body instanceof BlockCommand block) {
                 final var lp = block.loop(loopContext);
                 result = lp.result();

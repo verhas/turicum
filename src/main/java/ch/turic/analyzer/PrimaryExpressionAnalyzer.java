@@ -43,28 +43,28 @@ public class PrimaryExpressionAnalyzer extends AbstractAnalyzer {
         }
         if (lexes.is("(")) {
             final var left = getExpressionBetweenParentheses(lexes);
-            return getAccessOrCall(lexes, left);
+            return getAccessOrCall(lexes, left, false);
         }
         if (lexes.is("&{")) {
-            return getAccessOrCall(lexes, JsonStructureAnalyzer.INSTANCE.analyze(lexes));
+            return getAccessOrCall(lexes, JsonStructureAnalyzer.INSTANCE.analyze(lexes), false);
         }
         if (lexes.is("{")) {
             if (lexes.isAt(1, "}")) {
                 lexes.next();
                 lexes.next();
-                return getAccessOrCall(lexes, new EmptyObject());
+                return getAccessOrCall(lexes, new EmptyObject(), false);
             }
             if ((lexes.isAt(1, Lex.Type.IDENTIFIER) || lexes.isAt(1, Lex.Type.STRING)) &&
                     lexes.isAt(2, ":")) {
-                return getAccessOrCall(lexes, JsonStructureAnalyzer.INSTANCE.analyze(lexes));
+                return getAccessOrCall(lexes, JsonStructureAnalyzer.INSTANCE.analyze(lexes), false);
             }
-            return getAccessOrCall(lexes, BlockOrClosureAnalyzer.INSTANCE.analyze(lexes));
+            return getAccessOrCall(lexes, BlockOrClosureAnalyzer.INSTANCE.analyze(lexes), false);
         }
         if (lexes.is("[")) {
             lexes.next();
             if (lexes.is("]")) {
                 lexes.next();
-                return getAccessOrCall(lexes, new ListComposition(EMPTY_COMMAND_ARRAY, null));
+                return getAccessOrCall(lexes, new ListComposition(EMPTY_COMMAND_ARRAY, null), false);
             }
             final var expressionList = new java.util.ArrayList<Command>();
             while (true) {
@@ -82,14 +82,14 @@ public class PrimaryExpressionAnalyzer extends AbstractAnalyzer {
             final var left = new ListComposition(expressionList.toArray(Command[]::new), modifiers);
             BadSyntax.when(lexes, lexes.isNot("]"), "list literal has to be closed using ']'");
             lexes.next();
-            return getAccessOrCall(lexes, left);
+            return getAccessOrCall(lexes, left, false);
         }
         final var lex = lexes.next();
         return switch (lex.type()) {
-            case IDENTIFIER -> getAccessOrCall(lexes, new Identifier(lex.text()));
-            case STRING -> getAccessOrCall(lexes, new StringConstant(lex.text()));
-            case INTEGER -> getAccessOrCall(lexes, new IntegerConstant(lex.text()));
-            case FLOAT -> getAccessOrCall(lexes, new FloatConstant(lex.text()));
+            case IDENTIFIER -> getAccessOrCall(lexes, new Identifier(lex.text()), false);
+            case STRING -> getAccessOrCall(lexes, new StringConstant(lex.text()), false);
+            case INTEGER -> getAccessOrCall(lexes, new IntegerConstant(lex.text()), false);
+            case FLOAT -> getAccessOrCall(lexes, new FloatConstant(lex.text()), false);
             default ->
                     throw new BadSyntax(lexes.position(), "Expression: expected identifier, or constant, got '%s'", lex.text());
         }
@@ -122,10 +122,10 @@ public class PrimaryExpressionAnalyzer extends AbstractAnalyzer {
         return modifiers.toArray(CompositionModifier[]::new);
     }
 
-    private Command getAccessOrCall(LexList lexes, Command left) throws BadSyntax {
+    private Command getAccessOrCall(LexList lexes, Command left, boolean isDecorator) throws BadSyntax {
         while (lexes.is("(", ".", "[")) {
             left = switch (lexes.next().text()) {
-                case "(" -> new FunctionCall(left, analyzeArguments(lexes));
+                case "(" -> new FunctionCall(left, analyzeArguments(lexes, isDecorator));
                 case "." -> new FieldAccess(left, lexes.next(Lex.Type.IDENTIFIER).text());
                 case "[" -> {
                     final var indexExpression = new ArrayAccess(left, ExpressionAnalyzer.INSTANCE.analyze(lexes));
@@ -155,7 +155,7 @@ public class PrimaryExpressionAnalyzer extends AbstractAnalyzer {
      * @return the arguments
      * @throws BadSyntax if the syntax is bad
      */
-    private static FunctionCall.Argument[] analyzeArguments(LexList lexes) throws BadSyntax {
+    private static FunctionCall.Argument[] analyzeArguments(LexList lexes, boolean isDecorator) throws BadSyntax {
         final var arguments = new java.util.ArrayList<FunctionCall.Argument>();
         while (lexes.isNot(")")) {
             if (lexes.isIdentifier() && lexes.isAt(1, "=")) {
@@ -177,6 +177,14 @@ public class PrimaryExpressionAnalyzer extends AbstractAnalyzer {
             lexes.next();
             final var closure = ClosureAnalyzer.INSTANCE.analyze(lexes);
             arguments.add(new FunctionCall.Argument(null, closure));
+        } else if (isDecorator) {
+            if (lexes.is("fn")) {
+                final var fn = FunctionAnalyzer.INSTANCE.analyze(lexes);
+                arguments.add(new FunctionCall.Argument(null, fn));
+            } else if( lexes.is("class")) {
+                final var klass = ClassAnalyzer.INSTANCE.analyze(lexes);
+                arguments.add(new FunctionCall.Argument(null, klass));
+            }
         }
         return arguments.toArray(FunctionCall.Argument[]::new);
     }

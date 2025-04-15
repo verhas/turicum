@@ -13,15 +13,14 @@ public class AdHocTest {
     @Test
     void test() throws Exception {
         test("""
-println("%s = %s" % [4,3])
-{
-    fn k(x,this=me){
-        if x == 1 || x ==  0 : 1
-        else: me(x-1) + me(x-2)
-    }
-k(10)
-}
-                        """
-                , "89");
+                let i = 0
+                while i < 10 {
+                  let k = 5;
+                  println( k + i)
+                  if i > 0 : let k = 7
+                  i = i + 1
+                }
+                """
+                , "10");
     }
 }

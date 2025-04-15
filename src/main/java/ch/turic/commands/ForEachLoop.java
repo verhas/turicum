@@ -38,12 +38,14 @@ public class ForEachLoop extends AbstractCommand {
     @Override
     public Object _execute(final Context context) throws ExecutionException {
         context.step();
-        final var loopContext = context.wrap();
+        final var loopContext = context.loop();
         final var id = identifier.name();
         loopContext.freeze(id);
         final var array = expression.execute(loopContext);
         Object result = null;
+        int loopCounter = 0;
         for (final var item : LeftValue.toIterable(array)) {
+            loopContext.count(loopCounter++);
             loopContext.let0(id, item);
             if (body instanceof BlockCommand block) {
                 final var lp = block.loop(loopContext);

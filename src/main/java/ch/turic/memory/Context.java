@@ -20,7 +20,8 @@ public class Context implements ch.turic.Context {
     public final GlobalContext globalContext;
     public final ThreadContext threadContext;
     public Context caller = null;
-
+    private final boolean loopContext;
+    private int loopCounter = 0;
 
     public Set<String> keys() {
         return frame.keySet();
@@ -39,10 +40,11 @@ public class Context implements ch.turic.Context {
      * @param stepLimit the number of maximal steps before killing the interpreter
      */
     public Context(int stepLimit) {
-        this.globalContext = new GlobalContext(stepLimit,this);
+        this.globalContext = new GlobalContext(stepLimit, this);
         this.wrapped = null;
         this.frame = globalContext.heap;
         this.threadContext = new ThreadContext();
+        this.loopContext = false;
     }
 
     public Context(final GlobalContext globalContext, final ThreadContext threadContext) {
@@ -50,6 +52,7 @@ public class Context implements ch.turic.Context {
         this.frame = new HashMap<>();
         this.globalContext = globalContext;
         this.threadContext = threadContext;
+        this.loopContext = false;
     }
 
     /**
@@ -69,6 +72,15 @@ public class Context implements ch.turic.Context {
         this.threadContext = clone.threadContext;
         this.frame = new HashMap<>();
         this.wrapped = wrapped;
+        this.loopContext = false;
+    }
+
+    private Context(final Context clone, final Context wrapped, boolean loopContext) {
+        this.globalContext = clone.globalContext;
+        this.threadContext = clone.threadContext;
+        this.frame = new HashMap<>();
+        this.wrapped = wrapped;
+        this.loopContext = loopContext;
     }
 
     /**
@@ -121,7 +133,7 @@ public class Context implements ch.turic.Context {
         ExecutionException.when(globals.contains(key), "Local variable is already defined as global '" + key + "'");
         ExecutionException.when(nonlocal.contains(key), "Variable cannot be local, it is already used as non-local '" + key + "'");
         ExecutionException.when(frozen.contains(key), "final variable cannot be altered '" + key + "'");
-        if (frame.containsKey(key)) {
+        if (frame.containsKey(key) && ((!loopContext) || loopCounter < 1)) {
             throw new ExecutionException("Variable '%s' is already defined.", key);
         }
         final var v = new Variable(key);
@@ -160,7 +172,7 @@ public class Context implements ch.turic.Context {
     }
 
     public Context thread() {
-      return new Context(globalContext,new ThreadContext());
+        return new Context(globalContext, new ThreadContext());
     }
 
     /**
@@ -174,6 +186,29 @@ public class Context implements ch.turic.Context {
      */
     public Context wrap() {
         return new Context(this, this);
+    }
+
+    /**
+     * Create a loop context. It is the same as calling {@link #wrap()} but the 'loopContext' flags is true.
+     * <p>
+     * Loop contexts are a bit more lenient about redefining a context local variable.
+     * 'let' will slide the reefinition of a variable if the context is loop context and the loop counter is not zero
+     * (a.k.a. this is not the first execution of the loop body.)
+     *
+     * @return the new context
+     */
+    public Context loop() {
+        return new Context(this, this, true);
+    }
+
+    /**
+     * Set the loop counter for a loop context.
+     * It just sets the counter, does not check anything.
+     *
+     * @param counter the new 'counter' value
+     */
+    public void count(int counter) {
+        this.loopCounter = counter;
     }
 
     /**
@@ -244,7 +279,7 @@ public class Context implements ch.turic.Context {
     public Object get(String key) {
         if (globals.contains(key)) {
             final var variable = globalContext.heap.get(key);
-            if( variable == null ) {
+            if (variable == null) {
                 return null;
             }
             return variable.get();
@@ -302,7 +337,7 @@ public class Context implements ch.turic.Context {
 
     public Context caller() {
         var ctx = this;
-        while( ctx.caller == null && ctx.wrapped != null ) {
+        while (ctx.caller == null && ctx.wrapped != null) {
             ctx = ctx.wrapped;
         }
         return ctx.caller;
