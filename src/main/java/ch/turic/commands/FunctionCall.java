@@ -75,9 +75,9 @@ public class FunctionCall extends AbstractCommand {
                 if (command instanceof Macro) {
                     ctx.setCaller(context);
                 }
-                ctx.let0("me",function);
+                ctx.let0("me", function);
                 ctx.freeze("me");
-                defineArgumentsInContext(ctx, context,command.parameters(), argValues);
+                defineArgumentsInContext(ctx, context, command.parameters(), argValues);
                 return command.execute(ctx);
             }
 
@@ -91,7 +91,8 @@ public class FunctionCall extends AbstractCommand {
             if (function instanceof LngCallable.LngCallableMacro callable) {
                 return callable.call(context, bareValues(evaluateMacroArguments(context, this.arguments)));
             }
-            throw new ExecutionException("It is not possible to invoke '%s' because it is '%s'", object, function);
+            throw new ExecutionException("It is not possible to invoke '%s' because its value is '%s' and not something I can invoke." +
+                    "It is a f5g %s", object, function, function == null ? "null" : function.getClass().getName());
         }
     }
 
@@ -113,7 +114,6 @@ public class FunctionCall extends AbstractCommand {
      * @param argValues     the array holding the actual argument string
      */
     public static void defineArgumentsInContext(Context ctx, Context callerContext, ParameterList pList, ArgumentEvaluated[] argValues) {
-        int positionalsIndex = 0;
         final var filled = new boolean[pList.parameters().length];
         final var rest = new LngList();
         final var meta = new LngObject(null, ctx.open());
@@ -124,7 +124,7 @@ public class FunctionCall extends AbstractCommand {
                 break;
             }
             if (argValues[i].id == null) {
-                positionalsIndex = addPositionalParameter(ctx, pList, argValues[i], positionalsIndex, rest, filled);
+                addPositionalParameter(ctx, pList, argValues[i], rest, meta, filled);
             } else {
                 addNamedParameter(ctx, pList, argValues[i], meta, filled);
             }
@@ -163,62 +163,79 @@ public class FunctionCall extends AbstractCommand {
      * @throws ExecutionException if there is no 'meta' and the name is not defined
      */
     private static void addNamedParameter(Context ctx, ParameterList pList, ArgumentEvaluated argValue, LngObject meta, boolean[] filled) {
-        for (int j = 0; j < pList.parameters().length; j++) {
-            final var parameter = pList.parameters()[j];
-            if (parameter.identifier().equals(argValue.id.name())) {
-                if (parameter.type() == ParameterList.Parameter.Type.POSITIONAL_ONLY) {
-                    if (pList.meta() != null) {
-                        meta.setField(argValue.id.name(), argValue.value);
-                        return;
+        if (argValue.value instanceof Spread(Object array)) {
+            throw new ExecutionException("Named argument cannot be spread");
+        } else {
+            for (int j = 0; j < pList.parameters().length; j++) {
+                final var parameter = pList.parameters()[j];
+                if (parameter.identifier().equals(argValue.id.name())) {
+                    if (parameter.type() == ParameterList.Parameter.Type.POSITIONAL_ONLY) {
+                        if (pList.meta() != null) {
+                            meta.setField(argValue.id.name(), argValue.value);
+                            return;
+                        }
+                        throw new ExecutionException(
+                                "The parameter '%s' is positional only, specified by name and there is no {meta} parameter.",
+                                parameter.identifier());
                     }
-                    throw new ExecutionException(
-                            "The parameter '%s' is positional only, specified by name and there is no {meta} parameter.",
-                            parameter.identifier());
+                    if (filled[j]) {
+                        throw new ExecutionException("Parameter '%s' is already defined", argValue.id.name());
+                    }
+                    filled[j] = true;
+                    ctx.defineTypeChecked(parameter.identifier(), argValue.value, calculateTypeNames(ctx, parameter.types()));
+                    return;
                 }
-                if (filled[j]) {
-                    throw new ExecutionException("Parameter '%s' is already defined", argValue.id.name());
-                }
-                filled[j] = true;
-                ctx.defineTypeChecked(parameter.identifier(), argValue.value, calculateTypeNames(ctx, parameter.types()));
+            }
+            if (pList.meta() != null) {
+                meta.setField(argValue.id.name(), argValue.value);
                 return;
             }
+            throw new ExecutionException("The parameter '%s' is not defined and there is no {meta} parameter", argValue.id.name());
         }
-        if (pList.meta() != null) {
-            meta.setField(argValue.id.name(), argValue.value);
-            return;
-        }
-        throw new ExecutionException("The parameter '%s' is not defined and there is no {meta} parameter", argValue.id.name());
     }
 
     /**
      * Add a positional parameter to the next non-named only free positional parameter.
+     * <p>
+     * if the value is a {@link Spread} object, then the values of the list are added to the arguments.
      *
      * @param ctx      the context to create the variable
      * @param pList    the descriptor of the parameters
      * @param argValue the argument values
-     * @param index    the index of the first fill-able argument (may not be positional)
      * @param rest     the rest object
      * @param filled   the array keeping track of which parameters had got value from the caller
-     * @return the next index
      * @throws ExecutionException if there is no rest and there are too many positional parameters
      */
-    private static int addPositionalParameter(Context ctx, ParameterList pList, ArgumentEvaluated argValue, int index, LngList rest, boolean[] filled) {
-        while (true) {
-            if (index >= pList.parameters().length) {
-                if (pList.rest() == null) {
-                    throw new ExecutionException("Too many parameters and there is no [rest] specified");
+    private static void addPositionalParameter(Context ctx, ParameterList pList, ArgumentEvaluated argValue, LngList rest, LngObject meta, boolean[] filled) {
+        if (argValue.value instanceof Spread(Object array)) {
+            if (array instanceof HasFields it && !(array instanceof LngList)) {
+                for (final String name : it.fields()) {
+                    final var value = it.getField(name);
+                    addNamedParameter(ctx, pList, new ArgumentEvaluated(new Identifier(name), value), meta, filled);
                 }
-                rest.array.add(argValue.value);
-                break;
+                return;
             }
-            if (pList.parameters()[index].type() != ParameterList.Parameter.Type.NAMED_ONLY && !filled[index]) {
-                ctx.defineTypeChecked(pList.parameters()[index].identifier(), argValue.value, calculateTypeNames(ctx, pList.parameters()[index].types()));
-                filled[index++] = true;
-                break;
+            if (array instanceof Iterable<?> it) {
+                for (Object o : it) {
+                    addPositionalParameter(ctx, pList, new ArgumentEvaluated(null, o), rest, meta, filled);
+                }
             }
-            index++;
+        } else {
+            for (int index = 0; true; index++) {
+                if (index >= pList.parameters().length) {
+                    if (pList.rest() == null) {
+                        throw new ExecutionException("Too many parameters and there is no [rest] specified");
+                    }
+                    rest.array.add(argValue.value);
+                    break;
+                }
+                if (pList.parameters()[index].type() != ParameterList.Parameter.Type.NAMED_ONLY && !filled[index]) {
+                    ctx.defineTypeChecked(pList.parameters()[index].identifier(), argValue.value, calculateTypeNames(ctx, pList.parameters()[index].types()));
+                    filled[index] = true;
+                    break;
+                }
+            }
         }
-        return index;
     }
 
     /**

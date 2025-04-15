@@ -20,11 +20,11 @@ public class Reclose implements TuriFunction {
         ExecutionException.when(args.length != 1, "Built-in function reclose needs exactly one argument");
         final var arg = args[0];
         if (arg instanceof Closure closure) {
-            return new Closure(closure.parameters(), (ch.turic.memory.Context) context, closure.command());
+            return new Closure(closure.name(), closure.parameters(), (ch.turic.memory.Context) context, closure.command());
         }
         if (arg instanceof Macro macro) {
-            return new Macro(macro.parameters(), (ch.turic.memory.Context) context, macro.command());
+            return new Macro(macro.name(),macro.parameters(), (ch.turic.memory.Context) context, macro.command());
         }
-        throw new ExecutionException("Cannot get the lazy(%s) for the value of %s", arg.getClass().getCanonicalName(), arg);
+        throw new ExecutionException("Cannot get the lazy(%s) for thevalue of %s", arg.getClass().getCanonicalName(), arg);
     }
 }

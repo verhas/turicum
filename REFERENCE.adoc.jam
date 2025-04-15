@@ -915,12 +915,80 @@ Also, it would be unreadable to recognize `closure` as an argument.
 
 NOTE: The actual implemented syntax checks that the next two tokens following the `)` are `{`and `|`.
 
-This call can aid to create domain-specific languages.
+This call can aid in creating domain-specific languages.
+
+==== Spreading lists and objects as arguments
+
+When calling a function, you can precede a parameter with the `..` operator.
+This will spread the content of the parameter to parameters.
+
+If the value of the parameter is an object, the fields of the object will be used as named parameters.
+The field names will be used as argument names and the values as values.
+
+{%S spread%}
+
+If the value is a list, then the values will be used as positional parameters.
+
+This is useful when you want to pass on parameters you got in the `rest` or `meta` parameters to some other function.
+
+[NOTE]
+====
+Technically you can spread any value resulting from an expression that implements internally the `HasFields, or `Iterable<?>` interface.
+
+Currently, the following classes implement the `HasField` interface:
+
+* `Lex` one token in the lexical analysis.
+It is used in preprocessors written in Turicum.
+
+* `LexList` the list of the tokes.
+Just like the class `Lex` it is used in preprocessors.
+
+* `Closure` is the implementation class for functions and closure.
+There is one, read-only field, `name`.
+
+* `Macro` is the implementation class for macros.
+There is one, read-only field, `name`.
+
+* `JavaObject` is the class that implements the handling of any Java object, when all else fails.
+It implements reflection to access the declared fields of the class on the enveloped object.
+
+* `LazyObject` is the lazy object that has fields which are evaluated every time they are accessed.
+
+* `LngClass` Turicum class object.
+It handles the class level fields.
+
+* `LngException` is any exception caught by a `catch` in the program.
+It has a constant set of read-only fields.
+
+* `LngList` Turicum lists.
+It has one read-only field `length`.
+This class also implements Iterable and is handled as such when used in an argument list spread.
+
+* `LngObject` is a Turicum object.
+
+* `MapObject` any Java `Map<?,?>` object.
+The implementation will handle the keys as strings.
+
+The following class implement the `Iterable` interface in Turicum, which do not implement the `HasField` and thus can be spread as positional parameters:
+
+* `IndexedString` envelops a string during commands that modify a String.
+This is the technical implementation internally replacing an unmutable Java String with a mutable wrapper around.
+
+* `JavaArray` makes it possible to index any Java array.
+
+* `LngList` is the list object in Turicum.
+Although this class also implements the `HasFields` interface this is handled as an exception and passed as positional arguments when spread.
+
+* `BlockingQueueYielder` is the class handling asynchronous stream operations and yields.
+It makes it possible to use the result of a `stream(expression)` spread as arguments.
+It will eventually wait till all the elements of the stream are ready before starting the function.
++
+{%S spreadStream%}
+====
 
 
 === Closures and Context
 
-=== Function Calls
 
 == Classes and Objects
 
@@ -928,27 +996,9 @@ This call can aid to create domain-specific languages.
 
 === Fields and Methods
 
-=== Object Construction
-
-=== Field Access and Method Invocation
-
-== Expressions and Operators
-
-=== Literals: Numbers and Strings
-
-=== Arithmetic and Logical Operators
-
-=== Precedence and Associativity
-
-=== Unary Operators
-
 === Blocks as Expressions
 
 == Data Structures
-
-=== Arrays
-
-=== Indexing and Access
 
 === Future Structures (TBD)
 
@@ -956,15 +1006,74 @@ This call can aid to create domain-specific languages.
 
 === Try-Catch (once supported — placeholder)
 
-== Metaprogramming (Planned)
+== Decorators, Metaprogramming
 
-=== Macros and Reclosures (Future Design)
+Decorators are an inherent part of Turicum.
+To make them similar to Python decorators and Java annotation, they can have a `@` in front of the decorator function call.
+However, in the case of closures, you do not even need that.
+Every function call that has a closure as the last parameter can act as a decorator.
+
+{%S closureDecorator1%}
+
+If you add a `@` then the result is the same:
+
+{%S closureDecorator2%}
+
+The `@` helps you emphasize that the call is a decorator call that modifies the closure following it.
+The use of `@` also notifies the syntax analyser that the call is a decorator call, and it extends the recognition of the following `^closure` parameter.
+When the `@` precedes the function call, a `fn` or `class` are also recognized as `^closure` parameter.
+
+{%S fnDecorator1%}
+
+Without the `@` the program is still valid.
+However, as soon as we try to invoke `z()` the program fails.
+It tries to invoke the closure returned by `fun_decorator()`, which tries to call `closure()` which now has the value `none`.
+This happens because the syntax analysis does not use the function definition as a parameter.
+
+The code can, however, be fixed:
+
+{%S fnDecorator2%}
+
+The application of the `@` is therefore only a syntactic sugar.
+The following example shows that a decorator can not only return the decorated function, class or closure.
+They can also modify the existing definition.
+
+{%S fnDecorator3%}
+
+Technically the decorator does not modify the function `q`.
+It creates a new function and redefines the variable named `q` in the wrapped context.
+
+Note, that if `fun_decorator` was a function declared with `fn` it would not work.
+A function does not wrap the surrounding context and thus cannot redefine anything in it.
+To redefine an already existing variable, it needs to be a closure.
+
+You usually just assign a value to the variable updating its value.
+In this case we have to use the built-in `set` function, because we have the name of the variable as a string.
+
+In the following example we moved the function definition to a local scope.
+The decorator in this case simply defines the global variable of the same name as we used locally for the function.
+The value is the closure or function, whatever we decorate itself.
+
+{%S fnDecorator4%}
+
+Since we use `set_global` the decorator can be a function, it does not need access to the enclosing context.
+
+=== Macro and Reclose
+
+The built-in functions `macro` and `reclose` are special closure conversion functions.
+
+The function `macro()` accepts a closure as an argument and returns the closure converted to a macro.
+The major difference between ordinary macros and closures is that the argumente of a closure are evaluated before starting.
+A macro gets its arguments unevaluated.
+
+=== Built-in Functions
+
+=== Preprocessing
 
 == Language Grammar (Appendix)
 
 === Full Annotated EBNF
 
-=== Notes on Non-standard Constructs
 
 == Keywords and Syntax Summary
 

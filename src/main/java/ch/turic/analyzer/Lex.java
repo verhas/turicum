@@ -4,6 +4,8 @@ package ch.turic.analyzer;
 import ch.turic.ExecutionException;
 import ch.turic.memory.HasFields;
 
+import java.util.Set;
+
 public class Lex implements HasFields {
     Type type;
     String text;
@@ -65,6 +67,11 @@ public class Lex implements HasFields {
             case "atLineStart" -> atLineStart;
             default -> throw new ExecutionException("Unknown field: " + name);
         };
+    }
+
+    @Override
+    public Set<String> fields() {
+        return Set.of("type", "text", "atLineStart");
     }
 
     public enum Type {

@@ -6,6 +6,8 @@ import ch.turic.commands.ClosureOrMacro;
 import ch.turic.commands.FunctionCall;
 import ch.turic.commands.Macro;
 
+import java.util.Set;
+
 import static ch.turic.commands.FunctionCall.*;
 
 /**
@@ -80,6 +82,11 @@ public class LngClass implements HasFields, HasContext, LngCallable.LngCallableC
             }
         }
         return null;
+    }
+
+    @Override
+    public Set<String> fields() {
+        return context.keys();
     }
 
     /**

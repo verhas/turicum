@@ -6,6 +6,8 @@ import ch.turic.analyzer.ProgramAnalyzer;
 import ch.turic.commands.Command;
 import ch.turic.memory.Context;
 
+import java.util.ArrayList;
+
 /**
  * Interprets and executes source code written in the programming language.
  * <p>
@@ -50,7 +52,7 @@ public class Interpreter {
         Command localCode = code; // Read volatile field only once
         if (localCode == null) {
             synchronized (lock) {
-                localCode = code; // may have changed since we syncronized
+                localCode = code; // may have changed since we synchronized
                 if (localCode == null) {
                     final var analyzer = new ProgramAnalyzer();
                     localCode = analyzer.analyze(Lexer.analyze(Input.fromString(source)));
@@ -66,6 +68,23 @@ public class Interpreter {
         } else {
             ctx = preprocessorContext.wrap();
         }
-        return localCode.execute(ctx);
+        try {
+            return localCode.execute(ctx);
+        } catch (ExecutionException e) {
+            final var newStackTrace = new ArrayList<StackTraceElement>();
+            for (final var stackFrame : ctx.threadContext.getStackTrace()) {
+                if (stackFrame.command().startPosition() != null) {
+                    newStackTrace.add(new StackTraceElement(
+                            stackFrame.command().getClass().getSimpleName(),
+                            "",
+                            stackFrame.command().startPosition().file,
+                            stackFrame.command().startPosition().line
+                    ));
+                }
+            }
+            final var turiException = new ExecutionException(e);
+            turiException.setStackTrace(newStackTrace.toArray(StackTraceElement[]::new));
+            throw turiException;
+        }
     }
 }

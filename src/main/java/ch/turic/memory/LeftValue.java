@@ -28,6 +28,7 @@ public interface LeftValue {
             ExecutionException.when(existing == null, "Cannot used None as object.");
             return switch (existing) {
                 case LngObject object -> object;
+                case Map<?,?> map -> new MapObject((Map<Object, Object>) map);
                 default -> throw new ExecutionException("Unknown object types '%s'", existing);
             };
         } else {

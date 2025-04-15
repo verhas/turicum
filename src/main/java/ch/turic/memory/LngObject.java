@@ -48,6 +48,11 @@ public class LngObject implements HasFields, HasIndex, HasContext {
     }
 
     @Override
+    public Set<String> fields() {
+        return context.keys();
+    }
+
+    @Override
     public void setIndex(Object index, Object value) throws ExecutionException {
         ExecutionException.when(pinned.get(), "You cannot change a pinned object");
         setField(index.toString(), value);

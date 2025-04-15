@@ -1,15 +1,18 @@
 package ch.turic.commands;
 
+import ch.turic.ExecutionException;
 import ch.turic.memory.Context;
 import ch.turic.memory.HasFields;
 import ch.turic.memory.LngClass;
 import ch.turic.memory.LngObject;
 import ch.turic.utils.NullableOptional;
 
+import java.util.Set;
+
 import static ch.turic.commands.FunctionCall.defineArgumentsInContext;
 import static ch.turic.commands.FunctionCall.freezeThisAndCls;
 
-public sealed interface ClosureOrMacro extends Command permits Closure, Macro {
+public sealed interface ClosureOrMacro extends Command, HasFields permits Closure, Macro {
     static Context prepareObjectContext(Context context, LngObject lngObject, FunctionCall.ArgumentEvaluated[] argValues, ClosureOrMacro it) {
         final Context ctx;
         if (it.wrapped() == null) {
@@ -57,4 +60,25 @@ public sealed interface ClosureOrMacro extends Command permits Closure, Macro {
     NullableOptional<Object> methodCall(Context context, HasFields obj, String methodName, FunctionCall.Argument[] arguments);
 
     FunctionCall.ArgumentEvaluated[] evaluateArguments(Context context, FunctionCall.Argument[] arguments);
+
+    String name();
+
+    default void setField(String name, Object value) throws ExecutionException {
+        throw new ExecutionException("You cannot set fields of a closure or a macro");
+    }
+
+    @Override
+    default Set<String> fields() {
+        return Set.of("name");
+    }
+
+    default Object getField(String name) throws ExecutionException {
+        switch (name) {
+            case "name":
+                return name();
+            default:
+                throw new ExecutionException("You cannot get field '%s' of a closure or a macro.", name);
+        }
+    }
+
 }

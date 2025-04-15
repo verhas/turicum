@@ -26,15 +26,22 @@ public final class Closure extends AbstractCommand implements ClosureOrMacro, Ln
         return wrapped;
     }
 
-    public Closure(ParameterList parameters, Context wrapped, BlockCommand command) {
+    public Closure(String name, ParameterList parameters, Context wrapped, BlockCommand command) {
         this.command = command;
         this.parameters = parameters;
         this.wrapped = wrapped;
+        this.name = name;
     }
 
     final ParameterList parameters;
     final Context wrapped;
     final BlockCommand command;
+    final String name;
+
+    @Override
+    public String name() {
+        return name;
+    }
 
     @Override
     public Object _execute(final Context ctx) throws ExecutionException {
@@ -89,5 +96,4 @@ public final class Closure extends AbstractCommand implements ClosureOrMacro, Ln
         }
         return argValues;
     }
-
 }

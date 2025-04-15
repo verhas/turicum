@@ -16,6 +16,12 @@ public final class Macro extends AbstractCommand implements ClosureOrMacro {
     final ParameterList parameters;
     final Context wrapped;
     final BlockCommand command;
+    final String name;
+
+    @Override
+    public String name() {
+        return name;
+    }
 
     public BlockCommand command() {
         return command;
@@ -31,10 +37,11 @@ public final class Macro extends AbstractCommand implements ClosureOrMacro {
         return wrapped;
     }
 
-    public Macro(ParameterList parameters, Context wrapped, BlockCommand command) {
+    public Macro(String name, ParameterList parameters, Context wrapped, BlockCommand command) {
         this.parameters = parameters;
         this.wrapped = wrapped;
         this.command = command;
+        this.name = name;
     }
 
     @Override

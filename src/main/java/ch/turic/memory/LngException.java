@@ -6,9 +6,10 @@ import ch.turic.commands.AbstractCommand;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 public class LngException extends LngObject {
-    private static final LngClass exceptionClass = new LngClass(null,  "EXCEPTION");
+    private static final LngClass exceptionClass = new LngClass(null, "EXCEPTION");
     private final Throwable e;
     private final LngList stackTrace;
     private final Context context;
@@ -86,6 +87,11 @@ public class LngException extends LngObject {
             }
             default -> null;
         };
+    }
+
+    @Override
+    public Set<String> fields() {
+        return Set.of("message", "stack_trace", "cause", "supressed");
     }
 
     @Override

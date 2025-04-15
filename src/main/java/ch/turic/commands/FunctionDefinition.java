@@ -29,7 +29,7 @@ public class FunctionDefinition extends AbstractCommand {
 
     @Override
     public Object _execute(final Context context) throws ExecutionException {
-        final var closure = new Closure(arguments, null, body);
+        final var closure = new Closure(functionName,arguments, null, body);
         if (functionName != null) {
             context.local(functionName, closure);
         }

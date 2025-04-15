@@ -712,7 +712,7 @@ MESSAGE = MESSAGE[0…-1]
 
 // snippet catchingException
 // String
-// "It is not possible to invoke 'nonexistent' because it is 'null'"
+// "It is not possible to invoke 'nonexistent' because its value is 'null' and not something I can invoke.It is a f5g null"
 let MESSAGE = ""
 try {
   let h = nonexistent()
@@ -992,10 +992,9 @@ fn adhoc(){ // this will be deleted, it only exists in the preprocessor context
     }
     M = M + "hello ";
     M = M + (adhoc() or "none ");
-    M = M + adhic();
 """,..lexes]
 }
-M = M + "hangyavadasz"
+M = M + adhic() + "hangyavadasz"
 
 // snippet jsonLazyObject
 // String
@@ -1105,3 +1104,27 @@ k(10)
     }
 k(10)
 }
+
+// snippet LoopContext
+// Long
+// 10
+let i = 0
+while i < 10 {
+  let k = 5; // this is okay in a loop context
+  println( k + i)
+  // this is wrong, but since we are dynamic, Turi accepts it
+  if i > 0 : let k = 7
+  i = i + 1
+}
+
+// snippet argumentSpreading
+// String
+// "1 2 3 4 1 2 3 4 "
+fn a(@a,@b,@c,@d){
+    "%s %s %s %s " % [a,b,c,d]
+}
+fn b(!a,!b,!c,!d){
+    "%s %s %s %s " % [a,b,c,d]
+}
+
+a(..{a:1,b:2,c:3,d:4}) + b(..[1,2,3,4])

@@ -99,6 +99,11 @@ public class LngList implements HasIndex, HasFields {
     }
 
     @Override
+    public Set<String> fields() {
+        return Set.of("length");
+    }
+
+    @Override
     public Iterator<Object> iterator() {
         return array.iterator();
     }

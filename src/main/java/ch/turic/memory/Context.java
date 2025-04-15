@@ -225,7 +225,9 @@ public class Context implements ch.turic.Context {
 
     /**
      * Assign a new value to an identifier. If the identifier is already defined in the wrapper context, including the
-     * transitive closures of the wrappers, then redefine that. Otherwise, create a new local definition.
+     * transitive closures of the wrappers, then redefine that.
+     * <p>
+     * It is an error if the variable is not defined.
      *
      * @param key   the identifier
      * @param value the value of the local whatnot

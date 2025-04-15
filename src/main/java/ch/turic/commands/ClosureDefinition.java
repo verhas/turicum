@@ -23,6 +23,6 @@ public class ClosureDefinition extends AbstractCommand {
 
     @Override
     public Object _execute(final Context context) throws ExecutionException {
-        return new Closure(arguments, context, body);
+        return new Closure(null,arguments, context, body);
     }
 }

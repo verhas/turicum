@@ -329,4 +329,104 @@ let f = fn (a,b,^closure) {
 f(2,3){|x,y| x+y}
 f(2,3){|x,y| x*y}
 // end snippet
+// snippet spread
+fn a(@a,@b,@c,@d){
+    println("%s %s %s %s " % [a,b,c,d])
+}
+fn b(!a,!b,!c,!d){
+    println("%s %s %s %s " % [a,b,c,d])
+}
+fn c(a,b,c,d){
+    println("%s %s %s %s " % [a,b,c,d])
+}
 
+a(..{a:1,b:2,c:3,d:4});
+b(..[1,2,3,4]);
+c(..[1,2],..{d:4},3);
+// end snippet
+
+// snippet spreadStream
+fn c(a,b,c,d){
+    println("%s %s %s %s " % [a,b,c,d])
+}
+fn numbers {
+  for i = 1 ; i <= 4 ; i = i + 1 : yield i
+}
+
+c(..stream(numbers()))
+// end snippet
+
+// snippet closureDecorator1
+  fn closure_decorator(^closure){
+    {|| println("We start"); closure(); println("We finish")}
+  }
+
+  let z = closure_decorator(){|| println("We are closure") }
+
+  z()
+// end snippet
+
+// snippet closureDecorator2
+  fn closure_decorator(^closure){
+    {|| println("We start@"); closure(); println("We finish@")}
+  }
+
+  let z = @closure_decorator(){|| println("We are closure") }
+
+  z()
+// end snippet
+
+// snippet fnDecorator1
+  fn fun_decorator(^closure){
+    {|| println("We start the fun"); closure(); println("The fun is over")}
+  }
+
+let z =
+@fun_decorator()
+fn q(){
+  println("We function");
+}
+  z()
+// end snippet
+
+// snippet fnDecorator2
+  fn fun_decorator(^closure){
+    {|| println("We start the fun"); closure(); println("The fun is over")}
+  }
+
+let z =
+fun_decorator(
+fn q(){
+  println("We function");
+})
+  z()
+// end snippet
+
+// snippet fnDecorator3
+let fun_decorator={|^closure|
+        set(closure.name,
+            {|| println("We start the fun"); closure(); println("The fun is over")}
+           )
+    }
+
+@fun_decorator()
+fn q(){
+  println("We function");
+}
+
+q()
+// end snippet
+
+// snippet fnDecorator4
+{
+    fn globalize(^closure){
+            set_global(closure.name,closure)
+        }
+
+    @globalize()
+    fn q(){
+      println("We function");
+    }
+}
+q()
+// end snippet

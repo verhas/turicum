@@ -11,7 +11,7 @@ module ch.turic {
 
     provides ch.turic.TuriFunction with Len, Type, Macro, Evaluate, Println,
             Print, Reclose, Keys, Import, JavaNewObject, JavaMethodCall,
-            JavaMethodCallVararg, SysImport, Sleep;
+            JavaMethodCallVararg, SysImport, Sleep, Set, SetGlobal;
     provides ch.turic.TuriMacro with Async, Stream;
     provides ch.turic.TuriClass with TuriString, TuriLong, TuriDouble, TuriFuture, TuriIterator;
 }

@@ -13,14 +13,8 @@ public class AdHocTest {
     @Test
     void test() throws Exception {
         test("""
-                let i = 0
-                while i < 10 {
-                  let k = 5;
-                  println( k + i)
-                  if i > 0 : let k = 7
-                  i = i + 1
-                }
+for each a in "alma van" : println(a)
                 """
-                , "10");
+                , null);
     }
 }

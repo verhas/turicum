@@ -13,7 +13,7 @@ public class ExecutionException extends RuntimeException {
     }
 
     public ExecutionException(Throwable throwable) {
-        super(throwable);
+        super(throwable.getMessage(),throwable);
     }
 
     public static void when(final boolean b, String msg, Object... parameters) throws ExecutionException {

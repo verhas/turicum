@@ -2,6 +2,7 @@ package ch.turic.analyzer;
 
 
 import ch.turic.BadSyntax;
+import ch.turic.ExecutionException;
 import ch.turic.commands.*;
 import ch.turic.memory.CompositionModifier;
 
@@ -83,6 +84,12 @@ public class PrimaryExpressionAnalyzer extends AbstractAnalyzer {
             BadSyntax.when(lexes, lexes.isNot("]"), "list literal has to be closed using ']'");
             lexes.next();
             return getAccessOrCall(lexes, left, false);
+        }
+        if (lexes.is("@")) {
+            lexes.next(); // step over the '@'
+            ExecutionException.when(!lexes.isIdentifier(), "@ has to be followed by a function name.");
+            final var lex = lexes.next();
+            return getAccessOrCall(lexes, new Identifier(lex.text()), true);
         }
         final var lex = lexes.next();
         return switch (lex.type()) {
@@ -174,16 +181,21 @@ public class PrimaryExpressionAnalyzer extends AbstractAnalyzer {
         BadSyntax.when(lexes, lexes.isNot(")"), "Function call: expected ')' after the parents");
         lexes.next(); // consume the ')'
         if (lexes.is("{") && ClosureAnalyzer.blockStartsClosure(lexes)) {
+            // trailing closure works with our without setting the function call to be a decorator
             lexes.next();
             final var closure = ClosureAnalyzer.INSTANCE.analyze(lexes);
             arguments.add(new FunctionCall.Argument(null, closure));
         } else if (isDecorator) {
             if (lexes.is("fn")) {
+                lexes.next();
                 final var fn = FunctionAnalyzer.INSTANCE.analyze(lexes);
                 arguments.add(new FunctionCall.Argument(null, fn));
-            } else if( lexes.is("class")) {
+            } else if (lexes.is("class")) {
+                lexes.next();
                 final var klass = ClassAnalyzer.INSTANCE.analyze(lexes);
                 arguments.add(new FunctionCall.Argument(null, klass));
+            } else {
+                throw new BadSyntax(lexes.position(), "Could not find what to decorate. Only closures, functions and classes can be decorated as for now.");
             }
         }
         return arguments.toArray(FunctionCall.Argument[]::new);
