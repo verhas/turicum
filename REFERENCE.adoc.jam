@@ -998,7 +998,7 @@ It will eventually wait till all the elements of the stream are ready before sta
 
 == Data Structures
 
-=== Future Structures (TBD)
+=== Future Structures
 
 == Error Handling
 
@@ -1158,7 +1158,179 @@ Finally, here is a modified fibonacci calculation that can replace the start val
 We do not include here the printout.
 The first number you already know, try to guess the second, then run the code yourself.
 
-=== Built-in Functions
+== Built-in Functions
+
+Built-in functions are functions provided by the interpreter, which extend the functionality of the run-time.
+
+=== `evaluate`
+
+Macro implementations use this function.
+Macros get their arguments unevaluated and can use this function to evaluate them.
+If you try to evaluate anything else than a macro argument, you will get an error.
+
+{%S evaluate1%}
+
+The following example uses all the possible tools that can appear in a macro and a function.
+The actual functionality is basic: it just invokes the closure or function provided as the first argument with the rest of the arguments passed on.
+In real life you could just call the function itself without making it through a macro, but in this case we focus on doing that and how.
+
+The unnamed function, which is the argument of the macro, has a mandatory, position-only argument and all the three extra arguments.
+The first argument will be the function or closure we will call.
+The function first called `evaluate` to get the function or closure.
+Since this function is never called as a function, only after it is converted to be a macro, the argument is never a function, but a function definition.
+Evaluating it will result in the function.
+
+When we call this function adding `(..rest,..meta,..closure)` after it we spread the extra parameters.
+In this example the three argument values for these parameters are
+
+* `{}` empty object,
+* `[]` empty list, and
+* `none`
+
+None of them adds extra parameters when spread.
+
+{%S evaluate2%}
+
+To be honest, since the evaluation of the argument happens only once and without condition, this functionality does not really need a macro.
+It could be shortened as
+
+{%S evaluate3%}
+
+Note, however that the code starts with a `(`.
+That will make the function definition be part of an expression and process the following `(fn () {println("Hello")})` as an argument.
+Without that we would have two unnamed function definitions, one after the other.
+
+[NOTE]
+====
+The first design required enclosing a function definition like the one above to be enclosed between `{` and `}` to be part of an expression.
+In most of the cases, like assigning a function to a variable would require superfluous `{` and `}` braces.
+The philosophy of Turicum is to be dense and use extra characters where it helps readability or avoids syntax ambiguity.
+
+Omitting the requirement around a `fn` (or for that matter a `class`) definition inside an expression make the language leaner, but this does not make a function or class definition to be an expression itself.
+====
+
+=== `import`
+
+Import allows you to get definitions in other files into your code.
+
+Technically, the function loads a Turicum source file, executes it, and returns the global context as an object.
+If you have function or class definitions in the imported file, they will be fields in the new object.
+Instead of introducing a new command, Turicum uses this function.
+
+Other languages separate the module names, class names and alias definitions.
+In turicum when you import `mod.dul.name.file` it will find the file in one of the `mod/ul/name` subdirectories^*^ in the file `file.turi` via the appia.
+
+You can assign the returned object to a variable.
+If you want a specific class or function in your name space you can simply `let` assign it to a variable
+
+[source]
+----
+{%#ranges range=2..-2
+{%@snip import%}%}
+----
+
+The import searches for the file in the directories listed in the environment variable `APPIA`.
+This variable is a list of directories separated by `|` characters.
+They are searched from the first to the last until the file is found.
+
+=== `sys_import`
+
+This command can be used to import Turicum system files.
+These are classes and functions that give an interface to the surrounding environment through the Java VM.
+Although Turicum can call any Java method using the functions `java_object`, `java_call` and `java_call_vararg` there are not meant to be used in application code.
+They are primitives and are used as part of the system library part of the run-time.
+When you use `sys_import` you import the file from the Java resource path, that delivers more Turicum idiomatic API.
+
+=== `java_...`
+
+There are three functions in this group:
+
+* `java_object`,
+
+* `java_call`, and
+
+* `java_call_vararg`.
+
+==== `java_object`
+
+This function can be used to create new instances of any Java class.
+The first argument to the function is the binary name of the class.
+The rest of the arguments should be the constructor arguments.
+
+Since Turicum stores numbers as Double and Long, strings as Strings, boolean values as Boolean without any wrapping class, calling this function is straightforward when the constructor arguments are one of these primitive values.
+If the parameter type is something else, then you have to use to create that object calling `java_object()`.
+
+==== `java_call`
+
+This function calls a Java method.
+
+The first argument is either
+
+* the object on which we want to call a method, or
+
+* the name of the class to call a static method on.
+
+The second argument is the name of the method. The rest of the arguments are passed to the Java method.
+The return value is the value returned by the Java method.
+
+==== `java_call_vararg`
+
+This function should be used to call a vararg method.
+
+An example of the use of `java_call` and `java_call_vararg` from the early stage of `io.turi`:
+
+[source]
+----
+class files {
+    fn read_all_lines(file_name_or_path){
+    println(file_name_or_path)
+    println(type(file_name_or_path))
+
+        if type(file_name_or_path) == "str" :
+            let file = java_call("java.nio.file.Path","of",file_name_or_path)
+        else:
+            let file = file_name_or_path
+        java_call("java.nio.file.Files","readAllLines",file)
+    }
+}
+
+class path {
+    fn `of`(file_name,[rest]){
+        java_call_vararg("java.nio.file.Path","of",file_name,rest)
+    }
+}
+----
+
+=== `keys`
+
+The function `keys()` returns a string list containing the keys of the argument.
+
+* If it is a class, then the keys are the class level fields, including those that have closure value, hence are class methods.
+
+* If it is an object, then the list contains the fields.
+
+* If it is a macro, a closure, or a function then it will return the parameter names.
+
+=== `len`
+
+This function returns the length of the argument.
+The argument can be:
+
+* string
+
+* list
+
+* Java array
+
+* Java collection
+
+=== `set`
+=== `set_global`
+=== `type`
+=== `sleep`
+=== `macro`
+=== `reclose`
+=== `print`, `println`
 
 === Preprocessing
 
@@ -1166,6 +1338,171 @@ The first number you already know, try to guess the second, then run the code yo
 
 === Full Annotated EBNF
 
+The following is the non-standard EBNF definition of the programming language called Turicum.
+It is not intended to be used by syntax analyzer generators.
+Strings between ' characters are literal keywords.
+Syntax between [ and ] are optional
+Syntax between { and } are repeated zero or more times
+Syntax between ( and ) is a group with alternatives
+Alternative syntaxes are separated using the | character.
+Non-terminal symbols are all capital letters.
+EBNF non-terminals are followed by ::= and then the definition closed by ;
+Non-literal terminal symbols are:
+
+* IDENTIFIER
+* number
+* string
+
+A program is simply a series of commands.
+Commands may be separated by `;` character, and it is recommended to use it, but it is not required
+
+ PROGRAM ::= { COMMAND [;] } ;
+
+Commands also have/return values.
+
+ COMMAND ::= ASSIGNMENT |
+ EXPRESSION |
+ IF |
+ LOOP |
+ CLASS |
+ FN |
+ LOCAL | GLOBAL | PIN
+ BREAK | YIELD | RETURN |
+ TRY |
+ ;
+
+If the condition expression is missing after 'for' or 'while' it is `true`.
+the expression following the 'until' is not optional, but the whole `until` `EXPRESSION` is optional.
+The value of a loop is the last __executed__ command.
+
+ LOOP ::= 'while' [EXPRESSION] ( BLOCK | ':' COMMAND ) [ 'until' EXPRESSION] |
+
+Semicolons are optional, but are needed if `COMMAND` or `EXPRESSION` is missing.
+
+ 'for' COMMAND ';' [EXPRESSION] ';' COMMAND ( BLOCK | ':' COMMAND ) [ 'until' EXPRESSION] |
+
+Equivalent to: `for(init; condition; step)`
+
+ 'for' '(' COMMAND [EXPRESSION] COMMAND ')' ( COMMAND | BLOCK | ':' COMMAND ) [ 'until' EXPRESSION] |
+ 'for each' identifier 'in' EXPRESSION ( BLOCK | ':' COMMAND ) [ 'until' EXPRESSION] |
+ 'for each' '(' identifier 'in' EXPRESSION ')' ( COMMAND | BLOCK | ':' COMMAND ) [ 'until' EXPRESSION]
+ ;
+
+The value of an `IF` command is the value of the first or the second block, whichever is executed.
+If the condition expression is false and there is no second block, then the value is `none`.
+
+ IF ::= 'if' EXPRESSION ( ':' COMMAND | BLOCK ) [ 'else' ( ':' COMMAND | BLOCK )] ;
+
+The result of a CLASS declaration is the class itself.
+
+ CLASS ::= 'class' [IDENTIFIER] [ ':' IDENTIFIER_LIST ] BLOCK ;
+
+The result of a function declaration is the function itself.
+
+ FN ::= FN_EXPR | FN_BLOCK ;
+
+For functions with an expression body following a '=' the parameter list is mandatory.
+The parameter list may be empty having only '(' and ')'
+
+ FN_EXPR   ::= 'fn' [ IDENTIFIER ] '(' IDENTIFIER_LIST ')' '=' EXPRESSION ;
+
+For functions with a block body, both the function name and parameter list are optional, but you must have at least one of them.
+
+ FN_BLOCK  ::= 'fn' [ IDENTIFIER ] [ '(' IDENTIFIER_LIST ')' ] BLOCK ;
+
+Variables declared as local will be local to the scope, even if the same name is used in some enclosing scope
+or as a global variable
+the value of the local declaration is the value of the last assignment in the command
+
+ LOCAL ::= 'let' IDENTIFIER_ASSIGNMENT_LIST;
+
+Variables declared global will refer to the global variable.
+The value of the global declaration is the value of the last assignment in the command.
+
+ GLOBAL ::= 'global' IDENTIFIER_ASSIGNMENT_LIST;
+
+Variables pinned cannot be changed in the local scope.
+Pinning has no effect to outer scopes.
+You can also pin an object. In that case use `{variable}` instead of the name.
+
+ PIN ::= 'pin' IDENTIFIER_ASSIGNMENT_LIST;
+
+ IDENTIFIER_ASSIGNMENT_LIST ::= [identifier ['=' expression]] { ',' identifier [ '=' expression] };
+
+
+It is valid to have no identifiers in an identifier list, a.k.a. having an empty identifier list
+
+ IDENTIFIER_LIST ::= [ IDENTIFIER { ',' IDENTIFIER } ];
+
+Using '=' updates a variable but never creates a new one. It first has to be created using `let`.
+
+ ASSIGNMENT ::= LEFT_VALUE '=' EXPRESSION ;
+ LEFT_VALUE ::= IDENTIFIER { '.' IDENTIFIER | '[' EXPRESSION ']'};
+ EXPRESSION ::= BINARY_EXPRESSION[0];
+
+Define precedence levels using indexed rules
+
+ N=10;
+ BINARY_EXPRESSION[i <N ] ::= BINARY_EXPRESSION[i+1] { BINARY_OPERATOR[i] BINARY_EXPRESSION[i+1] };
+ BINARY_EXPRESSION[i == N] ::= UNARY_EXPRESSION  ;// Highest precedence level
+
+Unary operators and primary expressions
+
+ UNARY_EXPRESSION ::= PREFIX_UNARY_OPERATOR UNARY_EXPRESSION | PRIMARY_EXPRESSION;
+
+ PRIMARY_EXPRESSION ::= number | string
+ | FN
+ | CLASS
+ | IDENTIFIER
+ | '(' EXPRESSION ')'
+ | FUNCTION_CALL
+ | FIELD_ACCESS
+ | METHOD_CALL
+ | BLOCK
+ | ARRAY_ACCESS
+ ;
+
+Function call: name(params)
+
+ FUNCTION_CALL ::= IDENTIFIER '(' [ EXPRESSION { ',' EXPRESSION } ] ')' ;
+
+Field access: obj.field
+
+ FIELD_ACCESS ::= PRIMARY_EXPRESSION '.' IDENTIFIER ;
+
+Method call: obj.method(params)
+
+ METHOD_CALL ::= PRIMARY_EXPRESSION '.' IDENTIFIER '(' [ EXPRESSION { ',' EXPRESSION } ] ')' ;
+
+Block returning an expression value. The value of the block is always the last executed expression.
+
+ BLOCK ::= '{' { COMMAND [';'] } '}' ;
+
+ BREAK  ::= 'break' CONDITIONAL_VALUE ;
+ RETURN  ::= 'return' CONDITIONAL_VALUE ;
+ YIELD ::= 'yield' CONDITIONAL_VALUE ;
+ CONDITIONAL_VALUE = EXPRESSION [ ('if' | 'when') EXPRESSION ];
+
+Array element access: array[index]
+
+ ARRAY_ACCESS ::= PRIMARY_EXPRESSION '[' EXPRESSION ']' ;
+
+Unary operators
+
+ PREFIX_UNARY_OPERATOR ::= '+' | '-' | '!' ;
+
+Binary operators grouped by precedence (higher index = higher precedence)
+
+ BINARY_OPERATOR[0] ::= '||' ; Lowest precedence
+ BINARY_OPERATOR[1] ::= '&&' ;
+ BINARY_OPERATOR[2] ::= '|' ;
+ BINARY_OPERATOR[3] ::= '^' ;
+ BINARY_OPERATOR[4] ::= '&' ;
+ BINARY_OPERATOR[5] ::= '==' | '!=' ;
+ BINARY_OPERATOR[6] ::= '<' | '<=' | '>' | '>=' ;
+ BINARY_OPERATOR[7] ::= '<<' | '>>' ;
+ BINARY_OPERATOR[8] ::= '+' | '-' ;
+ BINARY_OPERATOR[9] ::= '*' | '/' | '%' ; Highest precedence for binary ops
 
 == Keywords and Syntax Summary
 

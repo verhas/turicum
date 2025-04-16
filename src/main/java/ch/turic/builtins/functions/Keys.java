@@ -4,6 +4,7 @@ import ch.turic.Context;
 import ch.turic.ExecutionException;
 import ch.turic.TuriFunction;
 import ch.turic.commands.Closure;
+import ch.turic.commands.ClosureOrMacro;
 import ch.turic.commands.ParameterList;
 import ch.turic.memory.LngClass;
 import ch.turic.memory.LngList;
@@ -40,7 +41,7 @@ public class Keys implements TuriFunction {
                 result.array.addAll(object.context().keys());
                 yield result;
             }
-            case Closure closure -> result.array.addAll(
+            case ClosureOrMacro closure -> result.array.addAll(
                     Arrays.stream(closure.parameters().parameters())
                             .map(ParameterList.Parameter::identifier).toList());
             case null -> throw new ExecutionException("None does not have keys");

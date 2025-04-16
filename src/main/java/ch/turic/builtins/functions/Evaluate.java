@@ -26,7 +26,7 @@ public class Evaluate implements TuriFunction {
             }
             return command.execute(callerContext);
         }
-        throw new ExecutionException("Cannot get the lazy(%s) for the value of %s", arg.getClass().getCanonicalName(), arg);
+        throw new ExecutionException("Cannot evaluate the value of %s", arg);
     }
 
 }

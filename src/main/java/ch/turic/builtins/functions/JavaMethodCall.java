@@ -67,7 +67,7 @@ public class JavaMethodCall implements TuriFunction {
                     if (method.isVarArgs()) {
                         final Object[] args = new Object[method.getParameterCount()];
                         int k = 2, h = 0;
-                        while ( h < method.getParameterCount() - 1) {
+                        while (h < method.getParameterCount() - 1) {
                             args[h++] = arguments[k++];
                         }
                         Class<?> varargComponentType = method.getParameterTypes()[method.getParameterCount() - 1].getComponentType();
@@ -92,10 +92,7 @@ public class JavaMethodCall implements TuriFunction {
     static KlassAndObject getKlassAndObject(Object[] arguments) {
         final Class<?> klass;
         final Object object;
-        if (arguments[0] instanceof Class<?>) {// static method, we do not need to call any method on a Java Class object
-            klass = (Class<?>) arguments[0];
-            object = null;
-        } else if (arguments[0] instanceof String className) {// if it is a string then it is a class name, we do not call string methods from Turicum
+        if (arguments[0] instanceof String className) {// if it is a string then it is a class name, we do not call string methods from Turicum
             try {
                 klass = Class.forName(className);
                 object = null;

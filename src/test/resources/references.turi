@@ -545,3 +545,28 @@ class FibCalculator {
 println(FibCalculator().fib(10))
 println(FibCalculator(2).fib(10))
 // end snippet
+
+// snippet evaluate1
+let twice = macro(fn (arg){ evaluate(arg); evaluate(arg);});
+twice( {println("Hello")} )
+// end snippet
+
+// snippet evaluate2
+macro(fn (!arg,[rest],{meta},^closure)
+            { evaluate(arg)(..rest,..meta,..closure)}
+     )(fn () {println("Hello")})
+// end snippet
+
+// snippet evaluate3
+(fn (!arg,[rest],{meta},^closure)
+            { arg(..rest,..meta,..closure)})
+     (fn () {println("Hello")})
+// end snippet
+
+// snippet import
+try{
+let MyImport = import("mod.ul.name.file")
+let my_function = MyImport.imported_function;
+my_function("hello")
+}catch e{}
+// end snippet

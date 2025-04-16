@@ -119,14 +119,23 @@ public class FunctionCall extends AbstractCommand {
         final var meta = new LngObject(null, ctx.open());
         Object closure = null;
         for (int i = 0; i < argValues.length; i++) {
-            if (i == argValues.length - 1 && pList.closure() != null) {
-                closure = argValues[i].value;
-                break;
+            final var arg = argValues[i];
+            if (i == argValues.length - 1 && pList.closure() != null && arg.id() == null) {
+                boolean allMadatoryPositionalsDone = true;
+                for (int j = 0; j < pList.parameters().length ; j++) {
+                    if (pList.parameters()[j].type() != ParameterList.Parameter.Type.NAMED_ONLY) {
+                        allMadatoryPositionalsDone = allMadatoryPositionalsDone && filled[j];
+                    }
+                }
+                if (allMadatoryPositionalsDone) {
+                    closure = arg.value;
+                    break;
+                }
             }
             if (argValues[i].id == null) {
-                addPositionalParameter(ctx, pList, argValues[i], rest, meta, filled);
+                addPositionalParameter(ctx, pList, arg, rest, meta, filled);
             } else {
-                addNamedParameter(ctx, pList, argValues[i], meta, filled);
+                addNamedParameter(ctx, pList, arg, meta, filled);
             }
         }
         for (int i = 0; i < pList.parameters().length; i++) {
@@ -207,17 +216,24 @@ public class FunctionCall extends AbstractCommand {
      * @throws ExecutionException if there is no rest and there are too many positional parameters
      */
     private static void addPositionalParameter(Context ctx, ParameterList pList, ArgumentEvaluated argValue, LngList rest, LngObject meta, boolean[] filled) {
-        if (argValue.value instanceof Spread(Object array)) {
-            if (array instanceof HasFields it && !(array instanceof LngList)) {
-                for (final String name : it.fields()) {
-                    final var value = it.getField(name);
-                    addNamedParameter(ctx, pList, new ArgumentEvaluated(new Identifier(name), value), meta, filled);
+        if (argValue.value instanceof Spread(Object list)) {
+            switch (list) {
+                case null -> {
+
                 }
-                return;
-            }
-            if (array instanceof Iterable<?> it) {
-                for (Object o : it) {
-                    addPositionalParameter(ctx, pList, new ArgumentEvaluated(null, o), rest, meta, filled);
+                case HasFields it when !(list instanceof LngList) -> {
+                    for (final String name : it.fields()) {
+                        final var value = it.getField(name);
+                        addNamedParameter(ctx, pList, new ArgumentEvaluated(new Identifier(name), value), meta, filled);
+                    }
+                }
+                case Iterable<?> it -> {
+                    for (Object o : it) {
+                        addPositionalParameter(ctx, pList, new ArgumentEvaluated(null, o), rest, meta, filled);
+                    }
+                }
+                default -> {
+                    throw new ExecutionException("You can only spread objects and lists, not '%s'",list);
                 }
             }
         } else {
@@ -273,7 +289,7 @@ public class FunctionCall extends AbstractCommand {
     private static Object getMethod(Context context, HasFields obj, String identifier) {
         return switch (obj) {
             case JavaObject jo -> {
-                if( jo.object() == null ){
+                if (jo.object() == null) {
                     yield null;
                 }
                 var turi = context.globalContext.getTuriClass(jo.object().getClass());
