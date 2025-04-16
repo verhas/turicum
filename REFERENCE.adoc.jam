@@ -162,10 +162,8 @@ Expressions can contain
 * and code blocks.
 
 Symbolic constants are {%#trimLines
-{%#replace (regex) /
-{%@snip builtins%}
-/"(.*?)",[^"]+/`$1`,/,$//%}
- %} pinned (non-changeable, final) global variables.
+{%#replaceLines replace=/"(.*?)",[^"]+/`$1`,/ replace=/,$//
+{%@snip builtins%}%}%}pinned (non-changeable, final) global variables.
 
 ==== Whitespace and Line Breaks
 
@@ -544,7 +542,7 @@ There can be multiple `identifier : type = expression` after the `let` keyword c
 There are predefined type names.
 
 {%#trimLines
-{%#replaceLines replace="~case\\s+\"(\\w+)\".*~* `$1`~//~~"
+{%#replaceLines replace="~case\\s+\"(\\w+)\".*~* `$1`~" replace="//~~"
 {%@snip types%}
 %}%}
 
@@ -820,7 +818,7 @@ There is one notable difference: default value expressions can use the binary or
 You are allowed to use positional and named parameters intermixed.
 There can be a named parameter and then a position following it.
 It may be beneficial in some special situations, but the general recommendation is not to overuse this feature.
-List the positional parameters first, named following and optional parameters (see soon) the last.
+List the positional parameters first, named following, and optional parameters (see soon) the last.
 
 The actual algorithm of parameter passing is the following:
 
@@ -1035,7 +1033,7 @@ The code can, however, be fixed:
 {%S fnDecorator2%}
 
 The application of the `@` is therefore only a syntactic sugar.
-The following example shows that a decorator can not only return the decorated function, class or closure.
+The following example shows that a decorator can not only return the decorated function, class, or closure.
 They can also modify the existing definition.
 
 {%S fnDecorator3%}
@@ -1065,6 +1063,100 @@ The built-in functions `macro` and `reclose` are special closure conversion func
 The function `macro()` accepts a closure as an argument and returns the closure converted to a macro.
 The major difference between ordinary macros and closures is that the argumente of a closure are evaluated before starting.
 A macro gets its arguments unevaluated.
+
+=== Special variables
+
+There are a few predefined variables, constants, and some special variables.
+
+{%#trimLines
+{%#replaceLines replace="/\",.*$/`/" replace="/\"/* `/" replace="~//~~"
+{%@snip builtins%}%}%}
+
+The special variables are not constants.
+They are defined dynamically to represent the current computing environment.
+These are the following:
+
+* `this`
+
+* `cls`
+
+* `that` will point to the object on which a method was called when the method is a class constructor.
+Class constructors are invoked using the name of the class.
+When a class name is used as a field in an object either directly injected to the object or as a class field as in the next example, then the constructor can access the target object of the call through `that`.
++
+{%S that%}
++
+Usually the target object is called `this`, but in the case of the constructor `this` points to the current object to be initialized.
+What is more, the constructor, always named `init()`, is allowed to modify the variable `this`.
+In this environment `this` cannot be used for both the object to be initialized and the target object.
+Hence, the special variable `that` was introduced.
++
+You will hardly ever need it.
+
+* `me` always points to the currently executing function or closure.
+You can use it to furnish recursive calls.
+It is necessary when a function is defined in a local context it does not capture.
+For more read the next section {%@def FUNC=Function scopes and `me`%}.
+
+=== {%FUNC%}
+
+Functions are usually defined in the global context or as methods inside classes.
+In both cases there is a wrapped context that contains the name of the function defined.
+It is either the global context or the class context.
+
+The following example is very straightforward.
+It defines the function `fib()`, that calls itself recursively.
+
+{%S fibonacci1%}
+
+If we create the same program using a class memoizing the results:
+
+{%S fibonacci2%}
+
+we get the same result and there is no problem with that.
+In this case `fib()` is a class level method and when we call it Turicum automatically calls it as a method.
+
+The difficulty comes when you define the function in a local context.
+
+{%S fibonacci3%}
+
+The function does not see itself.
+The function `fib` in this case is defined in the local context of the block, and functions do not wrap the surrounding context.
+One solution can be to convert the function to a closure:
+
+{%S fibonacci4%}
+
+Closures wrap the surrounding context, therefore the body of the closure knows the value of `fib`, which is the closure itself.
+If you do not want to wrap the whole context, you can do a little trick using functions.
+
+{%S fibonacci5%}
+
+The function `fib` has an extra optional parameter.
+The left side of the `fib=fib` is the name of the parameter, which will become a variable in the context if the function.
+The right side is the default value, which is evaluated in the caller context before the call.
+
+One may like this approach, for explicitly declaring that `fib` needs access to `fib` hence a recursive call.
+Others may find it cryptic,
+and it is not really clear
+without knowing the details how contexts and default values for variable declarations work in Turicum.
+
+An alternative possibility is to use the special variable `me`.
+
+{%S fibonacci6%}
+
+This variable is reserved for this purpose, and it gets the function itself as its value before a function is called.
+It may also be appealing that the recursive call is explicit whatever the name of the function is, not needing renaming when the function is renamed.
+
+As an extra, here is a version of the fibonacci calculation using a closure with a retained local context as a state instead of a class:
+
+{%S fibonacci7%}
+
+Finally, here is a modified fibonacci calculation that can replace the start value and uses an object cache instead of class level cache.
+
+{%sample/fibonacci8%}
+
+We do not include here the printout.
+The first number you already know, try to guess the second, then run the code yourself.
 
 === Built-in Functions
 

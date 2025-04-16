@@ -8,9 +8,14 @@ public class BuiltIns {
     private final static Object[] values = new Object[]{
             // snippet builtins
             "true", true,
+            // has the constant boolean __true__ value.
             "false", false,
+            // has the constant boolean __false__ value
             "none", null,
+            // is the undefined value.
+            // The Java representation of the undefined value is `null`.
             "inf", InfiniteValue.INF_POSITIVE
+            // is the infinite value.
             // end snippet
     };
 

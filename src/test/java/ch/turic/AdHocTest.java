@@ -13,7 +13,24 @@ public class AdHocTest {
     @Test
     void test() throws Exception {
         test("""
-for each a in "alma van" : println(a)
+class FibCalculator {
+    let cache = [];
+    fn fib(x) {
+        if x == 1 || x == 0 : 1
+        else{
+            println(x)
+            println( cache )
+            return cache[x] if cache[x] != none;
+            println( "cache = " , cache )
+            println("this =", this )
+            cache[x] = fib(x - 1) + fib(x - 2);
+            println( "cache = " , cache )
+            cache[x]
+        }
+    }
+}
+println(FibCalculator.fib(10))
+none
                 """
                 , null);
     }

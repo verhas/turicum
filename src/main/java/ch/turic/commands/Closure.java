@@ -10,6 +10,10 @@ import java.util.Arrays;
 
 /**
  * A closure is a block of commands that can get evaluated with arguments.
+ * The arguments are evaluated before the code of the closure is executed.
+ * <p>
+ * Functions and closures use this class. The difference between them is that closures have a wrapped context, and
+ * functions do not.
  */
 public final class Closure extends AbstractCommand implements ClosureOrMacro, LngCallable.LngCallableClosure {
     public BlockCommand command() {

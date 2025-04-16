@@ -194,9 +194,16 @@ Expressions can contain
 * method calls,
 * and code blocks.
 
-Symbolic constants are 
-`true`,`false`,`none`,`inf`
- pinned (non-changeable, final) global variables.
+Symbolic constants are `true`
+// has the constant boolean __true__ value.
+`false`
+// has the constant boolean __false__ value
+`none`
+// is the undefined value.
+// The Java representation of the undefined value is `null`.
+`inf`
+// is the infinite value.
+pinned (non-changeable, final) global variables.
 
 ==== Whitespace and Line Breaks
 
@@ -824,30 +831,30 @@ If the expression is missing the value will be `none`.
 There can be multiple `identifier : type = expression` after the `let` keyword comma separated.
 There are predefined type names.
 
-* `bool`
- boolean type
-* `str`
- string
-* `num`
- any numeric type, integer or float
-* `float`
- float type
-* `any`
- the variable can hold any value
-* `obj`
- the variable can hols any object without restriction on the class of that object
-* `lst`
- the variable has to be a list
-* `cls`
- the variable has to be a class
-* `fn`
- the variable value has to be a function of closure
-* `macro`
- the variable value has to be a macro
-* `none`
- the variable can hold the value `none`
-
-
+~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~*~~ ~~`~~b~~o~~o~~l~~`~~
+~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~/~~/~~ ~~b~~o~~o~~l~~e~~a~~n~~ ~~t~~y~~p~~e~~
+~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~*~~ ~~`~~s~~t~~r~~`~~
+~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~/~~/~~ ~~s~~t~~r~~i~~n~~g~~
+~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~*~~ ~~`~~n~~u~~m~~`~~
+~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~/~~/~~ ~~a~~n~~y~~ ~~n~~u~~m~~e~~r~~i~~c~~ ~~t~~y~~p~~e~~,~~ ~~i~~n~~t~~e~~g~~e~~r~~ ~~o~~r~~ ~~f~~l~~o~~a~~t~~
+~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~*~~ ~~`~~f~~l~~o~~a~~t~~`~~
+~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~/~~/~~ ~~f~~l~~o~~a~~t~~ ~~t~~y~~p~~e~~
+~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~*~~ ~~`~~a~~n~~y~~`~~
+~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~/~~/~~ ~~t~~h~~e~~ ~~v~~a~~r~~i~~a~~b~~l~~e~~ ~~c~~a~~n~~ ~~h~~o~~l~~d~~ ~~a~~n~~y~~ ~~v~~a~~l~~u~~e~~
+~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~*~~ ~~`~~o~~b~~j~~`~~
+~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~/~~/~~ ~~t~~h~~e~~ ~~v~~a~~r~~i~~a~~b~~l~~e~~ ~~c~~a~~n~~ ~~h~~o~~l~~s~~ ~~a~~n~~y~~ ~~o~~b~~j~~e~~c~~t~~ ~~w~~i~~t~~h~~o~~u~~t~~ ~~r~~e~~s~~t~~r~~i~~c~~t~~i~~o~~n~~ ~~o~~n~~ ~~t~~h~~e~~ ~~c~~l~~a~~s~~s~~ ~~o~~f~~ ~~t~~h~~a~~t~~ ~~o~~b~~j~~e~~c~~t~~
+~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~*~~ ~~`~~l~~s~~t~~`~~
+~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~/~~/~~ ~~t~~h~~e~~ ~~v~~a~~r~~i~~a~~b~~l~~e~~ ~~h~~a~~s~~ ~~t~~o~~ ~~b~~e~~ ~~a~~ ~~l~~i~~s~~t~~
+~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~*~~ ~~`~~c~~l~~s~~`~~
+~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~/~~/~~ ~~t~~h~~e~~ ~~v~~a~~r~~i~~a~~b~~l~~e~~ ~~h~~a~~s~~ ~~t~~o~~ ~~b~~e~~ ~~a~~ ~~c~~l~~a~~s~~s~~
+~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~*~~ ~~`~~f~~n~~`~~
+~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~/~~/~~ ~~t~~h~~e~~ ~~v~~a~~r~~i~~a~~b~~l~~e~~ ~~v~~a~~l~~u~~e~~ ~~h~~a~~s~~ ~~t~~o~~ ~~b~~e~~ ~~a~~ ~~f~~u~~n~~c~~t~~i~~o~~n~~ ~~o~~f~~ ~~c~~l~~o~~s~~u~~r~~e~~
+~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~*~~ ~~`~~m~~a~~c~~r~~o~~`~~
+~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~/~~/~~ ~~t~~h~~e~~ ~~v~~a~~r~~i~~a~~b~~l~~e~~ ~~v~~a~~l~~u~~e~~ ~~h~~a~~s~~ ~~t~~o~~ ~~b~~e~~ ~~a~~ ~~m~~a~~c~~r~~o~~
+~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~*~~ ~~`~~n~~o~~n~~e~~`~~
+~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~/~~/~~ ~~t~~h~~e~~ ~~v~~a~~r~~i~~a~~b~~l~~e~~ ~~c~~a~~n~~ ~~h~~o~~l~~d~~ ~~t~~h~~e~~ ~~v~~a~~l~~u~~e~~ ~~`~~n~~o~~n~~e~~`~~
+~~
+~~
 
 If the name starts with `java.` then the variable can hold a Java object.
 For example `java.java.math.BigInteger` can hold any `java.math.BigInteger` object.
@@ -1434,7 +1441,7 @@ The output of the program is
 .output fun1
 [source]
 ----
-ch.turic.commands.Closure@1972e513
+ch.turic.commands.Closure@35841320
 2
 
 ----
@@ -1466,7 +1473,7 @@ The output of the program is
 .output fun3
 [source]
 ----
-ch.turic.commands.Closure@61c4eee0
+ch.turic.commands.Closure@1040be71
 2
 
 ----
@@ -1500,7 +1507,7 @@ The output of the program is
 .output fun2
 [source]
 ----
-ch.turic.commands.Closure@548a24a
+ch.turic.commands.Closure@2a693f59
 2
 
 ----
@@ -1553,7 +1560,7 @@ The output of the program is
 .output fun4
 [source]
 ----
-ch.turic.commands.Closure@3f4faf53
+ch.turic.commands.Closure@533bda92
 6
 
 ----
@@ -1605,7 +1612,7 @@ There is one notable difference: default value expressions can use the binary or
 You are allowed to use positional and named parameters intermixed.
 There can be a named parameter and then a position following it.
 It may be beneficial in some special situations, but the general recommendation is not to overuse this feature.
-List the positional parameters first, named following and optional parameters (see soon) the last.
+List the positional parameters first, named following, and optional parameters (see soon) the last.
 
 The actual algorithm of parameter passing is the following:
 
@@ -2169,7 +2176,7 @@ The fun is over
 
 
 The application of the `@` is therefore only a syntactic sugar.
-The following example shows that a decorator can not only return the decorated function, class or closure.
+The following example shows that a decorator can not only return the decorated function, class, or closure.
 They can also modify the existing definition.
 
 
@@ -2266,6 +2273,375 @@ The built-in functions `macro` and `reclose` are special closure conversion func
 The function `macro()` accepts a closure as an argument and returns the closure converted to a macro.
 The major difference between ordinary macros and closures is that the argumente of a closure are evaluated before starting.
 A macro gets its arguments unevaluated.
+
+=== Special variables
+
+There are a few predefined variables, constants, and some special variables.
+
+* `true`
+ has the constant boolean __true__ value.
+* `false`
+ has the constant boolean __false__ value
+* `none`
+ is the undefined value.
+ The Java representation of the undefined value is `null`.
+* `inf`
+ is the infinite value.
+
+
+The special variables are not constants.
+They are defined dynamically to represent the current computing environment.
+These are the following:
+
+* `this`
+
+* `cls`
+
+* `that` will point to the object on which a method was called when the method is a class constructor.
+Class constructors are invoked using the name of the class.
+When a class name is used as a field in an object either directly injected to the object or as a class field as in the next example, then the constructor can access the target object of the call through `that`.
++
+
+.that
+[source]
+----
+class OuterClass {
+    let name = "outer class";
+    fn init(){
+      let name = "outer object"
+    }
+    class InnerClass {
+        let name = "inner class";
+        fn init() {
+            let name = "inner object"
+            println("this name %s " % this.name)
+            println("this name %s " % cls.name)
+            println("this name %s " % that.name)
+            println("this name %s " % that.cls.name)
+            }
+        }
+    }
+let outer = OuterClass()
+let inner = outer.InnerClass()
+
+
+----
+
+
+
+
+The output of the program is
+
+
+.output that
+[source]
+----
+this name inner object 
+this name inner class 
+this name outer object 
+this name outer class 
+
+----
+
+
++
+Usually the target object is called `this`, but in the case of the constructor `this` points to the current object to be initialized.
+What is more, the constructor, always named `init()`, is allowed to modify the variable `this`.
+In this environment `this` cannot be used for both the object to be initialized and the target object.
+Hence, the special variable `that` was introduced.
++
+You will hardly ever need it.
+
+* `me` always points to the currently executing function or closure.
+You can use it to furnish recursive calls.
+It is necessary when a function is defined in a local context it does not capture.
+For more read the next section Function scopes and `me`.
+
+=== Function scopes and `me`
+
+Functions are usually defined in the global context or as methods inside classes.
+In both cases there is a wrapped context that contains the name of the function defined.
+It is either the global context or the class context.
+
+The following example is very straightforward.
+It defines the function `fib()`, that calls itself recursively.
+
+
+.fibonacci1
+[source]
+----
+fn fib(x) {
+    if x == 1 || x == 0 : 1
+    else: fib(x - 1) + fib(x - 2)
+}
+println(fib(10))
+
+
+----
+
+
+
+
+The output of the program is
+
+
+.output fibonacci1
+[source]
+----
+89
+
+----
+
+
+
+If we create the same program using a class memoizing the results:
+
+
+.fibonacci2
+[source]
+----
+class FibCalculator {
+    let cache = [];
+    fn fib(x) {
+        if x == 1 || x == 0 : 1
+        else{
+            return cache[x] if cache[x] != none;
+            cache[x] = fib(x - 1) + fib(x - 2);
+        }
+    }
+}
+println(FibCalculator.fib(10))
+
+
+----
+
+
+
+
+The output of the program is
+
+
+.output fibonacci2
+[source]
+----
+89
+
+----
+
+
+
+we get the same result and there is no problem with that.
+In this case `fib()` is a class level method and when we call it Turicum automatically calls it as a method.
+
+The difficulty comes when you define the function in a local context.
+
+
+.fibonacci3
+[source]
+----
+try
+{
+    fn fib(x) {
+        if x == 1 || x == 0 : 1
+        else: fib(x - 1) + fib(x - 2)
+    }
+    println(fib(10))
+}catch ex : println(ex)
+
+
+----
+
+
+
+
+The output of the program is
+
+
+.output fibonacci3
+[source]
+----
+It is not possible to invoke 'fib' because its value is 'null' and not something I can invoke.It is a f5g null
+
+----
+
+
+
+The function does not see itself.
+The function `fib` in this case is defined in the local context of the block, and functions do not wrap the surrounding context.
+One solution can be to convert the function to a closure:
+
+
+.fibonacci4
+[source]
+----
+{
+    let fib={|x|
+        if x == 1 || x == 0 : 1
+        else: fib(x - 1) + fib(x - 2)
+    }
+    println(fib(10))
+}
+
+
+----
+
+
+
+
+The output of the program is
+
+
+.output fibonacci4
+[source]
+----
+89
+
+----
+
+
+
+Closures wrap the surrounding context, therefore the body of the closure knows the value of `fib`, which is the closure itself.
+If you do not want to wrap the whole context, you can do a little trick using functions.
+
+
+.fibonacci5
+[source]
+----
+{
+    fn fib(x,fib=fib) {
+        if x == 1 || x == 0 : 1
+        else: fib(x - 1) + fib(x - 2)
+    }
+    println(fib(10))
+}
+
+
+----
+
+
+
+
+The output of the program is
+
+
+.output fibonacci5
+[source]
+----
+89
+
+----
+
+
+
+The function `fib` has an extra optional parameter.
+The left side of the `fib=fib` is the name of the parameter, which will become a variable in the context if the function.
+The right side is the default value, which is evaluated in the caller context before the call.
+
+One may like this approach, for explicitly declaring that `fib` needs access to `fib` hence a recursive call.
+Others may find it cryptic,
+and it is not really clear
+without knowing the details how contexts and default values for variable declarations work in Turicum.
+
+An alternative possibility is to use the special variable `me`.
+
+
+.fibonacci6
+[source]
+----
+{
+    fn fib(x) {
+        if x == 1 || x == 0 : 1
+        else: me(x - 1) + me(x - 2)
+    }
+    println(fib(10))
+}
+
+
+----
+
+
+
+
+The output of the program is
+
+
+.output fibonacci6
+[source]
+----
+89
+
+----
+
+
+
+This variable is reserved for this purpose, and it gets the function itself as its value before a function is called.
+It may also be appealing that the recursive call is explicit whatever the name of the function is, not needing renaming when the function is renamed.
+
+As an extra, here is a version of the fibonacci calculation using a closure with a retained local context as a state instead of a class:
+
+
+.fibonacci7
+[source]
+----
+let fib = {
+    let cache = [];
+    {|x|
+        if x == 1 || x == 0 : 1
+        else{
+            return cache[x] if cache[x] != none;
+            cache[x] = me(x - 1) + me(x - 2);
+        }
+    }
+}
+println(fib(10))
+
+
+----
+
+
+
+
+The output of the program is
+
+
+.output fibonacci7
+[source]
+----
+89
+
+----
+
+
+
+Finally, here is a modified fibonacci calculation that can replace the start value and uses an object cache instead of class level cache.
+
+
+.fibonacci8
+[source]
+----
+class FibCalculator {
+    fn init(start=1) {
+        let cache = [];
+    }
+    fn fib(x) {
+        if x == 1 || x == 0 : start
+        else{
+            return cache[x] if cache[x] != none;
+            cache[x] = fib(x - 1) + fib(x - 2);
+        }
+    }
+}
+println(FibCalculator().fib(10))
+println(FibCalculator(2).fib(10))
+
+
+----
+
+
+
+
+We do not include here the printout.
+The first number you already know, try to guess the second, then run the code yourself.
 
 === Built-in Functions
 

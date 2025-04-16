@@ -273,6 +273,9 @@ public class FunctionCall extends AbstractCommand {
     private static Object getMethod(Context context, HasFields obj, String identifier) {
         return switch (obj) {
             case JavaObject jo -> {
+                if( jo.object() == null ){
+                    yield null;
+                }
                 var turi = context.globalContext.getTuriClass(jo.object().getClass());
                 if (turi == null) {
                     var papi = jo.object().getClass();
@@ -320,10 +323,13 @@ public class FunctionCall extends AbstractCommand {
      */
     private Command myFunctionObject(final Context context) {
         final Command myObject;
-        if (object instanceof Identifier id && context.contains("this")) {
+        if (object instanceof Identifier id && (context.contains("this") || context.contains("cls"))) {
             final var thisObject = context.get("this");
+            final var clsObject = context.get("cls");
             if (thisObject instanceof LngObject lngObject && lngObject.context().containsLocal(id.name())) {
                 myObject = new FieldAccess(new Identifier("this"), id.name());
+            } else if (clsObject instanceof LngClass lngClass && lngClass.context().containsLocal(id.name())) {
+                myObject = new FieldAccess(new Identifier("cls"), id.name());
             } else {
                 myObject = object;
             }

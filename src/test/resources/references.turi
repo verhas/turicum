@@ -430,3 +430,118 @@ q()
 }
 q()
 // end snippet
+
+// snippet that
+class OuterClass {
+    let name = "outer class";
+    fn init(){
+      let name = "outer object"
+    }
+    class InnerClass {
+        let name = "inner class";
+        fn init() {
+            let name = "inner object"
+            println("this name %s " % this.name)
+            println("this name %s " % cls.name)
+            println("this name %s " % that.name)
+            println("this name %s " % that.cls.name)
+            }
+        }
+    }
+let outer = OuterClass()
+let inner = outer.InnerClass()
+// end snippet
+
+// snippet fibonacci1
+fn fib(x) {
+    if x == 1 || x == 0 : 1
+    else: fib(x - 1) + fib(x - 2)
+}
+println(fib(10))
+// end snippet
+
+// snippet fibonacci2
+class FibCalculator {
+    let cache = [];
+    fn fib(x) {
+        if x == 1 || x == 0 : 1
+        else{
+            return cache[x] if cache[x] != none;
+            cache[x] = fib(x - 1) + fib(x - 2);
+        }
+    }
+}
+println(FibCalculator.fib(10))
+// end snippet
+
+// snippet fibonacci3
+try
+{
+    fn fib(x) {
+        if x == 1 || x == 0 : 1
+        else: fib(x - 1) + fib(x - 2)
+    }
+    println(fib(10))
+}catch ex : println(ex)
+// end snippet
+
+// snippet fibonacci4
+{
+    let fib={|x|
+        if x == 1 || x == 0 : 1
+        else: fib(x - 1) + fib(x - 2)
+    }
+    println(fib(10))
+}
+// end snippet
+
+// snippet fibonacci5
+{
+    fn fib(x,fib=fib) {
+        if x == 1 || x == 0 : 1
+        else: fib(x - 1) + fib(x - 2)
+    }
+    println(fib(10))
+}
+// end snippet
+
+// snippet fibonacci6
+{
+    fn fib(x) {
+        if x == 1 || x == 0 : 1
+        else: me(x - 1) + me(x - 2)
+    }
+    println(fib(10))
+}
+// end snippet
+
+// snippet fibonacci7
+let fib = {
+    let cache = [];
+    {|x|
+        if x == 1 || x == 0 : 1
+        else{
+            return cache[x] if cache[x] != none;
+            cache[x] = me(x - 1) + me(x - 2);
+        }
+    }
+}
+println(fib(10))
+// end snippet
+
+// snippet fibonacci8
+class FibCalculator {
+    fn init(start=1) {
+        let cache = [];
+    }
+    fn fib(x) {
+        if x == 1 || x == 0 : start
+        else{
+            return cache[x] if cache[x] != none;
+            cache[x] = fib(x - 1) + fib(x - 2);
+        }
+    }
+}
+println(FibCalculator().fib(10))
+println(FibCalculator(2).fib(10))
+// end snippet
