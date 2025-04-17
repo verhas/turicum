@@ -1,0 +1,18 @@
+class option {
+    fn init(object){
+    }
+    fn empty(){
+        option(none)
+        }
+    fn is_empty(){
+        object == none
+        }
+    fn is_present(){
+        object != none
+        }
+    fn get(){
+        if object == none : die "option is empty"
+        object
+        }
+}
+export option

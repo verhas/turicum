@@ -3,10 +3,7 @@ package ch.turic.memory;
 
 import ch.turic.ExecutionException;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Keep a context of the current threads executing environment.
@@ -22,6 +19,7 @@ public class Context implements ch.turic.Context {
     public Context caller = null;
     private final boolean loopContext;
     private int loopCounter = 0;
+    private final List<String> exporting = new ArrayList<>();
 
     public Set<String> keys() {
         return frame.keySet();
@@ -347,5 +345,13 @@ public class Context implements ch.turic.Context {
 
     public void setCaller(Context caller) {
         this.caller = caller;
+    }
+
+    public List<String> exporting() {
+        return exporting;
+    }
+
+    public void addExport(String exporting) {
+        this.exporting.add(exporting);
     }
 }

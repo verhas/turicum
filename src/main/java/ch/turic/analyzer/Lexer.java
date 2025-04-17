@@ -13,7 +13,8 @@ public class Lexer {
     final static private Set<String> RESERVED = new HashSet<>(Set.of(
             Keywords.CLASS, Keywords.PIN, Keywords.FN, Keywords.LET, Keywords.GLOBAL, Keywords.IF, Keywords.ELSE,
             Keywords.ELSEIF, Keywords.BREAK, Keywords.WHILE, Keywords.UNTIL, Keywords.FOR, Keywords.EACH, Keywords.IN,
-            Keywords.RETURN, Keywords.YIELD, Keywords.WHEN, Keywords.TRY, Keywords.CATCH, Keywords.FINALLY
+            Keywords.RETURN, Keywords.YIELD, Keywords.WHEN, Keywords.TRY, Keywords.CATCH, Keywords.FINALLY,
+            Keywords.ASYNC, Keywords.STREAM
     ));
     final static private ArrayList<String> _OPERANDS = new ArrayList<>(Arrays.asList(
             // snippet OPERANDS
@@ -48,7 +49,8 @@ public class Lexer {
 
     private static final String[] uniKeys = {
             "\u221E", "inf",
-            "\u2205", "none"
+            "\u2205", "none",
+            "\u2208", "in"
     };
 
     private static String getUnicodeKeyword(String ch) {

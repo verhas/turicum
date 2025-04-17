@@ -28,18 +28,29 @@ public class Import implements TuriFunction {
 
     @Override
     public Object call(Context context, Object[] args) throws ExecutionException {
-        ExecutionException.when(args.length != 1 || args[0] == null, "Built-in function import needs exactly one argument");
+        if (!(context instanceof ch.turic.memory.Context ctx)) {
+            throw new ExecutionException("context must be a context of type ch.turic.memory.Context");
+        }
+        ExecutionException.when(args.length != 1 || args[0] == null, "Built-in function %s needs exactly one argument", name());
         final var arg = args[0].toString();
         Path sourceFile = locateSource(arg);
 
         try {
             final var source = Files.readString(sourceFile, StandardCharsets.UTF_8);
-            final var interpreter = new Interpreter(source);
-            interpreter.execute();
-            return new LngObject(null, (ch.turic.memory.Context) interpreter.getImportContext());
+            return doImportExport(ctx, source);
         } catch (IOException e) {
             throw new ExecutionException("Cannot read the import file '%s'", sourceFile.toString());
         }
+    }
+
+    static Object doImportExport(ch.turic.memory.Context ctx, String source) {
+        final var interpreter = new Interpreter(source);
+        interpreter.execute();
+        final var importedContext = (ch.turic.memory.Context) interpreter.getImportContext();
+        for (final var exported : importedContext.exporting()) {
+            ctx.let0(exported, importedContext.get(exported));
+        }
+        return new LngObject(null, importedContext);
     }
 
     private Path locateSource(String arg) {

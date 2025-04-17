@@ -132,7 +132,7 @@ public class PrimaryExpressionAnalyzer extends AbstractAnalyzer {
     private Command getAccessOrCall(LexList lexes, Command left, boolean isDecorator) throws BadSyntax {
         while (lexes.is("(", ".", "[")) {
             left = switch (lexes.next().text()) {
-                case "(" -> new FunctionCall(left, analyzeArguments(lexes, isDecorator));
+                case "(" -> new FunctionCall(left, analyzeArguments(lexes, isDecorator, true));
                 case "." -> new FieldAccess(left, lexes.next(Lex.Type.IDENTIFIER).text());
                 case "[" -> {
                     final var indexExpression = new ArrayAccess(left, ExpressionAnalyzer.INSTANCE.analyze(lexes));
@@ -146,7 +146,7 @@ public class PrimaryExpressionAnalyzer extends AbstractAnalyzer {
     }
 
     private static Command getExpressionBetweenParentheses(LexList lexes) throws BadSyntax {
-        lexes.next();
+        lexes.next();// step over the opening (
         final var expression = ExpressionAnalyzer.INSTANCE.analyze(lexes);
         if (lexes.is(")")) {
             lexes.next();
@@ -162,7 +162,7 @@ public class PrimaryExpressionAnalyzer extends AbstractAnalyzer {
      * @return the arguments
      * @throws BadSyntax if the syntax is bad
      */
-    private static FunctionCall.Argument[] analyzeArguments(LexList lexes, boolean isDecorator) throws BadSyntax {
+    static FunctionCall.Argument[] analyzeArguments(LexList lexes, boolean isDecorator, boolean needsClosing) throws BadSyntax {
         final var arguments = new java.util.ArrayList<FunctionCall.Argument>();
         while (lexes.isNot(")")) {
             if (lexes.isIdentifier() && lexes.isAt(1, "=")) {
@@ -174,13 +174,17 @@ public class PrimaryExpressionAnalyzer extends AbstractAnalyzer {
                 final var expression = ExpressionAnalyzer.INSTANCE.analyze(lexes);
                 arguments.add(new FunctionCall.Argument(null, expression));
             }
-            if (lexes.is(",")) {
-                lexes.next();
+            if (lexes.isNot(",")) {
+                break;
             }
+            lexes.next();
         }
-        BadSyntax.when(lexes, lexes.isNot(")"), "Function call: expected ')' after the parents");
-        lexes.next(); // consume the ')'
-        if (lexes.is("{") && ClosureAnalyzer.blockStartsClosure(lexes)) {
+        if (needsClosing) {
+            BadSyntax.when(lexes, lexes.isNot(")"), "Function call: expected ')' after the parents");
+            lexes.next(); // consume the ')'
+        }
+        // the closure must start on the same line where the closing ')' was, or where the last argument finished
+        if (lexes.is("{") && ClosureAnalyzer.blockStartsClosure(lexes) && !lexes.peek().atLineStart()) {
             // trailing closure works with our without setting the function call to be a decorator
             lexes.next();
             final var closure = ClosureAnalyzer.INSTANCE.analyze(lexes);

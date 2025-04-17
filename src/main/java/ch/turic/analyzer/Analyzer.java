@@ -4,13 +4,13 @@ import ch.turic.BadSyntax;
 import ch.turic.commands.Command;
 
 /**
- * An analyser reads the lexical elements, advances the {@link LexList} removing from the start the consumed elements
+ * An analyzer reads the lexical elements, advances the {@link LexList} removing from the start the consumed elements
  * and returns a {@link Command} that can later be used to execute.
  * <p>
- * Analysers are usually singletons containing an {@code INSTANCE} field that can be used to invoke the method
+ * Analyzers are usually singletons containing an {@code INSTANCE} field that can be used to invoke the method
  * {@link #analyze(LexList)}.
  * <p>
- * Analysers can eventually invoke each others following the syntax descriptions.
+ * Analyzers can eventually invoke each others following the syntax descriptions.
  */
 
 public interface Analyzer {

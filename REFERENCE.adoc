@@ -94,8 +94,8 @@ A Turicum program is a list of commands, which is executed from the start to the
 .first_sample
 [source]
 ----
-print("Hello,");
-println(" World")
+print "Hello,";
+println " World"
 for i=1 ; i < 3 ; i = i+1 : println(i)
 
 
@@ -483,7 +483,7 @@ Code blocks open a new scope and they wrap the surrounding scope.
 ----
 let z = "cory"
 z = { // z is global
-    println("just a print")
+    println "just a print"
     let k = "Hi" // k is local
          + z // z is accessible
     // the value of the block is the last commands, value
@@ -1272,7 +1272,7 @@ The `for each` loop can also have a tail condition.
 .foreach2
 [source]
 ----
-for each i in [1,2,3,4]: print(i," "); until i%3 == 0
+for each i ∈ [1,2,3,4]: print(i," "); until i%3 == 0
 
 
 ----
@@ -1441,7 +1441,7 @@ The output of the program is
 .output fun1
 [source]
 ----
-ch.turic.commands.Closure@539d019
+ch.turic.commands.Closure@1608bcbd
 2
 
 ----
@@ -1473,7 +1473,7 @@ The output of the program is
 .output fun3
 [source]
 ----
-ch.turic.commands.Closure@8c3619e
+ch.turic.commands.Closure@b2c5e07
 2
 
 ----
@@ -1507,7 +1507,7 @@ The output of the program is
 .output fun2
 [source]
 ----
-ch.turic.commands.Closure@554e218
+ch.turic.commands.Closure@3c7c886c
 2
 
 ----
@@ -1560,7 +1560,7 @@ The output of the program is
 .output fun4
 [source]
 ----
-ch.turic.commands.Closure@29ca3d04
+ch.turic.commands.Closure@6b88ca8c
 6
 
 ----
@@ -2095,7 +2095,7 @@ We finish@
 
 
 The `@` helps you emphasize that the call is a decorator call that modifies the closure following it.
-The use of `@` also notifies the syntax analyser that the call is a decorator call, and it extends the recognition of the following `^closure` parameter.
+The use of `@` also notifies the syntax analyzer that the call is a decorator call, and it extends the recognition of the following `^closure` parameter.
 When the `@` precedes the function call, a `fn` or `class` are also recognized as `^closure` parameter.
 
 
@@ -2898,54 +2898,50 @@ The argument can be:
 === Full Annotated EBNF
 
 The following is the non-standard EBNF definition of the programming language called Turicum.
-It is not intended to be used by syntax analyzer generators.
 Strings between ' characters are literal keywords.
-Syntax between [ and ] are optional
-Syntax between { and } are repeated zero or more times
-Syntax between ( and ) is a group with alternatives
-Alternative syntaxes are separated using the | character.
+Syntax between `[` and `]` are optional
+Syntax between `{` and `}` are repeated zero or more times
+Syntax between `(` and `)` is a group with alternatives
+Alternative syntaxes are separated using the `|` character.
 Non-terminal symbols are all capital letters.
-EBNF non-terminals are followed by ::= and then the definition closed by ;
+EBNF non-terminals are followed by `::=` and then the definition closed by `;`
 Non-literal terminal symbols are:
 
 * IDENTIFIER
 * number
 * string
 
-A program is simply a series of commands.
-Commands may be separated by `;` character, and it is recommended to use it, but it is not required
+A program is a series of commands.
+Commands may be separated by `;` character, and it is recommended to use it, but it is not required.
+New line may replace the use of `;`.
 
  PROGRAM ::= { COMMAND [;] } ;
 
-Commands also have/return values.
+Commands also have values. It is the __result__ of the command.
 
- COMMAND ::= ASSIGNMENT |
- EXPRESSION |
- IF |
- LOOP |
- CLASS |
- FN |
- LOCAL | GLOBAL | PIN
- BREAK | YIELD | RETURN |
- TRY |
+ COMMAND ::=  IF |
+              LOOP |
+              CLASS |
+              FN |
+              LOCAL | GLOBAL | PIN
+              BREAK | YIELD | RETURN |
+              TRY |
+              ASSIGNMENT |
+              EXPRESSION |
+              ;
+
+ LOOP ::= ('while' [EXPRESSION] ( BLOCK | ':' COMMAND ) |
+           'for' COMMAND ';' [EXPRESSION] ';' COMMAND ( BLOCK | ':' COMMAND ) |
+           'for' '(' COMMAND [EXPRESSION] COMMAND ')' (  BLOCK | ':' COMMAND )  |
+           'for each' identifier 'in' EXPRESSION ( BLOCK | ':' COMMAND ) |
+           'for each' '(' identifier 'in' EXPRESSION ')' (  BLOCK | ':' COMMAND )
+          ) [ 'until' EXPRESSION]
  ;
 
 If the condition expression is missing after 'for' or 'while' it is `true`.
-the expression following the 'until' is not optional, but the whole `until` `EXPRESSION` is optional.
+The expression following the 'until' is not optional, but the whole `until` `EXPRESSION` part is.
 The value of a loop is the last __executed__ command.
-
- LOOP ::= 'while' [EXPRESSION] ( BLOCK | ':' COMMAND ) [ 'until' EXPRESSION] |
-
-Semicolons are optional, but are needed if `COMMAND` or `EXPRESSION` is missing.
-
- 'for' COMMAND ';' [EXPRESSION] ';' COMMAND ( BLOCK | ':' COMMAND ) [ 'until' EXPRESSION] |
-
 Equivalent to: `for(init; condition; step)`
-
- 'for' '(' COMMAND [EXPRESSION] COMMAND ')' ( COMMAND | BLOCK | ':' COMMAND ) [ 'until' EXPRESSION] |
- 'for each' identifier 'in' EXPRESSION ( BLOCK | ':' COMMAND ) [ 'until' EXPRESSION] |
- 'for each' '(' identifier 'in' EXPRESSION ')' ( COMMAND | BLOCK | ':' COMMAND ) [ 'until' EXPRESSION]
- ;
 
 The value of an `IF` command is the value of the first or the second block, whichever is executed.
 If the condition expression is false and there is no second block, then the value is `none`.

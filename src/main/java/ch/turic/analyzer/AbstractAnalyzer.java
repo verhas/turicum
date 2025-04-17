@@ -28,7 +28,6 @@ public abstract class AbstractAnalyzer implements Analyzer {
             result.setEndPosition(endPosition);
         }
         return result;
-
     }
 
     public abstract Command _analyze(final LexList lexes) throws BadSyntax;

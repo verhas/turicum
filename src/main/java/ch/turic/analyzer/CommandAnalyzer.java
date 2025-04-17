@@ -2,9 +2,13 @@ package ch.turic.analyzer;
 
 import ch.turic.BadSyntax;
 import ch.turic.commands.Command;
+import ch.turic.commands.FunctionCall;
+import ch.turic.commands.Identifier;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static ch.turic.analyzer.PrimaryExpressionAnalyzer.analyzeArguments;
 
 public class CommandAnalyzer extends AbstractAnalyzer {
     public static final CommandAnalyzer INSTANCE = new CommandAnalyzer();
@@ -16,19 +20,64 @@ public class CommandAnalyzer extends AbstractAnalyzer {
             return null;
         }
         if (lexes.isNot("{") && lexes.isKeyword()) {
-            return analyzeKeywordCommand(lexes);
+            final var command =  analyzeKeywordCommand(lexes);
+            if( command != null ) {
+                return command;
+            }
         }
+        Command assignmentCommand = tryToGetAssignment(lexes);
+        if (assignmentCommand != null) {
+            return assignmentCommand;
+        }
+        FunctionCall functionCallCommand = getParentheseslessFunctionCall(lexes);
+        if (functionCallCommand != null) {
+            return functionCallCommand;
+        }
+        final var expressionCommand = ExpressionAnalyzer.INSTANCE.analyze(lexes);
+        Analyzer.checkCommandTermination(lexes);
+        return expressionCommand;
+
+    }
+
+    /**
+     * Analyze a function call that is a whole command and as such does not use '(' and ')' around the arguments.
+     *
+     * @param lexes the input tokens
+     * @return the analyzed command or null
+     */
+    private FunctionCall getParentheseslessFunctionCall(LexList lexes) {
         final var position = lexes.getIndex();
-        try {
-            final var assignmentCommand = AssignmentAnalyzer.INSTANCE.analyze(lexes);
+        if (lexes.isIdentifier()) {
+            final var functionName = lexes.next().text();
+            if (!lexes.hasNext() || lexes.peek().atLineStart()) {
+                lexes.setIndex(position);
+                return null;
+            }
+            if (lexes.isIdentifier() || lexes.isConstant() || lexes.is("{")) {
+                final var arguments = analyzeArguments(lexes, false, false);
+                return new FunctionCall(new Identifier(functionName), arguments);
+            }
+        }
+        lexes.setIndex(position);
+        return null;
+    }
+
+    /**
+     * Save the lexical position and try to analyze the input tokens as an assignment. When it fails, reset the lexical
+     * position and return null. When successful, return the assignment command.
+     *
+     * @param lexes the token list
+     * @return the result of the analysis or {@code null} if it failed.
+     */
+    private Command tryToGetAssignment(LexList lexes) {
+        final var position = lexes.getIndex();
+        final var assignmentCommand = AssignmentAnalyzer.INSTANCE.analyze(lexes);
+        if (assignmentCommand != null) {
             Analyzer.checkCommandTermination(lexes);
             return assignmentCommand;
-        } catch (BadSyntax bs) {
-            lexes.setIndex(position);
-            final var expressionCommand = ExpressionAnalyzer.INSTANCE.analyze(lexes);
-            Analyzer.checkCommandTermination(lexes);
-            return expressionCommand;
         }
+        lexes.setIndex(position);
+        return null;
     }
 
     private static final Map<String, Analyzer> analyzers = new HashMap<>();
@@ -81,7 +130,7 @@ public class CommandAnalyzer extends AbstractAnalyzer {
                 Analyzer.checkCommandTermination(lexes);
                 yield command;
             }
-            default -> throw new BadSyntax(lexes.position(), "Keyword: " + keyword + " can not start a command");
+            default -> null;
         };
     }
 

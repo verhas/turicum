@@ -1,0 +1,32 @@
+class result {
+    fn init(object, err=none){
+    }
+    fn is_error(){
+        err != none
+    }
+    fn is_ok(){
+        err == none
+    }
+    fn then(^closure){
+        if is_ok():
+            closure(this)
+        else:
+            this
+    }
+    fn get(){
+        if is_error():
+            die "result is error"
+        object
+    }
+    fn error(){
+        err
+    }
+}
+
+class error {
+    fn init(err){
+        this = result(none, err=err)
+    }
+}
+
+export result, error

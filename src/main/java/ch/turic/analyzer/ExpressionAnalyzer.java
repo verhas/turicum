@@ -1,66 +1,40 @@
 package ch.turic.analyzer;
 
 import ch.turic.BadSyntax;
+import ch.turic.commands.AsyncEvaluation;
 import ch.turic.commands.Command;
+import ch.turic.commands.Stream;
 
 /**
  * <pre>{@code
  * expression ::= binary_expression[0]
- * // Define precedence levels using indexed rules
- * binary_expression[i <N ] ::= binary_expression[i+1] { binary_operators[i] binary_expression[i+1] }
- * binary_expression[i == N] ::= unary_expression  // Highest precedence level
- *
- * // Unary operators and primary expressions
- * unary_expression ::= prefix_unary_operator unary_expression | primary_expression
- *
- * primary_expression ::= literal
- * | fn ... function definition
- * | identifier
- * | '(' expression ')'
- * | function_call
- * | field_access
- * | method_call
- * | block_expression
- * | array_access
- *
- * // Function call: name(params)
- * function_call ::= identifier '(' [ expression { ',' expression } ] ')'
- *
- * // Field access: obj.field
- * field_access ::= primary_expression '.' identifier
- *
- * // Method call: obj.method(params)
- * method_call ::= primary_expression '.' identifier '(' [ expression { ',' expression } ] ')'
- *
- * // Block returning an expression value
- * block_expression ::= '{' statement { statement } expression '}'
- *
- * // Array element access: array[index]
- * array_access ::= primary_expression '[' expression ']'
- *
- * // Unary operators
- * prefix_unary_operator ::= '+' | '-' | '!'
- *
- * // Binary operators grouped by precedence (lower index = higher precedence)
- * binary_operators[0] ::= '||'   // Lowest precedence
- * binary_operators[1] ::= '&&'
- * binary_operators[2] ::= '|'
- * binary_operators[3] ::= '^'
- * binary_operators[4] ::= '&'
- * binary_operators[5] ::= '==' | '!='
- * binary_operators[6] ::= '<' | '<=' | '>' | '>='
- * binary_operators[7] ::= '<<' | '>>'
- * binary_operators[8] ::= '+' | '-'
- * binary_operators[9] ::= '*' | '/' | '%'  // Highest precedence for binary ops
- * }
- * </pre>
- *
  */
-
 public class ExpressionAnalyzer extends AbstractAnalyzer {
+
     public final static Analyzer INSTANCE = new ExpressionAnalyzer();
 
     public Command _analyze(LexList lexes) throws BadSyntax {
+        if (lexes.isKeyword()) {
+            switch (lexes.peek().text()) {
+                case "async":
+                    lexes.next();
+                    return new AsyncEvaluation(analyze(lexes));
+                case "stream":
+                    lexes.next();
+                    final Command capacityExpression;
+                    if( lexes.is("|")){
+                        lexes.next();
+                        capacityExpression = DefaultExpressionAnalyzer.INSTANCE.analyze(lexes);
+                        BadSyntax.when(lexes,lexes.isNot("|"),"Capacity parameter starts with '|' and does not close with one");
+                        lexes.next(); // step over the '|'
+                    }else{
+                        capacityExpression = null;
+                    }
+                    return new Stream(analyze(lexes), capacityExpression);
+                default:
+                    break;
+            }
+        }
         return BinaryExpressionAnalyzer.INSTANCE.analyze(lexes);
     }
 }

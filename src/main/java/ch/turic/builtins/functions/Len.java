@@ -20,7 +20,7 @@ public class Len implements TuriFunction {
 
     @Override
     public Object call(Context context, Object[] args) throws ExecutionException {
-        ExecutionException.when(args.length != 1,"Built-in function len needs exactly one argument");
+        ExecutionException.when(args.length != 1,"Built-in function %s needs exactly one argument",name());
         final var arg = args[0];
         return (long)switch (arg){
             case String s -> s.length();

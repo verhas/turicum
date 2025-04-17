@@ -1066,11 +1066,11 @@ fn future {
 }
 let a = 1
 let b = 3
-let k = [ .. stream({let a = 7, b = 9 ;generator(a,b);},keys())]
+let k = [ .. {stream {let a = 7, b = 9 ;generator(a,b);}},keys()]
 println("The value of a is ", a);
 println(k)
 global mikka_makka = "Maminti"
-let f = async({let a=5;future()})
+let f = async {let a=5;future()}
 println(f.get())
 
 // snippet streaming

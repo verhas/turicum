@@ -3,8 +3,8 @@ println("blala")
 // end snippet
 
 // snippet first_sample
-print("Hello,");
-println(" World")
+print "Hello,";
+println " World"
 for i=1 ; i < 3 ; i = i+1 : println(i)
 // end snippet
 
@@ -24,7 +24,7 @@ println(z)
 // snippet scope1
 let z = "cory"
 z = { // z is global
-    println("just a print")
+    println "just a print"
     let k = "Hi" // k is local
          + z // z is accessible
     // the value of the block is the last commands, value
@@ -216,7 +216,7 @@ println("i at end=",i);
 for each i in [1,2,3,4]: print(i," ");
 // end snippet
 // snippet foreach2
-for each i in [1,2,3,4]: print(i," "); until i%3 == 0
+for each i ∈ [1,2,3,4]: print(i," "); until i%3 == 0
 // end snippet
 
 // snippet yield1
@@ -225,7 +225,7 @@ fn gen_1_to_10 {
         yield i;
 }
 
-println([ .. stream(gen_1_to_10()) ])
+println([ .. (stream(gen_1_to_10())) ])
 // end snippet
 
 // snippet yield2
@@ -353,7 +353,7 @@ fn numbers {
   for i = 1 ; i <= 4 ; i = i + 1 : yield i
 }
 
-c(..stream(numbers()))
+c(..(stream numbers()))
 // end snippet
 
 // snippet closureDecorator1

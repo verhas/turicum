@@ -9,10 +9,14 @@ public class AssignmentAnalyzer extends AbstractAnalyzer {
 
     @Override
     public Command _analyze(LexList lexes) throws BadSyntax {
-        final var leftValue = LeftValueAnalyser.INSTANCE.analyze(lexes);
-        final var opSymbol = lexes.next();
-        BadSyntax.when(lexes, !(opSymbol.type() == Lex.Type.RESERVED) || !opSymbol.text().equals("="),
-                "Expected '=' after the left value but got '%s'", opSymbol.text());
+        final var leftValue = LeftValueAnalyzer.INSTANCE.analyze(lexes);
+        if (leftValue == null) {
+            return null;
+        }
+        if (!lexes.hasNext() || !(lexes.peek().type() == Lex.Type.RESERVED) || !lexes.peek().text().equals("=")) {
+            return null;
+        }
+        lexes.next();
         final var expression = ExpressionAnalyzer.INSTANCE.analyze(lexes);
         return new Assignment(leftValue, expression);
     }

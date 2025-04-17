@@ -1,13 +1,10 @@
 class files {
     fn read_all_lines(file_name_or_path){
-    println(file_name_or_path)
-    println(type(file_name_or_path))
-
         if type(file_name_or_path) == "str" :
             let file = java_call("java.nio.file.Path","of",file_name_or_path)
         else:
             let file = file_name_or_path
-        java_call("java.nio.file.Files","readAllLines",file)
+        java_call "java.nio.file.Files","readAllLines",file
     }
 }
 
@@ -16,3 +13,5 @@ class path {
         java_call_vararg("java.nio.file.Path","of",file_name,rest)
     }
 }
+
+export files, path

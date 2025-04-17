@@ -23,5 +23,7 @@ public interface Keywords {
     String UNTIL = "until";
     String RETURN = "return";
     String YIELD = "yield";
+    String ASYNC = "async";
+    String STREAM = "stream";
     // end snippet
 }

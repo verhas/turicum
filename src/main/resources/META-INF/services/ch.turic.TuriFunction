@@ -14,3 +14,4 @@ ch.turic.builtins.functions.SysImport
 ch.turic.builtins.functions.Sleep
 ch.turic.builtins.functions.Set
 ch.turic.builtins.functions.SetGlobal
+ch.turic.builtins.functions.Throw

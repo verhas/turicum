@@ -10,6 +10,15 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class BlockingQueueYielder implements Yielder, AutoCloseable, Iterable<Object>, Iterator<Object> {
 
+    final int capacity;
+
+    private final BlockingQueue<Object> queue;
+
+    public BlockingQueueYielder(int capacity) {
+        this.capacity = capacity;
+        this.queue = new LinkedBlockingQueue<>(capacity);
+    }
+
     public void setDataSource(CompletableFuture<Object> dataSource) {
         this.dataSource = dataSource;
     }
@@ -26,7 +35,6 @@ public class BlockingQueueYielder implements Yielder, AutoCloseable, Iterable<Ob
 
     private static final Sentinel SENTINEL = new Sentinel();
 
-    private final BlockingQueue<Object> queue = new LinkedBlockingQueue<>();
 
     @Override
     public void send(Object o) throws ExecutionException {
@@ -39,7 +47,7 @@ public class BlockingQueueYielder implements Yielder, AutoCloseable, Iterable<Ob
 
     @Override
     public Object[] collect() {
-        final var list = new ArrayList<Object>();
+        final var list = new ArrayList<>();
         while (true) {
             try {
                 final var element = queue.take();

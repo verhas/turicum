@@ -19,11 +19,11 @@ public class LexList extends LngList {
 
 
     /**
-     * Purge the already used up elements of the lexical analyser.
+     * Purge the already used up elements of the lexical analyzer.
      * This is used by the preprocessing before passing the LexList to the preprocessor closure.
      */
-    public void purge(){
-        array.subList(0,index).clear();
+    public void purge() {
+        array.subList(0, index).clear();
         index = 0;
     }
 
@@ -49,7 +49,7 @@ public class LexList extends LngList {
 
     public Lex next() throws BadSyntax {
         if (index >= array.size()) {
-            throw new BadSyntax(lexAt(array.size()-1).position(), "more elements expected");
+            throw new BadSyntax(lexAt(array.size() - 1).position(), "more elements expected");
         }
         return lexAt(index++);
     }
@@ -74,9 +74,9 @@ public class LexList extends LngList {
         return next();
     }
 
-    public Pos position(){
-        if (index >= array.size() ){
-            return lexAt(array.size()-1).position();
+    public Pos position() {
+        if (index >= array.size()) {
+            return lexAt(array.size() - 1).position();
         }
         return lexAt(index).position().clone();
     }
@@ -93,7 +93,7 @@ public class LexList extends LngList {
 
     public Lex peek() throws BadSyntax {
         if (index >= array.size()) {
-            throw new BadSyntax(lexAt(array.size()-1).position(), "more elements expected");
+            throw new BadSyntax(lexAt(array.size() - 1).position(), "more elements expected");
         }
         return lexAt(index);
     }
@@ -132,6 +132,12 @@ public class LexList extends LngList {
 
     public boolean isIdentifier() {
         return hasNext() && lexAt(index).type() == Lex.Type.IDENTIFIER;
+    }
+
+    public boolean isConstant() {
+        return hasNext() && (lexAt(index).type() == Lex.Type.STRING ||
+                lexAt(index).type() == Lex.Type.FLOAT ||
+                lexAt(index).type() == Lex.Type.INTEGER);
     }
 
 
