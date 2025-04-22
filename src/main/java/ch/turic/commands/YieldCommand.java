@@ -2,6 +2,7 @@ package ch.turic.commands;
 
 import ch.turic.ExecutionException;
 import ch.turic.commands.operators.Cast;
+import ch.turic.memory.Channel;
 import ch.turic.memory.Context;
 
 public class YieldCommand extends AbstractCommand {
@@ -25,7 +26,7 @@ public class YieldCommand extends AbstractCommand {
     public Object _execute(final Context context) throws ExecutionException {
         if( Cast.toBoolean(condition.execute(context))) {
             final var result = expression.execute(context);
-            context.threadContext.yielder().send(result);
+            context.threadContext.yielder().toParent().send(Channel.Message.of(result));
             return result;
         }else{
             return null;

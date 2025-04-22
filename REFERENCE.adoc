@@ -192,6 +192,7 @@ Expressions can contain
 * closure calls,
 * macro calls,
 * method calls,
+* async expressions,
 * and code blocks.
 
 Symbolic constants are `true`
@@ -232,6 +233,8 @@ The keywords are:
 
 
 
+`async`
+`await`
 `break`
 `catch`
 `class`
@@ -441,7 +444,7 @@ or on strings to check the existence of a substring.
 .functions argument default values
 [NOTE]
 ====
-The bitwise OR `|` is not allowed the expression specifies a default value for a function or closure argument.
+The bitwise OR `|` is not allowed in the expression specifying a default value for a function or closure argument.
 You can however freely enclose the expression or a part of it between `(` and `)` and use the operator freely.
 ====
 
@@ -449,7 +452,7 @@ You can however freely enclose the expression or a part of it between `(` and `)
 [NOTE]
 ====
 The lexical elements `pass:[++]` and `--` are defined and recognized by the lexical analyzer.
-This is to avoid accidentally writing `++i` or `--i`, which would otherwise be valid expressions doing nothing.
+This is to avoid accidentally writing `pass:[++i]` or `--i`, which would otherwise be valid expressions doing nothing.
 Their meaning would otherwise be `+(+i)` and `-(-i)`.
 ====
 
@@ -486,7 +489,7 @@ z = { // z is global
     println "just a print"
     let k = "Hi" // k is local
          + z // z is accessible
-    // the value of the block is the last commands, value
+    // the value of the block is the last command executed
     // 'let' assignments result the value assigned
     }
 println(z)
@@ -744,9 +747,6 @@ c("Hi, ")
 
 
 
-The output of the program is
-
-
 .output closure_example
 [source]
 ----
@@ -790,9 +790,6 @@ print(
 
 
 
-The output of the program is
-
-
 .output macro_example
 [source]
 ----
@@ -831,30 +828,36 @@ If the expression is missing the value will be `none`.
 There can be multiple `identifier : type = expression` after the `let` keyword comma separated.
 There are predefined type names.
 
-~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~*~~ ~~`~~b~~o~~o~~l~~`~~
-~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~/~~/~~ ~~b~~o~~o~~l~~e~~a~~n~~ ~~t~~y~~p~~e~~
-~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~*~~ ~~`~~s~~t~~r~~`~~
-~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~/~~/~~ ~~s~~t~~r~~i~~n~~g~~
-~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~*~~ ~~`~~n~~u~~m~~`~~
-~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~/~~/~~ ~~a~~n~~y~~ ~~n~~u~~m~~e~~r~~i~~c~~ ~~t~~y~~p~~e~~,~~ ~~i~~n~~t~~e~~g~~e~~r~~ ~~o~~r~~ ~~f~~l~~o~~a~~t~~
-~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~*~~ ~~`~~f~~l~~o~~a~~t~~`~~
-~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~/~~/~~ ~~f~~l~~o~~a~~t~~ ~~t~~y~~p~~e~~
-~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~*~~ ~~`~~a~~n~~y~~`~~
-~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~/~~/~~ ~~t~~h~~e~~ ~~v~~a~~r~~i~~a~~b~~l~~e~~ ~~c~~a~~n~~ ~~h~~o~~l~~d~~ ~~a~~n~~y~~ ~~v~~a~~l~~u~~e~~
-~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~*~~ ~~`~~o~~b~~j~~`~~
-~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~/~~/~~ ~~t~~h~~e~~ ~~v~~a~~r~~i~~a~~b~~l~~e~~ ~~c~~a~~n~~ ~~h~~o~~l~~s~~ ~~a~~n~~y~~ ~~o~~b~~j~~e~~c~~t~~ ~~w~~i~~t~~h~~o~~u~~t~~ ~~r~~e~~s~~t~~r~~i~~c~~t~~i~~o~~n~~ ~~o~~n~~ ~~t~~h~~e~~ ~~c~~l~~a~~s~~s~~ ~~o~~f~~ ~~t~~h~~a~~t~~ ~~o~~b~~j~~e~~c~~t~~
-~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~*~~ ~~`~~l~~s~~t~~`~~
-~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~/~~/~~ ~~t~~h~~e~~ ~~v~~a~~r~~i~~a~~b~~l~~e~~ ~~h~~a~~s~~ ~~t~~o~~ ~~b~~e~~ ~~a~~ ~~l~~i~~s~~t~~
-~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~*~~ ~~`~~c~~l~~s~~`~~
-~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~/~~/~~ ~~t~~h~~e~~ ~~v~~a~~r~~i~~a~~b~~l~~e~~ ~~h~~a~~s~~ ~~t~~o~~ ~~b~~e~~ ~~a~~ ~~c~~l~~a~~s~~s~~
-~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~*~~ ~~`~~f~~n~~`~~
-~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~/~~/~~ ~~t~~h~~e~~ ~~v~~a~~r~~i~~a~~b~~l~~e~~ ~~v~~a~~l~~u~~e~~ ~~h~~a~~s~~ ~~t~~o~~ ~~b~~e~~ ~~a~~ ~~f~~u~~n~~c~~t~~i~~o~~n~~ ~~o~~f~~ ~~c~~l~~o~~s~~u~~r~~e~~
-~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~*~~ ~~`~~m~~a~~c~~r~~o~~`~~
-~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~/~~/~~ ~~t~~h~~e~~ ~~v~~a~~r~~i~~a~~b~~l~~e~~ ~~v~~a~~l~~u~~e~~ ~~h~~a~~s~~ ~~t~~o~~ ~~b~~e~~ ~~a~~ ~~m~~a~~c~~r~~o~~
-~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~*~~ ~~`~~n~~o~~n~~e~~`~~
-~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~/~~/~~ ~~t~~h~~e~~ ~~v~~a~~r~~i~~a~~b~~l~~e~~ ~~c~~a~~n~~ ~~h~~o~~l~~d~~ ~~t~~h~~e~~ ~~v~~a~~l~~u~~e~~ ~~`~~n~~o~~n~~e~~`~~
-~~
-~~
+* `bool`
+ boolean type
+* `str`
+ string
+* `num`
+ any numeric type, integer or float
+* `float`
+ float type
+* `any`
+ the variable can hold any value
+* `obj`
+ the variable can hols any object without restriction on the class of that object
+* `lst`
+ the variable has to be a list
+* `que`
+ the variable has to be a queue
+* `task`
+ the variable has to be an asynchronous task
+* `err`
+ the variable has to be an asynchronous task
+* `cls`
+ the variable has to be a class
+* `fn`
+ the variable value has to be a function of closure
+* `macro`
+ the variable value has to be a macro
+* `none`
+ the variable can hold the value `none`
+
+
 
 If the name starts with `java.` then the variable can hold a Java object.
 For example `java.java.math.BigInteger` can hold any `java.math.BigInteger` object.
@@ -893,9 +896,6 @@ println(c)
 ----
 
 
-
-
-The output of the program is
 
 
 .output let_with_types_example
@@ -968,9 +968,6 @@ println("variable 'object' still can be changed: ", object)
 
 
 
-The output of the program is
-
-
 .output pinning
 [source]
 ----
@@ -1022,9 +1019,6 @@ print("again ",a)
 
 
 
-The output of the program is
-
-
 .output ifCommand
 [source]
 ----
@@ -1074,9 +1068,6 @@ while i < 5 {
 
 
 
-The output of the program is
-
-
 .output whileLoop
 [source]
 ----
@@ -1102,9 +1093,6 @@ println(i)
 ----
 
 
-
-
-The output of the program is
 
 
 .output whileLoop2
@@ -1137,9 +1125,6 @@ for i = 1 ; i < 5 ; i=i+1 {
 
 
 
-The output of the program is
-
-
 .output for1
 [source]
 ----
@@ -1163,9 +1148,6 @@ for( i = 1 ; i < 5 ; i=i+1 ){
 ----
 
 
-
-
-The output of the program is
 
 
 .output for2
@@ -1195,9 +1177,6 @@ println("i at end=",i);
 
 
 
-The output of the program is
-
-
 .output for3
 [source]
 ----
@@ -1222,9 +1201,6 @@ println("i at end=",i);
 ----
 
 
-
-
-The output of the program is
 
 
 .output for4
@@ -1255,9 +1231,6 @@ for each i in [1,2,3,4]: print(i," ");
 
 
 
-The output of the program is
-
-
 .output foreach1
 [source]
 ----
@@ -1278,9 +1251,6 @@ for each i ∈ [1,2,3,4]: print(i," "); until i%3 == 0
 ----
 
 
-
-
-The output of the program is
 
 
 .output foreach2
@@ -1325,7 +1295,7 @@ If it is executed, the value of the function, method, closure, or macro will be 
 
 The command yield produces a value, and the execution of the code continues.
 It can only be used when the code was started so that another thread is expecting the yielded value.
-The typical example is when you execute a command using the `stream()` function.
+The typical example is when you execute a command `async` .
 
 
 .yield1
@@ -1336,15 +1306,12 @@ fn gen_1_to_10 {
         yield i;
 }
 
-println([ .. stream(gen_1_to_10()) ])
+println([ .. (async gen_1_to_10()) ])
 
 
 ----
 
 
-
-
-The output of the program is
 
 
 .output yield1
@@ -1367,7 +1334,7 @@ fn gen_1_to_10 {
         yield i;
 }
 
-let st = stream(gen_1_to_10());
+let st = async gen_1_to_10();
 while st.has_next() :
     println(st.next());
 
@@ -1375,9 +1342,6 @@ while st.has_next() :
 ----
 
 
-
-
-The output of the program is
 
 
 .output yield2
@@ -1435,13 +1399,10 @@ println(inc(1))
 
 
 
-The output of the program is
-
-
 .output fun1
 [source]
 ----
-ch.turic.commands.Closure@1608bcbd
+ch.turic.commands.Closure@4ebff610
 2
 
 ----
@@ -1467,13 +1428,10 @@ println(inc(1))
 
 
 
-The output of the program is
-
-
 .output fun3
 [source]
 ----
-ch.turic.commands.Closure@b2c5e07
+ch.turic.commands.Closure@60410cd
 2
 
 ----
@@ -1501,13 +1459,10 @@ println(inc(1))
 
 
 
-The output of the program is
-
-
 .output fun2
 [source]
 ----
-ch.turic.commands.Closure@3c7c886c
+ch.turic.commands.Closure@44d52de2
 2
 
 ----
@@ -1554,13 +1509,10 @@ println(inc(1,how_much=5))
 
 
 
-The output of the program is
-
-
 .output fun4
 [source]
 ----
-ch.turic.commands.Closure@6b88ca8c
+ch.turic.commands.Closure@95e33cc
 6
 
 ----
@@ -1589,9 +1541,6 @@ println(inc(1))
 ----
 
 
-
-
-The output of the program is
 
 
 .output fun5
@@ -1635,9 +1584,6 @@ catch e: println("There is an error",e)
 ----
 
 
-
-
-The output of the program is
 
 
 .output fun6
@@ -1692,9 +1638,6 @@ f(1,2,3,4,5,6)
 
 
 
-The output of the program is
-
-
 .output restParameters
 [source]
 ----
@@ -1723,9 +1666,6 @@ f(1,b=2,k=3,x=4,juice=5,six=6)
 ----
 
 
-
-
-The output of the program is
 
 
 .output metaParameters
@@ -1784,9 +1724,6 @@ f(1,b=2,k=3,x=4,juice=5,7,six=6);
 
 
 
-The output of the program is
-
-
 .output metaRestParameters
 [source]
 ----
@@ -1824,9 +1761,6 @@ f(2,3){|x,y| x*y}
 ----
 
 
-
-
-The output of the program is
 
 
 .output closureArgument
@@ -1899,9 +1833,6 @@ c(..[1,2],..{d:4},3);
 
 
 
-The output of the program is
-
-
 .output spread
 [source]
 ----
@@ -1965,9 +1896,8 @@ This is the technical implementation internally replacing an unmutable Java Stri
 * `LngList` is the list object in Turicum.
 Although this class also implements the `HasFields` interface this is handled as an exception and passed as positional arguments when spread.
 
-* `BlockingQueueYielder` is the class handling asynchronous stream operations and yields.
-It makes it possible to use the result of a `stream(expression)` spread as arguments.
-It will eventually wait till all the elements of the stream are ready before starting the function.
+* `AsyncStreamHandler` is the class handling asynchronous operations and yields.
+It makes it possible to use the result of a `async expression` as arguments.
 +
 
 .spreadStream
@@ -1980,15 +1910,12 @@ fn numbers {
   for i = 1 ; i <= 4 ; i = i + 1 : yield i
 }
 
-c(..stream(numbers()))
+c(..(async numbers()))
 
 
 ----
 
 
-
-
-The output of the program is
 
 
 .output spreadStream
@@ -2001,11 +1928,320 @@ The output of the program is
 
 ====
 
-
-=== Closures and Context
-
-
 == Classes and Objects
+
+Classes can be defined using the `class` keyword.
+A class is defined when the class definition is executed.
+
+
+.class1
+[source]
+----
+class A {
+    fn init {
+        let a = "a";
+    }
+    let c = "c"
+}
+let a1 = A()
+let a2 = A()
+a1.a = "1"
+a2.a = "2"
+A.c = "d"
+println a1.a, a2.a, a1.c, a2.c
+
+
+
+----
+
+
+
+
+.output class1
+[source]
+----
+12dd
+
+----
+
+
+
+Classes can contain methods and can define class variables.
+In the example above the class contains the method `init`, which is a special one and declared one variable, `c`.
+
+The method `init` is the initialized method.
+It is invoked when the class is instantiated.
+To create an object, you should use the name of the class like a method with parameters.
+The parameters will be passed to the `init` method.
+
+When executing a method, there are two special variables:
+
+* `this` is the current object.
+
+* `cls` is the class of the current object.
+
+If you use a variable without the `this.` prefix it will automatically be handled, but you can just use the `this.` prefix any time.
+That way the following example is the same as the previous:
+
+
+.class2
+[source]
+----
+class A {
+    fn init {
+        this.a = "a";
+    }
+    cls.c = "c"
+}
+let a1 = A()
+let a2 = A()
+a1.a = "1"
+a2.a = "2"
+A.c = "d"
+println a1.a, a2.a, a1.c, a2.c
+
+
+
+----
+
+
+
+
+.output class2
+[source]
+----
+12dd
+
+----
+
+
+
+When using variables in a class first the object variables are consulted.
+If there is no object variable, then the class variables are used.
+Classes and the methods inside the classes do not wrap any surrounding context.
+
+The methods defined in a class belong to the class.
+You can define methods attached to the objects.
+
+
+.class3
+[source]
+----
+class A {
+    fn init {
+        this.a = "a";
+    }
+    fn p {
+        println "I am class level"
+    }
+}
+let a1 = A()
+a1.p()
+a1.p = fn (){
+  println "I am a1"
+}
+let a2 = A()
+a2.p = fn (){
+  println "I am a2"
+}
+
+a1.p()
+a2.p()
+
+
+
+----
+
+
+
+
+.output class3
+[source]
+----
+I am class level
+I am a1
+I am a2
+
+----
+
+
+
+The variable `cls` and `this` are pinned, cannot be modified in the methods.
+
+
+.class4
+[source]
+----
+class A {
+    fn p {
+        this = none
+    }
+}
+try :
+    A().p()
+catch ex :
+    println ex
+
+
+----
+
+
+
+
+.output class4
+[source]
+----
+Variable 'this' is pinned.
+
+----
+
+
+
+and
+
+
+.class5
+[source]
+----
+class A {
+    fn p {
+        cls = none
+    }
+}
+try :
+    A().p()
+catch ex :
+    println ex
+
+
+----
+
+
+
+
+.output class5
+[source]
+----
+Variable 'cls' is pinned.
+
+----
+
+
+
+The only exception is the `init` method.
+
+
+.class6
+[source]
+----
+class A {
+    fn init {
+      this = B()
+    }
+}
+
+class B {
+
+}
+
+println A().cls
+
+
+
+----
+
+
+
+
+.output class6
+[source]
+----
+class B
+
+----
+
+
+
+The example above alters the `this` variable, and it alters what the construction of the class returns.
+That way an initializer can function as a factory method.
+
+You cannot change the value of the `cls` even in the initializer:
+
+
+.class7
+[source]
+----
+class A {
+    fn init {
+      cls = B
+    }
+}
+
+class B {
+
+}
+try:
+    A()
+catch ex:
+    println ex
+
+
+
+----
+
+
+
+
+.output class7
+[source]
+----
+Variable 'cls' is pinned.
+
+----
+
+
+
+Classes can be nested and defined inside other classes.
+When calling the constructor of the class to create a new instance then the variable `this` would be ambigous.
+
+For `a.Z()` it usually points to `a`, but if `Z` is a class, and we called the constructor, than `this` should be the new instance.
+In this situation a special variable called `that` will point to `a`.
+
+
+.class8
+[source]
+----
+class A {
+    class B {
+        fn init {
+            println "this ", this
+            println "cls ", cls
+            println "that ", that
+        }
+    }
+}
+
+let a = A()
+let b = a.B()
+
+
+----
+
+
+
+
+.output class8
+[source]
+----
+this {that: {, cls: class A}, cls: class B}
+cls class B
+that {, cls: class A}
+
+----
+
+
+
+
 
 === Class Declaration
 
@@ -2019,7 +2255,169 @@ The output of the program is
 
 == Error Handling
 
-=== Try-Catch (once supported — placeholder)
+Error handling is similar to Java.
+If an error happens, an exception is thrown.
+An exception can be caught using `catch` pairing with a `try`.
+
+An exception is an object.
+You can declare a variable to hold an error
+
+
+.try3
+[source]
+----
+let error:err|none
+try{
+        z = 55 // undefined variable
+}catch(err): error = err
+
+println error
+
+
+
+----
+
+
+
+
+.output try3
+[source]
+----
+Variable 'z' is not defined.
+
+----
+
+
+
+The predefined type for an exception is `err`.
+
+An exception has
+
+* `stack_trace`
+
+* `message`
+
+* `cause`, and
+
+* `supressed` fields.
+
+`stack_trace` is a list (`lst`), each element is an object with the fields:
+
+* `file`
+* `line`
+* `column`
+* `source`
+
+
+.try4
+[source]
+----
+let error:err|none
+try{
+        z = 55 // undefined variable
+}catch(err): error = err
+
+println """message "%s" """ % [error.message]
+println """cause "%s" """ % [error.cause]
+println """suppressed %s" """ % [error.suppressed]
+for each st in error.stack_trace {
+    println("%s:%s:%s" % [st.file, st.line, st.column])
+    println "source: ", st.source
+    }
+
+
+
+
+----
+
+
+
+
+.output try4
+[source]
+----
+message "Variable 'z' is not defined." 
+cause "none" 
+suppressed []" 
+try4.turi:3:9
+source:         z = 55 // undefined variable
+try4.turi:2:3
+source: try{
+try4.turi:4:18
+source: }catch(err): error = err
+try4.turi:1:4
+source: let error:err|none
+
+----
+
+
+
+=== Try-Catch
+
+Try is very similar to Java `try`-`catch`-`finally`.
+The command `try` tries to execute a block and if an exception happens it executes the block following the keyword `catch`.
+At the end it executes the block following the `finally` keyword.
+
+
+The `catch` and finally` blocks are optional.
+
+
+.try1
+[source]
+----
+
+try {
+    z = 55 // undefined variable
+}catch err {
+  println err
+} finally {
+  println "this will always run"
+}
+
+
+
+----
+
+
+
+
+.output try1
+[source]
+----
+Variable 'z' is not defined.
+this will always run
+
+----
+
+
+
+Another example without the optional part, but enclosed in an outer try-catch block:
+
+
+.try2
+[source]
+----
+try{
+    try {
+        z = 55 // undefined variable
+    }
+}catch(err): println err
+
+
+
+----
+
+
+
+
+.output try2
+[source]
+----
+Variable 'z' is not defined.
+
+----
+
+
 
 == Decorators, Metaprogramming
 
@@ -2044,9 +2442,6 @@ z()
 ----
 
 
-
-
-The output of the program is
 
 
 .output closureDecorator1
@@ -2078,9 +2473,6 @@ z()
 ----
 
 
-
-
-The output of the program is
 
 
 .output closureDecorator2
@@ -2117,9 +2509,6 @@ fn q(){
 ----
 
 
-
-
-The output of the program is
 
 
 .output fnDecorator1
@@ -2161,9 +2550,6 @@ fn q(){
 
 
 
-The output of the program is
-
-
 .output fnDecorator2
 [source]
 ----
@@ -2200,9 +2586,6 @@ q()
 ----
 
 
-
-
-The output of the program is
 
 
 .output fnDecorator3
@@ -2250,9 +2633,6 @@ q()
 ----
 
 
-
-
-The output of the program is
 
 
 .output fnDecorator4
@@ -2330,9 +2710,6 @@ let inner = outer.InnerClass()
 
 
 
-The output of the program is
-
-
 .output that
 [source]
 ----
@@ -2382,9 +2759,6 @@ println(fib(10))
 
 
 
-The output of the program is
-
-
 .output fibonacci1
 [source]
 ----
@@ -2416,9 +2790,6 @@ println(FibCalculator.fib(10))
 ----
 
 
-
-
-The output of the program is
 
 
 .output fibonacci2
@@ -2454,9 +2825,6 @@ try
 
 
 
-The output of the program is
-
-
 .output fibonacci3
 [source]
 ----
@@ -2488,9 +2856,6 @@ One solution can be to convert the function to a closure:
 
 
 
-The output of the program is
-
-
 .output fibonacci4
 [source]
 ----
@@ -2519,9 +2884,6 @@ If you do not want to wrap the whole context, you can do a little trick using fu
 ----
 
 
-
-
-The output of the program is
 
 
 .output fibonacci5
@@ -2562,9 +2924,6 @@ An alternative possibility is to use the special variable `me`.
 
 
 
-The output of the program is
-
-
 .output fibonacci6
 [source]
 ----
@@ -2599,9 +2958,6 @@ println(fib(10))
 ----
 
 
-
-
-The output of the program is
 
 
 .output fibonacci7
@@ -2666,9 +3022,6 @@ twice( {println("Hello")} )
 
 
 
-The output of the program is
-
-
 .output evaluate1
 [source]
 ----
@@ -2712,9 +3065,6 @@ macro(fn (!arg,[rest],{meta},^closure)
 
 
 
-The output of the program is
-
-
 .output evaluate2
 [source]
 ----
@@ -2739,9 +3089,6 @@ It could be shortened as
 ----
 
 
-
-
-The output of the program is
 
 
 .output evaluate3
@@ -2884,14 +3231,499 @@ The argument can be:
 * Java collection
 
 === `set`
+
+Set the value of a variable in the local context.
+This function is useful for meta-programming when the name of the variable is available in a string.
+An example is in the sample:
+
+
+.fnDecorator3
+[source]
+----
+let fun_decorator={|^closure|
+        set(closure.name,
+            {|| println("We start the fun"); closure(); println("The fun is over")}
+           )
+    }
+
+@fun_decorator()
+fn q(){
+  println("We function");
+}
+
+q()
+
+
+----
+
+
+
+
+.output fnDecorator3
+[source]
+----
+We start the fun
+We function
+The fun is over
+
+----
+
+
+
+uses this function to decorate a function and then set the variable of the same name, overwriting the definition with a new, decorated closure.
+
 === `set_global`
+
+It is simlar to `set()` but it sets the variable as global.
+
 === `type`
+
+This method returns the type of the argument as a string.
+
+
+.type1
+[source]
+----
+
+let s = "13"; let i = 13; let d = 3.14;
+
+let err
+try: z = 6.55
+catch ex: err=ex
+class A {}
+
+println "\"13\" ", type("13")
+println "13 ", type(13)
+println "3.14 ", type(3.14)
+println "err ",type(err)
+println "A() ",type(A())
+println "[1,2,3] ",type([1,2,3])
+println "A ",type(A)
+println "fn()=3 ",type(fn()=3)
+println "{|| 3} ",type({|| 3})
+println "que(1) ",type(que(1))
+println "async ",type(async 1)
+println "macro ",type(macro(fn()=3))
+println "none ",type(none)
+println "java object ", type(java_object("java.lang.Object"))
+
+
+
+----
+
+
+
+
+.output type1
+[source]
+----
+"13" str
+13 num
+3.14 float
+err err
+A() A
+[1,2,3] lst
+A cls
+fn()=3 fn
+{|| 3} fn
+que(1) que
+async task
+macro macro
+none none
+java object java.java.lang.Object
+
+----
+
+
+
+When the argument is a Java object then the type is `java.` + the canonical name of the class.
+
 === `sleep`
+
+Will sleep the execution of the thread for the given number of seconds.
+
+
+.sleep
+[source]
+----
+
+sleep(0.001) // sleep one mili
+
+
+
+----
+
+
+
+
+.output sleep
+[source]
+----
+
+----
+
+
+
 === `macro`
+
+This function converts a closure or a function into a macro.
+
+
+.macro_example
+[source]
+----
+let c = macro(
+    {|condition,then,`else`|
+        if evaluate(condition) : evaluate(then) else: evaluate(`else`)
+    })
+
+print(
+
+    c(true,"yes, it is true",{ println("this will never be printed") })
+
+    );
+
+
+----
+
+
+
+
+.output macro_example
+[source]
+----
+yes, it is true
+----
+
+
+
 === `reclose`
+
+This function will "open" and relose a closure in the current environment.
+
+
+.reclose
+[source]
+----
+fn my_fun(@close_it) {
+  let s: str = "in function";
+  return reclose(close_it)
+}
+
+let s:str ="outer";
+let closure = {|x| println s; s = x};
+let reclosure = my_fun(close_it=closure);
+
+closure("closure 1")
+reclosure("reclosure 1")
+println "s = %s" % s
+
+closure("closure 2")
+reclosure("reclosure 2")
+println "s = %s" % s
+
+
+----
+
+
+
+
+.output reclose
+[source]
+----
+outer
+in function
+s = closure 1
+closure 1
+reclosure 1
+s = closure 2
+
+----
+
+
+
+The function opens and "recloses" the closure in the context of the function call.
+It will see and alter the `s` in that context of the re-closing, while the original closure alters and sees the global `s`.
+
+
 === `print`, `println`
 
-=== Preprocessing
+Prints the arguments to the standard output.
+`println` also prints a new-line at the end.
+
+=== `que`
+
+This function will create a FIFO queue, that different code fragments can write and read.
+These fragments will probably run in different threads.
+
+Here is a complex example using this function:
+
+
+.que
+[source]
+----
+/**
+ * A printing function that will print the objects received through the que `q` till it gets closed.
+ */
+fn printer(q,@name){
+    let n = 0 // counts the number of not ready que attempts
+    while {
+        let s = q.try_receive(); // try to receive one or get none if there is nothing in the queue
+        return { println "%s is done" % name } if q.is_closed(); // return when the que is closed
+        if s == none {
+            println "%s is not ready %s" % [name,n]
+            n = n + 1 // count the attempts
+            sleep 0.003 // sleep 3 mili
+        } else {
+            n = 0 // reset the attempts, we go an object to print
+            println "%s is ready %s" % [name,s];
+        }
+    }
+}
+
+// create ONE queue that will be consumed by two
+let q : que = que(3)
+// create two asynchronous task. they start immediately
+let task1 : task = async printer(q,name="task1")
+let task2 : task = async printer(q,name="task2")
+// send the numbers 1 to 10 to the queue, whoever is lucky can get it
+for i=1 ; i < 10 ; i = i +1 {
+    q.send(i);
+    sleep 0.01
+    }
+println "closing the channel"
+q.close();
+println "channel is closed"
+println "1 is done %s" % task1.is_done()
+println "2 is done %s" % task2.is_done()
+
+// get only the tasks into the list which are not done yet
+let task_list = [task1, task2 ? {|x| !x.is_done()} ]
+
+println "we start to wait the first time"
+await task_list
+
+println "task1 done %s" % task1.is_done()
+println "task2 done %s" % task2.is_done()
+println "We start to wait the second time"
+// have to use [] empty options, no timeout because a list literal stands after it
+await[] [task1, task2 ? {|x| !x.is_done()} ]
+
+println "task1 done %s" % task1.is_done()
+println "task2 done %s" % task2.is_done()
+
+none
+
+
+----
+
+
+
+
+.output que
+[source]
+----
+task2 is not ready 0
+task1 is not ready 0
+task1 is not ready 1
+task2 is ready 1
+task2 is not ready 0
+task1 is not ready 2
+task2 is not ready 1
+task1 is ready 2
+task2 is not ready 2
+task1 is not ready 0
+task2 is not ready 3
+task1 is not ready 1
+task2 is not ready 4
+task1 is not ready 2
+task1 is not ready 3
+task2 is not ready 5
+task1 is ready 3
+task2 is not ready 6
+task1 is not ready 0
+task2 is not ready 7
+task1 is not ready 1
+task2 is not ready 8task1 is not ready 2
+
+task1 is ready 4
+task2 is not ready 9
+task1 is not ready 0
+task2 is not ready 10
+task1 is not ready 1
+task2 is not ready 11task1 is not ready 2
+
+task1 is ready 5
+task2 is not ready 12
+task1 is not ready 0
+task2 is not ready 13
+task1 is not ready 1
+task2 is not ready 14
+task1 is not ready 2
+task2 is ready 6
+task1 is not ready 3
+task2 is not ready 0
+task1 is not ready 4
+task2 is not ready 1
+task1 is not ready 5
+task2 is not ready 2
+task1 is not ready 6
+task2 is not ready 3
+task2 is not ready 4
+task1 is ready 7
+task1 is not ready 0
+task2 is not ready 5
+task1 is not ready 1
+task1 is not ready 2
+task2 is not ready 6
+task1 is not ready 3
+task2 is ready 8
+task2 is not ready 0
+task1 is not ready 4
+task2 is not ready 1
+task1 is ready 9
+task2 is not ready 2
+task1 is not ready 0
+task1 is not ready 1
+task2 is not ready 3
+task1 is not ready 2
+task2 is not ready 4
+task1 is not ready 3
+task2 is not ready 5
+closing the channel
+channel is closed
+1 is done false
+2 is done false
+we start to wait the first time
+task2 is done
+task1 is done
+task1 done true
+task2 done true
+We start to wait the second time
+task1 done true
+task2 done true
+
+----
+
+
+
+
+=== `die`
+
+This function will throw an exception.
+The argument is the message of the exception.
+The naming of the function is a tribute to the programming language Perl.
+If you feel offensive the naming, you can use the lame `throw` form after importing it:
+
+
+.die
+[source]
+----
+
+sys_import "turi.throw"
+
+try:
+    throw "wuff"
+catch ex:
+    print "don't die"
+
+
+----
+
+
+
+
+.output die
+[source]
+----
+don't die
+----
+
+
+
+
+=== `yield()`, `try_yield()`, `yield_is_close()`
+
+In an asynchronous thread you can get objects sent by the parent thread calling `yield()`.
+This call will wait for an object and return it.
+If the que from the parent thread is already closed, then `yield()` will throw an exception.
+
+`try_yield()` is more lenient.
+It does not wait and returns `none` if there is no message or the channel is closed.
+
+`yield_is_close()` can be used to test of the que is open from the parent to the child thread.
+
+
+.try_yield
+[source]
+----
+fn printer(){
+    let n = 0
+    while {
+        let s = try_yield();
+        return { println "we are done" } if yield_is_closed();
+        if s == none {
+            println "not ready %s" % n
+            n = n + 1
+            sleep 0.003
+        } else {
+            n = 0
+            println "received %s" % s;
+        }
+    }
+}
+
+let task : task = async printer()
+for i=1 ; i < 4 ; i = i +1 {
+ println "sending ",i
+ task.send(i);
+ sleep 0.009
+ }
+println "closing the channel"
+task.close();
+println "channel is closed"
+println "is done %s" % task.is_done()
+await task
+println "is done %s" % task.is_done()
+
+none
+
+
+----
+
+
+
+
+.output try_yield
+[source]
+----
+sending 1
+not ready 0
+received 1
+not ready 0
+not ready 1
+sending 2
+received 2
+not ready 0
+not ready 1
+not ready 2
+sending 3
+received 3
+not ready 0
+not ready 1
+not ready 2
+closing the channel
+not ready 3
+channel is closed
+is done false
+we are done
+is done true
+
+----
+
+
+
+== Preprocessing
 
 == Language Grammar (Appendix)
 

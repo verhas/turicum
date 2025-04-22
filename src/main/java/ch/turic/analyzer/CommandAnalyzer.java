@@ -87,7 +87,7 @@ public class CommandAnalyzer extends AbstractAnalyzer {
         analyzers.put(Keywords.LET, LetAnalyzer.INSTANCE);
         analyzers.put(Keywords.PIN, PinAnalyzer.INSTANCE);
         analyzers.put(Keywords.GLOBAL, GlobalAnalyzer.INSTANCE);
-        analyzers.put(Keywords.FN, FunctionAnalyzer.INSTANCE);
+        analyzers.put(Keywords.FN, FunctionDefinitionAnalyzer.INSTANCE);
         analyzers.put(Keywords.CLASS, ClassAnalyzer.INSTANCE);
         analyzers.put(Keywords.IF, IfAnalyzer.INSTANCE);
         analyzers.put(Keywords.TRY, TryCatchAnalyzer.INSTANCE);

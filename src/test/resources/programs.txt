@@ -1066,25 +1066,29 @@ fn future {
 }
 let a = 1
 let b = 3
-let k = [ .. {stream {let a = 7, b = 9 ;generator(a,b);}},keys()]
+let k = [ .. {async {let a = 7, b = 9 ;generator(a,b);}},keys()]
 println("The value of a is ", a);
 println(k)
 global mikka_makka = "Maminti"
 let f = async {let a=5;future()}
-println(f.get())
+println(await f)
 
 // snippet streaming
-// null
+// Long
+// 1000
 fn gen_1_to_10 {
     for i=1 ; i <= 10 ; i = i + 1:
         yield i;
+    return 1000
 }
 
-let st = stream(gen_1_to_10());
+let st = async gen_1_to_10();
 println( st );
 while st.has_next() :
     println(st.next());
-// snippet fibonaccy
+await[10000] st
+
+// snippet fibonacci
 // Long
 // 89
     fn k(x){
@@ -1129,3 +1133,28 @@ fn b(!a,!b,!c,!d){
 
 a(..{a:1,b:2,c:3,d:4}) + b(..[1,2,3,4])
 
+/* snippet CoRoutines
+
+let in = que(10)
+let out= que(50)
+
+fn my_fun(in:que, out:que){
+
+    let in_message;
+    while in_message=in.get() }
+            out.put(in_message+1);
+    }
+}
+
+async my_tun(in,out)
+
+in.put(1)
+in.put(2)
+in.put(3)
+in.put(4)
+
+println(out.get())
+println(out.get())
+println(out.get())
+println(out.get())
+*/

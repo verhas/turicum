@@ -20,6 +20,7 @@ public class Print implements TuriFunction {
                 case null -> "none";
                 default -> "" + arg;
             });
+            System.out.flush();
         }
         return null;
     }

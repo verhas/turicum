@@ -1,0 +1,8 @@
+a=1
+b=2
+six=6
+x=4
+k=3
+juice=5
+rest:
+7 

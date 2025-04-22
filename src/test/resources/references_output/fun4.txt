@@ -1,0 +1,2 @@
+ch.turic.commands.Closure@95e33cc
+6

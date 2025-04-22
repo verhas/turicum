@@ -30,8 +30,8 @@ import java.util.List;
  * }
  * }</pre>
  */
-public class FunctionAnalyzer extends AbstractAnalyzer {
-    public static final FunctionAnalyzer INSTANCE = new FunctionAnalyzer();
+public class FunctionDefinitionAnalyzer extends AbstractAnalyzer {
+    public static final FunctionDefinitionAnalyzer INSTANCE = new FunctionDefinitionAnalyzer();
 
     @Override
     public Command _analyze(LexList lexes) throws BadSyntax {

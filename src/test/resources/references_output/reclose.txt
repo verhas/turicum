@@ -1,0 +1,6 @@
+outer
+in function
+s = closure 1
+closure 1
+reclosure 1
+s = closure 2

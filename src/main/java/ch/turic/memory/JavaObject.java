@@ -32,7 +32,7 @@ public record JavaObject(Object object) implements HasFields {
             final var field = object.getClass().getField(name);
             return field.get(object);
         } catch (NoSuchFieldException | IllegalAccessException e) {
-            throw new ExecutionException("Cannot get the value of the field '" + name + "' on the value '%s' it is not an object or does not have that field.", e, object);
+            throw new ExecutionException("Cannot get '%s.%s' because '%s'.", object, name,e );
         }
     }
 

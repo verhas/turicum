@@ -40,6 +40,17 @@ public class LngException extends LngObject {
         }
     }
 
+    public static LngException build(Context context, Throwable e, List<StackFrame> stackTrace){
+        if( e instanceof ExecutionException ee && ee.embedded() != null ){
+            return ee.embedded();
+        }
+        return new LngException(context, e, stackTrace);
+    }
+
+    public Throwable getCause() {
+        return e;
+    }
+
     @Override
     public Context context() {
         return context;
@@ -76,12 +87,12 @@ public class LngException extends LngObject {
         return switch (name) {
             case "stack_trace" -> stackTrace;
             case "message" -> e.getMessage();
-            case "cause" -> new LngException(context, e.getCause(), context.threadContext.getStackTrace());
-            case "supressed" -> {
+            case "cause" -> LngException.build(context, e.getCause(), context.threadContext.getStackTrace());
+            case "suppressed" -> {
                 final var lngList = new LngList();
-                final var supressed = e.getSuppressed();
-                for (int i = 0; i < supressed.length; i++) {
-                    lngList.setIndex(i, supressed[i]);
+                final var suppressed = e.getSuppressed();
+                for (int i = 0; i < suppressed.length; i++) {
+                    lngList.setIndex(i, suppressed[i]);
                 }
                 yield lngList;
             }
@@ -96,6 +107,9 @@ public class LngException extends LngObject {
 
     @Override
     public String toString() {
+        if( e == null ){
+            return "none";
+        }
         return e.getMessage();
     }
 

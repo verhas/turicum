@@ -1,21 +1,16 @@
 package ch.turic.memory;
 
-import ch.turic.ExecutionException;
-
 /**
- * A yielder can collect data as a callback, and then it can return the collected data.
+ * A yielder can accommodate data transfer between two coroutines/threads.
  * <p>
- * It is an abstraction for asynchronous operations.
- * The name comes from the Python asynchronous '{@code yield}' used in generators.
- * When there is a {@code Yielder} in the context hierarchy the 'yield' command of Turicum calls its
- * {@link #send(Object)} method. The implementation creates a new thread to process it and returns.
- * <p>
- * The method {@link #collect()} will return the processed objects when all the processing is done.
- * <p>
- * The nature of a {@code Yielder} does not need to be asynchronous, but that is the where it makes sense.
+ * The model is that one thread -- let's call it a parent thread -- creates an asynchronous thread -- the child thread.
+ * They can communicate by sending each other messages.
+ * Messages are arbitrary objects (wrapped into a {@link ch.turic.memory.Channel.Message} object).
+ * A yielder contains two channels, and it can provide these to channels to whoever wants to read it.
+ * Typically, the parent thread and the child thread.
  */
 public interface Yielder {
+    Channel toChild();
 
-    void send(Object o) throws ExecutionException;
-    Object[] collect();
+    Channel toParent();
 }

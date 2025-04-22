@@ -13,21 +13,35 @@ public class AdHocTest {
     @Test
     void test() throws Exception {
         test("""
-fn generator start=1 {
-        while {
-            println "yielding %s" % start
-            yield start;
-            start = start + 1;
+fn printer(){
+    let n = 0
+    while {
+        let s = try_yield();
+        return { println "we are done" } if yield_is_closed();
+        if s == none {
+            println "not ready %s" % n
+            n = n + 1
+            sleep 0.003
+        } else {
+            n = 0
+            println "received %s" % s;
         }
     }
+}
 
-let z = stream|100| generator(1)
-let i = 0;
-for each z in z {
-        println("fetching %s" % z)
-        sleep 0.1
-        i = i + 1;
-}until i > 100;
+let task : task = async printer()
+for i=1 ; i < 4 ; i = i +1 {
+ println "sending ",i
+ task.send(i);
+ sleep 0.009
+ }
+println "closing the channel"
+task.close();
+println "channel is closed"
+println "is done %s" % task.is_done()
+await task
+println "is done %s" % task.is_done()
+
 none
                 """
                 , null);

@@ -28,9 +28,6 @@
 %}
 %}
 {%@define S($X)={%sample $X%}
-
-The output of the program is
-
 {%output%}
 %}
 
@@ -159,6 +156,7 @@ Expressions can contain
 * closure calls,
 * macro calls,
 * method calls,
+* async expressions,
 * and code blocks.
 
 Symbolic constants are {%#trimLines
@@ -382,7 +380,7 @@ or on strings to check the existence of a substring.
 .functions argument default values
 [NOTE]
 ====
-The bitwise OR `|` is not allowed the expression specifies a default value for a function or closure argument.
+The bitwise OR `|` is not allowed in the expression specifying a default value for a function or closure argument.
 You can however freely enclose the expression or a part of it between `(` and `)` and use the operator freely.
 ====
 
@@ -390,7 +388,7 @@ You can however freely enclose the expression or a part of it between `(` and `)
 [NOTE]
 ====
 The lexical elements `pass:[++]` and `--` are defined and recognized by the lexical analyzer.
-This is to avoid accidentally writing `++i` or `--i`, which would otherwise be valid expressions doing nothing.
+This is to avoid accidentally writing `pass:[++i]` or `--i`, which would otherwise be valid expressions doing nothing.
 Their meaning would otherwise be `+(+i)` and `-(-i)`.
 ====
 
@@ -542,7 +540,7 @@ There can be multiple `identifier : type = expression` after the `let` keyword c
 There are predefined type names.
 
 {%#trimLines
-{%#replaceLines replace="~case\\s+\"(\\w+)\".*~* `$1`~" replace="//~~"
+{%#replaceLines replace="~case\\s+\"(\\w+)\".*~* `$1`~" replace="~//~~"
 {%@snip types%}
 %}%}
 
@@ -731,7 +729,7 @@ If it is executed, the value of the function, method, closure, or macro will be 
 
 The command yield produces a value, and the execution of the code continues.
 It can only be used when the code was started so that another thread is expecting the yielded value.
-The typical example is when you execute a command using the `stream()` function.
+The typical example is when you execute a command `async` .
 
 {%S yield1%}
 
@@ -977,18 +975,75 @@ This is the technical implementation internally replacing an unmutable Java Stri
 * `LngList` is the list object in Turicum.
 Although this class also implements the `HasFields` interface this is handled as an exception and passed as positional arguments when spread.
 
-* `BlockingQueueYielder` is the class handling asynchronous stream operations and yields.
-It makes it possible to use the result of a `stream(expression)` spread as arguments.
-It will eventually wait till all the elements of the stream are ready before starting the function.
+* `AsyncStreamHandler` is the class handling asynchronous operations and yields.
+It makes it possible to use the result of a `async expression` as arguments.
 +
 {%S spreadStream%}
 ====
 
-
-=== Closures and Context
-
-
 == Classes and Objects
+
+Classes can be defined using the `class` keyword.
+A class is defined when the class definition is executed.
+
+{%S class1%}
+
+Classes can contain methods and can define class variables.
+In the example above the class contains the method `init`, which is a special one and declared one variable, `c`.
+
+The method `init` is the initialized method.
+It is invoked when the class is instantiated.
+To create an object, you should use the name of the class like a method with parameters.
+The parameters will be passed to the `init` method.
+
+When executing a method, there are two special variables:
+
+* `this` is the current object.
+
+* `cls` is the class of the current object.
+
+If you use a variable without the `this.` prefix it will automatically be handled, but you can just use the `this.` prefix any time.
+That way the following example is the same as the previous:
+
+{%S class2%}
+
+When using variables in a class first the object variables are consulted.
+If there is no object variable, then the class variables are used.
+Classes and the methods inside the classes do not wrap any surrounding context.
+
+The methods defined in a class belong to the class.
+You can define methods attached to the objects.
+
+{%S class3%}
+
+The variable `cls` and `this` are pinned, cannot be modified in the methods.
+
+{%S class4%}
+
+and
+
+{%S class5%}
+
+The only exception is the `init` method.
+
+{%S class6%}
+
+The example above alters the `this` variable, and it alters what the construction of the class returns.
+That way an initializer can function as a factory method.
+
+You cannot change the value of the `cls` even in the initializer:
+
+{%S class7%}
+
+Classes can be nested and defined inside other classes.
+When calling the constructor of the class to create a new instance then the variable `this` would be ambigous.
+
+For `a.Z()` it usually points to `a`, but if `Z` is a class, and we called the constructor, than `this` should be the new instance.
+In this situation a special variable called `that` will point to `a`.
+
+{%S class8%}
+
+
 
 === Class Declaration
 
@@ -1002,7 +1057,50 @@ It will eventually wait till all the elements of the stream are ready before sta
 
 == Error Handling
 
-=== Try-Catch (once supported — placeholder)
+Error handling is similar to Java.
+If an error happens, an exception is thrown.
+An exception can be caught using `catch` pairing with a `try`.
+
+An exception is an object.
+You can declare a variable to hold an error
+
+{%S try3%}
+
+The predefined type for an exception is `err`.
+
+An exception has
+
+* `stack_trace`
+
+* `message`
+
+* `cause`, and
+
+* `supressed` fields.
+
+`stack_trace` is a list (`lst`), each element is an object with the fields:
+
+* `file`
+* `line`
+* `column`
+* `source`
+
+{%S try4%}
+
+=== Try-Catch
+
+Try is very similar to Java `try`-`catch`-`finally`.
+The command `try` tries to execute a block and if an exception happens it executes the block following the keyword `catch`.
+At the end it executes the block following the `finally` keyword.
+
+
+The `catch` and finally` blocks are optional.
+
+{%S try1%}
+
+Another example without the optional part, but enclosed in an outer try-catch block:
+
+{%S try2%}
 
 == Decorators, Metaprogramming
 
@@ -1325,14 +1423,88 @@ The argument can be:
 * Java collection
 
 === `set`
+
+Set the value of a variable in the local context.
+This function is useful for meta-programming when the name of the variable is available in a string.
+An example is in the sample:
+
+{%S fnDecorator3%}
+
+uses this function to decorate a function and then set the variable of the same name, overwriting the definition with a new, decorated closure.
+
 === `set_global`
+
+It is simlar to `set()` but it sets the variable as global.
+
 === `type`
+
+This method returns the type of the argument as a string.
+
+{%S type1%}
+
+When the argument is a Java object then the type is `java.` + the canonical name of the class.
+
 === `sleep`
+
+Will sleep the execution of the thread for the given number of seconds.
+
+{%S sleep%}
+
 === `macro`
+
+This function converts a closure or a function into a macro.
+
+{%S macro_example%}
+
 === `reclose`
+
+This function will "open" and relose a closure in the current environment.
+
+{%S reclose%}
+
+The function opens and "recloses" the closure in the context of the function call.
+It will see and alter the `s` in that context of the re-closing, while the original closure alters and sees the global `s`.
+
+
 === `print`, `println`
 
-=== Preprocessing
+Prints the arguments to the standard output.
+`println` also prints a new-line at the end.
+
+=== `que`
+
+This function will create a FIFO queue, that different code fragments can write and read.
+These fragments will probably run in different threads.
+
+Here is a complex example using this function:
+
+{%S que%}
+
+
+=== `die`
+
+This function will throw an exception.
+The argument is the message of the exception.
+The naming of the function is a tribute to the programming language Perl.
+If you feel offensive the naming, you can use the lame `throw` form after importing it:
+
+{%S die%}
+
+
+=== `yield()`, `try_yield()`, `yield_is_close()`
+
+In an asynchronous thread you can get objects sent by the parent thread calling `yield()`.
+This call will wait for an object and return it.
+If the que from the parent thread is already closed, then `yield()` will throw an exception.
+
+`try_yield()` is more lenient.
+It does not wait and returns `none` if there is no message or the channel is closed.
+
+`yield_is_close()` can be used to test of the que is open from the parent to the child thread.
+
+{%S try_yield%}
+
+== Preprocessing
 
 == Language Grammar (Appendix)
 

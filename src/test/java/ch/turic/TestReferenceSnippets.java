@@ -1,5 +1,6 @@
 package ch.turic;
 
+import ch.turic.analyzer.Input;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
 
@@ -40,7 +41,7 @@ public class TestReferenceSnippets {
                             final var ps = new PrintStream(baos);
                             System.setOut(ps);
                             // Execute the snippet.
-                            Object result = new Interpreter(snippet.programCode()).execute();
+                            Object result = new Interpreter(new Input( new StringBuilder(snippet.programCode()),snippet.filePath)).execute();
                             ps.close();
                             baos.close();
                             final var output = outputDir.resolve(snippet.name() + ".txt");
@@ -87,7 +88,7 @@ public class TestReferenceSnippets {
                     i++;
                 }
                 i++; // skip end snippet
-                snippets.add(new ProgramSnippet(snippetName, codeBuilder.toString(), filePath, startLine));
+                snippets.add(new ProgramSnippet(snippetName, codeBuilder.toString(), snippetName+".turi", startLine));
             } else {
                 i++;
                 if (i >= lines.size()) break; // no more snippets

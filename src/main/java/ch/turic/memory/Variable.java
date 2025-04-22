@@ -104,6 +104,12 @@ public class Variable {
             // the variable can hols any object without restriction on the class of that object
             case "lst" -> new Variable.Type(LngList.class, null, new Identifier(name));
             // the variable has to be a list
+            case "que" -> new Variable.Type(Channel.class, null, new Identifier(name));
+            // the variable has to be a queue
+            case "task" -> new Variable.Type(AsyncStreamHandler.class, null, new Identifier(name));
+            // the variable has to be an asynchronous task
+            case "err" -> new Variable.Type(LngException.class, null, new Identifier(name));
+            // the variable has to be an asynchronous task
             case "cls" -> new Variable.Type(LngClass.class, null, new Identifier(name));
             // the variable has to be a class
             case "fn" -> new Variable.Type(Closure.class, null, new Identifier(name));

@@ -122,7 +122,7 @@ public class FunctionCall extends AbstractCommand {
             final var arg = argValues[i];
             if (i == argValues.length - 1 && pList.closure() != null && arg.id() == null) {
                 boolean allMadatoryPositionalsDone = true;
-                for (int j = 0; j < pList.parameters().length ; j++) {
+                for (int j = 0; j < pList.parameters().length; j++) {
                     if (pList.parameters()[j].type() != ParameterList.Parameter.Type.NAMED_ONLY) {
                         allMadatoryPositionalsDone = allMadatoryPositionalsDone && filled[j];
                     }
@@ -172,7 +172,7 @@ public class FunctionCall extends AbstractCommand {
      * @throws ExecutionException if there is no 'meta' and the name is not defined
      */
     private static void addNamedParameter(Context ctx, ParameterList pList, ArgumentEvaluated argValue, LngObject meta, boolean[] filled) {
-        if (argValue.value instanceof Spread(Object array)) {
+        if (argValue.value instanceof Spread) {
             throw new ExecutionException("Named argument cannot be spread");
         } else {
             for (int j = 0; j < pList.parameters().length; j++) {
@@ -221,7 +221,7 @@ public class FunctionCall extends AbstractCommand {
                 case null -> {
 
                 }
-                case HasFields it when !(list instanceof LngList) -> {
+                case HasFields it when !(list instanceof LngList) && !(list instanceof AsyncStreamHandler) -> {
                     for (final String name : it.fields()) {
                         final var value = it.getField(name);
                         addNamedParameter(ctx, pList, new ArgumentEvaluated(new Identifier(name), value), meta, filled);
@@ -232,9 +232,7 @@ public class FunctionCall extends AbstractCommand {
                         addPositionalParameter(ctx, pList, new ArgumentEvaluated(null, o), rest, meta, filled);
                     }
                 }
-                default -> {
-                    throw new ExecutionException("You can only spread objects and lists, not '%s'",list);
-                }
+                default -> throw new ExecutionException("You can only spread objects and lists, not '%s'", list);
             }
         } else {
             for (int index = 0; true; index++) {

@@ -14,7 +14,7 @@ import java.util.ArrayList;
  * primary_expression ::= literal
  * | 'fn' ... function definition
  * | 'class' ... class definition
- * | identifier
+ * | identifier | yield
  * | '(' expression ')'
  * | function_call
  * | field_access
@@ -34,13 +34,25 @@ public class PrimaryExpressionAnalyzer extends AbstractAnalyzer {
         if (lexes.isEmpty()) {
             throw new BadSyntax(lexes.position(), "Expression is empty");
         }
+        if (lexes.is(Keywords.YIELD)) {
+            lexes.next();
+            // eat optional '(' and ')' if there is any
+            if(lexes.is("(")){
+                lexes.next();
+                if( lexes.isNot(")")){
+                    throw new BadSyntax(lexes.position(), "Expected a closing parenthesis after 'yield'");
+                }
+                lexes.next();
+            }
+            return new YieldFetch();
+        }
         if (lexes.is(Keywords.CLASS)) {
             lexes.next();
             return ClassAnalyzer.INSTANCE.analyze(lexes);
         }
         if (lexes.is(Keywords.FN)) {
             lexes.next();
-            return FunctionAnalyzer.INSTANCE.analyze(lexes);
+            return FunctionDefinitionAnalyzer.INSTANCE.analyze(lexes);
         }
         if (lexes.is("(")) {
             final var left = getExpressionBetweenParentheses(lexes);
@@ -192,7 +204,7 @@ public class PrimaryExpressionAnalyzer extends AbstractAnalyzer {
         } else if (isDecorator) {
             if (lexes.is("fn")) {
                 lexes.next();
-                final var fn = FunctionAnalyzer.INSTANCE.analyze(lexes);
+                final var fn = FunctionDefinitionAnalyzer.INSTANCE.analyze(lexes);
                 arguments.add(new FunctionCall.Argument(null, fn));
             } else if (lexes.is("class")) {
                 lexes.next();

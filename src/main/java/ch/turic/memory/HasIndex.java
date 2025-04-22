@@ -47,7 +47,7 @@ public interface HasIndex extends Iterable<Object> {
                         case CompositionModifier.Filter f -> {
                             final var expression = f.expression.execute(context);
                             if (expression instanceof Closure closure) {
-                                ExecutionException.when(closure.parameters().fitOperator(), "Filter closure or function must have exactly one parameter");
+                                ExecutionException.when(!closure.parameters().fitOperator(), "Filter closure or function must have exactly one parameter");
                                 final var ctx = context.wrap(context);
                                 ctx.local(closure.parameters().parameters()[0].identifier(), item);
                                 filtered = !Cast.toBoolean(closure.execute(ctx));

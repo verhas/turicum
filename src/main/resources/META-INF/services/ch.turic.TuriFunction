@@ -15,3 +15,6 @@ ch.turic.builtins.functions.Sleep
 ch.turic.builtins.functions.Set
 ch.turic.builtins.functions.SetGlobal
 ch.turic.builtins.functions.Throw
+ch.turic.builtins.functions.Que
+ch.turic.builtins.functions.TryYield
+ch.turic.builtins.functions.YieldIsClosed

@@ -2,8 +2,11 @@ package ch.turic.analyzer;
 
 import ch.turic.BadSyntax;
 import ch.turic.commands.AsyncEvaluation;
+import ch.turic.commands.AwaitEvaluation;
 import ch.turic.commands.Command;
-import ch.turic.commands.Stream;
+
+import java.util.Map;
+import java.util.Set;
 
 /**
  * <pre>{@code
@@ -13,28 +16,36 @@ public class ExpressionAnalyzer extends AbstractAnalyzer {
 
     public final static Analyzer INSTANCE = new ExpressionAnalyzer();
 
+    private static final Set<String> ASYNC_OPTIONS = Set.of("in", "out", "steps", "time");
+    private static final Set<String> AWAIT_OPTIONS = Set.of("time");
+
     public Command _analyze(LexList lexes) throws BadSyntax {
         if (lexes.isKeyword()) {
             switch (lexes.peek().text()) {
-                case "async":
-                    lexes.next();
-                    return new AsyncEvaluation(analyze(lexes));
-                case "stream":
-                    lexes.next();
-                    final Command capacityExpression;
-                    if( lexes.is("|")){
-                        lexes.next();
-                        capacityExpression = DefaultExpressionAnalyzer.INSTANCE.analyze(lexes);
-                        BadSyntax.when(lexes,lexes.isNot("|"),"Capacity parameter starts with '|' and does not close with one");
-                        lexes.next(); // step over the '|'
-                    }else{
-                        capacityExpression = null;
-                    }
-                    return new Stream(analyze(lexes), capacityExpression);
+                case Keywords.ASYNC:
+                    final var asyncOptions = getOptions(lexes, "Async", ASYNC_OPTIONS);
+                    return new AsyncEvaluation(analyze(lexes), asyncOptions);
+                case Keywords.AWAIT:
+                    final var awaitOptions = getOptions(lexes, "await", AWAIT_OPTIONS);
+                    return new AwaitEvaluation(analyze(lexes), awaitOptions);
                 default:
                     break;
             }
         }
         return BinaryExpressionAnalyzer.INSTANCE.analyze(lexes);
+    }
+
+    private Map<String, Command> getOptions(LexList lexes, String forWhat, Set<String> OPTIONS) {
+        lexes.next();
+        final Map<String, Command> asyncOptions;
+        if (lexes.peek().text().equals("[")) {
+            lexes.next();
+            asyncOptions = OptionListAnalyzer.analyze(lexes, OPTIONS);
+            BadSyntax.when(lexes, !lexes.peek().text().equals("]"), "%s options should be closed with ']'", forWhat);
+            lexes.next();
+        } else {
+            asyncOptions = Map.of();
+        }
+        return asyncOptions;
     }
 }

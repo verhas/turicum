@@ -22,13 +22,16 @@ import java.util.ArrayList;
  * usage pattern, and the interpreter should ideally be used from a single thread.
  */
 public class Interpreter {
-    private final String source;
+    private final Input source;
     private volatile Command code = null;
     private final Object lock = new Object();
     private Context preprocessorContext;
     private Context ctx;
 
     public Interpreter(String source) {
+        this.source = Input.fromString(source);
+    }
+    public Interpreter(Input source) {
         this.source = source;
     }
 
@@ -55,7 +58,7 @@ public class Interpreter {
                 localCode = code; // may have changed since we synchronized
                 if (localCode == null) {
                     final var analyzer = new ProgramAnalyzer();
-                    localCode = analyzer.analyze(Lexer.analyze(Input.fromString(source)));
+                    localCode = analyzer.analyze(Lexer.analyze(source));
                     code = localCode;
                     preprocessorContext = analyzer.context();
                 }

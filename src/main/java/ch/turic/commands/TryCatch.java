@@ -10,22 +10,6 @@ public class TryCatch extends AbstractCommand {
     final Command catchBlock;
     final Command finallyBlock;
 
-    public Command catchBlock() {
-        return catchBlock;
-    }
-
-    public String exceptionVariable() {
-        return exceptionVariable;
-    }
-
-    public Command finallyBlock() {
-        return finallyBlock;
-    }
-
-    public Command tryBlock() {
-        return tryBlock;
-    }
-
     final String exceptionVariable;
 
     public TryCatch(Command tryBlock, Command catchBlock, Command finallyBlock, String exceptionVariable) {
@@ -47,7 +31,7 @@ public class TryCatch extends AbstractCommand {
             if (catchBlock == null) {
                 throw e;
             }
-            final var exception = new LngException(context, e, context.threadContext.getStackTrace());
+            final var exception = LngException.build(context, e, context.threadContext.getStackTrace());
             ctx.let0(exceptionVariable, exception);
             context.threadContext.resetTrace(traceSize);
             catchBlock.execute(ctx);

@@ -22,6 +22,7 @@ public class Println implements TuriFunction {
             });
         }
         System.out.println();
+        System.out.flush();
         return null;
     }
 }

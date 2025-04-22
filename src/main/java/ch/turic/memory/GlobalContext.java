@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class GlobalContext {
     public Map<String, Variable> heap = new HashMap<>();
-    private Context top;
+    private final Context top;
     public final AtomicBoolean isMultiThreading = new AtomicBoolean(false);
     public final int stepLimit;
     public final AtomicInteger steps = new AtomicInteger();
@@ -27,6 +27,16 @@ public class GlobalContext {
         this.top = top;
     }
 
+    /**
+     * Get the TuriClass object that can handle the method calls for this class type.
+     * <p>
+     * A TuriClass object can handle a type if the type returned by the objects {@link TuriClass#forClass()} method
+     * is {@code clazz}.
+     *
+     * @param clazz the class of the object we want to handle
+     * @return the {@link TuriClass} object or {@code null} if there is no registered object that could handle this
+     * type.
+     */
     public TuriClass getTuriClass(Class<?> clazz) {
         return turiClasses.get(clazz);
     }
@@ -59,7 +69,7 @@ public class GlobalContext {
      */
     public void startMultithreading() {
         if (isMultiThreading.compareAndSet(false, true)) {
-            heap = new ConcurrentHashMap<String, Variable>(heap);
+            heap = new ConcurrentHashMap<>(heap);
             top.frame = heap;
         }
     }

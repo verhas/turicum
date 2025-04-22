@@ -24,6 +24,6 @@ public interface Keywords {
     String RETURN = "return";
     String YIELD = "yield";
     String ASYNC = "async";
-    String STREAM = "stream";
+    String AWAIT = "await";
     // end snippet
 }

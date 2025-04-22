@@ -1,0 +1,11 @@
+message "Variable 'z' is not defined." 
+cause "none" 
+suppressed []" 
+try4.turi:3:9
+source:         z = 55 // undefined variable
+try4.turi:2:3
+source: try{
+try4.turi:4:18
+source: }catch(err): error = err
+try4.turi:1:4
+source: let error:err|none

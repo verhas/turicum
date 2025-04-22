@@ -18,9 +18,9 @@ public class TuriString implements TuriClass {
         }
 
         return switch (identifier) {
-            case "times" -> new TuriMethodCallBuilder<String>(string, (str, args) -> str.repeat(Cast.toLong(args[0]).intValue()));
-            case "charAt" -> new TuriMethodCallBuilder<String>(string, (str, args) -> str.charAt(Cast.toLong(args[0]).intValue()));
-            case "indexOf" -> new TuriMethodCallBuilder<String>(string, (str, args) -> str.indexOf(args[0].toString()));
+            case "times" -> new TuriMethod<>((args) -> string.repeat(Cast.toLong(args[0]).intValue()));
+            case "charAt" -> new TuriMethod<>( (args) -> ""+string.charAt(Cast.toLong(args[0]).intValue()));
+            case "indexOf" -> new TuriMethod<>( ( args) -> (long) string.indexOf(args[0].toString()));
             default -> null;
         };
     }

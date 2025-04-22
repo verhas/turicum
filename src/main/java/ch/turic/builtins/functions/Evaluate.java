@@ -16,7 +16,7 @@ public class Evaluate implements TuriFunction {
 
     @Override
     public Object call(Context context, Object[] args) throws ExecutionException {
-        ExecutionException.when(args.length != 1, "Built-in function evaluate needs exactly one argument");
+        ExecutionException.when(args.length != 1, "Built-in function %s needs exactly one argument",name());
         final var arg = args[0];
         if (arg instanceof Command command) {
             final var ctx = (ch.turic.memory.Context) context;

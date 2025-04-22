@@ -143,7 +143,7 @@ public class Context implements ch.turic.Context {
     public void local(String key, Object value) throws ExecutionException {
         ExecutionException.when(globals.contains(key), "Local variable is already defined as global '" + key + "'");
         ExecutionException.when(nonlocal.contains(key), "Variable cannot be local, it is already used as non-local '" + key + "'");
-        ExecutionException.when(frozen.contains(key), "final variable cannot be altered '" + key + "'");
+        ExecutionException.when(frozen.contains(key), "pinned variable cannot be altered '" + key + "'");
         frame.computeIfAbsent(key, x -> new Variable(key)).set(value);
     }
 

@@ -17,8 +17,7 @@ public class TuriLong implements TuriClass {
             throw new ExecutionException("Wrong target type, need Long, probably internal error");
         }
         return switch (identifier) {
-            case "times" ->
-                    new TuriMethodCallBuilder<Long>(num, (obj, args) -> times(obj,args[0]));
+            case "times" -> new TuriMethod<>((args) -> times(num, args[0]));
             default -> null;
         };
     }

@@ -18,8 +18,8 @@ public class TuriIterator implements TuriClass {
             throw new ExecutionException("Target must be of type CompletableFuture, this is an internal error");
         }
         return switch (identifier) {
-            case "has_next" -> new TuriMethodCallBuilder<>(iterator, (it, args) -> it.hasNext());
-            case "next" -> new TuriMethodCallBuilder<>(iterator, (fut, args) -> fut.next());
+            case "has_next" -> TuriMethod.of(iterator::hasNext);
+            case "next" -> TuriMethod.of(iterator::next);
             default -> null;
         };
     }

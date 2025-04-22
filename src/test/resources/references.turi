@@ -27,7 +27,7 @@ z = { // z is global
     println "just a print"
     let k = "Hi" // k is local
          + z // z is accessible
-    // the value of the block is the last commands, value
+    // the value of the block is the last command executed
     // 'let' assignments result the value assigned
     }
 println(z)
@@ -225,7 +225,7 @@ fn gen_1_to_10 {
         yield i;
 }
 
-println([ .. (stream(gen_1_to_10())) ])
+println([ .. (async gen_1_to_10()) ])
 // end snippet
 
 // snippet yield2
@@ -234,7 +234,7 @@ fn gen_1_to_10 {
         yield i;
 }
 
-let st = stream(gen_1_to_10());
+let st = async gen_1_to_10();
 while st.has_next() :
     println(st.next());
 // end snippet
@@ -353,7 +353,7 @@ fn numbers {
   for i = 1 ; i <= 4 ; i = i + 1 : yield i
 }
 
-c(..(stream numbers()))
+c(..(async numbers()))
 // end snippet
 
 // snippet closureDecorator1
@@ -569,4 +569,327 @@ let MyImport = import("mod.ul.name.file")
 let my_function = MyImport.imported_function;
 my_function("hello")
 }catch e{}
+// end snippet
+
+// snippet class1
+class A {
+    fn init {
+        let a = "a";
+    }
+    let c = "c"
+}
+let a1 = A()
+let a2 = A()
+a1.a = "1"
+a2.a = "2"
+A.c = "d"
+println a1.a, a2.a, a1.c, a2.c
+
+// end snippet
+
+// snippet class2
+class A {
+    fn init {
+        this.a = "a";
+    }
+    cls.c = "c"
+}
+let a1 = A()
+let a2 = A()
+a1.a = "1"
+a2.a = "2"
+A.c = "d"
+println a1.a, a2.a, a1.c, a2.c
+
+// end snippet
+
+// snippet class3
+class A {
+    fn init {
+        this.a = "a";
+    }
+    fn p {
+        println "I am class level"
+    }
+}
+let a1 = A()
+a1.p()
+a1.p = fn (){
+  println "I am a1"
+}
+let a2 = A()
+a2.p = fn (){
+  println "I am a2"
+}
+
+a1.p()
+a2.p()
+
+// end snippet
+
+// snippet class4
+class A {
+    fn p {
+        this = none
+    }
+}
+try :
+    A().p()
+catch ex :
+    println ex
+// end snippet
+
+// snippet class5
+class A {
+    fn p {
+        cls = none
+    }
+}
+try :
+    A().p()
+catch ex :
+    println ex
+// end snippet
+
+// snippet class6
+class A {
+    fn init {
+      this = B()
+    }
+}
+
+class B {
+
+}
+
+println A().cls
+
+// end snippet
+
+// snippet class7
+class A {
+    fn init {
+      cls = B
+    }
+}
+
+class B {
+
+}
+try:
+    A()
+catch ex:
+    println ex
+
+// end snippet
+
+// snippet class8
+class A {
+    class B {
+        fn init {
+            println "this ", this
+            println "cls ", cls
+            println "that ", that
+        }
+    }
+}
+
+let a = A()
+let b = a.B()
+// end snippet
+
+// snippet try1
+
+try {
+    z = 55 // undefined variable
+}catch err {
+  println err
+} finally {
+  println "this will always run"
+}
+
+// end snippet
+
+// snippet try2
+try{
+    try {
+        z = 55 // undefined variable
+    }
+}catch(err): println err
+
+// end snippet
+
+// snippet try3
+let error:err|none
+try{
+        z = 55 // undefined variable
+}catch(err): error = err
+
+println error
+
+// end snippet
+
+// snippet try4
+let error:err|none
+try{
+        z = 55 // undefined variable
+}catch(err): error = err
+
+println """message "%s" """ % [error.message]
+println """cause "%s" """ % [error.cause]
+println """suppressed %s" """ % [error.suppressed]
+for each st in error.stack_trace {
+    println("%s:%s:%s" % [st.file, st.line, st.column])
+    println "source: ", st.source
+    }
+
+
+// end snippet
+
+// snippet type1
+
+let s = "13"; let i = 13; let d = 3.14;
+
+let err
+try: z = 6.55
+catch ex: err=ex
+class A {}
+
+println "\"13\" ", type("13")
+println "13 ", type(13)
+println "3.14 ", type(3.14)
+println "err ",type(err)
+println "A() ",type(A())
+println "[1,2,3] ",type([1,2,3])
+println "A ",type(A)
+println "fn()=3 ",type(fn()=3)
+println "{|| 3} ",type({|| 3})
+println "que(1) ",type(que(1))
+println "async ",type(async 1)
+println "macro ",type(macro(fn()=3))
+println "none ",type(none)
+println "java object ", type(java_object("java.lang.Object"))
+
+// end snippet
+
+// snippet sleep
+
+sleep(0.001) // sleep one mili
+
+// end snippet
+
+// snippet reclose
+fn my_fun(@close_it) {
+  let s: str = "in function";
+  return reclose(close_it)
+}
+
+let s:str ="outer";
+let closure = {|x| println s; s = x};
+let reclosure = my_fun(close_it=closure);
+
+closure("closure 1")
+reclosure("reclosure 1")
+println "s = %s" % s
+
+closure("closure 2")
+reclosure("reclosure 2")
+println "s = %s" % s
+// end snippet
+
+// snippet die
+
+sys_import "turi.throw"
+
+try:
+    throw "wuff"
+catch ex:
+    print "don't die"
+// end snippet
+
+// snippet que
+/**
+ * A printing function that will print the objects received through the que `q` till it gets closed.
+ */
+fn printer(q,@name){
+    let n = 0 // counts the number of not ready que attempts
+    while {
+        let s = q.try_receive(); // try to receive one or get none if there is nothing in the queue
+        return { println "%s is done" % name } if q.is_closed(); // return when the que is closed
+        if s == none {
+            println "%s is not ready %s" % [name,n]
+            n = n + 1 // count the attempts
+            sleep 0.003 // sleep 3 mili
+        } else {
+            n = 0 // reset the attempts, we go an object to print
+            println "%s is ready %s" % [name,s];
+        }
+    }
+}
+
+// create ONE queue that will be consumed by two
+let q : que = que(3)
+// create two asynchronous task. they start immediately
+let task1 : task = async printer(q,name="task1")
+let task2 : task = async printer(q,name="task2")
+// send the numbers 1 to 10 to the queue, whoever is lucky can get it
+for i=1 ; i < 10 ; i = i +1 {
+    q.send(i);
+    sleep 0.01
+    }
+println "closing the channel"
+q.close();
+println "channel is closed"
+println "1 is done %s" % task1.is_done()
+println "2 is done %s" % task2.is_done()
+
+// get only the tasks into the list which are not done yet
+let task_list = [task1, task2 ? {|x| !x.is_done()} ]
+
+println "we start to wait the first time"
+await task_list
+
+println "task1 done %s" % task1.is_done()
+println "task2 done %s" % task2.is_done()
+println "We start to wait the second time"
+// have to use [] empty options, no timeout because a list literal stands after it
+await[] [task1, task2 ? {|x| !x.is_done()} ]
+
+println "task1 done %s" % task1.is_done()
+println "task2 done %s" % task2.is_done()
+
+none
+// end snippet
+
+// snippet try_yield
+fn printer(){
+    let n = 0
+    while {
+        let s = try_yield();
+        return { println "we are done" } if yield_is_closed();
+        if s == none {
+            println "not ready %s" % n
+            n = n + 1
+            sleep 0.003
+        } else {
+            n = 0
+            println "received %s" % s;
+        }
+    }
+}
+
+let task : task = async printer()
+for i=1 ; i < 4 ; i = i +1 {
+ println "sending ",i
+ task.send(i);
+ sleep 0.009
+ }
+println "closing the channel"
+task.close();
+println "channel is closed"
+println "is done %s" % task.is_done()
+await task
+println "is done %s" % task.is_done()
+
+none
 // end snippet
