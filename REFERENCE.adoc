@@ -822,6 +822,27 @@ The syntax of a `let` command is the following:
 let identifier : type = expression
 ----
 
+or
+
+[source]
+----
+let {identifier:type , ... } = expression
+----
+
+or
+
+[source]
+----
+let [identifier:type ...] = expression
+----
+
+In the first version you assign a value to an identifier and optionally define the type.
+If the type is defined, only values that match the type can be assigned to the variable.
+Type is one of the predefined types or the name of the class or a java object type.
+You can specify multiple types separated using `|` character.
+
+Note that if you do not define an expression but you define a type that is not `any` or `none` then you should also specify `|none` as an alternative, because the initial value will be `none`.
+
 The `: type` and the `= expression` parts are optional.
 If the type is not defined, then the variable can get any value.
 If the expression is missing the value will be `none`.
@@ -904,6 +925,251 @@ println(c)
 3 == 3
 
 ----
+
+
+
+If you use the format `let { identifier list } = expression` then the identifiers are not followed by expressions individually.
+Instead, the expression after the `=` is evaluated once, used as an object and the fields are assigned to the variables of the same name on the left side.
+
+
+.flat_let_object1
+[source]
+----
+
+let z = { a: "apple", b:"bier", c : "count" }
+let {a, b, c} = z
+println a
+println b
+println c
+
+
+----
+
+
+
+
+.output flat_let_object1
+[source]
+----
+apple
+bier
+count
+
+----
+
+
+
+It is not an error if there are fields in the object not read during the assignment and also if some of the variables do not have matching fields.
+
+
+.flat_let_object2
+[source]
+----
+
+let z = { a: "apple", b:"bier", c : "count" , d: "not used" }
+let {a, b, c, f} = z
+println a
+println b
+println c
+println f
+
+
+----
+
+
+
+
+.output flat_let_object2
+[source]
+----
+apple
+bier
+count
+none
+
+----
+
+
+
+If you use the format `let [ identifier list ] = expression` then the identifiers are not followed by expressions individually.
+Instead, the expression after the `=` is evaluated once, used as a list and the elements are assigned to the variables.
+
+
+.flat_let_list1
+[source]
+----
+let [a, b, c] = [1,2,3]
+println a
+println b
+println c
+
+
+----
+
+
+
+
+.output flat_let_list1
+[source]
+----
+1
+2
+3
+
+----
+
+
+
+It is  an error if there are not enough or too many elements in the list on the right-hand side.
+
+
+.flat_let_list2
+[source]
+----
+try:
+    let [a, b, c, f] = [1,2,3]
+catch err: println err
+
+
+----
+
+
+
+
+.output flat_let_list2
+[source]
+----
+[multi-let] assignment right hand side has too few values
+
+----
+
+
+
+
+.flat_let_list3
+[source]
+----
+try:
+    let [a, b] = [1,2,3]
+catch err: println err
+
+
+----
+
+
+
+
+.output flat_let_list3
+[source]
+----
+[multi-let] assignment right hand side has too many values
+
+----
+
+
+
+If you have too many elements you can cut the list:
+
+
+.flat_let_list4
+[source]
+----
+let [a, b] = [1,2,3,4,5,6,7,8][0..2]
+println a
+println b
+
+
+----
+
+
+
+
+.output flat_let_list4
+[source]
+----
+1
+2
+
+----
+
+
+
+If you have too few you can extend the list:
+
+
+.flat_let_list5
+[source]
+----
+fn adjust(x, @to){
+    if len(x) < to :
+        while len(x) < to :
+            x = [..x, none]
+    else :
+        x = x[0..len(x)]
+    x
+}
+let [a, b, c, d] = adjust(to=4,[1,2])
+println a
+println b
+println c
+println d
+
+
+----
+
+
+
+
+.output flat_let_list5
+[source]
+----
+1
+2
+none
+none
+
+----
+
+
+
+or even
+
+
+.flat_let_list6
+[source]
+----
+fn adjust(@to,[x]){
+    if len(x) < to :
+        while len(x) < to :
+            x = [..x, none]
+    else :
+        x = x[0..len(x)]
+    x
+}
+let [a, b, c, d] = adjust(to=4, 1,2)
+println a
+println b
+println c
+println d
+
+
+----
+
+
+
+
+.output flat_let_list6
+[source]
+----
+1
+2
+none
+none
+
+----
+
+
+
 
 
 
@@ -1402,7 +1668,7 @@ println(inc(1))
 .output fun1
 [source]
 ----
-ch.turic.commands.Closure@4ebff610
+ch.turic.commands.Closure@95e33cc
 2
 
 ----
@@ -1431,7 +1697,7 @@ println(inc(1))
 .output fun3
 [source]
 ----
-ch.turic.commands.Closure@60410cd
+ch.turic.commands.Closure@38604b81
 2
 
 ----
@@ -1462,7 +1728,7 @@ println(inc(1))
 .output fun2
 [source]
 ----
-ch.turic.commands.Closure@44d52de2
+ch.turic.commands.Closure@1e44b638
 2
 
 ----
@@ -1512,7 +1778,7 @@ println(inc(1,how_much=5))
 .output fun4
 [source]
 ----
-ch.turic.commands.Closure@95e33cc
+ch.turic.commands.Closure@7393222f
 6
 
 ----
@@ -2779,7 +3045,7 @@ class FibCalculator {
     fn fib(x) {
         if x == 1 || x == 0 : 1
         else{
-            return cache[x] if cache[x] != none;
+            return cache[x] when cache[x] != none;
             cache[x] = fib(x - 1) + fib(x - 2);
         }
     }
@@ -3530,66 +3796,66 @@ task2 is ready 1
 task2 is not ready 0
 task1 is not ready 2
 task2 is not ready 1
-task1 is ready 2
-task2 is not ready 2
-task1 is not ready 0
-task2 is not ready 3
-task1 is not ready 1
-task2 is not ready 4
-task1 is not ready 2
 task1 is not ready 3
+task2 is not ready 2
+task2 is ready 2
+task1 is not ready 4
+task2 is not ready 0
+task1 is not ready 5
+task2 is not ready 1
+task1 is not ready 6task2 is not ready 2
+
+task2 is ready 3
+task1 is not ready 7
+task2 is not ready 0
+task2 is not ready 1
+task1 is not ready 8
+task2 is not ready 2task1 is not ready 9
+
+task1 is ready 4
+task2 is not ready 3
+task1 is not ready 0
+task2 is not ready 4
+task1 is not ready 1
 task2 is not ready 5
-task1 is ready 3
+task1 is not ready 2
+task1 is ready 5
 task2 is not ready 6
 task1 is not ready 0
 task2 is not ready 7
 task1 is not ready 1
-task2 is not ready 8task1 is not ready 2
-
-task1 is ready 4
-task2 is not ready 9
-task1 is not ready 0
-task2 is not ready 10
-task1 is not ready 1
-task2 is not ready 11task1 is not ready 2
-
-task1 is ready 5
-task2 is not ready 12
-task1 is not ready 0
-task2 is not ready 13
-task1 is not ready 1
-task2 is not ready 14
+task2 is not ready 8
 task1 is not ready 2
 task2 is ready 6
-task1 is not ready 3
 task2 is not ready 0
-task1 is not ready 4
+task1 is not ready 3
 task2 is not ready 1
+task1 is not ready 4
+task2 is not ready 2
 task1 is not ready 5
-task2 is not ready 2
+task2 is not ready 3
 task1 is not ready 6
-task2 is not ready 3
-task2 is not ready 4
-task1 is ready 7
-task1 is not ready 0
-task2 is not ready 5
-task1 is not ready 1
-task1 is not ready 2
-task2 is not ready 6
-task1 is not ready 3
-task2 is ready 8
+task2 is ready 7
 task2 is not ready 0
-task1 is not ready 4
+task1 is not ready 7
+task1 is not ready 8
 task2 is not ready 1
-task1 is ready 9
-task2 is not ready 2
-task1 is not ready 0
-task1 is not ready 1
+task2 is ready 8
+task1 is not ready 9
+task2 is not ready 0
+task2 is not ready 1
+task1 is not ready 10
+task2 is not ready 2task1 is not ready 11
+
+task1 is not ready 12
 task2 is not ready 3
+task2 is not ready 4task1 is ready 9
+task1 is not ready 0
+
+task1 is not ready 1task2 is not ready 5
+
+task2 is not ready 6
 task1 is not ready 2
-task2 is not ready 4
-task1 is not ready 3
-task2 is not ready 5
 closing the channel
 channel is closed
 1 is done false
@@ -3697,8 +3963,8 @@ none
 .output try_yield
 [source]
 ----
-sending 1
-not ready 0
+sending 1not ready 0
+
 received 1
 not ready 0
 not ready 1
@@ -3713,7 +3979,6 @@ not ready 0
 not ready 1
 not ready 2
 closing the channel
-not ready 3
 channel is closed
 is done false
 we are done
@@ -3723,7 +3988,178 @@ is done true
 
 
 
+=== Regular Expressions
+
+Regular expression handling is implemented with two primitive functions `_rx()` and `_rx_match()`.
+They start with the `_` character to signal that they are not to be used directly.
+Instead, the code has to import the system file `re`:
+
+
+.re
+[source]
+----
+sys_import "turi.re"
+
+fn print_match(m){
+    for i=0 ; i < len(m.group) ; i = i + 1 {
+        let {index, start, end } = m.group[i];
+        println "%s. '%s'.substring(%s,%s)='%s'" % [index,s,start, end,s[start..end]];
+    }
+}
+
+let s = "abrakadabra";
+let rx =Re("a(b)ra(ka)(dabra)")
+let m = rx.match(s);
+println m
+print_match(m);
+
+s = "xxx"+s+"yyy";
+m = rx.match(s);
+if m.group == none :
+    println "does not match because of xxx and yyy"
+println m, " is an empty object"
+m = rx.find(s)
+if m.group != none :
+    println "matches because we find and not match"
+print_match(m);
+
+
+----
+
+
+
+
+.output re
+[source]
+----
+{start: 0, name: {}, end: 11, group: [{start: 1, index: 1, end: 2}, {start: 4, index: 2, end: 6}, {start: 6, index: 3, end: 11}]}
+1. 'abrakadabra'.substring(1,2)='b'
+2. 'abrakadabra'.substring(4,6)='ka'
+3. 'abrakadabra'.substring(6,11)='dabra'
+does not match because of xxx and yyy
+{} is an empty object
+matches because we find and not match
+1. 'xxxabrakadabrayyy'.substring(4,5)='b'
+2. 'xxxabrakadabrayyy'.substring(7,9)='ka'
+3. 'xxxabrakadabrayyy'.substring(9,14)='dabra'
+
+----
+
+
+
+You can create a regular expression object using `Re()`.
+It has two methods:
+
+* `match()` to match the whole string passed as argument, and
+
+* `find()` to find a matching strign in the string.
+
+If there is no match, the return value is an empty object.
+If there is a match, then the return value is an object containing the matching groups.
+
+Even if there are no matching groups the object is not empty as it will have an empty list field named `group`.
+
+YOu can also use named arguments, that will get into the field `name`.
+In the example above that field was empty.
+In the following example we have named arguments:
+
+
+.re2
+[source]
+----
+sys_import "turi.re"
+
+let m = Re("a(?<firstb>b)ra(?<twoletter>ka)(dabra)").match("abrakadabra");
+println "the ks is '%s'" % [m.name.twoletter]
+
+
+----
+
+
+
+
+.output re2
+[source]
+----
+the ks is '{start: 6, index: 3, end: 11}'
+
+----
+
+
+
+Each named argument contains the start, end and the index of the named group.
+
 == Preprocessing
+
+When the syntax analyzer meets a `#` symbol it stops parsing the tokens and starts preprocessing.
+The steps of the preprocessing are the following:
+
+. Parse the command following the `#` symbol.
+This is the preprocessor command.
+It has to be a macro, a function or a closure.
+
+. Remove all the tokens from the token list that were already processed.
+
+. Create a preprocessor context.
+
+. Execute the commands that were parsed.
+This will create global variables, functions and classes in the preprocessor context.
+
+. Execute the command passing the list of tokens as the only argument.
+
+. Remove all the tokens from the input and replace them with the token list returned by the preprocessor.
+
+. If there are elements that are not tokens originating from the original list, parse them and convert each to a list of tokens.
+
+When the remaining code is executed, the interpreter will use the preprocessor context.
+If there is more than one preprocessor executed, they will share the same context.
+
+The following example shows preprocessing that adds lines defining a global variable `M`,
+defines a function `helvetic_hi()` and
+sets the value of the variable `M` to `"hello hello"`.
+
+
+.preprocessorSample
+[source]
+----
+fn hi(){ // this will be deleted, it only exists in the preprocessor context
+  "hello "
+}
+// the next line starts the preprocessor
+# {|lexes|
+["""
+    // this is a string that will lead the new lexical token list
+    let M:str = ""
+    fn helvetic_hi(){
+      "Gruetzi "
+    }
+    M = M + "hello ";
+    M = M + (hi() or "none ");
+""",
+// and just let's have the rest of the tokens
+..lexes]
+} // end of the preprocessor command
+
+// this is preprocessed
+M = M + helvetic_hi() + "ant hunter"
+print M
+
+
+----
+
+
+
+
+.output preprocessorSample
+[source]
+----
+hello hello Gruetzi ant hunter
+----
+
+
+
+The example above is quite contrived.
+Preprocessors are usually defined in imported files and invoked using a simple function call.
 
 == Language Grammar (Appendix)
 
@@ -3801,7 +4237,9 @@ Variables declared as local will be local to the scope, even if the same name is
 or as a global variable
 the value of the local declaration is the value of the last assignment in the command
 
- LOCAL ::= 'let' IDENTIFIER_ASSIGNMENT_LIST;
+ LOCAL ::= 'let' IDENTIFIER_ASSIGNMENT_LIST |
+           'let' '{' TYPED_IDENTIFIER_LIST '}' '=' EXPRESSION|
+           'let' '[' TYPED_IDENTIFIER_LIST ']' '=' EXPRESSION ;
 
 Variables declared global will refer to the global variable.
 The value of the global declaration is the value of the last assignment in the command.
@@ -3814,8 +4252,15 @@ You can also pin an object. In that case use `{variable}` instead of the name.
 
  PIN ::= 'pin' IDENTIFIER_ASSIGNMENT_LIST;
 
- IDENTIFIER_ASSIGNMENT_LIST ::= [identifier ['=' expression]] { ',' identifier [ '=' expression] };
+ IDENTIFIER_ASSIGNMENT_LIST ::= [identifier [: TYPE_DEFINITION ] ['=' expression]]
+                                    { ',' identifier [: TYPE_DEFINITION ] [ '=' expression] };
 
+ TYPED_IDENTIFIER_LIST ::= identifier [: TYPE_DEFINITION ]
+                                    { ',' identifier [: TYPE_DEFINITION ] };
+
+ TYPE_DEFINITION ::= TYPE_NAME { '|' TYPE_NAME }
+
+ TYPE_NAME ::= IDENTIFIER
 
 It is valid to have no identifiers in an identifier list, a.k.a. having an empty identifier list
 
@@ -3890,11 +4335,3 @@ Binary operators grouped by precedence (higher index = higher precedence)
  BINARY_OPERATOR[7] ::= '<<' | '>>' ;
  BINARY_OPERATOR[8] ::= '+' | '-' ;
  BINARY_OPERATOR[9] ::= '*' | '/' | '%' ; Highest precedence for binary ops
-
-== Keywords and Syntax Summary
-
-=== Reserved Words
-
-=== Operator Summary
-
-=== Syntax Summary Table

@@ -47,12 +47,15 @@ public class AssignmentList {
      * @throws BadSyntax if the syntax is incorrect, such as a missing identifier after a comma
      */
     public Assignment[] analyze(final LexList lexes) throws BadSyntax {
+        return analyze(lexes,true);
+    }
+    public Assignment[] analyze(final LexList lexes, boolean addValues) throws BadSyntax {
         final var pairs = new ArrayList<Assignment>();
         while (lexes.peek().type() == Lex.Type.IDENTIFIER) {
             final var identifier = lexes.next();
             final var type = getTheTypeDefinitions(lexes);
             Command expression;
-            if (lexes.is("=")) {
+            if (lexes.is("=") && addValues) {
                 lexes.next();
                 expression = ExpressionAnalyzer.INSTANCE.analyze(lexes);
             } else {

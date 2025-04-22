@@ -18,7 +18,7 @@ public class JavaMethodCall implements TuriFunction {
 
     @Override
     public Object call(Context ctx, Object[] arguments) throws ExecutionException {
-        ExecutionException.when(arguments.length < 2, "Function %s needs at least two argument.", name());
+        FunUtils.twoArgs(name(), arguments);
         if (!(arguments[1] instanceof String methodName)) {
             throw new ExecutionException("Function %s needs a method name as a second argument.", name());
         }

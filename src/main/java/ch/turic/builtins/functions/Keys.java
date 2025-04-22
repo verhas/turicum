@@ -3,7 +3,6 @@ package ch.turic.builtins.functions;
 import ch.turic.Context;
 import ch.turic.ExecutionException;
 import ch.turic.TuriFunction;
-import ch.turic.commands.Closure;
 import ch.turic.commands.ClosureOrMacro;
 import ch.turic.commands.ParameterList;
 import ch.turic.memory.LngClass;
@@ -23,12 +22,10 @@ public class Keys implements TuriFunction {
 
     @Override
     public Object call(Context context, Object[] args) throws ExecutionException {
-        if( args.length > 1 ){
-            throw new ExecutionException("Only one argument is allowed");
-        }
+        FunUtils.oneArgOpt(name(), args);
         final var result = new LngList();
-        if( args.length == 0 ){
-            result.array.addAll(((ch.turic.memory.Context)context).keys());
+        if (args.length == 0) {
+            result.array.addAll(((ch.turic.memory.Context) context).keys());
             return result;
         }
         final var arg = args[0];

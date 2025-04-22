@@ -533,6 +533,27 @@ The syntax of a `let` command is the following:
 let identifier : type = expression
 ----
 
+or
+
+[source]
+----
+let {identifier:type , ... } = expression
+----
+
+or
+
+[source]
+----
+let [identifier:type ...] = expression
+----
+
+In the first version you assign a value to an identifier and optionally define the type.
+If the type is defined, only values that match the type can be assigned to the variable.
+Type is one of the predefined types or the name of the class or a java object type.
+You can specify multiple types separated using `|` character.
+
+Note that if you do not define an expression but you define a type that is not `any` or `none` then you should also specify `|none` as an alternative, because the initial value will be `none`.
+
 The `: type` and the `= expression` parts are optional.
 If the type is not defined, then the variable can get any value.
 If the expression is missing the value will be `none`.
@@ -570,6 +591,41 @@ You can define multiple types for a variable separating the types with `|`. For 
 The following example declares a variable that can hold a string or a numeric value.
 
 {%S let_with_types_example%}
+
+If you use the format `let { identifier list } = expression` then the identifiers are not followed by expressions individually.
+Instead, the expression after the `=` is evaluated once, used as an object and the fields are assigned to the variables of the same name on the left side.
+
+{%S flat_let_object1%}
+
+It is not an error if there are fields in the object not read during the assignment and also if some of the variables do not have matching fields.
+
+{%S flat_let_object2%}
+
+If you use the format `let [ identifier list ] = expression` then the identifiers are not followed by expressions individually.
+Instead, the expression after the `=` is evaluated once, used as a list and the elements are assigned to the variables.
+
+{%S flat_let_list1%}
+
+It is  an error if there are not enough or too many elements in the list on the right-hand side.
+
+{%S flat_let_list2%}
+
+{%S flat_let_list3%}
+
+If you have too many elements you can cut the list:
+
+{%S flat_let_list4%}
+
+If you have too few you can extend the list:
+
+{%S flat_let_list5%}
+
+or even
+
+{%S flat_let_list6%}
+
+
+
 
 ==== Pinned Variables
 
@@ -1504,7 +1560,67 @@ It does not wait and returns `none` if there is no message or the channel is clo
 
 {%S try_yield%}
 
+=== Regular Expressions
+
+Regular expression handling is implemented with two primitive functions `_rx()` and `_rx_match()`.
+They start with the `_` character to signal that they are not to be used directly.
+Instead, the code has to import the system file `re`:
+
+{%S re%}
+
+You can create a regular expression object using `Re()`.
+It has two methods:
+
+* `match()` to match the whole string passed as argument, and
+
+* `find()` to find a matching strign in the string.
+
+If there is no match, the return value is an empty object.
+If there is a match, then the return value is an object containing the matching groups.
+
+Even if there are no matching groups the object is not empty as it will have an empty list field named `group`.
+
+YOu can also use named arguments, that will get into the field `name`.
+In the example above that field was empty.
+In the following example we have named arguments:
+
+{%S re2%}
+
+Each named argument contains the start, end and the index of the named group.
+
 == Preprocessing
+
+When the syntax analyzer meets a `#` symbol it stops parsing the tokens and starts preprocessing.
+The steps of the preprocessing are the following:
+
+. Parse the command following the `#` symbol.
+This is the preprocessor command.
+It has to be a macro, a function or a closure.
+
+. Remove all the tokens from the token list that were already processed.
+
+. Create a preprocessor context.
+
+. Execute the commands that were parsed.
+This will create global variables, functions and classes in the preprocessor context.
+
+. Execute the command passing the list of tokens as the only argument.
+
+. Remove all the tokens from the input and replace them with the token list returned by the preprocessor.
+
+. If there are elements that are not tokens originating from the original list, parse them and convert each to a list of tokens.
+
+When the remaining code is executed, the interpreter will use the preprocessor context.
+If there is more than one preprocessor executed, they will share the same context.
+
+The following example shows preprocessing that adds lines defining a global variable `M`,
+defines a function `helvetic_hi()` and
+sets the value of the variable `M` to `"hello hello"`.
+
+{%S preprocessorSample%}
+
+The example above is quite contrived.
+Preprocessors are usually defined in imported files and invoked using a simple function call.
 
 == Language Grammar (Appendix)
 
@@ -1582,7 +1698,9 @@ Variables declared as local will be local to the scope, even if the same name is
 or as a global variable
 the value of the local declaration is the value of the last assignment in the command
 
- LOCAL ::= 'let' IDENTIFIER_ASSIGNMENT_LIST;
+ LOCAL ::= 'let' IDENTIFIER_ASSIGNMENT_LIST |
+           'let' '{' TYPED_IDENTIFIER_LIST '}' '=' EXPRESSION|
+           'let' '[' TYPED_IDENTIFIER_LIST ']' '=' EXPRESSION ;
 
 Variables declared global will refer to the global variable.
 The value of the global declaration is the value of the last assignment in the command.
@@ -1595,8 +1713,15 @@ You can also pin an object. In that case use `{variable}` instead of the name.
 
  PIN ::= 'pin' IDENTIFIER_ASSIGNMENT_LIST;
 
- IDENTIFIER_ASSIGNMENT_LIST ::= [identifier ['=' expression]] { ',' identifier [ '=' expression] };
+ IDENTIFIER_ASSIGNMENT_LIST ::= [identifier [: TYPE_DEFINITION ] ['=' expression]]
+                                    { ',' identifier [: TYPE_DEFINITION ] [ '=' expression] };
 
+ TYPED_IDENTIFIER_LIST ::= identifier [: TYPE_DEFINITION ]
+                                    { ',' identifier [: TYPE_DEFINITION ] };
+
+ TYPE_DEFINITION ::= TYPE_NAME { '|' TYPE_NAME }
+
+ TYPE_NAME ::= IDENTIFIER
 
 It is valid to have no identifiers in an identifier list, a.k.a. having an empty identifier list
 
@@ -1672,10 +1797,3 @@ Binary operators grouped by precedence (higher index = higher precedence)
  BINARY_OPERATOR[8] ::= '+' | '-' ;
  BINARY_OPERATOR[9] ::= '*' | '/' | '%' ; Highest precedence for binary ops
 
-== Keywords and Syntax Summary
-
-=== Reserved Words
-
-=== Operator Summary
-
-=== Syntax Summary Table

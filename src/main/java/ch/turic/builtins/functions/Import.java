@@ -28,10 +28,8 @@ public class Import implements TuriFunction {
 
     @Override
     public Object call(Context context, Object[] args) throws ExecutionException {
-        if (!(context instanceof ch.turic.memory.Context ctx)) {
-            throw new ExecutionException("context must be a context of type ch.turic.memory.Context");
-        }
-        ExecutionException.when(args.length != 1 || args[0] == null, "Built-in function %s needs exactly one argument", name());
+        final var ctx = FunUtils.ctx(context);
+        FunUtils.oneArg(name(),args);
         final var arg = args[0].toString();
         Path sourceFile = locateSource(arg);
 

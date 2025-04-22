@@ -20,7 +20,7 @@ public class JavaMethodCallVararg implements TuriFunction {
 
     @Override
     public Object call(Context ctx, Object[] arguments) throws ExecutionException {
-        ExecutionException.when(arguments.length < 2, "Function %s needs at least two argument.", name());
+        FunUtils.twoArgs(name(),arguments);
         if (!(arguments[arguments.length - 1] instanceof LngList varargList)) {
             throw new ExecutionException("The last argument of '%s' must be a list type.", name());
         }

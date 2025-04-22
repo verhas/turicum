@@ -1,0 +1,15 @@
+class Re {
+    fn init z:str {
+        let pattern = _rx(z)
+    }
+
+    fn match(s:str){
+        _rx_match(pattern,s,true)
+    }
+
+    fn find(s:str){
+      _rx_match(pattern,s,false)
+    }
+}
+
+export Re

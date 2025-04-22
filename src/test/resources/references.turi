@@ -466,7 +466,7 @@ class FibCalculator {
     fn fib(x) {
         if x == 1 || x == 0 : 1
         else{
-            return cache[x] if cache[x] != none;
+            return cache[x] when cache[x] != none;
             cache[x] = fib(x - 1) + fib(x - 2);
         }
     }
@@ -892,4 +892,139 @@ await task
 println "is done %s" % task.is_done()
 
 none
+// end snippet
+
+// snippet flat_let_object1
+
+let z = { a: "apple", b:"bier", c : "count" }
+let {a, b, c} = z
+println a
+println b
+println c
+// end snippet
+
+// snippet flat_let_object2
+
+let z = { a: "apple", b:"bier", c : "count" , d: "not used" }
+let {a, b, c, f} = z
+println a
+println b
+println c
+println f
+// end snippet
+
+// snippet flat_let_list1
+let [a, b, c] = [1,2,3]
+println a
+println b
+println c
+// end snippet
+
+// snippet flat_let_list2
+try:
+    let [a, b, c, f] = [1,2,3]
+catch err: println err
+// end snippet
+
+// snippet flat_let_list3
+try:
+    let [a, b] = [1,2,3]
+catch err: println err
+// end snippet
+
+// snippet flat_let_list4
+let [a, b] = [1,2,3,4,5,6,7,8][0..2]
+println a
+println b
+// end snippet
+
+// snippet flat_let_list5
+fn adjust(x, @to){
+    if len(x) < to :
+        while len(x) < to :
+            x = [..x, none]
+    else :
+        x = x[0..len(x)]
+    x
+}
+let [a, b, c, d] = adjust(to=4,[1,2])
+println a
+println b
+println c
+println d
+// end snippet
+
+// snippet flat_let_list6
+fn adjust(@to,[x]){
+    if len(x) < to :
+        while len(x) < to :
+            x = [..x, none]
+    else :
+        x = x[0..len(x)]
+    x
+}
+let [a, b, c, d] = adjust(to=4, 1,2)
+println a
+println b
+println c
+println d
+// end snippet
+
+// snippet re
+sys_import "turi.re"
+
+fn print_match(m){
+    for i=0 ; i < len(m.group) ; i = i + 1 {
+        let {index, start, end } = m.group[i];
+        println "%s. '%s'.substring(%s,%s)='%s'" % [index,s,start, end,s[start..end]];
+    }
+}
+
+let s = "abrakadabra";
+let rx =Re("a(b)ra(ka)(dabra)")
+let m = rx.match(s);
+println m
+print_match(m);
+
+s = "xxx"+s+"yyy";
+m = rx.match(s);
+if m.group == none :
+    println "does not match because of xxx and yyy"
+println m, " is an empty object"
+m = rx.find(s)
+if m.group != none :
+    println "matches because we find and not match"
+print_match(m);
+// end snippet
+
+
+// snippet re2
+sys_import "turi.re"
+
+let m = Re("a(?<firstb>b)ra(?<twoletter>ka)(dabra)").match("abrakadabra");
+println "the ks is '%s'" % [m.name.twoletter]
+// end snippet
+
+// snippet preprocessorSample
+fn hi(){ // this will be deleted, it only exists in the preprocessor context
+  "hello "
+}
+// the next line starts the preprocessor
+# {|lexes|
+["""
+    // this is a string that will lead the new lexical token list
+    let M:str = ""
+    fn helvetic_hi(){
+      "Gruetzi "
+    }
+    M = M + "hello ";
+    M = M + (hi() or "none ");
+""",
+// and just let's have the rest of the tokens
+..lexes]
+} // end of the preprocessor command
+
+// this is preprocessed
+M = M + helvetic_hi() + "ant hunter"
+print M
 // end snippet

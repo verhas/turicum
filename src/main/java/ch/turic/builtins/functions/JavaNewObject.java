@@ -18,7 +18,7 @@ public class JavaNewObject implements TuriFunction {
 
     @Override
     public Object call(Context ctx, Object[] arguments) throws ExecutionException {
-        ExecutionException.when( arguments.length == 0 , "Function %s needs at least one argument.", name() );
+        FunUtils.needArg(name(),arguments);
         if( arguments[0] instanceof String className ) {
             try {
                 final var klass = Class.forName(className);

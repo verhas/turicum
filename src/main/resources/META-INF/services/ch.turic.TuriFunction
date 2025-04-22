@@ -18,3 +18,5 @@ ch.turic.builtins.functions.Throw
 ch.turic.builtins.functions.Que
 ch.turic.builtins.functions.TryYield
 ch.turic.builtins.functions.YieldIsClosed
+ch.turic.builtins.functions.Rx
+ch.turic.builtins.functions.RxMatch

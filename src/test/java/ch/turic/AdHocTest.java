@@ -13,34 +13,30 @@ public class AdHocTest {
     @Test
     void test() throws Exception {
         test("""
-fn printer(){
-    let n = 0
-    while {
-        let s = try_yield();
-        return { println "we are done" } if yield_is_closed();
-        if s == none {
-            println "not ready %s" % n
-            n = n + 1
-            sleep 0.003
-        } else {
-            n = 0
-            println "received %s" % s;
-        }
+sys_import "turi.re"
+
+fn print_match(m){
+    for i=0 ; i < len(m.group) ; i = i + 1 {
+        let {index, start, end } = m.group[i];
+        println "%s. \\"%s\\".substring(%s,%s)=\\"%s\\"" % [index,s,start, end,s[start..end]];
     }
 }
 
-let task : task = async printer()
-for i=1 ; i < 4 ; i = i +1 {
- println "sending ",i
- task.send(i);
- sleep 0.009
- }
-println "closing the channel"
-task.close();
-println "channel is closed"
-println "is done %s" % task.is_done()
-await task
-println "is done %s" % task.is_done()
+let s = "abrakadabra";
+let rx =Re("a(b)ra(ka)(dabra)")
+let m = rx.match(s);
+println m
+print_match(m);
+
+s = "xxx"+s+"yyy";
+m = rx.match(s);
+if m.group == none :
+    println "does not match because of xxx and yyy"
+println m, " is an empty object"
+m = rx.find(s)
+if m.group != none :
+    println "matches because we find and not match"
+print_match(m);
 
 none
                 """
