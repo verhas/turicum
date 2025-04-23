@@ -1,0 +1,10 @@
+{start: 0, name: {}, end: 11, group: [{start: 1, index: 1, end: 2}, {start: 4, index: 2, end: 6}, {start: 6, index: 3, end: 11}]}
+1. 'abrakadabra'.substring(1,2)='b'
+2. 'abrakadabra'.substring(4,6)='ka'
+3. 'abrakadabra'.substring(6,11)='dabra'
+does not match because of xxx and yyy
+{} is an empty object
+matches because we find and not match
+1. 'xxxabrakadabrayyy'.substring(4,5)='b'
+2. 'xxxabrakadabrayyy'.substring(7,9)='ka'
+3. 'xxxabrakadabrayyy'.substring(9,14)='dabra'

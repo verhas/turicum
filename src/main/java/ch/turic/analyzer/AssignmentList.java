@@ -3,28 +3,14 @@ package ch.turic.analyzer;
 import ch.turic.BadSyntax;
 import ch.turic.ExecutionException;
 import ch.turic.commands.Command;
-import ch.turic.memory.Context;
+import ch.turic.commands.TypeDeclaration;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class AssignmentList {
     public static final AssignmentList INSTANCE = new AssignmentList();
 
-    public record Assignment(String identifier, Type[] types, Command expression) {
-        public record Type(String identifier, Command expression) {
-            public static String[] calculateTypeNames(final Context ctx, Type[] types) {
-                return Arrays.stream(types).map(t -> t.calculateTypeName(ctx)).toArray(String[]::new);
-            }
-            public String calculateTypeName(Context context) {
-                if (expression == null) {
-                    return identifier;
-                } else {
-                    final var tValue = expression.execute(context);
-                    return tValue == null ? "none" : tValue.toString();
-                }
-            }
-        }
+    public record Assignment(String identifier, TypeDeclaration[] types, Command expression) {
     }
 
     /**
@@ -72,8 +58,8 @@ public class AssignmentList {
         return pairs.toArray(Assignment[]::new);
     }
 
-    public static Assignment.Type[] getTheTypeDefinitions(LexList lexes) {
-        final var types = new ArrayList<Assignment.Type>();
+    public static TypeDeclaration[] getTheTypeDefinitions(LexList lexes) {
+        final var types = new ArrayList<TypeDeclaration>();
         if (lexes.is(":")) { // process types, optional
             lexes.next();
             fetchNextType(lexes, types);
@@ -82,20 +68,21 @@ public class AssignmentList {
                 fetchNextType(lexes, types);
             }
         }
-        return types.toArray(Assignment.Type[]::new);
+        return types.toArray(TypeDeclaration[]::new);
     }
 
-    public static void fetchNextType(LexList lexes, ArrayList<Assignment.Type> type) {
+    public static void fetchNextType(LexList lexes, ArrayList<TypeDeclaration> type) {
         final boolean referenced = lexes.is("(");
         if (referenced) {
             lexes.next();
             final var expression = ExpressionAnalyzer.INSTANCE.analyze(lexes);
             ExecutionException.when(lexes.isNot(")"), "Type expression starting with '(' must finish with ')'");
             lexes.next();
-            type.add(new Assignment.Type(null, expression));
+            type.add(new TypeDeclaration(null, expression));
         } else {
             ExecutionException.when(!lexes.isIdentifier() && !lexes.isKeyword(), "following the ':' and '|' a type identifier has to follow");
-            type.add(new Assignment.Type(lexes.next().text(), null));
+            type.add(new TypeDeclaration(lexes.next().text(), null));
         }
     }
+
 }

@@ -1,0 +1,3 @@
+init in C, cls='class C' this='{, cls: class C}'
+init in P1, cls='class P1' this='{, cls: class C}'
+init in P2, cls='class P2' this='{, cls: class C}'

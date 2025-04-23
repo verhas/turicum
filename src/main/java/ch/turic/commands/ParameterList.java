@@ -1,7 +1,6 @@
 package ch.turic.commands;
 
 import ch.turic.BadSyntax;
-import ch.turic.analyzer.AssignmentList;
 import ch.turic.analyzer.Pos;
 
 import java.util.Arrays;
@@ -47,7 +46,7 @@ public record ParameterList(Parameter[] parameters, String rest, String meta, St
 
     public record Parameter(String identifier,
                             Type type,
-                            AssignmentList.Assignment.Type[] types,
+                            TypeDeclaration[] types,
                             Command defaultExpression) {
         public enum Type {
             POSITIONAL_ONLY, NAMED_ONLY, POSITIONAL_OR_NAMED

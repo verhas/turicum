@@ -2,10 +2,7 @@ package ch.turic.analyzer;
 
 import ch.turic.BadSyntax;
 import ch.turic.ExecutionException;
-import ch.turic.commands.BlockCommand;
-import ch.turic.commands.Command;
-import ch.turic.commands.FunctionDefinition;
-import ch.turic.commands.ParameterList;
+import ch.turic.commands.*;
 
 import java.util.List;
 
@@ -56,15 +53,21 @@ public class FunctionDefinitionAnalyzer extends AbstractAnalyzer {
             ExecutionException.when(lexes.isNot(")"), "Function parameter list is opened, but not closed using parenthesis");
             lexes.next();
         }
+        final TypeDeclaration[] returnType;
+        if (lexes.is(":")) {
+            returnType = AssignmentList.getTheTypeDefinitions(lexes);
+        }else{
+            returnType = null;
+        }
         final BlockCommand block;
         if (lexes.is("=")) {
-            BadSyntax.when(lexes, !hasParens, "use must use parenthesis in function definition when using =expression as body");
+            BadSyntax.when(lexes, !hasParens, "use must use parenthesis in function definition when using '=expression' as body");
             lexes.next();
             final var expression = ExpressionAnalyzer.INSTANCE.analyze(lexes);
             block = new BlockCommand(List.of(expression), false);
         } else {
             block = (BlockCommand) BlockAnalyzer.INSTANCE.analyze(lexes);
         }
-        return new FunctionDefinition(fn, arguments, block);
+        return new FunctionDefinition(fn, arguments, returnType,block);
     }
 }

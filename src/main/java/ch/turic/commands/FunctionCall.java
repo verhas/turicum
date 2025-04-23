@@ -4,7 +4,8 @@ import ch.turic.ExecutionException;
 import ch.turic.LngCallable;
 import ch.turic.memory.*;
 
-import static ch.turic.analyzer.AssignmentList.Assignment.Type.calculateTypeNames;
+import java.util.Arrays;
+
 import static ch.turic.commands.Closure.evaluateClosureArguments;
 import static ch.turic.commands.Macro.evaluateMacroArguments;
 
@@ -12,6 +13,7 @@ import static ch.turic.commands.Macro.evaluateMacroArguments;
  * An expression that calls a method or a function/closure.
  */
 public class FunctionCall extends AbstractCommand {
+    public static final String[] EMPTY_STRING_ARRAY = new String[0];
     /*
      * An object is the closure or something that is to be called. It can be {@link LngCallable}, {@link Closure},
      * {@link Macro}
@@ -351,5 +353,20 @@ public class FunctionCall extends AbstractCommand {
             myObject = object;
         }
         return myObject;
+    }
+
+    /**
+     * Calculate the type names from the types.
+     *
+     * @param ctx the current context to execute the expressions when a type is defined as an expression.
+     * @param types the type names declared
+     * @return the array of actual type names
+     */
+    public static String[] calculateTypeNames(final Context ctx, TypeDeclaration[] types) {
+        if( types != null ) {
+            return Arrays.stream(types).map(t -> t.calculateTypeName(ctx)).toArray(String[]::new);
+        }else{
+            return EMPTY_STRING_ARRAY;
+        }
     }
 }

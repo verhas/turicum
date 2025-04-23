@@ -806,7 +806,7 @@ The syntax of the function definition is
 
 [source]
 ----
-fn function_name (parameters) {
+fn function_name (parameters) : types {
    body
 }
 ----
@@ -824,7 +824,7 @@ It may be missing, typically when the result, the function itself is assigned to
 
 `(parameters)` are the parameters, including default values and parameter types and parameter-passing requirements.
 The `(` and `)` is optional when the function has a name.
-When it has no name, then `(` and `)` must present even if there are zero arguments.
+When it does not have a name, then `(` and `)` must present even if there are zero arguments.
 
 {%S fun2%}
 
@@ -833,8 +833,35 @@ The expression is specified following a `=` character and the parentheses are a 
 This is to avoid the unreadable `fn = 2*3` to be declared as a function declaration but `pass:[`fn`]=2*3` an assignment.
 `fn = 2*3` is a syntax error.
 
+Be careful when using the `fn x()=...` format.
+The following code does not do what you expect:
+
+{%S fun10%}
+
+The expression following the `=` is an identifier, which by the time of the invocation results a callable object.
+The string following it is not part of the expression.
+The string constant is just a statement with no effect.
+
+If you use the `(` and `)` characters after the `println` function call, then the expression will include the string argument, and the code will work as expected.
+
+{%S fun11%}
+
 The parameter list is comma-separated.
 Each element defines a formal parameter.
+
+Types are optional and follow the same syntax as in the case of variables.
+The individual types can be identifiers or `(` and `)` enclosed expressions.
+The types are separated by `|`.
+The type of the returned value is checked against the declared types upon returning from a function.
+
+{%S fun7%}
+{%S fun8%}
+
+The types are evaluated when the function is defined.
+
+{%S fun9%}
+
+There is no effect changing the value of the variable `myString` to `str` when the function was already defined.
 
 ==== Parameter Passing
 
@@ -1039,6 +1066,8 @@ It makes it possible to use the result of a `async expression` as arguments.
 
 == Classes and Objects
 
+=== Class declaration
+
 Classes can be defined using the `class` keyword.
 A class is defined when the class definition is executed.
 
@@ -1100,16 +1129,41 @@ In this situation a special variable called `that` will point to `a`.
 {%S class8%}
 
 
+=== Class inheritance
 
-=== Class Declaration
+Classes can inherit in Turicum.
+When you declare a class the parent class or classes are specified by their name after a `:`.
 
-=== Fields and Methods
+{%S inherit1%}
 
-=== Blocks as Expressions
+You can use the methods or fields declared in the class as well as any other method defined in the marent classes.
+You can inherit from multiple parent classes:
 
-== Data Structures
+{%S inherit2%}
 
-=== Future Structures
+Inheritance is ordered.
+It is important when there are multiple implementatios of the same method name or the same field.
+
+{%S inherit3%}
+
+In the example `P1` is inherited/extended first in the list, so it prevails over `P2` when there is a name collision.
+
+Initializing a class having parent classes is a bit tricky.
+
+{%S inherit4%}
+
+Since there can be, and in the example there are multiple parents, the initialization does not automatically invoke the initialization of the father classes.
+You may invoke them directly:
+
+{%S inherit5%}
+
+If you do not implement `init` but some of the parent classes do, then it will be invoked.
+
+{%S inherit6%}
+
+Note the difference in the value of the field `cls`.
+When the parent class `init` is invoked directly from the child `init` the `cls` points to the parent.
+When it is inherited, the `init` is executed in the context of the child class, it is simply inherited, hence the value of the field `cls` points to the child class.
 
 == Error Handling
 
@@ -1187,7 +1241,7 @@ The code can, however, be fixed:
 {%S fnDecorator2%}
 
 The application of the `@` is therefore only a syntactic sugar.
-The following example shows that a decorator can not only return the decorated function, class, or closure.
+The following example shows that a decorator can not only return the decorated 0, class, or closure.
 They can also modify the existing definition.
 
 {%S fnDecorator3%}

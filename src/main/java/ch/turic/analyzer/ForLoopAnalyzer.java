@@ -65,10 +65,10 @@ public class ForLoopAnalyzer extends AbstractAnalyzer {
 
     static void checkClosingParen(LexList lexes, boolean withParentheses) throws BadSyntax {
         if (withParentheses) {
-            BadSyntax.when(lexes, lexes.isNot(")"), "You have to close the parentheses in the 'for' loop");
+            BadSyntax.when(lexes, lexes.isNot(")"), "You have to close the parentheses in the 'for' or 'while' loop");
             lexes.next();
         } else {
-            BadSyntax.when(lexes, lexes.isNot(":", "{"), "For loop body has to be after '{' or ':'");
+            BadSyntax.when(lexes, lexes.isNot(":", "{"), "'for' or 'while' loop body has to be after '{' or ':'");
         }
     }
 

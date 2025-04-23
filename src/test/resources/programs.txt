@@ -1133,28 +1133,16 @@ fn b(!a,!b,!c,!d){
 
 a(..{a:1,b:2,c:3,d:4}) + b(..[1,2,3,4])
 
-/* snippet CoRoutines
-
-let in = que(10)
-let out= que(50)
-
-fn my_fun(in:que, out:que){
-
-    let in_message;
-    while in_message=in.get() }
-            out.put(in_message+1);
-    }
+// snippet typeRdefinition
+// null
+class K {fn p(){println "original K" }}
+fn h():K = K()
+let t:fn = {
+   let _K = K;
+   {|| _K()}
 }
+class K {fn p(){println "overwritten K" }}
+h().p()
+t().p()
 
-async my_tun(in,out)
-
-in.put(1)
-in.put(2)
-in.put(3)
-in.put(4)
-
-println(out.get())
-println(out.get())
-println(out.get())
-println(out.get())
-*/
+none

@@ -1028,3 +1028,134 @@ fn hi(){ // this will be deleted, it only exists in the preprocessor context
 M = M + helvetic_hi() + "ant hunter"
 print M
 // end snippet
+
+// snippet inherit1
+class P {
+    fn a()=1
+    let v = 2
+}
+class C : P {
+    fn b()=3
+    let z = 4
+}
+let o = C();
+println o.a(),o.v,o.b(),o.z;
+// end snippet
+
+// snippet inherit2
+class P1 {
+    fn a()=1
+    let v = 2
+}
+class P2 {
+    fn aa()=3
+    let vv = 4
+}
+class C : P1,P2 {
+    fn b()=5
+    let z = 6
+}
+let o = C();
+println o.a(), o.v, o.aa(), o.vv, o.b(), o.z;
+// end snippet
+
+// snippet inherit3
+class P1 {
+    fn a()=1
+    let v = 2
+}
+class P2 {
+    fn a()=3
+    let v = 4
+}
+class C : P1,P2 {
+    fn b()=5
+    let z = 6
+}
+let o = C();
+println o.a(), o.v, o.b(), o.z;
+// end snippet
+
+// snippet inherit4
+class P1 {
+    fn init {
+        println "init in P1, cls='%s' this='%s'" % [cls, this]
+    }
+}
+class P2 {
+    fn init {
+        println "init in P2, cls='%s' this='%s'" % [cls, this]
+    }
+}
+class C : P1,P2 {
+    fn init {
+        println "init in C, cls='%s' this='%s'" % [cls, this]
+    }
+}
+let o = C();
+// end snippet
+
+// snippet inherit5
+class P1 {
+    fn init {
+        println "init in P1, cls='%s' this='%s'" % [cls, this]
+    }
+}
+class P2 {
+    fn init {
+        println "init in P2, cls='%s' this='%s'" % [cls, this]
+    }
+}
+class C : P1,P2 {
+    fn init {
+        println "init in C, cls='%s' this='%s'" % [cls, this]
+        P1.init()
+        P2.init()
+    }
+}
+let o = C();
+// end snippet
+
+// snippet inherit6
+class P {
+    fn init {
+        println "init in P, cls='%s' this='%s'" % [cls, this]
+    }
+}
+class C : P {
+}
+let o = C();
+// end snippet
+
+// snippet fun7
+fn concat(a:str, b:str):str = a + b
+println concat("ab","ba")
+// end snippet
+
+// snippet fun8
+fn concat(a:str, b:str):str = 13
+try:
+    println concat("ab","ba")
+catch err: println err
+// end snippet
+
+// snippet fun9
+let myString="num"
+fn concat(a:str, b:str):(myString) = 13
+myString = "str"
+try:
+    println concat("ab","ba")
+catch err: println err
+// end snippet
+
+// snippet fun10
+class K {   fn p()=println "original K" }
+fn h():K = K()
+h().p()
+// end snippet
+
+// snippet fun11
+class K {   fn p()=println("original K") }
+fn h():K = K()
+h().p()
+// end snippet

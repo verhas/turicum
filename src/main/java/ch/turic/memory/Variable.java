@@ -34,19 +34,26 @@ public class Variable {
     Type[] types;
 
     public void set(Object newValue) {
-        if (types == null || types.length == 0) {
-            this.value = newValue;
-        } else {
-            for (final var type : types) {
-                if (isFit(newValue, type.javaType(), type.lngClass())) {
-                    value = newValue;
-                    return;
-                }
-            }
-            throw new ExecutionException("Cannot set variable '%s' to value '%s' as it does not fit any of the accepted type of the variable (%s)",
+        if (!isOfTypes(newValue, types)) {
+            throw new ExecutionException(
+                    "Cannot set variable '%s' to value '%s' as it does not fit any of the accepted type of the variable (%s)",
                     name,
                     newValue,
                     Arrays.stream(types).map(Type::toString).collect(Collectors.joining(",")));
+        }
+        this.value = newValue;
+    }
+
+    public static boolean isOfTypes(final Object value, Type[] types) {
+        if (types == null || types.length == 0) {
+            return true;
+        } else {
+            for (final var type : types) {
+                if (isFit(value, type.javaType(), type.lngClass())) {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 
@@ -127,6 +134,9 @@ public class Variable {
                         throw new ExecutionException("Type '%s' could not be found.", name);
                     }
                 }
+                if( context == null ){
+                    throw new RuntimeException();
+                }
                 ExecutionException.when(!context.contains(name), "Type '%s' is not defined.", name);
                 final var classObject = context.get(name);
                 if (classObject instanceof LngClass lngClass) {
@@ -138,21 +148,21 @@ public class Variable {
         };
     }
 
-    private boolean isFit(Object newValue, Class<?> javaType, LngClass lngClass) {
+    public static boolean isFit(Object value, Class<?> javaType, LngClass lngClass) {
         if (javaType == null) {
             return true;
         }
         if (javaType == LngObject.class) {
-            if (newValue instanceof LngObject lngObject) {
+            if (value instanceof LngObject lngObject) {
                 return lngObject.instanceOf(lngClass);
             } else {
                 return false;
             }
         } else {
 
-            return (javaType == NoneType.class && newValue == null) ||
-                    (javaType == Double.class || javaType == Float.class && Cast.isDouble(newValue)) ||
-                    (newValue != null && javaType.isAssignableFrom(newValue.getClass()));
+            return (javaType == NoneType.class && value == null) ||
+                    (javaType == Double.class || javaType == Float.class && Cast.isDouble(value)) ||
+                    (value != null && javaType.isAssignableFrom(value.getClass()));
         }
     }
 

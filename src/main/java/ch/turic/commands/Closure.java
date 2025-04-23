@@ -4,6 +4,7 @@ import ch.turic.ExecutionException;
 import ch.turic.LngCallable;
 import ch.turic.memory.Context;
 import ch.turic.memory.HasFields;
+import ch.turic.memory.Variable;
 import ch.turic.utils.NullableOptional;
 
 import java.util.Arrays;
@@ -16,8 +17,24 @@ import java.util.Arrays;
  * functions do not.
  */
 public final class Closure extends AbstractCommand implements ClosureOrMacro, LngCallable.LngCallableClosure {
-    public BlockCommand command() {
-        return command;
+    final String name;
+
+    final ParameterList parameters;
+    final Context wrapped;
+    final String[] returnType;
+    final BlockCommand command;
+
+    public Closure(String name, ParameterList parameters, Context wrapped, String[] returnType, BlockCommand command) {
+        this.name = name;
+        this.parameters = parameters;
+        this.wrapped = wrapped;
+        this.returnType = returnType;
+        this.command = command;
+    }
+
+    @Override
+    public String name() {
+        return name;
     }
 
     @Override
@@ -30,21 +47,12 @@ public final class Closure extends AbstractCommand implements ClosureOrMacro, Ln
         return wrapped;
     }
 
-    public Closure(String name, ParameterList parameters, Context wrapped, BlockCommand command) {
-        this.command = command;
-        this.parameters = parameters;
-        this.wrapped = wrapped;
-        this.name = name;
+    public BlockCommand command() {
+        return command;
     }
 
-    final ParameterList parameters;
-    final Context wrapped;
-    final BlockCommand command;
-    final String name;
-
-    @Override
-    public String name() {
-        return name;
+    public String[] returnType() {
+        return returnType;
     }
 
     @Override
@@ -58,7 +66,29 @@ public final class Closure extends AbstractCommand implements ClosureOrMacro, Ln
                 return returnResult.result();
             }
         }
-        return result;
+        if (isOfTypes(ctx, result, returnType)) {
+            return result;
+        }
+        throw new ExecutionException(
+                "Cannot return from '%s' the value '%s' as it does not fit any of the accepted type of the function/closure (%s)",
+                name,
+                result,
+                String.join(",", returnType));
+
+    }
+
+    public static boolean isOfTypes(final Context ctx, final Object value, String[] types) {
+        if (types == null || types.length == 0) {
+            return true;
+        } else {
+            for (final var typeName : types) {
+                final var type = Variable.getTypeFromName(ctx, typeName);
+                if (Variable.isFit(value, type.javaType(), type.lngClass())) {
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 
     /**

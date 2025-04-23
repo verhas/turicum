@@ -131,6 +131,7 @@ public class Context implements ch.turic.Context {
         ExecutionException.when(globals.contains(key), "Local variable is already defined as global '" + key + "'");
         ExecutionException.when(nonlocal.contains(key), "Variable cannot be local, it is already used as non-local '" + key + "'");
         ExecutionException.when(frozen.contains(key), "final variable cannot be altered '" + key + "'");
+        // we are lenient when we have a "let" inside a loop, as it will be executed multiple times
         if (frame.containsKey(key) && ((!loopContext) || loopCounter < 1)) {
             throw new ExecutionException("Variable '%s' is already defined.", key);
         }
