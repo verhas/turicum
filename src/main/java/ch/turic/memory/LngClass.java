@@ -6,17 +6,19 @@ import ch.turic.commands.ClosureOrMacro;
 import ch.turic.commands.FunctionCall;
 import ch.turic.commands.Macro;
 
+import java.util.Iterator;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static ch.turic.commands.FunctionCall.*;
 
 /**
  * Class information in the language
  */
-public class LngClass implements HasFields, HasContext, LngCallable.LngCallableClosure {
-
+public class LngClass implements HasFields, HasIndex, HasContext, LngCallable.LngCallableClosure {
     final ClassContext context;
     final String name;
+    public final AtomicBoolean pinned = new AtomicBoolean(false);
 
     public LngClass(ClassContext context, String name) {
         this.context = context;
@@ -136,5 +138,21 @@ public class LngClass implements HasFields, HasContext, LngCallable.LngCallableC
     @Override
     public String toString() {
         return String.format("class %s", name);
+    }
+
+    @Override
+    public void setIndex(Object index, Object value) throws ExecutionException {
+        ExecutionException.when(pinned.get(), "You cannot change a pinned class");
+        setField(index.toString(), value);
+    }
+
+    @Override
+    public Object getIndex(Object index) throws ExecutionException {
+        return getField(index.toString());
+    }
+
+    @Override
+    public Iterator<Object> iterator() {
+        throw new ExecutionException("You cannot iterate over the field values.");
     }
 }

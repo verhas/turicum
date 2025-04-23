@@ -297,7 +297,7 @@ public class Context implements ch.turic.Context {
             nonlocal.add(key);
             return globalContext.heap.get(key).get();
         }
-        return null;
+        throw new ExecutionException("Variable '%s' is undefined.", key);
     }
 
     public boolean contains(String key) {

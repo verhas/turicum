@@ -340,8 +340,8 @@ public class FunctionCall extends AbstractCommand {
     private Command myFunctionObject(final Context context) {
         final Command myObject;
         if (object instanceof Identifier id && (context.contains("this") || context.contains("cls"))) {
-            final var thisObject = context.get("this");
-            final var clsObject = context.get("cls");
+            final var thisObject = context.contains("this") ? context.get("this") : null;
+            final var clsObject = context.contains("cls") ? context.get("cls") : null;
             if (thisObject instanceof LngObject lngObject && lngObject.context().containsLocal(id.name())) {
                 myObject = new FieldAccess(new Identifier("this"), id.name());
             } else if (clsObject instanceof LngClass lngClass && lngClass.context().containsLocal(id.name())) {

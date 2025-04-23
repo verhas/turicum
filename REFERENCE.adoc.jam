@@ -515,16 +515,14 @@ The caller does not need to know that the implementation of the something it cal
 
 === Variable Declaration
 
-You can read an undefined variable.
-The value will be `none`.
+You can NOT read an undefined variable.
+If a variable is not defined, it will throw an exception.
 
-You cannot, however, assign value to an undefined variable.
 Upon first assignment the code has to use the keyword `let` to define the variable.
 
 NOTE: There is a subtle difference between an undefined variable and a defined variable having the value `none`.
 An undefined variable was never defined.
-As it was said it's value is `none`.
-An already defined variable can also have the value of `none`, but it also has an optional type declaration.
+An already defined variable can have the value of `none`, and it can also have type declaration.
 
 The syntax of a `let` command is the following:
 

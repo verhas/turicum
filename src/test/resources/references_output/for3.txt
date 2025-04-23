@@ -1,1 +1,2 @@
-1 2 3 i at end=none
+1 2 3 
+Variable 'i' is undefined.

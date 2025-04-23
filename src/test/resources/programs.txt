@@ -5,7 +5,7 @@ a.field
 
 // snippet singleLineComments
 // null
-null // is undefined so it is null in the Java world
+try: null catch err {}// is undefined so it is null in the Java world
 
 // snippet noneSymbol
 // null
@@ -16,7 +16,7 @@ null // is undefined so it is null in the Java world
 /*
  * A variable that is not defined is null, and it is like that in the Java caller
  */
-null
+try: null catch err {}
 
 // snippet multiLineNestedComment
 // null
@@ -24,7 +24,7 @@ null
  * A variable that is not defined is null, and it is like that in the Java caller
  *  /* comments can also be nested inside of each other */
  */
-null
+try: null catch err {}
 
 // snippet sample1
 // Long
@@ -146,8 +146,8 @@ result;
 // String
 // "ok"
 let x = 10;
-{ let z = 1 }
-{ if z {"not ok"} else {"ok"} }
+{ let z = 1 ; export z}
+{ if none != {try: z catch: none }{"not ok"} else {"ok"} }
 
 // snippet testExportAssignment2
 // Long
@@ -177,7 +177,7 @@ let h = 6;
 // snippet testFunctionDeclaration
 // null
 fn function x2, z, h {
-} null; //anything undefined is null
+} none; //anything undefined is error, none is null
 
 // snippet testFinalDeclaration1
 // Long
@@ -341,11 +341,11 @@ class Class {
 let a = 1
 let b = a or 2
 
-// snippet testPipeOperator2
+// snippet testOROperator2
 // Long
 // "2"
 let a = 1
-let b = c
+let b = none
 or 2
 
 // snippet testClassExtension
@@ -609,14 +609,14 @@ s = s + 1;
 class A {
   fn init(zumba){}
   fn `+`(right) {
-     if( right != null ) {
+     if( right != none ) {
           A(this.zumba + right.zumba)
      } else {
           this
      }
   }
   let `-` = macro({|right|
-         if( right ≠ null ) {
+         if( right ≠ none ) {
               A(this.zumba - evaluate(right).zumba)
          } else {
               A(-this.zumba)
@@ -712,7 +712,7 @@ MESSAGE = MESSAGE[0…-1]
 
 // snippet catchingException
 // String
-// "It is not possible to invoke 'nonexistent' because its value is 'null' and not something I can invoke.It is a f5g null"
+// "Variable 'nonexistent' is undefined."
 let MESSAGE = ""
 try {
   let h = nonexistent()
@@ -1102,7 +1102,7 @@ k(10)
 // Long
 // 89
 {
-    fn k(x,this=me){
+    fn k(x){
         if x == 1 || x ==  0 : 1
         else: me(x-1) + me(x-2)
     }

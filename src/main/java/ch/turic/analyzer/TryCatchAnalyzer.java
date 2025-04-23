@@ -19,12 +19,14 @@ public class TryCatchAnalyzer extends AbstractAnalyzer {
             if (usesParen) {
                 lexes.next();
             }
-            final var id = lexes.next();
-            BadSyntax.when(lexes, id.type() != Lex.Type.IDENTIFIER, "Catch must have an identifier for the exception");
-            exception = id.text();
-            if (usesParen) {
-                BadSyntax.when(lexes, lexes.isNot(")"), "Missing ')' after the exception ");
-                lexes.next();
+            if (lexes.isIdentifier()) {
+                exception = lexes.next().text;
+                if (usesParen) {
+                    BadSyntax.when(lexes, lexes.isNot(")"), "Missing ')' after the exception ");
+                    lexes.next();
+                }
+            }else{
+                exception = null;
             }
             catchBlock = getCommand(lexes, Keywords.CATCH);
         } else {

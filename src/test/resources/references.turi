@@ -31,7 +31,9 @@ z = { // z is global
     // 'let' assignments result the value assigned
     }
 println(z)
-println(k)
+try:
+    println(k)
+catch err: println err
 // end snippet
 
 // snippet local_redefined_error
@@ -93,10 +95,10 @@ class X {
     println("this.g=",this.g)
     // the object wraps the class scope and not the other way around
     // there is no 'g' defined in the class
-    println("cls.g=",cls.g)
+    try: println("cls.g=",cls.g) catch err: println err
     // 'g' is in the wrapped scope of the object scope
     // this is same as 'this.g'
-    println("g=",g)
+    try: println("g=",g) catch err: println err
     // 'this.h' is the same as 'cls.h' because of wrapping
     println("this.h=",this.h)
     println("cls.h=",cls.h)
@@ -205,7 +207,9 @@ for( i = 1 ; i < 5 ; i=i+1 ){
 for( i = 1 ; i < 5 ; i=i+1 ){
   print(i," ")
 }until i%3 == 0 ;
-println("i at end=",i);
+try:
+    println("i at end=",i);
+catch err { println(); println err ; }
 // end snippet
 // snippet for4
 let i;

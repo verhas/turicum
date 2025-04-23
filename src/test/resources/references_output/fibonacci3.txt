@@ -1,1 +1,1 @@
-It is not possible to invoke 'fib' because its value is 'null' and not something I can invoke.It is a f5g null
+Variable 'fib' is undefined.
