@@ -1,0 +1,30 @@
+package ch.turic.builtins.macros;
+
+import ch.turic.Context;
+import ch.turic.ExecutionException;
+import ch.turic.TuriMacro;
+import ch.turic.builtins.functions.FunUtils;
+import ch.turic.commands.Identifier;
+
+/**
+ * returns true if the argument is defined
+ */
+public class IsDefined implements TuriMacro {
+
+    @Override
+    public String name() {
+        return "is_defined";
+    }
+
+    @Override
+    public Object call(Context context, Object[] args) throws ExecutionException {
+        final var ctx = FunUtils.ctx(context);
+        FunUtils.oneArg(name(), args);
+        final var arg = args[0];
+        if (arg instanceof Identifier id) {
+            return ctx.contains(id.name());
+        } else {
+            throw new ExecutionException("%s argument has to be an identifier, got '%s'", name(), arg);
+        }
+    }
+}

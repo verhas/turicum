@@ -13,10 +13,12 @@ public class AdHocTest {
     @Test
     void test() throws Exception {
         test("""
-class K {   fn p()=println "original K" }
-fn h():K = K()
-h().p()
-
+if is_defined(z) : println "defined" else: println "not defined";
+let z = 1
+if is_defined(z) : println "defined" else: println "not defined";
+try:
+    println {if is_defined(z+2) : "defined" else: "not defined"}
+catch: println "no way"
 none
                 """
                 , null);

@@ -1671,7 +1671,7 @@ println(inc(1))
 .output fun1
 [source]
 ----
-ch.turic.commands.Closure@1a75e76a
+ch.turic.commands.Closure@5e2c3d18
 2
 
 ----
@@ -1700,7 +1700,7 @@ println(inc(1))
 .output fun3
 [source]
 ----
-ch.turic.commands.Closure@5524cca1
+ch.turic.commands.Closure@2cb4893b
 2
 
 ----
@@ -1731,7 +1731,7 @@ println(inc(1))
 .output fun2
 [source]
 ----
-ch.turic.commands.Closure@5032714f
+ch.turic.commands.Closure@cc43f62
 2
 
 ----
@@ -1915,7 +1915,7 @@ println(inc(1,how_much=5))
 .output fun4
 [source]
 ----
-ch.turic.commands.Closure@48bb62
+ch.turic.commands.Closure@5b218417
 6
 
 ----
@@ -4143,80 +4143,80 @@ none
 .output que
 [source]
 ----
-task1 is not ready 0
-task2 is not ready 0
-task2 is ready 1
+task1 is not ready 0task2 is not ready 0
+
 task1 is not ready 1
+task2 is ready 1
 task2 is not ready 0
 task1 is not ready 2
 task2 is not ready 1
+task2 is not ready 2
+task1 is not ready 3
 task2 is ready 2
+task1 is not ready 4
+task2 is not ready 0
+task2 is not ready 1task1 is not ready 5
+
+task1 is not ready 6
+task2 is not ready 2
+task1 is ready 3task2 is not ready 3
+
+task1 is not ready 0
+task1 is not ready 1
+task2 is not ready 4
+task2 is not ready 5
+task1 is not ready 2
+task2 is ready 4
 task1 is not ready 3
 task2 is not ready 0
-task2 is not ready 1
 task1 is not ready 4
+task2 is not ready 1
 task2 is not ready 2
 task1 is not ready 5
-task2 is ready 3
+task2 is ready 5
 task1 is not ready 6
 task2 is not ready 0
-task1 is not ready 7task2 is not ready 1
-
-task2 is not ready 2
-task1 is not ready 8
-task1 is not ready 9task2 is ready 4
-
-task2 is not ready 0
-task1 is not ready 10
 task2 is not ready 1
-task1 is not ready 11task2 is not ready 2
+task1 is not ready 7
+task1 is not ready 8task2 is not ready 2
 
-task2 is not ready 3
-task1 is not ready 12
-task1 is not ready 13
-task2 is ready 5
-task2 is not ready 0
-task1 is not ready 14
-task2 is not ready 1
-task2 is not ready 2
-task1 is not ready 15
-task1 is not ready 16
 task2 is ready 6
 task2 is not ready 0
-task1 is not ready 17
+task1 is not ready 9
+task1 is not ready 10
 task2 is not ready 1
-task1 is not ready 18
+task1 is not ready 11
 task2 is not ready 2
-task1 is ready 7
-task1 is not ready 0
-task2 is not ready 3
-task1 is not ready 1
-task2 is not ready 4
-task1 is not ready 2
-task2 is not ready 5
-task2 is ready 8
-task1 is not ready 3
+task2 is ready 7
+task1 is not ready 12
 task2 is not ready 0
-task1 is not ready 4
 task2 is not ready 1
-task1 is not ready 5
+task1 is not ready 13
+task1 is not ready 14
 task2 is not ready 2
-task1 is ready 9
-task1 is not ready 0
+task1 is ready 8
 task2 is not ready 3
-task1 is not ready 1
-task2 is not ready 4
-task1 is not ready 2
-task2 is not ready 5
+task1 is not ready 0
+task2 is not ready 4task1 is not ready 1
+
+task2 is not ready 5task1 is not ready 2
+
 task1 is not ready 3
 task2 is not ready 6
+task1 is ready 9
+task2 is not ready 7
+task1 is not ready 0
+task2 is not ready 8
+task1 is not ready 1
+task2 is not ready 9
+task1 is not ready 2
 closing the channel
 channel is closed
 1 is done false
 2 is done false
 we start to wait the first time
-task2 is done
 task1 is done
+task2 is done
 task1 done true
 task2 done true
 We start to wait the second time
@@ -4333,7 +4333,6 @@ not ready 0
 not ready 1
 not ready 2
 closing the channel
-not ready 3
 channel is closed
 is done false
 we are done
@@ -4442,7 +4441,39 @@ the ks is '{start: 6, index: 3, end: 11}'
 
 
 
-Each named argument contains the start, end and the index of the named group.
+Each named argument contains the start, end, and the index of the named group.
+
+=== `is_defined`
+
+This macro accepts an identifier and returns `true` if the identifier is defined in the current context.
+
+
+.is_defined
+[source]
+----
+if is_defined(z) : println "defined" else: println "not defined";
+let z = 1
+if is_defined(z) : println "defined" else: println "not defined";
+try:
+    println {if is_defined(z+2) : "defined" else: "not defined"}
+catch: println "no way"
+
+
+----
+
+
+
+
+.output is_defined
+[source]
+----
+not defined
+defined
+no way
+
+----
+
+
 
 == Preprocessing
 

@@ -1638,7 +1638,13 @@ In the following example we have named arguments:
 
 {%S re2%}
 
-Each named argument contains the start, end and the index of the named group.
+Each named argument contains the start, end, and the index of the named group.
+
+=== `is_defined`
+
+This macro accepts an identifier and returns `true` if the identifier is defined in the current context.
+
+{%S is_defined%}
 
 == Preprocessing
 
