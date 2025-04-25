@@ -5,7 +5,7 @@ public class Pos {
     public final String file;
     public int line;
     public int column;
-    public String[] lines;
+    public final String[] lines;
 
     public Pos clone(){
         return new Pos(file, line, column, lines);

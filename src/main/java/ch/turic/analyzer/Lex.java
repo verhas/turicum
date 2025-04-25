@@ -14,7 +14,7 @@ public class Lex implements HasFields {
         return position;
     }
 
-    Pos position;
+    final Pos position;
 
     public boolean atLineStart() {
         return atLineStart;

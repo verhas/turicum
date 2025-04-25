@@ -45,12 +45,6 @@ public class LazyObject extends LngObject {
         throw new ExecutionException("lazy objects are immutable.");
     }
 
-
-    @Override
-    public Iterator<Object> iterator() {
-        return super.iterator();
-    }
-
     @Override
     public Object getField(String name) throws ExecutionException {
         final var value = context().get(name);

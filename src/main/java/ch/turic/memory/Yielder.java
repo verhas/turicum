@@ -10,7 +10,7 @@ package ch.turic.memory;
  * Typically, the parent thread and the child thread.
  */
 public interface Yielder {
-    Channel toChild();
+    Channel<?> toChild();
 
-    Channel toParent();
+    Channel<?> toParent();
 }

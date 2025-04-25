@@ -3,7 +3,6 @@ package ch.turic.memory;
 import ch.turic.ExecutionException;
 import ch.turic.commands.Closure;
 import ch.turic.commands.FunctionCall;
-import ch.turic.commands.Identifier;
 import ch.turic.commands.operators.Cast;
 
 import java.util.*;

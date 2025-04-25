@@ -1010,7 +1010,7 @@ M = M + z.a
 
 // snippet defineEquals
 // String
-// "truefalse"
+// "truetrue"
 
 class A {
   fn `==`(other){

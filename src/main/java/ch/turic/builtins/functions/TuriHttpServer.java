@@ -73,7 +73,7 @@ public class TuriHttpServer implements TuriFunction {
         final ChannelIterator<?> channel = (ChannelIterator<?>) new BlockingQueueChannel<>(concurrency).iterator();
 
         final var routes = conf.getField("routes");
-        if (!(routes instanceof Iterable r)) {
+        if (!(routes instanceof Iterable<?> r)) {
             throw new ExecutionException("%s needs a list as routes as configuration argument", name());
         }
         for (final var rr : r) {

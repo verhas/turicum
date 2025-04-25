@@ -171,7 +171,8 @@ public class FunctionCall extends AbstractCommand {
      * @param argValue the argument values
      * @param meta     the object holding the extra named parameters
      * @param filled   the array keeping track of which parameters had got value from the caller
-     * @param lenient
+     * @param lenient do not care if a named value does not have a corresponding parameter. This is used when an object
+     *                is spread. In that case, it is not a problem, if there is no "cls", "this" or some other parameters-
      * @throws ExecutionException if there is no 'meta' and the name is not defined
      */
     private static void addNamedParameter(Context ctx, ParameterList pList, ArgumentEvaluated argValue, LngObject meta, boolean[] filled, boolean lenient) {

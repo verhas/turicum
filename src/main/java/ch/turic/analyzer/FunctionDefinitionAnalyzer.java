@@ -4,7 +4,6 @@ import ch.turic.BadSyntax;
 import ch.turic.ExecutionException;
 import ch.turic.commands.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**

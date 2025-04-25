@@ -76,12 +76,6 @@ public class LngException extends LngObject {
         super.setIndex(index, value);
     }
 
-
-    @Override
-    public Iterator<Object> iterator() {
-        return super.iterator();
-    }
-
     @Override
     public Object getField(String name) throws ExecutionException {
         return switch (name) {

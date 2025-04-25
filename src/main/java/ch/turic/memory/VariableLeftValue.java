@@ -4,12 +4,7 @@ import ch.turic.ExecutionException;
 
 import java.util.Objects;
 
-public class VariableLeftValue implements LeftValue {
-    public String variable() {
-        return variable;
-    }
-
-    final String variable;
+public record VariableLeftValue(String variable) implements LeftValue {
 
     public VariableLeftValue(String variable) {
         this.variable = Objects.requireNonNull(variable);

@@ -73,12 +73,10 @@ public sealed interface ClosureOrMacro extends Command, HasFields permits Closur
     }
 
     default Object getField(String name) throws ExecutionException {
-        switch (name) {
-            case "name":
-                return name();
-            default:
-                throw new ExecutionException("You cannot get field '%s' of a closure or a macro.", name);
-        }
+        return switch (name) {
+            case "name" -> name();
+            default -> throw new ExecutionException("You cannot get field '%s' of a closure or a macro.", name);
+        };
     }
 
 }

@@ -5,12 +5,7 @@ import ch.turic.commands.Command;
 
 import java.util.Objects;
 
-public class CalculatedLeftValue implements LeftValue {
-    public Command expression() {
-        return expression;
-    }
-
-    final Command expression;
+public record CalculatedLeftValue(Command expression) implements LeftValue {
 
     public CalculatedLeftValue(Command expression) {
         this.expression = Objects.requireNonNull(expression);
