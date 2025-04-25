@@ -20,3 +20,4 @@ ch.turic.builtins.functions.TryYield
 ch.turic.builtins.functions.YieldIsClosed
 ch.turic.builtins.functions.Rx
 ch.turic.builtins.functions.RxMatch
+ch.turic.builtins.functions.TuriHttpServer

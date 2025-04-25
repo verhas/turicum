@@ -137,7 +137,7 @@ public class FunctionCall extends AbstractCommand {
             if (argValues[i].id == null) {
                 addPositionalParameter(ctx, pList, arg, rest, meta, filled);
             } else {
-                addNamedParameter(ctx, pList, arg, meta, filled);
+                addNamedParameter(ctx, pList, arg, meta, filled, false);
             }
         }
         for (int i = 0; i < pList.parameters().length; i++) {
@@ -171,9 +171,10 @@ public class FunctionCall extends AbstractCommand {
      * @param argValue the argument values
      * @param meta     the object holding the extra named parameters
      * @param filled   the array keeping track of which parameters had got value from the caller
+     * @param lenient
      * @throws ExecutionException if there is no 'meta' and the name is not defined
      */
-    private static void addNamedParameter(Context ctx, ParameterList pList, ArgumentEvaluated argValue, LngObject meta, boolean[] filled) {
+    private static void addNamedParameter(Context ctx, ParameterList pList, ArgumentEvaluated argValue, LngObject meta, boolean[] filled, boolean lenient) {
         if (argValue.value instanceof Spread) {
             throw new ExecutionException("Named argument cannot be spread");
         } else {
@@ -201,7 +202,11 @@ public class FunctionCall extends AbstractCommand {
                 meta.setField(argValue.id.name(), argValue.value);
                 return;
             }
-            throw new ExecutionException("The parameter '%s' is not defined and there is no {meta} parameter", argValue.id.name());
+            if (lenient) {
+                return;
+            } else {
+                throw new ExecutionException("The parameter '%s' is not defined and there is no {meta} parameter", argValue.id.name());
+            }
         }
     }
 
@@ -221,12 +226,11 @@ public class FunctionCall extends AbstractCommand {
         if (argValue.value instanceof Spread(Object list)) {
             switch (list) {
                 case null -> {
-
                 }
                 case HasFields it when !(list instanceof LngList) && !(list instanceof AsyncStreamHandler) -> {
                     for (final String name : it.fields()) {
                         final var value = it.getField(name);
-                        addNamedParameter(ctx, pList, new ArgumentEvaluated(new Identifier(name), value), meta, filled);
+                        addNamedParameter(ctx, pList, new ArgumentEvaluated(new Identifier(name), value), meta, filled, true);
                     }
                 }
                 case Iterable<?> it -> {
@@ -358,14 +362,14 @@ public class FunctionCall extends AbstractCommand {
     /**
      * Calculate the type names from the types.
      *
-     * @param ctx the current context to execute the expressions when a type is defined as an expression.
+     * @param ctx   the current context to execute the expressions when a type is defined as an expression.
      * @param types the type names declared
      * @return the array of actual type names
      */
     public static String[] calculateTypeNames(final Context ctx, TypeDeclaration[] types) {
-        if( types != null ) {
+        if (types != null) {
             return Arrays.stream(types).map(t -> t.calculateTypeName(ctx)).toArray(String[]::new);
-        }else{
+        } else {
             return EMPTY_STRING_ARRAY;
         }
     }

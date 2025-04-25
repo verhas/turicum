@@ -3,6 +3,7 @@ package ch.turic.commands;
 
 import ch.turic.ExecutionException;
 import ch.turic.memory.Context;
+import ch.turic.memory.LngClass;
 import ch.turic.memory.LngList;
 import ch.turic.memory.LngObject;
 
@@ -31,10 +32,11 @@ public class Pin extends AbstractCommand {
                     break;
                 case OBJECT:
                     final var object = ctx.get(item.id().name());
-                    if (object instanceof LngObject lngObject) {
-                        lngObject.pinned.set(true);
-                    } else {
-                        throw new ExecutionException("value of '%s' is not an object to be pinned", item.id().name());
+                    switch (object) {
+                        case LngObject lngObject -> lngObject.pinned.set(true);
+                        case LngClass lngClass -> lngClass.pinned.set(true);
+                        default ->
+                                throw new ExecutionException("value of '%s' is not an object to be pinned", item.id().name());
                     }
                     break;
                 case LIST:

@@ -1172,3 +1172,66 @@ try:
     println {if is_defined(z+2) : "defined" else: "not defined"}
 catch: println "no way"
 // end snippet
+
+
+// snippet objectAddition1
+class LN {
+    fn init( a ){
+
+    }
+    fn `+` ( other ){
+            LN( this.a * other.a )
+    }
+}
+println( (LN(2) + LN(4)).a )
+// end snippet
+
+// snippet objectAddition2
+class LN {
+    fn init( a ){
+
+    }
+    fn `+` ( other ){
+            LN( this.a * other.a )
+    }
+}
+println {LN(2) + LN(4)}.a
+// end snippet
+
+// snippet myEqual
+class A {
+  fn `==`(other) -> bool {
+    this.a == other.a
+  }
+}
+
+let x = A()
+let y = A()
+let z = { a: 1, b: "x" }
+
+x.a = 1
+x.b = "x"
+
+y.a = 1
+y.b = "y"
+
+println "x == y is %s" % (x == y)
+println "y == z is %s" % (y == z)
+// end snippet
+
+// snippet myEqual2
+class A {
+  fn `==`(other) -> bool {
+    return false if cls != other.cls
+    a == other.a
+  }
+}
+
+let y = A()
+let z = { a: 1, b: "x" }
+
+y.a = 1
+y.b = "y"
+
+println "y == z is %s" % (y == z)
+// end snippet

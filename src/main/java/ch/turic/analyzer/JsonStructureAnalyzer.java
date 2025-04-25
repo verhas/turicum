@@ -19,7 +19,7 @@ public class JsonStructureAnalyzer extends AbstractAnalyzer {
             final var key = lexes.next().text();
             ExecutionException.when(lexes.isNot(":"),": is missing after key in JSON object");
             lexes.next();
-            final var value = CommandAnalyzer.INSTANCE.analyze(lexes);
+            final var value = ExpressionAnalyzer.INSTANCE.analyze(lexes);
             fields.put(key, value);
             if (lexes.is(",")) {
                 lexes.next();

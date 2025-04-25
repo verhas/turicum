@@ -2,6 +2,8 @@ package ch.turic.memory;
 
 import ch.turic.ExecutionException;
 import ch.turic.commands.Closure;
+import ch.turic.commands.FunctionCall;
+import ch.turic.commands.Identifier;
 import ch.turic.commands.operators.Cast;
 
 import java.util.*;
@@ -93,17 +95,31 @@ public class LngObject implements HasFields, HasIndex, HasContext {
             return false;
         }
         final var lngObject = (LngObject) o;
+        var method = this.getField("==");
+        if (method instanceof Closure lngEquals) {
+            ExecutionException.when(!lngEquals.parameters().fitOperator(), "Operator methods must have exactly one argument");
+            final var argValues = new FunctionCall.ArgumentEvaluated[]{new FunctionCall.ArgumentEvaluated(null,o)};
+            final Context ctx;
+            if (lngEquals.wrapped() == null) {
+                ctx = context.wrap(this.context());
+            } else {
+                ctx = context.wrap(lngEquals.wrapped());
+                ctx.let0("this", this);
+                ctx.let0("cls", this.lngClass);
+            }
+            FunctionCall.freezeThisAndCls(ctx);
+            FunctionCall.defineArgumentsInContext(ctx, context,lngEquals.parameters(), argValues);
+            return Cast.toBoolean(lngEquals.execute(ctx));
+        }
         if (!Objects.equals(lngClass, lngObject.lngClass)) {
             return false;
         }
-        var method = lngObject.getField("==");
-        if (method instanceof Closure lngEquals) {
-            return Cast.toBoolean(lngEquals.call(context(), o));
-        }
         final var compared = new HashSet<>();
+        final var allKeys = new HashSet<>(context.keys());
+        allKeys.addAll(lngObject.fields());
         compared.add(lngObject);
         compared.add(this);
-        for (final var key : context.keys()) {
+        for (final var key : allKeys) {
             final var thisField = getField(key);
             final var thatField = lngObject.getField(key);
             if (!compared.contains(thisField) && !compared.contains(thatField) && !Objects.equals(thisField, thatField)) {

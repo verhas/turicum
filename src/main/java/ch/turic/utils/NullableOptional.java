@@ -2,6 +2,13 @@ package ch.turic.utils;
 
 import java.util.NoSuchElementException;
 
+/**
+ * Nullable optional is an object that can be present and still have the value to be null.
+ * It is used in return values where you have to separate the result missing and null, which may not be the same.
+ * It is not to avoid null pointer exception. For that you can use the JDK Optional.
+ *
+ * @param <T>
+ */
 public final class NullableOptional<T> {
     private final boolean present;
     private final T value;

@@ -9,6 +9,7 @@ import java.util.ArrayList;
 
 public class AssignmentList {
     public static final AssignmentList INSTANCE = new AssignmentList();
+    public static final TypeDeclaration[] EMPTY_TYPE = new TypeDeclaration[0];
 
     public record Assignment(String identifier, TypeDeclaration[] types, Command expression) {
     }
@@ -33,13 +34,20 @@ public class AssignmentList {
      * @throws BadSyntax if the syntax is incorrect, such as a missing identifier after a comma
      */
     public Assignment[] analyze(final LexList lexes) throws BadSyntax {
-        return analyze(lexes,true);
+        return analyze(lexes, true);
     }
+
     public Assignment[] analyze(final LexList lexes, boolean addValues) throws BadSyntax {
         final var pairs = new ArrayList<Assignment>();
         while (lexes.peek().type() == Lex.Type.IDENTIFIER) {
             final var identifier = lexes.next();
-            final var type = getTheTypeDefinitions(lexes);
+            final TypeDeclaration[] type;
+            if (lexes.is(":")) {
+                lexes.next();
+                type = getTheTypeDefinitions(lexes);
+            } else {
+                type = EMPTY_TYPE;
+            }
             Command expression;
             if (lexes.is("=") && addValues) {
                 lexes.next();
@@ -60,13 +68,10 @@ public class AssignmentList {
 
     public static TypeDeclaration[] getTheTypeDefinitions(LexList lexes) {
         final var types = new ArrayList<TypeDeclaration>();
-        if (lexes.is(":")) { // process types, optional
-            lexes.next();
+        fetchNextType(lexes, types);
+        while (lexes.is("|")) {
+            lexes.next();// step over the |
             fetchNextType(lexes, types);
-            while (lexes.is("|")) {
-                lexes.next();// step over the |
-                fetchNextType(lexes, types);
-            }
         }
         return types.toArray(TypeDeclaration[]::new);
     }

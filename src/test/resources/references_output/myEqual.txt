@@ -1,0 +1,2 @@
+x == y is true
+y == z is true

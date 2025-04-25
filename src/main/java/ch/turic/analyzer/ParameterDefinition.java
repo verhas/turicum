@@ -3,6 +3,7 @@ package ch.turic.analyzer;
 import ch.turic.BadSyntax;
 import ch.turic.commands.Command;
 import ch.turic.commands.ParameterList;
+import ch.turic.commands.TypeDeclaration;
 
 import java.util.ArrayList;
 
@@ -70,7 +71,14 @@ public class ParameterDefinition {
                 BadSyntax.when(lexes, rest != null || meta != null || closure != null, "[rest], {meta} , and |clore| can stand only at the end of the parameter list.");
                 id = lexes.next().text();
             }
-            final var types = AssignmentList.getTheTypeDefinitions(lexes);
+            final TypeDeclaration[] types;
+            if (lexes.is(":")) {
+                lexes.next();
+                types = AssignmentList.getTheTypeDefinitions(lexes);
+            } else {
+                types = AssignmentList.EMPTY_TYPE;
+            }
+
             final Command defaultExpression;
             if (lexes.is("=")) {
                 lexes.next();

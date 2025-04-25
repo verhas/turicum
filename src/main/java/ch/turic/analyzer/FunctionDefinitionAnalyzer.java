@@ -4,6 +4,7 @@ import ch.turic.BadSyntax;
 import ch.turic.ExecutionException;
 import ch.turic.commands.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -54,10 +55,11 @@ public class FunctionDefinitionAnalyzer extends AbstractAnalyzer {
             lexes.next();
         }
         final TypeDeclaration[] returnType;
-        if (lexes.is(":")) {
+        if (lexes.is(":", "->")) {
+            lexes.next();
             returnType = AssignmentList.getTheTypeDefinitions(lexes);
         }else{
-            returnType = null;
+            returnType = AssignmentList.EMPTY_TYPE;
         }
         final BlockCommand block;
         if (lexes.is("=")) {

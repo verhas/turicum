@@ -403,6 +403,46 @@ When an operation is used as prefix unary operator the value of other will be `n
 
 Only `+`, `-`, `!`, `..` can be used as unary operators.
 
+=== Operators
+
+Operators can be overridden in the classes.
+If you have a method named the same name as an operator, it will be invoked to perform the calculation.
+
+{%S objectAddition1%}
+
+In the example above the class is redefining the `+` operator, and it returns an object that has the product of the fields `a`.
+Thus `LN(2) + LN(4)` is `LN(8)`.
+
+[NOTE]
+====
+You have to use the `(` and `)` after the `print`, otherwise it will think that `LN(2) + LN(4)` is the argument and `.a` tries to use the result of the function `print`, which is `none`.
+It is also possible to use the
+
+{%sample/objectAddition2%}
+
+format.
+In this case there is no `(` following the name of the function `println`.
+
+Generally, it is recommended to use the opening and closing `(` and `)` characters to avoid confusion.
+====
+
+You can override any of the predefined operators.
+
+When overriding the operator `==` the result has to be something that can be converted to boolean.
+
+{%S myEqual%}
+
+Class `A` redefines the `==` operator to compare only the field `a`.
+If there is a difference in other fields, the instances of the class are still the same.
+
+The default implementation compares all the fields in the two objects, and it also checks that the two objects are instances of the same class.
+
+In the example, all the objects are equal.
+
+If we modify the equality check to consider the classes, we get a different result:
+
+{%S myEqual2%}
+
 == Variables and Scope
 
 Variables can be global or local.
@@ -805,6 +845,15 @@ The syntax of the function definition is
 [source]
 ----
 fn function_name (parameters) : types {
+   body
+}
+----
+
+or
+
+[source]
+----
+fn function_name (parameters) -> types {
    body
 }
 ----

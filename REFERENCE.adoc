@@ -467,6 +467,160 @@ When an operation is used as prefix unary operator the value of other will be `n
 
 Only `+`, `-`, `!`, `..` can be used as unary operators.
 
+=== Operators
+
+Operators can be overridden in the classes.
+If you have a method named the same name as an operator, it will be invoked to perform the calculation.
+
+
+.objectAddition1
+[source]
+----
+class LN {
+    fn init( a ){
+
+    }
+    fn `+` ( other ){
+            LN( this.a * other.a )
+    }
+}
+println( (LN(2) + LN(4)).a )
+
+
+----
+
+
+
+
+.output objectAddition1
+[source]
+----
+8
+
+----
+
+
+
+In the example above the class is redefining the `+` operator, and it returns an object that has the product of the fields `a`.
+Thus `LN(2) + LN(4)` is `LN(8)`.
+
+[NOTE]
+====
+You have to use the `(` and `)` after the `print`, otherwise it will think that `LN(2) + LN(4)` is the argument and `.a` tries to use the result of the function `print`, which is `none`.
+It is also possible to use the
+
+
+.objectAddition2
+[source]
+----
+class LN {
+    fn init( a ){
+
+    }
+    fn `+` ( other ){
+            LN( this.a * other.a )
+    }
+}
+println {LN(2) + LN(4)}.a
+
+
+----
+
+
+
+
+format.
+In this case there is no `(` following the name of the function `println`.
+
+Generally, it is recommended to use the opening and closing `(` and `)` characters to avoid confusion.
+====
+
+You can override any of the predefined operators.
+
+When overriding the operator `==` the result has to be something that can be converted to boolean.
+
+
+.myEqual
+[source]
+----
+class A {
+  fn `==`(other) -> bool {
+    this.a == other.a
+  }
+}
+
+let x = A()
+let y = A()
+let z = { a: 1, b: "x" }
+
+x.a = 1
+x.b = "x"
+
+y.a = 1
+y.b = "y"
+
+println "x == y is %s" % (x == y)
+println "y == z is %s" % (y == z)
+
+
+----
+
+
+
+
+.output myEqual
+[source]
+----
+x == y is true
+y == z is true
+
+----
+
+
+
+Class `A` redefines the `==` operator to compare only the field `a`.
+If there is a difference in other fields, the instances of the class are still the same.
+
+The default implementation compares all the fields in the two objects, and it also checks that the two objects are instances of the same class.
+
+In the example above, all the objects are equal.
+
+If we modify the equality check to consider the classes, we get a different result:
+
+
+.myEqual2
+[source]
+----
+class A {
+  fn `==`(other) -> bool {
+    return false if cls != other.cls
+    a == other.a
+  }
+}
+
+let y = A()
+let z = { a: 1, b: "x" }
+
+y.a = 1
+y.b = "y"
+
+println "y == z is %s" % (y == z)
+
+
+----
+
+
+
+
+.output myEqual2
+[source]
+----
+y == z is false
+
+----
+
+
+
 == Variables and Scope
 
 Variables can be global or local.
@@ -1649,6 +1803,15 @@ fn function_name (parameters) : types {
 }
 ----
 
+or
+
+[source]
+----
+fn function_name (parameters) -> types {
+   body
+}
+----
+
 
 `fn` is a keyword, and it is never optional.
 
@@ -1671,7 +1834,7 @@ println(inc(1))
 .output fun1
 [source]
 ----
-ch.turic.commands.Closure@5e2c3d18
+ch.turic.commands.Closure@5b218417
 2
 
 ----
@@ -1700,7 +1863,7 @@ println(inc(1))
 .output fun3
 [source]
 ----
-ch.turic.commands.Closure@2cb4893b
+ch.turic.commands.Closure@645aa696
 2
 
 ----
@@ -1731,7 +1894,7 @@ println(inc(1))
 .output fun2
 [source]
 ----
-ch.turic.commands.Closure@cc43f62
+ch.turic.commands.Closure@6caf0677
 2
 
 ----
@@ -1915,7 +2078,7 @@ println(inc(1,how_much=5))
 .output fun4
 [source]
 ----
-ch.turic.commands.Closure@5b218417
+ch.turic.commands.Closure@413d1baf
 6
 
 ----
@@ -4143,80 +4306,78 @@ none
 .output que
 [source]
 ----
-task1 is not ready 0task2 is not ready 0
-
-task1 is not ready 1
-task2 is ready 1
 task2 is not ready 0
-task1 is not ready 2
+task1 is not ready 0
+task1 is ready 1
 task2 is not ready 1
+task1 is not ready 0
 task2 is not ready 2
-task1 is not ready 3
-task2 is ready 2
+task1 is not ready 1
+task2 is not ready 3
+task1 is not ready 2
+task2 is not ready 4task1 is ready 2
+
+task1 is not ready 0
+task2 is not ready 5
+task1 is not ready 1
+task2 is not ready 6task1 is not ready 2
+
+task2 is ready 3
+task1 is not ready 3task2 is not ready 0
+
+task2 is not ready 1
 task1 is not ready 4
-task2 is not ready 0
-task2 is not ready 1task1 is not ready 5
-
-task1 is not ready 6
+task1 is not ready 5
 task2 is not ready 2
-task1 is ready 3task2 is not ready 3
-
+task2 is not ready 3
+task1 is ready 4
 task1 is not ready 0
 task1 is not ready 1
 task2 is not ready 4
 task2 is not ready 5
-task1 is not ready 2
-task2 is ready 4
-task1 is not ready 3
-task2 is not ready 0
-task1 is not ready 4
-task2 is not ready 1
-task2 is not ready 2
-task1 is not ready 5
-task2 is ready 5
-task1 is not ready 6
-task2 is not ready 0
-task2 is not ready 1
-task1 is not ready 7
-task1 is not ready 8task2 is not ready 2
+task1 is ready 5
+task1 is not ready 0
+task2 is not ready 6task1 is not ready 1
 
+task1 is not ready 2
+task2 is not ready 7
+task1 is not ready 3task2 is not ready 8
+
+task1 is not ready 4
 task2 is ready 6
 task2 is not ready 0
-task1 is not ready 9
-task1 is not ready 10
+task1 is not ready 5
 task2 is not ready 1
-task1 is not ready 11
+task1 is ready 7
 task2 is not ready 2
-task2 is ready 7
-task1 is not ready 12
-task2 is not ready 0
-task2 is not ready 1
-task1 is not ready 13
-task1 is not ready 14
-task2 is not ready 2
-task1 is ready 8
-task2 is not ready 3
 task1 is not ready 0
-task2 is not ready 4task1 is not ready 1
-
-task2 is not ready 5task1 is not ready 2
+task2 is not ready 3
+task1 is not ready 1
+task1 is not ready 2task2 is not ready 4
 
 task1 is not ready 3
+task2 is not ready 5
+task1 is ready 8
 task2 is not ready 6
-task1 is ready 9
-task2 is not ready 7
 task1 is not ready 0
-task2 is not ready 8
+task2 is not ready 7
 task1 is not ready 1
+task1 is not ready 2
+task2 is not ready 8
+task1 is ready 9
 task2 is not ready 9
+task1 is not ready 0
+task1 is not ready 1
+task2 is not ready 10
+task2 is not ready 11
 task1 is not ready 2
 closing the channel
 channel is closed
 1 is done false
 2 is done false
 we start to wait the first time
-task1 is done
 task2 is done
+task1 is done
 task1 done true
 task2 done true
 We start to wait the second time
