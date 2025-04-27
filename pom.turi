@@ -1,0 +1,180 @@
+sys_import "turi.maven"
+
+let `maven-javadoc-plugin` = "3.11.2";
+let `maven-source-plugin` = "3.3.1";
+let `maven-compiler-plugin` = "3.13.0";
+let `maven-dependency-plugin` = "3.8.1";
+let `maven-surefire-plugin` = "3.5.3";
+let `nexus-staging-maven-plugin` = "1.7.0";
+let `org.junit.jupiter` = "5.13.0-M2";
+let `org.mockito` = "5.17.0";
+
+let JAVA_VERSION = 21;
+
+let project = maven_project({
+    name : "turicum-parent",
+    packaging : "pom",
+    groupId : "ch.turic",
+    artifactId : "turicum-parent",
+    version : "1.0.0-SNAPSHOT",
+    description : "Turicum programming language",
+    modules : [ "core", "maven" ],
+
+    licenses : [ {
+            name : "The Apache License, Version 2.0",
+            url : "https://www.apache.org/licenses/LICENSE-2.0.txt"
+    } ],
+    
+    developers: [ {
+            name: "Peter Verhas",
+            email: "peter@verhas.com"
+    } ],
+    scm : {
+        connection : "scm:git:git://github.com/verhas/turicum.git",
+        developerConnection : "scm:git:ssh://github.com/verhas/turicum.git",
+        url : "https:/github.com/verhas/turicum/tree/master"
+        }
+    
+
+    url : "https:/github.com/verhas/turicum/tree/master",
+    properties : {
+        "project.build.sourceEncoding" : "UTF-8",
+        "maven.plugin.validation" : "VERBOSE"
+        }
+    
+    distributionManagement : {
+        snapshotRepository : {
+            id : "ossrh",
+            url : "https://oss.sonatype.org/content/repositories/snapshots"
+            }
+        repository : {
+            id : "ossrh",
+            url : "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+            }
+    }
+    
+    build : {
+        plugins : [ {
+                groupId : "org.sonatype.plugins",
+                artifactId : "nexus-staging-maven-plugin",
+        } ],
+        
+        pluginManagement : {
+            plugins : [ 
+                {
+                    groupId : "org.apache.maven.plugins",
+                    artifactId : "maven-source-plugin",
+                    version : `maven-source-plugin`,
+                    executions : [ {
+                            id : "attach-sources",
+                            goals : [ "jar" ]
+                            } ]
+                },
+                    
+                {
+                    groupId : "org.apache.maven.plugins",
+                    artifactId : "maven-javadoc-plugin",
+                    version : `maven-javadoc-plugin`
+                },
+                    
+                {
+                    groupId : "org.apache.maven.plugins",
+                    artifactId : "maven-compiler-plugin",
+                    version : `maven-compiler-plugin`,
+                    configuration : {
+                        source : "%s" % JAVA_VERSION,
+                        target : "%s" % JAVA_VERSION,
+                        release : "%s" % JAVA_VERSION
+                        }
+                },
+                
+                {
+                    groupId : "org.apache.maven.plugins",
+                    artifactId : "maven-dependency-plugin",
+                    version : `maven-dependency-plugin`,
+                    executions : [ {
+                            id : "collect",
+                            goals : [ "collect" ]
+                            } ]
+                },
+                        
+                {
+                    groupId : "org.apache.maven.plugins",
+                    artifactId : "maven-surefire-plugin",
+                    version : `maven-surefire-plugin`
+                },
+                
+                {
+                    groupId : "org.sonatype.plugins",
+                    artifactId : "nexus-staging-maven-plugin",
+                    version : `nexus-staging-maven-plugin`,
+                    extensions : "true",
+                    configuration : {
+                        serverId : "ossrh",
+                        nexusUrl : "https://oss.sonatype.org/",
+                        autoReleaseAfterClose : "true"
+                    }
+                }    
+                ]
+        }// end of plugin management
+    }
+        
+    
+    dependencyManagement : {
+        dependencies : [
+            {
+                groupId : "ch.turic",
+                artifactId : "core",
+                version : "1.0.0-SNAPSHOT"
+            },
+            
+            {
+                groupId : "org.junit.jupiter",
+                artifactId : "junit-jupiter-api",
+                version :  `org.junit.jupiter`,
+                scope : "test"
+            },
+            {
+                groupId : "org.junit.jupiter",
+                artifactId : "junit-jupiter-engine",
+                version :  `org.junit.jupiter`,
+                scope : "test"
+            },
+            
+            {
+                groupId : "org.junit.jupiter",
+                artifactId : "junit-jupiter-params",
+                version :  `org.junit.jupiter`,
+                scope : "test"
+            },
+            
+            {
+                groupId : "org.mockito",
+                artifactId : "mockito-core",
+                version : `org.mockito`,
+                scope : "test"
+            }
+        ]
+    }
+
+    profiles : [ {
+        id : "release",
+        build : {
+            plugins : [ {
+                    groupId : "org.apache.maven.plugins",
+                    artifactId : "maven-gpg-plugin",
+                    version : "3.2.7",
+                    executions : [ {
+                            id : "sign-artifacts",
+                            phase : "verify",
+                            goals : [ "sign" ]
+                            } ]
+            } ]
+        }
+    } ]
+});
+
+project.done()
+            
+        
+    

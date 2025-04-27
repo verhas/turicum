@@ -1695,6 +1695,23 @@ This macro accepts an identifier and returns `true` if the identifier is defined
 
 {%S is_defined%}
 
+=== `unlet`
+
+Unlet is a macro that accepts one identifier and deletes it from the local comntext.
+It is an error if the variable is not defined in the local context or defined but not in the local context.
+
+This macro was designed for a special purpose to, to create an initialized that can copy the values of an initializer class. Fo example:
+
+{%S unlet%}
+
+Without the call to `unlet` the class would also have the variable `obj` as a field.
+
+=== `is_obj`
+
+This is a function that returns `true` if the argument is an object.
+
+
+
 == Preprocessing
 
 When the syntax analyzer meets a `#` symbol it stops parsing the tokens and starts preprocessing.

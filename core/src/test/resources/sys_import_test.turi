@@ -1,0 +1,8 @@
+fn a(){
+println "A"
+}
+fn b(){
+a()
+}
+
+export b,a;

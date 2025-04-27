@@ -42,7 +42,7 @@ public class Keys implements TuriFunction {
                     Arrays.stream(closure.parameters().parameters())
                             .map(ParameterList.Parameter::identifier).toList());
             case null -> throw new ExecutionException("None does not have keys");
-            default -> throw new ExecutionException("Unknown type for calling keys on: " + arg);
+            default -> throw new ExecutionException("Unknown type for calling keys on: '%s'",arg);
         };
     }
 }

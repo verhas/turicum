@@ -111,8 +111,8 @@ $x
 {project turicum-parent}
 {packaging pom}
 {GAV :{GROUPID}:turicum-parent:{VERSION}}
-{description turicum macro library to process text files}
-{modules core}
+{description Turicum programming language}
+{modules core, maven}
 {license|The Apache License, Version 2.0|https://www.apache.org/licenses/LICENSE-2.0.txt}
 {developer|Peter Verhas|peter@verhas.com}
 {github|verhas|turicum}

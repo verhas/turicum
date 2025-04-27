@@ -6,7 +6,7 @@
 {@define JUPITER_VERSION=5.12.0}
 {project turicum}
     {GAV :{GROUPID}:{ARTIFACTID}:{VERSION}}
-    {description Generative AI programming Language}
+    {description Turicum}
     {build
         {plugins
             {plugin|{GAV :org.apache.maven.plugins:maven-source-plugin:3.3.1}}

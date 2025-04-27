@@ -1,0 +1,15 @@
+sys_import "turi.xml";
+
+class maven_project {
+    fn init(pom){
+        let modelVersion = "4.0.0";
+        for each k in keys(pom) :
+            this[k] = pom[k];
+        unlet pom;
+    }
+    fn done(){
+        xml_format(to_xml(project,top="project"))
+    }
+}
+
+export maven_project, to_xml;

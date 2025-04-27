@@ -1,0 +1,7 @@
+sys_import "sys_import_test"
+
+fn c(){
+ b()
+}
+
+export c,b,a;

@@ -13,24 +13,9 @@ public class AdHocTest {
     @Test
     void test0() throws Exception {
         test("""
-sys_import "turi.xml";
-class Z {
-    fn init(obj){
-        for each t in keys(obj){
-            this[t] = obj[t]
-        }
-        unlet obj;
-    }
-}
-let z = Z({
-    a: {
-        "@len": 3
-        B : "abraka"
-        },
-    c : ""
-    });
+println( [..[1,2,3] ,.. [4,5]])
+none
 
-println xml_format(to_xml(z, top="G"));
                 """,null);
     }
 

@@ -36,6 +36,9 @@ public class BlockCommand extends AbstractCommand {
     }
 
     private static Object conditionalOrResult(Conditional cResult) {
+        if( cResult instanceof Conditional.BreakResult ){
+            return cResult.result();
+        }
         return (cResult.isDone() ? cResult : cResult.result());
     }
 

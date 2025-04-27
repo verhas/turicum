@@ -1,19 +1,36 @@
 fn to_xml(object, @top)-> str {
+    fn to_singular(s : str) -> str {
+        if len(s) >= 3 && s[len(s)-3..inf] == "ies" {
+            s[0..-3] + "y"
+        }else{
+            s[0..-1];
+        }
+    }
+
+    return  "<%s>%s</%s>" % [top,object,top] if !is_obj(object);
     let XML = "<%s" % [top];
     for each tag in keys(object){
         if tag[0] == "@" : XML = XML + " " + tag[1..inf] + "=\"" + object[tag] + "\"";
     }
     XML = XML + ">";
     for each tag in keys(object){
-        if tag[0] != "@" && tag != "this" && tag != "cls" {
-            if is_obj(object[tag]) :
-                XML = XML + to_xml(object[tag], top=tag);
-            else:
-                if len(""+object[tag]) == 0 :
-                    XML = XML + "<%s/>" % [ tag ];
-                else:
-                    XML = XML + "<%s>%s</%s>" % [ tag , object[tag], tag ];
+        if tag[0] != "@" && tag != "this" && tag != "cls" && object[tag] != none {
+            {
+            break {
+                XML = XML + "<%s>" % [tag];
+                for each item in object[tag] {
+                    XML = XML + to_xml(item,top=to_singular(tag));
+                }
+                XML = XML + "</%s>" % [tag];
+            } if type(object[tag]) == "lst";
+
+            break { XML = XML + to_xml(object[tag], top=tag) } if is_obj(object[tag]);
+
+            break { XML = XML + "<%s/>" % [ tag ] } if len(""+object[tag]) == 0;
+
+            XML = XML + "<%s>%s</%s>" % [ tag , object[tag], tag ]
             }
+        }
     }
     XML + "</%s>" % [top];
 }

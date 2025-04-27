@@ -1235,3 +1235,21 @@ y.b = "y"
 
 println "y == z is %s" % (y == z)
 // end snippet
+
+// snippet unlet
+class Z {
+    fn init(obj){
+        for each t in keys(obj){
+            this[t] = obj[t]
+        }
+        unlet obj;
+    }
+}
+let z = Z({
+    a: {
+        B : "abraka"
+        },
+    c : ""
+    });
+println z
+// end snippet
