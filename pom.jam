@@ -1,47 +1,186 @@
-{@import https://raw.githubusercontent.com/central7/pom/1/pom.jim}
-{#define PLUGIN=https://raw.githubusercontent.com/central7/pom/main/plugins}
-{@define GROUPID=com.ch.turic}
-{@define ARTIFACTID=turicum}
-{@define VERSION=1.0.0-SNAPSHOT}
-{@define JUPITER_VERSION=5.12.0}
-{project turicum}
-    {GAV :{GROUPID}:{ARTIFACTID}:{VERSION}}
-    {description Generative AI programming Language}
-    {build
-        {plugins
-            {plugin|{GAV :org.apache.maven.plugins:maven-source-plugin:3.3.1}}
-            {plugin|{GAV :org.apache.maven.plugins:maven-compiler-plugin:3.13.0}
-                {configuration
-                    {encoding UTF-8}
-                    {source 21}
-                    {target 21}
-                    {release 21}
+{@comment to tell IntelliJ Asccidoc preprocessor this file uses { and } as macro characters}
+{@comment define the output file for Asccidoc preprocessor not to create a 'pom' file w/o extension}
+{#define :asciidoc:output=pom.xml}
+{@options lenient}
+{@define project($name)=
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+      <modelVersion>4.0.0</modelVersion>
+      <name>$name</name>}
+
+{@define end($x)=</$x>}
+
+{@define $forsep=\s*,\s*}
+{@define default($_,...$x)=<$_>{#if[not empty] |$x|$x</$_>}}
+
+{@define profile($id,$content)=
+<profile>
+    <id>$id</id>
+content
+</profile>}
+
+{@define snapshotRepository($id,$url)=
+<snapshotRepository>
+    <id>$id</id>
+    <url>$url</url>
+</snapshotRepository>
+}
+
+{@define repository($id,$url)=
+<repository>
+    <id>$id</id>
+    <url>$url</url>
+</repository>
+}
+
+{@define profile($id)=<profile><id>$id</id>}
+
+{@define GAV($groupId,$artifactId,$version)=
+    {#if[not empty]|$groupId|{groupId $groupId}}{@define GROUP_ID=$groupId}
+    {#if[not empty]|$artifactId|{artifactId $artifactId}}{@define ARTIFACT_ID=$artifactId}
+    {#if[not empty]|$version|{version $version}}{@define VERSION_ID=$version}
+}
+
+{@define parent($groupId,$artifactId,$version)=<parent>
+    {groupId {#if|$groupId|$groupId|{GROUP_ID}}}
+    {artifactId {#if|$artifactId|$artifactId|{ARTIFACT_ID}}}
+    {version {#if|$version|$version|{VERSION_ID}}}
+</parent>}
+
+{@define dependency($groupId,$artifactId,$version,$scope,$type)=
+<dependency>
+    {#if|$groupId|{groupId $groupId}}
+    {#if|$artifactId|{artifactId $artifactId}}
+    {#if|$version|{version $version}}
+    {#if|$scope|{scope $scope}}
+    {#if|$type|{type $type}}
+</dependency>
+}
+
+
+{@define modules($Z)=
+    <modules>
+    {@for $M in ($Z)=
+        <module>$M</module>
+    }
+    </modules>
+}
+
+
+{@define license($name,$url)=<licenses><license><name>$name</name><url>$url</url></license></licenses>}
+
+{@define sourceEncoding($x)=
+<properties>
+    <project.build.sourceEncoding>{#if |$x|$x|UTF-8}</project.build.sourceEncoding>
+</properties>}
+
+{@define properties($x)={@define sourceEncoding($y)=<project.build.sourceEncoding>{#if |$y|$y|UTF-8}</project.build.sourceEncoding>}<properties>{#if|$x|
+$x
+</properties>}}
+
+
+{@define property($name,$value)=<$name>$value</$name>}
+{@define prop($name,$value)=<$name>$value</$name>}
+{@define developer($name,$email)=<developers>
+    <developer>
+        <name>$name</name>
+        <email>$email</email>
+    </developer>
+</developers>}
+
+{@define developers($y)=<developers>{@define developer($name,$email)=    <developer>
+        <name>$name</name>
+        <email>$email</email>
+    </developer>}}
+
+{@define github($developer,$project)=
+    {scm|
+        {connection  scm:git:git://github.com/$developer/$project.git}
+        {developerConnection scm:git:ssh://github.com/$developer/$project.git}
+        {url https:/github.com/$developer/$project/tree/master}
+    }
+    {url https:/github.com/$developer/$project/tree/master}
+}
+
+
+{@import version.jim}
+{@define GAV(_groupId,_artifactId,_version)=
+{#if|_groupId|{groupId :_groupId}}{#if|_artifactId|{artifactId :_artifactId}}{#if|_version|{version :_version}}
+{#define GROUPID=_groupId}{#define VERSION=_version}}
+
+{project turicum-parent}
+{packaging pom}
+{GAV :{GROUPID}:turicum-parent:{VERSION}}
+{description turicum macro library to process text files}
+{modules core}
+{license|The Apache License, Version 2.0|https://www.apache.org/licenses/LICENSE-2.0.txt}
+{developer|Peter Verhas|peter@verhas.com}
+{github|verhas|turicum}
+{properties|
+{property :project.build.sourceEncoding:UTF-8}
+{property :maven.plugin.validation:VERBOSE} }
+{distributionManagement|
+{snapshotRepository |ossrh|https://oss.sonatype.org/content/repositories/snapshots}
+{repository |ossrh|https://oss.sonatype.org/service/local/staging/deploy/maven2/}
+}
+{build|
+{plugins|
+{plugin|{GAV :org.sonatype.plugins:nexus-staging-maven-plugin: }} }
+{pluginManagement|
+{plugins|
+{plugin|
+{GAV :org.apache.maven.plugins:maven-source-plugin:{MAVEN_SOURCE_PLUGIN_VERSION}}
+{executions|
+{execution|
+{id|attach-sources}
+{goals|{goal|jar}} } } }
+{plugin|
+{GAV :org.apache.maven.plugins:maven-javadoc-plugin:{MAVEN_JAVADOC_PLUGIN_VERSION}}
+}
+{plugin|
+{GAV :org.apache.maven.plugins:maven-compiler-plugin:{MAVEN_COMPILER_PLUGIN_VERSION}} <configuration> <source>{JAVA_SOURCE}</source> <target>{JAVA_TARGET}</target> <release>{JAVA_RELEASE}</release> </configuration> }
+{plugin|
+{GAV :org.apache.maven.plugins:maven-dependency-plugin:{MAVEN_DEPENDENCY_PLUGIN_VERSION}}
+{executions|{execution|
+{id|collect}
+{goals|{goal|collect}}}} }
+
+                {plugin|
+                    {GAV :org.apache.maven.plugins:maven-surefire-plugin:{SUREFIRE_PLUGIN_VERSION}}
                 }
-            }
-            {plugin|{GAV :org.apache.maven.plugins:maven-resources-plugin:3.3.1}
-                {configuration
-                    {encoding UTF-8}
-                }
-            }
-            {plugin|{GAV :org.apache.maven.plugins:maven-javadoc-plugin:3.11.2}}
-            {plugin|{GAV :org.sonatype.plugins:nexus-staging-maven-plugin:1.7.0}}
-            {plugin|{GAV :org.apache.maven.plugins:maven-surefire-plugin:3.5.2}
-                {#if`///`{#ident {@undefine default}}///
-                    {configuration|
-                        <argLine>
-                            {#ident {@undefine default}}
-                            -XX:+EnableDynamicAgentLoading
-                        </argLine>
-                    }///
+                {plugin|
+                      {GAV :org.sonatype.plugins:nexus-staging-maven-plugin:{SONATYPE_PLUGIN_VERSION}}
+                      {extensions :true}
+                      {configuration|
+                        <serverId>ossrh</serverId>
+                        <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                        <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                      }
                 }
             }
         }
     }
+    {dependencyManagement|{dependencies|
+        {@for [evalist] MODULE in (core)={dependency :{GROUPID}:MODULE:{VERSION}}}
+        {@for MODULE in (api,engine,params)={dependency :org.junit.jupiter:junit-jupiter-MODULE:{JUPITER_VERSION}:test}}
+        {dependency|org.mockito|mockito-core|{MOCKITO_VERSION}|test}
+        }}
 
-    {dependencies
-      {@for MODULE in (api,engine,params)=
-          {dependency|org.junit.jupiter|junit-jupiter-MODULE|{JUPITER_VERSION}|test}
-}
+    {profiles|
+        {profile release}
+            {build|
+                {plugins|
+                    {plugin|
+                        {GAV :org.apache.maven.plugins:maven-gpg-plugin:{MAVEN_GPG_PLUGIN_VERSION}}
+                        {executions|{execution
+                            {id :sign-artifacts}
+                            {phase :verify}
+                            {goals|{goal :sign}}
+                        }}
+                    }
+                }
+           }
+        {end profile}
     }
 {end project}
 {@xmlFormat}

@@ -1,0 +1,21 @@
+fn to_xml(object, @top)-> str {
+    let XML = "<%s" % [top];
+    for each tag in keys(object){
+        if tag[0] == "@" : XML = XML + " " + tag[1..inf] + "=\"" + object[tag] + "\"";
+    }
+    XML = XML + ">";
+    for each tag in keys(object){
+        if tag[0] != "@" && tag != "this" && tag != "cls" {
+            if is_obj(object[tag]) :
+                XML = XML + to_xml(object[tag], top=tag);
+            else:
+                if len(""+object[tag]) == 0 :
+                    XML = XML + "<%s/>" % [ tag ];
+                else:
+                    XML = XML + "<%s>%s</%s>" % [ tag , object[tag], tag ];
+            }
+    }
+    XML + "</%s>" % [top];
+}
+
+export to_xml;

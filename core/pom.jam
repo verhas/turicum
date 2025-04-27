@@ -1,0 +1,47 @@
+{@import https://raw.githubusercontent.com/central7/pom/1/pom.jim}
+{#define PLUGIN=https://raw.githubusercontent.com/central7/pom/main/plugins}
+{@define GROUPID=com.ch.turic}
+{@define ARTIFACTID=turicum}
+{@define VERSION=1.0.0-SNAPSHOT}
+{@define JUPITER_VERSION=5.12.0}
+{project turicum}
+    {GAV :{GROUPID}:{ARTIFACTID}:{VERSION}}
+    {description Generative AI programming Language}
+    {build
+        {plugins
+            {plugin|{GAV :org.apache.maven.plugins:maven-source-plugin:3.3.1}}
+            {plugin|{GAV :org.apache.maven.plugins:maven-compiler-plugin:3.13.0}
+                {configuration
+                    {encoding UTF-8}
+                    {source 21}
+                    {target 21}
+                    {release 21}
+                }
+            }
+            {plugin|{GAV :org.apache.maven.plugins:maven-resources-plugin:3.3.1}
+                {configuration
+                    {encoding UTF-8}
+                }
+            }
+            {plugin|{GAV :org.apache.maven.plugins:maven-javadoc-plugin:3.11.2}}
+            {plugin|{GAV :org.sonatype.plugins:nexus-staging-maven-plugin:1.7.0}}
+            {plugin|{GAV :org.apache.maven.plugins:maven-surefire-plugin:3.5.2}
+                {#if`///`{#ident {@undefine default}}///
+                    {configuration|
+                        <argLine>
+                            {#ident {@undefine default}}
+                            -XX:+EnableDynamicAgentLoading
+                        </argLine>
+                    }///
+                }
+            }
+        }
+    }
+
+    {dependencies
+      {@for MODULE in (api,engine,params)=
+          {dependency|org.junit.jupiter|junit-jupiter-MODULE|{JUPITER_VERSION}|test}
+}
+    }
+{end project}
+{@xmlFormat}
