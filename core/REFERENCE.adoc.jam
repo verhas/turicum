@@ -1605,6 +1605,16 @@ Although Turicum can call any Java method using the functions `java_object`, `ja
 They are primitives and are used as part of the system library part of the run-time.
 When you use `sys_import` you import the file from the Java resource path, that delivers more Turicum idiomatic API.
 
+=== `export`, `export_all()`
+
+These are two functions to be used in files imported.
+The macro `export` will export the variables listed as arguments.
+That way these variables will be copied into the context of the importing code.
+
+`export_all()` will export all the variables from the importing scope.
+Note that in the case of `export_all()` you cannot omit the `(` and `)`.
+If you do, the line will be an expression with a function as a result, and the execution will not call the function.
+
 === `java_...`
 
 There are three functions in this group:

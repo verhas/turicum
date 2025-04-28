@@ -2437,7 +2437,7 @@ println(inc(1))
 .output fun1
 [source]
 ----
-ch.turic.commands.Closure@4681c175
+ch.turic.commands.Closure@34f22f9d
 2
 
 ----
@@ -2466,7 +2466,7 @@ println(inc(1))
 .output fun3
 [source]
 ----
-ch.turic.commands.Closure@57a78e3
+ch.turic.commands.Closure@3d1848cc
 2
 
 ----
@@ -2497,7 +2497,7 @@ println(inc(1))
 .output fun2
 [source]
 ----
-ch.turic.commands.Closure@402c4085
+ch.turic.commands.Closure@7dda48d9
 2
 
 ----
@@ -2681,7 +2681,7 @@ println(inc(1,how_much=5))
 .output fun4
 [source]
 ----
-ch.turic.commands.Closure@6fa51cd4
+ch.turic.commands.Closure@6e4566f1
 6
 
 ----
@@ -4533,6 +4533,16 @@ Although Turicum can call any Java method using the functions `java_object`, `ja
 They are primitives and are used as part of the system library part of the run-time.
 When you use `sys_import` you import the file from the Java resource path, that delivers more Turicum idiomatic API.
 
+=== `export`, `export_all()`
+
+These are two functions to be used in files imported.
+The macro `export` will export the variables listed as arguments.
+That way these variables will be copied into the context of the importing code.
+
+`export_all()` will export all the variables from the importing scope.
+Note that in the case of `export_all()` you cannot omit the `(` and `)`.
+If you do, the line will be an expression with a function as a result, and the execution will not call the function.
+
 === `java_...`
 
 There are three functions in this group:
@@ -4909,78 +4919,80 @@ none
 .output que
 [source]
 ----
-task2 is not ready 0
 task1 is not ready 0
+task2 is not ready 0
 task2 is ready 1
-task2 is not ready 0
 task1 is not ready 1
+task2 is not ready 0
 task1 is not ready 2
 task2 is not ready 1
-task1 is not ready 3
-task2 is ready 2
-task2 is not ready 0
-task2 is not ready 1task1 is not ready 4
-
-task1 is not ready 5
+task1 is ready 2
 task2 is not ready 2
-task1 is ready 3
+task1 is not ready 0
 task2 is not ready 3
-task1 is not ready 0
-task2 is not ready 4task1 is not ready 1
-
-task1 is not ready 2
-task2 is not ready 5
-task2 is not ready 6
-task1 is ready 4
-task1 is not ready 0
-task2 is not ready 7
 task1 is not ready 1
-task2 is not ready 8
-task1 is not ready 2
-task2 is ready 5
-task2 is not ready 0
-task1 is not ready 3
-task1 is not ready 4
-task2 is not ready 1
-task1 is not ready 5
-task2 is not ready 2
-task1 is ready 6
-task2 is not ready 3
-task1 is not ready 0
-task2 is not ready 4task1 is not ready 1
-
-task2 is not ready 5
-task1 is not ready 2
-task2 is not ready 6task1 is ready 7
-
-task1 is not ready 0
-task1 is not ready 1
-task2 is not ready 7
-task1 is not ready 2
-task2 is not ready 8
-task2 is not ready 9task1 is not ready 3
-
-task2 is ready 8
-task1 is not ready 4
-task2 is not ready 0
-task1 is not ready 5
-task2 is not ready 1
-task1 is ready 9
-task2 is not ready 2
-task1 is not ready 0
-task2 is not ready 3task1 is not ready 1
-
 task1 is not ready 2
 task2 is not ready 4
-task1 is not ready 3
+task1 is not ready 3task2 is not ready 5
+
+task2 is ready 3
+task1 is not ready 4task2 is not ready 0
+
+task1 is not ready 5
+task2 is not ready 1
+task1 is not ready 6
+task2 is not ready 2
+task1 is ready 4
+task1 is not ready 0
+task2 is not ready 3
+task1 is not ready 1
+task2 is not ready 4
+task1 is not ready 2
 task2 is not ready 5
+task1 is ready 5
+task2 is not ready 6
+task1 is not ready 0
+task2 is not ready 7
+task1 is not ready 1
+task2 is not ready 8
+task1 is not ready 2
+task2 is ready 6
+task2 is not ready 0
+task1 is not ready 3
+task2 is not ready 1
+task1 is not ready 4
+task1 is not ready 5
+task2 is not ready 2
+task1 is not ready 6task2 is not ready 3
+
+task1 is ready 7task2 is not ready 4
+
+task1 is not ready 0
+task2 is not ready 5
+task1 is not ready 1
+task2 is ready 8
+task2 is not ready 0
+task1 is not ready 2
+task2 is not ready 1
+task1 is not ready 3
+task2 is not ready 2
+task1 is not ready 4
+task2 is ready 9
+task2 is not ready 0
+task1 is not ready 5
+task2 is not ready 1
+task1 is not ready 6
+task1 is not ready 7
+task2 is not ready 2
+task2 is not ready 3
+task1 is not ready 8
 closing the channel
 channel is closed
 1 is done false
 2 is done false
 we start to wait the first time
-task2 is done
-task1 is done
+task1 is donetask2 is done
+
 task1 done true
 task2 done true
 We start to wait the second time
@@ -5097,6 +5109,7 @@ not ready 0
 not ready 1
 not ready 2
 closing the channel
+not ready 3
 channel is closed
 is done false
 we are done

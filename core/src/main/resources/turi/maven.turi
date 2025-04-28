@@ -8,8 +8,10 @@ class maven_project {
         unlet pom;
     }
     fn done(){
-        xml_format(to_xml(project,top="project"))
+        xml_format(to_xml(project,top="project", plurals = {
+        dependencies: "dependency"
+        }))
     }
 }
 
-export maven_project, to_xml;
+export_all();

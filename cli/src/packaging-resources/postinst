@@ -1,0 +1,5 @@
+#!/bin/sh
+if [ -e /usr/local/bin/turi ]; then
+    rm /usr/local/bin/turi
+fi
+ln -s /opt/turi/bin/turi /usr/local/bin/turi

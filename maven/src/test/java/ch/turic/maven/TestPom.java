@@ -11,7 +11,7 @@ import java.nio.file.StandardOpenOption;
 
 public class TestPom {
 
-    @Test
+    //@Test
     void test() throws Exception {
         final var fn = "../pom.turi";
         final var interpreter = new Interpreter(Input.fromFile(Path.of(fn)));

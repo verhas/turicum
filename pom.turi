@@ -18,7 +18,7 @@ let project = maven_project({
     artifactId : "turicum-parent",
     version : "1.0.0-SNAPSHOT",
     description : "Turicum programming language",
-    modules : [ "core", "maven" ],
+    modules : [ "core", "maven", "cli" ],
 
     licenses : [ {
             name : "The Apache License, Version 2.0",

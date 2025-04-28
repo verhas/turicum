@@ -70,6 +70,7 @@
     <modules>
         <module>core</module>
         <module>maven</module>
+        <module>cli</module>
     </modules>
     <url>https:/github.com/verhas/turicum/tree/master</url>
     <licenses>

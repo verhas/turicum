@@ -15,7 +15,7 @@ module ch.turic {
             Print, Reclose, Keys, Import, JavaNewObject, JavaMethodCall,
             JavaMethodCallVararg, SysImport, Sleep, Set, SetGlobal,Throw,
             Que, TryYield,YieldIsClosed,Rx,RxMatch, TuriHttpServer,XmlFormat,
-            IsObject;
+            IsObject, ExportAll;
     provides ch.turic.TuriMacro with Export, IsDefined, UnLet;
     provides ch.turic.TuriClass with TuriString, TuriLong, TuriDouble, TuriIterator, TuriChannel;
 }

@@ -19,6 +19,7 @@ import java.util.List;
  */
 public class Import implements TuriFunction {
 
+    public static final String APPIA = "APPIA";
     private final List<Path> appiaRoots = getAppiaRoots();
 
     @Override
@@ -29,7 +30,7 @@ public class Import implements TuriFunction {
     @Override
     public Object call(Context context, Object[] args) throws ExecutionException {
         final var ctx = FunUtils.ctx(context);
-        FunUtils.oneArg(name(),args);
+        FunUtils.oneArg(name(), args);
         final var arg = args[0].toString();
         Path sourceFile = locateSource(arg);
 
@@ -70,7 +71,10 @@ public class Import implements TuriFunction {
     }
 
     private static List<Path> getAppiaRoots() {
-        var appia = System.getenv("APPIA");
+        var appia = System.getProperty(APPIA);
+        if (appia == null) {
+            System.getenv(APPIA);
+        }
         if (appia == null) {
             appia = loadFromEnvFile();
         }
@@ -96,8 +100,8 @@ public class Import implements TuriFunction {
                     var lines = Files.readAllLines(envPath, StandardCharsets.UTF_8);
                     for (var line : lines) {
                         var trimmed = line.trim();
-                        if (trimmed.startsWith("APPIA=")) {
-                            return trimmed.substring("APPIA=".length()).trim();
+                        if (trimmed.startsWith(APPIA + "=")) {
+                            return trimmed.substring((APPIA+ "=").length()).trim();
                         }
                     }
                 }

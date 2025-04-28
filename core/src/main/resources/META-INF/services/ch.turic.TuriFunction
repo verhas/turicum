@@ -23,3 +23,4 @@ ch.turic.builtins.functions.RxMatch
 ch.turic.builtins.functions.TuriHttpServer
 ch.turic.builtins.functions.XmlFormat
 ch.turic.builtins.functions.IsObject
+ch.turic.builtins.functions.ExportAll
