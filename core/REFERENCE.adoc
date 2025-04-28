@@ -355,40 +355,306 @@ Lists can be defined using square brackets `+[]+`.
 
 List elements are expressions and are separated by commas:
 
+
+.ListLiteral1
+[source]
+----
+let computed = {fn(a,b) = a + b}(1,2);
+println([1, 2, 3, 4])
+println(["apple", "banana", "cherry"])
+println([1 + 2, computed])
+
+
+----
+
+
+
+
+.output ListLiteral1
 [source]
 ----
 [1, 2, 3, 4]
-[`apple`, `banana`, `cherry`]
-[1 + 2, `computed`]
+[apple, banana, cherry]
+[3, 3]
+
 ----
+
+
+
+NOTE: The call to the built-in function `println` in the example above need the `(` and `)`.
+Without that the syntax analyser will recognite `println[...]` as array access.
+The possibility to omit the `(` and `)` around fucntion calls if they stand as a statement should only be used if that supports readability.
 
 Lists are mutable by default and can be indexed using the `+[]+` operator.
 They support iteration in `+for each+` loops.
 
 Empty lists can be written simply as `+[]+`.
 
-Lists can contain mixed types, but homogeneous lists are encouraged for clarity.
+Lists can contain mixed types, but you are encouraged to use homogeneous lists for clarity.
 
 List literals also support flattening other lists using the `..` prefix.
 For example:
 
+
+.ListLiteral2
 [source]
 ----
 let a = [1, 2, 3, 4]
-let b = [`apple`, ..a, `banana`, `cherry`]
+let b = ["apple", ..a, "banana", "cherry"]
+println b
+
+
 ----
 
-will make `b` contain ``apple``, `1`,`2`,`3`,`4`,``banana``, ``cherry``.
+
+
+
+.output ListLiteral2
+[source]
+----
+[apple, 1, 2, 3, 4, banana, cherry]
+
+----
+
+
+
+This is also the way to concatenate lists:
+
+
+.ListLiteral3
+[source]
+----
+let a = [1, 2, 3, 4]
+let b = [5, 6, 7]
+println([..a, ..b])
+
+
+----
+
+
+
+
+.output ListLiteral3
+[source]
+----
+[1, 2, 3, 4, 5, 6, 7]
+
+----
+
+
+
+The `pass:[+]`, `-` and `*` operators are also defined for lists.
+
+
+.ListLiteral4
+[source]
+----
+let a = [1, 2, 3, 4]
+let b = [1, 3]
+println(a+b)
+println(a-b)
+println(a*b)
+println(a+"sixteen")
+println(a-2)
+
+
+----
+
+
+
+
+.output ListLiteral4
+[source]
+----
+[1, 2, 3, 4, 1, 3]
+[2, 4]
+[[1, 1], [1, 3], [2, 1], [2, 3], [3, 1], [3, 3], [4, 1], [4, 3]]
+[1, 2, 3, 4, sixteen]
+[1, 3, 4]
+
+----
+
+
+
+The `pass:[+]` will concatenate the two lists, or append a single element to the list.
+If you want to append a list to a list instead of concatenation, you have to enclose it into a list.
+
+
+.ListLiteral5
+[source]
+----
+let a = [1, 2, 3, 4]
+let b = [1, 3]
+println(a+[b])
+
+
+----
+
+
+
+
+.output ListLiteral5
+[source]
+----
+[1, 2, 3, 4, [1, 3]]
+
+----
+
+
+
+The `-` will remove the elements from the list.
+
+The operator `*` will create the Descartes product of the two lists.
+
+If you want to remove a certain element or part of the list you can compose a new list from the necessary parts:
+
+
+.ListLiteral6
+[source]
+----
+let a = [1, 2, 3, 4]
+println([a[0],..a[2..inf]])
+
+
+----
+
+
+
+
+.output ListLiteral6
+[source]
+----
+[1, 3, 4]
+
+----
+
+
 
 List literals also support filters and mappers.
 For example:
 
+
+.ListLiteral7
 [source]
 ----
-let a = [1, 2, 3, 4 ? {|a| a%2 == 0 } -> {|a| a / 2} ]
+let a = [1, 2, 3, 4 ? {|x| x % 2 == 0 } ]
+println a
+
+
 ----
 
-will select first `2` and `4` and then map them to `1` and `2`
+
+
+
+.output ListLiteral7
+[source]
+----
+[2, 4]
+
+----
+
+
+
+will select only the even elements from the list. The expression or closure following the `?` works as a filter.
+
+You can also apply mappers following `->`, for example:
+
+
+.ListLiteral8
+[source]
+----
+let a = [1, 2, 3, 4 ? {|x| x % 2 == 0 } -> {|z| return z/2 }]
+println a
+
+
+----
+
+
+
+
+.output ListLiteral8
+[source]
+----
+[1, 2]
+
+----
+
+
+
+selects only the even elements and divides each with two.
+You can have multiple mappers and filters following each other mixed.
+
+The mappers and the filters are usually closures and have one argument.
+As a little syntactic sugar the variable `it` is defined when evaluating them.
+It can save up using an argument:
+
+
+.ListLiteral9
+[source]
+----
+let a = [1, 2, 3, 4 ? {|| it % 2 == 0 } -> {|| return it/2 }]
+println a
+
+
+----
+
+
+
+
+.output ListLiteral9
+[source]
+----
+[1, 2]
+
+----
+
+
+
+To ease more the syntax, you can use ordinary expressions instead of closures:
+
+
+.ListLiteral10
+[source]
+----
+let a = [1, 2, 3, 4 ? it % 2 == 0  -> it/2 ]
+println a
+
+
+----
+
+
+
+
+.output ListLiteral10
+[source]
+----
+[1, 2]
+
+----
+
+
+
+This makes writing filters and mappers very easy.
+
+[NOTE]
+====
+The closure definition `{|x|x*2}` is technically an expression.
+Saying that the mappers and filters can be an expression OR a closure is a bit sloppy, because closures are also results of an expression.
+What really happens is that the interpreter evaluates the expression, and if the result is a closure, then it will apply it.
+In other cases it just uses the result of the expression.
+In the case of filters, the value has to be something that can be interpreted as a boolean value.
+In the case of mappers, the value of the expression is used as is.
+
+How does the interpreter know that you want the closure to be evaluated and not use the closure itself as the new value?
+Closures are just objects and can be in a list.
+
+The answer is that it does not.
+If it sees a closure as the result of the expression, it will evaluate it.
+
+If you want to map a list element to a closure, then you have to write a closure that returns that closue you want to be the list element.
+====
+
+
 
 ==== Operators and Symbols
 
@@ -398,11 +664,10 @@ Operators are tokenized with priority for the **longest matching operator**.
 Recognized symbols are:
 
 
-"--", "++", "->", "=", "(", ")", ",", ".",
+"--", "++", "pass:[->]", "=", "(", ")", ",", ".",
 "&{", "{", "}", "[", "]", ";", ":", "|", "?", "@", "^", "#"
 
-
-
+ 
 
 === Operators
 
@@ -425,21 +690,188 @@ When used as a unary prefix operator, it must be inside a list literal and in fr
 
 * `|` bitwise OR operation.
 
-* `^` bitwise XOR operation. (planned)
+* `^` bitwise XOR operation for integer values and power in the case of double values.
+It calculates the symmetric difference of lists (the concatenation of the two lists without the elements that appear in both).
+
+
+.xor1
+[source]
+----
+println 12 ^ 2
+println 12.0 ^ 2
+println( [1,2,3] ^ [3,4,5] )
+
+
+----
+
+
+
+
+.output xor1
+[source]
+----
+14
+144.0
+[1, 2, 4, 5]
+
+----
+
+
 
 * `&` bitwise AND operation.
 
-* `==`, `!=`, `in` equal, not equal and part-of operators.
+* `===`, ==`, `!=`, `in` are "the same", equal, not equal, and part-of operators.
 The `in` operator works on a list to check if an element is in that list,
 or on strings to check the existence of a substring.
 
-* `<`, `+<=+`, `>`, `>=` usual size comparision operators.
+
+.equal1
+[source]
+----
+let k = { a:1 , b:2 }
+let q = { a:1 , b:2 }
+let w = "ohmy"
+println 1 == 1, " one is one"
+println 1 == 2, " one is not two"
+println 1 === 1, "one is the same as one"
+println 1 === 2, "one is not the same as two"
+println k == q, "k equals q, but"
+println k === q, "k is not the same as q"
+println w == "ohmy", " w is 'ohmy'"
+println w === "ohmy", " w is not that 'ohmy'"
+
+
+----
+
+
+
+
+.output equal1
+[source]
+----
+true one is one
+false one is not two
+trueone is the same as one
+falseone is not the same as two
+truek equals q, but
+falsek is not the same as q
+true w is 'ohmy'
+false w is not that 'ohmy'
+
+----
+
+
+
+The opertor `===`
+
+
+.inop
+[source]
+----
+println "raka" in "avraka dabra", " there is 'raka' in 'avraka dabra'"
+println "raka" in "evreke debre", " there is no raka in 'evreke debre'"
+println 3 in [1,2,3], " 3 is in [1,2,3]"
+println 3 in [1,2,4], " 3 is not in [1,2,4]"
+
+
+----
+
+
+
+
+.output inop
+[source]
+----
+true there is 'raka' in 'avraka dabra'
+false there is no raka in 'evreke debre'
+true 3 is in [1,2,3]
+false 3 is not in [1,2,4]
+
+----
+
+
+
+
+
+* `<`, `+<=+`, `>`, `>=` usual size comparison operators.
 
 * `<<`, `>>`, `>>>` left shift, right shift, and signed right shift operators.
 
+The `>>` works also on strings and lists.
+It merges the characetrs/elements of the two operands:
+
+
+.shr1
+[source]
+----
+println 8>>2
+println "artany" >> "...... ..."
+println([1,2,3] >> [-1,-2,-3])
+
+
+----
+
+
+
+
+.output shr1
+[source]
+----
+2
+a.r.t.a.n.y. ...
+[1, -1, 2, -2, 3, -3]
+
+----
+
+
+
+
 * `+`, `-` binary and unary plus and minus.
 
-* `*`, `/`, `%` binary multiply, divide, and remainder operators.
+* `pass:[*]`, `/`, `%` binary multiply, divide, and remainder operators.
+The `pass:[*]` and `%` are also used in the case of strings and lists.
+A string multiplied by a number will result in the string that many times concatenated to itself.
+The `%` operator is also used for formatting.
+The left-hand side is the format string, and the right-hand side is a single element or list of elements.
+
+In the case of lists `pass:[*]` will result in the Descartes product of the two lists.
+You cannot `pass:[*]` a list and something else, like a number.
+
+`%` for lists creates the symmetric difference, thus the elements of the two lists which are presented mutually only in one of them.
+The following example shows the use of these operators and also the Turicum list literal filtered equivalent for the symmetric difference calculation.
+
+
+.mod1
+[source]
+----
+println "2*3=%s" % [2*3]
+println "2/3=%s" % [2/3]
+println "2%%3=%s" % [2%3]
+println "aa " * 6
+println( [1,2] * [6])
+println( [1,2,3] % [3,4,5] )
+println( [1,2,3 ? it in [3,4,5]] )
+
+
+----
+
+
+
+
+.output mod1
+[source]
+----
+2*3=6
+2/3=0.6666666666666666
+2%3=2
+aa aa aa aa aa aa 
+[[1, 6], [2, 6]]
+[3]
+[3]
+
+----
+
+
 
 .functions argument default values
 [NOTE]
@@ -1834,7 +2266,7 @@ println(inc(1))
 .output fun1
 [source]
 ----
-ch.turic.commands.Closure@11392934
+ch.turic.commands.Closure@402c4085
 2
 
 ----
@@ -1863,7 +2295,7 @@ println(inc(1))
 .output fun3
 [source]
 ----
-ch.turic.commands.Closure@6892b3b6
+ch.turic.commands.Closure@6fa51cd4
 2
 
 ----
@@ -1894,7 +2326,7 @@ println(inc(1))
 .output fun2
 [source]
 ----
-ch.turic.commands.Closure@6e6f2380
+ch.turic.commands.Closure@2767e23c
 2
 
 ----
@@ -2078,7 +2510,7 @@ println(inc(1,how_much=5))
 .output fun4
 [source]
 ----
-ch.turic.commands.Closure@76a4ebf2
+ch.turic.commands.Closure@710c2b53
 6
 
 ----
@@ -4306,77 +4738,79 @@ none
 .output que
 [source]
 ----
+task2 is not ready 0
 task1 is not ready 0
+task2 is ready 1
 task2 is not ready 0
-task1 is not ready 1task2 is ready 1
-
-task2 is not ready 0
+task1 is not ready 1
+task1 is not ready 2
 task2 is not ready 1
-task1 is not ready 2
-task1 is ready 2
-task1 is not ready 0
+task1 is not ready 3
 task2 is not ready 2
-task1 is not ready 1
-task2 is not ready 3
-task1 is not ready 2
-task2 is not ready 4
-task1 is ready 3task2 is not ready 5
+task1 is ready 2task2 is not ready 3
 
 task1 is not ready 0
+task2 is not ready 4
 task1 is not ready 1
-task2 is not ready 6
-task2 is not ready 7
-task1 is not ready 2
-task1 is ready 4
-task2 is not ready 8
-task1 is not ready 0
-task2 is not ready 9
-task1 is not ready 1
-task1 is not ready 2
-task2 is not ready 10
-task1 is ready 5
-task2 is not ready 11
-task1 is not ready 0
-task2 is not ready 12
-task1 is not ready 1
-task2 is not ready 13
-task1 is not ready 2
-task1 is not ready 3
-task2 is ready 6
+task1 is not ready 2task2 is not ready 5
+
+task2 is ready 3
 task2 is not ready 0
+task1 is not ready 3
 task2 is not ready 1
 task1 is not ready 4
-task1 is not ready 5
-task2 is not ready 2
+task2 is not ready 2task1 is not ready 5
+
+task2 is ready 4
+task2 is not ready 0
 task1 is not ready 6
+task2 is not ready 1
+task1 is not ready 7
+task2 is not ready 2task1 is not ready 8
+
 task2 is not ready 3
-task1 is ready 7
-task2 is not ready 4
+task1 is ready 5
 task1 is not ready 0
+task2 is not ready 4
 task1 is not ready 1
 task2 is not ready 5
 task1 is not ready 2
+task1 is ready 6
 task2 is not ready 6
-task1 is not ready 3
-task2 is ready 8
-task2 is not ready 0
-task1 is not ready 4
-task2 is not ready 1
-task1 is not ready 5
-task2 is not ready 2
-task1 is not ready 6
-task2 is ready 9
-task2 is not ready 0
-task2 is not ready 1
-task1 is not ready 7
-task1 is not ready 8
-task2 is not ready 2
+task1 is not ready 0
+task2 is not ready 7
+task1 is not ready 1
+task1 is not ready 2
+task2 is not ready 8
+task2 is not ready 9task1 is not ready 3
+
+task1 is ready 7
+task2 is not ready 10
+task1 is not ready 0
+task2 is not ready 11
+task1 is not ready 1
+task2 is not ready 12task1 is not ready 2
+
+task2 is not ready 13
+task1 is ready 8
+task1 is not ready 0
+task2 is not ready 14
+task1 is not ready 1
+task1 is not ready 2task2 is not ready 15
+
+task1 is ready 9
+task2 is not ready 16
+task1 is not ready 0
+task2 is not ready 17
+task1 is not ready 1
+task2 is not ready 18task1 is not ready 2
+
 closing the channel
 channel is closed
 1 is done false
 2 is done false
-task1 is done
 task2 is done
+task1 is done
 we start to wait the first time
 task1 done true
 task2 done true
@@ -4488,7 +4922,6 @@ sending 2
 received 2
 not ready 0
 not ready 1
-not ready 2
 sending 3
 received 3
 not ready 0

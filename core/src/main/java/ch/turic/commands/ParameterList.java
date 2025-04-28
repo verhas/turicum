@@ -109,8 +109,13 @@ public record ParameterList(Parameter[] parameters, String rest, String meta, St
                 rest == null && meta == null && closure == null;
     }
 
-    public boolean noArg() {
-        return parameters.length == 0 &&
+    public boolean fitModifier() {
+        if (parameters.length == 0) {
+            return true;
+        }
+        return parameters.length == 1 && parameters[0].type != Parameter.Type.NAMED_ONLY &&
                 rest == null && meta == null && closure == null;
     }
+
+
 }

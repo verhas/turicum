@@ -13,7 +13,18 @@ public class AdHocTest {
     @Test
     void test0() throws Exception {
         test("""
-println( [..[1,2,3] ,.. [4,5]])
+class Z {
+    fn init(a=1,b=2);
+}
+let h =  Z() + {quqa: 55}
+let k =   {quqa: 55} + Z()
+println h.this === h
+println h.this === k
+println h.this == k
+println type(h)
+println is_obj(h)
+println h
+println k
 none
 
                 """,null);

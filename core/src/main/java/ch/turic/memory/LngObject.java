@@ -113,19 +113,19 @@ public class LngObject implements HasFields, HasIndex, HasContext {
         if (!Objects.equals(lngClass, lngObject.lngClass)) {
             return false;
         }
-        final var compared = new HashSet<>();
+        final var compared = new IdentityHashMap<>();
         final var allKeys = new HashSet<>(context.keys());
         allKeys.addAll(lngObject.fields());
-        compared.add(lngObject);
-        compared.add(this);
+        compared.put(lngObject,null);
+        compared.put(this,null);
         for (final var key : allKeys) {
             final var thisField = getField(key);
             final var thatField = lngObject.getField(key);
-            if (!compared.contains(thisField) && !compared.contains(thatField) && !Objects.equals(thisField, thatField)) {
+            if (!compared.containsKey(thisField) && !compared.containsKey(thatField) && !Objects.equals(thisField, thatField)) {
                 return false;
             }
-            compared.add(thisField);
-            compared.add(thatField);
+            compared.put(thisField,null);
+            compared.put(thatField,null);
         }
         return true;
     }

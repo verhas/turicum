@@ -4,6 +4,7 @@ import ch.turic.ExecutionException;
 import ch.turic.commands.Command;
 import ch.turic.memory.Context;
 import ch.turic.memory.InfiniteValue;
+import ch.turic.memory.LngList;
 
 import java.util.regex.Pattern;
 
@@ -36,6 +37,18 @@ public class Subtract extends AbstractOperator {
             // remove all occurrences of op2 string from op1 string
             return s.toString().replaceAll(Pattern.quote(op2.toString()), "");
         }
+
+        if( op1 instanceof LngList list1){
+            final var diff = new LngList();
+            diff.array.addAll(list1.array);
+            if( op2 instanceof LngList list2){
+                diff.array.removeAll(list2.array);
+            }else{
+                diff.array.remove(op2);
+            }
+            return diff;
+        }
+
         return binary("subtract", op1, op2, (a, b) -> a - b, (a, b) -> a - b);
     }
 

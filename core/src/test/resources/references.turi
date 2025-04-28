@@ -1253,3 +1253,106 @@ let z = Z({
     });
 println z
 // end snippet
+
+// snippet ListLiteral1
+let computed = {fn(a,b) = a + b}(1,2);
+println([1, 2, 3, 4])
+println(["apple", "banana", "cherry"])
+println([1 + 2, computed])
+// end snippet
+
+// snippet ListLiteral2
+let a = [1, 2, 3, 4]
+let b = ["apple", ..a, "banana", "cherry"]
+println b
+// end snippet
+
+// snippet ListLiteral3
+let a = [1, 2, 3, 4]
+let b = [5, 6, 7]
+println([..a, ..b])
+// end snippet
+
+// snippet ListLiteral4
+let a = [1, 2, 3, 4]
+let b = [1, 3]
+println(a+b)
+println(a-b)
+println(a*b)
+println(a+"sixteen")
+println(a-2)
+// end snippet
+
+// snippet ListLiteral5
+let a = [1, 2, 3, 4]
+let b = [1, 3]
+println(a+[b])
+// end snippet
+
+// snippet ListLiteral6
+let a = [1, 2, 3, 4]
+println([a[0],..a[2..inf]])
+// end snippet
+
+// snippet ListLiteral7
+let a = [1, 2, 3, 4 ? {|x| x % 2 == 0 } ]
+println a
+// end snippet
+
+// snippet ListLiteral8
+let a = [1, 2, 3, 4 ? {|x| x % 2 == 0 } -> {|z| return z/2 }]
+println a
+// end snippet
+
+// snippet ListLiteral9
+let a = [1, 2, 3, 4 ? {|| it % 2 == 0 } -> {|| return it/2 }]
+println a
+// end snippet
+
+// snippet ListLiteral10
+let a = [1, 2, 3, 4 ? it % 2 == 0  -> it/2 ]
+println a
+// end snippet
+
+// snippet xor1
+println 12 ^ 2
+println 12.0 ^ 2
+println( [1,2,3] ^ [3,4,5] )
+// end snippet
+
+// snippet mod1
+println "2*3=%s" % [2*3]
+println "2/3=%s" % [2/3]
+println "2%%3=%s" % [2%3]
+println "aa " * 6
+println( [1,2] * [6])
+println( [1,2,3] % [3,4,5] )
+println( [1,2,3 ? it in [3,4,5]] )
+// end snippet
+
+// snippet shr1
+println 8>>2
+println "artany" >> "...... ..."
+println([1,2,3] >> [-1,-2,-3])
+// end snippet
+
+// snippet equal1
+let k = { a:1 , b:2 }
+let q = { a:1 , b:2 }
+let w = "ohmy"
+println 1 == 1, " one is one"
+println 1 == 2, " one is not two"
+println 1 === 1, "one is the same as one"
+println 1 === 2, "one is not the same as two"
+println k == q, "k equals q, but"
+println k === q, "k is not the same as q"
+println w == "ohmy", " w is 'ohmy'"
+println w === "ohmy", " w is not that 'ohmy'"
+// end snippet
+
+// snippet inop
+println "raka" in "avraka dabra", " there is 'raka' in 'avraka dabra'"
+println "raka" in "evreke debre", " there is no raka in 'evreke debre'"
+println 3 in [1,2,3], " 3 is in [1,2,3]"
+println 3 in [1,2,4], " 3 is not in [1,2,4]"
+// end snippet

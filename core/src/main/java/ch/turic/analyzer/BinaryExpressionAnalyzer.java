@@ -17,7 +17,7 @@ public class BinaryExpressionAnalyzer extends AbstractAnalyzer {
             {"|"},         // 4
             {"^"},
             {"&"},
-            {"==", "!=", Keywords.IN},
+            {"===", "==", "!=", Keywords.IN},
             {"<", "<=", ">", ">="},
             {"<<", ">>", ">>>"},
             {"+", "-"},

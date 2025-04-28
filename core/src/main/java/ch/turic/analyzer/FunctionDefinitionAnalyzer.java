@@ -66,6 +66,10 @@ public class FunctionDefinitionAnalyzer extends AbstractAnalyzer {
             lexes.next();
             final var expression = ExpressionAnalyzer.INSTANCE.analyze(lexes);
             block = new BlockCommand(List.of(expression), false);
+        } else if(lexes.is(";")) {
+            BadSyntax.when(lexes, !hasParens, "use must use parenthesis in initialized without body");
+            BadSyntax.when(lexes,!"init".equals(fn),"Only initializer can have no body");
+            block = new BlockCommand(List.of(), false);
         } else {
             block = (BlockCommand) BlockAnalyzer.INSTANCE.analyze(lexes);
         }

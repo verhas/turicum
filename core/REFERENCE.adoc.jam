@@ -292,40 +292,90 @@ Lists can be defined using square brackets `+[]+`.
 
 List elements are expressions and are separated by commas:
 
-[source]
-----
-[1, 2, 3, 4]
-[`apple`, `banana`, `cherry`]
-[1 + 2, `computed`]
-----
+{%S ListLiteral1%}
+
+NOTE: The call to the built-in function `println` in the example above need the `(` and `)`.
+Without that the syntax analyser will recognite `println[...]` as array access.
+The possibility to omit the `(` and `)` around fucntion calls if they stand as a statement should only be used if that supports readability.
 
 Lists are mutable by default and can be indexed using the `+[]+` operator.
 They support iteration in `+for each+` loops.
 
 Empty lists can be written simply as `+[]+`.
 
-Lists can contain mixed types, but homogeneous lists are encouraged for clarity.
+Lists can contain mixed types, but you are encouraged to use homogeneous lists for clarity.
 
 List literals also support flattening other lists using the `..` prefix.
 For example:
 
-[source]
-----
-let a = [1, 2, 3, 4]
-let b = [`apple`, ..a, `banana`, `cherry`]
-----
+{%S ListLiteral2%}
 
-will make `b` contain ``apple``, `1`,`2`,`3`,`4`,``banana``, ``cherry``.
+This is also the way to concatenate lists:
+
+{%S ListLiteral3%}
+
+The `pass:[+]`, `-` and `*` operators are also defined for lists.
+
+{%S ListLiteral4%}
+
+The `pass:[+]` will concatenate the two lists, or append a single element to the list.
+If you want to append a list to a list instead of concatenation, you have to enclose it into a list.
+
+{%S ListLiteral5%}
+
+The `-` will remove the elements from the list.
+
+The operator `*` will create the Descartes product of the two lists.
+
+If you want to remove a certain element or part of the list you can compose a new list from the necessary parts:
+
+{%S ListLiteral6%}
 
 List literals also support filters and mappers.
 For example:
 
-[source]
-----
-let a = [1, 2, 3, 4 ? {|a| a%2 == 0 } -> {|a| a / 2} ]
-----
+{%S ListLiteral7%}
 
-will select first `2` and `4` and then map them to `1` and `2`
+will select only the even elements from the list. The expression or closure following the `?` works as a filter.
+
+You can also apply mappers following `->`, for example:
+
+{%S ListLiteral8%}
+
+selects only the even elements and divides each with two.
+You can have multiple mappers and filters following each other mixed.
+
+The mappers and the filters are usually closures and have one argument.
+As a little syntactic sugar the variable `it` is defined when evaluating them.
+It can save up using an argument:
+
+{%S ListLiteral9%}
+
+To ease more the syntax, you can use ordinary expressions instead of closures:
+
+{%S ListLiteral10%}
+
+This makes writing filters and mappers very easy.
+
+[NOTE]
+====
+The closure definition `{|x|x*2}` is technically an expression.
+Saying that the mappers and filters can be an expression OR a closure is a bit sloppy, because closures are also results of an expression.
+What really happens is that the interpreter evaluates the expression, and if the result is a closure, then it will apply it.
+In other cases it just uses the result of the expression.
+In the case of filters, the value has to be something that can be interpreted as a boolean value.
+In the case of mappers, the value of the expression is used as is.
+
+How does the interpreter know that you want the closure to be evaluated and not use the closure itself as the new value?
+Closures are just objects and can be in a list.
+
+The answer is that it does not.
+If it sees a closure as the result of the expression, it will evaluate it.
+
+If you want to map a list element to a closure, then you have to write a closure that returns that closue you want to be the list element.
+====
+
+
 
 ==== Operators and Symbols
 
@@ -337,8 +387,7 @@ Recognized symbols are:
 {%#replace (regex) /
 {%#trimLines
 {%@snip OPERANDS%}
- %}
-/`(.*?)`/`$1` /-/-/%}
+ %} /`(.*?)`/`$1` /->/pass:[->]/%}
 
 === Operators
 
@@ -361,21 +410,50 @@ When used as a unary prefix operator, it must be inside a list literal and in fr
 
 * `|` bitwise OR operation.
 
-* `^` bitwise XOR operation. (planned)
+* `^` bitwise XOR operation for integer values and power in the case of double values.
+It calculates the symmetric difference of lists (the concatenation of the two lists without the elements that appear in both).
+
+{%S xor1%}
 
 * `&` bitwise AND operation.
 
-* `==`, `!=`, `in` equal, not equal and part-of operators.
+* `===`, ==`, `!=`, `in` are "the same", equal, not equal, and part-of operators.
 The `in` operator works on a list to check if an element is in that list,
 or on strings to check the existence of a substring.
 
-* `<`, `+<=+`, `>`, `>=` usual size comparision operators.
+{%S equal1%}
+
+The opertor `===`
+
+{%S inop%}
+
+
+
+* `<`, `+<=+`, `>`, `>=` usual size comparison operators.
 
 * `<<`, `>>`, `>>>` left shift, right shift, and signed right shift operators.
 
+The `>>` works also on strings and lists.
+It merges the characetrs/elements of the two operands:
+
+{%S shr1%}
+
+
 * `+`, `-` binary and unary plus and minus.
 
-* `*`, `/`, `%` binary multiply, divide, and remainder operators.
+* `pass:[*]`, `/`, `%` binary multiply, divide, and remainder operators.
+The `pass:[*]` and `%` are also used in the case of strings and lists.
+A string multiplied by a number will result in the string that many times concatenated to itself.
+The `%` operator is also used for formatting.
+The left-hand side is the format string, and the right-hand side is a single element or list of elements.
+
+In the case of lists `pass:[*]` will result in the Descartes product of the two lists.
+You cannot `pass:[*]` a list and something else, like a number.
+
+`%` for lists creates the symmetric difference, thus the elements of the two lists which are presented mutually only in one of them.
+The following example shows the use of these operators and also the Turicum list literal filtered equivalent for the symmetric difference calculation.
+
+{%S mod1%}
 
 .functions argument default values
 [NOTE]

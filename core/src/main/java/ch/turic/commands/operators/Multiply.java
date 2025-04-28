@@ -1,8 +1,9 @@
 package ch.turic.commands.operators;
 
-import ch.turic.commands.Command;
 import ch.turic.ExecutionException;
+import ch.turic.commands.Command;
 import ch.turic.memory.Context;
+import ch.turic.memory.LngList;
 
 @Operator.Symbol("*")
 public class Multiply extends AbstractOperator {
@@ -22,6 +23,20 @@ public class Multiply extends AbstractOperator {
             }
             throw new ExecutionException("Cannot '%s' * '%s'", op2, op1);
         }
+
+        if (op1 instanceof LngList list1 && op2 instanceof LngList list2) {
+            final var product = new LngList();
+            for (final var a : list1.array) {
+                for (final var b : list2.array) {
+                    final var pair = new LngList();
+                    pair.array.add(a);
+                    pair.array.add(b);
+                    product.array.add(pair);
+                }
+            }
+            return product;
+        }
+
         return binary("multiply", op1, op2, (a, b) -> a * b, (a, b) -> a * b);
     }
 
