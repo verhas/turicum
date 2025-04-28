@@ -22,7 +22,7 @@ public abstract class AbstractOperator implements Operator {
             }
             if (operatorMethod instanceof ClosureOrMacro command) {
                 ExecutionException.when(!command.parameters().fitOperator(), "Operator methods must have exactly one argument");
-                final var argValues = new FunctionCall.ArgumentEvaluated[]{new FunctionCall.ArgumentEvaluated(null,null)};
+                final var argValues = new FunctionCall.ArgumentEvaluated[]{new FunctionCall.ArgumentEvaluated(null, null)};
                 final Context ctx;
                 if (command.wrapped() == null) {
                     ctx = context.wrap(lngObject.context());
@@ -31,7 +31,7 @@ public abstract class AbstractOperator implements Operator {
                     ctx.let0("this", lngObject);
                 }
                 FunctionCall.freezeThisAndCls(ctx);
-                FunctionCall.defineArgumentsInContext(ctx, context,command.parameters(), argValues);
+                FunctionCall.defineArgumentsInContext(ctx, context, command.parameters(), argValues);
                 return command.execute(ctx);
             } else {
                 throw new ExecutionException("You can not execute the operator " + operatorMethod + " on a " + op2);
@@ -49,7 +49,7 @@ public abstract class AbstractOperator implements Operator {
             ExecutionException.when(!command.parameters().fitOperator(), "Operator methods must have exactly one argument");
             final var argValues = new FunctionCall.ArgumentEvaluated[]{
                     switch (command) {
-                        case Closure ignored -> new FunctionCall.ArgumentEvaluated(null,right.execute(context));
+                        case Closure ignored -> new FunctionCall.ArgumentEvaluated(null, right.execute(context));
                         case Macro ignored -> new FunctionCall.ArgumentEvaluated(null, right);
                     }
             };
@@ -88,7 +88,7 @@ public abstract class AbstractOperator implements Operator {
         }
 
         return Reflect.getBinaryMethod(name, op1, op2).map(Reflect.Op::callMethod)
-                .orElseThrow(() -> new ExecutionException("Cannot calculate '%s' + '%s'", op1, op2));
+                .orElseThrow(() -> new ExecutionException("Cannot calculate '%s' %s '%s'", op1, name, op2));
     }
 }
 

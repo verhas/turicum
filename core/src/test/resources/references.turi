@@ -1356,3 +1356,46 @@ println "raka" in "evreke debre", " there is no raka in 'evreke debre'"
 println 3 in [1,2,3], " 3 is in [1,2,3]"
 println 3 in [1,2,4], " 3 is not in [1,2,4]"
 // end snippet
+
+// snippet bor1
+println 1 | 2
+println( [1,1,2,3,3,2,1] | [])
+try:
+    3.0 | 3.14
+catch e: println e
+// end snippet
+
+// snippet band1
+println 7 &  2
+println( [1,1,2,3,3,2,1] & [2, 3, 7])
+try:
+    3.0 & 3.14
+catch e: println e
+// end snippet
+
+// snippet compare
+println 1 < 2
+println 3 <= 3
+println 4 > 3
+println 4 >= 4
+// end snippet
+
+// snippet and
+if (7&2) == 3 && 5/0 == inf {
+    println "something is wrong"
+}else{
+    println "dandy"
+}
+// end snippet
+
+// snippet logical_or
+if (7&2) == 2 || 5/0 == inf {
+    println "dandy"
+}else{
+    println "something is wrong"
+}
+// end snippet
+
+// snippet oror
+println none or 3
+// end snippet

@@ -677,11 +677,86 @@ The operators are the followings in order of growing precedence:
 
 * `or` results the left side expression if it is defined and the right side if the left side value is `none` (undefined).
 The operator does short-cut evaluation.
-The right side is only evaluated if the left side is undefined.
+The right side is only evaluated if the left side is none.
+
+
+.oror
+[source]
+----
+println none or 3
+
+
+----
+
+
+
+
+.output oror
+[source]
+----
+3
+
+----
+
+
 
 *  `||` logical OR operation, shortcut evaluated.
+The example below demonstrates the shortcut evaluation, as it works and does not throw an exception:
+
+
+.logical_or
+[source]
+----
+if (7&2) == 2 || 5/0 == inf {
+    println "dandy"
+}else{
+    println "something is wrong"
+}
+
+
+----
+
+
+
+
+.output logical_or
+[source]
+----
+dandy
+
+----
+
+
 
 * `&&` logical AND operation, shortcut evaluated.
+The example below demonstrates the shortcut evaluation, as it works and does not throw an exception:
+
+
+.and
+[source]
+----
+if (7&2) == 3 && 5/0 == inf {
+    println "something is wrong"
+}else{
+    println "dandy"
+}
+
+
+----
+
+
+
+
+.output and
+[source]
+----
+dandy
+
+----
+
+
+
+Note, that you cannot divide by zero, the result is an error and not `inf`.
 
 * `..` range operator. `start..end`` will result a range to index a list.
 The first index is `start`, the last is `end-1`.
@@ -689,6 +764,38 @@ Ranges can be used to index lists as values and also in left values to replace a
 When used as a unary prefix operator, it must be inside a list literal and in front of a list to flatten the list content into the literal.
 
 * `|` bitwise OR operation.
+The operator works the conventional ways on integers.
+The operator is also defined for lists.
+The result is the union of the two lists with the unique elements.
+That way you can also create a "set" from a list `|`-ing it with an empty list, as in the example below:
+You cannot `|` floating point numbers.
+
+
+.bor1
+[source]
+----
+println 1 | 2
+println( [1,1,2,3,3,2,1] | [])
+try:
+    3.0 | 3.14
+catch e: println e
+
+
+----
+
+
+
+
+.output bor1
+[source]
+----
+3
+[1, 2, 3]
+Cannot calculate '3.0' or '3.14'
+
+----
+
+
 
 * `^` bitwise XOR operation for integer values and power in the case of double values.
 It calculates the symmetric difference of lists (the concatenation of the two lists without the elements that appear in both).
@@ -719,6 +826,37 @@ println( [1,2,3] ^ [3,4,5] )
 
 
 * `&` bitwise AND operation.
+The operator works the conventional ways on integers.
+The operator is also defined for lists.
+The result is the intersection of the two lists with the unique elements.
+You cannot `&` floating point numbers.
+
+
+.band1
+[source]
+----
+println 7 &  2
+println( [1,1,2,3,3,2,1] & [2, 3, 7])
+try:
+    3.0 & 3.14
+catch e: println e
+
+
+----
+
+
+
+
+.output band1
+[source]
+----
+2
+[2, 3]
+Cannot calculate '3.0' mult '3.14'
+
+----
+
+
 
 * `===`, ==`, `!=`, `in` are "the same", equal, not equal, and part-of operators.
 The `in` operator works on a list to check if an element is in that list,
@@ -762,7 +900,10 @@ false w is not that 'ohmy'
 
 
 
-The opertor `===`
+The operator `===` tests that the two objects are the same.
+Numerical values are compared by value, but all other objects are tested for being the same, even strings.
+
+The `in` operation works for strings checking if a string is part of another, as well as for lists.
 
 
 .inop
@@ -792,13 +933,40 @@ false 3 is not in [1,2,4]
 
 
 
-
 * `<`, `+<=+`, `>`, `>=` usual size comparison operators.
+
+
+.compare
+[source]
+----
+println 1 < 2
+println 3 <= 3
+println 4 > 3
+println 4 >= 4
+
+
+----
+
+
+
+
+.output compare
+[source]
+----
+true
+true
+true
+true
+
+----
+
+
+
 
 * `<<`, `>>`, `>>>` left shift, right shift, and signed right shift operators.
 
 The `>>` works also on strings and lists.
-It merges the characetrs/elements of the two operands:
+It merges the characters/elements of the two operands:
 
 
 .shr1
@@ -827,6 +995,9 @@ a.r.t.a.n.y. ...
 
 
 * `+`, `-` binary and unary plus and minus.
+
+Unary `+` does not check anything, it works on all objects and just returns the object itself.
+
 
 * `pass:[*]`, `/`, `%` binary multiply, divide, and remainder operators.
 The `pass:[*]` and `%` are also used in the case of strings and lists.
@@ -891,10 +1062,10 @@ Their meaning would otherwise be `+(+i)` and `-(-i)`.
 They work for numerical types, string types as usually, and they can also work on any object that defines them.
 The name of the method implementing the operator should be the operator itself.
 There is not any name association, like in Python dunder plus.
-Instead, you can use, for example, `pass:[`+`]` as an operator identifier.
+Instead, you can use it, for example, `pass:[`+`]` as an operator identifier.
 
-The operator methods must have one single positional arguments, usually named `other`.
-The functionality should implement the operation and return the result `this` operation `other`.
+The operator methods must have one single positional argument, usually named `other`.
+The functionality should implement the operation and return the result of "`this` operation `other`".
 When an operation is used as prefix unary operator the value of other will be `none` and `this` will hold the value on the right of the operator.
 
 Only `+`, `-`, `!`, `..` can be used as unary operators.
@@ -2266,7 +2437,7 @@ println(inc(1))
 .output fun1
 [source]
 ----
-ch.turic.commands.Closure@402c4085
+ch.turic.commands.Closure@4681c175
 2
 
 ----
@@ -2295,7 +2466,7 @@ println(inc(1))
 .output fun3
 [source]
 ----
-ch.turic.commands.Closure@6fa51cd4
+ch.turic.commands.Closure@57a78e3
 2
 
 ----
@@ -2326,7 +2497,7 @@ println(inc(1))
 .output fun2
 [source]
 ----
-ch.turic.commands.Closure@2767e23c
+ch.turic.commands.Closure@402c4085
 2
 
 ----
@@ -2510,7 +2681,7 @@ println(inc(1,how_much=5))
 .output fun4
 [source]
 ----
-ch.turic.commands.Closure@710c2b53
+ch.turic.commands.Closure@6fa51cd4
 6
 
 ----
@@ -4746,72 +4917,70 @@ task1 is not ready 1
 task1 is not ready 2
 task2 is not ready 1
 task1 is not ready 3
+task2 is ready 2
+task2 is not ready 0
+task2 is not ready 1task1 is not ready 4
+
+task1 is not ready 5
 task2 is not ready 2
-task1 is ready 2task2 is not ready 3
-
-task1 is not ready 0
-task2 is not ready 4
-task1 is not ready 1
-task1 is not ready 2task2 is not ready 5
-
-task2 is ready 3
-task2 is not ready 0
-task1 is not ready 3
-task2 is not ready 1
-task1 is not ready 4
-task2 is not ready 2task1 is not ready 5
-
-task2 is ready 4
-task2 is not ready 0
-task1 is not ready 6
-task2 is not ready 1
-task1 is not ready 7
-task2 is not ready 2task1 is not ready 8
-
+task1 is ready 3
 task2 is not ready 3
-task1 is ready 5
 task1 is not ready 0
-task2 is not ready 4
-task1 is not ready 1
-task2 is not ready 5
+task2 is not ready 4task1 is not ready 1
+
 task1 is not ready 2
-task1 is ready 6
+task2 is not ready 5
 task2 is not ready 6
+task1 is ready 4
 task1 is not ready 0
 task2 is not ready 7
 task1 is not ready 1
+task2 is not ready 8
+task1 is not ready 2
+task2 is ready 5
+task2 is not ready 0
+task1 is not ready 3
+task1 is not ready 4
+task2 is not ready 1
+task1 is not ready 5
+task2 is not ready 2
+task1 is ready 6
+task2 is not ready 3
+task1 is not ready 0
+task2 is not ready 4task1 is not ready 1
+
+task2 is not ready 5
+task1 is not ready 2
+task2 is not ready 6task1 is ready 7
+
+task1 is not ready 0
+task1 is not ready 1
+task2 is not ready 7
 task1 is not ready 2
 task2 is not ready 8
 task2 is not ready 9task1 is not ready 3
 
-task1 is ready 7
-task2 is not ready 10
-task1 is not ready 0
-task2 is not ready 11
-task1 is not ready 1
-task2 is not ready 12task1 is not ready 2
-
-task2 is not ready 13
-task1 is ready 8
-task1 is not ready 0
-task2 is not ready 14
-task1 is not ready 1
-task1 is not ready 2task2 is not ready 15
-
+task2 is ready 8
+task1 is not ready 4
+task2 is not ready 0
+task1 is not ready 5
+task2 is not ready 1
 task1 is ready 9
-task2 is not ready 16
+task2 is not ready 2
 task1 is not ready 0
-task2 is not ready 17
-task1 is not ready 1
-task2 is not ready 18task1 is not ready 2
+task2 is not ready 3task1 is not ready 1
 
+task1 is not ready 2
+task2 is not ready 4
+task1 is not ready 3
+task2 is not ready 5
 closing the channel
 channel is closed
 1 is done false
 2 is done false
+we start to wait the first time
 task2 is done
 task1 is done
-we start to wait the first time
 task1 done true
 task2 done true
 We start to wait the second time
@@ -4917,17 +5086,17 @@ not ready 0
 received 1
 not ready 0
 not ready 1
-not ready 2
 sending 2
 received 2
 not ready 0
 not ready 1
+not ready 2
 sending 3
 received 3
 not ready 0
 not ready 1
-closing the channel
 not ready 2
+closing the channel
 channel is closed
 is done false
 we are done
