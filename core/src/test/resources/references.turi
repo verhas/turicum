@@ -1,3 +1,17 @@
+// snippet json1
+let project = {
+                  name : "turicum-parent",
+                  packaging : "pom",
+                  groupId : "ch.turic",
+                  artifactId : "turicum-parent",
+                  version : "1.0.0-SNAPSHOT",
+                  description : "Turicum programming language",
+                  modules : [ "core", "maven", "cli" ]
+                  }
+println project.name
+println project.packaging
+// end snippet
+
 // snippet blabla
 println("blala")
 // end snippet
@@ -848,7 +862,7 @@ println "1 is done %s" % task1.is_done()
 println "2 is done %s" % task2.is_done()
 
 // get only the tasks into the list which are not done yet
-let task_list = [task1, task2 ? {|x| !x.is_done()} ]
+let task_list = [ task1, task2 ? !it.is_done() ]
 
 println "we start to wait the first time"
 await task_list
@@ -857,7 +871,7 @@ println "task1 done %s" % task1.is_done()
 println "task2 done %s" % task2.is_done()
 println "We start to wait the second time"
 // have to use [] empty options, no timeout because a list literal stands after it
-await[] [task1, task2 ? {|x| !x.is_done()} ]
+await[] [ task1, task2 ? !it.is_done() ]
 
 println "task1 done %s" % task1.is_done()
 println "task2 done %s" % task2.is_done()
@@ -1464,3 +1478,20 @@ println "62. ","let z = if a == 3 :  3 else: 5;".turi_lex()
 println "63. ","let M= \"\"; for i=0 ; i < 8 ; i = i +1 : M = M + i; M".execute()
 println "64. ",M
 // end snippet
+
+// snippet hexNumber
+let z = 0xFfE3;
+println z
+// end snippet
+
+// snippet string
+print "this is a simple string"
+// end snippet
+
+// snippet mlstring
+println """
+Hello,
+  This is a multiline string.
+Goodbye.
+"""
+//end snippet

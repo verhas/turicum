@@ -269,59 +269,143 @@ All literals are expressions that evaluate to immutable values.
 Numeric literals can be either integers or floating-point numbers.
 
 * Integers are written as sequences of digits, e.g., `42`, `0`, `123456`.
+* or in hexadecimal with `0x` prefix
+
+
+
+.hexNumber
+[source]
+----
+let z = 0xFfE3;
+println z
+
+
+----
+
+
+
+
+.output hexNumber
+[source]
+----
+65507
+
+----
+
+
+
 * Floating-point numbers contain a decimal point or exponent part, e.g., `3.14`, `2e10`, `1.0e-3`.
 
 There is no special suffix for numeric types.
 Type promotion is automatic and based on the context of usage.
 Internal implementation of numerical types uses `Long` and `Double`.
 
+There is no hexadecimal floating point literal like in Java.
+
 ==== String Literals
 
-Strings in Turicum are enclosed in double quotes (```), e.g., ``hello world``.
+Strings in Turicum are enclosed in double quotes (`"`), e.g., ``"hello world"``.
 
 Backslash escapes are supported:
 
 * `\n` — newline
 * `\t` — tab
+* `\"` — double quote
 * `\\` — backslash
-* `\`` — double quote
 
 Example:
 
+
+.string
 [source]
 ----
-`Hello`
+print "this is a simple string"
+
+
 ----
+
+
+
+
+.output string
+[source]
+----
+this is a simple string
+----
+
+
 
 ==== Multiline Strings
 
-Multiline string literals are enclosed between triple quotes `+```+`.
+Multiline string literals are enclosed between triple quotes `+"""+`.
 
 They preserve line breaks and indentation exactly as written. Escape sequences are still processed.
 
 Example:
 
+.mlstring
 [source]
 ----
-```
+println """
 Hello,
   This is a multiline string.
 Goodbye.
-```
+"""
+
+
 ----
+
+
+
+
+.output mlstring
+[source]
+----
+
+Hello,
+  This is a multiline string.
+Goodbye.
+
+
+----
+
+
 
 ==== JSON Constants
 
 Turicum supports JSON-like literals directly in the language syntax. These can be written using JavaScript-style object and array literals:
 
+
+.json1
 [source]
 ----
-{
-  `name`: `Alice`,
-  age: 30,
-  `tags`: [`developer`, `java`]
-}
+let project = {
+                  name : "turicum-parent",
+                  packaging : "pom",
+                  groupId : "ch.turic",
+                  artifactId : "turicum-parent",
+                  version : "1.0.0-SNAPSHOT",
+                  description : "Turicum programming language",
+                  modules : [ "core", "maven", "cli" ]
+                  }
+println project.name
+println project.packaging
+
+
 ----
+
+
+
+
+.output json1
+[source]
+----
+turicum-parent
+pom
+
+----
+
+
 
 JSON keys can be identifiers or strings.
 The values can be presented by any Turicum expression.
@@ -2437,7 +2521,7 @@ println(inc(1))
 .output fun1
 [source]
 ----
-ch.turic.commands.Closure@5b247367
+ch.turic.commands.Closure@7ce026d3
 2
 
 ----
@@ -2466,7 +2550,7 @@ println(inc(1))
 .output fun3
 [source]
 ----
-ch.turic.commands.Closure@268f106e
+ch.turic.commands.Closure@7ce69770
 2
 
 ----
@@ -2497,7 +2581,7 @@ println(inc(1))
 .output fun2
 [source]
 ----
-ch.turic.commands.Closure@6e9a5ed8
+ch.turic.commands.Closure@1750fbeb
 2
 
 ----
@@ -2681,7 +2765,7 @@ println(inc(1,how_much=5))
 .output fun4
 [source]
 ----
-ch.turic.commands.Closure@7e057f43
+ch.turic.commands.Closure@5b247367
 6
 
 ----
@@ -5041,7 +5125,7 @@ println "1 is done %s" % task1.is_done()
 println "2 is done %s" % task2.is_done()
 
 // get only the tasks into the list which are not done yet
-let task_list = [task1, task2 ? {|x| !x.is_done()} ]
+let task_list = [ task1, task2 ? !it.is_done() ]
 
 println "we start to wait the first time"
 await task_list
@@ -5050,7 +5134,7 @@ println "task1 done %s" % task1.is_done()
 println "task2 done %s" % task2.is_done()
 println "We start to wait the second time"
 // have to use [] empty options, no timeout because a list literal stands after it
-await[] [task1, task2 ? {|x| !x.is_done()} ]
+await[] [ task1, task2 ? !it.is_done() ]
 
 println "task1 done %s" % task1.is_done()
 println "task2 done %s" % task2.is_done()
@@ -5073,73 +5157,73 @@ task2 is ready 1
 task2 is not ready 0
 task2 is not ready 1
 task1 is not ready 2
+task1 is not ready 3
+task2 is not ready 2
+task1 is not ready 4
 task2 is ready 2
-task1 is not ready 3
 task2 is not ready 0
-task1 is not ready 4
-task2 is not ready 1
 task1 is not ready 5
-task2 is not ready 2
-task2 is not ready 3task1 is not ready 6
-
-task1 is ready 3
-task2 is not ready 4
-task1 is not ready 0
-task2 is not ready 5task1 is not ready 1
-
-task2 is not ready 6
-task1 is not ready 2
-task2 is ready 4
-task1 is not ready 3
-task2 is not ready 0
 task2 is not ready 1
-task1 is not ready 4
-task1 is not ready 5
-task2 is not ready 2
-task2 is ready 5
 task1 is not ready 6
+task2 is not ready 2
+task1 is not ready 7
+task2 is ready 3
 task2 is not ready 0
-task1 is not ready 7task2 is not ready 1
+task1 is not ready 8task2 is not ready 1
+
+task1 is not ready 9
+task2 is not ready 2
+task1 is ready 4task2 is not ready 3
+
+task1 is not ready 0
+task2 is not ready 4
+task1 is not ready 1
+task2 is ready 5
+task1 is not ready 2
+task2 is not ready 0
+task2 is not ready 1task1 is not ready 3
 
 task2 is not ready 2
-task1 is not ready 8
-task2 is ready 6
-task1 is not ready 9
+task1 is not ready 4
+task2 is not ready 3task1 is not ready 5
+
+task2 is not ready 4
+task1 is ready 6
+task1 is not ready 0
+task2 is not ready 5
+task1 is not ready 1
+task1 is not ready 2task2 is not ready 6
+
+task2 is ready 7
+task1 is not ready 3
 task2 is not ready 0
-task1 is not ready 10
-task2 is not ready 1
-task1 is not ready 11
+task1 is not ready 4task2 is not ready 1
+
+task1 is not ready 5
 task2 is not ready 2
-task1 is ready 7
-task2 is not ready 3
+task1 is ready 8
+task2 is not ready 3task1 is not ready 0
+
+task2 is not ready 4
+task1 is not ready 1
+task1 is not ready 2task2 is not ready 5
+
+task1 is ready 9
+task2 is not ready 6
 task1 is not ready 0
 task1 is not ready 1
-task2 is not ready 4
-task1 is not ready 2
-task2 is not ready 5
-task2 is not ready 6
-task1 is not ready 3
-task2 is ready 8task1 is not ready 4
+task2 is not ready 7
+task1 is not ready 2task2 is not ready 8
 
-task2 is not ready 0
-task1 is not ready 5
-task2 is not ready 1
-task2 is ready 9
-task1 is not ready 6
-task2 is not ready 0
-task1 is not ready 7
-task2 is not ready 1
-task1 is not ready 8
-task2 is not ready 2
-task2 is not ready 3
-task1 is not ready 9
+task1 is not ready 3
+task2 is not ready 9
 closing the channel
 channel is closed
 1 is done false
 2 is done false
 we start to wait the first time
-task1 is done
 task2 is done
+task1 is done
 task1 done true
 task2 done true
 We start to wait the second time
@@ -5254,8 +5338,8 @@ sending 3
 received 3
 not ready 0
 not ready 1
-closing the channel
 not ready 2
+closing the channel
 channel is closed
 is done false
 we are done

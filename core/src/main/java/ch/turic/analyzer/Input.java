@@ -75,6 +75,20 @@ public class Input implements CharSequence {
         return -1;
     }
 
+    private static boolean isHex(char c) {
+        return (c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f');
+    }
+
+    public String fetchHexNumber() {
+        final var output = new StringBuilder();
+        while (length() > 0 && isHex(charAt(0))) {
+            output.append(charAt(0));
+            skip(1);
+        }
+        return output.toString();
+    }
+
+
     public String fetchNumber() {
         final var output = new StringBuilder();
         while (length() > 0 && Character.isDigit(charAt(0))) {

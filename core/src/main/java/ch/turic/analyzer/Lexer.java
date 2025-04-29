@@ -133,6 +133,15 @@ public class Lexer {
                 list.add(lex);
                 continue;
             }
+            if (in.length() > 2 && in.charAt(0) == '0' && (in.charAt(1) == 'x' || in.charAt(1) == 'X')) {
+                final var str = new StringBuilder(in.substring(0, 2));
+                in.skip(2);
+                str.append(in.fetchHexNumber());
+                final Lex.Type type;
+                final var lex = new Lex(Lex.Type.INTEGER, str.toString(), atLineStart, position);
+                list.add(lex);
+                continue;
+            }
             if (Character.isDigit(in.charAt(0))) {
                 final var str = new StringBuilder();
                 str.append(in.fetchNumber());

@@ -1,8 +1,8 @@
 = Turicum Programming Language Reference
 
-{%@snip:collect from=src/main/java%}
-{%@snip:collect from=src/test/resources/references.turi%}
-{%@snip:collect from=src/test/resources/references_output%}
+{%@snip:collect from=core/src/main/java%}
+{%@snip:collect from=core/src/test/resources/references.turi%}
+{%@snip:collect from=core/src/test/resources/references_output%}
 
 {%@define sample($X)=
 .$X
@@ -16,14 +16,14 @@
 .output $X
 [source]
 ----
-{%@include [verbatim] src/test/resources/references_output/$X.txt%}
+{%@include [verbatim] core/src/test/resources/references_output/$X.txt%}
 ----
 %}
 {%#define [global] result()=
 .result $X
 [source]
 ----
-{%@include [verbatim] src/test/resources/references_output/$X_result.txt%}
+{%@include [verbatim] core/src/test/resources/references_output/$X_result.txt%}
 ----
 %}
 %}
@@ -206,59 +206,48 @@ All literals are expressions that evaluate to immutable values.
 Numeric literals can be either integers or floating-point numbers.
 
 * Integers are written as sequences of digits, e.g., `42`, `0`, `123456`.
+* or in hexadecimal with `0x` prefix
+
+
+{%S hexNumber%}
+
 * Floating-point numbers contain a decimal point or exponent part, e.g., `3.14`, `2e10`, `1.0e-3`.
 
 There is no special suffix for numeric types.
 Type promotion is automatic and based on the context of usage.
 Internal implementation of numerical types uses `Long` and `Double`.
 
+There is no hexadecimal floating point literal like in Java.
+
 ==== String Literals
 
-Strings in Turicum are enclosed in double quotes (```), e.g., ``hello world``.
+Strings in Turicum are enclosed in double quotes (`"`), e.g., ``"hello world"``.
 
 Backslash escapes are supported:
 
 * `\n` — newline
 * `\t` — tab
+* `\"` — double quote
 * `\\` — backslash
-* `\`` — double quote
 
 Example:
 
-[source]
-----
-`Hello`
-----
+{%S string%}
 
 ==== Multiline Strings
 
-Multiline string literals are enclosed between triple quotes `+```+`.
+Multiline string literals are enclosed between triple quotes `+"""+`.
 
 They preserve line breaks and indentation exactly as written. Escape sequences are still processed.
 
 Example:
-
-[source]
-----
-```
-Hello,
-  This is a multiline string.
-Goodbye.
-```
-----
+{%S mlstring%}
 
 ==== JSON Constants
 
 Turicum supports JSON-like literals directly in the language syntax. These can be written using JavaScript-style object and array literals:
 
-[source]
-----
-{
-  `name`: `Alice`,
-  age: 30,
-  `tags`: [`developer`, `java`]
-}
-----
+{%S json1%}
 
 JSON keys can be identifiers or strings.
 The values can be presented by any Turicum expression.

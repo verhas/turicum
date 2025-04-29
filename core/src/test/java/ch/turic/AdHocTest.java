@@ -13,7 +13,7 @@ public class AdHocTest {
     @Test
     void test0() throws Exception {
         test("""
-"alma kadarka".after("ka", after=5)
+println 0xfe3D
 none
 
                 """,null);
