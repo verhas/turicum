@@ -1,0 +1,62 @@
+= Turicum Programming Language
+== Introduction
+
+=== What is Turicum?
+
+Turicum is a modern programming language designed for expressiveness, safety, and concurrency.
+It combines functional and object-oriented paradigms in a clean and coherent syntax.
+The preprocessing capability and the dynamic nature of the language make it outstanding from a programming perspective.
+
+=== Turicum is
+
+* **Fuctional**
++
+Functions, closures, and macros are first-class citizens in Turicum, and any of them can be used as a value.
+Every command has a value, and thus any command can be part of an expression, and an expression is also a command.
+
+* **Object-Oriented**
++
+Programs can define classes, methods in classes, multiple inheritance, and objects that inherit properties.
+
+* **Dynamic**
++
+Everything is defined during run-time and can be changed during run-time.
+For example, a class of function is defined when the definition is executed and lives in the defining scope.
+Methods are fields with closure or function values and can be added to any class or object even after the creation.
+
+* **Flexible**
++
+The interpreter can execute already loaded code at any time passing the remaining of the lexical tokens to a preprocessor.
+The preprocessor can be a function or closure written in Turicum,
+It can modify the lexical stream introducing arbitrary syntactical extensions to the language.
+
+* **Multithread**
++
+The interpreter uses Java 21 and supports (planned) VirtualThreads using native language constructs.
+
+* **Typed and scoped**
++
+Variables can be typed and assignment types are dynamically checked.
+
+Turicum is both a scripting language and an embeddable engine.
+It can be run as a standalone command-line tool or integrated into Java or Kotlin applications as a library.
+
+Turicum is implemented in Java and designed to be approachable by JVM developers while introducing powerful abstractions.
+
+The name “Turicum” is the ancient Roman name for the city of Zürich, Switzerland, where the language is being developed.
+
+=== Design Goals and Philosophy
+
+Turicum was designed with the following principles:
+
+* **Concise syntax** that remains readable and expressive.
+* **Functional-first** execution model with support for **side effects** when needed.
+* **Multithreading and pipeline support** built into the language.
+* **Safe scoping and closures**, including *reclosable* closures which adapt to new context bindings.
+Closure eclosing is a unique language feature.
+* **Macro metaprogramming**, allowing deferred and explicit evaluation of arguments.
+* A flexible **parameter system**, supporting `normal`, positional-only, named-only, argument and special parameters for rest, meta, and trailing callable parameters.
+
+The language is designed for **experienced developers**, particularly those who work with the JVM and need a powerful scripting or DSL tool that feels natural but scales to complex architectural needs.
+
+For further information read the link:REFERENCE.adoc[reference documentation].
