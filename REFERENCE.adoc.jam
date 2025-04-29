@@ -929,6 +929,24 @@ The return value can be used in a `for each` loop, or you can iterate through it
 
 {%S yield2%}
 
+=== `with`
+
+The `with` command is used to execute a block in the context of one or more object.
+It means that the fields of the objects can be used as variables without prefixing them with any object reference.
+
+{%S simpleWith%}
+
+Technically the command executes the block in a context that references the fields of the object and wraps the surrounding scope.
+When more than one objects are listed then multiple wrapping scopes are created from left to right.
+It also means, that the objects to the right shadow the objects to the left.
+In the example both `x` and `y` have field `a` and since `y` is later in the list the field of `y` is used.
+
+You can also modify the fields:
+
+{%S modifyWith%}
+
+Note that the field `x.a` was not modified, because it is shadowed by `y.a`.
+
 == Functions
 
 Functions play a similar role as in other languages.

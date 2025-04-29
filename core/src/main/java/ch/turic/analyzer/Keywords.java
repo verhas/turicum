@@ -11,6 +11,7 @@ public interface Keywords {
     String IF = "if";
     String WHEN = "when";
     String WHILE = "while";
+    String WITH = "with";
     String FOR = "for";
     String EACH = "each";
     String ELSE = "else";

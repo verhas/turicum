@@ -95,6 +95,7 @@ public class CommandAnalyzer extends AbstractAnalyzer {
         analyzers.put(Keywords.RETURN, ReturnAnalyzer.INSTANCE);
         analyzers.put(Keywords.YIELD, YieldAnalyzer.INSTANCE);
         analyzers.put(Keywords.WHILE, WhileLoopAnalyzer.INSTANCE);
+        analyzers.put(Keywords.WITH, WithAnalyzer.INSTANCE);
         analyzers.put(Keywords.FOR, ForLoopAnalyzer.INSTANCE);
     }
 
@@ -111,6 +112,7 @@ public class CommandAnalyzer extends AbstractAnalyzer {
             // commands that end in a block and do not need terminating ;
             case Keywords.IF,
                  Keywords.WHILE,
+                 Keywords.WITH,
                  Keywords.FOR,
                  Keywords.FN,
                  Keywords.CLASS -> {

@@ -255,6 +255,7 @@ The keywords are:
 `until`
 `when`
 `while`
+`with`
 `yield`
 
 == Expressions and Operators
@@ -2472,6 +2473,79 @@ while st.has_next() :
 
 
 
+=== `with`
+
+The `with` command is used to execute a block in the context of one or more object.
+It means that the fields of the objects can be used as variables without prefixing them with any object reference.
+
+
+.simpleWith
+[source]
+----
+let x = {a:1,b:2};
+let y = {a:4,c:5};
+with x,y {
+    println a
+    println b
+    println c
+}
+
+
+----
+
+
+
+
+.output simpleWith
+[source]
+----
+4
+2
+5
+
+----
+
+
+
+Technically the command executes the block in a context that references the fields of the object and wraps the surrounding scope.
+When more than one objects are listed then multiple wrapping scopes are created from left to right.
+It also means, that the objects to the right shadow the objects to the left.
+In the example both `x` and `y` have field `a` and since `y` is later in the list the field of `y` is used.
+
+You can also modify the fields:
+
+
+.modifyWith
+[source]
+----
+let x = {a:1,b:2};
+let y = {a:4,c:5};
+with x,y {
+    a = 0
+    b = 0
+    c = 0
+}
+println x
+println y
+
+
+----
+
+
+
+
+.output modifyWith
+[source]
+----
+{a: 1, b: 0}
+{a: 0, c: 0}
+
+----
+
+
+
+Note that the field `x.a` was not modified, because it is shadowed by `y.a`.
+
 == Functions
 
 Functions play a similar role as in other languages.
@@ -2521,7 +2595,7 @@ println(inc(1))
 .output fun1
 [source]
 ----
-ch.turic.commands.Closure@7ce026d3
+ch.turic.commands.Closure@2767e23c
 2
 
 ----
@@ -2550,7 +2624,7 @@ println(inc(1))
 .output fun3
 [source]
 ----
-ch.turic.commands.Closure@7ce69770
+ch.turic.commands.Closure@710c2b53
 2
 
 ----
@@ -2581,7 +2655,7 @@ println(inc(1))
 .output fun2
 [source]
 ----
-ch.turic.commands.Closure@1750fbeb
+ch.turic.commands.Closure@5386659f
 2
 
 ----
@@ -2765,7 +2839,7 @@ println(inc(1,how_much=5))
 .output fun4
 [source]
 ----
-ch.turic.commands.Closure@5b247367
+ch.turic.commands.Closure@14028087
 6
 
 ----
@@ -5150,79 +5224,79 @@ none
 .output que
 [source]
 ----
-task2 is not ready 0
 task1 is not ready 0
-task1 is not ready 1
-task2 is ready 1
 task2 is not ready 0
+task1 is ready 1
+task1 is not ready 0
 task2 is not ready 1
+task1 is not ready 1
+task2 is not ready 2
+task2 is not ready 3
 task1 is not ready 2
 task1 is not ready 3
-task2 is not ready 2
-task1 is not ready 4
 task2 is ready 2
 task2 is not ready 0
-task1 is not ready 5
+task1 is not ready 4
 task2 is not ready 1
+task1 is not ready 5
+task2 is not ready 2
+task1 is not ready 6task2 is ready 3
+
+task2 is not ready 0
+task1 is not ready 7
+task2 is not ready 1
+task2 is not ready 2
+task1 is not ready 8
+task2 is ready 4
+task1 is not ready 9task2 is not ready 0
+
+task1 is not ready 10
+task2 is not ready 1
+task2 is not ready 2
+task1 is not ready 11
+task2 is ready 5
+task1 is not ready 12
+task2 is not ready 0
+task1 is not ready 13
+task2 is not ready 1
+task2 is not ready 2task1 is not ready 14
+
+task1 is ready 6
+task2 is not ready 3
+task1 is not ready 0
+task2 is not ready 4
+task1 is not ready 1
+task2 is not ready 5
+task1 is not ready 2
+task2 is not ready 6
+task1 is not ready 3
+task1 is not ready 4task2 is ready 7
+
+task2 is not ready 0
+task2 is not ready 1
+task1 is not ready 5
 task1 is not ready 6
 task2 is not ready 2
-task1 is not ready 7
-task2 is ready 3
-task2 is not ready 0
-task1 is not ready 8task2 is not ready 1
-
-task1 is not ready 9
-task2 is not ready 2
-task1 is ready 4task2 is not ready 3
-
-task1 is not ready 0
-task2 is not ready 4
-task1 is not ready 1
-task2 is ready 5
-task1 is not ready 2
-task2 is not ready 0
-task2 is not ready 1task1 is not ready 3
-
-task2 is not ready 2
-task1 is not ready 4
-task2 is not ready 3task1 is not ready 5
-
-task2 is not ready 4
-task1 is ready 6
-task1 is not ready 0
-task2 is not ready 5
-task1 is not ready 1
-task1 is not ready 2task2 is not ready 6
-
-task2 is ready 7
-task1 is not ready 3
-task2 is not ready 0
-task1 is not ready 4task2 is not ready 1
-
-task1 is not ready 5
-task2 is not ready 2
 task1 is ready 8
-task2 is not ready 3task1 is not ready 0
-
+task1 is not ready 0
+task2 is not ready 3
 task2 is not ready 4
 task1 is not ready 1
-task1 is not ready 2task2 is not ready 5
-
-task1 is ready 9
-task2 is not ready 6
-task1 is not ready 0
-task1 is not ready 1
-task2 is not ready 7
-task1 is not ready 2task2 is not ready 8
-
+task1 is not ready 2
+task2 is not ready 5
 task1 is not ready 3
-task2 is not ready 9
+task2 is ready 9
+task2 is not ready 0
+task1 is not ready 4
+task2 is not ready 1
+task2 is not ready 2
+task1 is not ready 5
 closing the channel
 channel is closed
 1 is done false
 2 is done false
-we start to wait the first time
 task2 is done
+we start to wait the first time
 task1 is done
 task1 done true
 task2 done true

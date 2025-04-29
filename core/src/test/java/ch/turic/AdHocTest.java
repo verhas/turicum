@@ -13,7 +13,13 @@ public class AdHocTest {
     @Test
     void test0() throws Exception {
         test("""
-println 0xfe3D
+let x = {a:1,b:2};
+let y = {a:4,c:5};
+with x,y {
+    println a
+    println b
+    println c
+}
 none
 
                 """,null);

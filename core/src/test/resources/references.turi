@@ -1494,4 +1494,26 @@ Hello,
   This is a multiline string.
 Goodbye.
 """
-//end snippet
+// end snippet
+
+// snippet simpleWith
+let x = {a:1,b:2};
+let y = {a:4,c:5};
+with x,y {
+    println a
+    println b
+    println c
+}
+// end snippet
+
+// snippet modifyWith
+let x = {a:1,b:2};
+let y = {a:4,c:5};
+with x,y {
+    a = 0
+    b = 0
+    c = 0
+}
+println x
+println y
+// end snippet

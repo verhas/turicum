@@ -73,6 +73,14 @@ public class Context implements ch.turic.Context {
         this.loopContext = false;
     }
 
+    private Context(final Context thisContext, final Context wrappedContext, final Context withContext) {
+        this.globalContext = thisContext.globalContext;
+        this.threadContext = thisContext.threadContext;
+        this.frame = withContext.frame;
+        this.wrapped = wrappedContext;
+        this.loopContext = false;
+    }
+
     private Context(final Context clone, final Context wrapped, boolean loopContext) {
         this.globalContext = clone.globalContext;
         this.threadContext = clone.threadContext;
@@ -179,6 +187,17 @@ public class Context implements ch.turic.Context {
      */
     public Context open() {
         return new Context(this, null);
+    }
+
+    /**
+     * Create a new context that will have the {@code other} context frame.
+     * It is used with the {@code with} command.
+     *
+     * @param other the other context from which we will use the frame in the new one
+     * @return the nex context
+     */
+    public Context with(Context other) {
+        return new Context(this, this, other);
     }
 
     public Context thread() {
