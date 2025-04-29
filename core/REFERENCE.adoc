@@ -2437,7 +2437,7 @@ println(inc(1))
 .output fun1
 [source]
 ----
-ch.turic.commands.Closure@34f22f9d
+ch.turic.commands.Closure@5b247367
 2
 
 ----
@@ -2466,7 +2466,7 @@ println(inc(1))
 .output fun3
 [source]
 ----
-ch.turic.commands.Closure@3d1848cc
+ch.turic.commands.Closure@268f106e
 2
 
 ----
@@ -2497,7 +2497,7 @@ println(inc(1))
 .output fun2
 [source]
 ----
-ch.turic.commands.Closure@7dda48d9
+ch.turic.commands.Closure@6e9a5ed8
 2
 
 ----
@@ -2681,7 +2681,7 @@ println(inc(1,how_much=5))
 .output fun4
 [source]
 ----
-ch.turic.commands.Closure@6e4566f1
+ch.turic.commands.Closure@7e057f43
 6
 
 ----
@@ -4385,6 +4385,153 @@ println(FibCalculator(2).fib(10))
 We do not include here the printout.
 The first number you already know, try to guess the second, then run the code yourself.
 
+== String Functions
+
+Turicum defines many methods to handle strings.
+
+
+.string_functions
+[source]
+----
+println " 1. ","alma kadarka".after("ka")
+println " 2. ","alma kadarka".before("ka")
+println " 3. ","alma kadarka".between("ma","da")
+println " 4. ","aa ".times(6)
+println " 5. "," aa ".trim()
+println " 6. ","aa ".starts_with("a")
+println " 7. ","aa".ends_with("a")
+println " 8. ","AA".lower_case()
+println " 9. ","aa".upper_case()
+println "10. ","a,b,c,d".split(",")
+println "11. ","abcd".bytes()
+println "12. ","abc".char_at(2), " is c"
+println "13. ","alma kadarka".index_of("ka")
+println "14. ","alma kadarka".last_index_of("ka")
+println "15. ","alma kadarka".replace_all("a|d","e")
+println "16. ","\n\t\r".quote()
+println "17. ","alma kadarka".reverse()
+println "18. ","alma kadarka".chop().chop()
+println "19. ","alma kadarka\n".chomp()
+println "20. ","alma kadarka".chomp()
+println "21. ","alma kadarka".contains("ma ka")
+println "22. ","alma kadarka".left(4)
+println "23. ","alma kadarka".right(4)
+println "24. ","alma kadarka".count_substring("a")
+println "25. ","kadarka".pad_left(12)
+println "26. ","kadarka".pad_left(".",12)
+println "27. ","kadarka".pad_right(12) + "<"
+println "28. ","kadarka".pad_right(".",12)
+println "29. ","   ".is_blank()
+println "30. ","   ".is_empty()
+println "31. ","+6.2E23".is_numeric()
+println "32. ","+6.2E23".is_digit()
+println "33. ","6223".is_digit()
+println "34. ","Euler Number".is_numeric()
+println "35. ","EulerNumber".is_alpha()
+println "36. ","EulerNumberisnot314".is_alphanumeric()
+println "37. ","2AF".is_hex()
+println "38. ","0x2AF".is_hex()
+println "39. ","2AF".hex()
+println "40. ","0x2AF".hex()
+println "41. ","0x2AF".base64()
+println "42. ","MHgyQUY=".from_base64()
+println "43. ","MHgyQUY=".from_base64_str()
+println "44. ","alma van a fa = alarr://".url_encode()
+println "45. ","alma+van+a+fa+%3D+alarr%3A%2F%2F".url_decode()
+println "46. ","line 1\nline2\n\nline4".lines()
+println "47. ","What do you read, my lord? Words, words, words.".words()
+println "48. ","alma kadarka".remove_prefix("alma")
+println "49. ","alma kadarka".remove_postfix("kadarka")
+println "50. ","alma kadarka".remove_prefix("apple")
+println "51. ","alma kadarka".remove_postfix("kik")
+println "52. ",">" + ("alma".safe_char_at(666)) + "<"
+println "53. ",",".join(["abrak","a","dabra","lonak","zabla"])
+println "54. ","aaa".md5()
+println "55. ","aaa".sha_1()
+println "56. ","aaa".sha_256()
+println "57. ","aaa".sha_512()
+println "60. ","aaa".digest("MD5")
+println "61. ",61.hex()
+println "62. ","let z = if a == 3 :  3 else: 5;".turi_lex()
+println "63. ","let M= \"\"; for i=0 ; i < 8 ; i = i +1 : M = M + i; M".execute()
+println "64. ",M
+
+
+----
+
+
+
+
+.output string_functions
+[source]
+----
+ 1. darka
+ 2. alma 
+ 3.  ka
+ 4. aa aa aa aa aa aa 
+ 5. aa
+ 6. true
+ 7. true
+ 8. aa
+ 9. AA
+10. [a, b, c, d]
+11. [97, 98, 99, 100]
+12. c is c
+13. 5
+14. 10
+15. elme keeerke
+16. \n\t\r
+17. akradak amla
+18. alma kadar
+19. alma kadarka
+20. alma kadarka
+21. true
+22. alma
+23. arka
+24. 5
+25.      kadarka
+26. .....kadarka
+27. kadarka     <
+28. kadarka.....
+29. true
+30. false
+31. true
+32. false
+33. true
+34. false
+35. true
+36. true
+37. true
+38. true
+39. 687
+40. 687
+41. MHgyQUY=
+42. [48, 120, 50, 65, 70]
+43. 0x2AF
+44. alma+van+a+fa+%3D+alarr%3A%2F%2F
+45. alma van a fa = alarr://
+46. [line 1, line2, , line4]
+47. [What, do, you, read, my, lord, Words, words, words, ]
+48.  kadarka
+49. alma 
+50. alma kadarka
+51. alma kadarka
+52. ><
+53. abrak,a,dabra,lonak,zabla
+54. 47bce5c74f589f4867dbd57e9ca9f808
+55. 7e240de74fb1ed08fa08d38063f6a6a91462a815
+56. 9834876dcfb05cb167a5c24953eba58c4ac89b1adf57f28f2f9d09af107ee8f0
+57. d6f644b19812e97b5d871658d6d3400ecd4787faeb9b8990c1e7608288664be77257104a58d033bcf1a0e0945ff06468ebe53e2dff36e248424c7273117dac09
+60. 47bce5c74f589f4867dbd57e9ca9f808
+61. 0x3D
+62. [Lex{types=RESERVED, text='let'}, Lex{types=IDENTIFIER, text='z'}, Lex{types=RESERVED, text='='}, Lex{types=RESERVED, text='if'}, Lex{types=IDENTIFIER, text='a'}, Lex{types=RESERVED, text='=='}, Lex{types=INTEGER, text='3'}, Lex{types=RESERVED, text=':'}, Lex{types=INTEGER, text='3'}, Lex{types=RESERVED, text='else'}, Lex{types=RESERVED, text=':'}, Lex{types=INTEGER, text='5'}, Lex{types=RESERVED, text=';'}]
+63. 01234567
+64. 01234567
+
+----
+
+
+
 == Built-in Functions
 
 Built-in functions are functions provided by the interpreter, which extend the functionality of the run-time.
@@ -4919,80 +5066,80 @@ none
 .output que
 [source]
 ----
-task1 is not ready 0
 task2 is not ready 0
+task1 is not ready 0
+task1 is not ready 1
 task2 is ready 1
-task1 is not ready 1
 task2 is not ready 0
-task1 is not ready 2
 task2 is not ready 1
-task1 is ready 2
-task2 is not ready 2
-task1 is not ready 0
-task2 is not ready 3
-task1 is not ready 1
 task1 is not ready 2
-task2 is not ready 4
-task1 is not ready 3task2 is not ready 5
-
-task2 is ready 3
-task1 is not ready 4task2 is not ready 0
-
+task2 is ready 2
+task1 is not ready 3
+task2 is not ready 0
+task1 is not ready 4
+task2 is not ready 1
 task1 is not ready 5
-task2 is not ready 1
-task1 is not ready 6
 task2 is not ready 2
-task1 is ready 4
-task1 is not ready 0
-task2 is not ready 3
-task1 is not ready 1
+task2 is not ready 3task1 is not ready 6
+
+task1 is ready 3
 task2 is not ready 4
-task1 is not ready 2
-task2 is not ready 5
-task1 is ready 5
+task1 is not ready 0
+task2 is not ready 5task1 is not ready 1
+
 task2 is not ready 6
-task1 is not ready 0
-task2 is not ready 7
-task1 is not ready 1
-task2 is not ready 8
 task1 is not ready 2
-task2 is ready 6
-task2 is not ready 0
+task2 is ready 4
 task1 is not ready 3
+task2 is not ready 0
 task2 is not ready 1
 task1 is not ready 4
 task1 is not ready 5
 task2 is not ready 2
-task1 is not ready 6task2 is not ready 3
-
-task1 is ready 7task2 is not ready 4
-
-task1 is not ready 0
-task2 is not ready 5
-task1 is not ready 1
-task2 is ready 8
-task2 is not ready 0
-task1 is not ready 2
-task2 is not ready 1
-task1 is not ready 3
-task2 is not ready 2
-task1 is not ready 4
-task2 is ready 9
-task2 is not ready 0
-task1 is not ready 5
-task2 is not ready 1
+task2 is ready 5
 task1 is not ready 6
+task2 is not ready 0
+task1 is not ready 7task2 is not ready 1
+
+task2 is not ready 2
+task1 is not ready 8
+task2 is ready 6
+task1 is not ready 9
+task2 is not ready 0
+task1 is not ready 10
+task2 is not ready 1
+task1 is not ready 11
+task2 is not ready 2
+task1 is ready 7
+task2 is not ready 3
+task1 is not ready 0
+task1 is not ready 1
+task2 is not ready 4
+task1 is not ready 2
+task2 is not ready 5
+task2 is not ready 6
+task1 is not ready 3
+task2 is ready 8task1 is not ready 4
+
+task2 is not ready 0
+task1 is not ready 5
+task2 is not ready 1
+task2 is ready 9
+task1 is not ready 6
+task2 is not ready 0
 task1 is not ready 7
+task2 is not ready 1
+task1 is not ready 8
 task2 is not ready 2
 task2 is not ready 3
-task1 is not ready 8
+task1 is not ready 9
 closing the channel
 channel is closed
 1 is done false
 2 is done false
 we start to wait the first time
-task1 is donetask2 is done
-
+task1 is done
+task2 is done
 task1 done true
 task2 done true
 We start to wait the second time
@@ -5107,9 +5254,8 @@ sending 3
 received 3
 not ready 0
 not ready 1
-not ready 2
 closing the channel
-not ready 3
+not ready 2
 channel is closed
 is done false
 we are done
@@ -5121,8 +5267,8 @@ is done true
 
 === Regular Expressions
 
-Regular expression handling is implemented with two primitive functions `_rx()` and `_rx_match()`.
-They start with the `_` character to signal that they are not to be used directly.
+Regular expression handling is implemented with two primitive functions `pass:[_rx()]` and `pass:[_rx_match()]`.
+They start with the `pass:[_]` character to signal that they are not to be used directly.
 Instead, the code has to import the system file `re`:
 
 

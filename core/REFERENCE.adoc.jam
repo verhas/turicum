@@ -1522,6 +1522,12 @@ Finally, here is a modified fibonacci calculation that can replace the start val
 We do not include here the printout.
 The first number you already know, try to guess the second, then run the code yourself.
 
+== String Functions
+
+Turicum defines many methods to handle strings.
+
+{%S string_functions%}
+
 == Built-in Functions
 
 Built-in functions are functions provided by the interpreter, which extend the functionality of the run-time.
@@ -1782,8 +1788,8 @@ It does not wait and returns `none` if there is no message or the channel is clo
 
 === Regular Expressions
 
-Regular expression handling is implemented with two primitive functions `_rx()` and `_rx_match()`.
-They start with the `_` character to signal that they are not to be used directly.
+Regular expression handling is implemented with two primitive functions `pass:[_rx()]` and `pass:[_rx_match()]`.
+They start with the `pass:[_]` character to signal that they are not to be used directly.
 Instead, the code has to import the system file `re`:
 
 {%S re%}

@@ -18,6 +18,7 @@ public class TuriLong implements TuriClass {
         }
         return switch (identifier) {
             case "times" -> new TuriMethod<>((args) -> times(num, args[0]));
+            case "hex" -> new TuriMethod<>((args) -> String.format("0x%X", num));
             default -> null;
         };
     }
