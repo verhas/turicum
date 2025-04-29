@@ -91,7 +91,7 @@ More details about expressions, control flow, and declarations can be found in t
 A Turicum program is a list of commands, which is executed from the start to the end.
 
 
-.first_sample
+.source of snippet `first_sample`
 [source]
 ----
 print "Hello,";
@@ -107,7 +107,7 @@ for i=1 ; i < 3 ; i = i+1 : println(i)
 will print out
 
 
-.output first_sample
+.output of snippet `first_sample`
 [source]
 ----
 Hello, World
@@ -125,7 +125,7 @@ Everything has a value, even commands.
 For example, an `if` statement will result the value of the command after the `if` conditional if the conditional was true and the else block otherwise or `none` if there is no else block.
 
 
-.if_value
+.source of snippet `if_value`
 [source]
 ----
 let z : num = {if 232 % 2 == 0 : 1 else: 2 }
@@ -140,7 +140,7 @@ println(z)
 will output
 
 
-.output if_value
+.output of snippet `if_value`
 [source]
 ----
 1
@@ -152,7 +152,7 @@ Command blocks can be part of expressions.
 The value of a command block is the value of the last executed expression.
 
 
-.block_value
+.source of snippet `block_value`
 [source]
 ----
 let z = {
@@ -170,7 +170,7 @@ println(z)
 will output
 
 
-.output block_value
+.output of snippet `block_value`
 [source]
 ----
 Hicory
@@ -274,7 +274,7 @@ Numeric literals can be either integers or floating-point numbers.
 
 
 
-.hexNumber
+.source of snippet `hexNumber`
 [source]
 ----
 let z = 0xFfE3;
@@ -286,7 +286,7 @@ println z
 
 
 
-.output hexNumber
+.output of snippet `hexNumber`
 [source]
 ----
 65507
@@ -317,7 +317,7 @@ Backslash escapes are supported:
 Example:
 
 
-.string
+.source of snippet `string`
 [source]
 ----
 print "this is a simple string"
@@ -328,7 +328,7 @@ print "this is a simple string"
 
 
 
-.output string
+.output of snippet `string`
 [source]
 ----
 this is a simple string
@@ -344,7 +344,7 @@ They preserve line breaks and indentation exactly as written. Escape sequences a
 
 Example:
 
-.mlstring
+.source of snippet `mlstring`
 [source]
 ----
 println """
@@ -359,7 +359,7 @@ Goodbye.
 
 
 
-.output mlstring
+.output of snippet `mlstring`
 [source]
 ----
 
@@ -377,7 +377,7 @@ Goodbye.
 Turicum supports JSON-like literals directly in the language syntax. These can be written using JavaScript-style object and array literals:
 
 
-.json1
+.source of snippet `json1`
 [source]
 ----
 let project = {
@@ -398,7 +398,7 @@ println project.packaging
 
 
 
-.output json1
+.output of snippet `json1`
 [source]
 ----
 turicum-parent
@@ -441,7 +441,7 @@ Lists can be defined using square brackets `+[]+`.
 List elements are expressions and are separated by commas:
 
 
-.ListLiteral1
+.source of snippet `ListLiteral1`
 [source]
 ----
 let computed = {fn(a,b) = a + b}(1,2);
@@ -455,7 +455,7 @@ println([1 + 2, computed])
 
 
 
-.output ListLiteral1
+.output of snippet `ListLiteral1`
 [source]
 ----
 [1, 2, 3, 4]
@@ -481,7 +481,7 @@ List literals also support flattening other lists using the `..` prefix.
 For example:
 
 
-.ListLiteral2
+.source of snippet `ListLiteral2`
 [source]
 ----
 let a = [1, 2, 3, 4]
@@ -494,7 +494,7 @@ println b
 
 
 
-.output ListLiteral2
+.output of snippet `ListLiteral2`
 [source]
 ----
 [apple, 1, 2, 3, 4, banana, cherry]
@@ -506,7 +506,7 @@ println b
 This is also the way to concatenate lists:
 
 
-.ListLiteral3
+.source of snippet `ListLiteral3`
 [source]
 ----
 let a = [1, 2, 3, 4]
@@ -519,7 +519,7 @@ println([..a, ..b])
 
 
 
-.output ListLiteral3
+.output of snippet `ListLiteral3`
 [source]
 ----
 [1, 2, 3, 4, 5, 6, 7]
@@ -531,7 +531,7 @@ println([..a, ..b])
 The `pass:[+]`, `-` and `*` operators are also defined for lists.
 
 
-.ListLiteral4
+.source of snippet `ListLiteral4`
 [source]
 ----
 let a = [1, 2, 3, 4]
@@ -548,7 +548,7 @@ println(a-2)
 
 
 
-.output ListLiteral4
+.output of snippet `ListLiteral4`
 [source]
 ----
 [1, 2, 3, 4, 1, 3]
@@ -565,7 +565,7 @@ The `pass:[+]` will concatenate the two lists, or append a single element to the
 If you want to append a list to a list instead of concatenation, you have to enclose it into a list.
 
 
-.ListLiteral5
+.source of snippet `ListLiteral5`
 [source]
 ----
 let a = [1, 2, 3, 4]
@@ -578,7 +578,7 @@ println(a+[b])
 
 
 
-.output ListLiteral5
+.output of snippet `ListLiteral5`
 [source]
 ----
 [1, 2, 3, 4, [1, 3]]
@@ -594,7 +594,7 @@ The operator `*` will create the Descartes product of the two lists.
 If you want to remove a certain element or part of the list you can compose a new list from the necessary parts:
 
 
-.ListLiteral6
+.source of snippet `ListLiteral6`
 [source]
 ----
 let a = [1, 2, 3, 4]
@@ -606,7 +606,7 @@ println([a[0],..a[2..inf]])
 
 
 
-.output ListLiteral6
+.output of snippet `ListLiteral6`
 [source]
 ----
 [1, 3, 4]
@@ -619,7 +619,7 @@ List literals also support filters and mappers.
 For example:
 
 
-.ListLiteral7
+.source of snippet `ListLiteral7`
 [source]
 ----
 let a = [1, 2, 3, 4 ? {|x| x % 2 == 0 } ]
@@ -631,7 +631,7 @@ println a
 
 
 
-.output ListLiteral7
+.output of snippet `ListLiteral7`
 [source]
 ----
 [2, 4]
@@ -645,7 +645,7 @@ will select only the even elements from the list. The expression or closure foll
 You can also apply mappers following `->`, for example:
 
 
-.ListLiteral8
+.source of snippet `ListLiteral8`
 [source]
 ----
 let a = [1, 2, 3, 4 ? {|x| x % 2 == 0 } -> {|z| return z/2 }]
@@ -657,7 +657,7 @@ println a
 
 
 
-.output ListLiteral8
+.output of snippet `ListLiteral8`
 [source]
 ----
 [1, 2]
@@ -674,7 +674,7 @@ As a little syntactic sugar the variable `it` is defined when evaluating them.
 It can save up using an argument:
 
 
-.ListLiteral9
+.source of snippet `ListLiteral9`
 [source]
 ----
 let a = [1, 2, 3, 4 ? {|| it % 2 == 0 } -> {|| return it/2 }]
@@ -686,7 +686,7 @@ println a
 
 
 
-.output ListLiteral9
+.output of snippet `ListLiteral9`
 [source]
 ----
 [1, 2]
@@ -698,7 +698,7 @@ println a
 To ease more the syntax, you can use ordinary expressions instead of closures:
 
 
-.ListLiteral10
+.source of snippet `ListLiteral10`
 [source]
 ----
 let a = [1, 2, 3, 4 ? it % 2 == 0  -> it/2 ]
@@ -710,7 +710,7 @@ println a
 
 
 
-.output ListLiteral10
+.output of snippet `ListLiteral10`
 [source]
 ----
 [1, 2]
@@ -765,7 +765,7 @@ The operator does short-cut evaluation.
 The right side is only evaluated if the left side is none.
 
 
-.oror
+.source of snippet `oror`
 [source]
 ----
 println none or 3
@@ -776,7 +776,7 @@ println none or 3
 
 
 
-.output oror
+.output of snippet `oror`
 [source]
 ----
 3
@@ -789,7 +789,7 @@ println none or 3
 The example below demonstrates the shortcut evaluation, as it works and does not throw an exception:
 
 
-.logical_or
+.source of snippet `logical_or`
 [source]
 ----
 if (7&2) == 2 || 5/0 == inf {
@@ -804,7 +804,7 @@ if (7&2) == 2 || 5/0 == inf {
 
 
 
-.output logical_or
+.output of snippet `logical_or`
 [source]
 ----
 dandy
@@ -817,7 +817,7 @@ dandy
 The example below demonstrates the shortcut evaluation, as it works and does not throw an exception:
 
 
-.and
+.source of snippet `and`
 [source]
 ----
 if (7&2) == 3 && 5/0 == inf {
@@ -832,7 +832,7 @@ if (7&2) == 3 && 5/0 == inf {
 
 
 
-.output and
+.output of snippet `and`
 [source]
 ----
 dandy
@@ -856,7 +856,7 @@ That way you can also create a "set" from a list `|`-ing it with an empty list, 
 You cannot `|` floating point numbers.
 
 
-.bor1
+.source of snippet `bor1`
 [source]
 ----
 println 1 | 2
@@ -871,7 +871,7 @@ catch e: println e
 
 
 
-.output bor1
+.output of snippet `bor1`
 [source]
 ----
 3
@@ -886,7 +886,7 @@ Cannot calculate '3.0' or '3.14'
 It calculates the symmetric difference of lists (the concatenation of the two lists without the elements that appear in both).
 
 
-.xor1
+.source of snippet `xor1`
 [source]
 ----
 println 12 ^ 2
@@ -899,7 +899,7 @@ println( [1,2,3] ^ [3,4,5] )
 
 
 
-.output xor1
+.output of snippet `xor1`
 [source]
 ----
 14
@@ -917,7 +917,7 @@ The result is the intersection of the two lists with the unique elements.
 You cannot `&` floating point numbers.
 
 
-.band1
+.source of snippet `band1`
 [source]
 ----
 println 7 &  2
@@ -932,7 +932,7 @@ catch e: println e
 
 
 
-.output band1
+.output of snippet `band1`
 [source]
 ----
 2
@@ -948,7 +948,7 @@ The `in` operator works on a list to check if an element is in that list,
 or on strings to check the existence of a substring.
 
 
-.equal1
+.source of snippet `equal1`
 [source]
 ----
 let k = { a:1 , b:2 }
@@ -969,7 +969,7 @@ println w === "ohmy", " w is not that 'ohmy'"
 
 
 
-.output equal1
+.output of snippet `equal1`
 [source]
 ----
 true one is one
@@ -991,7 +991,7 @@ Numerical values are compared by value, but all other objects are tested for bei
 The `in` operation works for strings checking if a string is part of another, as well as for lists.
 
 
-.inop
+.source of snippet `inop`
 [source]
 ----
 println "raka" in "avraka dabra", " there is 'raka' in 'avraka dabra'"
@@ -1005,7 +1005,7 @@ println 3 in [1,2,4], " 3 is not in [1,2,4]"
 
 
 
-.output inop
+.output of snippet `inop`
 [source]
 ----
 true there is 'raka' in 'avraka dabra'
@@ -1021,7 +1021,7 @@ false 3 is not in [1,2,4]
 * `<`, `+<=+`, `>`, `>=` usual size comparison operators.
 
 
-.compare
+.source of snippet `compare`
 [source]
 ----
 println 1 < 2
@@ -1035,7 +1035,7 @@ println 4 >= 4
 
 
 
-.output compare
+.output of snippet `compare`
 [source]
 ----
 true
@@ -1054,7 +1054,7 @@ The `>>` works also on strings and lists.
 It merges the characters/elements of the two operands:
 
 
-.shr1
+.source of snippet `shr1`
 [source]
 ----
 println 8>>2
@@ -1067,7 +1067,7 @@ println([1,2,3] >> [-1,-2,-3])
 
 
 
-.output shr1
+.output of snippet `shr1`
 [source]
 ----
 2
@@ -1097,7 +1097,7 @@ You cannot `pass:[*]` a list and something else, like a number.
 The following example shows the use of these operators and also the Turicum list literal filtered equivalent for the symmetric difference calculation.
 
 
-.mod1
+.source of snippet `mod1`
 [source]
 ----
 println "2*3=%s" % [2*3]
@@ -1114,7 +1114,7 @@ println( [1,2,3 ? it in [3,4,5]] )
 
 
 
-.output mod1
+.output of snippet `mod1`
 [source]
 ----
 2*3=6
@@ -1161,7 +1161,7 @@ Operators can be overridden in the classes.
 If you have a method named the same name as an operator, it will be invoked to perform the calculation.
 
 
-.objectAddition1
+.source of snippet `objectAddition1`
 [source]
 ----
 class LN {
@@ -1180,7 +1180,7 @@ println( (LN(2) + LN(4)).a )
 
 
 
-.output objectAddition1
+.output of snippet `objectAddition1`
 [source]
 ----
 8
@@ -1198,7 +1198,7 @@ You have to use the `(` and `)` after the `print`, otherwise it will think that 
 It is also possible to use the
 
 
-.objectAddition2
+.source of snippet `objectAddition2`
 [source]
 ----
 class LN {
@@ -1228,7 +1228,7 @@ You can override any of the predefined operators.
 When overriding the operator `==` the result has to be something that can be converted to boolean.
 
 
-.myEqual
+.source of snippet `myEqual`
 [source]
 ----
 class A {
@@ -1256,7 +1256,7 @@ println "y == z is %s" % (y == z)
 
 
 
-.output myEqual
+.output of snippet `myEqual`
 [source]
 ----
 x == y is true
@@ -1276,7 +1276,7 @@ In the example, all the objects are equal.
 If we modify the equality check to consider the classes, we get a different result:
 
 
-.myEqual2
+.source of snippet `myEqual2`
 [source]
 ----
 class A {
@@ -1300,7 +1300,7 @@ println "y == z is %s" % (y == z)
 
 
 
-.output myEqual2
+.output of snippet `myEqual2`
 [source]
 ----
 y == z is false
@@ -1323,7 +1323,7 @@ Scopes are created in run-time, like everything in Turicum.
 Code blocks open a new scope and they wrap the surrounding scope.
 
 
-.scope1
+.source of snippet `scope1`
 [source]
 ----
 let z = "cory"
@@ -1348,7 +1348,7 @@ catch err: println err
 will output
 
 
-.output scope1
+.output of snippet `scope1`
 [source]
 ----
 just a print
@@ -1368,7 +1368,7 @@ When you use a variable defined in a wrapped (outer) scope you cannot define it 
 For example, the following program:
 
 
-.local_redefined_error
+.source of snippet `local_redefined_error`
 [source]
 ----
 let z = 5
@@ -1390,7 +1390,7 @@ try{
 will output:
 
 
-.output local_redefined_error
+.output of snippet `local_redefined_error`
 [source]
 ----
 5
@@ -1406,7 +1406,7 @@ In the following example, modifying the global variable `glb` is not possible wi
 The class and the function do not wrap the surrounding, global scope.
 
 
-.function_scope
+.source of snippet `function_scope`
 [source]
 ----
 let glb = "global variable";
@@ -1442,7 +1442,7 @@ println(obj.z())
 The output of the program is:
 
 
-.output function_scope
+.output of snippet `function_scope`
 [source]
 ----
 You can read glb, which is a global variable
@@ -1459,7 +1459,7 @@ Unless the method is a constructor (named aptly as `constructor`) these variable
 Code inside a class, outside any method is executed when the class is defined.
 
 
-.class_definition
+.source of snippet `class_definition`
 [source]
 ----
 class X {
@@ -1483,7 +1483,7 @@ Variable `x` is initialized to hold an instance of this class.
 Using `x.s` will reference the same variable, because objects wrap the scope of the class.
 
 
-.output class_definition
+.output of snippet `class_definition`
 [source]
 ----
 class var hu
@@ -1495,7 +1495,7 @@ object var hu
 The following example details these different access scenarios:
 
 
-.object_scope
+.source of snippet `object_scope`
 [source]
 ----
 class X {
@@ -1534,7 +1534,7 @@ x.t()
 
 
 
-.output object_scope
+.output of snippet `object_scope`
 [source]
 ----
 this.g=none
@@ -1572,7 +1572,7 @@ The following example inside a block.
 the closure can access and even modify the variable `whom`.
 
 
-.closure_example
+.source of snippet `closure_example`
 [source]
 ----
 let c = {
@@ -1591,7 +1591,7 @@ c("Hi, ")
 
 
 
-.output closure_example
+.output of snippet `closure_example`
 [source]
 ----
 Hello, World!
@@ -1614,7 +1614,7 @@ This way macros can decide which arguments to evaluate and what order, or how ma
 The following simple macro reimplements the `if` command's functionality using it:
 
 
-.macro_example
+.source of snippet `macro_example`
 [source]
 ----
 let c = macro(
@@ -1634,7 +1634,7 @@ print(
 
 
 
-.output macro_example
+.output of snippet `macro_example`
 [source]
 ----
 yes, it is true
@@ -1748,7 +1748,7 @@ You can define multiple types for a variable separating the types with `|`. For 
 The following example declares a variable that can hold a string or a numeric value.
 
 
-.let_with_types_example
+.source of snippet `let_with_types_example`
 [source]
 ----
 let c : str |num = 3;
@@ -1761,7 +1761,7 @@ println(c)
 
 
 
-.output let_with_types_example
+.output of snippet `let_with_types_example`
 [source]
 ----
 3 == 3
@@ -1774,7 +1774,7 @@ If you use the format `let { identifier list } = expression` then the identifier
 Instead, the expression after the `=` is evaluated once, used as an object and the fields are assigned to the variables of the same name on the left side.
 
 
-.flat_let_object1
+.source of snippet `flat_let_object1`
 [source]
 ----
 
@@ -1790,7 +1790,7 @@ println c
 
 
 
-.output flat_let_object1
+.output of snippet `flat_let_object1`
 [source]
 ----
 apple
@@ -1804,7 +1804,7 @@ count
 It is not an error if there are fields in the object not read during the assignment and also if some of the variables do not have matching fields.
 
 
-.flat_let_object2
+.source of snippet `flat_let_object2`
 [source]
 ----
 
@@ -1821,7 +1821,7 @@ println f
 
 
 
-.output flat_let_object2
+.output of snippet `flat_let_object2`
 [source]
 ----
 apple
@@ -1837,7 +1837,7 @@ If you use the format `let [ identifier list ] = expression` then the identifier
 Instead, the expression after the `=` is evaluated once, used as a list and the elements are assigned to the variables.
 
 
-.flat_let_list1
+.source of snippet `flat_let_list1`
 [source]
 ----
 let [a, b, c] = [1,2,3]
@@ -1851,7 +1851,7 @@ println c
 
 
 
-.output flat_let_list1
+.output of snippet `flat_let_list1`
 [source]
 ----
 1
@@ -1865,7 +1865,7 @@ println c
 It is  an error if there are not enough or too many elements in the list on the right-hand side.
 
 
-.flat_let_list2
+.source of snippet `flat_let_list2`
 [source]
 ----
 try:
@@ -1878,7 +1878,7 @@ catch err: println err
 
 
 
-.output flat_let_list2
+.output of snippet `flat_let_list2`
 [source]
 ----
 [multi-let] assignment right hand side has too few values
@@ -1888,7 +1888,7 @@ catch err: println err
 
 
 
-.flat_let_list3
+.source of snippet `flat_let_list3`
 [source]
 ----
 try:
@@ -1901,7 +1901,7 @@ catch err: println err
 
 
 
-.output flat_let_list3
+.output of snippet `flat_let_list3`
 [source]
 ----
 [multi-let] assignment right hand side has too many values
@@ -1913,7 +1913,7 @@ catch err: println err
 If you have too many elements you can cut the list:
 
 
-.flat_let_list4
+.source of snippet `flat_let_list4`
 [source]
 ----
 let [a, b] = [1,2,3,4,5,6,7,8][0..2]
@@ -1926,7 +1926,7 @@ println b
 
 
 
-.output flat_let_list4
+.output of snippet `flat_let_list4`
 [source]
 ----
 1
@@ -1939,7 +1939,7 @@ println b
 If you have too few you can extend the list:
 
 
-.flat_let_list5
+.source of snippet `flat_let_list5`
 [source]
 ----
 fn adjust(x, @to){
@@ -1962,7 +1962,7 @@ println d
 
 
 
-.output flat_let_list5
+.output of snippet `flat_let_list5`
 [source]
 ----
 1
@@ -1977,7 +1977,7 @@ none
 or even
 
 
-.flat_let_list6
+.source of snippet `flat_let_list6`
 [source]
 ----
 fn adjust(@to,[x]){
@@ -2000,7 +2000,7 @@ println d
 
 
 
-.output flat_let_list6
+.output of snippet `flat_let_list6`
 [source]
 ----
 1
@@ -2045,7 +2045,7 @@ It is an error using the decoration on a variable that is not an object or list.
 The following example demonstrates the different pinning possibilities:
 
 
-.pinning
+.source of snippet `pinning`
 [source]
 ----
 let turicum = 13
@@ -2076,7 +2076,7 @@ println("variable 'object' still can be changed: ", object)
 
 
 
-.output pinning
+.output of snippet `pinning`
 [source]
 ----
 could not change the variable
@@ -2113,7 +2113,7 @@ The result of the command is the value of the command or block executed.
 If the condition is `false` and there is no "else" block or command, then the result is `none`.
 
 
-.ifCommand
+.source of snippet `ifCommand`
 [source]
 ----
 let a= 13
@@ -2127,7 +2127,7 @@ print("again ",a)
 
 
 
-.output ifCommand
+.output of snippet `ifCommand`
 [source]
 ----
 odd
@@ -2161,7 +2161,7 @@ It is checked after the execution of the loop body.
 Execution of the loop stops when the tail condition is  `true`.
 
 
-.whileLoop
+.source of snippet `whileLoop`
 [source]
 ----
 let i = 1;
@@ -2176,7 +2176,7 @@ while i < 5 {
 
 
 
-.output whileLoop
+.output of snippet `whileLoop`
 [source]
 ----
 1 2 
@@ -2188,7 +2188,7 @@ The body of the loop can be a command block, or it can be a single command.
 If the body is a single command, not enclosed between `{` and `}` it has to be preceded by a `:`.
 
 
-.whileLoop2
+.source of snippet `whileLoop2`
 [source]
 ----
 let i = 1;
@@ -2203,7 +2203,7 @@ println(i)
 
 
 
-.output whileLoop2
+.output of snippet `whileLoop2`
 [source]
 ----
 3
@@ -2220,7 +2220,7 @@ The start, condition, and end parts are separated by `;` and they are commands.
 The `;` in this place is not optional.
 
 
-.for1
+.source of snippet `for1`
 [source]
 ----
 for i = 1 ; i < 5 ; i=i+1 {
@@ -2233,7 +2233,7 @@ for i = 1 ; i < 5 ; i=i+1 {
 
 
 
-.output for1
+.output of snippet `for1`
 [source]
 ----
 1 2 3 
@@ -2245,7 +2245,7 @@ The `for` loop also has an optional `until` part the same way as `while`.
 The next example shows the same loop with the optional parentheses but without the tail condition.
 
 
-.for2
+.source of snippet `for2`
 [source]
 ----
 for( i = 1 ; i < 5 ; i=i+1 ){
@@ -2258,7 +2258,7 @@ for( i = 1 ; i < 5 ; i=i+1 ){
 
 
 
-.output for2
+.output of snippet `for2`
 [source]
 ----
 1 2 3 4 
@@ -2270,7 +2270,7 @@ If the start command is an assignment, it is interpreted as a local assignment.
 
 
 
-.for3
+.source of snippet `for3`
 [source]
 ----
 // same as 'for( let i = 1 ;' ...
@@ -2287,7 +2287,7 @@ catch err { println(); println err ; }
 
 
 
-.output for3
+.output of snippet `for3`
 [source]
 ----
 1 2 3 
@@ -2301,7 +2301,7 @@ The variable `i` after the loop is still undefined.
 To use a variable from the enclosing wrapped scope, you can enclose the assignment into a block.
 
 
-.for4
+.source of snippet `for4`
 [source]
 ----
 let i;
@@ -2314,7 +2314,7 @@ println("i at end=",i);
 
 
 
-.output for4
+.output of snippet `for4`
 [source]
 ----
 1 2 3 i at end=3
@@ -2331,7 +2331,7 @@ In this case the command is preceded by a `:` character.
 Foreach iterate through a list
 
 
-.foreach1
+.source of snippet `foreach1`
 [source]
 ----
 for each i in [1,2,3,4]: print(i," ");
@@ -2342,7 +2342,7 @@ for each i in [1,2,3,4]: print(i," ");
 
 
 
-.output foreach1
+.output of snippet `foreach1`
 [source]
 ----
 1 2 3 4 
@@ -2353,7 +2353,7 @@ for each i in [1,2,3,4]: print(i," ");
 The `for each` loop can also have a tail condition.
 
 
-.foreach2
+.source of snippet `foreach2`
 [source]
 ----
 for each i ∈ [1,2,3,4]: print(i," "); until i%3 == 0
@@ -2364,7 +2364,7 @@ for each i ∈ [1,2,3,4]: print(i," "); until i%3 == 0
 
 
 
-.output foreach2
+.output of snippet `foreach2`
 [source]
 ----
 1 2 3 
@@ -2409,7 +2409,7 @@ It can only be used when the code was started so that another thread is expectin
 The typical example is when you execute a command `async` .
 
 
-.yield1
+.source of snippet `yield1`
 [source]
 ----
 fn gen_1_to_10 {
@@ -2425,7 +2425,7 @@ println([ .. (async gen_1_to_10()) ])
 
 
 
-.output yield1
+.output of snippet `yield1`
 [source]
 ----
 [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
@@ -2437,7 +2437,7 @@ println([ .. (async gen_1_to_10()) ])
 The return value can be used in a `for each` loop, or you can iterate through it the same way you would with any iterator.
 
 
-.yield2
+.source of snippet `yield2`
 [source]
 ----
 fn gen_1_to_10 {
@@ -2455,7 +2455,7 @@ while st.has_next() :
 
 
 
-.output yield2
+.output of snippet `yield2`
 [source]
 ----
 1
@@ -2476,10 +2476,27 @@ while st.has_next() :
 === `with`
 
 The `with` command is used to execute a block in the context of one or more object.
-It means that the fields of the objects can be used as variables without prefixing them with any object reference.
+
+[source]
+----
+with object list { block }
+----
+
+or
+
+[source]
+----
+with object list : command
+----
+
+The `object list` is  a list of expressions separated by `,` character.
+At least one expression has to be present.
+The value of the expression has to be a Turicum object.
+
+The fields of the objects can be used as variables without prefixing them with any object reference.
 
 
-.simpleWith
+.source of snippet `simpleWith`
 [source]
 ----
 let x = {a:1,b:2};
@@ -2496,7 +2513,7 @@ with x,y {
 
 
 
-.output simpleWith
+.output of snippet `simpleWith`
 [source]
 ----
 4
@@ -2515,7 +2532,7 @@ In the example both `x` and `y` have field `a` and since `y` is later in the lis
 You can also modify the fields:
 
 
-.modifyWith
+.source of snippet `modifyWith`
 [source]
 ----
 let x = {a:1,b:2};
@@ -2534,7 +2551,7 @@ println y
 
 
 
-.output modifyWith
+.output of snippet `modifyWith`
 [source]
 ----
 {a: 1, b: 0}
@@ -2545,6 +2562,31 @@ println y
 
 
 Note that the field `x.a` was not modified, because it is shadowed by `y.a`.
+
+The value of the command is the value of the block executed.
+
+
+.source of snippet `valueWith`
+[source]
+----
+let x = {a:1,b:2};
+let y = {a:4,c:5};
+println {with x,y : a * b + c}
+
+
+----
+
+
+
+
+.output of snippet `valueWith`
+[source]
+----
+13
+
+----
+
+
 
 == Functions
 
@@ -2577,7 +2619,7 @@ fn function_name (parameters) -> types {
 `fn` is a keyword, and it is never optional.
 
 
-.fun1
+.source of snippet `fun1`
 [source]
 ----
 fn inc(x) {
@@ -2592,10 +2634,10 @@ println(inc(1))
 
 
 
-.output fun1
+.output of snippet `fun1`
 [source]
 ----
-ch.turic.commands.Closure@2767e23c
+ch.turic.commands.Closure@7ce026d3
 2
 
 ----
@@ -2606,7 +2648,7 @@ ch.turic.commands.Closure@2767e23c
 It may be missing, typically when the result, the function itself is assigned to a variable or passed directly as an argument.
 
 
-.fun3
+.source of snippet `fun3`
 [source]
 ----
 fn inc x {
@@ -2621,10 +2663,10 @@ println(inc(1))
 
 
 
-.output fun3
+.output of snippet `fun3`
 [source]
 ----
-ch.turic.commands.Closure@710c2b53
+ch.turic.commands.Closure@7ce69770
 2
 
 ----
@@ -2637,7 +2679,7 @@ The `(` and `)` is optional when the function has a name.
 When it does not have a name, then `(` and `)` must present even if there are zero arguments.
 
 
-.fun2
+.source of snippet `fun2`
 [source]
 ----
 let inc = fn (x) {
@@ -2652,10 +2694,10 @@ println(inc(1))
 
 
 
-.output fun2
+.output of snippet `fun2`
 [source]
 ----
-ch.turic.commands.Closure@5386659f
+ch.turic.commands.Closure@1750fbeb
 2
 
 ----
@@ -2671,7 +2713,7 @@ Be careful when using the `fn x()=...` format.
 The following code does not do what you expect:
 
 
-.fun10
+.source of snippet `fun10`
 [source]
 ----
 class K {   fn p()=println "original K" }
@@ -2684,7 +2726,7 @@ h().p()
 
 
 
-.output fun10
+.output of snippet `fun10`
 [source]
 ----
 
@@ -2699,7 +2741,7 @@ The string constant is just a statement with no effect.
 If you use the `(` and `)` characters after the `println` function call, then the expression will include the string argument, and the code will work as expected.
 
 
-.fun11
+.source of snippet `fun11`
 [source]
 ----
 class K {   fn p()=println("original K") }
@@ -2712,7 +2754,7 @@ h().p()
 
 
 
-.output fun11
+.output of snippet `fun11`
 [source]
 ----
 original K
@@ -2730,7 +2772,7 @@ The types are separated by `|`.
 The type of the returned value is checked against the declared types upon returning from a function.
 
 
-.fun7
+.source of snippet `fun7`
 [source]
 ----
 fn concat(a:str, b:str):str = a + b
@@ -2742,7 +2784,7 @@ println concat("ab","ba")
 
 
 
-.output fun7
+.output of snippet `fun7`
 [source]
 ----
 abba
@@ -2751,7 +2793,7 @@ abba
 
 
 
-.fun8
+.source of snippet `fun8`
 [source]
 ----
 fn concat(a:str, b:str):str = 13
@@ -2765,7 +2807,7 @@ catch err: println err
 
 
 
-.output fun8
+.output of snippet `fun8`
 [source]
 ----
 Cannot return from 'concat' the value '13' as it does not fit any of the accepted type of the function/closure (str)
@@ -2777,7 +2819,7 @@ Cannot return from 'concat' the value '13' as it does not fit any of the accepte
 The types are evaluated when the function is defined.
 
 
-.fun9
+.source of snippet `fun9`
 [source]
 ----
 let myString="num"
@@ -2793,7 +2835,7 @@ catch err: println err
 
 
 
-.output fun9
+.output of snippet `fun9`
 [source]
 ----
 13
@@ -2821,7 +2863,7 @@ Parameters preceded with '!' can only be passed positionally.
 Parameters preceded with `@` can only be passed by name.
 
 
-.fun4
+.source of snippet `fun4`
 [source]
 ----
 fn inc !x, @how_much {
@@ -2836,10 +2878,10 @@ println(inc(1,how_much=5))
 
 
 
-.output fun4
+.output of snippet `fun4`
 [source]
 ----
-ch.turic.commands.Closure@14028087
+ch.turic.commands.Closure@5b247367
 6
 
 ----
@@ -2855,7 +2897,7 @@ If there is a type declaration passing a value that does not fit the type declar
 Not passing a value for a parameter that does not have a default value is also an error.
 
 
-.fun5
+.source of snippet `fun5`
 [source]
 ----
 fn inc !x, @how_much=1 {
@@ -2870,7 +2912,7 @@ println(inc(1))
 
 
 
-.output fun5
+.output of snippet `fun5`
 [source]
 ----
 6
@@ -2898,7 +2940,7 @@ The actual algorithm of parameter passing is the following:
 That is the first not-yet-assigned positional or positional/named argument.
 
 
-.fun6
+.source of snippet `fun6`
 [source]
 ----
 fn wrong !x, h, !k {
@@ -2913,7 +2955,7 @@ catch e: println("There is an error",e)
 
 
 
-.output fun6
+.output of snippet `fun6`
 [source]
 ----
 There is an errorParameter 'h' is already defined
@@ -2948,7 +2990,7 @@ When the function code starts
 The following example shows how you can use the rest-parameter:
 
 
-.restParameters
+.source of snippet `restParameters`
 [source]
 ----
 let f = fn (a,b,[rest]) {
@@ -2965,7 +3007,7 @@ f(1,2,3,4,5,6)
 
 
 
-.output restParameters
+.output of snippet `restParameters`
 [source]
 ----
 a=1
@@ -2978,7 +3020,7 @@ b=2
 The following example demonstrates the use of the meta-parameter:
 
 
-.metaParameters
+.source of snippet `metaParameters`
 [source]
 ----
 let f = fn (a,b,{meta}) {
@@ -2995,7 +3037,7 @@ f(1,b=2,k=3,x=4,juice=5,six=6)
 
 
 
-.output metaParameters
+.output of snippet `metaParameters`
 [source]
 ----
 a=1
@@ -3032,7 +3074,7 @@ Also, you cannot use a parameter name in an argument list more than once.
 You can also combine the two:
 
 
-.metaRestParameters
+.source of snippet `metaRestParameters`
 [source]
 ----
 let f = fn (a,b,[rest],{meta}) {
@@ -3051,7 +3093,7 @@ f(1,b=2,k=3,x=4,juice=5,7,six=6);
 
 
 
-.output metaRestParameters
+.output of snippet `metaRestParameters`
 [source]
 ----
 a=1
@@ -3072,7 +3114,7 @@ When you call a function and the last argument is a closure then you can place t
 For example:
 
 
-.closureArgument
+.source of snippet `closureArgument`
 [source]
 ----
 let f = fn (a,b,^closure) {
@@ -3090,7 +3132,7 @@ f(2,3){|x,y| x*y}
 
 
 
-.output closureArgument
+.output of snippet `closureArgument`
 [source]
 ----
 a=2
@@ -3137,7 +3179,7 @@ If the value of the parameter is an object, the fields of the object will be use
 The field names will be used as argument names and the values as values.
 
 
-.spread
+.source of snippet `spread`
 [source]
 ----
 fn a(@a,@b,@c,@d){
@@ -3160,7 +3202,7 @@ c(..[1,2],..{d:4},3);
 
 
 
-.output spread
+.output of snippet `spread`
 [source]
 ----
 1 2 3 4 
@@ -3227,7 +3269,7 @@ Although this class also implements the `HasFields` interface this is handled as
 It makes it possible to use the result of a `async expression` as arguments.
 +
 
-.spreadStream
+.source of snippet `spreadStream`
 [source]
 ----
 fn c(a,b,c,d){
@@ -3245,7 +3287,7 @@ c(..(async numbers()))
 
 
 
-.output spreadStream
+.output of snippet `spreadStream`
 [source]
 ----
 1 2 3 4 
@@ -3263,7 +3305,7 @@ Classes can be defined using the `class` keyword.
 A class is defined when the class definition is executed.
 
 
-.class1
+.source of snippet `class1`
 [source]
 ----
 class A {
@@ -3286,7 +3328,7 @@ println a1.a, a2.a, a1.c, a2.c
 
 
 
-.output class1
+.output of snippet `class1`
 [source]
 ----
 12dd
@@ -3313,7 +3355,7 @@ If you use a variable without the `this.` prefix it will automatically be handle
 That way the following example is the same as the previous:
 
 
-.class2
+.source of snippet `class2`
 [source]
 ----
 class A {
@@ -3336,7 +3378,7 @@ println a1.a, a2.a, a1.c, a2.c
 
 
 
-.output class2
+.output of snippet `class2`
 [source]
 ----
 12dd
@@ -3353,7 +3395,7 @@ The methods defined in a class belong to the class.
 You can define methods attached to the objects.
 
 
-.class3
+.source of snippet `class3`
 [source]
 ----
 class A {
@@ -3384,7 +3426,7 @@ a2.p()
 
 
 
-.output class3
+.output of snippet `class3`
 [source]
 ----
 I am class level
@@ -3398,7 +3440,7 @@ I am a2
 The variable `cls` and `this` are pinned, cannot be modified in the methods.
 
 
-.class4
+.source of snippet `class4`
 [source]
 ----
 class A {
@@ -3417,7 +3459,7 @@ catch ex :
 
 
 
-.output class4
+.output of snippet `class4`
 [source]
 ----
 Variable 'this' is pinned.
@@ -3429,7 +3471,7 @@ Variable 'this' is pinned.
 and
 
 
-.class5
+.source of snippet `class5`
 [source]
 ----
 class A {
@@ -3448,7 +3490,7 @@ catch ex :
 
 
 
-.output class5
+.output of snippet `class5`
 [source]
 ----
 Variable 'cls' is pinned.
@@ -3460,7 +3502,7 @@ Variable 'cls' is pinned.
 The only exception is the `init` method.
 
 
-.class6
+.source of snippet `class6`
 [source]
 ----
 class A {
@@ -3482,7 +3524,7 @@ println A().cls
 
 
 
-.output class6
+.output of snippet `class6`
 [source]
 ----
 class B
@@ -3497,7 +3539,7 @@ That way an initializer can function as a factory method.
 You cannot change the value of the `cls` even in the initializer:
 
 
-.class7
+.source of snippet `class7`
 [source]
 ----
 class A {
@@ -3521,7 +3563,7 @@ catch ex:
 
 
 
-.output class7
+.output of snippet `class7`
 [source]
 ----
 Variable 'cls' is pinned.
@@ -3537,7 +3579,7 @@ For `a.Z()` it usually points to `a`, but if `Z` is a class, and we called the c
 In this situation a special variable called `that` will point to `a`.
 
 
-.class8
+.source of snippet `class8`
 [source]
 ----
 class A {
@@ -3559,7 +3601,7 @@ let b = a.B()
 
 
 
-.output class8
+.output of snippet `class8`
 [source]
 ----
 this {that: {, cls: class A}, cls: class B}
@@ -3577,7 +3619,7 @@ Classes can inherit in Turicum.
 When you declare a class the parent class or classes are specified by their name after a `:`.
 
 
-.inherit1
+.source of snippet `inherit1`
 [source]
 ----
 class P {
@@ -3597,7 +3639,7 @@ println o.a(),o.v,o.b(),o.z;
 
 
 
-.output inherit1
+.output of snippet `inherit1`
 [source]
 ----
 1234
@@ -3610,7 +3652,7 @@ You can use the methods or fields declared in the class as well as any other met
 You can inherit from multiple parent classes:
 
 
-.inherit2
+.source of snippet `inherit2`
 [source]
 ----
 class P1 {
@@ -3634,7 +3676,7 @@ println o.a(), o.v, o.aa(), o.vv, o.b(), o.z;
 
 
 
-.output inherit2
+.output of snippet `inherit2`
 [source]
 ----
 123456
@@ -3647,7 +3689,7 @@ Inheritance is ordered.
 It is important when there are multiple implementatios of the same method name or the same field.
 
 
-.inherit3
+.source of snippet `inherit3`
 [source]
 ----
 class P1 {
@@ -3671,7 +3713,7 @@ println o.a(), o.v, o.b(), o.z;
 
 
 
-.output inherit3
+.output of snippet `inherit3`
 [source]
 ----
 1256
@@ -3685,7 +3727,7 @@ In the example `P1` is inherited/extended first in the list, so it prevails over
 Initializing a class having parent classes is a bit tricky.
 
 
-.inherit4
+.source of snippet `inherit4`
 [source]
 ----
 class P1 {
@@ -3711,7 +3753,7 @@ let o = C();
 
 
 
-.output inherit4
+.output of snippet `inherit4`
 [source]
 ----
 init in C, cls='class C' this='{, cls: class C}'
@@ -3724,7 +3766,7 @@ Since there can be, and in the example there are multiple parents, the initializ
 You may invoke them directly:
 
 
-.inherit5
+.source of snippet `inherit5`
 [source]
 ----
 class P1 {
@@ -3752,7 +3794,7 @@ let o = C();
 
 
 
-.output inherit5
+.output of snippet `inherit5`
 [source]
 ----
 init in C, cls='class C' this='{, cls: class C}'
@@ -3766,7 +3808,7 @@ init in P2, cls='class P2' this='{, cls: class C}'
 If you do not implement `init` but some of the parent classes do, then it will be invoked.
 
 
-.inherit6
+.source of snippet `inherit6`
 [source]
 ----
 class P {
@@ -3784,7 +3826,7 @@ let o = C();
 
 
 
-.output inherit6
+.output of snippet `inherit6`
 [source]
 ----
 init in P, cls='class C' this='{, cls: class C}'
@@ -3807,7 +3849,7 @@ An exception is an object.
 You can declare a variable to hold an error
 
 
-.try3
+.source of snippet `try3`
 [source]
 ----
 let error:err|none
@@ -3824,7 +3866,7 @@ println error
 
 
 
-.output try3
+.output of snippet `try3`
 [source]
 ----
 Variable 'z' is not defined.
@@ -3853,7 +3895,7 @@ An exception has
 * `source`
 
 
-.try4
+.source of snippet `try4`
 [source]
 ----
 let error:err|none
@@ -3877,7 +3919,7 @@ for each st in error.stack_trace {
 
 
 
-.output try4
+.output of snippet `try4`
 [source]
 ----
 message "Variable 'z' is not defined." 
@@ -3906,7 +3948,7 @@ At the end it executes the block following the `finally` keyword.
 The `catch` and finally` blocks are optional.
 
 
-.try1
+.source of snippet `try1`
 [source]
 ----
 
@@ -3925,7 +3967,7 @@ try {
 
 
 
-.output try1
+.output of snippet `try1`
 [source]
 ----
 Variable 'z' is not defined.
@@ -3938,7 +3980,7 @@ this will always run
 Another example without the optional part, but enclosed in an outer try-catch block:
 
 
-.try2
+.source of snippet `try2`
 [source]
 ----
 try{
@@ -3954,7 +3996,7 @@ try{
 
 
 
-.output try2
+.output of snippet `try2`
 [source]
 ----
 Variable 'z' is not defined.
@@ -3971,7 +4013,7 @@ However, in the case of closures, you do not even need that.
 Every function call that has a closure as the last parameter can act as a decorator.
 
 
-.closureDecorator1
+.source of snippet `closureDecorator1`
 [source]
 ----
 fn closure_decorator(^closure){
@@ -3988,7 +4030,7 @@ z()
 
 
 
-.output closureDecorator1
+.output of snippet `closureDecorator1`
 [source]
 ----
 We start
@@ -4002,7 +4044,7 @@ We finish
 If you add a `@` then the result is the same:
 
 
-.closureDecorator2
+.source of snippet `closureDecorator2`
 [source]
 ----
 fn closure_decorator(^closure){
@@ -4019,7 +4061,7 @@ z()
 
 
 
-.output closureDecorator2
+.output of snippet `closureDecorator2`
 [source]
 ----
 We start@
@@ -4035,7 +4077,7 @@ The use of `@` also notifies the syntax analyzer that the call is a decorator ca
 When the `@` precedes the function call, a `fn` or `class` are also recognized as `^closure` parameter.
 
 
-.fnDecorator1
+.source of snippet `fnDecorator1`
 [source]
 ----
   fn fun_decorator(^closure){
@@ -4055,7 +4097,7 @@ fn q(){
 
 
 
-.output fnDecorator1
+.output of snippet `fnDecorator1`
 [source]
 ----
 We start the fun
@@ -4074,7 +4116,7 @@ This happens because the syntax analysis does not use the function definition as
 The code can, however, be fixed:
 
 
-.fnDecorator2
+.source of snippet `fnDecorator2`
 [source]
 ----
   fn fun_decorator(^closure){
@@ -4094,7 +4136,7 @@ fn q(){
 
 
 
-.output fnDecorator2
+.output of snippet `fnDecorator2`
 [source]
 ----
 We start the fun
@@ -4110,7 +4152,7 @@ The following example shows that a decorator can not only return the decorated 0
 They can also modify the existing definition.
 
 
-.fnDecorator3
+.source of snippet `fnDecorator3`
 [source]
 ----
 let fun_decorator={|^closure|
@@ -4132,7 +4174,7 @@ q()
 
 
 
-.output fnDecorator3
+.output of snippet `fnDecorator3`
 [source]
 ----
 We start the fun
@@ -4158,7 +4200,7 @@ The decorator in this case simply defines the global variable of the same name a
 The value is the closure or function, whatever we decorate itself.
 
 
-.fnDecorator4
+.source of snippet `fnDecorator4`
 [source]
 ----
 {
@@ -4179,7 +4221,7 @@ q()
 
 
 
-.output fnDecorator4
+.output of snippet `fnDecorator4`
 [source]
 ----
 We function
@@ -4226,7 +4268,7 @@ Class constructors are invoked using the name of the class.
 When a class name is used as a field in an object either directly injected to the object or as a class field as in the next example, then the constructor can access the target object of the call through `that`.
 +
 
-.that
+.source of snippet `that`
 [source]
 ----
 class OuterClass {
@@ -4254,7 +4296,7 @@ let inner = outer.InnerClass()
 
 
 
-.output that
+.output of snippet `that`
 [source]
 ----
 this name inner object 
@@ -4288,7 +4330,7 @@ The following example is very straightforward.
 It defines the function `fib()`, that calls itself recursively.
 
 
-.fibonacci1
+.source of snippet `fibonacci1`
 [source]
 ----
 fn fib(x) {
@@ -4303,7 +4345,7 @@ println(fib(10))
 
 
 
-.output fibonacci1
+.output of snippet `fibonacci1`
 [source]
 ----
 89
@@ -4315,7 +4357,7 @@ println(fib(10))
 If we create the same program using a class memoizing the results:
 
 
-.fibonacci2
+.source of snippet `fibonacci2`
 [source]
 ----
 class FibCalculator {
@@ -4336,7 +4378,7 @@ println(FibCalculator.fib(10))
 
 
 
-.output fibonacci2
+.output of snippet `fibonacci2`
 [source]
 ----
 89
@@ -4351,7 +4393,7 @@ In this case `fib()` is a class level method and when we call it Turicum automat
 The difficulty comes when you define the function in a local context.
 
 
-.fibonacci3
+.source of snippet `fibonacci3`
 [source]
 ----
 try
@@ -4369,7 +4411,7 @@ try
 
 
 
-.output fibonacci3
+.output of snippet `fibonacci3`
 [source]
 ----
 Variable 'fib' is undefined.
@@ -4383,7 +4425,7 @@ The function `fib` in this case is defined in the local context of the block, an
 One solution can be to convert the function to a closure:
 
 
-.fibonacci4
+.source of snippet `fibonacci4`
 [source]
 ----
 {
@@ -4400,7 +4442,7 @@ One solution can be to convert the function to a closure:
 
 
 
-.output fibonacci4
+.output of snippet `fibonacci4`
 [source]
 ----
 89
@@ -4413,7 +4455,7 @@ Closures wrap the surrounding context, therefore the body of the closure knows t
 If you do not want to wrap the whole context, you can do a little trick using functions.
 
 
-.fibonacci5
+.source of snippet `fibonacci5`
 [source]
 ----
 {
@@ -4430,7 +4472,7 @@ If you do not want to wrap the whole context, you can do a little trick using fu
 
 
 
-.output fibonacci5
+.output of snippet `fibonacci5`
 [source]
 ----
 89
@@ -4451,7 +4493,7 @@ without knowing the details how contexts and default values for variable declara
 An alternative possibility is to use the special variable `me`.
 
 
-.fibonacci6
+.source of snippet `fibonacci6`
 [source]
 ----
 {
@@ -4468,7 +4510,7 @@ An alternative possibility is to use the special variable `me`.
 
 
 
-.output fibonacci6
+.output of snippet `fibonacci6`
 [source]
 ----
 89
@@ -4483,7 +4525,7 @@ It may also be appealing that the recursive call is explicit whatever the name o
 As an extra, here is a version of the fibonacci calculation using a closure with a retained local context as a state instead of a class:
 
 
-.fibonacci7
+.source of snippet `fibonacci7`
 [source]
 ----
 let fib = {
@@ -4504,7 +4546,7 @@ println(fib(10))
 
 
 
-.output fibonacci7
+.output of snippet `fibonacci7`
 [source]
 ----
 89
@@ -4516,7 +4558,7 @@ println(fib(10))
 Finally, here is a modified fibonacci calculation that can replace the start value and uses an object cache instead of class level cache.
 
 
-.fibonacci8
+.source of snippet `fibonacci8`
 [source]
 ----
 class FibCalculator {
@@ -4548,7 +4590,7 @@ The first number you already know, try to guess the second, then run the code yo
 Turicum defines many methods to handle strings.
 
 
-.string_functions
+.source of snippet `string_functions`
 [source]
 ----
 println " 1. ","alma kadarka".after("ka")
@@ -4620,7 +4662,7 @@ println "64. ",M
 
 
 
-.output string_functions
+.output of snippet `string_functions`
 [source]
 ----
  1. darka
@@ -4701,7 +4743,7 @@ Macros get their arguments unevaluated and can use this function to evaluate the
 If you try to evaluate anything else than a macro argument, you will get an error.
 
 
-.evaluate1
+.source of snippet `evaluate1`
 [source]
 ----
 let twice = macro(fn (arg){ evaluate(arg); evaluate(arg);});
@@ -4713,7 +4755,7 @@ twice( {println("Hello")} )
 
 
 
-.output evaluate1
+.output of snippet `evaluate1`
 [source]
 ----
 Hello
@@ -4743,7 +4785,7 @@ In this example the three argument values for these parameters are
 None of them adds extra parameters when spread.
 
 
-.evaluate2
+.source of snippet `evaluate2`
 [source]
 ----
 macro(fn (!arg,[rest],{meta},^closure)
@@ -4756,7 +4798,7 @@ macro(fn (!arg,[rest],{meta},^closure)
 
 
 
-.output evaluate2
+.output of snippet `evaluate2`
 [source]
 ----
 Hello
@@ -4769,7 +4811,7 @@ To be honest, since the evaluation of the argument happens only once and without
 It could be shortened as
 
 
-.evaluate3
+.source of snippet `evaluate3`
 [source]
 ----
 (fn (!arg,[rest],{meta},^closure)
@@ -4782,7 +4824,7 @@ It could be shortened as
 
 
 
-.output evaluate3
+.output of snippet `evaluate3`
 [source]
 ----
 Hello
@@ -4938,7 +4980,7 @@ This function is useful for meta-programming when the name of the variable is av
 An example is in the sample:
 
 
-.fnDecorator3
+.source of snippet `fnDecorator3`
 [source]
 ----
 let fun_decorator={|^closure|
@@ -4960,7 +5002,7 @@ q()
 
 
 
-.output fnDecorator3
+.output of snippet `fnDecorator3`
 [source]
 ----
 We start the fun
@@ -4982,7 +5024,7 @@ It is simlar to `set()` but it sets the variable as global.
 This method returns the type of the argument as a string.
 
 
-.type1
+.source of snippet `type1`
 [source]
 ----
 
@@ -5015,7 +5057,7 @@ println "java object ", type(java_object("java.lang.Object"))
 
 
 
-.output type1
+.output of snippet `type1`
 [source]
 ----
 "13" str
@@ -5044,7 +5086,7 @@ When the argument is a Java object then the type is `java.` + the canonical name
 Will sleep the execution of the thread for the given number of seconds.
 
 
-.sleep
+.source of snippet `sleep`
 [source]
 ----
 
@@ -5057,7 +5099,7 @@ sleep(0.001) // sleep one mili
 
 
 
-.output sleep
+.output of snippet `sleep`
 [source]
 ----
 
@@ -5070,7 +5112,7 @@ sleep(0.001) // sleep one mili
 This function converts a closure or a function into a macro.
 
 
-.macro_example
+.source of snippet `macro_example`
 [source]
 ----
 let c = macro(
@@ -5090,7 +5132,7 @@ print(
 
 
 
-.output macro_example
+.output of snippet `macro_example`
 [source]
 ----
 yes, it is true
@@ -5103,7 +5145,7 @@ yes, it is true
 This function will "open" and relose a closure in the current environment.
 
 
-.reclose
+.source of snippet `reclose`
 [source]
 ----
 fn my_fun(@close_it) {
@@ -5129,7 +5171,7 @@ println "s = %s" % s
 
 
 
-.output reclose
+.output of snippet `reclose`
 [source]
 ----
 outer
@@ -5160,7 +5202,7 @@ These fragments will probably run in different threads.
 Here is a complex example using this function:
 
 
-.que
+.source of snippet `que`
 [source]
 ----
 /**
@@ -5221,83 +5263,85 @@ none
 
 
 
-.output que
+.output of snippet `que`
 [source]
 ----
-task1 is not ready 0
-task2 is not ready 0
+task1 is not ready 0task2 is not ready 0
+
 task1 is ready 1
-task1 is not ready 0
 task2 is not ready 1
+task1 is not ready 0
 task1 is not ready 1
 task2 is not ready 2
-task2 is not ready 3
-task1 is not ready 2
-task1 is not ready 3
-task2 is ready 2
-task2 is not ready 0
-task1 is not ready 4
-task2 is not ready 1
-task1 is not ready 5
-task2 is not ready 2
-task1 is not ready 6task2 is ready 3
+task1 is not ready 2task2 is not ready 3
 
-task2 is not ready 0
-task1 is not ready 7
-task2 is not ready 1
-task2 is not ready 2
-task1 is not ready 8
-task2 is ready 4
-task1 is not ready 9task2 is not ready 0
-
-task1 is not ready 10
-task2 is not ready 1
-task2 is not ready 2
-task1 is not ready 11
-task2 is ready 5
-task1 is not ready 12
-task2 is not ready 0
-task1 is not ready 13
-task2 is not ready 1
-task2 is not ready 2task1 is not ready 14
-
-task1 is ready 6
-task2 is not ready 3
-task1 is not ready 0
+task1 is ready 2
 task2 is not ready 4
-task1 is not ready 1
-task2 is not ready 5
+task1 is not ready 0
+task2 is not ready 5task1 is not ready 1
+
 task1 is not ready 2
 task2 is not ready 6
-task1 is not ready 3
-task1 is not ready 4task2 is ready 7
+task2 is not ready 7task1 is ready 3
 
+task1 is not ready 0
+task1 is not ready 1
+task2 is not ready 8
+task1 is not ready 2
+task2 is not ready 9
+task2 is not ready 10
+task1 is ready 4
+task1 is not ready 0
+task2 is not ready 11
+task1 is not ready 1
+task2 is not ready 12
+task1 is not ready 2
+task2 is ready 5
+task1 is not ready 3
 task2 is not ready 0
 task2 is not ready 1
-task1 is not ready 5
-task1 is not ready 6
+task1 is not ready 4
 task2 is not ready 2
+task1 is not ready 5
+task2 is not ready 3
+task1 is not ready 6
+task2 is ready 6
+task1 is not ready 7
+task2 is not ready 0
+task2 is not ready 1
+task1 is not ready 8
+task2 is not ready 2
+task1 is not ready 9
+task2 is ready 7
+task2 is not ready 0
+task1 is not ready 10
+task1 is not ready 11
+task2 is not ready 1
+task2 is not ready 2
+task1 is not ready 12
+task2 is not ready 3
 task1 is ready 8
 task1 is not ready 0
-task2 is not ready 3
 task2 is not ready 4
 task1 is not ready 1
 task1 is not ready 2
 task2 is not ready 5
+task2 is not ready 6
+task1 is ready 9
+task1 is not ready 0
+task2 is not ready 7
+task1 is not ready 1
+task2 is not ready 8
+task1 is not ready 2
+task2 is not ready 9
 task1 is not ready 3
-task2 is ready 9
-task2 is not ready 0
-task1 is not ready 4
-task2 is not ready 1
-task2 is not ready 2
-task1 is not ready 5
 closing the channel
 channel is closed
 1 is done false
 2 is done false
-task2 is done
 we start to wait the first time
 task1 is done
+task2 is done
 task1 done true
 task2 done true
 We start to wait the second time
@@ -5317,7 +5361,7 @@ The naming of the function is a tribute to the programming language Perl.
 If you feel offensive the naming, you can use the lame `throw` form after importing it:
 
 
-.die
+.source of snippet `die`
 [source]
 ----
 
@@ -5334,7 +5378,7 @@ catch ex:
 
 
 
-.output die
+.output of snippet `die`
 [source]
 ----
 don't die
@@ -5355,7 +5399,7 @@ It does not wait and returns `none` if there is no message or the channel is clo
 `yield_is_close()` can be used to test of the que is open from the parent to the child thread.
 
 
-.try_yield
+.source of snippet `try_yield`
 [source]
 ----
 fn printer(){
@@ -5395,7 +5439,7 @@ none
 
 
 
-.output try_yield
+.output of snippet `try_yield`
 [source]
 ----
 sending 1
@@ -5403,16 +5447,16 @@ not ready 0
 received 1
 not ready 0
 not ready 1
+not ready 2
 sending 2
 received 2
 not ready 0
 not ready 1
-not ready 2
 sending 3
+not ready 2
 received 3
 not ready 0
 not ready 1
-not ready 2
 closing the channel
 channel is closed
 is done false
@@ -5430,7 +5474,7 @@ They start with the `pass:[_]` character to signal that they are not to be used 
 Instead, the code has to import the system file `re`:
 
 
-.re
+.source of snippet `re`
 [source]
 ----
 sys_import "turi.re"
@@ -5464,7 +5508,7 @@ print_match(m);
 
 
 
-.output re
+.output of snippet `re`
 [source]
 ----
 {start: 0, name: {}, end: 11, group: [{start: 1, index: 1, end: 2}, {start: 4, index: 2, end: 6}, {start: 6, index: 3, end: 11}]}
@@ -5499,7 +5543,7 @@ In the example above that field was empty.
 In the following example we have named arguments:
 
 
-.re2
+.source of snippet `re2`
 [source]
 ----
 sys_import "turi.re"
@@ -5513,7 +5557,7 @@ println "the ks is '%s'" % [m.name.twoletter]
 
 
 
-.output re2
+.output of snippet `re2`
 [source]
 ----
 the ks is '{start: 6, index: 3, end: 11}'
@@ -5529,7 +5573,7 @@ Each named argument contains the start, end, and the index of the named group.
 This macro accepts an identifier and returns `true` if the identifier is defined in the current context.
 
 
-.is_defined
+.source of snippet `is_defined`
 [source]
 ----
 if is_defined(z) : println "defined" else: println "not defined";
@@ -5545,7 +5589,7 @@ catch: println "no way"
 
 
 
-.output is_defined
+.output of snippet `is_defined`
 [source]
 ----
 not defined
@@ -5564,7 +5608,7 @@ It is an error if the variable is not defined in the local context or defined bu
 This macro was designed for a special purpose to, to create an initialized that can copy the values of an initializer class. Fo example:
 
 
-.unlet
+.source of snippet `unlet`
 [source]
 ----
 class Z {
@@ -5589,7 +5633,7 @@ println z
 
 
 
-.output unlet
+.output of snippet `unlet`
 [source]
 ----
 {a: {B: abraka}, c: , cls: class Z}
@@ -5636,7 +5680,7 @@ defines a function `helvetic_hi()` and
 sets the value of the variable `M` to `"hello hello"`.
 
 
-.preprocessorSample
+.source of snippet `preprocessorSample`
 [source]
 ----
 fn hi(){ // this will be deleted, it only exists in the preprocessor context
@@ -5667,7 +5711,7 @@ print M
 
 
 
-.output preprocessorSample
+.output of snippet `preprocessorSample`
 [source]
 ----
 hello hello Gruetzi ant hunter

@@ -1517,3 +1517,9 @@ with x,y {
 println x
 println y
 // end snippet
+
+// snippet valueWith
+let x = {a:1,b:2};
+let y = {a:4,c:5};
+println {with x,y : a * b + c}
+// end snippet

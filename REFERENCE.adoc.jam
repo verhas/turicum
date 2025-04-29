@@ -5,7 +5,7 @@
 {%@snip:collect from=core/src/test/resources/references_output%}
 
 {%@define sample($X)=
-.$X
+.source of snippet `$X`
 [source]
 ----
 {%#trimLines
@@ -13,14 +13,14 @@
 %}
 ----
 {%#define [global] output()=
-.output $X
+.output of snippet `$X`
 [source]
 ----
 {%@include [verbatim] core/src/test/resources/references_output/$X.txt%}
 ----
 %}
 {%#define [global] result()=
-.result $X
+.result of snippet `$X`
 [source]
 ----
 {%@include [verbatim] core/src/test/resources/references_output/$X_result.txt%}
@@ -932,6 +932,19 @@ The return value can be used in a `for each` loop, or you can iterate through it
 === `with`
 
 The `with` command is used to execute a block in the context of one or more object.
+
+[source]
+----
+with object list { block }
+----
+
+or
+
+[source]
+----
+with object list : command
+----
+
 It means that the fields of the objects can be used as variables without prefixing them with any object reference.
 
 {%S simpleWith%}
@@ -946,6 +959,10 @@ You can also modify the fields:
 {%S modifyWith%}
 
 Note that the field `x.a` was not modified, because it is shadowed by `y.a`.
+
+The value of the command is the value of the block executed.
+
+{%S valueWith%}
 
 == Functions
 
