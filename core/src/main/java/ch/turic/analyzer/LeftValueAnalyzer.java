@@ -21,7 +21,9 @@ public class LeftValueAnalyzer {
             lexes.next();
             return getLeftValueTail(lexes, left);
         }
-        if (lex.text.equals("{") && !ClosureAnalyzer.blockStartsClosure(lexes)) {
+        if (lex.text.equals("{") && !ClosureAnalyzer.blockStartsClosure(lexes) &&
+                !((lexes.isAt(1, Lex.Type.IDENTIFIER) || lexes.isAt(1, Lex.Type.STRING)) &&
+                        lexes.isAt(2, ":"))) {
             LeftValue left = new CalculatedLeftValue(BlockAnalyzer.INSTANCE.analyze(lexes));
             if (lexes.isNot(".", "[")) {
                 return null;

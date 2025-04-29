@@ -2489,11 +2489,7 @@ or
 with object list : command
 ----
 
-The `object list` is  a list of expressions separated by `,` character.
-At least one expression has to be present.
-The value of the expression has to be a Turicum object.
-
-The fields of the objects can be used as variables without prefixing them with any object reference.
+It means that the fields of the objects can be used as variables without prefixing them with any object reference.
 
 
 .source of snippet `simpleWith`
@@ -2588,6 +2584,113 @@ println {with x,y : a * b + c}
 
 
 
+When an object has the method `entry` it is invoked before the body of the `with` command is executed.
+When an object has the method `exit` it is invoked after the body of the `with` command is executed.
+
+
+.source of snippet `entryAndExitWith`
+[source]
+----
+class A {
+    fn init(a=1,b=2);
+    fn entry {
+        println "entry to A"
+    }
+    fn exit {
+        println "exit fom A"
+    }
+}
+class B {
+    fn init(a=4,c=5);
+    fn entry {
+        println "entry to B"
+    }
+    fn exit {
+        println "exit fom B"
+    }
+}
+let x = A();
+let y = B();
+with x,y {
+  println "executing with A and B"
+}
+
+
+----
+
+
+
+
+.output of snippet `entryAndExitWith`
+[source]
+----
+entry to A
+entry to B
+executing with A and B
+exit fom B
+exit fom A
+
+----
+
+
+
+It is also possible to replace the object in the method `entry`.
+The method `entry` can return `none` signalling that the original object has to be used, or
+it can return an arbitrary object.
+If the method `entry` returns a different object that will be used instead of the one listed in the `with` command.
+The `exit` method will still be invoked on the original object and not the one returned by `entry`.
+
+
+.source of snippet `entryAndExitWith2`
+[source]
+----
+class A {
+    fn init(a=1,b=2);
+    fn entry {
+        println "entry to A"
+        { a: 7, b:8 }
+    }
+    fn exit {
+        println "exit fom A"
+    }
+}
+class B {
+    fn init(a=4,c=5);
+    fn entry {
+        println "entry to B"
+    }
+    fn exit {
+        println "exit fom B"
+    }
+}
+let x = A();
+let y = B();
+with x,y {
+  println a,b,c
+}
+
+
+----
+
+
+
+
+.output of snippet `entryAndExitWith2`
+[source]
+----
+entry to A
+entry to B
+485
+exit fom B
+exit fom A
+
+----
+
+
+
+This working is very similar how Python handles the `with` command.
+
+
 == Functions
 
 Functions play a similar role as in other languages.
@@ -2637,7 +2740,7 @@ println(inc(1))
 .output of snippet `fun1`
 [source]
 ----
-ch.turic.commands.Closure@7ce026d3
+ch.turic.commands.Closure@1caa0244
 2
 
 ----
@@ -2666,7 +2769,7 @@ println(inc(1))
 .output of snippet `fun3`
 [source]
 ----
-ch.turic.commands.Closure@7ce69770
+ch.turic.commands.Closure@7ce026d3
 2
 
 ----
@@ -2697,7 +2800,7 @@ println(inc(1))
 .output of snippet `fun2`
 [source]
 ----
-ch.turic.commands.Closure@1750fbeb
+ch.turic.commands.Closure@7ce69770
 2
 
 ----
@@ -2881,7 +2984,7 @@ println(inc(1,how_much=5))
 .output of snippet `fun4`
 [source]
 ----
-ch.turic.commands.Closure@5b247367
+ch.turic.commands.Closure@1750fbeb
 6
 
 ----
@@ -5266,82 +5369,80 @@ none
 .output of snippet `que`
 [source]
 ----
-task1 is not ready 0task2 is not ready 0
-
-task1 is ready 1
+task1 is not ready 0
+task2 is not ready 0
+task1 is not ready 1
+task2 is ready 1
+task2 is not ready 0
+task1 is not ready 2
 task2 is not ready 1
-task1 is not ready 0
-task1 is not ready 1
 task2 is not ready 2
-task1 is not ready 2task2 is not ready 3
-
-task1 is ready 2
-task2 is not ready 4
-task1 is not ready 0
-task2 is not ready 5task1 is not ready 1
-
-task1 is not ready 2
-task2 is not ready 6
-task2 is not ready 7task1 is ready 3
-
-task1 is not ready 0
-task1 is not ready 1
-task2 is not ready 8
-task1 is not ready 2
-task2 is not ready 9
-task2 is not ready 10
-task1 is ready 4
-task1 is not ready 0
-task2 is not ready 11
-task1 is not ready 1
-task2 is not ready 12
-task1 is not ready 2
-task2 is ready 5
 task1 is not ready 3
-task2 is not ready 0
-task2 is not ready 1
-task1 is not ready 4
-task2 is not ready 2
-task1 is not ready 5
 task2 is not ready 3
-task1 is not ready 6
-task2 is ready 6
-task1 is not ready 7
-task2 is not ready 0
-task2 is not ready 1
-task1 is not ready 8
-task2 is not ready 2
-task1 is not ready 9
-task2 is ready 7
-task2 is not ready 0
-task1 is not ready 10
-task1 is not ready 11
-task2 is not ready 1
-task2 is not ready 2
-task1 is not ready 12
-task2 is not ready 3
-task1 is ready 8
+task1 is ready 2
 task1 is not ready 0
-task2 is not ready 4
 task1 is not ready 1
+task2 is not ready 4
 task1 is not ready 2
 task2 is not ready 5
-task2 is not ready 6
-task1 is ready 9
+task2 is not ready 6task1 is ready 3
+
 task1 is not ready 0
 task2 is not ready 7
 task1 is not ready 1
-task2 is not ready 8
 task1 is not ready 2
-task2 is not ready 9
+task2 is not ready 8
+task1 is not ready 3task2 is ready 4
+
+task2 is not ready 0
+task1 is not ready 4
+task2 is not ready 1
+task1 is not ready 5
+task2 is not ready 2
+task2 is ready 5
+task2 is not ready 0
+task1 is not ready 6
+task2 is not ready 1
+task1 is not ready 7
+task1 is not ready 8task2 is not ready 2
+
+task1 is not ready 9
+task2 is not ready 3
+task2 is not ready 4task1 is ready 6
+
+task1 is not ready 0
+task2 is not ready 5
+task1 is not ready 1
+task2 is not ready 6
+task1 is not ready 2
+task2 is ready 7
 task1 is not ready 3
+task2 is not ready 0
+task1 is not ready 4
+task2 is not ready 1
+task1 is not ready 5
+task2 is not ready 2
+task1 is ready 8
+task2 is not ready 3
+task1 is not ready 0
+task1 is not ready 1
+task2 is not ready 4
+task2 is not ready 5
+task1 is not ready 2
+task2 is ready 9
+task1 is not ready 3
+task2 is not ready 0
+task1 is not ready 4
+task2 is not ready 1
+task1 is not ready 5
+task2 is not ready 2
 closing the channel
 channel is closed
 1 is done false
 2 is done false
-we start to wait the first time
-task1 is done
 task2 is done
+task1 is done
+we start to wait the first time
 task1 done true
 task2 done true
 We start to wait the second time
@@ -5447,17 +5548,18 @@ not ready 0
 received 1
 not ready 0
 not ready 1
-not ready 2
 sending 2
 received 2
 not ready 0
 not ready 1
-sending 3
 not ready 2
+sending 3
 received 3
 not ready 0
 not ready 1
+not ready 2
 closing the channel
+not ready 3
 channel is closed
 is done false
 we are done

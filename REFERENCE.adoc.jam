@@ -964,6 +964,22 @@ The value of the command is the value of the block executed.
 
 {%S valueWith%}
 
+When an object has the method `entry` it is invoked before the body of the `with` command is executed.
+When an object has the method `exit` it is invoked after the body of the `with` command is executed.
+
+{%S entryAndExitWith%}
+
+It is also possible to replace the object in the method `entry`.
+The method `entry` can return `none` signalling that the original object has to be used, or
+it can return an arbitrary object.
+If the method `entry` returns a different object that will be used instead of the one listed in the `with` command.
+The `exit` method will still be invoked on the original object and not the one returned by `entry`.
+
+{%S entryAndExitWith2%}
+
+This working is very similar how Python handles the `with` command.
+
+
 == Functions
 
 Functions play a similar role as in other languages.

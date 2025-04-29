@@ -37,9 +37,9 @@ public class PrimaryExpressionAnalyzer extends AbstractAnalyzer {
         if (lexes.is(Keywords.YIELD)) {
             lexes.next();
             // eat optional '(' and ')' if there is any
-            if(lexes.is("(")){
+            if (lexes.is("(")) {
                 lexes.next();
-                if( lexes.isNot(")")){
+                if (lexes.isNot(")")) {
                     throw new BadSyntax(lexes.position(), "Expected a closing parenthesis after 'yield'");
                 }
                 lexes.next();

@@ -1523,3 +1523,56 @@ let x = {a:1,b:2};
 let y = {a:4,c:5};
 println {with x,y : a * b + c}
 // end snippet
+
+// snippet entryAndExitWith
+class A {
+    fn init(a=1,b=2);
+    fn entry {
+        println "entry to A"
+    }
+    fn exit {
+        println "exit fom A"
+    }
+}
+class B {
+    fn init(a=4,c=5);
+    fn entry {
+        println "entry to B"
+    }
+    fn exit {
+        println "exit fom B"
+    }
+}
+let x = A();
+let y = B();
+with x,y {
+  println "executing with A and B"
+}
+// end snippet
+
+// snippet entryAndExitWith2
+class A {
+    fn init(a=1,b=2);
+    fn entry {
+        println "entry to A"
+        { a: 7, b:8 }
+    }
+    fn exit {
+        println "exit fom A"
+    }
+}
+class B {
+    fn init(a=4,c=5);
+    fn entry {
+        println "entry to B"
+    }
+    fn exit {
+        println "exit fom B"
+    }
+}
+let x = A();
+let y = B();
+with x,y {
+  println a,b,c
+}
+// end snippet

@@ -1,2 +1,2 @@
-ch.turic.commands.Closure@5b247367
+ch.turic.commands.Closure@1750fbeb
 6
