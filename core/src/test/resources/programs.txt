@@ -1,3 +1,14 @@
+// snippet parents
+// null
+class A {}
+class B : A {}
+class C : B {}
+let K = class {}
+class D : A,C, K {}
+println parents(D)
+println all_parents(D)
+// end snippet
+
 // snippet EmptyBlockIsObject
 // null
 let a = {}

@@ -1,0 +1,5 @@
+entry to A
+obj
+7
+8
+exit fom A

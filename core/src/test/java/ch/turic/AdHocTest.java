@@ -13,11 +13,11 @@ public class AdHocTest {
     @Test
     void test0() throws Exception {
         test("""
-let x = {a:1, b:2}
-with x :    let k = 55
-
-println x
-
+class A {}
+class B : A {}
+let K = class : B {}
+let z = K()
+println is_type(z,K)
                 """,null);
     }
 

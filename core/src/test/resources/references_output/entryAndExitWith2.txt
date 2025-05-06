@@ -1,0 +1,5 @@
+entry to A
+entry to B
+785
+exit fom B
+exit fom A

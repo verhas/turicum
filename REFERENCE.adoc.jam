@@ -1796,6 +1796,30 @@ This method returns the type of the argument as a string.
 
 When the argument is a Java object then the type is `java.` + the canonical name of the class.
 
+=== `is_type`
+
+This function accepts two arguments:
+
+* and object, and
+* a string naming a class or the class itself.
+
+The return value is true if the object is an instance of the class or is an instance of a child class of the named class.
+
+{%S is_type%}
+
+=== `parents`
+
+Returns a list of the classes that are the parent classes of the argument.
+
+{%S parents%}
+
+=== `all_parents`
+
+Returns a list of classes that are the parent classes of the argument with a transitive closure.
+It means that all classes, including the parents of the parents and so on recursively.
+
+{%S all_parents%}
+
 === `sleep`
 
 Will sleep the execution of the thread for the given number of seconds.
@@ -1825,7 +1849,7 @@ Prints the arguments to the standard output.
 
 === `que`
 
-This function will create a FIFO queue, that different code fragments can write and read.
+This function will create a FIFO queue that different code fragments can write and read.
 These fragments will probably run in different threads.
 
 Here is a complex example using this function:
@@ -1838,7 +1862,7 @@ Here is a complex example using this function:
 This function will throw an exception.
 The argument is the message of the exception.
 The naming of the function is a tribute to the programming language Perl.
-If you feel offensive the naming, you can use the lame `throw` form after importing it:
+If you feel the naming offensive, you can use the lame `throw` form after importing it:
 
 {%S die%}
 
@@ -1892,10 +1916,10 @@ This macro accepts an identifier and returns `true` if the identifier is defined
 
 === `unlet`
 
-Unlet is a macro that accepts one identifier and deletes it from the local comntext.
+Unlet is a macro that accepts one identifier and deletes it from the local context.
 It is an error if the variable is not defined in the local context or defined but not in the local context.
 
-This macro was designed for a special purpose to, to create an initialized that can copy the values of an initializer class. Fo example:
+This macro was designed for a special purpose to, to create an initializer that can copy the values of an initializer class. Fo example:
 
 {%S unlet%}
 
@@ -1904,8 +1928,6 @@ Without the call to `unlet` the class would also have the variable `obj` as a fi
 === `is_obj`
 
 This is a function that returns `true` if the argument is an object.
-
-
 
 == Preprocessing
 

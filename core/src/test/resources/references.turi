@@ -1214,7 +1214,7 @@ println {LN(2) + LN(4)}.a
 
 // snippet myEqual
 class A {
-  fn `==`(other) -> bool {
+  fn `==`(other) : bool {
     this.a == other.a
   }
 }
@@ -1235,7 +1235,7 @@ println "y == z is %s" % (y == z)
 
 // snippet myEqual2
 class A {
-  fn `==`(other) -> bool {
+  fn `==`(other) : bool {
     return false if cls != other.cls
     a == other.a
   }
@@ -1615,4 +1615,32 @@ with Resource() as a {
     die "Raise an exception"
 }
 println "Exception was eliminated"
+// end snippet
+
+// snippet is_type
+class A {}
+class B : A {}
+let K = class : B {}
+let z = K()
+println is_type(z,"A")," yes"
+println is_type(z,"H")," no"
+println is_type(z,"K")," no" // it is a no named class
+println is_type(z,K)," yes"
+println is_type(z,A)," yes"
+println is_type(z,"#undefined")," yes" // bit strange, but actually
+// end snippet
+
+// snippet parents
+class A {}
+class B : A {}
+let K = class : B {}
+println([ ..parents(K) -> type(it()) ])
+// end snippet
+
+// snippet all_parents
+class A {}
+class B : A {}
+let K = class : B {}
+println all_parents(K)
+println([ ..all_parents(K) -> type(it()) ])
 // end snippet

@@ -2759,7 +2759,7 @@ println(inc(1))
 .output of snippet `fun1`
 [source]
 ----
-ch.turic.commands.Closure@1b7c473a
+ch.turic.commands.Closure@7ce69770
 2
 
 ----
@@ -2788,7 +2788,7 @@ println(inc(1))
 .output of snippet `fun3`
 [source]
 ----
-ch.turic.commands.Closure@5e4bd84a
+ch.turic.commands.Closure@1750fbeb
 2
 
 ----
@@ -2819,7 +2819,7 @@ println(inc(1))
 .output of snippet `fun2`
 [source]
 ----
-ch.turic.commands.Closure@648c94da
+ch.turic.commands.Closure@5b247367
 2
 
 ----
@@ -3003,7 +3003,7 @@ println(inc(1,how_much=5))
 .output of snippet `fun4`
 [source]
 ----
-ch.turic.commands.Closure@2a62b5bc
+ch.turic.commands.Closure@268f106e
 6
 
 ----
@@ -5203,6 +5203,109 @@ java object java.java.lang.Object
 
 When the argument is a Java object then the type is `java.` + the canonical name of the class.
 
+=== `is_type`
+
+This function accepts two arguments:
+
+* and object, and
+* a string naming a class or the class itself.
+
+The return value is true if the object is an instance of the class or is an instance of a child class of the named class.
+
+
+.source of snippet `is_type`
+[source]
+----
+class A {}
+class B : A {}
+let K = class : B {}
+let z = K()
+println is_type(z,"A")," yes"
+println is_type(z,"H")," no"
+println is_type(z,"K")," no" // it is a no named class
+println is_type(z,K)," yes"
+println is_type(z,A)," yes"
+println is_type(z,"#undefined")," yes" // bit strange, but actually
+
+
+----
+
+
+
+
+.output of snippet `is_type`
+[source]
+----
+true yes
+false no
+false no
+true yes
+true yes
+true yes
+
+----
+
+
+
+=== `parents`
+
+Returns a list of the classes that are the parent classes of the argument.
+
+
+.source of snippet `parents`
+[source]
+----
+class A {}
+class B : A {}
+let K = class : B {}
+println([ ..parents(K) -> type(it()) ])
+
+
+----
+
+
+
+
+.output of snippet `parents`
+[source]
+----
+[B]
+
+----
+
+
+
+=== `all_parents`
+
+Returns a list of classes that are the parent classes of the argument with a transitive closure.
+It means that all classes, including the parents of the parents and so on recursively.
+
+
+.source of snippet `all_parents`
+[source]
+----
+class A {}
+class B : A {}
+let K = class : B {}
+println all_parents(K)
+println([ ..all_parents(K) -> type(it()) ])
+
+
+----
+
+
+
+
+.output of snippet `all_parents`
+[source]
+----
+[class A, class B]
+[A, B]
+
+----
+
+
+
 === `sleep`
 
 Will sleep the execution of the thread for the given number of seconds.
@@ -5318,7 +5421,7 @@ Prints the arguments to the standard output.
 
 === `que`
 
-This function will create a FIFO queue, that different code fragments can write and read.
+This function will create a FIFO queue that different code fragments can write and read.
 These fragments will probably run in different threads.
 
 Here is a complex example using this function:
@@ -5388,82 +5491,80 @@ none
 .output of snippet `que`
 [source]
 ----
-task1 is not ready 0
 task2 is not ready 0
-task1 is ready 1
+task1 is not ready 0
+task2 is ready 1
+task1 is not ready 1
+task2 is not ready 0
+task1 is not ready 2
 task2 is not ready 1
-task1 is not ready 0
-task1 is not ready 1
+task1 is not ready 3
 task2 is not ready 2
-task1 is not ready 2
-task2 is not ready 3
 task1 is ready 2
+task2 is not ready 3
+task1 is not ready 0
 task2 is not ready 4
-task1 is not ready 0
+task1 is not ready 1
 task2 is not ready 5
-task1 is not ready 1
-task2 is not ready 6
 task1 is not ready 2
-task2 is not ready 7
-task1 is ready 3
-task1 is not ready 0
-task1 is not ready 1
-task2 is not ready 8
-task1 is not ready 2
-task2 is not ready 9
-task1 is ready 4
-task2 is not ready 10
-task1 is not ready 0
-task2 is not ready 11task1 is not ready 1
-
-task2 is not ready 12
-task1 is not ready 2
-task2 is ready 5
+task2 is ready 3
 task1 is not ready 3
 task2 is not ready 0
 task1 is not ready 4
 task2 is not ready 1
-task1 is not ready 5
+task2 is not ready 2task1 is not ready 5
+
+task2 is not ready 3task1 is ready 4
+
+task1 is not ready 0
+task2 is not ready 4
+task1 is not ready 1
+task1 is not ready 2
+task2 is not ready 5
+task2 is not ready 6
+task1 is ready 5
+task1 is not ready 0
+task2 is not ready 7
+task1 is not ready 1
+task2 is not ready 8
+task1 is not ready 2
+task1 is not ready 3task2 is not ready 9
+
+task2 is ready 6
+task1 is not ready 4
+task2 is not ready 0
+task1 is not ready 5task2 is not ready 1
+
 task2 is not ready 2
 task1 is not ready 6
-task2 is not ready 3
-task1 is ready 6
-task2 is not ready 4
-task1 is not ready 0
-task2 is not ready 5
-task1 is not ready 1
-task2 is not ready 6
-task1 is not ready 2
 task2 is ready 7
-task1 is not ready 3
+task1 is not ready 7
 task2 is not ready 0
-task1 is not ready 4
-task2 is not ready 1
-task1 is not ready 5
-task2 is not ready 2
-task1 is ready 8
-task2 is not ready 3
-task1 is not ready 0
-task2 is not ready 4
-task1 is not ready 1
-task1 is not ready 2
-task2 is not ready 5
-task1 is ready 9
-task1 is not ready 0
-task2 is not ready 6
-task2 is not ready 7task1 is not ready 1
+task2 is not ready 1task1 is not ready 8
 
-task2 is not ready 8
-task1 is not ready 2
+task2 is not ready 2
+task1 is not ready 9
+task2 is ready 8task1 is not ready 10
+
+task2 is not ready 0
+task2 is not ready 1
+task1 is not ready 11
+task2 is not ready 2
+task1 is not ready 12
+task2 is ready 9task1 is not ready 13
+
+task2 is not ready 0
+task1 is not ready 14
+task2 is not ready 1
+task1 is not ready 15
+task2 is not ready 2
 closing the channel
-task1 is not ready 3
-task2 is not ready 9
 channel is closed
 1 is done false
 2 is done false
-we start to wait the first time
 task2 is done
 task1 is done
+we start to wait the first time
 task1 done true
 task2 done true
 We start to wait the second time
@@ -5480,7 +5581,7 @@ task2 done true
 This function will throw an exception.
 The argument is the message of the exception.
 The naming of the function is a tribute to the programming language Perl.
-If you feel offensive the naming, you can use the lame `throw` form after importing it:
+If you feel the naming offensive, you can use the lame `throw` form after importing it:
 
 
 .source of snippet `die`
@@ -5570,17 +5671,16 @@ received 1
 not ready 0
 not ready 1
 sending 2
+not ready 2
 received 2
 not ready 0
 not ready 1
-not ready 2
 sending 3
 received 3
 not ready 0
 not ready 1
 not ready 2
 closing the channel
-not ready 3
 channel is closed
 is done false
 we are done
@@ -5725,10 +5825,10 @@ no way
 
 === `unlet`
 
-Unlet is a macro that accepts one identifier and deletes it from the local comntext.
+Unlet is a macro that accepts one identifier and deletes it from the local context.
 It is an error if the variable is not defined in the local context or defined but not in the local context.
 
-This macro was designed for a special purpose to, to create an initialized that can copy the values of an initializer class. Fo example:
+This macro was designed for a special purpose to, to create an initializer that can copy the values of an initializer class. Fo example:
 
 
 .source of snippet `unlet`
@@ -5770,8 +5870,6 @@ Without the call to `unlet` the class would also have the variable `obj` as a fi
 === `is_obj`
 
 This is a function that returns `true` if the argument is an object.
-
-
 
 == Preprocessing
 

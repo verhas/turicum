@@ -1,5 +1,5 @@
-fn to_xml(object, @top, @plurals= {})-> str {
-    fn to_singular(s : str, plurals : obj) -> str {
+fn to_xml(object, @top, @plurals= {}) : str {
+    fn to_singular(s : str, plurals : obj) : str {
         return plurals[s] if plurals[s] != none;
         if len(s) >= 3 && s[len(s)-3..inf] == "ies" {
             s[0..-3] + "y"
