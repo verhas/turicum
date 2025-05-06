@@ -74,6 +74,10 @@ public class LexList extends LngList {
         return next();
     }
 
+    public BadSyntax syntaxError(String msg, Object ...params) {
+        return new BadSyntax(position(), msg, params);
+    }
+
     public Pos position() {
         if (index >= array.size()) {
             return lexAt(array.size() - 1).position();

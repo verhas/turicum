@@ -54,7 +54,7 @@ public class ParameterDefinition {
                         closure = id;
                         yield null;
                     }
-                    default -> throw new BadSyntax(lexes.position(), "Something went wrong 7639/a2");
+                    default -> throw lexes.syntaxError( "Something went wrong 7639/a2");
                 };
                 if (closing != null) {
                     BadSyntax.when(lexes, lexes.isNot(closing), "'%s%s must be followed by %s", opening, id, closing);

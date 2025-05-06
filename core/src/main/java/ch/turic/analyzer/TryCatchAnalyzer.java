@@ -53,7 +53,7 @@ public class TryCatchAnalyzer extends AbstractAnalyzer {
             command = CommandAnalyzer.INSTANCE.analyze(lexes);
             BadSyntax.when(lexes, command == null, "Empty command ( ';' ) following " + msg);
         } else {
-            throw new BadSyntax(lexes.position(), ": or {", "Expected ':' or '{'");
+            throw lexes.syntaxError( ": or {", "Expected ':' or '{'");
         }
         return command;
     }

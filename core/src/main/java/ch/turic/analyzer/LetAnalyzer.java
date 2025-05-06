@@ -14,11 +14,11 @@ public class LetAnalyzer extends AbstractAnalyzer {
             final var opening = lexes.next().text;
             AssignmentList.Assignment[] assignments = AssignmentList.INSTANCE.analyze(lexes, false);
             if ((opening.equals("[") && lexes.isNot("]")) || (opening.equals("{") && lexes.isNot("}"))) {
-                throw new BadSyntax(lexes.position(), "multi-let assignment variable list not closed");
+                throw lexes.syntaxError( "multi-let assignment variable list not closed");
             }
             lexes.next();
             if( lexes.isNot("=")) {
-                throw new BadSyntax(lexes.position(), "multi-let assignment '=' is missing");
+                throw lexes.syntaxError( "multi-let assignment '=' is missing");
             }
             lexes.next();
             final var rightHandSide = ExpressionAnalyzer.INSTANCE.analyze(lexes);

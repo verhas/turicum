@@ -931,7 +931,7 @@ The return value can be used in a `for each` loop, or you can iterate through it
 
 === `with`
 
-The `with` command is used to execute a block in the context of one or more object.
+The `with` command executes a block in the context of one or more objects, and also it functions as a resource manager like similar to Python.
 
 [source]
 ----
@@ -945,40 +945,70 @@ or
 with object list : command
 ----
 
+The `object list` is a comma separated list of expressions each with an optional `as identifier` part.
+When there is an `as identifier` the functionality is similar to that of Python.
+
+
+{%S withAs%}
+
+When there is an `as ID` after the expression, then the expression is treated as a resource.
+The method `entry()` is invoked on the resource, and the returned value is assigned to the given `ID`.
+The returned value is usually ab object to handle the resource.
+
+For example, if the resource is a file, then the handle is an object you can use to write into a file.
+
+The identifier is used in the block following the `with` command referencing the handle returned by `entry`.
+
+If `entry` returns `none, then the resource is used as a handle.
+This can be used in simplified cases when the resource and the resource handle object are the same.
+
+When the execution of the block is finished the method `exit` will be invoked on the resource (not on the handle).
+This method will be invoked even if there was any error during the execution of the block.
+
+{%S withAsExceptionHandled%}
+
+The argument to the method is the exception that was raised while processing the block, or `none` if there was not any.
+If the return value of the method `exit` is `true` or anything that can be converted to boolean and has the value `true` following the cast, then the exception is treated as caught and handled.
+If there is any exception during the closing, then it will be thrown.
+Exceptions during resource closing do not get suppressed.
+
+If there are more than one resource in a `with` statement, then their `entry` method is called from left to right and then `exit` methods from right to left.
+The last "opened" resource is closed first.
+
+[NOTE]
+====
+Handling the resources this way is similar to how Python handles the resources with some notable differences.
+
+* There are no underscore characters in the name of the method `entry` and `exit`.
+* `exit` may not exist
+* `entry` may return `none`.
+It has the same effect, and it is also recommended to return `this`.
+* `exit` gets only one argument, the exception that holds all the information.
+In Pythn you get the stack trace and the exception type in a separate argument.
+* You _MUST_ provide an `as` alias for resources, otherwise the expression is not treated as a resource (see below).
+====
+
+If the expression following the `with` statement is not followed by an `as` and an alias, it is treated as an ordinary object.
+The fields of the object get mapped to the actual context.
 It means that the fields of the objects can be used as variables without prefixing them with any object reference.
 
 {%S simpleWith%}
 
-Technically the command executes the block in a context that references the fields of the object and wraps the surrounding scope.
-When more than one objects are listed then multiple wrapping scopes are created from left to right.
-It also means, that the objects to the right shadow the objects to the left.
+Technically, the command executes the block in a context that references the fields of the object and wraps the surrounding scope.
+When more than one object is listed, then multiple wrapping scopes are created from left to right.
+It also means that the objects to the right shadow the objects to the left.
 In the example both `x` and `y` have field `a` and since `y` is later in the list the field of `y` is used.
 
-You can also modify the fields:
+You can also modify or even create fields:
 
 {%S modifyWith%}
 
 Note that the field `x.a` was not modified, because it is shadowed by `y.a`.
+You can only create new fields in the right most object.
 
 The value of the command is the value of the block executed.
 
 {%S valueWith%}
-
-When an object has the method `entry` it is invoked before the body of the `with` command is executed.
-When an object has the method `exit` it is invoked after the body of the `with` command is executed.
-
-{%S entryAndExitWith%}
-
-It is also possible to replace the object in the method `entry`.
-The method `entry` can return `none` signalling that the original object has to be used, or
-it can return an arbitrary object.
-If the method `entry` returns a different object that will be used instead of the one listed in the `with` command.
-The `exit` method will still be invoked on the original object and not the one returned by `entry`.
-
-{%S entryAndExitWith2%}
-
-This working is very similar how Python handles the `with` command.
-
 
 == Functions
 

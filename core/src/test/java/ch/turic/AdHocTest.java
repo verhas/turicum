@@ -13,12 +13,10 @@ public class AdHocTest {
     @Test
     void test0() throws Exception {
         test("""
-class A {
-    fn entry {
-        { a: 7, b:8 }
-    }
-}
-none
+let x = {a:1, b:2}
+with x :    let k = 55
+
+println x
 
                 """,null);
     }

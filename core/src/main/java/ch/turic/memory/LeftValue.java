@@ -14,8 +14,8 @@ public interface LeftValue {
     void assign(Context ctx, Object value) throws ExecutionException;
 
     static HasFields toObject(Object existing) {
-        if (existing instanceof LngObject || existing instanceof LngClass || existing instanceof LngList) {
-            return (HasFields) existing;
+        if (existing instanceof HasFields hasFields) {
+            return hasFields;
         }
         if (existing instanceof Map<?, ?> map) {
             return new MapObject(Map.copyOf(map));

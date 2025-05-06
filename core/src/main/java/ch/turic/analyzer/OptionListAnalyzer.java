@@ -42,7 +42,7 @@ public class OptionListAnalyzer {
                 final var expression = ExpressionAnalyzer.INSTANCE.analyze(lexes);
                 map.put(id, expression);
             } else {
-                throw new BadSyntax(lexes.position(), "'%s' is not an accepted parameter", id);
+                throw lexes.syntaxError( "'%s' is not an accepted parameter", id);
             }
         }
         return map;

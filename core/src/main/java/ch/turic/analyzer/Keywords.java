@@ -26,5 +26,6 @@ public interface Keywords {
     String YIELD = "yield";
     String ASYNC = "async";
     String AWAIT = "await";
+    String AS = "as";
     // end snippet
 }

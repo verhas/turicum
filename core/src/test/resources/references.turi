@@ -1513,6 +1513,7 @@ with x,y {
     a = 0
     b = 0
     c = 0
+    let k = 55;
 }
 println x
 println y
@@ -1557,7 +1558,7 @@ class A {
         println "entry to A"
         { a: 7, b:8 }
     }
-    fn exit {
+    fn exit e:err|none {
         println "exit fom A"
     }
 }
@@ -1566,13 +1567,52 @@ class B {
     fn entry {
         println "entry to B"
     }
-    fn exit {
+    fn exit (e){
         println "exit fom B"
     }
 }
-let x = A();
-let y = B();
-with x,y {
-  println a,b,c
+with A() as x, B() as y {
+  println x.a,x.b,y.c
 }
+// end snippet
+// snippet withAs
+class Resource {
+    fn init(a=1,b=2);
+    fn entry {
+        println "entry to A"
+        // the value is not instance of A
+        { a: 7, b:8 }
+    }
+    fn exit(e){
+        println "exit fom A"
+        return none // if there is an error, let it go
+    }
+}
+with Resource() as a {
+    println type(a)
+    println a.a
+    println a.b
+}
+// end snippet
+
+
+// snippet withAsExceptionHandled
+class Resource {
+    fn init(a=1,b=2);
+    fn entry {
+        println "entry to A"
+        // the value is not instance of A
+        { a: 7, b:8 }
+    }
+    fn exit(exception) {
+        println "exit fom A"
+        if exception != none:
+            println "There was an exception '%s'" % [exception.message]
+        return true // we handled the exception, no more
+    }
+}
+with Resource() as a {
+    die "Raise an exception"
+}
+println "Exception was eliminated"
 // end snippet

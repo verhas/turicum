@@ -8,14 +8,6 @@ public abstract class AbstractAnalyzer implements Analyzer {
 
     private Pos startPosition;
 
-    public Pos startPosition() {
-        return startPosition;
-    }
-
-    public Pos endPosition() {
-        return endPosition;
-    }
-
     private Pos endPosition;
 
     @Override

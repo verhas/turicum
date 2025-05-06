@@ -40,7 +40,7 @@ public class BinaryExpressionAnalyzer extends AbstractAnalyzer {
 
     public Command analyze(final int precedenceLevel, final LexList lexes) throws BadSyntax {
         if (lexes.isEmpty()) {
-            throw new BadSyntax(lexes.position(), "Expression is empty");
+            throw lexes.syntaxError( "Expression is empty");
         }
 
         if (precedenceLevel == N) {
