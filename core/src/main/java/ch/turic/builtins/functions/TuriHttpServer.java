@@ -88,9 +88,10 @@ public class TuriHttpServer implements TuriFunction {
             server.createContext(path, (exchange) -> {
                         final var handlerCtx = ctx.thread();
                         final var request = mapRequest(exchange, handlerCtx);
+                        final var requestMessage = mapRequest(exchange, handlerCtx);
                         final var response = mapResponse(exchange, handlerCtx);
                         try {
-                            channel.send((Channel.Message) Channel.Message.of(request));
+                            channel.send((Channel.Message) Channel.Message.of(requestMessage));
                             final var result = closure.call(handlerCtx.open(), request, response).toString();
 
                             exchange.sendResponseHeaders(Cast.toLong(response.getField("code")).intValue(), result.length());

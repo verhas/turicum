@@ -1774,6 +1774,49 @@ The argument can be:
 
 * Java collection
 
+=== `rng`
+
+Returns a number range.
+
+[source]
+----
+rng(start, end, step)
+----
+
+
+It is a read-only list that contains all the numbers from the start (inclusive) to the end (exclusive) with the given step.
+It does not create an actual list but just provides access to the numbers of the range by index.
+You can also iterate through the elements.
+
+The next example demonstrates that you can have extremely large ranges.
+
+{%S rng%}
+
+If you want a physical list with the elements, you can create it using the `..` spread operator:
+
+{%S rngThrousand%}
+
+In this case `array` will be a list that contains the elements that we print out.
+Do not try this with too large numbers unless you want to test out of memory errors.
+
+You can index a number range, and you can also use a range to index another range:
+
+{%S rngRange%}
+
+In this case you index the range and do not spread it into a list.
+We only spread the new range for the printout.
+The range called `range` does not allocate the almost two-million elements.
+It is simply another number range.
+At the end the code allocates a list of ten elements for the printout.
+
+The third parameter `step` is optional.
+If not specified it will be `+1` or `-1` depending on the start and the end value.
+
+If specified, it must not be zero, and it has to be positive or negative based on the relations between the start and end value.
+Essentially, stepping has to approach the end value.
+
+{%S rngErrs%}
+
 === `set`
 
 Set the value of a variable in the local context.

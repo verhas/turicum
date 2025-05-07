@@ -97,7 +97,7 @@ public class LngObject implements HasFields, HasIndex, HasContext {
         var method = this.getField("==");
         if (method instanceof Closure lngEquals) {
             ExecutionException.when(!lngEquals.parameters().fitOperator(), "Operator methods must have exactly one argument");
-            final var argValues = new FunctionCall.ArgumentEvaluated[]{new FunctionCall.ArgumentEvaluated(null,o)};
+            final var argValues = new FunctionCall.ArgumentEvaluated[]{new FunctionCall.ArgumentEvaluated(null, o)};
             final Context ctx;
             if (lngEquals.wrapped() == null) {
                 ctx = context.wrap(this.context());
@@ -107,7 +107,7 @@ public class LngObject implements HasFields, HasIndex, HasContext {
                 ctx.let0("cls", this.lngClass);
             }
             FunctionCall.freezeThisAndCls(ctx);
-            FunctionCall.defineArgumentsInContext(ctx, context,lngEquals.parameters(), argValues);
+            FunctionCall.defineArgumentsInContext(ctx, context, lngEquals.parameters(), argValues);
             return Cast.toBoolean(lngEquals.execute(ctx));
         }
         if (!Objects.equals(lngClass, lngObject.lngClass)) {
@@ -116,16 +116,16 @@ public class LngObject implements HasFields, HasIndex, HasContext {
         final var compared = new IdentityHashMap<>();
         final var allKeys = new HashSet<>(context.keys());
         allKeys.addAll(lngObject.fields());
-        compared.put(lngObject,null);
-        compared.put(this,null);
+        compared.put(lngObject, null);
+        compared.put(this, null);
         for (final var key : allKeys) {
             final var thisField = getField(key);
             final var thatField = lngObject.getField(key);
             if (!compared.containsKey(thisField) && !compared.containsKey(thatField) && !Objects.equals(thisField, thatField)) {
                 return false;
             }
-            compared.put(thisField,null);
-            compared.put(thatField,null);
+            compared.put(thisField, null);
+            compared.put(thatField, null);
         }
         return true;
     }
@@ -166,15 +166,20 @@ public class LngObject implements HasFields, HasIndex, HasContext {
     public String toString() {
         final var builder = new StringBuilder("{");
         String sep = "";
-        for (var key : context().keys()) {
-            final var object = context().get(key);
-            if (object != this) {
-                builder.append(sep).append(key).append(": ").append(object);
+        try {
+            for (var key : context().keys()) {
+                final var object = context().get(key);
+                if (object != this) {
+                    builder.append(sep).append(key).append(": ").append(object);
+                }
+                sep = ", ";
             }
-            sep = ", ";
+            builder.append("}");
+            return builder.toString();
+        } catch (ConcurrentModificationException cme) {
+            System.out.println("ouch");
+            return "";
         }
-        builder.append("}");
-        return builder.toString();
     }
 
 }

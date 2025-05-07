@@ -1644,3 +1644,43 @@ let K = class : B {}
 println all_parents(K)
 println([ ..all_parents(K) -> type(it()) ])
 // end snippet
+
+// snippet rng
+let z = rng(0,9223372036854775807)
+let i = 0
+for each k in z {
+  println k
+  i = i + 1
+}until i > 5
+// end snippet
+
+// snippet rngThrousand
+let z = rng(0,1000)
+let array = [ ..z ]
+print( [..array[0 .. 5], ..array[-5 .. array.length]])
+// end snippet
+
+// snippet rngRange
+let z = rng(100,9223372036854775807,100)
+let range = z[20..2000000]
+print( [..range[0 .. 5], ..range[-5 .. range.length]])
+// end snippet
+
+// snippet rngErrs
+try:
+    rng(1,10,-1)
+catch e:
+    println e.message
+try:
+    rng(10,1,+1)
+catch e:
+    println e.message
+try:
+    rng(10,11,0)
+catch e:
+    println e.message
+
+println "Special zero element range can have zero as step %s" % [rng(10,10,0)]
+println "but it is just the same as %s" % [rng(10,10)]
+
+// end snippet

@@ -1233,7 +1233,7 @@ When overriding the operator `==` the result has to be something that can be con
 [source]
 ----
 class A {
-  fn `==`(other) -> bool {
+  fn `==`(other) : bool {
     this.a == other.a
   }
 }
@@ -1281,7 +1281,7 @@ If we modify the equality check to consider the classes, we get a different resu
 [source]
 ----
 class A {
-  fn `==`(other) -> bool {
+  fn `==`(other) : bool {
     return false if cls != other.cls
     a == other.a
   }
@@ -2759,7 +2759,7 @@ println(inc(1))
 .output of snippet `fun1`
 [source]
 ----
-ch.turic.commands.Closure@7ce69770
+ch.turic.commands.Closure@5b247367
 2
 
 ----
@@ -2788,7 +2788,7 @@ println(inc(1))
 .output of snippet `fun3`
 [source]
 ----
-ch.turic.commands.Closure@1750fbeb
+ch.turic.commands.Closure@268f106e
 2
 
 ----
@@ -2819,7 +2819,7 @@ println(inc(1))
 .output of snippet `fun2`
 [source]
 ----
-ch.turic.commands.Closure@5b247367
+ch.turic.commands.Closure@6e9a5ed8
 2
 
 ----
@@ -3003,7 +3003,7 @@ println(inc(1,how_much=5))
 .output of snippet `fun4`
 [source]
 ----
-ch.turic.commands.Closure@268f106e
+ch.turic.commands.Closure@7e057f43
 6
 
 ----
@@ -5095,6 +5095,156 @@ The argument can be:
 
 * Java collection
 
+=== `rng`
+
+Returns a number range.
+
+[source]
+----
+rng(start, end, step)
+----
+
+
+It is a read-only list that contains all the numbers from the start (inclusive) to the end (exclusive) with the given step.
+It does not create an actual list but just provides access to the numbers of the range by index.
+You can also iterate through the elements.
+
+The next example demonstrates that you can have extremely large ranges.
+
+
+.source of snippet `rng`
+[source]
+----
+let z = rng(0,9223372036854775807)
+let i = 0
+for each k in z {
+  println k
+  i = i + 1
+}until i > 5
+
+
+----
+
+
+
+
+.output of snippet `rng`
+[source]
+----
+0
+1
+2
+3
+4
+5
+
+----
+
+
+
+If you want a physical list with the elements, you can create it using the `..` spread operator:
+
+
+.source of snippet `rngThrousand`
+[source]
+----
+let z = rng(0,1000)
+let array = [ ..z ]
+print( [..array[0 .. 5], ..array[-5 .. array.length]])
+
+
+----
+
+
+
+
+.output of snippet `rngThrousand`
+[source]
+----
+[0, 1, 2, 3, 4, 995, 996, 997, 998, 999]
+----
+
+
+
+In this case `array` will be a list that contains the elements that we print out.
+Do not try this with too large numbers unless you want to test out of memory errors.
+
+You can index a number range, and you can also use a range to index another range:
+
+
+.source of snippet `rngRange`
+[source]
+----
+let z = rng(100,9223372036854775807,100)
+let range = z[20..2000000]
+print( [..range[0 .. 5], ..range[-5 .. range.length]])
+
+
+----
+
+
+
+
+.output of snippet `rngRange`
+[source]
+----
+[2100, 2200, 2300, 2400, 2500, 199999600, 199999700, 199999800, 199999900, 200000000]
+----
+
+
+
+In this case you index the range and do not spread it into a list.
+We only spread the new range for the printout.
+The range called `range` does not allocate the almost two-million elements.
+It is simply another number range.
+At the end the code allocates a list of ten elements for the printout.
+
+The third parameter `step` is optional.
+If not specified it will be `+1` or `-1` depending on the start and the end value.
+
+If specified, it must not be zero, and it has to be positive or negative based on the relations between the start and end value.
+Essentially, stepping has to approach the end value.
+
+
+.source of snippet `rngErrs`
+[source]
+----
+try:
+    rng(1,10,-1)
+catch e:
+    println e.message
+try:
+    rng(10,1,+1)
+catch e:
+    println e.message
+try:
+    rng(10,11,0)
+catch e:
+    println e.message
+
+println "Special zero element range can have zero as step %s" % [rng(10,10,0)]
+println "but it is just the same as %s" % [rng(10,10)]
+
+
+
+----
+
+
+
+
+.output of snippet `rngErrs`
+[source]
+----
+rng(1,10,-1) would never end
+rng(10,1,1) would never end
+rng(10,11,0) has zero step size
+Special zero element range can have zero as step []
+but it is just the same as []
+
+----
+
+
+
 === `set`
 
 Set the value of a variable in the local context.
@@ -5299,8 +5449,8 @@ println([ ..all_parents(K) -> type(it()) ])
 .output of snippet `all_parents`
 [source]
 ----
-[class A, class B]
-[A, B]
+[class B, class A]
+[B, A]
 
 ----
 
@@ -5491,80 +5641,80 @@ none
 .output of snippet `que`
 [source]
 ----
-task2 is not ready 0
 task1 is not ready 0
+task2 is not ready 0
 task2 is ready 1
 task1 is not ready 1
 task2 is not ready 0
 task1 is not ready 2
 task2 is not ready 1
-task1 is not ready 3
 task2 is not ready 2
-task1 is ready 2
-task2 is not ready 3
+task1 is not ready 3
+task2 is ready 2
+task2 is not ready 0
+task1 is not ready 4
+task1 is not ready 5
+task2 is not ready 1
+task1 is not ready 6
+task2 is not ready 2
+task2 is ready 3
+task2 is not ready 0
+task1 is not ready 7
+task2 is not ready 1
+task1 is not ready 8
+task2 is not ready 2
+task1 is not ready 9
+task2 is ready 4
+task1 is not ready 10
+task2 is not ready 0
+task1 is not ready 11
+task2 is not ready 1
+task2 is not ready 2task1 is not ready 12
+
+task1 is ready 5task2 is not ready 3
+
 task1 is not ready 0
 task2 is not ready 4
 task1 is not ready 1
-task2 is not ready 5
-task1 is not ready 2
-task2 is ready 3
-task1 is not ready 3
+task2 is not ready 5task1 is not ready 2
+
+task1 is not ready 3task2 is ready 6
+
 task2 is not ready 0
 task1 is not ready 4
 task2 is not ready 1
-task2 is not ready 2task1 is not ready 5
-
-task2 is not ready 3task1 is ready 4
-
-task1 is not ready 0
-task2 is not ready 4
-task1 is not ready 1
-task1 is not ready 2
-task2 is not ready 5
-task2 is not ready 6
-task1 is ready 5
-task1 is not ready 0
-task2 is not ready 7
-task1 is not ready 1
-task2 is not ready 8
-task1 is not ready 2
-task1 is not ready 3task2 is not ready 9
-
-task2 is ready 6
-task1 is not ready 4
-task2 is not ready 0
-task1 is not ready 5task2 is not ready 1
-
+task1 is not ready 5
 task2 is not ready 2
+task2 is not ready 3
 task1 is not ready 6
 task2 is ready 7
 task1 is not ready 7
 task2 is not ready 0
-task2 is not ready 1task1 is not ready 8
-
+task1 is not ready 8
+task2 is not ready 1
+task1 is ready 8
 task2 is not ready 2
-task1 is not ready 9
-task2 is ready 8task1 is not ready 10
-
+task1 is not ready 0
+task2 is not ready 3
+task1 is not ready 1
+task2 is not ready 4
+task1 is not ready 2
+task2 is ready 9
+task1 is not ready 3
 task2 is not ready 0
 task2 is not ready 1
-task1 is not ready 11
+task1 is not ready 4
+task1 is not ready 5
 task2 is not ready 2
-task1 is not ready 12
-task2 is ready 9task1 is not ready 13
-
-task2 is not ready 0
-task1 is not ready 14
-task2 is not ready 1
-task1 is not ready 15
-task2 is not ready 2
+task1 is not ready 6
+task2 is not ready 3
 closing the channel
 channel is closed
 1 is done false
 2 is done false
+we start to wait the first time
 task2 is done
 task1 is done
-we start to wait the first time
 task1 done true
 task2 done true
 We start to wait the second time
@@ -5671,10 +5821,10 @@ received 1
 not ready 0
 not ready 1
 sending 2
-not ready 2
 received 2
 not ready 0
 not ready 1
+not ready 2
 sending 3
 received 3
 not ready 0
