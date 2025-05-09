@@ -28,3 +28,5 @@ ch.turic.builtins.functions.ExportAll
 ch.turic.builtins.functions.Parents
 ch.turic.builtins.functions.AllParents
 ch.turic.builtins.functions.Rng
+ch.turic.builtins.functions.Time
+ch.turic.builtins.functions.NanoTime

@@ -1,0 +1,19 @@
+let VERSION = "1.0.0-SNAPSHOT";
+
+let `maven-javadoc-plugin` = "3.11.2";
+let `maven-source-plugin` = "3.3.1";
+let `maven-compiler-plugin` = "3.13.0";
+let `maven-dependency-plugin` = "3.8.1";
+let `maven-surefire-plugin` = "3.5.3";
+let `nexus-staging-maven-plugin` = "1.7.0";
+let `org.junit.jupiter` = "5.13.0-M2";
+let `org.mockito` = "5.17.0";
+let `intellij.version` = "2025.1";
+
+let JAVA_VERSION = 21;
+
+let groupId = "ch.turic";
+
+
+
+export_all();

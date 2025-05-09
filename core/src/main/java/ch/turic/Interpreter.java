@@ -1,12 +1,15 @@
 package ch.turic;
 
 import ch.turic.analyzer.Input;
+import ch.turic.analyzer.LexList;
 import ch.turic.analyzer.Lexer;
 import ch.turic.analyzer.ProgramAnalyzer;
+import ch.turic.commands.BlockCommand;
 import ch.turic.commands.Command;
 import ch.turic.memory.Context;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Interprets and executes source code written in the programming language.
@@ -31,6 +34,7 @@ public class Interpreter {
     public Interpreter(String source) {
         this.source = Input.fromString(source);
     }
+
     public Interpreter(Input source) {
         this.source = source;
     }
@@ -58,7 +62,12 @@ public class Interpreter {
                 localCode = code; // may have changed since we synchronized
                 if (localCode == null) {
                     final var analyzer = new ProgramAnalyzer();
-                    localCode = analyzer.analyze(Lexer.analyze(source));
+                    LexList lexes = Lexer.analyze(source);
+                    if (lexes.isEmpty()) {
+                        localCode = new BlockCommand(List.of(), false);
+                    } else {
+                        localCode = analyzer.analyze(lexes);
+                    }
                     code = localCode;
                     preprocessorContext = analyzer.context();
                 }

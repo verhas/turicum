@@ -1,24 +1,17 @@
 sys_import "turi.maven"
+import "turicum_versions"
 
-let `maven-javadoc-plugin` = "3.11.2";
-let `maven-source-plugin` = "3.3.1";
-let `maven-compiler-plugin` = "3.13.0";
-let `maven-dependency-plugin` = "3.8.1";
-let `maven-surefire-plugin` = "3.5.3";
-let `nexus-staging-maven-plugin` = "1.7.0";
-let `org.junit.jupiter` = "5.13.0-M2";
-let `org.mockito` = "5.17.0";
 
-let JAVA_VERSION = 21;
+let modules =  [ "core", "maven", "cli" ];
 
 let project = maven_project({
     name : "turicum-parent",
     packaging : "pom",
-    groupId : "ch.turic",
+    groupId : groupId,
     artifactId : "turicum-parent",
-    version : "1.0.0-SNAPSHOT",
+    version : VERSION,
     description : "Turicum programming language",
-    modules : [ "core", "maven", "cli" ],
+    modules : modules,
 
     licenses : [ {
             name : "The Apache License, Version 2.0",
@@ -117,7 +110,7 @@ let project = maven_project({
                 }    
                 ]
         }// end of plugin management
-    }
+    },
         
     
     dependencyManagement : {
@@ -155,7 +148,7 @@ let project = maven_project({
                 scope : "test"
             }
         ]
-    }
+    },
 
     profiles : [ {
         id : "release",

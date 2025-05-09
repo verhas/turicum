@@ -2710,6 +2710,248 @@ println {with x,y : a * b + c}
 
 
 
+=== Asynchronous execution
+
+You can execute any command asynchronously using the `async` command.
+You symply have to wite `async` in front of the command.
+The command will start the execution in a separate thread (Java 21 virtual thread) and the starting thread will go on executing.
+
+The return value of the `async` command is a handler to the started task.
+The type is `task`.
+
+To wait for the finishing of an asynchronously started command, you should use the `await` command.
+It will also result in the value returned by the task.
+
+In addition to returning a value, a task can also receive and send objects.
+The `yield` command inside the task will either receive an object or send an object.
+
+
+.source of snippet `async`
+[source]
+----
+let t:task = async {
+    for i=0 ; i < 10 ; i = i + 1 {
+        yield i
+    }
+    55
+}
+
+while t.has_next():
+    print t.next(), " "
+println()
+println(await t)
+
+
+
+----
+
+
+
+
+.output of snippet `async`
+[source]
+----
+0 1 2 3 4 5 6 7 8 9 
+55
+
+----
+
+
+
+A task object implements the following methods:
+
+* `is_done` is `true` when the task has finished.
+
+* `is_cancelled` is `true` when the task was cancelled
+
+* `is_err` is `true` when the task ended in an error
+
+* `get_err` returns the error
+
+* `get` returns the result of the task.
+It is the same as the result of the `await` command.
+
+* `close` close the channel to the task.
+After calling this method, you cannot send anything to the task and the task will see that the channel is closed.
+
+* `send` will send an object to the task
+
+* `has_next` will be `true` if there are objects send by the task
+
+* `next` gets the next value from the task
+
+The command `async` has four parameters:
+
+* `in` can give the size of the queue for objects to be sent to the task.
+The default value is no limit.
+If the queue is limited and full, sending an object will wait till a place is freed.
+
+* `out` can give the size of the queue for the task to yield back to the main thread.
+If the queue is full, the task will wait.
+This can be used to limit the memory and CPU usage of infinite generators.
+
+[NOTE]
+====
+
+Say you want to create a generator that returns the prime numbers.
+If you do not limit the channel size, the generator will run ahead and fill in the memory with prime numbers.
+Limiting the channel size you can balance the calculations.
+The generator will stop when it has generated enough numbers and starts when some of the result is consumed.
+
+
+
+.source of snippet `channel_limit`
+[source]
+----
+
+/**
+  * a very simple prime number filter
+  */
+fn is_prime(x:num):bool {
+    return true if x == 2;
+    return false if x % 2 == 0;
+    for n = 3 ; n*n <= x ; n = n + 2 :
+        return false if x % n == 0
+    true
+}
+/**
+  * Create a generator with limited que size.
+  * Then read from it and print.
+  */
+fn execute(name:str, que_length:num){
+    let prime = async[in=que_length] {
+        yield 2;
+        let i = 3;
+        while {
+            if is_prime(i) {
+                yield i
+                println name, " generated ", i
+            }
+            i = i + 2; // only the odd numbers
+        }
+    }
+
+    let count = 0
+    while prime.has_next(){
+        println " prime read ",prime.next()
+        count = count + 1
+        }until count > 3 // limit the printout to the first three primes
+    sleep 1 // will give time for the generator to run ahead uselessly
+    println "stopping"
+    prime.stop()
+    // the error is cancellation, since we stopped the task
+    try: await prime catch e : println "exception ", e
+}
+// only 5 for demonstration, in real life it can be millions eating memory
+// five now stands for "unlimited size"
+execute("Thread 1",5)
+// limited channel size will stop the running ahead
+execute("Thread 2",2)
+
+
+----
+
+
+
+
+.output of snippet `channel_limit`
+[source]
+----
+ prime read 2
+ prime read 3
+Thread 1 generated 3
+Thread 1 generated 5
+ prime read 5
+Thread 1 generated 7
+ prime read 7
+Thread 1 generated 11
+Thread 1 generated 13
+Thread 1 generated 17
+Thread 1 generated 19
+Thread 1 generated 23
+stopping
+exception Task stopped.
+Thread 2 generated 3
+ prime read 2
+ prime read 3
+Thread 2 generated 5
+Thread 2 generated 7
+ prime read 5
+ prime read 7
+Thread 2 generated 11
+Thread 2 generated 13
+stopping
+exception Task stopped.
+
+----
+
+
+
+In the output you can see that the calculation went ahead uselessly in the first case.
+In the second case the calculation was limited.
+====
+
+* `steps` limits the number of elementary steps in the execution.
+The task will stop after this many steps (planned feature).
+
+* `times` limits the time of the task, unit is milliseconds.
+The task will stop after the specified time (planned feature).
+
+
+These parameters can be specified after the `async` keyword between `[` and `]` characters.
+When the command to be executed asynchronously starts with a `[` character you either has to have `[]` in front of it or enclose the command between `(` and `)` or `{` and `}` to help the syntax analysis.
+
+The command can also execute a list parallel.
+When the expression to execute asynchronously is a list literal, then the command will execute the individual elements of the list parallel.
+In that case the result is a list of tasks instead of a task that results in a list.
+
+The following example creates a list of `[1,2,3]` in the conventional way and also parallel.
+It prints out the elapsed time using the built-in `nano_time` function.
+
+
+.source of snippet `asyn_list`
+[source]
+----
+fn sleeper(x) {
+    sleep 0.1
+    x
+    }
+{
+let start = nano_time()
+let serial = [sleeper(1), sleeper(2), sleeper(3)]
+let end = nano_time()
+println serial
+println( (end-start)/1000000, "ms")
+}
+{
+let start = nano_time()
+let serial = [ ..async([sleeper(1), sleeper(2), sleeper(3)]) -> it.get() ]
+let end = nano_time()
+println serial
+println( (end-start)/1000000, "ms")
+}
+
+
+----
+
+
+
+
+.output of snippet `asyn_list`
+[source]
+----
+[1, 2, 3]
+304.353125ms
+[1, 2, 3]
+103.880292ms
+
+----
+
+
+
+As you can see, in the first case the execution time is a bit above 300ms, which is the three times 0.1sec waiting in the function.
+In the second case the functions wait the same time, parallel, and the execution time is just above the 100ms single wait time.
+
 == Functions
 
 Functions play a similar role as in other languages.
@@ -2759,7 +3001,7 @@ println(inc(1))
 .output of snippet `fun1`
 [source]
 ----
-ch.turic.commands.Closure@5b247367
+ch.turic.commands.Closure@42bc14c1
 2
 
 ----
@@ -2788,7 +3030,7 @@ println(inc(1))
 .output of snippet `fun3`
 [source]
 ----
-ch.turic.commands.Closure@268f106e
+ch.turic.commands.Closure@531f4093
 2
 
 ----
@@ -2819,7 +3061,7 @@ println(inc(1))
 .output of snippet `fun2`
 [source]
 ----
-ch.turic.commands.Closure@6e9a5ed8
+ch.turic.commands.Closure@62ef27a8
 2
 
 ----
@@ -3003,7 +3245,7 @@ println(inc(1,how_much=5))
 .output of snippet `fun4`
 [source]
 ----
-ch.turic.commands.Closure@7e057f43
+ch.turic.commands.Closure@6436a7db
 6
 
 ----
@@ -5449,8 +5691,8 @@ println([ ..all_parents(K) -> type(it()) ])
 .output of snippet `all_parents`
 [source]
 ----
-[class B, class A]
-[B, A]
+[class A, class B]
+[A, B]
 
 ----
 
@@ -5643,78 +5885,78 @@ none
 ----
 task1 is not ready 0
 task2 is not ready 0
-task2 is ready 1
-task1 is not ready 1
-task2 is not ready 0
-task1 is not ready 2
 task2 is not ready 1
+task1 is ready 1
+task1 is not ready 0
 task2 is not ready 2
-task1 is not ready 3
+task1 is not ready 1
 task2 is ready 2
 task2 is not ready 0
-task1 is not ready 4
+task1 is not ready 2
+task1 is not ready 3task2 is not ready 1
+
+task2 is not ready 2task1 is not ready 4
+
+task2 is not ready 3
 task1 is not ready 5
-task2 is not ready 1
 task1 is not ready 6
-task2 is not ready 2
 task2 is ready 3
 task2 is not ready 0
-task1 is not ready 7
 task2 is not ready 1
-task1 is not ready 8
+task1 is not ready 7
 task2 is not ready 2
-task1 is not ready 9
+task1 is not ready 8
 task2 is ready 4
+task1 is not ready 9
+task2 is not ready 0
 task1 is not ready 10
-task2 is not ready 0
+task2 is not ready 1
+task2 is not ready 2
 task1 is not ready 11
-task2 is not ready 1
-task2 is not ready 2task1 is not ready 12
-
-task1 is ready 5task2 is not ready 3
-
-task1 is not ready 0
-task2 is not ready 4
-task1 is not ready 1
-task2 is not ready 5task1 is not ready 2
-
-task1 is not ready 3task2 is ready 6
-
+task2 is ready 5
+task1 is not ready 12
 task2 is not ready 0
-task1 is not ready 4
 task2 is not ready 1
-task1 is not ready 5
+task1 is not ready 13
+task2 is not ready 2
+task1 is not ready 14
+task2 is ready 6
+task1 is not ready 15task2 is not ready 0
+
+task1 is not ready 16
+task2 is not ready 1
+task1 is not ready 17
 task2 is not ready 2
 task2 is not ready 3
-task1 is not ready 6
+task1 is not ready 18
 task2 is ready 7
-task1 is not ready 7
+task1 is not ready 19
 task2 is not ready 0
-task1 is not ready 8
+task1 is not ready 20
 task2 is not ready 1
-task1 is ready 8
 task2 is not ready 2
-task1 is not ready 0
+task1 is not ready 21
+task1 is not ready 22
+task2 is ready 8
+task2 is not ready 0
+task1 is not ready 23
+task2 is not ready 1
+task1 is not ready 24
+task2 is not ready 2
+task1 is ready 9
 task2 is not ready 3
+task1 is not ready 0
 task1 is not ready 1
 task2 is not ready 4
 task1 is not ready 2
-task2 is ready 9
-task1 is not ready 3
-task2 is not ready 0
-task2 is not ready 1
-task1 is not ready 4
-task1 is not ready 5
-task2 is not ready 2
-task1 is not ready 6
-task2 is not ready 3
+task2 is not ready 5
 closing the channel
 channel is closed
 1 is done false
 2 is done false
-we start to wait the first time
 task2 is done
 task1 is done
+we start to wait the first time
 task1 done true
 task2 done true
 We start to wait the second time

@@ -5,16 +5,14 @@ import ch.turic.builtins.classes.TuriMethod;
 
 import java.util.Iterator;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
 
 public class AsyncStreamHandler extends CompletableFuture<Object> implements Yielder, AutoCloseable, Iterable<Object>, Future<Object>, HasFields {
 
     private final BlockingQueueChannel<Object> toChildQueue;
     private final BlockingQueueChannel<Object> toParentQueue;
     private final Iterator<Object> parentIterator;
+    private String name;
 
     public CompletableFuture<Channel.Message<?>> future() {
         return future;
@@ -26,6 +24,7 @@ public class AsyncStreamHandler extends CompletableFuture<Object> implements Yie
         this.toChildQueue = new BlockingQueueChannel<>(outQueueSize);
         this.toParentQueue = new BlockingQueueChannel<>(inQueueSize);
         this.parentIterator = toParentQueue.iterator();
+        this.name = NameGen.generateName();
     }
 
     @Override
@@ -72,6 +71,8 @@ public class AsyncStreamHandler extends CompletableFuture<Object> implements Yie
     public Channel.Message<?> get() throws ExecutionException {
         try {
             return future.get();
+        } catch (CancellationException ce) {
+            throw new ExecutionException("Task stopped.");
         } catch (Exception e) {
             throw new ExecutionException(e);
         }
@@ -94,8 +95,15 @@ public class AsyncStreamHandler extends CompletableFuture<Object> implements Yie
     @Override
     public Object getField(String name) throws ch.turic.ExecutionException {
         return switch (name) {
+            case "name" -> new TuriMethod<>(() -> this.name);
             case "is_done" -> new TuriMethod<>(future::isDone);
             case "is_cancelled" -> new TuriMethod<>(future::isCancelled);
+            case "stop" -> new TuriMethod<>(x -> {
+                future.cancel(true);
+                toParent().close();
+                toChild().close();
+                return null;
+            });
             case "is_err" -> new TuriMethod<>(() -> {
                 try {
                     return future.isDone() && future.get().isException();
@@ -129,6 +137,12 @@ public class AsyncStreamHandler extends CompletableFuture<Object> implements Yie
             case "send" -> new TuriMethod<>((args) -> {
                 for (final var arg : args) {
                     toChild().send(Channel.Message.of(arg));
+                }
+                return null;
+            });
+            case "set_name" -> new TuriMethod<>((args) -> {
+                for (final var arg : args) {
+                    this.name = ""+ arg;
                 }
                 return null;
             });

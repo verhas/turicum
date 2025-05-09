@@ -10,8 +10,8 @@ public class BlockingQueueChannel<T> implements Channel<T> {
     private final BlockingQueue<Message<T>> queue;
     private boolean closed = false;
 
-    public BlockingQueueChannel(int size) {
-        queue = new LinkedBlockingQueue<>(size);
+    public BlockingQueueChannel(int capacity) {
+        queue = new LinkedBlockingQueue<>(capacity);
     }
 
     @Override
@@ -20,7 +20,17 @@ public class BlockingQueueChannel<T> implements Channel<T> {
             if (isClosed()) {
                 throw new ExecutionException("Channel is closed");
             }
-            queue.put(message);
+            if (message.isCloseMessage() ) {
+                // we do not block for close messages, it may never be read
+                Thread.startVirtualThread(()-> {
+                    try {
+                        queue.put(message);
+                    } catch (InterruptedException ignore) {
+                    }
+                });
+            } else {
+                queue.put(message);
+            }
         } catch (InterruptedException e) {
             throw new ExecutionException(e);
         }

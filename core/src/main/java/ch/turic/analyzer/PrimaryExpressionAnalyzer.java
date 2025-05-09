@@ -46,6 +46,9 @@ public class PrimaryExpressionAnalyzer extends AbstractAnalyzer {
             }
             return new YieldFetch();
         }
+        if (lexes.is(Keywords.ASYNC)) {
+            return ExpressionAnalyzer.INSTANCE.analyze(lexes);
+        }
         if (lexes.is(Keywords.CLASS)) {
             lexes.next();
             return ClassAnalyzer.INSTANCE.analyze(lexes);

@@ -57,6 +57,9 @@ public class GlobalContext {
     }
 
     /**
+     * Switch the global heap to multithreaded mode converting the heap from a normal hash map to a concurrent hash
+     * map.
+     * <p>
      * This method does not need synchronization. When it is called first time, there are no multiple threads.
      * The single main thread that is about to start other threads will wait till the heap is replaced.
      * <p>
@@ -67,7 +70,7 @@ public class GlobalContext {
      * <p>
      * The heap replacement to {@link ConcurrentHashMap} does not guarantee that the variables are also updated.
      */
-    public void startMultithreading() {
+    public void switchToMultithreading() {
         if (isMultiThreading.compareAndSet(false, true)) {
             heap = new ConcurrentHashMap<>(heap);
             top.frame = heap;

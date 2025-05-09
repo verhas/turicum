@@ -13,6 +13,7 @@ public class Cast {
      */
     public static boolean isLong(Object obj) {
         return switch (obj) {
+            case null -> false;
             case Long ignore -> true;
             case Integer ignore -> true;
             case Short ignore -> true;
@@ -39,6 +40,7 @@ public class Cast {
 
     public static boolean isDouble(Object obj) {
         return switch (obj) {
+            case null -> false;
             case Long ignore -> true;
             case Integer ignore -> true;
             case Short ignore -> true;
@@ -181,6 +183,7 @@ public class Cast {
 
     public static Double toDouble(Object obj) throws ExecutionException {
         return switch (obj) {
+            case null -> throw  new ExecutionException("Cannot cast null to number");
             case Long l -> Double.valueOf(l);
             case Integer i -> Double.valueOf(i);
             case Short sh -> Double.valueOf(sh);

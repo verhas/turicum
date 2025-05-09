@@ -34,14 +34,14 @@ public class AwaitEvaluation extends AbstractCommand {
         final Object future;
         if (result instanceof LngList) {
             final var futures = new ArrayList<CompletableFuture<?>>();
-            for (final var f : (Iterable<?>)result) {
+            for (final var f : (Iterable<?>) result) {
                 if (f instanceof AsyncStreamHandler asyncStreamHandler) {
                     futures.add(asyncStreamHandler.future());
                 } else {
                     throw new ExecutionException("Cannot wait on %s ", f);
                 }
             }
-            if( futures.isEmpty()) {
+            if (futures.isEmpty()) {
                 return null;
             }
             future = CompletableFuture.anyOf(futures.toArray(CompletableFuture[]::new));
@@ -55,6 +55,8 @@ public class AwaitEvaluation extends AbstractCommand {
                     return ash.get().get();
                 }
                 return ash.get(timeLimit, TimeUnit.MILLISECONDS).get();
+            } catch (ExecutionException e) {
+                throw e;
             } catch (Exception e) {
                 throw new ExecutionException(e);
             }

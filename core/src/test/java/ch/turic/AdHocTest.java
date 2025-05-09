@@ -11,6 +11,32 @@ public class AdHocTest {
     }
 
     @Test
+    void test1() throws Exception {
+        test("""
+fn sleeper(x) {
+    sleep 0.1
+    x
+    }
+{
+let start = nano_time()
+let serial = [sleeper(1), sleeper(2), sleeper(3)]
+let end = nano_time()
+println serial
+println( (end-start)/1000000, "ms")
+}
+{
+let start = nano_time()
+let serial = [ ..async[][sleeper(1), sleeper(2), sleeper(3)] -> it.get() ]
+let end = nano_time()
+println serial
+println( (end-start)/1000000, "ms")
+}
+
+
+none
+                """,null);
+    }
+    //@Test
     void test0() throws Exception {
         test("""
 fn mapper(request, response, target: fn){
@@ -97,7 +123,7 @@ while {
                 """,null);
     }
 
-    @Test
+    //@Test
     void httpServer() throws Exception {
         test("""
 let s = server({

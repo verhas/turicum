@@ -1,11 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <name>turicum</name>
-    <groupId>ch.turic</groupId>
-    <artifactId>turicum</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
-    <description>Turicum</description>
+<project>
     <build>
         <plugins>
             <plugin>
@@ -14,23 +8,23 @@
                 <version>3.3.1</version>
             </plugin>
             <plugin>
+                <configuration>
+                    <release>21</release>
+                    <source>21</source>
+                    <encoding>UTF-8</encoding>
+                    <target>21</target>
+                </configuration>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.13.0</version>
-                <configuration>
-                    <encoding>UTF-8</encoding>
-                    <source>21</source>
-                    <target>21</target>
-                    <release>21</release>
-                </configuration>
             </plugin>
             <plugin>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                </configuration>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>3.3.1</version>
-                <configuration>
-                    <encoding>UTF-8</encoding>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -49,24 +43,30 @@
             </plugin>
         </plugins>
     </build>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>ch.turic</groupId>
+    <name>turicum</name>
+    <description>Turicum programming language core implementation</description>
+    <artifactId>turicum</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
     <dependencies>
         <dependency>
+            <scope>test</scope>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
             <version>5.12.0</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
+            <scope>test</scope>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
             <version>5.12.0</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
+            <scope>test</scope>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-params</artifactId>
             <version>5.12.0</version>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>

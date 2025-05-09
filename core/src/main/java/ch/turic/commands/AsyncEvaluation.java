@@ -2,10 +2,7 @@ package ch.turic.commands;
 
 import ch.turic.ExecutionException;
 import ch.turic.commands.operators.Cast;
-import ch.turic.memory.AsyncStreamHandler;
-import ch.turic.memory.Channel;
-import ch.turic.memory.Context;
-import ch.turic.memory.LngException;
+import ch.turic.memory.*;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -45,19 +42,33 @@ public class AsyncEvaluation extends AbstractCommand {
             }
         }
 
-        ctx.globalContext.startMultithreading();
-        final var newThreadContext = ctx.thread();
+        ctx.globalContext.switchToMultithreading();
 
-        copyVariables(ctx, newThreadContext);
+        if (command instanceof ListComposition composition) {
+            final var lngList = new LngList();
+            for (final var command : composition.array) {
+               lngList.array.add(startAsyncStream(command, ctx, outCapacity, inCapacity));
+            }
+            return lngList;
+        }else {
+            return startAsyncStream(this.command, ctx, outCapacity, inCapacity);
+        }
+    }
+
+    private AsyncStreamHandler startAsyncStream(Command command, Context ctx, int outCapacity, int inCapacity) {
         final var yielder = new AsyncStreamHandler(outCapacity, inCapacity);
+
+        final var newThreadContext = ctx.thread();
+        copyVariables(ctx, newThreadContext);
         newThreadContext.threadContext.addYielder(yielder);
+
         CompletableFuture<Channel.Message<?>> future =
                 CompletableFuture.supplyAsync(() -> {
                     Thread.currentThread().setName("async-thread");
                     try (yielder) {
                         return Channel.Message.of(command.execute(newThreadContext));
                     } catch (Exception t) {
-                        final var exception = LngException.build(ctx,t,newThreadContext.threadContext.getStackTrace());
+                        final var exception = LngException.build(ctx, t, newThreadContext.threadContext.getStackTrace());
                         return Channel.Message.exception(exception);
                     }
                 }, executor);
@@ -65,6 +76,14 @@ public class AsyncEvaluation extends AbstractCommand {
         return yielder;
     }
 
+    /**
+     * Copy the variables from the source context to the target context and freeze them in the target context.
+     * The target context cannot and must not change these variables. It may, however, create new variables that it
+     * can change.
+     *
+     * @param source the context from which we copy the variables
+     * @param target the context to which we copy the variables
+     */
     private static void copyVariables(Context source, Context target) {
         for (final var key : source.keys()) {
             target.let0(key, source.get(key));

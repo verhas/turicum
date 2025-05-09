@@ -879,6 +879,13 @@ println "task2 done %s" % task2.is_done()
 none
 // end snippet
 
+// snippet async_list
+
+let z = async[] [ 1, 2,  3, 4];
+let k = await z
+print k
+
+// end snippet
 // snippet try_yield
 fn printer(){
     let n = 0
@@ -911,6 +918,69 @@ println "is done %s" % task.is_done()
 
 none
 // end snippet
+
+// snippet async
+let t:task = async {
+    for i=0 ; i < 10 ; i = i + 1 {
+        yield i
+    }
+    55
+}
+
+while t.has_next():
+    print t.next(), " "
+println()
+println(await t)
+
+// end snippet
+
+// snippet channel_limit
+
+/**
+  * a very simple prime number filter
+  */
+fn is_prime(x:num):bool {
+    return true if x == 2;
+    return false if x % 2 == 0;
+    for n = 3 ; n*n <= x ; n = n + 2 :
+        return false if x % n == 0
+    true
+}
+/**
+  * Create a generator with limited que size.
+  * Then read from it and print.
+  */
+fn execute(name:str, que_length:num){
+    let prime = async[in=que_length] {
+        yield 2;
+        let i = 3;
+        while {
+            if is_prime(i) {
+                yield i
+                println name, " generated ", i
+            }
+            i = i + 2; // only the odd numbers
+        }
+    }
+
+    let count = 0
+    while prime.has_next(){
+        println " prime read ",prime.next()
+        count = count + 1
+        }until count > 3 // limit the printout to the first three primes
+    sleep 1 // will give time for the generator to run ahead uselessly
+    println "stopping"
+    prime.stop()
+    // the error is cancellation, since we stopped the task
+    try: await prime catch e : println "exception ", e
+}
+// only 5 for demonstration, in real life it can be millions eating memory
+// five now stands for "unlimited size"
+execute("Thread 1",5)
+// limited channel size will stop the running ahead
+execute("Thread 2",2)
+// end snippet
+
 
 // snippet flat_let_object1
 
@@ -1683,4 +1753,25 @@ catch e:
 println "Special zero element range can have zero as step %s" % [rng(10,10,0)]
 println "but it is just the same as %s" % [rng(10,10)]
 
+// end snippet
+
+// snippet asyn_list
+fn sleeper(x) {
+    sleep 0.1
+    x
+    }
+{
+let start = nano_time()
+let serial = [sleeper(1), sleeper(2), sleeper(3)]
+let end = nano_time()
+println serial
+println( (end-start)/1000000, "ms")
+}
+{
+let start = nano_time()
+let serial = [ ..async([sleeper(1), sleeper(2), sleeper(3)]) -> it.get() ]
+let end = nano_time()
+println serial
+println( (end-start)/1000000, "ms")
+}
 // end snippet

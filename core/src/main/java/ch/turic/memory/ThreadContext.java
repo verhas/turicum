@@ -11,7 +11,7 @@ import java.util.List;
 public class ThreadContext {
     private Yielder yielder = null;
 
-    private final List<StackFrame> trace = new ArrayList<>();
+    private final List<LngStackFrame> trace = new ArrayList<>();
 
     public int traceSize() {
         return trace.size();
@@ -25,11 +25,11 @@ public class ThreadContext {
         }
     }
 
-    public List<StackFrame> getStackTrace() {
+    public List<LngStackFrame> getStackTrace() {
         return new ArrayList<>(trace);
     }
 
-    public void push(StackFrame frame) {
+    public void push(LngStackFrame frame) {
         trace.add(frame);
     }
 

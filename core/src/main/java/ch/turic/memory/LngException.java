@@ -4,7 +4,6 @@ import ch.turic.ExecutionException;
 import ch.turic.analyzer.Pos;
 import ch.turic.commands.AbstractCommand;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -14,7 +13,7 @@ public class LngException extends LngObject {
     private final LngList stackTrace;
     private final Context context;
 
-    public LngException(Context context, Throwable e, List<StackFrame> stackTrace) {
+    public LngException(Context context, Throwable e, List<LngStackFrame> stackTrace) {
         super(exceptionClass, null);
         this.context = context;
         this.e = e;
@@ -40,7 +39,7 @@ public class LngException extends LngObject {
         }
     }
 
-    public static LngException build(Context context, Throwable e, List<StackFrame> stackTrace){
+    public static LngException build(Context context, Throwable e, List<LngStackFrame> stackTrace){
         if( e instanceof ExecutionException ee && ee.embedded() != null ){
             return ee.embedded();
         }
