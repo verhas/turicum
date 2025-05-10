@@ -13,6 +13,7 @@ public interface Keywords {
     String WHILE = "while";
     String WITH = "with";
     String FOR = "for";
+    String FLOW = "flow";
     String EACH = "each";
     String ELSE = "else";
     String ELSEIF = "elseif";

@@ -25,7 +25,7 @@ public class BlockAnalyzer extends AbstractAnalyzer {
     public BlockCommand _analyze(final LexList lexes) throws BadSyntax {
         lexes.next();
         final var commands = getCommands(lexes);
-        return new BlockCommand(commands, wrap);
+        return new BlockCommand(commands.toArray(Command[]::new), wrap);
     }
 
     static ArrayList<Command> getCommands(LexList lexes) throws BadSyntax {

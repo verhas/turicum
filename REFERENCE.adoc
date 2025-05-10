@@ -243,6 +243,7 @@ The keywords are:
 `else`
 `elseif`
 `finally`
+`flow`
 `fn`
 `for`
 `global`
@@ -750,7 +751,7 @@ Operators are tokenized with priority for the **longest matching operator**.
 Recognized symbols are:
 
 
-"--", "++", "pass:[->]", "=", "(", ")", ",", ".",
+"--", "++", "pass:[->]", "<-", "=", "(", ")", ",", ".",
 "&{", "{", "}", "[", "]", ";", ":", "|", "?", "@", "^", "#"
 
  
@@ -2858,23 +2859,23 @@ execute("Thread 2",2)
 [source]
 ----
  prime read 2
- prime read 3
 Thread 1 generated 3
 Thread 1 generated 5
- prime read 5
 Thread 1 generated 7
- prime read 7
 Thread 1 generated 11
 Thread 1 generated 13
+ prime read 3
 Thread 1 generated 17
+ prime read 5
+ prime read 7
 Thread 1 generated 19
 Thread 1 generated 23
 stopping
 exception Task stopped.
-Thread 2 generated 3
  prime read 2
- prime read 3
+Thread 2 generated 3
 Thread 2 generated 5
+ prime read 3
 Thread 2 generated 7
  prime read 5
  prime read 7
@@ -2941,9 +2942,9 @@ println( (end-start)/1000000, "ms")
 [source]
 ----
 [1, 2, 3]
-304.353125ms
+315.330583ms
 [1, 2, 3]
-103.880292ms
+104.495708ms
 
 ----
 
@@ -2951,6 +2952,202 @@ println( (end-start)/1000000, "ms")
 
 As you can see, in the first case the execution time is a bit above 300ms, which is the three times 0.1sec waiting in the function.
 In the second case the functions wait the same time, parallel, and the execution time is just above the 100ms single wait time.
+
+[[flow-command]]
+== `flow` Command
+
+The `flow` command defines a *reactive execution block* in which named expressions (called *cells*) are evaluated in a concurrent and data-driven fashion. It is particularly useful for implementing iterative or mutually dependent computations where values must be recalculated until a condition is satisfied, or a fixed number of changes have occurred.
+
+Cells are defined as variable-expression bindings, and their dependencies are automatically detected by analyzing identifier usage. When the value of a cell changes, all other cells that depend on it are automatically rescheduled for evaluation in a new thread (using Java virtual threads).
+
+The `flow` block terminates under one of the following conditions:
+
+- The `until` condition evaluates to `true`.
+- The maximum number of task executions (`limit`) is reached.
+- The allowed wall-clock execution time (`timeout`) is exceeded.
+
+If a `yield` expression is specified, its result is returned as the result of the `flow` command. Otherwise, `null` is returned.
+
+=== Syntax
+
+The basic syntax of the `flow` command is:
+
+[source]
+----
+flow [until <condition>] [limit <maxTasks>] [timeout <seconds>] {
+  <identifier> <- <expression>
+  ...
+  yield <expression>
+}
+----
+
+- `until <condition>`::
+Optional. A boolean expression that terminates the flow once it evaluates to true.
+- `limit <maxTasks>`::
+Optional. A numeric constant that sets the maximum number of dependent cell executions allowed.
+- `timeout <seconds>`::
+Optional. A numeric constant (may be fractional) specifying the maximum wall-clock time allowed for execution, in seconds.
+- `yield <expression>`::
+Optional. Defines the return value of the `flow`. It must be the last statement in the block.
+
+=== Semantics
+
+The `flow` block contains a series of *cells*. Each cell defines a named variable and an expression that computes its value. These variables can reference each other, and the runtime will detect and track these dependencies.
+
+When a cell is updated (i.e., its computed value differs from the previous value in the local context), all cells that depend on it are automatically rescheduled. This process continues until one of the termination conditions is met.
+
+Cell evaluation is performed in isolated thread-local contexts derived from the flow's original context. Variables are copied and frozen in each thread.
+
+The system avoids infinite re-evaluation loops by tracking value stability and respecting the `limit` and `timeout` constraints.
+
+=== Use Cases
+
+The `flow` command is useful for:
+
+- Converging numeric approximations (e.g., computing square roots)
+- Reactive data propagation
+- Declarative fixed-point computations
+- Defining cyclic dependencies with convergence guarantees
+
+=== Examples
+
+This example demonstrates a classical use of the `flow` command for computing square roots using the Babylonian method.
+It shows how reactive cells can update each other iteratively until convergence is reached, and how the `until` clause controls flow termination based on a numeric precision condition.
+
+
+.source of snippet `example_flow_squareroot`
+[source]
+----
+let sqrt = {
+    flow until epsilon < 0.0001 {
+        a <- 13;
+        a <- {
+            let newA = (a + 13 / a) / 2;
+            println("a =", newA);
+            newA;
+        }
+        epsilon <- abs(a - (a + 13 / a) / 2);
+        yield a
+    }
+}
+
+println("sqrt(13) ≈ ", sqrt);
+println("square ≈ ", sqrt * sqrt);
+
+
+----
+
+
+
+
+.output of snippet `example_flow_squareroot`
+[source]
+----
+a =7
+a =4.428571428571429
+a =3.6820276497695854
+a =3.6063454894655185
+a =3.6055513629176015
+a =3.6055512754639905
+a =3.6055512754639896
+sqrt(13) ≈ 3.6055512754639905
+square ≈ 13.000000000000009
+
+----
+
+
+
+This example illustrates how the `flow` command can be bounded by wall-clock time using the `timeout` clause.
+It simulates a long-running or slow computation and demonstrates how flow execution is safely terminated after the specified time limit.
+
+
+.source of snippet `example_flow_timeout`
+[source]
+----
+let result = {try {
+    flow timeout 0.01 {  // 10 milliseconds
+        counter <- 0;
+        counter <- {
+            let n = counter + 1;
+            println("counter =", n);
+            sleep(0.005);  // 5 milliseconds per step
+            n;
+        }
+        yield counter
+    }
+}catch e: println e}
+
+println("Final counter = ", result);
+
+
+----
+
+
+
+
+.output of snippet `example_flow_timeout`
+[source]
+----
+counter =1
+counter =2
+Timed out after 10 ms
+Final counter = none
+
+----
+
+
+
+This example highlights the use of the `limit` clause to constrain the number of task executions within a `flow`.
+It shows how the system halts with a clear error message once the execution limit is reached, making it useful for preventing runaway or cyclic computations.
+
+
+.source of snippet `example_flow_limit`
+[source]
+----
+
+let result = {try {
+               flow limit 5 {
+                   x <- 1;
+                   x <- {
+                       let newX = x + 1;
+                       println("x =", newX);
+                       newX;
+                   }
+                   yield x
+               }
+           } catch e: println e.message}
+
+           println("Final x = ", result);
+
+
+----
+
+
+
+
+.output of snippet `example_flow_limit`
+[source]
+----
+x =2
+x =3
+x =4
+x =5
+x =6
+Task limit has been reached in flow command after 5 tasks.
+Final x = none
+
+----
+
+
+
+
+
+=== Notes
+
+- The order of `until`, `limit`, and `timeout` is flexible.
+- All expressions in the `flow` block are commands and follow standard language rules.
+- Only direct assignments (`x <- expression`) are allowed; complex control flow must be expressed inside expression blocks.
+
 
 == Functions
 
@@ -3001,7 +3198,7 @@ println(inc(1))
 .output of snippet `fun1`
 [source]
 ----
-ch.turic.commands.Closure@42bc14c1
+ch.turic.commands.Closure@231f98ef
 2
 
 ----
@@ -3030,7 +3227,7 @@ println(inc(1))
 .output of snippet `fun3`
 [source]
 ----
-ch.turic.commands.Closure@531f4093
+ch.turic.commands.Closure@7c137fd5
 2
 
 ----
@@ -3061,7 +3258,7 @@ println(inc(1))
 .output of snippet `fun2`
 [source]
 ----
-ch.turic.commands.Closure@62ef27a8
+ch.turic.commands.Closure@183ec003
 2
 
 ----
@@ -3245,7 +3442,7 @@ println(inc(1,how_much=5))
 .output of snippet `fun4`
 [source]
 ----
-ch.turic.commands.Closure@6436a7db
+ch.turic.commands.Closure@7d9d0818
 6
 
 ----
@@ -5885,80 +6082,82 @@ none
 ----
 task1 is not ready 0
 task2 is not ready 0
-task2 is not ready 1
-task1 is ready 1
-task1 is not ready 0
-task2 is not ready 2
+task2 is ready 1
 task1 is not ready 1
-task2 is ready 2
 task2 is not ready 0
 task1 is not ready 2
-task1 is not ready 3task2 is not ready 1
-
-task2 is not ready 2task1 is not ready 4
-
-task2 is not ready 3
-task1 is not ready 5
-task1 is not ready 6
-task2 is ready 3
-task2 is not ready 0
 task2 is not ready 1
-task1 is not ready 7
+task1 is not ready 3
 task2 is not ready 2
-task1 is not ready 8
-task2 is ready 4
-task1 is not ready 9
-task2 is not ready 0
-task1 is not ready 10
-task2 is not ready 1
-task2 is not ready 2
-task1 is not ready 11
-task2 is ready 5
-task1 is not ready 12
-task2 is not ready 0
-task2 is not ready 1
-task1 is not ready 13
-task2 is not ready 2
-task1 is not ready 14
-task2 is ready 6
-task1 is not ready 15task2 is not ready 0
-
-task1 is not ready 16
-task2 is not ready 1
-task1 is not ready 17
-task2 is not ready 2
-task2 is not ready 3
-task1 is not ready 18
-task2 is ready 7
-task1 is not ready 19
-task2 is not ready 0
-task1 is not ready 20
-task2 is not ready 1
-task2 is not ready 2
-task1 is not ready 21
-task1 is not ready 22
-task2 is ready 8
-task2 is not ready 0
-task1 is not ready 23
-task2 is not ready 1
-task1 is not ready 24
-task2 is not ready 2
-task1 is ready 9
+task1 is ready 2
 task2 is not ready 3
 task1 is not ready 0
 task1 is not ready 1
 task2 is not ready 4
 task1 is not ready 2
 task2 is not ready 5
+task1 is ready 3
+task2 is not ready 6
+task1 is not ready 0
+task2 is not ready 7
+task1 is not ready 1
+task1 is not ready 2
+task2 is not ready 8
+task1 is ready 4
+task2 is not ready 9
+task1 is not ready 0
+task2 is not ready 10
+task1 is not ready 1
+task2 is not ready 11
+task1 is not ready 2
+task1 is ready 5
+task2 is not ready 12
+task1 is not ready 0
+task1 is not ready 1
+task2 is not ready 13
+task2 is not ready 14task1 is not ready 2
+
+task2 is not ready 15task1 is not ready 3
+
+task2 is ready 6
+task1 is not ready 4
+task2 is not ready 0
+task1 is not ready 5
+task2 is not ready 1
+task1 is not ready 6
+task2 is not ready 2
+task2 is not ready 3
+task1 is ready 7
+task1 is not ready 0
+task2 is not ready 4
+task1 is not ready 1
+task1 is not ready 2task2 is not ready 5
+
+task2 is not ready 6
+task1 is ready 8
+task1 is not ready 0
+task2 is not ready 7
+task1 is not ready 1
+task1 is not ready 2task2 is not ready 8
+
+task1 is ready 9
+task2 is not ready 9
+task1 is not ready 0
+task2 is not ready 10
+task1 is not ready 1
+task2 is not ready 11
+task1 is not ready 2
+task2 is not ready 12
+task1 is not ready 3
 closing the channel
 channel is closed
 1 is done false
 2 is done false
-task2 is done
-task1 is done
 we start to wait the first time
+task1 is donetask2 is done
+
 task1 done true
-task2 done true
+task2 done false
 We start to wait the second time
 task1 done true
 task2 done true

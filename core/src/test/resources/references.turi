@@ -1775,3 +1775,55 @@ println serial
 println( (end-start)/1000000, "ms")
 }
 // end snippet
+
+// snippet example_flow_squareroot
+let sqrt = {
+    flow until epsilon < 0.0001 {
+        a <- 13;
+        a <- {
+            let newA = (a + 13 / a) / 2;
+            println("a =", newA);
+            newA;
+        }
+        epsilon <- abs(a - (a + 13 / a) / 2);
+        yield a
+    }
+}
+
+println("sqrt(13) ≈ ", sqrt);
+println("square ≈ ", sqrt * sqrt);
+// end snippet
+
+// snippet example_flow_timeout
+let result = {try {
+    flow timeout 0.01 {  // 10 milliseconds
+        counter <- 0;
+        counter <- {
+            let n = counter + 1;
+            println("counter =", n);
+            sleep(0.005);  // 5 milliseconds per step
+            n;
+        }
+        yield counter
+    }
+}catch e: println e}
+
+println("Final counter = ", result);
+// end snippet
+
+// snippet example_flow_limit
+
+let result = {try {
+               flow limit 5 {
+                   x <- 1;
+                   x <- {
+                       let newX = x + 1;
+                       println("x =", newX);
+                       newX;
+                   }
+                   yield x
+               }
+           } catch e: println e.message}
+
+           println("Final x = ", result);
+// end snippet

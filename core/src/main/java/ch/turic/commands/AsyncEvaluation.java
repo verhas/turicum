@@ -64,7 +64,7 @@ public class AsyncEvaluation extends AbstractCommand {
 
         CompletableFuture<Channel.Message<?>> future =
                 CompletableFuture.supplyAsync(() -> {
-                    Thread.currentThread().setName("async-thread");
+                    Thread.currentThread().setName(NameGen.generateName());
                     try (yielder) {
                         return Channel.Message.of(command.execute(newThreadContext));
                     } catch (Exception t) {

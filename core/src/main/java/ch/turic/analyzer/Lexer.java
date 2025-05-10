@@ -12,13 +12,13 @@ public class Lexer {
 
     final static private Set<String> RESERVED = new HashSet<>(Set.of(
             Keywords.CLASS, Keywords.PIN, Keywords.FN, Keywords.LET, Keywords.GLOBAL, Keywords.IF, Keywords.ELSE,
-            Keywords.ELSEIF, Keywords.BREAK, Keywords.WHILE, Keywords.WITH, Keywords.UNTIL, Keywords.FOR, Keywords.EACH, Keywords.IN,
-            Keywords.RETURN, Keywords.YIELD, Keywords.WHEN, Keywords.TRY, Keywords.CATCH, Keywords.FINALLY,
-            Keywords.ASYNC, Keywords.AWAIT, Keywords.AS
+            Keywords.ELSEIF, Keywords.BREAK, Keywords.WHILE, Keywords.WITH, Keywords.UNTIL, Keywords.FOR, Keywords.FLOW,
+            Keywords.EACH, Keywords.IN, Keywords.RETURN, Keywords.YIELD, Keywords.WHEN, Keywords.TRY, Keywords.CATCH,
+            Keywords.FINALLY, Keywords.ASYNC, Keywords.AWAIT, Keywords.AS
     ));
     final static private ArrayList<String> _OPERANDS = new ArrayList<>(Arrays.asList(
             // snippet OPERANDS
-            "--", "++", "->", "=", "(", ")", ",", ".",
+            "--", "++", "->", "<-", "=", "(", ")", ",", ".",
             "&{", "{", "}", "[", "]", ";", ":", "|", "?", "@", "^", "#"
             // end snippet
     ));

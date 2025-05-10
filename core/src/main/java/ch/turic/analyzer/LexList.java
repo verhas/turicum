@@ -74,7 +74,7 @@ public class LexList extends LngList {
         return next();
     }
 
-    public BadSyntax syntaxError(String msg, Object ...params) {
+    public BadSyntax syntaxError(String msg, Object... params) {
         return new BadSyntax(position(), msg, params);
     }
 
@@ -136,6 +136,16 @@ public class LexList extends LngList {
 
     public boolean isIdentifier() {
         return hasNext() && lexAt(index).type() == Lex.Type.IDENTIFIER;
+    }
+
+    public boolean isIdentifier(String... textAlternatives) {
+        if (!isIdentifier()) return false;
+        final var text = lexAt(index).text();
+        for (final var s : textAlternatives)
+            if (text.equals(s)) {
+                return true;
+            }
+        return false;
     }
 
     public boolean isConstant() {

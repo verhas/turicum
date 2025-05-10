@@ -1,0 +1,5 @@
+rng(1,10,-1) would never end
+rng(10,1,1) would never end
+rng(10,11,0) has zero step size
+Special zero element range can have zero as step []
+but it is just the same as []

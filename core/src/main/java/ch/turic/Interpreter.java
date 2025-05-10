@@ -9,7 +9,6 @@ import ch.turic.commands.Command;
 import ch.turic.memory.Context;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Interprets and executes source code written in the programming language.
@@ -64,7 +63,7 @@ public class Interpreter {
                     final var analyzer = new ProgramAnalyzer();
                     LexList lexes = Lexer.analyze(source);
                     if (lexes.isEmpty()) {
-                        localCode = new BlockCommand(List.of(), false);
+                        localCode = new BlockCommand(new Command[0], false);
                     } else {
                         localCode = analyzer.analyze(lexes);
                     }

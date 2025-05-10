@@ -1096,6 +1096,88 @@ It prints out the elapsed time using the built-in `nano_time` function.
 As you can see, in the first case the execution time is a bit above 300ms, which is the three times 0.1sec waiting in the function.
 In the second case the functions wait the same time, parallel, and the execution time is just above the 100ms single wait time.
 
+[[flow-command]]
+== `flow` Command
+
+The `flow` command defines a *reactive execution block* in which named expressions (called *cells*) are evaluated in a concurrent and data-driven fashion. It is particularly useful for implementing iterative or mutually dependent computations where values must be recalculated until a condition is satisfied, or a fixed number of changes have occurred.
+
+Cells are defined as variable-expression bindings, and their dependencies are automatically detected by analyzing identifier usage. When the value of a cell changes, all other cells that depend on it are automatically rescheduled for evaluation in a new thread (using Java virtual threads).
+
+The `flow` block terminates under one of the following conditions:
+
+- The `until` condition evaluates to `true`.
+- The maximum number of task executions (`limit`) is reached.
+- The allowed wall-clock execution time (`timeout`) is exceeded.
+
+If a `yield` expression is specified, its result is returned as the result of the `flow` command. Otherwise, `null` is returned.
+
+=== Syntax
+
+The basic syntax of the `flow` command is:
+
+[source]
+----
+flow [until <condition>] [limit <maxTasks>] [timeout <seconds>] {
+  <identifier> <- <expression>
+  ...
+  yield <expression>
+}
+----
+
+- `until <condition>`::
+Optional. A boolean expression that terminates the flow once it evaluates to true.
+- `limit <maxTasks>`::
+Optional. A numeric constant that sets the maximum number of dependent cell executions allowed.
+- `timeout <seconds>`::
+Optional. A numeric constant (may be fractional) specifying the maximum wall-clock time allowed for execution, in seconds.
+- `yield <expression>`::
+Optional. Defines the return value of the `flow`. It must be the last statement in the block.
+
+=== Semantics
+
+The `flow` block contains a series of *cells*. Each cell defines a named variable and an expression that computes its value. These variables can reference each other, and the runtime will detect and track these dependencies.
+
+When a cell is updated (i.e., its computed value differs from the previous value in the local context), all cells that depend on it are automatically rescheduled. This process continues until one of the termination conditions is met.
+
+Cell evaluation is performed in isolated thread-local contexts derived from the flow's original context. Variables are copied and frozen in each thread.
+
+The system avoids infinite re-evaluation loops by tracking value stability and respecting the `limit` and `timeout` constraints.
+
+=== Use Cases
+
+The `flow` command is useful for:
+
+- Converging numeric approximations (e.g., computing square roots)
+- Reactive data propagation
+- Declarative fixed-point computations
+- Defining cyclic dependencies with convergence guarantees
+
+=== Examples
+
+This example demonstrates a classical use of the `flow` command for computing square roots using the Babylonian method.
+It shows how reactive cells can update each other iteratively until convergence is reached, and how the `until` clause controls flow termination based on a numeric precision condition.
+
+{%S example_flow_squareroot%}
+
+This example illustrates how the `flow` command can be bounded by wall-clock time using the `timeout` clause.
+It simulates a long-running or slow computation and demonstrates how flow execution is safely terminated after the specified time limit.
+
+{%S example_flow_timeout%}
+
+This example highlights the use of the `limit` clause to constrain the number of task executions within a `flow`.
+It shows how the system halts with a clear error message once the execution limit is reached, making it useful for preventing runaway or cyclic computations.
+
+{%S example_flow_limit%}
+
+
+
+=== Notes
+
+- The order of `until`, `limit`, and `timeout` is flexible.
+- All expressions in the `flow` block are commands and follow standard language rules.
+- Only direct assignments (`x <- expression`) are allowed; complex control flow must be expressed inside expression blocks.
+
+
 == Functions
 
 Functions play a similar role as in other languages.

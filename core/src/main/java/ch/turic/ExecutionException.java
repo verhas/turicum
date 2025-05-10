@@ -18,6 +18,9 @@ public class ExecutionException extends RuntimeException {
     public ExecutionException(String s, Object... params) {
         super(String.format(s, params));
     }
+    public ExecutionException(Throwable t, String s, Object... params) {
+        super(String.format(s, params),t);
+    }
 
     public ExecutionException(Throwable throwable) {
         super(throwable.getMessage(), throwable);

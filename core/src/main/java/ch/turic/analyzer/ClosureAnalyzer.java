@@ -36,7 +36,7 @@ public class ClosureAnalyzer extends AbstractAnalyzer {
             identifiers = ParameterList.EMPTY;
         }
         final var commands = BlockAnalyzer.getCommands(lexes);
-        final var block = new BlockCommand(commands, true);
+        final var block = new BlockCommand(commands.toArray(Command[]::new), true);
         return new ClosureDefinition(identifiers, block);
     }
 

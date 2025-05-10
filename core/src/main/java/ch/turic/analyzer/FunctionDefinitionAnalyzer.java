@@ -4,8 +4,6 @@ import ch.turic.BadSyntax;
 import ch.turic.ExecutionException;
 import ch.turic.commands.*;
 
-import java.util.List;
-
 /**
  * <pre>{@code
  * fn myFunction a,b,c,d {
@@ -57,7 +55,7 @@ public class FunctionDefinitionAnalyzer extends AbstractAnalyzer {
         if (lexes.is(":")) {
             lexes.next();
             returnType = AssignmentList.getTheTypeDefinitions(lexes);
-        }else{
+        } else {
             returnType = AssignmentList.EMPTY_TYPE;
         }
         final BlockCommand block;
@@ -65,14 +63,14 @@ public class FunctionDefinitionAnalyzer extends AbstractAnalyzer {
             BadSyntax.when(lexes, !hasParens, "use must use parenthesis in function definition when using '=expression' as body");
             lexes.next();
             final var expression = ExpressionAnalyzer.INSTANCE.analyze(lexes);
-            block = new BlockCommand(List.of(expression), false);
-        } else if(lexes.is(";")) {
+            block = new BlockCommand(new Command[]{expression}, false);
+        } else if (lexes.is(";")) {
             BadSyntax.when(lexes, !hasParens, "use must use parenthesis in initialized without body");
-            BadSyntax.when(lexes,!"init".equals(fn),"Only initializer can have no body");
-            block = new BlockCommand(List.of(), false);
+            BadSyntax.when(lexes, !"init".equals(fn), "Only initializer can have no body");
+            block = new BlockCommand(new Command[0], false);
         } else {
             block = (BlockCommand) BlockAnalyzer.INSTANCE.analyze(lexes);
         }
-        return new FunctionDefinition(fn, arguments, returnType,block);
+        return new FunctionDefinition(fn, arguments, returnType, block);
     }
 }

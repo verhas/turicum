@@ -97,6 +97,7 @@ public class CommandAnalyzer extends AbstractAnalyzer {
         analyzers.put(Keywords.WHILE, WhileLoopAnalyzer.INSTANCE);
         analyzers.put(Keywords.WITH, WithAnalyzer.INSTANCE);
         analyzers.put(Keywords.FOR, ForLoopAnalyzer.INSTANCE);
+        analyzers.put(Keywords.FLOW, FlowAnalyzer.INSTANCE);
     }
 
     /**
@@ -114,6 +115,7 @@ public class CommandAnalyzer extends AbstractAnalyzer {
                  Keywords.WHILE,
                  Keywords.WITH,
                  Keywords.FOR,
+                 Keywords.FLOW,
                  Keywords.FN,
                  Keywords.CLASS -> {
                 lexes.next();

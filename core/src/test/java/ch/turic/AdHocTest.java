@@ -13,25 +13,25 @@ public class AdHocTest {
     @Test
     void test1() throws Exception {
         test("""
-fn sleeper(x) {
-    sleep 0.1
-    x
-    }
-{
-let start = nano_time()
-let serial = [sleeper(1), sleeper(2), sleeper(3)]
-let end = nano_time()
-println serial
-println( (end-start)/1000000, "ms")
-}
-{
-let start = nano_time()
-let serial = [ ..async[][sleeper(1), sleeper(2), sleeper(3)] -> it.get() ]
-let end = nano_time()
-println serial
-println( (end-start)/1000000, "ms")
-}
+let num = 13
+let sqrt =
+{flow until epsilon < 0.0000000001  {
+    a <- num / 2;
+    a <- {
+        let newA = (a + num / a) / 2;
+        println("setting a to ",newA);
+        newA;
+        }
+    epsilon <- {
+        let eps = abs(a - (a + 13 / a) / 2);
+        println("setting epsilon to ",eps) ;
+        eps;
+        }
+    yield a
+}}
 
+println sqrt
+println sqrt*sqrt
 
 none
                 """,null);

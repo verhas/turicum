@@ -4,12 +4,10 @@ package ch.turic.commands;
 import ch.turic.ExecutionException;
 import ch.turic.memory.Context;
 
-import java.util.List;
-
 public class BlockCommand extends AbstractCommand {
-    final List<Command> commands;
+    final Command[] commands;
 
-    public List<Command> commands() {
+    public Command[] commands() {
         return commands;
     }
 
@@ -17,7 +15,7 @@ public class BlockCommand extends AbstractCommand {
         return wrap;
     }
 
-    public BlockCommand(List<Command> commands, boolean wrap) {
+    public BlockCommand(Command[] commands, boolean wrap) {
         this.commands = commands;
         this.wrap = wrap;
     }
@@ -36,7 +34,7 @@ public class BlockCommand extends AbstractCommand {
     }
 
     private static Object conditionalOrResult(Conditional cResult) {
-        if( cResult instanceof Conditional.BreakResult ){
+        if (cResult instanceof Conditional.BreakResult) {
             return cResult.result();
         }
         return (cResult.isDone() ? cResult : cResult.result());
