@@ -18,7 +18,9 @@ public class JavaMethodCall implements TuriFunction {
 
     @Override
     public Object call(Context ctx, Object[] arguments) throws ExecutionException {
-        FunUtils.twoArgs(name(), arguments);
+        if(arguments.length <  2) {
+            throw new ExecutionException("Function %s needs at least 2 arguments.", name());
+        }
         if (!(arguments[1] instanceof String methodName)) {
             throw new ExecutionException("Function %s needs a method name as a second argument.", name());
         }
@@ -56,7 +58,7 @@ public class JavaMethodCall implements TuriFunction {
 
             } else {
                 for (final var pType : method.getParameterTypes()) {
-                    if (!pType.isAssignableFrom(arguments[i].getClass())) {
+                    if (!isAssignable(pType, arguments[i])) {
                         break;
                     }
                     i++;
@@ -87,6 +89,26 @@ public class JavaMethodCall implements TuriFunction {
             }
         }
         throw new ExecutionException("Cannot find method '" + methodName + "'.");
+    }
+
+    private static boolean isAssignable(Class<?> parameterType, Object arg) {
+        if (arg == null) return !parameterType.isPrimitive(); // null can only go into non-primitives
+        Class<?> argClass = arg.getClass();
+        if (parameterType.isPrimitive()) {
+            return switch (parameterType.getName()) {
+                case "boolean" -> argClass == Boolean.class;
+                case "byte"    -> argClass == Byte.class;
+                case "char"    -> argClass == Character.class;
+                case "short"   -> argClass == Short.class;
+                case "int"     -> argClass == Integer.class;
+                case "long"    -> argClass == Long.class;
+                case "float"   -> argClass == Float.class;
+                case "double"  -> argClass == Double.class;
+                default        -> false;
+            };
+        } else {
+            return parameterType.isAssignableFrom(argClass);
+        }
     }
 
     static KlassAndObject getKlassAndObject(Object[] arguments) {

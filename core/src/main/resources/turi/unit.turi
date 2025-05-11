@@ -1,0 +1,15 @@
+pin kilo = 1000;
+
+class time {
+    pin sec = 1;
+    pin ms = sec / kilo;
+    pin us = ms / kilo;
+    pin microsec = ms / kilo;
+    pin ns = us / kilo;
+    pin min = 60 * sec;
+    pin hour = 60 * min;
+    pin day = 24 * hour;
+    pin week = 7 * day;
+}
+
+export_all();

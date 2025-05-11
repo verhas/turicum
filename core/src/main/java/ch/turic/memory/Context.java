@@ -340,6 +340,13 @@ public class Context implements ch.turic.Context {
         return globalContext.heap.containsKey(key);
     }
 
+    public boolean contains0(String key) {
+        if (frame.containsKey(key)) {
+            return true;
+        }
+        return false;
+    }
+
     public boolean containsLocal(String key) {
         if (frame.containsKey(key)) {
             return true;

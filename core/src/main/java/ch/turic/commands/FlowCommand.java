@@ -4,6 +4,7 @@ import ch.turic.ExecutionException;
 import ch.turic.commands.operators.Cast;
 import ch.turic.memory.Context;
 import ch.turic.memory.NameGen;
+import ch.turic.memory.Sentinel;
 
 import java.lang.reflect.Array;
 import java.util.*;
@@ -56,7 +57,7 @@ public class FlowCommand extends AbstractCommand {
      * @param result the evaluated result of the cell
      * @param cell   the original cell whose command produced the result
      */
-    private record CellWithResult(Object result, Cell cell) {
+    private record CellWithResult(Object result, Cell cell, Long counter) {
     }
 
     private final ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
@@ -65,6 +66,7 @@ public class FlowCommand extends AbstractCommand {
     private final Command timeoutExpression;
     private final Command resultExpression;
     private final Cell[] cells;
+    private final Cell[] startCells;
 
     /**
      * Constructs a {@code FlowCommand} with optional termination criteria and a list of reactive cells.
@@ -95,6 +97,15 @@ public class FlowCommand extends AbstractCommand {
         }
         try {
             dependencyAnalysis();
+            startCells = determineEntryCells();
+            final var untouched = getUnreachableCells();
+            if (untouched.length != 0) {
+                final var sb = new StringBuilder("There are cells which have no effect:\n");
+                for (final var ut : untouched) {
+                    sb.append("%s, ".formatted(ut.identifier));
+                }
+                throw new ExecutionException(sb.substring(0, sb.length() - 2));
+            }
         } catch (IllegalAccessException e) {
             throw new ExecutionException(e, "Dependency analysis failed");
         }
@@ -141,6 +152,58 @@ public class FlowCommand extends AbstractCommand {
         for (final var entry : dependencies.entrySet()) {
             this.dependentCells.put(entry.getKey(), entry.getValue().toArray(Cell[]::new));
         }
+    }
+
+    private Cell[] determineEntryCells() {
+        // Collect all cells that are depended upon some other cells
+        Set<Cell> dependedUpon = new HashSet<>();
+        for (Cell[] deps : dependentCells.values()) {
+            dependedUpon.addAll(Arrays.asList(deps));
+        }
+
+        // Cells not depended upon by any others are starting points
+        List<Cell> startCells = new ArrayList<>();
+        for (Cell cell : cells) {
+            if (!dependedUpon.contains(cell)) {
+                startCells.add(cell);
+            }
+        }
+        return startCells.toArray(Cell[]::new);
+    }
+
+
+    private long nextCounter(String id, Map<String, Long> counters) {
+        return counters.computeIfAbsent(id, k -> 0L);
+    }
+
+    /**
+     * Find the cells that are not initial cells, because they depend on each other, probably in a cyclic way, but they
+     * do not directly or transitively depend on the initial start cells.
+     * <p>
+     * If there is such a cell, that is an error, and the returned cell array will be used by the caller to create an
+     * exception.
+     *
+     * @return the array of cells that are unreachable.
+     */
+    private Cell[] getUnreachableCells() {
+        // Get all cells reachable from start cells
+        final var reachableCells = new HashSet<Cell>();
+        final var toVisit = new LinkedList<>(Arrays.asList(startCells));
+
+        while (!toVisit.isEmpty()) {
+            final var current = toVisit.poll();
+            if (reachableCells.add(current)) {
+                final var dependents = dependentCells.get(current.identifier);
+                if (dependents != null) {
+                    toVisit.addAll(Arrays.asList(dependents));
+                }
+            }
+        }
+
+        // Find cells that are not reachable
+        return Arrays.stream(cells)
+                .filter(cell -> !reachableCells.contains(cell))
+                .toArray(Cell[]::new);
     }
 
     /**
@@ -222,12 +285,15 @@ public class FlowCommand extends AbstractCommand {
      * If a {@code yield} expression is defined, its result is returned after flow completion.
      * If no {@code yield} is defined, {@code null} is returned.
      *
-     * @param ctx the context in which to evaluate the command
+     * @param context the context in which to evaluate the command
      * @return the result of the {@code yield} expression or {@code null}
      * @throws ExecutionException if the execution fails, the task limit is exceeded, or the timeout is hit
      */
     @Override
-    public Object _execute(Context ctx) throws ExecutionException {
+    public Object _execute(Context context) throws ExecutionException {
+        final var ctx = context.wrap();
+        final var stateCounters = new HashMap<String, Long>();
+        final var stoppedCells = new HashSet<Cell>();
         final var exception = new AtomicReference<Exception>(null);
         long totalScheduled = 0;
         boolean doExit = false;
@@ -246,12 +312,15 @@ public class FlowCommand extends AbstractCommand {
             timeout = -1;
         }
         final long startTime = System.nanoTime();
-        // start with cell[0]
-        final var startTask = startTask(ctx, cells[0], exception);
-        // add the future to the set of running futures
-        final var tasksRunning = new HashSet<CompletableFuture<CellWithResult>>();
-        tasksRunning.add(startTask);
+
         try {
+            final var tasksRunning = new HashSet<CompletableFuture<CellWithResult>>();
+            for (final var startCell : startCells) {
+                final var startTask = startTask(ctx, startCell, exception, nextCounter(startCell.identifier, stateCounters));
+                tasksRunning.add(startTask);
+            }
+            updateAndScheduleStart(ctx, tasksRunning, stateCounters, exception, stoppedCells);
+
             while (!tasksRunning.isEmpty()) {
                 // we wait until at least one is done
                 CompletableFuture.anyOf(tasksRunning.toArray(CompletableFuture[]::new)).join();
@@ -261,8 +330,13 @@ public class FlowCommand extends AbstractCommand {
                     doException = new ExecutionException("Timed out after " + timeout / 1_000_000 + " ms");
                 }
                 while (true) {
-                    if (exception.get() != null) {
-                        throw new ExecutionException(exception.get(), "Exception while executing flow.");
+                    final var e = exception.get();
+                    if (e != null) {
+                        if (e instanceof ExecutionException ee) {
+                            throw ee;
+                        } else {
+                            throw new ExecutionException(exception.get(), "Exception while executing flow.");
+                        }
                     }
                     // get one task that is ready
                     final var task = tasksRunning.stream().filter(CompletableFuture::isDone).findAny();
@@ -274,20 +348,30 @@ public class FlowCommand extends AbstractCommand {
                     // do not schedule new tasks if we started to exit or start to exit now
                     if (!doExit && !(doExit = isExitConditionMet(ctx))) {
                         if (cnR != null) {
-                            final var nr = scheduleNewTasks(ctx, cnR, tasksRunning, exception);
-                            totalScheduled += nr;
-                            if (limit >= 0) {
-                                if (nr >= limit) {
-                                    doExit = true;
-                                    doException = new ExecutionException("Task limit has been reached in flow command after %d tasks.", totalScheduled);
-                                } else {
-                                    limit -= nr;
+                            if (cnR.result == Sentinel.FINI) {
+                                stoppedCells.add(cnR.cell);
+                            } else {
+                                if (cnR.result != Sentinel.NON_MUTAT) {
+                                    final var nr = updateAndScheduleNewTasks(ctx, cnR, tasksRunning, exception, stateCounters, stoppedCells);
+                                    totalScheduled += nr;
+                                    if (limit >= 0) {
+                                        if (nr >= limit) {
+                                            doExit = true;
+                                            doException = new ExecutionException("Task limit has been reached in flow command after %d tasks.", totalScheduled);
+                                        } else {
+                                            limit -= nr;
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
                 }
             }
+        } catch (ExecutionException e) {
+            final var newException = new ExecutionException("While in flow: %s", e.getMessage());
+            newException.setStackTrace(e.getStackTrace());
+            throw newException;
         } catch (Exception e) {
             throw new ExecutionException(e, "There was an exception while executing flow command");
         }
@@ -298,6 +382,45 @@ public class FlowCommand extends AbstractCommand {
             return resultExpression.execute(ctx);
         } else {
             return null;
+        }
+    }
+
+    /**
+     * Updates the context with results from initial tasks and schedules dependent tasks.
+     * This method handles the startup phase of flow execution by:
+     * <ol>
+     *   <li>Waiting for all initial tasks to complete</li>
+     *   <li>Collecting update operations that need to be performed</li>
+     *   <li>Executing updates and scheduling dependent tasks in a controlled manner</li>
+     * </ol>
+     * <p>
+     * The method uses a two-phase approach where updates are first collected into
+     * {@code newTasksSchedulers} and then executed.
+     * This ensures that all the initial cell state variables are updated when the first dependent task starts.
+     *
+     * @param ctx           the shared execution context
+     * @param tasksRunning  set of currently executing tasks
+     * @param stateCounters map tracking the version of each cell's state
+     * @param exception     shared reference for propagating exceptions
+     * @param stoppedCells  set of cells that have completed execution
+     * @throws InterruptedException                    if task execution is interrupted
+     * @throws java.util.concurrent.ExecutionException if a task fails
+     */
+    private void updateAndScheduleStart(Context ctx, HashSet<CompletableFuture<CellWithResult>> tasksRunning, HashMap<String, Long> stateCounters, AtomicReference<Exception> exception, HashSet<Cell> stoppedCells) throws InterruptedException, java.util.concurrent.ExecutionException {
+        // wait for all the start tasks to finish before let the hell get loose
+        CompletableFuture.allOf(tasksRunning.toArray(CompletableFuture[]::new)).join();
+        final var newTasksSchedulers = new ArrayList<Runnable>();
+        for (final var task : tasksRunning) {
+            final var cnR = task.get();
+            final var updated = updateCellVariable(ctx, cnR, stateCounters);
+            if (updated) {
+                newTasksSchedulers.add(() -> scheduleNewTasks(ctx, cnR, tasksRunning, exception, stateCounters, stoppedCells));
+            } else {
+                throw new ExecutionException("Updating initial value '%s' failed. Probably double defined in initial state.", cnR.cell.identifier);
+            }
+        }
+        for (final var schedule : newTasksSchedulers) {
+            schedule.run();
         }
     }
 
@@ -320,44 +443,144 @@ public class FlowCommand extends AbstractCommand {
     }
 
     /**
-     * Schedules new tasks for all dependent cells of the given cell, if its result differs from
+     * Schedules new tasks for all dependent cells of the given cell if its result differs from
      * the previously stored value in the context.
+     * <p>
+     * This method also updates the cell state variable.
      * <p>
      * Only dependent cells are scheduled, and the new value is updated in the local context.
      * The method returns the number of new tasks that were started.
      *
-     * @param ctx          the context for evaluation
-     * @param cnR          the cell with its evaluated result
-     * @param tasksRunning the current set of running tasks to which new ones will be added
-     * @param exception    a shared reference to report any thrown exception from tasks
+     * @param ctx           the context for evaluation
+     * @param cnR           the cell with its evaluated result
+     * @param tasksRunning  the current set of running tasks to which new ones will be added
+     * @param exception     a shared reference to report any thrown exception from tasks
+     * @param stateCounters the state variable counters as they currently are
+     * @param stoppedCells  is the set of cells that have returned fini signaling that they are done.
      * @return the number of new tasks scheduled
      */
-    private int scheduleNewTasks(Context ctx, CellWithResult cnR, HashSet<CompletableFuture<CellWithResult>> tasksRunning, AtomicReference<Exception> exception) {
-        int counter = 0;
-        final var oldValue = ctx.getLocal(cnR.cell.identifier);
-        if ((oldValue == null && cnR.result != null) || (oldValue != null && !oldValue.equals(cnR.result))) {
-            ctx.let0(cnR.cell.identifier, cnR.result);
-            final var dCells = this.dependentCells.get(cnR.cell.identifier);
-            if (dCells != null) {
-                for (final var cell : dCells) {
-                    tasksRunning.add(startTask(ctx, cell, exception));
-                    counter++;
-                }
-            }
+    private int updateAndScheduleNewTasks(Context ctx, CellWithResult cnR, HashSet<CompletableFuture<CellWithResult>> tasksRunning, AtomicReference<Exception> exception, Map<String, Long> stateCounters, HashSet<Cell> stoppedCells) {
+        final var updated = updateCellVariable(ctx, cnR, stateCounters);
+        if (updated) {
+            return scheduleNewTasks(ctx, cnR, tasksRunning, exception, stateCounters, stoppedCells);
+        } else {
+            return 0;
         }
-        return counter;
     }
 
 
-    private CompletableFuture<CellWithResult> startTask(Context ctx, Cell cell, AtomicReference<Exception> exception) {
+    /**
+     * Schedules new computation tasks for all cells that depend on the given cell's value.
+     * Only cells that have not stopped (not returned FINI) will be scheduled for execution.
+     *
+     * @param ctx           the context in which tasks will be executed
+     * @param cnR           the cell with its newly computed result that may trigger dependent cells
+     * @param tasksRunning  the set of currently running tasks to which new tasks will be added
+     * @param exception     shared reference for propagating exceptions from tasks
+     * @param stateCounters map tracking the version/counter of each cell's state
+     * @param stoppedCells  set of cells that have signaled completion and should not be rescheduled
+     * @return the number of new tasks that were scheduled
+     */
+    private int scheduleNewTasks(Context ctx,
+                                 CellWithResult cnR,
+                                 HashSet<CompletableFuture<CellWithResult>> tasksRunning,
+                                 AtomicReference<Exception> exception,
+                                 Map<String, Long> stateCounters,
+                                 HashSet<Cell> stoppedCells) {
+        int newTasksScheduled = 0;
+        final var dCells = this.dependentCells.get(cnR.cell.identifier);
+        if (dCells != null) {
+            for (final var cell : dCells) {
+                if (!stoppedCells.contains(cell)) {
+                    tasksRunning.add(startTask(ctx, cell, exception, nextCounter(cell.identifier, stateCounters)));
+                    newTasksScheduled++;
+                }
+            }
+        }
+        return newTasksScheduled;
+    }
+
+    /**
+     * Updates the cell variable in the context if the calculated value is new and not stale.
+     * A value is considered new if it differs from the current value in the context.
+     * A value is considered stale if the cell's state counter has changed since the calculation started.
+     *
+     * @param ctx           the context in which to update the variable
+     * @param cnR           the cell with its newly calculated result
+     * @param stateCounters map tracking the version/counter of each cell's state
+     * @return {@code true} if the value was updated in the context; {@code false} if the value was unchanged or stale
+     */
+    private boolean updateCellVariable(Context ctx, CellWithResult cnR, Map<String, Long> stateCounters) {
+        final var oldValue = ctx.getLocal(cnR.cell.identifier);
+        final var updated = (!ctx.contains0(cnR.cell.identifier) || calculatedValueIsNew(cnR, oldValue)) && notStale(cnR, stateCounters);
+        if (updated) {
+            saveState(ctx, cnR, stateCounters);
+        }
+        return updated;
+    }
+
+    /**
+     * Save the new value for the state and update the counter increasing it.
+     *
+     * @param ctx           the context for evaluation
+     * @param cnR           the cell with its evaluated result
+     * @param stateCounters the state variable counters as they currently are
+     */
+    private void saveState(Context ctx, CellWithResult cnR, Map<String, Long> stateCounters) {
+        ctx.let0(cnR.cell.identifier, cnR.result);
+        stateCounters.computeIfPresent(cnR.cell.identifier, (k, v) -> v + 1);
+    }
+
+    /**
+     * Checks if the cell was updated in the meantime or not.
+     *
+     * @param cnR           the Cell and the result
+     * @param stateCounters the map containing all the counters
+     * @return {@code true} if the counter of the cell is the same as it was when the calculation was started.
+     * It means that the cell was not updated in the meantime. If it was updated, the caller drops the result as stale.
+     */
+    private boolean notStale(CellWithResult cnR, Map<String, Long> stateCounters) {
+        return stateCounters.containsKey(cnR.cell.identifier) && stateCounters.get(cnR.cell.identifier).equals(cnR.counter);
+    }
+
+    /**
+     * checks if the value calculated is new.
+     *
+     * @param cnR      the Cell and the result
+     * @param oldValue the old value of the state
+     * @return {@code true} if there was no old value, and there is one now, or if there was an old value
+     * but the new is different.
+     */
+    private boolean calculatedValueIsNew(CellWithResult cnR, Object oldValue) {
+        return (oldValue == null && cnR.result != null) || (oldValue != null && !oldValue.equals(cnR.result));
+    }
+
+    /**
+     * start a new task
+     *
+     * @param ctx       the context in which the task will run. A new thread context is created from this context and the
+     *                  context variables are copied there as read-only.
+     * @param cell      the cell to execute the task
+     * @param exception the exception holder to signal the exception
+     * @param counter   the counter of the cell. Upon finish and update, it will be checked that it has not changed
+     *                  to avoid update with stale calculation.
+     * @return the comparable future running the task
+     */
+    private CompletableFuture<CellWithResult> startTask(Context ctx, Cell cell, AtomicReference<Exception> exception, long counter) {
         final var newThreadContext = ctx.thread();
         copyVariables(ctx, newThreadContext);
         return CompletableFuture.supplyAsync(() -> {
-            Thread.currentThread().setName(NameGen.generateName());
+            Thread.currentThread().setName(cell.identifier + ":" + NameGen.generateName());
             try {
-                return new CellWithResult(cell.command.execute(newThreadContext), cell);
+                return new CellWithResult(cell.command.execute(newThreadContext), cell, counter);
+            } catch (ExecutionException e) {
+                final var newException = new ExecutionException("Exception in asynchrnous thread %s %s", Thread.currentThread().getName(), e.getMessage());
+                newException.setStackTrace(e.getStackTrace());
+                exception.compareAndSet(null, newException);
+                return null;
             } catch (Exception t) {
-                exception.compareAndSet(null, t);
+                final var newException = new ExecutionException(t, "Exception in asynchrnous thread %s ", Thread.currentThread().getName());
+                exception.compareAndSet(null, newException);
                 return null;
             }
         }, executor);
