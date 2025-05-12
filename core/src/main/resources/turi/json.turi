@@ -1,0 +1,26 @@
+/**
+ * Convert an object to JSON.
+ *
+ * It is almost the same as converting the object to string, but this way the keys are enclosed between parentheses
+ */
+fn to_json(x){
+    if type(x) == "str" {
+        return "\"%s\"" % [x];
+    }
+    if type(x) == "lst" {
+        return "%s" % [ [..x -> to_json(it) ] ];
+    }
+    if type(x) == "obj"  {
+        let output:str = "{";
+        let sep = "";
+        for each key in keys(x){
+            output = output + sep + ("\"%s\" : %s" % [ key, to_json(x[key]) ]);
+            sep = ", "
+        }
+        output = output + "}";
+        return output
+    }
+    return x;
+}
+
+export to_json;

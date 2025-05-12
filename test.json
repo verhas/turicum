@@ -1,0 +1,678 @@
+{
+  "cells": [
+    {
+      "java$canonicalName": "ch.turic.commands.FlowCommand.Cell",
+      "id": "a",
+      "command": {
+        "java$canonicalName": "ch.turic.commands.IntegerConstant",
+        "value": 3
+      }
+    },
+    {
+      "java$canonicalName": "ch.turic.commands.FlowCommand.Cell",
+      "id": "b",
+      "command": {
+        "java$canonicalName": "ch.turic.commands.IntegerConstant",
+        "value": 4
+      }
+    },
+    {
+      "java$canonicalName": "ch.turic.commands.FlowCommand.Cell",
+      "id": "a",
+      "command": {
+        "java$canonicalName": "ch.turic.commands.BlockCommand",
+        "wrap": true,
+        "commands": [
+          {
+            "java$canonicalName": "ch.turic.commands.FunctionCall",
+            "arguments": [
+              {
+                "expression": {
+                  "left": {
+                    "java$canonicalName": "ch.turic.commands.StringConstant",
+                    "value": "update a: a=%s b=%s"
+                  },
+                  "java$canonicalName": "ch.turic.commands.Operation",
+                  "right": {
+                    "array": [
+                      {
+                        "name": "a",
+                        "java$canonicalName": "ch.turic.commands.Identifier"
+                      },
+                      {
+                        "name": "b",
+                        "java$canonicalName": "ch.turic.commands.Identifier"
+                      }
+                    ],
+                    "java$canonicalName": "ch.turic.commands.ListComposition",
+                    "modifiers": []
+                  },
+                  "operator": "%"
+                },
+                "java$canonicalName": "ch.turic.commands.FunctionCall.Argument"
+              }
+            ],
+            "object": {
+              "name": "println",
+              "java$canonicalName": "ch.turic.commands.Identifier"
+            }
+          },
+          {
+            "otherwise": {
+              "java$canonicalName": "ch.turic.commands.BlockCommand",
+              "wrap": true,
+              "commands": [
+                {
+                  "left": {
+                    "name": "a",
+                    "java$canonicalName": "ch.turic.commands.Identifier"
+                  },
+                  "java$canonicalName": "ch.turic.commands.Operation",
+                  "right": {
+                    "java$canonicalName": "ch.turic.commands.IntegerConstant",
+                    "value": 1
+                  },
+                  "operator": "+"
+                }
+              ]
+            },
+            "condition": {
+              "left": {
+                "name": "a",
+                "java$canonicalName": "ch.turic.commands.Identifier"
+              },
+              "java$canonicalName": "ch.turic.commands.Operation",
+              "right": {
+                "java$canonicalName": "ch.turic.commands.IntegerConstant",
+                "value": 10
+              },
+              "operator": ">"
+            },
+            "java$canonicalName": "ch.turic.commands.If",
+            "then": {
+              "java$canonicalName": "ch.turic.commands.BlockCommand",
+              "wrap": true,
+              "commands": [
+                {
+                  "java$canonicalName": "ch.turic.commands.FunctionCall",
+                  "arguments": [
+                    {
+                      "expression": {
+                        "java$canonicalName": "ch.turic.commands.StringConstant",
+                        "value": "a fini"
+                      },
+                      "java$canonicalName": "ch.turic.commands.FunctionCall.Argument"
+                    }
+                  ],
+                  "object": {
+                    "name": "println",
+                    "java$canonicalName": "ch.turic.commands.Identifier"
+                  }
+                },
+                {
+                  "name": "fini",
+                  "java$canonicalName": "ch.turic.commands.Identifier"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "java$canonicalName": "ch.turic.commands.FlowCommand.Cell",
+      "id": "b",
+      "command": {
+        "java$canonicalName": "ch.turic.commands.BlockCommand",
+        "wrap": true,
+        "commands": [
+          {
+            "java$canonicalName": "ch.turic.commands.FunctionCall",
+            "arguments": [
+              {
+                "expression": {
+                  "left": {
+                    "java$canonicalName": "ch.turic.commands.StringConstant",
+                    "value": "update b: a=%s b=%s"
+                  },
+                  "java$canonicalName": "ch.turic.commands.Operation",
+                  "right": {
+                    "array": [
+                      {
+                        "name": "a",
+                        "java$canonicalName": "ch.turic.commands.Identifier"
+                      },
+                      {
+                        "name": "b",
+                        "java$canonicalName": "ch.turic.commands.Identifier"
+                      }
+                    ],
+                    "java$canonicalName": "ch.turic.commands.ListComposition",
+                    "modifiers": []
+                  },
+                  "operator": "%"
+                },
+                "java$canonicalName": "ch.turic.commands.FunctionCall.Argument"
+              }
+            ],
+            "object": {
+              "name": "println",
+              "java$canonicalName": "ch.turic.commands.Identifier"
+            }
+          },
+          {
+            "otherwise": {
+              "java$canonicalName": "ch.turic.commands.BlockCommand",
+              "wrap": true,
+              "commands": [
+                {
+                  "left": {
+                    "name": "b",
+                    "java$canonicalName": "ch.turic.commands.Identifier"
+                  },
+                  "java$canonicalName": "ch.turic.commands.Operation",
+                  "right": {
+                    "java$canonicalName": "ch.turic.commands.IntegerConstant",
+                    "value": 2
+                  },
+                  "operator": "+"
+                }
+              ]
+            },
+            "condition": {
+              "left": {
+                "name": "b",
+                "java$canonicalName": "ch.turic.commands.Identifier"
+              },
+              "java$canonicalName": "ch.turic.commands.Operation",
+              "right": {
+                "java$canonicalName": "ch.turic.commands.IntegerConstant",
+                "value": 1
+              },
+              "operator": ">"
+            },
+            "java$canonicalName": "ch.turic.commands.If",
+            "then": {
+              "java$canonicalName": "ch.turic.commands.BlockCommand",
+              "wrap": true,
+              "commands": [
+                {
+                  "java$canonicalName": "ch.turic.commands.FunctionCall",
+                  "arguments": [
+                    {
+                      "expression": {
+                        "java$canonicalName": "ch.turic.commands.StringConstant",
+                        "value": "b fini"
+                      },
+                      "java$canonicalName": "ch.turic.commands.FunctionCall.Argument"
+                    }
+                  ],
+                  "object": {
+                    "name": "println",
+                    "java$canonicalName": "ch.turic.commands.Identifier"
+                  }
+                },
+                {
+                  "name": "non_mutat",
+                  "java$canonicalName": "ch.turic.commands.Identifier"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "dependentCells": {
+    "a": [
+      {
+        "java$canonicalName": "ch.turic.commands.FlowCommand.Cell",
+        "id": "a",
+        "command": {
+          "java$canonicalName": "ch.turic.commands.BlockCommand",
+          "wrap": true,
+          "commands": [
+            {
+              "java$canonicalName": "ch.turic.commands.FunctionCall",
+              "arguments": [
+                {
+                  "expression": {
+                    "left": {
+                      "java$canonicalName": "ch.turic.commands.StringConstant",
+                      "value": "update a: a=%s b=%s"
+                    },
+                    "java$canonicalName": "ch.turic.commands.Operation",
+                    "right": {
+                      "array": [
+                        {
+                          "name": "a",
+                          "java$canonicalName": "ch.turic.commands.Identifier"
+                        },
+                        {
+                          "name": "b",
+                          "java$canonicalName": "ch.turic.commands.Identifier"
+                        }
+                      ],
+                      "java$canonicalName": "ch.turic.commands.ListComposition",
+                      "modifiers": []
+                    },
+                    "operator": "%"
+                  },
+                  "java$canonicalName": "ch.turic.commands.FunctionCall.Argument"
+                }
+              ],
+              "object": {
+                "name": "println",
+                "java$canonicalName": "ch.turic.commands.Identifier"
+              }
+            },
+            {
+              "otherwise": {
+                "java$canonicalName": "ch.turic.commands.BlockCommand",
+                "wrap": true,
+                "commands": [
+                  {
+                    "left": {
+                      "name": "a",
+                      "java$canonicalName": "ch.turic.commands.Identifier"
+                    },
+                    "java$canonicalName": "ch.turic.commands.Operation",
+                    "right": {
+                      "java$canonicalName": "ch.turic.commands.IntegerConstant",
+                      "value": 1
+                    },
+                    "operator": "+"
+                  }
+                ]
+              },
+              "condition": {
+                "left": {
+                  "name": "a",
+                  "java$canonicalName": "ch.turic.commands.Identifier"
+                },
+                "java$canonicalName": "ch.turic.commands.Operation",
+                "right": {
+                  "java$canonicalName": "ch.turic.commands.IntegerConstant",
+                  "value": 10
+                },
+                "operator": ">"
+              },
+              "java$canonicalName": "ch.turic.commands.If",
+              "then": {
+                "java$canonicalName": "ch.turic.commands.BlockCommand",
+                "wrap": true,
+                "commands": [
+                  {
+                    "java$canonicalName": "ch.turic.commands.FunctionCall",
+                    "arguments": [
+                      {
+                        "expression": {
+                          "java$canonicalName": "ch.turic.commands.StringConstant",
+                          "value": "a fini"
+                        },
+                        "java$canonicalName": "ch.turic.commands.FunctionCall.Argument"
+                      }
+                    ],
+                    "object": {
+                      "name": "println",
+                      "java$canonicalName": "ch.turic.commands.Identifier"
+                    }
+                  },
+                  {
+                    "name": "fini",
+                    "java$canonicalName": "ch.turic.commands.Identifier"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "java$canonicalName": "ch.turic.commands.FlowCommand.Cell",
+        "id": "b",
+        "command": {
+          "java$canonicalName": "ch.turic.commands.BlockCommand",
+          "wrap": true,
+          "commands": [
+            {
+              "java$canonicalName": "ch.turic.commands.FunctionCall",
+              "arguments": [
+                {
+                  "expression": {
+                    "left": {
+                      "java$canonicalName": "ch.turic.commands.StringConstant",
+                      "value": "update b: a=%s b=%s"
+                    },
+                    "java$canonicalName": "ch.turic.commands.Operation",
+                    "right": {
+                      "array": [
+                        {
+                          "name": "a",
+                          "java$canonicalName": "ch.turic.commands.Identifier"
+                        },
+                        {
+                          "name": "b",
+                          "java$canonicalName": "ch.turic.commands.Identifier"
+                        }
+                      ],
+                      "java$canonicalName": "ch.turic.commands.ListComposition",
+                      "modifiers": []
+                    },
+                    "operator": "%"
+                  },
+                  "java$canonicalName": "ch.turic.commands.FunctionCall.Argument"
+                }
+              ],
+              "object": {
+                "name": "println",
+                "java$canonicalName": "ch.turic.commands.Identifier"
+              }
+            },
+            {
+              "otherwise": {
+                "java$canonicalName": "ch.turic.commands.BlockCommand",
+                "wrap": true,
+                "commands": [
+                  {
+                    "left": {
+                      "name": "b",
+                      "java$canonicalName": "ch.turic.commands.Identifier"
+                    },
+                    "java$canonicalName": "ch.turic.commands.Operation",
+                    "right": {
+                      "java$canonicalName": "ch.turic.commands.IntegerConstant",
+                      "value": 2
+                    },
+                    "operator": "+"
+                  }
+                ]
+              },
+              "condition": {
+                "left": {
+                  "name": "b",
+                  "java$canonicalName": "ch.turic.commands.Identifier"
+                },
+                "java$canonicalName": "ch.turic.commands.Operation",
+                "right": {
+                  "java$canonicalName": "ch.turic.commands.IntegerConstant",
+                  "value": 1
+                },
+                "operator": ">"
+              },
+              "java$canonicalName": "ch.turic.commands.If",
+              "then": {
+                "java$canonicalName": "ch.turic.commands.BlockCommand",
+                "wrap": true,
+                "commands": [
+                  {
+                    "java$canonicalName": "ch.turic.commands.FunctionCall",
+                    "arguments": [
+                      {
+                        "expression": {
+                          "java$canonicalName": "ch.turic.commands.StringConstant",
+                          "value": "b fini"
+                        },
+                        "java$canonicalName": "ch.turic.commands.FunctionCall.Argument"
+                      }
+                    ],
+                    "object": {
+                      "name": "println",
+                      "java$canonicalName": "ch.turic.commands.Identifier"
+                    }
+                  },
+                  {
+                    "name": "non_mutat",
+                    "java$canonicalName": "ch.turic.commands.Identifier"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "b": [
+      {
+        "java$canonicalName": "ch.turic.commands.FlowCommand.Cell",
+        "id": "a",
+        "command": {
+          "java$canonicalName": "ch.turic.commands.BlockCommand",
+          "wrap": true,
+          "commands": [
+            {
+              "java$canonicalName": "ch.turic.commands.FunctionCall",
+              "arguments": [
+                {
+                  "expression": {
+                    "left": {
+                      "java$canonicalName": "ch.turic.commands.StringConstant",
+                      "value": "update a: a=%s b=%s"
+                    },
+                    "java$canonicalName": "ch.turic.commands.Operation",
+                    "right": {
+                      "array": [
+                        {
+                          "name": "a",
+                          "java$canonicalName": "ch.turic.commands.Identifier"
+                        },
+                        {
+                          "name": "b",
+                          "java$canonicalName": "ch.turic.commands.Identifier"
+                        }
+                      ],
+                      "java$canonicalName": "ch.turic.commands.ListComposition",
+                      "modifiers": []
+                    },
+                    "operator": "%"
+                  },
+                  "java$canonicalName": "ch.turic.commands.FunctionCall.Argument"
+                }
+              ],
+              "object": {
+                "name": "println",
+                "java$canonicalName": "ch.turic.commands.Identifier"
+              }
+            },
+            {
+              "otherwise": {
+                "java$canonicalName": "ch.turic.commands.BlockCommand",
+                "wrap": true,
+                "commands": [
+                  {
+                    "left": {
+                      "name": "a",
+                      "java$canonicalName": "ch.turic.commands.Identifier"
+                    },
+                    "java$canonicalName": "ch.turic.commands.Operation",
+                    "right": {
+                      "java$canonicalName": "ch.turic.commands.IntegerConstant",
+                      "value": 1
+                    },
+                    "operator": "+"
+                  }
+                ]
+              },
+              "condition": {
+                "left": {
+                  "name": "a",
+                  "java$canonicalName": "ch.turic.commands.Identifier"
+                },
+                "java$canonicalName": "ch.turic.commands.Operation",
+                "right": {
+                  "java$canonicalName": "ch.turic.commands.IntegerConstant",
+                  "value": 10
+                },
+                "operator": ">"
+              },
+              "java$canonicalName": "ch.turic.commands.If",
+              "then": {
+                "java$canonicalName": "ch.turic.commands.BlockCommand",
+                "wrap": true,
+                "commands": [
+                  {
+                    "java$canonicalName": "ch.turic.commands.FunctionCall",
+                    "arguments": [
+                      {
+                        "expression": {
+                          "java$canonicalName": "ch.turic.commands.StringConstant",
+                          "value": "a fini"
+                        },
+                        "java$canonicalName": "ch.turic.commands.FunctionCall.Argument"
+                      }
+                    ],
+                    "object": {
+                      "name": "println",
+                      "java$canonicalName": "ch.turic.commands.Identifier"
+                    }
+                  },
+                  {
+                    "name": "fini",
+                    "java$canonicalName": "ch.turic.commands.Identifier"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "java$canonicalName": "ch.turic.commands.FlowCommand.Cell",
+        "id": "b",
+        "command": {
+          "java$canonicalName": "ch.turic.commands.BlockCommand",
+          "wrap": true,
+          "commands": [
+            {
+              "java$canonicalName": "ch.turic.commands.FunctionCall",
+              "arguments": [
+                {
+                  "expression": {
+                    "left": {
+                      "java$canonicalName": "ch.turic.commands.StringConstant",
+                      "value": "update b: a=%s b=%s"
+                    },
+                    "java$canonicalName": "ch.turic.commands.Operation",
+                    "right": {
+                      "array": [
+                        {
+                          "name": "a",
+                          "java$canonicalName": "ch.turic.commands.Identifier"
+                        },
+                        {
+                          "name": "b",
+                          "java$canonicalName": "ch.turic.commands.Identifier"
+                        }
+                      ],
+                      "java$canonicalName": "ch.turic.commands.ListComposition",
+                      "modifiers": []
+                    },
+                    "operator": "%"
+                  },
+                  "java$canonicalName": "ch.turic.commands.FunctionCall.Argument"
+                }
+              ],
+              "object": {
+                "name": "println",
+                "java$canonicalName": "ch.turic.commands.Identifier"
+              }
+            },
+            {
+              "otherwise": {
+                "java$canonicalName": "ch.turic.commands.BlockCommand",
+                "wrap": true,
+                "commands": [
+                  {
+                    "left": {
+                      "name": "b",
+                      "java$canonicalName": "ch.turic.commands.Identifier"
+                    },
+                    "java$canonicalName": "ch.turic.commands.Operation",
+                    "right": {
+                      "java$canonicalName": "ch.turic.commands.IntegerConstant",
+                      "value": 2
+                    },
+                    "operator": "+"
+                  }
+                ]
+              },
+              "condition": {
+                "left": {
+                  "name": "b",
+                  "java$canonicalName": "ch.turic.commands.Identifier"
+                },
+                "java$canonicalName": "ch.turic.commands.Operation",
+                "right": {
+                  "java$canonicalName": "ch.turic.commands.IntegerConstant",
+                  "value": 1
+                },
+                "operator": ">"
+              },
+              "java$canonicalName": "ch.turic.commands.If",
+              "then": {
+                "java$canonicalName": "ch.turic.commands.BlockCommand",
+                "wrap": true,
+                "commands": [
+                  {
+                    "java$canonicalName": "ch.turic.commands.FunctionCall",
+                    "arguments": [
+                      {
+                        "expression": {
+                          "java$canonicalName": "ch.turic.commands.StringConstant",
+                          "value": "b fini"
+                        },
+                        "java$canonicalName": "ch.turic.commands.FunctionCall.Argument"
+                      }
+                    ],
+                    "object": {
+                      "name": "println",
+                      "java$canonicalName": "ch.turic.commands.Identifier"
+                    }
+                  },
+                  {
+                    "name": "non_mutat",
+                    "java$canonicalName": "ch.turic.commands.Identifier"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "startCells": [
+    {
+      "java$canonicalName": "ch.turic.commands.FlowCommand.Cell",
+      "id": "a",
+      "command": {
+        "java$canonicalName": "ch.turic.commands.IntegerConstant",
+        "value": 3
+      }
+    },
+    {
+      "java$canonicalName": "ch.turic.commands.FlowCommand.Cell",
+      "id": "b",
+      "command": {
+        "java$canonicalName": "ch.turic.commands.IntegerConstant",
+        "value": 4
+      }
+    }
+  ],
+  "java$canonicalName": "ch.turic.commands.FlowCommand",
+  "resultExpression": {
+    "array": [
+      {
+        "name": "a",
+        "java$canonicalName": "ch.turic.commands.Identifier"
+      },
+      {
+        "name": "b",
+        "java$canonicalName": "ch.turic.commands.Identifier"
+      }
+    ],
+    "java$canonicalName": "ch.turic.commands.ListComposition",
+    "modifiers": []
+  },
+  "flowId": "test"
+}

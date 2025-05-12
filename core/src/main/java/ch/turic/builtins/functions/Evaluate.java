@@ -6,7 +6,9 @@ import ch.turic.TuriFunction;
 import ch.turic.commands.Command;
 
 /**
- * Evaluate a Command
+ * Evaluate a Command in the caller context. (Whoever was calling the macro.)
+ * <p>
+ * It pairs up with {@link Unthunk}.
  */
 public class Evaluate implements TuriFunction {
     @Override
@@ -16,15 +18,16 @@ public class Evaluate implements TuriFunction {
 
     @Override
     public Object call(Context context, Object[] args) throws ExecutionException {
-        FunUtils.oneArg(name(),args);
+        FunUtils.oneArg(name(), args);
         final var arg = args[0];
         if (arg instanceof Command command) {
             final var ctx = (ch.turic.memory.Context) context;
             final var caller = ctx.caller();
-            if( !(caller instanceof ch.turic.memory.Context callerContext)) {
-                throw new ExecutionException("caller is not a context");
+            if (caller instanceof ch.turic.memory.Context callerContext) {
+                return command.execute(callerContext);
+            } else {
+                throw new ExecutionException("'%s' is used outside of macro", name());
             }
-            return command.execute(callerContext);
         }
         throw new ExecutionException("Cannot evaluate the value of %s", arg);
     }

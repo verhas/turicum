@@ -1827,3 +1827,35 @@ let result = {try {
 
            println("Final x = ", result);
 // end snippet
+
+// snippet flow_mermaid_output
+let norm = command({flow test {
+        a <- 3;
+        b <- 4;
+        a <- {
+            println "update a: a=%s b=%s" % [a,b]
+            if a > 10 { println("a fini"); fini } else{ a + 1 };
+            }
+        b <- {
+            println "update b: a=%s b=%s" % [a,b]
+            if b > 1 { println("b fini"); non_mutat } else{ b + 2 };
+            }
+        yield [a,b]
+    }
+})
+
+println("graph TD;")
+let d_cells = norm.commands[0].dependentCells
+for each k in keys(d_cells) {
+    for each dep in d_cells[k] {
+        println("    %s-->%s" % [k, dep.id])
+    }
+}
+// end snippet
+
+// snippet thunk_unthunk
+let z = thunk({println "hello"})
+println "before unthunk"
+unthunk(z)
+println "after unthunk"
+// end snippet

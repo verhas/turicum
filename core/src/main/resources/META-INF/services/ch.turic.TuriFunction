@@ -31,3 +31,4 @@ ch.turic.builtins.functions.Rng
 ch.turic.builtins.functions.Time
 ch.turic.builtins.functions.NanoTime
 ch.turic.builtins.functions.Abs
+ch.turic.builtins.functions.Unthunk

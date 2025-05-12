@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 /**
  * {@code FlowCommand} implements a reactive evaluation block that executes a set of dependent
- * cell computations concurrently using virtual threads. Each cell has an identifier and an
+ * cell computations concurrently using virtual threads. Each cell has an id and an
  * associated command expression.
  * <p>
  * The command supports controlled termination via:
@@ -39,15 +39,15 @@ import java.util.stream.Collectors;
  */
 public class FlowCommand extends AbstractCommand {
     /**
-     * Represents a reactive cell in the flow. A cell consists of an identifier
+     * Represents a reactive cell in the flow. A cell consists of an id
      * (variable name) and an associated command that computes its value.
      * <p>
      * Cells are re-evaluated automatically when any of their input dependencies change.
      *
-     * @param identifier the variable name bound to the cell's value
-     * @param command    the command to compute the value of the cell
+     * @param id      the variable name bound to the cell's value
+     * @param command the command to compute the value of the cell
      */
-    private record Cell(String identifier, Command command) {
+    record Cell(String id, Command command) {
     }
 
     /**
@@ -57,16 +57,18 @@ public class FlowCommand extends AbstractCommand {
      * @param result the evaluated result of the cell
      * @param cell   the original cell whose command produced the result
      */
-    private record CellWithResult(Object result, Cell cell, Long counter) {
+    record CellWithResult(Object result, Cell cell, Long counter) {
     }
 
-    private final ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
+    private static final ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
+    private final String flowId;
     private final Command exitCondition;
     private final Command limitExpression;
     private final Command timeoutExpression;
     private final Command resultExpression;
     private final Cell[] cells;
     private final Cell[] startCells;
+    private final Map<String, Cell[]> dependentCells = new HashMap<>();
 
     /**
      * Constructs a {@code FlowCommand} with optional termination criteria and a list of reactive cells.
@@ -80,7 +82,8 @@ public class FlowCommand extends AbstractCommand {
      * @throws IllegalArgumentException if the arrays are empty or of unequal length
      * @throws ExecutionException       if the internal dependency analysis fails
      */
-    public FlowCommand(Command exitCondition, Command limitExpression, Command timeoutExpression, Command resultExpression, String[] cellIdentifiers, Command[] cellCommands) {
+    public FlowCommand(String flowId, Command exitCondition, Command limitExpression, Command timeoutExpression, Command resultExpression, String[] cellIdentifiers, Command[] cellCommands) {
+        this.flowId = Objects.requireNonNullElse(flowId, "#unnamed");
         this.exitCondition = exitCondition;
         this.limitExpression = limitExpression;
         this.timeoutExpression = timeoutExpression;
@@ -98,29 +101,28 @@ public class FlowCommand extends AbstractCommand {
         try {
             dependencyAnalysis();
             startCells = determineEntryCells();
+            validateSchedulingOrderFromDependencies();
             final var untouched = getUnreachableCells();
             if (untouched.length != 0) {
-                final var sb = new StringBuilder("There are cells which have no effect:\n");
+                final var sb = new StringBuilder("There are cells in flow '%s' which have no effect:\n".formatted(this.flowId));
                 for (final var ut : untouched) {
-                    sb.append("%s, ".formatted(ut.identifier));
+                    sb.append("%s, ".formatted(ut.id));
                 }
                 throw new ExecutionException(sb.substring(0, sb.length() - 2));
             }
         } catch (IllegalAccessException e) {
-            throw new ExecutionException(e, "Dependency analysis failed");
+            throw new ExecutionException(e, "Dependency analysis failed on flow '%s'", flowId);
         }
     }
-
-    private final Map<String, Cell[]> dependentCells = new HashMap<>();
 
     /**
      * Analyzes dependencies between cells to determine which cells depend on the values
      * of others. This is done by recursively scanning each cell’s command expression for
-     * identifier references that match other cell identifiers.
+     * id references that match other cell identifiers.
      * <p>
      * The result of this analysis is stored in the {@code dependentCells} map, where
-     * each key is a cell identifier, and the value is an array of cells that depend
-     * on that identifier. This map is used during execution to determine which cells
+     * each key is a cell id, and the value is an array of cells that depend
+     * on that id. This map is used during execution to determine which cells
      * need to be re-executed when a value changes.
      * <p>
      * Reflection is used to traverse the command graph, and cyclic references are handled gracefully.
@@ -132,7 +134,7 @@ public class FlowCommand extends AbstractCommand {
         final var dependencies = new HashMap<String, List<Cell>>();
         final var stateCellIds = new HashSet<String>();
         for (Cell value : cells) {
-            stateCellIds.add(value.identifier);
+            stateCellIds.add(value.id);
         }
         for (Cell cell : cells) {
             final var identifiers = getSubCommandsTransitive(cell.command, new HashSet<>())
@@ -171,6 +173,83 @@ public class FlowCommand extends AbstractCommand {
         return startCells.toArray(Cell[]::new);
     }
 
+    private void validateSchedulingOrderFromDependencies() throws ExecutionException {
+        if (dependentCells.isEmpty()) {
+            throw new RuntimeException("There are no dependencies defined for this flow command. It is an internal error.");
+        }
+
+        final var dependencyMap = buildDepencencyMap();
+
+        // Check for each cell if its dependencies are satisfiable in some order
+        for (Cell cell : cells) {
+            Set<String> alreadyChecked = new HashSet<>();
+            final var failurePath = dependencyMissing(cell.id, dependencyMap, alreadyChecked, new HashSet<>(), Arrays.stream(startCells).map(c -> c.id).collect(Collectors.toSet()));
+            if (!failurePath.isEmpty()) {
+                throw new ExecutionException("Invalid flow '%s': cell '%s' may depend on undefined state due to cyclic or misordered dependencies.\n" +
+                        "[ %s ]", flowId, cell.id, String.join(" <- ", failurePath));
+            }
+        }
+    }
+
+    private HashMap<String, Set<String>> buildDepencencyMap() {
+        final var dependencyMap = new HashMap<String, Set<String>>();
+        for (final var entry : dependentCells.entrySet()) {
+            String dependedOn = entry.getKey();
+            for (Cell dependent : entry.getValue()) {
+                dependencyMap.computeIfAbsent(dependent.id, k -> new HashSet<>()).add(dependedOn);
+            }
+        }
+        return dependencyMap;
+    }
+
+    /**
+     * Recursively checks if a cell's dependencies can be satisfied by tracing back to start cells.
+     * This method detects cyclic dependencies and validates that all cells can be computed
+     * from initial values.
+     * <p>
+     * The algorithm works by first ensuring all cells are reachable from start cells in
+     * {@link #getUnreachableCells()}. This guarantees that every cell can eventually be
+     * computed from initial values. Then this method looks for cycles that don't include
+     * start cells. Such cycles are problematic because:
+     * <ul>
+     *   <li>If a cycle includes a start cell, the cycle can be broken since the start cell
+     *       provides an initial value.</li>
+     *   <li>If a cycle doesn't include a start cell, the cells in the cycle may have a path to
+     *       start executing without getting their initial values.</li>
+     * </ul>
+     * Therefore, finding any cycle that excludes start cells indicates an invalid flow.
+     * <p>
+     * Without this analysis such flows can randomly throw undefined variable exceptions based on scheduling order.
+     *
+     * @param id             the identifier of the cell being checked
+     * @param depMap         mapping of cell ids to their direct dependencies
+     * @param alreadyChecked set of cells that have already been verified as valid
+     * @param path           tracks the current dependency path to detect cycles
+     * @param startCells     set of initial cell ids that have no dependencies
+     * @return empty list if dependencies are satisfied, or a list containing the problematic
+     * dependency path if validation fails (with the problematic cell ids in reverse order)
+     */
+    private List<String> dependencyMissing(String id,
+                                           Map<String, Set<String>> depMap,
+                                           Set<String> alreadyChecked,
+                                           Set<String> path,
+                                           Set<String> startCells) {
+        if (startCells.contains(id)) return List.of();
+        if (alreadyChecked.contains(id)) return List.of();
+        if (!depMap.containsKey(id)) return List.of(); // no dependencies
+        if (!path.add(id)) return new ArrayList<>(List.of(id)); // cycle detected
+
+        for (String dep : depMap.get(id)) {
+            final var list = dependencyMissing(dep, depMap, alreadyChecked, path, startCells);
+            if (!list.isEmpty()) {
+                list.add(id);
+                return list;
+            }
+        }
+        path.remove(id);
+        alreadyChecked.add(id);
+        return List.of();
+    }
 
     private long nextCounter(String id, Map<String, Long> counters) {
         return counters.computeIfAbsent(id, k -> 0L);
@@ -193,7 +272,7 @@ public class FlowCommand extends AbstractCommand {
         while (!toVisit.isEmpty()) {
             final var current = toVisit.poll();
             if (reachableCells.add(current)) {
-                final var dependents = dependentCells.get(current.identifier);
+                final var dependents = dependentCells.get(current.id);
                 if (dependents != null) {
                     toVisit.addAll(Arrays.asList(dependents));
                 }
@@ -226,7 +305,7 @@ public class FlowCommand extends AbstractCommand {
         commandsVisited.add(command);
         final var fields = new HashSet<>();
         fields.add(command);
-        for (var field : getSubCommands(command)) {
+        for (final var field : getSubCommands(command)) {
             fields.addAll(getSubCommandsTransitive(field, commandsVisited));
         }
         return fields;
@@ -237,7 +316,7 @@ public class FlowCommand extends AbstractCommand {
      * its declared fields. Only fields that belong to the {@code ch.turic} package
      * are considered (including arrays of such types).
      * <p>
-     * This method is used during dependency analysis to find identifier references.
+     * This method is used during dependency analysis to find id references.
      *
      * @param command the command whose fields are to be examined
      * @return a set of direct sub-command objects
@@ -316,7 +395,7 @@ public class FlowCommand extends AbstractCommand {
         try {
             final var tasksRunning = new HashSet<CompletableFuture<CellWithResult>>();
             for (final var startCell : startCells) {
-                final var startTask = startTask(ctx, startCell, exception, nextCounter(startCell.identifier, stateCounters));
+                final var startTask = startTask(ctx, startCell, exception, nextCounter(startCell.id, stateCounters));
                 tasksRunning.add(startTask);
             }
             updateAndScheduleStart(ctx, tasksRunning, stateCounters, exception, stoppedCells);
@@ -327,7 +406,7 @@ public class FlowCommand extends AbstractCommand {
                 final long currentTime = System.nanoTime();
                 if (timeout >= 0 && timeout <= currentTime - startTime) {
                     doExit = true;
-                    doException = new ExecutionException("Timed out after " + timeout / 1_000_000 + " ms");
+                    doException = new ExecutionException("Flow '%s' timed out after %s ms", flowId, timeout / 1_000_000);
                 }
                 while (true) {
                     final var e = exception.get();
@@ -335,7 +414,7 @@ public class FlowCommand extends AbstractCommand {
                         if (e instanceof ExecutionException ee) {
                             throw ee;
                         } else {
-                            throw new ExecutionException(exception.get(), "Exception while executing flow.");
+                            throw new ExecutionException(exception.get(), "Exception while executing flow '%s'.", flowId);
                         }
                     }
                     // get one task that is ready
@@ -350,6 +429,7 @@ public class FlowCommand extends AbstractCommand {
                         if (cnR != null) {
                             if (cnR.result == Sentinel.FINI) {
                                 stoppedCells.add(cnR.cell);
+                                updateStateCounter(ctx, cnR, stateCounters);
                             } else {
                                 if (cnR.result != Sentinel.NON_MUTAT) {
                                     final var nr = updateAndScheduleNewTasks(ctx, cnR, tasksRunning, exception, stateCounters, stoppedCells);
@@ -357,7 +437,7 @@ public class FlowCommand extends AbstractCommand {
                                     if (limit >= 0) {
                                         if (nr >= limit) {
                                             doExit = true;
-                                            doException = new ExecutionException("Task limit has been reached in flow command after %d tasks.", totalScheduled);
+                                            doException = new ExecutionException("Task limit has been reached in flow '%s' command after %d tasks.", flowId, totalScheduled);
                                         } else {
                                             limit -= nr;
                                         }
@@ -369,11 +449,11 @@ public class FlowCommand extends AbstractCommand {
                 }
             }
         } catch (ExecutionException e) {
-            final var newException = new ExecutionException("While in flow: %s", e.getMessage());
+            final var newException = new ExecutionException("While in flow '%s': %s", flowId, e.getMessage());
             newException.setStackTrace(e.getStackTrace());
             throw newException;
         } catch (Exception e) {
-            throw new ExecutionException(e, "There was an exception while executing flow command");
+            throw new ExecutionException(e, "There was an exception while executing the flow '%s'", flowId);
         }
         if (doException != null) {
             throw doException;
@@ -406,17 +486,25 @@ public class FlowCommand extends AbstractCommand {
      * @throws InterruptedException                    if task execution is interrupted
      * @throws java.util.concurrent.ExecutionException if a task fails
      */
-    private void updateAndScheduleStart(Context ctx, HashSet<CompletableFuture<CellWithResult>> tasksRunning, HashMap<String, Long> stateCounters, AtomicReference<Exception> exception, HashSet<Cell> stoppedCells) throws InterruptedException, java.util.concurrent.ExecutionException {
+    private void updateAndScheduleStart(Context ctx,
+                                        HashSet<CompletableFuture<CellWithResult>> tasksRunning,
+                                        HashMap<String, Long> stateCounters,
+                                        AtomicReference<Exception> exception,
+                                        HashSet<Cell> stoppedCells
+    ) throws InterruptedException, java.util.concurrent.ExecutionException {
         // wait for all the start tasks to finish before let the hell get loose
         CompletableFuture.allOf(tasksRunning.toArray(CompletableFuture[]::new)).join();
         final var newTasksSchedulers = new ArrayList<Runnable>();
         for (final var task : tasksRunning) {
             final var cnR = task.get();
+            if (exception.get() != null) {
+                return;
+            }
             final var updated = updateCellVariable(ctx, cnR, stateCounters);
             if (updated) {
                 newTasksSchedulers.add(() -> scheduleNewTasks(ctx, cnR, tasksRunning, exception, stateCounters, stoppedCells));
             } else {
-                throw new ExecutionException("Updating initial value '%s' failed. Probably double defined in initial state.", cnR.cell.identifier);
+                throw new ExecutionException("Updating initial value '%s' failed. Probably double defined in initial state in flow '%s'", cnR.cell.id, flowId);
             }
         }
         for (final var schedule : newTasksSchedulers) {
@@ -488,11 +576,11 @@ public class FlowCommand extends AbstractCommand {
                                  Map<String, Long> stateCounters,
                                  HashSet<Cell> stoppedCells) {
         int newTasksScheduled = 0;
-        final var dCells = this.dependentCells.get(cnR.cell.identifier);
+        final var dCells = this.dependentCells.get(cnR.cell.id);
         if (dCells != null) {
             for (final var cell : dCells) {
                 if (!stoppedCells.contains(cell)) {
-                    tasksRunning.add(startTask(ctx, cell, exception, nextCounter(cell.identifier, stateCounters)));
+                    tasksRunning.add(startTask(ctx, cell, exception, nextCounter(cell.id, stateCounters)));
                     newTasksScheduled++;
                 }
             }
@@ -511,8 +599,8 @@ public class FlowCommand extends AbstractCommand {
      * @return {@code true} if the value was updated in the context; {@code false} if the value was unchanged or stale
      */
     private boolean updateCellVariable(Context ctx, CellWithResult cnR, Map<String, Long> stateCounters) {
-        final var oldValue = ctx.getLocal(cnR.cell.identifier);
-        final var updated = (!ctx.contains0(cnR.cell.identifier) || calculatedValueIsNew(cnR, oldValue)) && notStale(cnR, stateCounters);
+        final var oldValue = ctx.getLocal(cnR.cell.id);
+        final var updated = (!ctx.contains0(cnR.cell.id) || calculatedValueIsNew(cnR, oldValue)) && notStale(cnR, stateCounters);
         if (updated) {
             saveState(ctx, cnR, stateCounters);
         }
@@ -527,8 +615,12 @@ public class FlowCommand extends AbstractCommand {
      * @param stateCounters the state variable counters as they currently are
      */
     private void saveState(Context ctx, CellWithResult cnR, Map<String, Long> stateCounters) {
-        ctx.let0(cnR.cell.identifier, cnR.result);
-        stateCounters.computeIfPresent(cnR.cell.identifier, (k, v) -> v + 1);
+        ctx.let0(cnR.cell.id, cnR.result);
+        updateStateCounter(ctx, cnR, stateCounters);
+    }
+
+    private void updateStateCounter(Context ctx, CellWithResult cnR, Map<String, Long> stateCounters) {
+        stateCounters.computeIfPresent(cnR.cell.id, (k, v) -> v + 1);
     }
 
     /**
@@ -540,7 +632,7 @@ public class FlowCommand extends AbstractCommand {
      * It means that the cell was not updated in the meantime. If it was updated, the caller drops the result as stale.
      */
     private boolean notStale(CellWithResult cnR, Map<String, Long> stateCounters) {
-        return stateCounters.containsKey(cnR.cell.identifier) && stateCounters.get(cnR.cell.identifier).equals(cnR.counter);
+        return stateCounters.containsKey(cnR.cell.id) && stateCounters.get(cnR.cell.id).equals(cnR.counter);
     }
 
     /**
@@ -570,16 +662,16 @@ public class FlowCommand extends AbstractCommand {
         final var newThreadContext = ctx.thread();
         copyVariables(ctx, newThreadContext);
         return CompletableFuture.supplyAsync(() -> {
-            Thread.currentThread().setName(cell.identifier + ":" + NameGen.generateName());
+            Thread.currentThread().setName(cell.id + ":" + NameGen.generateName());
             try {
                 return new CellWithResult(cell.command.execute(newThreadContext), cell, counter);
             } catch (ExecutionException e) {
-                final var newException = new ExecutionException("Exception in asynchrnous thread %s %s", Thread.currentThread().getName(), e.getMessage());
+                final var newException = new ExecutionException("Exception in flow '%s' in thread %s %s", flowId, Thread.currentThread().getName(), e.getMessage());
                 newException.setStackTrace(e.getStackTrace());
                 exception.compareAndSet(null, newException);
                 return null;
             } catch (Exception t) {
-                final var newException = new ExecutionException(t, "Exception in asynchrnous thread %s ", Thread.currentThread().getName());
+                final var newException = new ExecutionException(t, "Exception in flow '%s' thread %s ", flowId, Thread.currentThread().getName());
                 exception.compareAndSet(null, newException);
                 return null;
             }
@@ -587,7 +679,7 @@ public class FlowCommand extends AbstractCommand {
     }
 
     private static void copyVariables(Context source, Context target) {
-        for (final var key : source.keys()) {
+        for (final var key : source.allLocalKeys()) {
             target.let0(key, source.get(key));
             target.freeze(key);
         }

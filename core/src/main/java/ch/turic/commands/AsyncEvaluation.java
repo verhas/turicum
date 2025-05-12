@@ -10,7 +10,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class AsyncEvaluation extends AbstractCommand {
-    private final ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
+    private static final ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
     private final Command command;
     private final Map<String, Command> options;
 

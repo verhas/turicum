@@ -1099,17 +1099,33 @@ In the second case the functions wait the same time, parallel, and the execution
 [[flow-command]]
 == `flow` Command
 
-The `flow` command defines a *reactive execution block* in which named expressions (called *cells*) are evaluated in a concurrent and data-driven fashion. It is particularly useful for implementing iterative or mutually dependent computations where values must be recalculated until a condition is satisfied, or a fixed number of changes have occurred.
+The `flow` command defines a *reactive execution block* in which named expressions (called *cells*) are evaluated in a concurrent and data-driven fashion.
+It is particularly useful for implementing iterative or mutually dependent computations where values must be recalculated until a condition is satisfied or a fixed number of changes have occurred.
 
-Cells are defined as variable-expression bindings, and their dependencies are automatically detected by analyzing identifier usage. When the value of a cell changes, all other cells that depend on it are automatically rescheduled for evaluation in a new thread (using Java virtual threads).
+Cells are defined as variable-expression bindings, and their dependencies are automatically detected by analyzing identifier usage.
+When a cell value changes, all other cells that depend on it are automatically rescheduled for evaluation in a new thread (using Java virtual threads).
 
 The `flow` block terminates under one of the following conditions:
 
 - The `until` condition evaluates to `true`.
+It is repeatedly evaluated after each task in the context of the `flow` command.
 - The maximum number of task executions (`limit`) is reached.
 - The allowed wall-clock execution time (`timeout`) is exceeded.
+- The flow reaches a stable state, there are no more tasks to run.
 
-If a `yield` expression is specified, its result is returned as the result of the `flow` command. Otherwise, `null` is returned.
+In these cases the already scheduled tasks are still executed before the flow stops.
+
+If a `yield` expression is specified, its result is returned as the result of the `flow` command.
+It is evaluated once after all scheduled tasks are finished.
+The evaluation happens in the context of the `flow` command.
+If there is no `yield` in the `flow` command `null` is returned.
+
+The evaluation starts with the cells that have no dependencies.
+These are evaluated in asynchronous threads.
+Scheduling and executing tasks based on dependencies start when the start cells are all finished and the flow has reached the initial state.
+
+If there are cells that have dependencies, and that way they are not start cells, but their transitive closure of their dependencies does not include any start cells, it is en error.
+It is detected during compilation time and result in syntax error.
 
 === Syntax
 
@@ -1117,31 +1133,125 @@ The basic syntax of the `flow` command is:
 
 [source]
 ----
-flow [until <condition>] [limit <maxTasks>] [timeout <seconds>] {
+flow [<identifier>] [until <condition>] [limit <maxTasks>] [timeout <seconds>] {
   <identifier> <- <expression>
   ...
   yield <expression>
 }
 ----
 
+- the identifier following the `flow` keyword is optional.
+It is used solely for diagnostic purposes.
+It does not get into any symbol table, does not hide any object of the same name in the context hierarchy.
+It is used only in error messages and is available for command introspection.
+This identifier cannot be `limit` or `timeout`, because those signal the start of the limit and timeout expressions respectively.
+
 - `until <condition>`::
-Optional. A boolean expression that terminates the flow once it evaluates to true.
+Optional.
+A boolean expression that terminates the flow once it evaluates to true.
 - `limit <maxTasks>`::
-Optional. A numeric constant that sets the maximum number of dependent cell executions allowed.
+Optional.
+A numeric constant that sets the maximum number of dependent cell executions allowed.
 - `timeout <seconds>`::
-Optional. A numeric constant (may be fractional) specifying the maximum wall-clock time allowed for execution, in seconds.
-- `yield <expression>`::
-Optional. Defines the return value of the `flow`. It must be the last statement in the block.
+Optional.
+A numeric constant (may be fractional) specifying the maximum wall-clock time allowed for execution, in seconds.
+
+[NOTE]
+====
+`until`, `limit` and `timeout` are all optional and can be in any order.
+`limit` and `timeout` are not keywords.
+The syntax analyzer would not know if they start the limit or timeout definition or you want to name the flow to "limit" or "timeout".
+You cannot name the flow to either of these.
+====
+
+Each
+
+[source]
+----
+<identifier> <- <expression>
+----
+
+is a __cell__.
+During the execution the expression, which can even be a whole block, just like any expression in Turicum, is evaluated asynchronously, and when it is ready, the resulting value updates the flow local variable on the left side of the `pass:[<-]`.
+
+The expression is the cell expression.
+The identifier is the __cell state variable__.
+
+When the syntax analysis is done, the compiler performs several semantic checks.
+It checks that there are __start cell__s, that can be calculated independent of any other.
+
+There should be no two __start cell__s updating the same __cell state variable__.
+
+Following this analysis, the compiler checks that each cell is reachable from the __start cell__s.
+There should be no cells that are not reachable.
+
+NOTE: Unreachable cells only can happen if a cell depends on itself or there is a circular dependency.
+Without such a dependency the cell would be a start cell.
+
+The last check is that all dependency circles contain at least __start cell__.
+If there is a dependency circle that does not contain a __start cell__ that circle would result in the use of a __cell state variable__ uninitialized.
+
+If any of the checks fails, the compiler results in a syntax error and the command is not created.
 
 === Semantics
 
-The `flow` block contains a series of *cells*. Each cell defines a named variable and an expression that computes its value. These variables can reference each other, and the runtime will detect and track these dependencies.
+The `flow` block contains a series of *cells*.
+Each cell defines a named variable and an expression that computes its value.
+These variables can reference each other, and the runtime will detect and track these dependencies.
 
-When a cell is updated (i.e., its computed value differs from the previous value in the local context), all cells that depend on it are automatically rescheduled. This process continues until one of the termination conditions is met.
+When a __cell state variable__ is updated,
+(i.e., its computed value differs from the previous value in the local context),
+all cells that depend on it are automatically rescheduled.
+This process continues until one of the termination conditions is met.
 
-Cell evaluation is performed in isolated thread-local contexts derived from the flow's original context. Variables are copied and frozen in each thread.
+A __cell state variable__ is updated if
+
+* it was undefined and the new value is not `non_mutat`, and not `fini`, OR
+* it was defined and the value of the evaluation does not `equals` the current value.
+
+When the value of the __cell block__ evaluation is `non_mutat` the __cell state variable__ is not updated.
+
+When the value of the __cell block__ evaluation is `fini` the __cell state variable__ is not updated and the cell will not be scheduled anymore.
+If there are already running instances of the cell, they will finish and possibly update the __cell state variable__ assuming they were started after the cell block that resulted the `fini` value.
+
+When a result is `fini` the __cell state variable__ counter is updated, even though the variable value is not, thus any block that was started earlier and not finished yet will not update the variable.
+
+When the result if `non_mutat` nothing is updated.
+
+NOTE: `fini` and `non_mutat` are predefined pinned global constant objects.
+
+Cell evaluation is performed in isolated thread-local contexts derived from the flow's original context.
+This context contains the flow context variables as copies and read-only.
 
 The system avoids infinite re-evaluation loops by tracking value stability and respecting the `limit` and `timeout` constraints.
+
+The execution of the code blocks is done asynchronously.
+There is no guarantee for any order.
+When it is recognized that a cell variable one of the blocks depends on, (uses it as a variable in some calculation), then it will be scheduled for execution and started as soon as the JVM and the operating system start it.
+Each cell block is executed in a new virtual thread.
+
+It may happen that the same block executes parallel in multiple instances.
+It could lead to instability in the flow.
+An earlier started version may run longer than a later instance.
+Also, different blocks may update the same {%@def CSV=__cell state variable__%}.
+To avoid this the `flow` command only updates a  {%CSV%} to the value resulting from a cell block execution only if the {%CSV%} was not updated in the meantime.
+If the {%CSV%} was already updated, the result is ignored.
+It is implemented using {%CSV%} version counters.
+
+When the command is created, the dependencies between the {%CSV%}s are analyzed.
+Those cells that do not depend on any other cell are {%@def SC=__start cell__%}s.
+They will be executed first.
+
+It is important that other cell calculations start only after the {%SC%}s have been calculated.
+If you have multiple {%SC%}s and a cell block depends on more than one, then they will both be defined when the dependent cell calculation starts.
+
+[NOTE]
+====
+- The order of `until`, `limit`, and `timeout` is flexible in the syntax.
+- All expressions in the `flow` block are commands and follow standard language rules.
+- Only direct assignments (`x <- expression`) are allowed; complex control flow must be expressed inside expression blocks.
+====
+
 
 === Use Cases
 
@@ -1169,14 +1279,10 @@ It shows how the system halts with a clear error message once the execution limi
 
 {%S example_flow_limit%}
 
+The next example demonstrates that you can access the structure of the flow command or to any command.
+In the example the flow command is not executed, rather stored in a variable, and then the dependency graph of the cells is printed out.
 
-
-=== Notes
-
-- The order of `until`, `limit`, and `timeout` is flexible.
-- All expressions in the `flow` block are commands and follow standard language rules.
-- Only direct assignments (`x <- expression`) are allowed; complex control flow must be expressed inside expression blocks.
-
+{%S flow_mermaid_output%}
 
 == Functions
 
@@ -2052,7 +2158,6 @@ This function will "open" and relose a closure in the current environment.
 The function opens and "recloses" the closure in the context of the function call.
 It will see and alter the `s` in that context of the re-closing, while the original closure alters and sees the global `s`.
 
-
 === `print`, `println`
 
 Prints the arguments to the standard output.
@@ -2139,6 +2244,32 @@ Without the call to `unlet` the class would also have the variable `obj` as a fi
 === `is_obj`
 
 This is a function that returns `true` if the argument is an object.
+
+=== `command`
+
+`command` is a macro that will return its argument converted to a Turicum classless object without evaluation.
+The command can later be used for introspection.
+Since arguments can only be expressions, if you want to pass a whole command, you have to enclose it into a code block, which is a valid expression in Turicum.
+
+=== `thunk`, `unthunk`
+=== `thunk`, `unthunk`
+
+The `thunk` macro returns its argument unevaluated, preserving it as a command or expression.
+This deferred computation can later be executed using `unthunk`.
+
+`unthunk` evaluates the stored command in the **context where `unthunk` is called**, not the context where the thunk was created.
+
+.difference from `evaluate`
+[NOTE]
+====
+Although `evaluate` provides similar functionality, it differs in two key ways:
+
+- `evaluate` can only be used **inside a macro**.
+
+- It evaluates the argument in the **caller’s context**, i.e., the context of the macro's caller.
+====
+
+{%S thunk_unthunk%}
 
 == Preprocessing
 

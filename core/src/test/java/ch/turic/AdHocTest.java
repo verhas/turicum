@@ -13,25 +13,12 @@ public class AdHocTest {
     @Test
     void test1() throws Exception {
         test("""
-let norm = {
-    flow {
-        a <- 3;
-        b <- 4;
-        a <- {
-            println "update a: a=%s b=%s" % [a,b]
-            if a > 10 { println("a fini"); fini } else{ a + 1 };
-            }
-        b <- {
-            println "update b: a=%s b=%s" % [a,b]
-            if b > 1 { println("b fini"); non_mutat } else{ b + 2 };
-            }
-        yield [a,b]
-    }
-}
+let z = thunk({println "hello"})
+println "before eval"
+unthunk(z)
+println "after eval"
 
-println norm
-
-
+                
 none
                 """,null);
     }

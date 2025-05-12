@@ -25,6 +25,23 @@ public class Context implements ch.turic.Context {
         return frame.keySet();
     }
 
+    public Set<String> allKeys() {
+        final var keySet = new HashSet<String>();
+        keySet.addAll(allLocalKeys());
+        keySet.addAll(globalContext.heap.keySet());
+        return keySet;
+    }
+
+    public Set<String> allLocalKeys() {
+        final var keySet = new HashSet<String>();
+        var ctx = this;
+        while (ctx != null) {
+            keySet.addAll(ctx.frame.keySet());
+            ctx = ctx.wrapped;
+        }
+        return keySet;
+    }
+
     /**
      * Create a new context with -1 as a step limit, a.k.a. unlimited, for example, a server application.
      */
@@ -341,10 +358,7 @@ public class Context implements ch.turic.Context {
     }
 
     public boolean contains0(String key) {
-        if (frame.containsKey(key)) {
-            return true;
-        }
-        return false;
+        return frame.containsKey(key);
     }
 
     public boolean containsLocal(String key) {

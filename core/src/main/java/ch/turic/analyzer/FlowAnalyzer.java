@@ -1,6 +1,7 @@
 package ch.turic.analyzer;
 
 import ch.turic.BadSyntax;
+import ch.turic.ExecutionException;
 import ch.turic.commands.Command;
 import ch.turic.commands.FlowCommand;
 
@@ -8,17 +9,26 @@ import java.util.ArrayList;
 
 public class FlowAnalyzer extends AbstractAnalyzer {
     public static final FlowAnalyzer INSTANCE = new FlowAnalyzer();
+    private static final String LIMIT = "limit";
+    private static final String TIMEOUT = "timeout";
 
     @Override
     public Command _analyze(LexList lexes) throws BadSyntax {
+        final var flowStartPos = lexes.position();
         Command exitCondition = null;
         Command limitExpression = null;
         Command timeoutExpression = null;
+        final String flowId;
         final var cellIds = new ArrayList<String>();
         final var cells = new ArrayList<Command>();
+        if (lexes.isIdentifier() && !lexes.isIdentifier(LIMIT, TIMEOUT)) {
+            flowId = lexes.next().text;
+        } else {
+            flowId = null;
+        }
         while (lexes.isNot("{")) {
             if (lexes.is(Keywords.UNTIL)) {
-                if( exitCondition != null ) {
+                if (exitCondition != null) {
                     throw lexes.syntaxError("There can only be one exit condition in flow.");
                 }
                 lexes.next();
@@ -27,8 +37,8 @@ public class FlowAnalyzer extends AbstractAnalyzer {
                     lexes.next();
                 }
             }
-            if (lexes.isIdentifier("limit")) {
-                if( limitExpression != null ) {
+            if (lexes.isIdentifier(LIMIT)) {
+                if (limitExpression != null) {
                     throw lexes.syntaxError("There can only be one limit in flow.");
                 }
                 lexes.next();
@@ -37,8 +47,8 @@ public class FlowAnalyzer extends AbstractAnalyzer {
                     lexes.next();
                 }
             }
-            if (lexes.isIdentifier("timeout")) {
-                if( timeoutExpression != null ) {
+            if (lexes.isIdentifier(TIMEOUT)) {
+                if (timeoutExpression != null) {
                     throw lexes.syntaxError("There can only be one timeout in flow.");
                 }
                 lexes.next();
@@ -73,7 +83,13 @@ public class FlowAnalyzer extends AbstractAnalyzer {
                 throw lexes.syntaxError("Flow command closing '}' is missing");
             }
             lexes.next();
-            return new FlowCommand(exitCondition, limitExpression, timeoutExpression, resultExpression, cellIds.toArray(String[]::new), cells.toArray(Command[]::new));
+            try {
+                return new FlowCommand(flowId,exitCondition, limitExpression, timeoutExpression, resultExpression, cellIds.toArray(String[]::new), cells.toArray(Command[]::new));
+            } catch (ExecutionException e) {
+                final var bs = new BadSyntax(flowStartPos, e.getMessage());
+                bs.setStackTrace(e.getStackTrace());
+                throw bs;
+            }
         } else {
             if (lexes.is(":")) {
                 throw lexes.syntaxError("The flow command does not allow ': command' ");
