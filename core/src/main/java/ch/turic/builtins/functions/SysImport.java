@@ -31,7 +31,7 @@ public class SysImport implements TuriFunction {
 
         try (final var is = this.getClass().getClassLoader().getResourceAsStream(resourceName)) {
             if (is == null) {
-                throw new ExecutionException("Could not find sys import " + sys_name);
+                throw new ExecutionException("Could not find sys import " + sys_name + " in " + resourceName);
             }
             final var source = new String(is.readAllBytes(), StandardCharsets.UTF_8);
             return doImportExport(ctx, source);
