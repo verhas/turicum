@@ -5,9 +5,9 @@ cd /d "%~dp0"
 
 REM Extract VERSION from turicum_versions.turi
 set "VERSION="
-for /f "tokens=2 delims== " %%a in ('findstr /r "^let VERSION *= *\".*\";" "..\turicum_versions.turi"') do (
-    if not defined VERSION (
-        set "VERSION=%%~a"
+for /f "delims=" %%a in ('findstr /r "^let VERSION *= *\".*\";" "..\turicum_versions.turi"') do (
+    for /f "tokens=3 delims==; " %%b in ("%%a") do (
+        set "VERSION=%%~b"
     )
 )
 
