@@ -47,4 +47,5 @@ case "$(uname -s)" in
         ;;
 esac
 
-
+mv output/turicum-$TVERSION.pkg output/turicum-$VERSION.pkg || true
+mv output/turicum-$TVERSION.deb output/turicum-$VERSION.deb || true
