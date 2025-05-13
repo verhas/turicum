@@ -84,7 +84,7 @@ public class Lexer {
         while (!in.isEmpty()) {
             final var position = in.position;
             boolean atLineStart = false;// the first line start does not matter
-            while (!in.isEmpty() && in.charAt(0) == '\n') {
+            while (!in.isEmpty() && (in.charAt(0) == '\n' || in.charAt(0) == '\r')) {
                 atLineStart = true;
                 in.skip(1);
             }
@@ -137,7 +137,6 @@ public class Lexer {
                 final var str = new StringBuilder(in.substring(0, 2));
                 in.skip(2);
                 str.append(in.fetchHexNumber());
-                final Lex.Type type;
                 final var lex = new Lex(Lex.Type.INTEGER, str.toString(), atLineStart, position);
                 list.add(lex);
                 continue;
