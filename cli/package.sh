@@ -1,14 +1,12 @@
 #!/bin/bash
 
-set -euo pipefail
-
 cd "$(dirname "$(readlink -f "$0")")"
 
 echo "Working directory: $(pwd)"
 
 # Read VERSION from turicum_versions.turi
 VERSION=$(grep -m1 '^let VERSION *= *"' ../turicum_versions.turi | sed -E 's/^let VERSION *= *"(.*)";/\1/')
-TVERSION=$(echo "$VERSION" | sed 's/-SNAPSHOT$/1.0.0/')
+TVERSION=$(echo "$VERSION" | sed 's/-SNAPSHOT$//')
 
 export VERSION
 
@@ -48,3 +46,6 @@ case "$(uname -s)" in
         exit 1
         ;;
 esac
+
+mv output/turicum-$TVERSION.pkg output/turicum-$VERSION.pkg
+mv output/turicum-$TVERSION.deb output/turicum-$VERSION.deb
