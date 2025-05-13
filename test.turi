@@ -1,3 +1,4 @@
+#!/usr/local/bin/turi -version
 import "imported"
 
 hello()

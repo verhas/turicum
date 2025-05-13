@@ -81,6 +81,12 @@ public class Lexer {
 
     public static LexList analyze(Input in) throws BadSyntax {
         final var list = new ArrayList<Lex>();
+        // honour the shebang
+        if( in.startsWith("#!") == 0 ){
+            while( !in.isEmpty() && in.charAt(0) != '\n') {
+                in.skip(1);
+            }
+        }
         while (!in.isEmpty()) {
             final var position = in.position;
             boolean atLineStart = false;// the first line start does not matter

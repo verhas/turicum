@@ -5,6 +5,7 @@ import ch.turic.analyzer.Input;
 import ch.turic.commands.operators.Cast;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Set;
 
@@ -14,7 +15,6 @@ public class Main {
             // snippet command_options
             "version",
             "APPIA",
-            "debug",
             "dry",
             "help"
             // end snippet
@@ -23,7 +23,13 @@ public class Main {
     public static void main(String[] args) throws IOException {
         final var params = CmdParser.parse(args, parameters);
         if (params.get("version").isPresent()) {
-            System.out.printf("Jamal Version %s", "1.0.0-SNAPSHOT");
+
+            var buildTime = new String(Main.class.getResourceAsStream("/buildtime.txt").readAllBytes(),StandardCharsets.UTF_8);
+            String version = Main.class.getPackage().getImplementationVersion();
+            if (version == null) {
+                version = "DEV-SNAPSHOT";
+            }
+            System.out.printf("Turicum Version %s (Built: %s)\n", version, buildTime);
             return;
         }
         if (params.get("help").isPresent()) {
@@ -31,7 +37,7 @@ public class Main {
                     // snippet command_options_help
                     "  -help                      help\n" +
                     "  -version                   display version\n" +
-                    "  -debug=<debug>             type:port, http:8080 by default when the value is skipped\n" +
+                    "  -APPIA=<import path>       list of directories looking for files when importing\n" +
                     "  -dry                       compile only\n" +
                     // end snippet
                     "");
