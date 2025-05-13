@@ -3,13 +3,16 @@ setlocal enabledelayedexpansion
 
 cd /d "%~dp0"
 
-REM Extract version from pom.xml
+REM Extract VERSION from turicum_versions.turi
 set "VERSION="
-for /f "tokens=1,* delims=<>" %%a in ('findstr /i "<version>" "..\pom.xml"') do (
+for /f "tokens=2 delims== " %%a in ('findstr /r "^let VERSION *= *\".*\";" "..\turicum_versions.turi"') do (
     if not defined VERSION (
-        set "VERSION=%%b"
+        set "VERSION=%%~a"
     )
 )
+
+REM Remove surrounding quotes from VERSION
+set "VERSION=%VERSION:"=%"
 
 REM Replace -SNAPSHOT with 1.0.0 in TVERSION
 set "TVERSION=%VERSION:-SNAPSHOT=1.0.0%"
@@ -43,3 +46,4 @@ for %%I in (exe msi) do (
 )
 
 endlocal
+
