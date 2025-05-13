@@ -13,7 +13,7 @@ jobs:
       uses: actions/setup-java@v4
       with: {java-version: '21', distribution: temurin}
     - name: Package application
-      run: sh ./package.sh
+      run: sh ./cli/package.sh
     - name: Upload Package Artifact
       uses: actions/upload-artifact@v4.6.2
       with:
@@ -55,7 +55,7 @@ jobs:
       uses: actions/setup-java@v4
       with: {java-version: '21', distribution: temurin}
     - name: Package application
-      run: sh ./package.sh
+      run: sh ./cli/package.sh
     - name: Upload Package Artifact
       uses: actions/upload-artifact@v4.6.2
       with:
@@ -70,7 +70,7 @@ jobs:
       uses: actions/setup-java@v4
       with: {java-version: '21', distribution: temurin}
     - name: Package application
-      run: sh ./package.sh
+      run: sh ./cli/package.sh
     - name: Upload Package Artifact
       uses: actions/upload-artifact@v4.6.2
       with:
