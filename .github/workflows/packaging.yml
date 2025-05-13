@@ -31,6 +31,9 @@ jobs:
       with: {java-version: '21', distribution: temurin}
     - name: Build with Maven
       run: mvn install
+    - name: Install 7-Zip
+      run: choco install 7zip
+      shell: powershell
     - name: Package application
       run: cli\package.bat
       shell: cmd
