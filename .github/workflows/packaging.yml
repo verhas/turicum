@@ -32,7 +32,7 @@ jobs:
     - name: Build with Maven
       run: mvn install
     - name: Package application
-      run: package.bat
+      run: cli\package.bat
       shell: cmd
     - name: Upload Log Artifact
       if: always()
