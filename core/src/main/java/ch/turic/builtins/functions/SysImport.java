@@ -27,7 +27,7 @@ public class SysImport implements TuriFunction {
         }
         ExecutionException.when(args.length != 1 || args[0] == null, "Built-in function %s needs exactly one argument", name());
         final var sys_name = args[0].toString();
-        final var resourceName = sys_name.replace(".", "" + File.separatorChar) + ".turi";
+        final var resourceName = sys_name.replace(".", "/") + ".turi";
 
         try (final var is = this.getClass().getClassLoader().getResourceAsStream(resourceName)) {
             if (is == null) {
