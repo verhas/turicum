@@ -28,7 +28,10 @@ ch.turic.builtins.functions.ExportAll
 ch.turic.builtins.functions.Parents
 ch.turic.builtins.functions.AllParents
 ch.turic.builtins.functions.Rng
+ch.turic.builtins.functions.Command
 ch.turic.builtins.functions.Time
 ch.turic.builtins.functions.NanoTime
 ch.turic.builtins.functions.Abs
 ch.turic.builtins.functions.Unthunk
+ch.turic.builtins.functions.Unwrap
+ch.turic.builtins.functions.BlockList

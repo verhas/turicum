@@ -1,19 +1,18 @@
-package ch.turic.builtins.macros;
+package ch.turic.builtins.functions;
 
 import ch.turic.Context;
 import ch.turic.ExecutionException;
-import ch.turic.TuriMacro;
-import ch.turic.builtins.functions.FunUtils;
+import ch.turic.TuriFunction;
 import ch.turic.commands.AbstractCommand;
 
 /**
  * returns the argument as a command converted to an LngObject
  */
-public class Command implements TuriMacro {
+public class Command implements TuriFunction {
 
     @Override
     public String name() {
-        return "command";
+        return "as_object";
     }
 
     @Override

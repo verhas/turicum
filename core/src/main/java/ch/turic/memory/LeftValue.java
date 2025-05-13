@@ -29,6 +29,7 @@ public interface LeftValue {
             return switch (existing) {
                 case LngObject object -> object;
                 case LngClass klass -> klass;
+                case HasFields fieldHaber -> fieldHaber;
                 case Map<?,?> map -> new MapObject((Map<Object, Object>) map);
                 default -> throw new ExecutionException("Unknown object types '%s'", existing);
             };

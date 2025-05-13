@@ -2,16 +2,15 @@ package ch.turic.commands;
 
 import ch.turic.ExecutionException;
 import ch.turic.analyzer.Pos;
-import ch.turic.memory.Context;
-import ch.turic.memory.LngList;
-import ch.turic.memory.LngObject;
-import ch.turic.memory.LngStackFrame;
+import ch.turic.memory.*;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Modifier;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
-public abstract class AbstractCommand implements Command {
+public abstract class AbstractCommand implements Command , HasFields {
 
     private Pos startPosition;
     private Pos endPosition;
@@ -121,4 +120,52 @@ public abstract class AbstractCommand implements Command {
     }
 
     public abstract Object _execute(final Context ctx) throws ExecutionException;
+
+    @Override
+    public void setField(String name, Object value) throws ExecutionException {
+        throw new ExecutionException("Commands are immutable objects");
+    }
+
+    @Override
+    public Object getField(String name) throws ExecutionException {
+        return switch (name) {
+            case "java$canonicalName" -> this.getClass().getCanonicalName();
+            default -> {
+                try {
+                    final var f = this.getClass().getDeclaredField(name);
+                    f.setAccessible(true);
+                    final var value = f.get(this);
+                    if (f.getType().isArray()) {
+                        final var list = new LngList();
+                        if (value != null) {
+                            final int length = Array.getLength(value);
+                            for (int i = 0; i < length; i++) {
+                                list.array.add(Array.get(value, i));
+                            }
+                        }
+                        yield list;
+                    } else {
+                        yield value;
+                    }
+
+                } catch (NoSuchFieldException | IllegalAccessException e) {
+                    throw new ExecutionException("There is no such field: " + name);
+                }
+            }
+        };
+    }
+
+    @Override
+    public Set<String> fields() {
+        final var fieldSet = new HashSet<String>();
+        fieldSet.add("java$canonicalName");
+        for (final var f : this.getClass().getDeclaredFields()) {
+            final var name = f.getName();
+            final var modifiers = f.getModifiers();
+            if (!f.isSynthetic() && (modifiers & Modifier.FINAL) != 0 && (modifiers & Modifier.STATIC) == 0) {
+                fieldSet.add(name);
+            }
+        }
+        return fieldSet;
+    }
 }

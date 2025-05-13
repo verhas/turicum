@@ -887,6 +887,15 @@ The `for each` loop can also have a tail condition.
 
 {%S foreach2%}
 
+You can also define an index variable following the `with` keyword.
+
+{%S foreach3%}
+
+The index starts from zero and increments with each execution by one.
+The index variable is local to the loop.
+Without this feature you would need to declare a variable one scope higher and then use it in the loop.
+That would violate the locality principle, not to rely on anything out of a scope that may change and even less modify anything out of the scope, which is in this case a loop.
+
 ==== `break`
 
 The command can break the execution of the loop and can also specify the value of the loop.
@@ -1282,7 +1291,7 @@ It shows how the system halts with a clear error message once the execution limi
 The next example demonstrates that you can access the structure of the flow command or to any command.
 In the example the flow command is not executed, rather stored in a variable, and then the dependency graph of the cells is printed out.
 
-{%S flow_mermaid_output%}
+%S flow_mermaid_output%}
 
 == Functions
 
@@ -2251,8 +2260,7 @@ This is a function that returns `true` if the argument is an object.
 The command can later be used for introspection.
 Since arguments can only be expressions, if you want to pass a whole command, you have to enclose it into a code block, which is a valid expression in Turicum.
 
-=== `thunk`, `unthunk`
-=== `thunk`, `unthunk`
+=== Elephant functions: `thunk`, `unthunk`, `unwrap`, `block_list`
 
 The `thunk` macro returns its argument unevaluated, preserving it as a command or expression.
 This deferred computation can later be executed using `unthunk`.
@@ -2269,8 +2277,40 @@ Although `evaluate` provides similar functionality, it differs in two key ways:
 - It evaluates the argument in the **caller’s context**, i.e., the context of the macro's caller.
 ====
 
+Note also that the argument to `thunk` can only be an expression and not an arbitrary command.
+That is a restriction that comes from Turicum syntax.
+However, you can enclose any command into a block, and then you can use the block as an expression or part of an expression.
+
+When you `unthunk` a block it will be evaluated in a local context freshly created for the block execution.
+Although this context wraps the surrounding context, but defined local variables will not be visible after the execution of the block.
+To overcome this limitation and execute the commands like they were literally written where the `unthunk` call is made you can `unwrap` a block.
+
+.block wrapping explanation
+[NOTE]
+====
+A block can be wrapping and non-wrapping.
+Most of the blocks in Turicum are wrapping.
+When you execute a wrapping block, the execution starts in a new context.
+This context wraps the surrounding context, thus the code can access and modify the variables defined there, but any locally defined variable will only be available in the block and will disappear when the block is finished and the context is not used anymore.
+
+A non-wrapping block executes in the surrounding context.
+Any variable defined in the block will also be available outside.
+An example of a non-wrapping block is an object initializer.
+The body of the `init` method is executed in the surrounding context.
+This is the object context in this case.
+Any local variable defined in the `init` method becomes a field.
+
+`unwrap` should get a block command as argument, probably as the result of a `thunk` call and it will result in a copy of the block, unwrapping.
+====
+
+The following example shows how these functions work.
+
 {%S thunk_unthunk%}
 
+The function `block_list` will return a list containing the commands in a command block.
+The following example shows you how it can be used together with `thunk` and `unthunk`.
+
+{%S block_list%}
 == Preprocessing
 
 When the syntax analyzer meets a `#` symbol it stops parsing the tokens and starts preprocessing.
@@ -2345,8 +2385,8 @@ Commands also have values. It is the __result__ of the command.
  LOOP ::= ('while' [EXPRESSION] ( BLOCK | ':' COMMAND ) |
            'for' COMMAND ';' [EXPRESSION] ';' COMMAND ( BLOCK | ':' COMMAND ) |
            'for' '(' COMMAND [EXPRESSION] COMMAND ')' (  BLOCK | ':' COMMAND )  |
-           'for each' identifier 'in' EXPRESSION ( BLOCK | ':' COMMAND ) |
-           'for each' '(' identifier 'in' EXPRESSION ')' (  BLOCK | ':' COMMAND )
+           'for each' identifier [with identifier] 'in' EXPRESSION ( BLOCK | ':' COMMAND ) |
+           'for each' '(' identifier [with identifier] 'in' EXPRESSION ')' (  BLOCK | ':' COMMAND )
           ) [ 'until' EXPRESSION]
  ;
 

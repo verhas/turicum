@@ -99,7 +99,7 @@ public class ForLoopAnalyzer extends AbstractAnalyzer {
         } else if (lexes.is("{")) {
             body = BlockAnalyzer.INSTANCE.analyze(lexes);
         } else {
-            body = CommandAnalyzer.INSTANCE.analyze(lexes);
+            throw lexes.syntaxError("Loop body must start with ':' or '{'.");
         }
         return body;
     }

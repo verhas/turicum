@@ -233,8 +233,15 @@ println("i at end=",i);
 // snippet foreach1
 for each i in [1,2,3,4]: print(i," ");
 // end snippet
+
 // snippet foreach2
 for each i ∈ [1,2,3,4]: print(i," "); until i%3 == 0
+// end snippet
+
+// snippet foreach3
+for each z with i in ["apple", "banana", "orange", "peach"] {
+    println "%s. %s" % [i,z]
+}
 // end snippet
 
 // snippet yield1
@@ -1828,7 +1835,7 @@ let result = {try {
            println("Final x = ", result);
 // end snippet
 
-// snippet flow_mermaid_output
+//  flow_mermaid_output
 let norm = command({flow test {
         a <- 3;
         b <- 4;
@@ -1851,11 +1858,32 @@ for each k in keys(d_cells) {
         println("    %s-->%s" % [k, dep.id])
     }
 }
-// end snippet
+//
 
 // snippet thunk_unthunk
-let z = thunk({println "hello"})
-println "before unthunk"
+let z = thunk({let x = 3; println "hello"})
+println "before eval"
 unthunk(z)
-println "after unthunk"
+println "after eval"
+println is_defined(x) // will print false
+unthunk(unwrap(z))
+println is_defined(x) // will print true and
+println x             // then the value
+// end snippet
+
+// snippet block_list
+let commands = block_list(thunk({k = 13; suss = "huss"; let x = 3; println "hello"}))
+println "before execution"
+let i = 1;
+for each command in commands {
+    let suss;
+    println "%s. before is_defined(x) = %s" % [i,is_defined(x)]
+    if i == 1 {
+        try: unthunk(command) catch e: println "ERROR: %s" % [e];
+    } else {
+        unthunk(command)
+        println "%s. after is_defined(x) = %s" % [i,is_defined(x)]
+    }
+    i = i + 1
+}
 // end snippet

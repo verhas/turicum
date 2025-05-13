@@ -53,6 +53,10 @@ public class PrimaryExpressionAnalyzer extends AbstractAnalyzer {
             lexes.next();
             return ClassAnalyzer.INSTANCE.analyze(lexes);
         }
+        if (lexes.is(Keywords.IF)) {
+            lexes.next();
+            return IfAnalyzer.INSTANCE.analyze(lexes);
+        }
         if (lexes.is(Keywords.FN)) {
             lexes.next();
             return FunctionDefinitionAnalyzer.INSTANCE.analyze(lexes);

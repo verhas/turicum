@@ -7,14 +7,30 @@ import ch.turic.memory.Context;
 public class BlockCommand extends AbstractCommand {
     final Command[] commands;
 
+    /**
+     * Returns the array of commands contained in this block.
+     *
+     * @return array of commands to be executed
+     */
     public Command[] commands() {
         return commands;
     }
 
+    /**
+     * Indicates whether this block should create a new wrapped context when executing.
+     *
+     * @return true if the block should wrap its context, false otherwise
+     */
     public boolean wrap() {
         return wrap;
     }
 
+    /**
+     * Creates a new BlockCommand with specified commands and wrapping behavior.
+     *
+     * @param commands array of commands to be executed in this block
+     * @param wrap     indicates if the block should create a new wrapped context
+     */
     public BlockCommand(Command[] commands, boolean wrap) {
         this.commands = commands;
         this.wrap = wrap;

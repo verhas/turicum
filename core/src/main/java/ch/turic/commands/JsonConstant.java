@@ -13,10 +13,6 @@ public class JsonConstant extends AbstractCommand {
     final Map<String, Command> fields;
     final boolean lazy;
 
-    public Map<String, Command> fields() {
-        return fields;
-    }
-
     public boolean lazy() {
         return lazy;
     }

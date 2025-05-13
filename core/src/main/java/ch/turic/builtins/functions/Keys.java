@@ -5,6 +5,7 @@ import ch.turic.ExecutionException;
 import ch.turic.TuriFunction;
 import ch.turic.commands.ClosureOrMacro;
 import ch.turic.commands.ParameterList;
+import ch.turic.memory.HasFields;
 import ch.turic.memory.LngClass;
 import ch.turic.memory.LngList;
 import ch.turic.memory.LngObject;
@@ -38,9 +39,16 @@ public class Keys implements TuriFunction {
                 result.array.addAll(object.context().keys());
                 yield result;
             }
-            case ClosureOrMacro closure -> result.array.addAll(
+            case ClosureOrMacro closure -> {
+                result.array.addAll(
                     Arrays.stream(closure.parameters().parameters())
                             .map(ParameterList.Parameter::identifier).toList());
+                yield result;
+            }
+            case HasFields fields -> {
+                result.array.addAll(fields.fields());
+                yield result;
+            }
             case null -> throw new ExecutionException("None does not have keys");
             default -> throw new ExecutionException("Unknown type for calling keys on: '%s'",arg);
         };

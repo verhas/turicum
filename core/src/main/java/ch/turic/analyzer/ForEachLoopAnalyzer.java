@@ -15,6 +15,14 @@ public class ForEachLoopAnalyzer extends AbstractAnalyzer {
         lexes.peek(Lex.Type.IDENTIFIER, null, "'for each' needs an identifier");
         final var name = lexes.next().text();
         final var identifier = new Identifier(name);
+        final Identifier with;
+        if( lexes.is(Keywords.WITH)) {
+            lexes.next();
+            lexes.peek(Lex.Type.IDENTIFIER, null, "'for each... with' needs an identifier");
+            with = new Identifier(lexes.next().text());
+        }else{
+            with = null;
+        }
         if (lexes.is(Keywords.IN)) {
             lexes.next();
         }
@@ -23,6 +31,6 @@ public class ForEachLoopAnalyzer extends AbstractAnalyzer {
 
         final Command body = ForLoopAnalyzer.getLoopBody(lexes);
         final Command exitCondition = ForLoopAnalyzer.getOptionalExistCondition(lexes);
-        return new ForEachLoop(identifier, expression, body, exitCondition);
+        return new ForEachLoop(identifier, with, expression, body, exitCondition);
     }
 }

@@ -17,8 +17,9 @@ public class IfAnalyzer extends AbstractAnalyzer {
             thenBlock = BlockAnalyzer.INSTANCE.analyze(lexes);
         } else if (lexes.is(":")) {
             lexes.next();
-            thenBlock = CommandAnalyzer.INSTANCE.analyze(lexes);
-            BadSyntax.when(lexes, thenBlock == null, "Empty command ( ';' ) must not be after 'if expression' or 'elseif expression'");
+            final var t = CommandAnalyzer.INSTANCE.analyze(lexes);
+            BadSyntax.when(lexes, t == null, "Empty command ( ';' ) must not be after 'if expression' or 'elseif expression'");
+            thenBlock = new BlockCommand(new Command[]{t}, true);
         } else {
             throw lexes.syntaxError(": or {", "Expected ':' or '{' after if condition");
         }
@@ -36,8 +37,9 @@ public class IfAnalyzer extends AbstractAnalyzer {
                 elseBlock = BlockAnalyzer.INSTANCE.analyze(lexes);
             } else if (lexes.is(":")) {
                 lexes.next();
-                elseBlock = CommandAnalyzer.INSTANCE.analyze(lexes);
-                BadSyntax.when(lexes, elseBlock == null, "Empty command ( ';' ) must not be after 'else expression'");
+                final var t = CommandAnalyzer.INSTANCE.analyze(lexes);
+                BadSyntax.when(lexes, t == null, "Empty command ( ';' ) must not be after 'else expression'");
+                elseBlock = new BlockCommand(new Command[]{t}, true);
             } else {
                 throw lexes.syntaxError(": or {", "Expected '{' after if condition");
             }

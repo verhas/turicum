@@ -2394,6 +2394,39 @@ for each i ∈ [1,2,3,4]: print(i," "); until i%3 == 0
 
 
 
+You can also define an index variable following the `with` keyword.
+
+
+.source of snippet `foreach3`
+[source]
+----
+for each z with i in ["apple", "banana", "orange", "peach"] {
+    println "%s. %s" % [i,z]
+}
+
+
+----
+
+
+
+
+.output of snippet `foreach3`
+[source]
+----
+0. apple
+1. banana
+2. orange
+3. peach
+
+----
+
+
+
+The index starts from zero and increments with each execution by one.
+The index variable is local to the loop.
+Without this feature you would need to declare a variable one scope higher and then use it in the loop.
+That would violate the locality principle, not to rely on anything out of a scope that may change and even less modify anything out of the scope, which is in this case a loop.
+
 ==== `break`
 
 The command can break the execution of the loop and can also specify the value of the loop.
@@ -2885,22 +2918,22 @@ Thread 1 generated 7
 Thread 1 generated 11
 Thread 1 generated 13
  prime read 3
-Thread 1 generated  prime read 17
-5
-Thread 1 generated 19
+Thread 1 generated 17
+ prime read 5
  prime read 7
+Thread 1 generated 19
 Thread 1 generated 23
 stopping
 exception Task stopped.
  prime read 2
 Thread 2 generated 3
  prime read 3
-Thread 2 generated 5
- prime read 5
+Thread 2 generated  prime read 5
+5
 Thread 2 generated 7
+ prime read 7
 Thread 2 generated 11
- prime read Thread 2 generated 7
-13
+Thread 2 generated 13
 stopping
 exception Task stopped.
 
@@ -2962,9 +2995,9 @@ println( (end-start)/1000000, "ms")
 [source]
 ----
 [1, 2, 3]
-313.949792ms
+311.55375ms
 [1, 2, 3]
-108.787708ms
+106.407584ms
 
 ----
 
@@ -3275,51 +3308,7 @@ Final x = none
 The next example demonstrates that you can access the structure of the flow command or to any command.
 In the example the flow command is not executed, rather stored in a variable, and then the dependency graph of the cells is printed out.
 
-
-.source of snippet `flow_mermaid_output`
-[source]
-----
-let norm = command({flow test {
-        a <- 3;
-        b <- 4;
-        a <- {
-            println "update a: a=%s b=%s" % [a,b]
-            if a > 10 { println("a fini"); fini } else{ a + 1 };
-            }
-        b <- {
-            println "update b: a=%s b=%s" % [a,b]
-            if b > 1 { println("b fini"); non_mutat } else{ b + 2 };
-            }
-        yield [a,b]
-    }
-})
-
-println("graph TD;")
-let d_cells = norm.commands[0].dependentCells
-for each k in keys(d_cells) {
-    for each dep in d_cells[k] {
-        println("    %s-->%s" % [k, dep.id])
-    }
-}
-
-
-----
-
-
-
-
-.output of snippet `flow_mermaid_output`
-[source]
-----
-graph TD;
-    a-->a
-    a-->b
-    b-->a
-    b-->b
-
-----
-
-
+%S flow_mermaid_output%}
 
 == Functions
 
@@ -3370,7 +3359,7 @@ println(inc(1))
 .output of snippet `fun1`
 [source]
 ----
-ch.turic.commands.Closure@183ec003
+ch.turic.commands.Closure@451001e5
 2
 
 ----
@@ -3399,7 +3388,7 @@ println(inc(1))
 .output of snippet `fun3`
 [source]
 ----
-ch.turic.commands.Closure@7d9d0818
+ch.turic.commands.Closure@2b40ff9c
 2
 
 ----
@@ -3430,7 +3419,7 @@ println(inc(1))
 .output of snippet `fun2`
 [source]
 ----
-ch.turic.commands.Closure@221a3fa4
+ch.turic.commands.Closure@3e08ff24
 2
 
 ----
@@ -3614,7 +3603,7 @@ println(inc(1,how_much=5))
 .output of snippet `fun4`
 [source]
 ----
-ch.turic.commands.Closure@451001e5
+ch.turic.commands.Closure@4d1c005e
 6
 
 ----
@@ -6080,8 +6069,8 @@ println([ ..all_parents(K) -> type(it()) ])
 .output of snippet `all_parents`
 [source]
 ----
-[class A, class B]
-[A, B]
+[class B, class A]
+[B, A]
 
 ----
 
@@ -6274,79 +6263,77 @@ none
 task1 is not ready 0
 task2 is not ready 0
 task1 is ready 1
-task1 is not ready 0
 task2 is not ready 1
-task2 is not ready 2task1 is not ready 1
-
-task1 is not ready 2
-task2 is not ready 3
+task1 is not ready 0
+task1 is not ready 1
+task2 is not ready 2
 task2 is ready 2
 task2 is not ready 0
+task1 is not ready 2
 task1 is not ready 3
 task2 is not ready 1
 task1 is not ready 4
 task2 is not ready 2
 task1 is not ready 5
+task2 is not ready 3
 task2 is ready 3
-task1 is not ready 6task2 is not ready 0
-
+task1 is not ready 6
+task2 is not ready 0
 task1 is not ready 7
 task2 is not ready 1
-task2 is not ready 2
 task1 is not ready 8
-task2 is ready 4
+task2 is not ready 2
 task1 is not ready 9
+task2 is ready 4
 task2 is not ready 0
-task2 is not ready 1
 task1 is not ready 10
-task2 is not ready 2
+task2 is not ready 1
 task1 is not ready 11
-task1 is not ready 12
-task2 is ready 5
-task2 is not ready 0
-task2 is not ready 1
-task1 is not ready 13
-task1 is not ready 14
 task2 is not ready 2
-task2 is ready 6task1 is not ready 15
-
+task2 is ready 5
+task1 is not ready 12
 task2 is not ready 0
-task1 is not ready 16
+task1 is not ready 13
 task2 is not ready 1
+task2 is not ready 2
+task1 is not ready 14
+task1 is not ready 15
+task2 is ready 6
+task2 is not ready 0
+task2 is not ready 1
+task1 is not ready 16
 task2 is not ready 2
 task1 is not ready 17
 task2 is ready 7
 task1 is not ready 18
 task2 is not ready 0
+task2 is not ready 1
 task1 is not ready 19
-task2 is not ready 1
-task1 is not ready 20
 task2 is not ready 2
-task2 is ready 8
+task1 is not ready 20
+task2 is ready 8task1 is not ready 21
+
 task2 is not ready 0
-task1 is not ready 21
-task2 is not ready 1
-task1 is not ready 22
+task1 is not ready 22task2 is not ready 1
+
 task2 is not ready 2
 task1 is not ready 23
-task2 is not ready 3
-task1 is ready 9
-task1 is not ready 0
-task2 is not ready 4
-task1 is not ready 1
-task1 is not ready 2
-task2 is not ready 5
-task2 is not ready 6
-task1 is not ready 3
+task2 is ready 9
+task1 is not ready 24
+task2 is not ready 0
+task1 is not ready 25
+task2 is not ready 1
+task1 is not ready 26task2 is not ready 2
+
 closing the channel
 channel is closed
 1 is done false
 2 is done false
 we start to wait the first time
-task1 is done
 task2 is done
+task1 is done
 task1 done true
-task2 done false
+task2 done true
 We start to wait the second time
 task1 done true
 task2 done true
@@ -6657,8 +6644,7 @@ This is a function that returns `true` if the argument is an object.
 The command can later be used for introspection.
 Since arguments can only be expressions, if you want to pass a whole command, you have to enclose it into a code block, which is a valid expression in Turicum.
 
-=== `thunk`, `unthunk`
-=== `thunk`, `unthunk`
+=== Elephant functions: `thunk`, `unthunk`, `unwrap`, `block_list`
 
 The `thunk` macro returns its argument unevaluated, preserving it as a command or expression.
 This deferred computation can later be executed using `unthunk`.
@@ -6675,14 +6661,46 @@ Although `evaluate` provides similar functionality, it differs in two key ways:
 - It evaluates the argument in the **caller’s context**, i.e., the context of the macro's caller.
 ====
 
+Note also that the argument to `thunk` can only be an expression and not an arbitrary command.
+That is a restriction that comes from Turicum syntax.
+However, you can enclose any command into a block, and then you can use the block as an expression or part of an expression.
+
+When you `unthunk` a block it will be evaluated in a local context freshly created for the block execution.
+Although this context wraps the surrounding context, but defined local variables will not be visible after the execution of the block.
+To overcome this limitation and execute the commands like they were literally written where the `unthunk` call is made you can `unwrap` a block.
+
+.block wrapping explanation
+[NOTE]
+====
+A block can be wrapping and non-wrapping.
+Most of the blocks in Turicum are wrapping.
+When you execute a wrapping block, the execution starts in a new context.
+This context wraps the surrounding context, thus the code can access and modify the variables defined there, but any locally defined variable will only be available in the block and will disappear when the block is finished and the context is not used anymore.
+
+A non-wrapping block executes in the surrounding context.
+Any variable defined in the block will also be available outside.
+An example of a non-wrapping block is an object initializer.
+The body of the `init` method is executed in the surrounding context.
+This is the object context in this case.
+Any local variable defined in the `init` method becomes a field.
+
+`unwrap` should get a block command as argument, probably as the result of a `thunk` call and it will result in a copy of the block, unwrapping.
+====
+
+The following example shows how these functions work.
+
 
 .source of snippet `thunk_unthunk`
 [source]
 ----
-let z = thunk({println "hello"})
-println "before unthunk"
+let z = thunk({let x = 3; println "hello"})
+println "before eval"
 unthunk(z)
-println "after unthunk"
+println "after eval"
+println is_defined(x) // will print false
+unthunk(unwrap(z))
+println is_defined(x) // will print true and
+println x             // then the value
 
 
 ----
@@ -6693,12 +6711,61 @@ println "after unthunk"
 .output of snippet `thunk_unthunk`
 [source]
 ----
-before unthunk
+before eval
 hello
-after unthunk
+after eval
+false
+hello
+true
+3
 
 ----
 
+
+
+The function `block_list` will return a list containing the commands in a command block.
+The following example shows you how it can be used together with `thunk` and `unthunk`.
+
+
+.source of snippet `block_list`
+[source]
+----
+let commands = block_list(thunk({k = 13; suss = "huss"; let x = 3; println "hello"}))
+println "before execution"
+let i = 1;
+for each command in commands {
+    let suss;
+    println "%s. before is_defined(x) = %s" % [i,is_defined(x)]
+    if i == 1 {
+        try: unthunk(command) catch e: println "ERROR: %s" % [e];
+    } else {
+        unthunk(command)
+        println "%s. after is_defined(x) = %s" % [i,is_defined(x)]
+    }
+    i = i + 1
+}
+
+
+----
+
+
+
+
+.output of snippet `block_list`
+[source]
+----
+before execution
+1. before is_defined(x) = false
+ERROR: Variable 'k' is not defined.
+2. before is_defined(x) = false
+2. after is_defined(x) = false
+3. before is_defined(x) = false
+3. after is_defined(x) = true
+4. before is_defined(x) = false
+hello
+4. after is_defined(x) = false
+
+----
 
 
 == Preprocessing
@@ -6813,8 +6880,8 @@ Commands also have values. It is the __result__ of the command.
  LOOP ::= ('while' [EXPRESSION] ( BLOCK | ':' COMMAND ) |
            'for' COMMAND ';' [EXPRESSION] ';' COMMAND ( BLOCK | ':' COMMAND ) |
            'for' '(' COMMAND [EXPRESSION] COMMAND ')' (  BLOCK | ':' COMMAND )  |
-           'for each' identifier 'in' EXPRESSION ( BLOCK | ':' COMMAND ) |
-           'for each' '(' identifier 'in' EXPRESSION ')' (  BLOCK | ':' COMMAND )
+           'for each' identifier [with identifier] 'in' EXPRESSION ( BLOCK | ':' COMMAND ) |
+           'for each' '(' identifier [with identifier] 'in' EXPRESSION ')' (  BLOCK | ':' COMMAND )
           ) [ 'until' EXPRESSION]
  ;
 

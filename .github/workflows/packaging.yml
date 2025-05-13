@@ -15,7 +15,7 @@ jobs:
     - name: Package application
       run: sh ./package.sh
     - name: Upload Package Artifact
-      uses: actions/upload-artifact@v3.2.1-node20
+      uses: actions/upload-artifact@v4.6.2
       with:
         name: linux-x64
         path: |
@@ -35,13 +35,13 @@ jobs:
 
     - name: Upload Log Artifact
       if: always()
-      uses: actions/upload-artifact@v3.2.1-node20
+      uses: actions/upload-artifact@v4.6.2
       with:
         name: turicum-post-image-log
         path: ${{ runner.temp }}/turicum-post-image.log
 
     - name: Upload Package Artifact
-      uses: actions/upload-artifact@v3.2.1-node20
+      uses: actions/upload-artifact@v4.6.2
       with:
         name: windows-x64
         path: |
@@ -57,7 +57,7 @@ jobs:
     - name: Package application
       run: sh ./package.sh
     - name: Upload Package Artifact
-      uses: actions/upload-artifact@v3.2.1-node20
+      uses: actions/upload-artifact@v4.6.2
       with:
         name: macos-arm64
         path: |
@@ -72,7 +72,7 @@ jobs:
     - name: Package application
       run: sh ./package.sh
     - name: Upload Package Artifact
-      uses: actions/upload-artifact@v3.2.1-node20
+      uses: actions/upload-artifact@v4.6.2
       with:
         name: macos-x64
         path: |

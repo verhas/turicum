@@ -21,6 +21,7 @@ public class Type implements TuriFunction {
     public Object call(Context context, Object[] args) throws ExecutionException {
         final var arg = FunUtils.oneArg(name(),args);
         return switch (arg) {
+            case Boolean ignore -> "bool";
             case Macro ignore -> "macro";
             case LngClass ignore -> "cls";
             case LngList ignore -> "lst";

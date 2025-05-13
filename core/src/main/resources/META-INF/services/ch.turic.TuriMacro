@@ -1,5 +1,4 @@
 ch.turic.builtins.macros.Export
 ch.turic.builtins.macros.IsDefined
 ch.turic.builtins.macros.UnLet
-ch.turic.builtins.macros.Command
 ch.turic.builtins.macros.Thunk

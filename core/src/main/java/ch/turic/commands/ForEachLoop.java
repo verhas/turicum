@@ -7,12 +7,14 @@ import ch.turic.memory.LeftValue;
 
 public class ForEachLoop extends AbstractCommand {
     public final Identifier identifier;
+    public final Identifier with;
     public final Command expression;
     public final Command body;
     public final Command exitCondition;
 
-    public ForEachLoop(Identifier identifier, Command expression, Command body, Command exitCondition) {
+    public ForEachLoop(Identifier identifier, Identifier with, Command expression, Command body, Command exitCondition) {
         this.identifier = identifier;
+        this.with = with;
         this.expression = expression;
         this.body = body;
         this.exitCondition = exitCondition;
@@ -44,7 +46,13 @@ public class ForEachLoop extends AbstractCommand {
         final var array = expression.execute(loopContext);
         Object result = null;
         int loopCounter = 0;
+        if( with != null ) {
+            loopContext.let0(with.name, (long) loopCounter);
+        }
         for (final var item : LeftValue.toIterable(array)) {
+            if( with != null ) {
+                loopContext.let0(with.name, (long) loopCounter);
+            }
             loopContext.count(loopCounter++);
             loopContext.let0(id, item);
             if (body instanceof BlockCommand block) {
