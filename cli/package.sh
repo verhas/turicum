@@ -2,7 +2,7 @@
 
 cd "$(dirname "$(readlink -f "$0")")"
 
-echo `cd`
+echo `pwd`
 
 # Read the first line containing <version>...</version> from pom.xml
 VERSION=$(grep -m1 '<version>.*</version>' ../pom.xml | sed 's/.*<version>\(.*\)<\/version>.*/\1/')
