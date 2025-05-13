@@ -1,11 +1,21 @@
 @echo off
+setlocal enabledelayedexpansion
 
 cd /d "%~dp0"
 
-REM Read the version from the VERSION file
-set /p VERSION=<VERSION
+REM Extract version from pom.xml
+set "VERSION="
+for /f "tokens=1,* delims=<>" %%a in ('findstr /i "<version>" "..\pom.xml"') do (
+    if not defined VERSION (
+        set "VERSION=%%b"
+    )
+)
+
+REM Replace -SNAPSHOT with 1.0.0 in TVERSION
+set "TVERSION=%VERSION:-SNAPSHOT=1.0.0%"
 
 echo Version=%VERSION%
+echo Translated Version=%TVERSION%
 
 REM Remove existing target\JARS directory if it exists
 if exist target\JARS (
@@ -14,7 +24,7 @@ if exist target\JARS (
 mkdir target\JARS
 
 REM Unzip the file using 7zip
-7z x target/turicum-cli-%VERSION%-distribution.zip -otarget\JARS
+7z x "./cli/target/turicum-cli-%VERSION%-distribution.zip" -otarget\JARS
 
 REM Loop over the installer types to create both exe and msi installers
 for %%I in (exe msi) do (
@@ -22,7 +32,7 @@ for %%I in (exe msi) do (
     jpackage --input target\JARS ^
         --vendor "Peter Verhas" ^
         --name turicum ^
-        --app-version %VERSION% ^
+        --app-version %TVERSION% ^
         --main-jar turicum-cli-%VERSION%.jar ^
         --main-class ch.turic.cli.Main ^
         --type %%I ^
@@ -31,3 +41,5 @@ for %%I in (exe msi) do (
         --win-console ^
         --resource-dir packaging-resources
 )
+
+endlocal
