@@ -34,9 +34,11 @@ create_package() {
 # Detect the operating system and create appropriate package
 case "$(uname -s)" in
     Linux*)
+        echo "Creating deb"
         create_package deb
         ;;
     Darwin*)
+        echo "Creating pkg"
         create_package pkg
         ;;
     *)
