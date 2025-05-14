@@ -7,14 +7,15 @@ for /f "delims=" %%a in ('findstr /r "^let VERSION *= *\".*\";" "..\turicum_vers
     set "line=%%a"
 )
 
+echo line=!line!
+
 REM Strip up to first quote, then strip after second quote
 set "VERSION=!line:*\"=!"
-for /f "delims=\" %%v in ("!VERSION!") do (
-    set "VERSION=%%v"
-)
+set "VERSION=!line:\";!"
 
 REM Replace -SNAPSHOT with 1.0.0
-set "TVERSION=!VERSION:-SNAPSHOT=1.0.0!"
+
+set "TVERSION=!VERSION:-SNAPSHOT!"
 
 echo Version=!VERSION!
 echo Translated Version=!TVERSION!
