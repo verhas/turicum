@@ -3,7 +3,7 @@ setlocal enabledelayedexpansion
 cd /d "%~dp0"
 
 REM Extract VERSION from turicum_versions.turi
-set line=('findstr /b /l "let VERSION" "..\turicum_versions.turi"')
+set line=findstr /b /l "let VERSION" "..\turicum_versions.turi"
 
 echo line=!line!
 
