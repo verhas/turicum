@@ -1,86 +1,52 @@
 name: Packaging using jPackage
 on:
   push:
-    branches: ["main"]
+    branches: [ "main" ]
   pull_request:
-    branches: ["main"]
+    branches: [ "main" ]
 jobs:
-  ubuntu-latest:
-    runs-on: ubuntu-latest
+  package:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, windows-latest, macos-latest, macos-13 ]
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up JDK 21
-      uses: actions/setup-java@v4
-      with: {java-version: '21', distribution: temurin}
-    - name: Build with Maven
-      run: mvn install
-    - name: Package application
-      run: sh ./cli/package.sh
-    - name: Upload Package Artifact
-      uses: actions/upload-artifact@v4.6.2
-      with:
-        name: linux-x64
-        path: |
-          ./cli/output/*.deb
-  windows-latest:
-    runs-on: windows-latest
-    steps:
-    - uses: actions/checkout@v4
-    - name: Set up JDK 21
-      uses: actions/setup-java@v4
-      with: {java-version: '21', distribution: temurin}
-    - name: Build with Maven
-      run: mvn install
-    - name: Install 7-Zip
-      run: choco install 7zip
-      shell: powershell
-    - name: Package application
-      run: cli\package.bat
-      shell: cmd
-    - name: Upload Log Artifact
-      if: always()
-      uses: actions/upload-artifact@v4.6.2
-      with:
-        name: turicum-post-image-log
-        path: ${{ runner.temp }}/turicum-post-image.log
-    - name: Upload Package Artifact
-      uses: actions/upload-artifact@v4.6.2
-      with:
-        name: windows-x64
-        path: |
-          ./cli/output/*.exe
-          ./cli/output/*.msi
-  macos-latest:
-    runs-on: macos-latest
-    steps:
-    - uses: actions/checkout@v4
-    - name: Set up JDK 21
-      uses: actions/setup-java@v4
-      with: {java-version: '21', distribution: temurin}
-    - name: Build with Maven
-      run: mvn install
-    - name: Package application
-      run: sh ./cli/package.sh
-    - name: Upload Package Artifact
-      uses: actions/upload-artifact@v4.6.2
-      with:
-        name: macos-arm64
-        path: |
-          ./cli/output/*.pkg
-  macos-13:
-    runs-on: macos-13
-    steps:
-    - uses: actions/checkout@v4
-    - name: Set up JDK 21
-      uses: actions/setup-java@v4
-      with: {java-version: '21', distribution: temurin}
-    - name: Build with Maven
-      run: mvn install
-    - name: Package application
-      run: sh ./cli/package.sh
-    - name: Upload Package Artifact
-      uses: actions/upload-artifact@v4.6.2
-      with:
-        name: macos-x64
-        path: |
-          ./cli/output/*.pkg
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: temurin
+
+      - name: Build with Maven
+        run: mvn install
+
+      - name: Package Application
+        run: python cli/package.py
+
+      # Linux upload
+      - name: Upload Linux Package
+        if: runner.os == 'Linux'
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: linux-x64
+          path: ./cli/output/*.deb
+
+      # Windows upload
+      - name: Upload Windows Package
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: windows-x64
+          path: |
+            ./cli/output/*.exe
+            ./cli/output/*.msi
+
+      # macOS upload
+      - name: Upload macOS Package
+        if: runner.os == 'macOS'
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: macos-arm64
+          path: ./cli/output/*.pkg
