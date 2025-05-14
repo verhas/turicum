@@ -3,9 +3,8 @@ setlocal enabledelayedexpansion
 cd /d "%~dp0"
 
 REM Extract VERSION from turicum_versions.turi
-for /f "delims=" %%a in ('findstr /r "^let VERSION *= *\".*\";" "..\turicum_versions.turi"') do (
-    set "line=%%a"
-)
+for /f %%a in ('findstr /b /l "let VERSION" "..\turicum_versions.turi"') do set "line=%%a"
+
 
 echo line=!line!
 
