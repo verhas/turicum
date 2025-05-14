@@ -23,8 +23,12 @@ if not match:
     print("ERROR: Could not extract VERSION from turicum_versions.turi", file=sys.stderr)
     sys.exit(1)
 
+ts = int(time.time())
+if ts > 65535 :
+    ts = 32000 + (ts % 32000)
+
 version = match.group(1)
-tversion = re.sub(r"\.\d+-SNAPSHOT$", "."+str(int(time.time())), version)
+tversion = re.sub(r"\.\d+-SNAPSHOT$", "."+str(ts), version)
 
 print(f"Version={version}")
 print(f"Translated Version={tversion}")
