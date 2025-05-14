@@ -1,23 +1,24 @@
-@echo off
 setlocal enabledelayedexpansion
 
 cd /d "%~dp0"
 
 REM Extract VERSION from turicum_versions.turi
-set "VERSION="
-for /f "tokens=2 delims==" %%a in ('findstr /r "^let VERSION *= *\".*\";" "..\turicum_versions.turi"') do (
-    set "VERSION=%%~a"
+for /f "delims=" %%a in ('findstr /r "^let VERSION *= *\".*\";" "..\turicum_versions.turi"') do (
+    set "line=%%a"
 )
 
+REM Strip up to first quote, then strip after second quote
+set "VERSION=!line:*\"=!"
+for /f "delims=\" %%v in ("!VERSION!") do (
+    set "VERSION=%%v"
+)
 
-REM Remove surrounding quotes from VERSION
-set "VERSION=%VERSION:"=%"
+REM Replace -SNAPSHOT with 1.0.0
+set "TVERSION=!VERSION:-SNAPSHOT=1.0.0!"
 
-REM Replace -SNAPSHOT with 1.0.0 in TVERSION
-set "TVERSION=%VERSION:-SNAPSHOT=1.0.0%"
+echo Version=!VERSION!
+echo Translated Version=!TVERSION!
 
-echo Version=%VERSION%
-echo Translated Version=%TVERSION%
 
 REM Remove existing target\JARS directory if it exists
 if exist target\JARS (
