@@ -5,11 +5,10 @@ cd /d "%~dp0"
 
 REM Extract VERSION from turicum_versions.turi
 set "VERSION="
-for /f "delims=" %%a in ('findstr /r "^let VERSION *= *\".*\";" "..\turicum_versions.turi"') do (
-    for /f "tokens=3 delims==; " %%b in ("%%a") do (
-        set "VERSION=%%~b"
-    )
+for /f "tokens=2 delims==" %%a in ('findstr /r "^let VERSION *= *\".*\";" "..\turicum_versions.turi"') do (
+    set "VERSION=%%~a"
 )
+
 
 REM Remove surrounding quotes from VERSION
 set "VERSION=%VERSION:"=%"

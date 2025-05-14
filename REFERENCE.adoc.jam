@@ -104,9 +104,9 @@ The basic syntactic conventions are:
 * Comments start with `//` and continue to the end of the line.
 * Multiline comments start with `+/*+` and end with `*/` like in Java, and they can be nested unlike Java.
 * Identifiers follow conventional rules and are case-sensitive.
-* Any string between two `+`+` (back-tick) characters is an identifier (like in Kotlin).
+* Any string between two `pass:[`]` (back-tick) characters is an identifier (like in Kotlin).
 * All keywords are lowercase.
-* String between ``` are terminated on the same line and between ````` can be multi-line.
+* Strings between `pass:["]` are terminated on the same line and between `pass:["""]` can be multi-line.
 
 More details about expressions, control flow, and declarations can be found in the chapters that follow.
 
@@ -163,6 +163,10 @@ Symbolic constants are {%#trimLines
 {%#replaceLines replace=/"(.*?)",[^"]+/`$1`,/ replace=/,$//
 {%@snip builtins%}%}%}pinned (non-changeable, final) global variables.
 
+==== Shebang
+
+The interpreter ignores the first line of the program if it starts with `#!`.
+
 ==== Whitespace and Line Breaks
 
 Whitespace (spaces, tabs, line breaks) is generally insignificant except where indentation affects readability.
@@ -174,12 +178,22 @@ Line breaks alone do not terminate statements.
 Identifiers are names used for variables, functions, classes, and other user-defined symbols.
 
 * Identifiers must start with a Unicode letter or underscore (`_`), and may contain letters, digits, and underscores.
+
 * You can explicitly define an identifier using backticks: `+`non-standard-id`+`.
-Using backticks allows you to use any string as an identifier, even reserved words, or symbols.
-You can use it to override operators, like `+`==`+`.
+Using backticks allows you to use any string as an identifier, even reserved words, or symbols or operators.
+The main use of this feature to override operators, like `+`==`+`.
+
 * Identifiers are case-sensitive.
 
 Some Unicode characters like `∞` (infinity) and `∅` (none) are automatically translated into meaningful identifiers (`inf`, `none`).
+
+[NOTE]
+====
+Other languages allow overriding operators and define the functionality of operators using methods with some special names.
+For example, in Python you can override the `+` operator defining the `__plus__` method.
+Turicum does not need these special names.
+You can name your method to be `pass:[`+`]`.
+====
 
 ==== Reserved Words
 
@@ -236,7 +250,7 @@ Example:
 
 ==== Multiline Strings
 
-Multiline string literals are enclosed between triple quotes `+"""+`.
+Multiline string literals are enclosed between triple quotes `pass["""]`.
 
 They preserve line breaks and indentation exactly as written. Escape sequences are still processed.
 
@@ -566,8 +580,9 @@ The block executes in its own scope, and this scope wraps the global scope.
 
 You can nest scopes.
 
-When you use a variable defined in a wrapped (outer) scope you cannot define it anymore as local using `let`.
-For example, the following program:
+You can use a variable name defined in a wrapped (outer) scope essentially hiding the outer variable, but only if you do not use the outer variable in the inner scope.
+You cannot refer to both in a scope.
+When you use a variable defined in a wrapped (outer) scope you cannot define it after that as local using `let`.
 
 {%sample local_redefined_error%}
 
@@ -1801,7 +1816,8 @@ These are the following:
 Class constructors are invoked using the name of the class.
 When a class name is used as a field in an object either directly injected to the object or as a class field as in the next example, then the constructor can access the target object of the call through `that`.
 +
-{%S that%}
+{%#replace (regex detectNoChange) /{%S that%}/.output/+
+.output/%}
 +
 Usually the target object is called `this`, but in the case of the constructor `this` points to the current object to be initialized.
 What is more, the constructor, always named `init()`, is allowed to modify the variable `this`.
@@ -1810,7 +1826,7 @@ Hence, the special variable `that` was introduced.
 +
 You will hardly ever need it.
 
-* `me` always points to the currently executing function or closure.
+* `me` it always points to the currently executing function or closure.
 You can use it to furnish recursive calls.
 It is necessary when a function is defined in a local context it does not capture.
 For more read the next section {%@def FUNC=Function scopes and `me`%}.
@@ -1831,7 +1847,7 @@ If we create the same program using a class memoizing the results:
 {%S fibonacci2%}
 
 we get the same result and there is no problem with that.
-In this case `fib()` is a class level method and when we call it Turicum automatically calls it as a method.
+In this case `fib()` is a class level method, and when we call it Turicum automatically calls it as a method.
 
 The difficulty comes when you define the function in a local context.
 
@@ -2253,12 +2269,6 @@ Without the call to `unlet` the class would also have the variable `obj` as a fi
 === `is_obj`
 
 This is a function that returns `true` if the argument is an object.
-
-=== `command`
-
-`command` is a macro that will return its argument converted to a Turicum classless object without evaluation.
-The command can later be used for introspection.
-Since arguments can only be expressions, if you want to pass a whole command, you have to enclose it into a code block, which is a valid expression in Turicum.
 
 === Elephant functions: `thunk`, `unthunk`, `unwrap`, `block_list`
 

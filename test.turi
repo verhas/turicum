@@ -1,4 +1,8 @@
-#!/usr/local/bin/turi -version
+#!/usr/local/bin/turi
 import "imported"
 
+let `This is an extreme\`identifier` = 5
+
 hello()
+
+println `This is an extreme\`identifier`

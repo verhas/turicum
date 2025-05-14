@@ -20,7 +20,7 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.*;
 
 /**
- * Dump an object as an XML document.
+ * Format an XML string.
  */
 public class XmlFormat implements TuriFunction {
     @Override

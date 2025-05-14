@@ -5,7 +5,7 @@ import ch.turic.ExecutionException;
 import ch.turic.TuriFunction;
 
 /**
- * Evaluate a Command
+ * Returns true if the yield channel is closed
  */
 public class YieldIsClosed implements TuriFunction {
     @Override
@@ -21,5 +21,4 @@ public class YieldIsClosed implements TuriFunction {
         ExecutionException.when(args.length > 0, "Built-in function %s needs no argument",name());
         return ctx.threadContext.yielder().toChild().isClosed();
     }
-
 }
