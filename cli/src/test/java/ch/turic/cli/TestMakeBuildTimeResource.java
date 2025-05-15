@@ -13,7 +13,7 @@ public class TestMakeBuildTimeResource {
     @Test
     public void testMakeBuildTimeResource() throws IOException {
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-        File resourcesDir = new File("src/main/resources");
+        File resourcesDir = new File("target/classes");
         resourcesDir.mkdirs();
 
         File buildTimeFile = new File(resourcesDir, "buildtime.txt");

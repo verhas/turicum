@@ -1,0 +1,82 @@
+sys_import "turi.maven"
+import "turicum_versions"
+
+let project = maven_project({
+    name : "Command Line Turicum",
+    artifactId : "turicum-cli",
+    version : VERSION,
+    description : "Turicum programming language CLI",
+    parent : {
+        groupId: groupId,
+        artifactId: "turicum-parent",
+        version: VERSION
+    }
+
+
+    build: {
+        plugins: [
+            {
+                groupId: "org.apache.maven.plugins",
+                artifactId: "maven-jar-plugin",
+                version: "3.4.2",
+                configuration: {
+                    archive :{
+                        manifest : {
+                            addDefaultImplementationEntries: "true",
+                            addDefaultSpecificationEntries: "true",
+                        }
+                    }
+                }
+            },
+            {
+                groupId: "org.apache.maven.plugins",
+                artifactId: "maven-assembly-plugin",
+                version: "3.7.1",
+                executions : [
+                    {
+                        id: "dist",
+                        phase: "package",
+                        goals : [ "single"] ,
+                        configuration : {
+                            descriptors : {
+                                descriptor: "src/main/assembly/bin.xml",
+                            }
+                            archive: {
+                                manifest:{
+                                    addDefaultImplementationEntries: "true",
+                                    addDefaultSpecificationEntries: "true",
+                                }
+                            }
+                        }
+                    }
+                ]
+            }
+        ]
+    }
+
+    dependencies : [
+        {
+            groupId: "ch.turic",
+            artifactId: "turicum",
+            version: "1.0.0-SNAPSHOT",
+        },
+        {
+            groupId: "org.junit.jupiter",
+            artifactId: "junit-jupiter-api",
+        },
+        {
+            groupId: "org.junit.jupiter",
+            artifactId: "junit-jupiter-engine",
+        },
+        {
+            groupId: "org.apache.maven",
+            artifactId: "maven-core",
+            version: "3.9.8",
+            scope: "provided",
+        }
+    ]
+    }
+);
+
+project.done()
+            
