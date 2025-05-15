@@ -38,41 +38,41 @@ public class ForEachLoop extends AbstractCommand {
     @Override
     public Object _execute(final Context context) throws ExecutionException {
         context.step();
-        final var loopContext = context.loop();
-        final var id = identifier.name();
-        loopContext.freeze(id);
+        final var loopContext = context.wrap();
         final var array = expression.execute(loopContext);
-        Object result = null;
-        final var list = resultList ? new LngList() : null;
-        int loopCounter = 0;
-        if (with != null) {
-            loopContext.let0(with.name, (long) loopCounter);
-        }
+        Object singleResult = null;
+        final var listResult = resultList ? new LngList() : null;
+        long loopCounter = 0;
         for (final var item : LeftValue.toIterable(array)) {
+            final var innerContext = loopContext.wrap();
             if (with != null) {
-                loopContext.let0(with.name, (long) loopCounter);
+                innerContext.let0(with.name, loopCounter);
+                innerContext.freeze(with.name);
             }
-            loopContext.count(loopCounter++);
-            loopContext.let0(id, item);
+            innerContext.let0(identifier.name, item);
+            innerContext.freeze(identifier.name);
+
             if (body instanceof BlockCommand block) {
-                final var lp = block.loop(loopContext);
-                result = lp.result();
+                final var lp = block.loop(innerContext);
+                singleResult = lp.result();
                 if (resultList) {
-                    list.array.add(result);
+                    listResult.array.add(singleResult);
                 }
                 if (lp.isDone()) {
-                    return resultList ? list : lp.result();
+                    return resultList ? listResult : lp.result();
                 }
             } else {
-                result = body.execute(loopContext);
+                singleResult = body.execute(innerContext);
                 if( resultList ){
-                    list.array.add(result);
+                    listResult.array.add(singleResult);
                 }
             }
-            if (Cast.toBoolean(exitCondition.execute(loopContext))) {
+
+            if (Cast.toBoolean(exitCondition.execute(innerContext))) {
                 break;
             }
+            loopCounter++;
         }
-        return resultList ? list : result;
+        return resultList ? listResult : singleResult;
     }
 }

@@ -17,8 +17,6 @@ public class Context implements ch.turic.Context {
     public final GlobalContext globalContext;
     public final ThreadContext threadContext;
     public Context caller = null;
-    private final boolean loopContext;
-    private int loopCounter = 0;
     private final List<String> exporting = new ArrayList<>();
 
     public Set<String> keys() {
@@ -59,7 +57,6 @@ public class Context implements ch.turic.Context {
         this.wrapped = null;
         this.frame = globalContext.heap;
         this.threadContext = new ThreadContext();
-        this.loopContext = false;
     }
 
     public Context(final GlobalContext globalContext, final ThreadContext threadContext) {
@@ -67,7 +64,6 @@ public class Context implements ch.turic.Context {
         this.frame = new HashMap<>();
         this.globalContext = globalContext;
         this.threadContext = threadContext;
-        this.loopContext = false;
     }
 
     /**
@@ -87,7 +83,6 @@ public class Context implements ch.turic.Context {
         this.threadContext = clone.threadContext;
         this.frame = new HashMap<>();
         this.wrapped = wrapped;
-        this.loopContext = false;
     }
 
     private Context(final Context thisContext, final Context wrappedContext, final Context withContext) {
@@ -95,15 +90,6 @@ public class Context implements ch.turic.Context {
         this.threadContext = thisContext.threadContext;
         this.frame = withContext.frame;
         this.wrapped = wrappedContext;
-        this.loopContext = false;
-    }
-
-    private Context(final Context clone, final Context wrapped, boolean loopContext) {
-        this.globalContext = clone.globalContext;
-        this.threadContext = clone.threadContext;
-        this.frame = new HashMap<>();
-        this.wrapped = wrapped;
-        this.loopContext = loopContext;
     }
 
     /**
@@ -157,7 +143,7 @@ public class Context implements ch.turic.Context {
         ExecutionException.when(nonlocal.contains(key), "Variable cannot be local, it is already used as non-local '" + key + "'");
         ExecutionException.when(frozen.contains(key), "final variable cannot be altered '" + key + "'");
         // we are lenient when we have a "let" inside a loop, as it will be executed multiple times
-        if (frame.containsKey(key) && ((!loopContext) || loopCounter < 1)) {
+        if (frame.containsKey(key)) {
             throw new ExecutionException("Variable '%s' is already defined.", key);
         }
         final var v = new Variable(key);
@@ -232,29 +218,6 @@ public class Context implements ch.turic.Context {
      */
     public Context wrap() {
         return new Context(this, this);
-    }
-
-    /**
-     * Create a loop context. It is the same as calling {@link #wrap()} but the 'loopContext' flags is true.
-     * <p>
-     * Loop contexts are a bit more lenient about redefining a context local variable.
-     * 'let' will slide the reefinition of a variable if the context is loop context and the loop counter is not zero
-     * (a.k.a. this is not the first execution of the loop body.)
-     *
-     * @return the new context
-     */
-    public Context loop() {
-        return new Context(this, this, true);
-    }
-
-    /**
-     * Set the loop counter for a loop context.
-     * It just sets the counter, does not check anything.
-     *
-     * @param counter the new 'counter' value
-     */
-    public void count(int counter) {
-        this.loopCounter = counter;
     }
 
     /**

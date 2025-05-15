@@ -1,1 +1,1 @@
-init in P, cls='class C' this='{, cls: class C}'
+init in P, cls='class C' this='{cls: class C}'

@@ -11,6 +11,14 @@ import static ch.turic.commands.Macro.evaluateMacroArguments;
 
 /**
  * An expression that calls a method or a function/closure.
+ * <p>
+ * This class handles function calls, method invocations, and closure executions. It manages:
+ * - Parameter evaluation and passing
+ * - Method lookup and invocation
+ * - Context management for function execution
+ * - Type checking and validation
+ * <p>
+ * The class supports both positional and named arguments, rest parameters, and closure parameters.
  */
 public class FunctionCall extends AbstractCommand {
     public static final String[] EMPTY_STRING_ARRAY = new String[0];
@@ -79,7 +87,7 @@ public class FunctionCall extends AbstractCommand {
                 }
                 ctx.let0("me", function);
                 ctx.freeze("me");
-                defineArgumentsInContext(ctx, context, command.parameters(), argValues);
+                defineArgumentsInContext(ctx, context, command.parameters(), argValues, true);
                 return command.execute(ctx);
             }
 
@@ -106,16 +114,29 @@ public class FunctionCall extends AbstractCommand {
         return result;
     }
 
+
     /**
-     * Assign the string to the parameter names in the context provided.
+     * Defines arguments in the execution context based on parameter list and provided argument values.
+     * <p>
+     * This method handles the complex task of mapping function call arguments to parameters, including:
+     * - Positional and named parameter assignment
+     * - Default value handling for unspecified parameters
+     * - Rest parameter collection
+     * - Meta parameter object population
+     * - Closure parameter handling
      *
-     * @param ctx           the context that will hold the string
-     * @param callerContext is the caller context in which the arguments were evaluated. This will be used to evaluate
-     *                      the default expressions.
-     * @param pList         the names of the parameters/arguments
-     * @param argValues     the array holding the actual argument string
+     * @param ctx           the context where parameters will be defined
+     * @param callerContext the context of the caller (used for default value evaluation)
+     * @param pList         parameter list definition containing parameter names, types, and attributes
+     * @param argValues     array of evaluated arguments to be assigned
+     * @param freeze        requires that the arguments are frozen after they are defined
+     * @throws ExecutionException if required parameters are missing or parameter assignment fails
      */
-    public static void defineArgumentsInContext(Context ctx, Context callerContext, ParameterList pList, ArgumentEvaluated[] argValues) {
+    public static void defineArgumentsInContext(final Context ctx,
+                                                final Context callerContext,
+                                                final ParameterList pList,
+                                                final ArgumentEvaluated[] argValues,
+                                                final boolean freeze) {
         final var filled = new boolean[pList.parameters().length];
         final var rest = new LngList();
         final var meta = new LngObject(null, ctx.open());
@@ -135,7 +156,7 @@ public class FunctionCall extends AbstractCommand {
                 }
             }
             if (argValues[i].id == null) {
-                addPositionalParameter(ctx, pList, arg, rest, meta, filled);
+                addPositionalParameter(ctx, pList, arg, rest, meta, filled, freeze);
             } else {
                 addNamedParameter(ctx, pList, arg, meta, filled, false);
             }
@@ -148,17 +169,29 @@ public class FunctionCall extends AbstractCommand {
                 } else {
                     final var value = parameter.defaultExpression().execute(callerContext);
                     ctx.defineTypeChecked(parameter.identifier(), value, calculateTypeNames(ctx, parameter.types()));
+                    if( freeze) {
+                        ctx.freeze(parameter.identifier());
+                    }
                 }
             }
         }
         if (pList.rest() != null) {
             ctx.let0(pList.rest(), rest);
+            if( freeze) {
+                ctx.freeze(pList.rest());
+            }
         }
         if (pList.meta() != null) {
             ctx.let0(pList.meta(), meta);
+            if( freeze) {
+                ctx.freeze(pList.meta());
+            }
         }
         if (pList.closure() != null) {
             ctx.let0(pList.closure(), closure);
+            if( freeze) {
+                ctx.freeze(pList.closure());
+            }
         }
     }
 
@@ -203,9 +236,7 @@ public class FunctionCall extends AbstractCommand {
                 meta.setField(argValue.id.name(), argValue.value);
                 return;
             }
-            if (lenient) {
-                return;
-            } else {
+            if (!lenient) {
                 throw new ExecutionException("The parameter '%s' is not defined and there is no {meta} parameter", argValue.id.name());
             }
         }
@@ -223,7 +254,13 @@ public class FunctionCall extends AbstractCommand {
      * @param filled   the array keeping track of which parameters had got value from the caller
      * @throws ExecutionException if there is no rest and there are too many positional parameters
      */
-    private static void addPositionalParameter(Context ctx, ParameterList pList, ArgumentEvaluated argValue, LngList rest, LngObject meta, boolean[] filled) {
+    private static void addPositionalParameter(Context ctx,
+                                               ParameterList pList,
+                                               ArgumentEvaluated argValue,
+                                               LngList rest,
+                                               LngObject meta,
+                                               boolean[] filled,
+                                               boolean freeze) {
         if (argValue.value instanceof Spread(Object list)) {
             switch (list) {
                 case null -> {
@@ -236,7 +273,7 @@ public class FunctionCall extends AbstractCommand {
                 }
                 case Iterable<?> it -> {
                     for (Object o : it) {
-                        addPositionalParameter(ctx, pList, new ArgumentEvaluated(null, o), rest, meta, filled);
+                        addPositionalParameter(ctx, pList, new ArgumentEvaluated(null, o), rest, meta, filled, freeze);
                     }
                 }
                 default -> throw new ExecutionException("You can only spread objects and lists, not '%s'", list);
@@ -251,7 +288,11 @@ public class FunctionCall extends AbstractCommand {
                     break;
                 }
                 if (pList.parameters()[index].type() != ParameterList.Parameter.Type.NAMED_ONLY && !filled[index]) {
-                    ctx.defineTypeChecked(pList.parameters()[index].identifier(), argValue.value, calculateTypeNames(ctx, pList.parameters()[index].types()));
+                    final var id = pList.parameters()[index].identifier();
+                    ctx.defineTypeChecked(id, argValue.value, calculateTypeNames(ctx, pList.parameters()[index].types()));
+                    if( freeze) {
+                        ctx.freeze(id);
+                    }
                     filled[index] = true;
                     break;
                 }

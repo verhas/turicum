@@ -1,0 +1,17 @@
+/*
+ * Define a range function with flexible arguments (named optionally) to use instead directly rng.
+ * parameters:
+ * - start is the starting value, it is always inclusive
+ * - end is the ending value, exclusive by default. No default value.
+ * - step is the stepping, 1 by default
+ * - closed makes the end inclusive if true. Default is false.
+ */
+fn range(start:num=0, end:num, step:num|none=none, @closend:bool=false){
+    let _step = step or if start < end : 1 else: -1
+    if closend :
+        rng(start, end + _step, _step)
+    else:
+        rng(start, end, _step)
+}
+
+export range;

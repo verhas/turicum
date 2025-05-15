@@ -1,1 +1,1 @@
-init in C, cls='class C' this='{, cls: class C}'
+init in C, cls='class C' this='{cls: class C}'

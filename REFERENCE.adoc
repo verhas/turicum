@@ -12,44 +12,45 @@
 === What is Turicum?
 
 Turicum is a modern programming language designed for expressiveness, safety, and concurrency.
-It combines functional and object-oriented paradigms in a clean and coherent syntax.
-The preprocessing capability and the dynamic nature of the language make it outstanding from a programming perspective.
+It combines functional and object-oriented paradigms with a clean and coherent syntax.
+Its preprocessing capabilities and dynamic nature make it a uniquely powerful tool for programming.
 
-=== Turicum is
+=== Turicum Is
 
-* **Fuctional**
+* **Functional**
 +
-Functions, closures, and macros are first-class citizens in Turicum, and any of them can be used as a value.
-Every command has a value, and thus any command can be part of an expression, and an expression is also a command.
+Functions, closures, and macros are first-class citizens in Turicum.
+Any of these can be used as values.
+Every command evaluates to a value, so any command can appear within an expression, and every expression is also a command.
 
 * **Object-Oriented**
 +
-Programs can define classes, methods in classes, multiple inheritance, and objects that inherit properties.
+Programs can define classes, methods, multiple inheritance,
+and objects that inherit properties from their class.
 
 * **Dynamic**
 +
-Everything is defined during run-time and can be changed during run-time.
-For example, a class of function is defined when the definition is executed and lives in the defining scope.
-Methods are fields with closure or function values and can be added to any class or object even after the creation.
+All definitions occur at runtime and can be modified at runtime.
+For example, a class or function is created when its definition is executed, and it exists within the defining scope.
+Methods are just fields containing closures or function values, and they can be added to any class or object—even after creation.
 
 * **Flexible**
 +
-The interpreter can execute already loaded code at any time passing the remaining of the lexical tokens to a preprocessor.
-The preprocessor can be a function or closure written in Turicum,
-It can modify the lexical stream introducing arbitrary syntactical extensions to the language.
+The interpreter can evaluate loaded code at any time, passing the remaining lexical tokens to a preprocessor.
+This preprocessor—written in Turicum as a function or closure—can transform the token stream, enabling arbitrary syntactic extensions to the language.
 
-* **Multithread**
+* **Multithreaded**
 +
-The interpreter uses Java 21 and supports (planned) VirtualThreads using native language constructs.
+The interpreter is built on Java 21 and supports for Virtual Threads, using native language constructs.
 
-* **Typed and scoped**
+* **Typed and Scoped**
 +
-Variables can be typed and assignment types are dynamically checked.
+Variables can be optionally typed, and assignments are dynamically type-checked at runtime.
 
-Turicum is both a scripting language and an embeddable engine.
-It can be run as a standalone command-line tool or integrated into Java or Kotlin applications as a library.
+Turicum functions both as a scripting language and as an embeddable engine.
+It can run as a standalone command-line tool or be integrated into Java or Kotlin applications as a library.
 
-Turicum is implemented in Java and designed to be approachable by JVM developers while introducing powerful abstractions.
+Turicum is implemented in Java and is designed to be approachable for JVM developers while introducing powerful new abstractions.
 
 The name “Turicum” is the ancient Roman name for the city of Zürich, Switzerland, where the language is being developed.
 
@@ -57,38 +58,47 @@ The name “Turicum” is the ancient Roman name for the city of Zürich, Switze
 
 Turicum was designed with the following principles:
 
-* **Concise syntax** that remains readable and expressive.
-* **Functional-first** execution model with support for **side effects** when needed.
-* **Multithreading and pipeline support** built into the language.
-* **Safe scoping and closures**, including *reclosable* closures which adapt to new context bindings.
-Closure eclosing is a unique language feature.
-* **Macro metaprogramming**, allowing deferred and explicit evaluation of arguments.
-* A flexible **parameter system**, supporting `normal`, positional-only, named-only, argument and special parameters for rest, meta, and trailing callable parameters.
+* A **concise syntax** that remains readable and expressive.
+* A **functional-first** execution model with support for **side effects** when necessary.
+* **Multithreading and pipeline constructs** built directly into the language.
+* **Safe scoping and closures**, including *reclosable* closures, which can adapt to new context bindings.
+Closure reclosing is a unique feature of the language.
+* **Macro-based metaprogramming**, allowing deferred and explicit evaluation of arguments.
+* A flexible **parameter system**, supporting:
+- `normal` parameters,
+- positional-only,
+- named-only,
+- rest parameters (`[x]`),
+- meta parameters (`{x}`),
+- and trailing callable parameters (`^x`).
 
-The language is designed for **experienced developers**, particularly those who work with the JVM and need a powerful scripting or DSL tool that feels natural but scales to complex architectural needs.
+The language is intended for **experienced developers**, especially those working with the JVM, who require a powerful scripting or DSL tool that feels natural but scales to complex architectural needs.
 
 === Lexical and Syntax Conventions
 
-Turicum syntax is clean, indentation-insensitive, and mostly expression-oriented.
-It does not try to reinvent the syntax, so it will look familiar for Java, C and even in some cases for Python programmers.
-On the other hand, it does not require syntactically superfluous characters, like `(` and `)` around the conditions of the `if` statement.
+Turicum syntax is clean, indentation-insensitive, and largely expression-oriented.
+It does not aim to reinvent syntax, so it will feel familiar to programmers coming from Java, C, and—occasionally—Python.
+At the same time, it avoids syntactically superfluous elements, such as mandatory parentheses `()` around `if` conditions.
 
-The basic syntactic conventions are:
+The core syntactic conventions are as follows:
 
-* Semicolons (`;`) can be used to separate commands but are mostly optional.
-* Blocks are defined with curly braces `{}` and return the result of the last evaluated command.
-* Comments start with `//` and continue to the end of the line.
-* Multiline comments start with `+/*+` and end with `*/` like in Java, and they can be nested unlike Java.
-* Identifiers follow conventional rules and are case-sensitive.
-* Any string between two `pass:[`]` (back-tick) characters is an identifier (like in Kotlin).
+* Semicolons (`;`) may be used to separate commands but are generally optional.
+* Code blocks are enclosed in curly braces `{}` and evaluate to the result of the last executed command.
+* Single-line comments begin with `//` and continue to the end of the line.
+* Multiline comments start with `+/*+` and end with `*/`, like in Java, C, Go etc.
+Unlike Java, nested multiline comments are supported.
+* Identifiers follow conventional naming rules and are case-sensitive.
+* Any string enclosed between backticks (`pass:[`]`) is treated as an identifier (similar to Kotlin).
 * All keywords are lowercase.
-* Strings between `pass:["]` are terminated on the same line and between `pass:["""]` can be multi-line.
+* Strings enclosed in double quotes (`"`) must terminate on the same line.
+Multiline strings are enclosed in triple double quotes (`"""`).
+
 
 More details about expressions, control flow, and declarations can be found in the chapters that follow.
 
 == Basic Concepts
 
-A Turicum program is a list of commands, which is executed from the start to the end.
+A Turicum program is a list of commands, executed from start to end.
 
 
 .source of snippet `first_sample`
@@ -104,9 +114,6 @@ for i=1 ; i < 3 ; i = i+1 : println(i)
 
 
 
-will print out
-
-
 .output of snippet `first_sample`
 [source]
 ----
@@ -117,12 +124,17 @@ Hello, World
 ----
 
 
-A command end is usually denoted by a new line or a `;`.
-At the end of the command a `;` can always be repaced by a new line, but not when the syntax requires the`;` inside the command, like the `for` loop.
 
-Commands can be grouped in to blocks enclosed between `{` and `}`.
-Everything has a value, even commands.
-For example, an `if` statement will result the value of the command after the `if` conditional if the conditional was true and the else block otherwise or `none` if there is no else block.
+A command is usually terminated by a newline or a semicolon (`;`).
+A semicolon can always be replaced by a newline at the end of a command—except when the syntax explicitly requires the semicolon inside the command, such as in a `for` loop.
+
+Commands can be grouped into blocks, enclosed in `{` and `}`.
+Everything in Turicum has a value—even commands.
+For example, an `if` statement returns the value of the executed command:
+
+* the branch after the `if` condition,
+* the `else` block if the condition is false and an `else` is present, or
+* `none` if there is no `else` block.
 
 
 .source of snippet `if_value`
@@ -137,9 +149,6 @@ println(z)
 
 
 
-will output
-
-
 .output of snippet `if_value`
 [source]
 ----
@@ -148,8 +157,9 @@ will output
 ----
 
 
-Command blocks can be part of expressions.
-The value of a command block is the value of the last executed expression.
+
+Command blocks can appear within expressions.
+The value of a command block is the result of the last executed expression.
 
 
 .source of snippet `block_value`
@@ -167,9 +177,6 @@ println(z)
 
 
 
-will output
-
-
 .output of snippet `block_value`
 [source]
 ----
@@ -178,22 +185,21 @@ Hicory
 ----
 
 
-Expressions can contain
 
-* literals,
+Expressions may contain:
 
-** string
-** numerical
-** JSON
-
-* variables,
-* operators,
-* function calls,
-* closure calls,
-* macro calls,
-* method calls,
-* async expressions,
-* and code blocks.
+* Literals:
+** strings
+** numbers
+** JSON values
+* Variables
+* Operators
+* Function calls
+* Closure calls
+* Macro calls
+* Method calls
+* Async expressions
+* Code blocks
 
 Symbolic constants are `true`
 // has the constant boolean __true__ value.
@@ -224,45 +230,42 @@ Symbolic constants are `true`
 `nan`
 // is the special IEEE-754 "not a number" floating-point value.
 
-pinned (non-changeable, final) global variables.
+pinned (immutable, final) global variables.
 
 ==== Shebang
 
-The interpreter ignores the first line of the program if it starts with `#!`.
+The interpreter ignores the first line of the program if it begins with `#!`.
 
 ==== Whitespace and Line Breaks
 
-Whitespace (spaces, tabs, line breaks) is generally insignificant except where indentation affects readability.
-Multiple newlines are allowed between tokens and commands.
-Line breaks alone do not terminate statements.
+Whitespace—including spaces, tabs, and line breaks—is generally insignificant, except where indentation aids readability.
+Multiple blank lines are allowed between tokens and commands.
+Line breaks alone do not terminate a command.
 
 ==== Identifiers
 
 Identifiers are names used for variables, functions, classes, and other user-defined symbols.
 
-* Identifiers must start with a Unicode letter or underscore (`_`), and may contain letters, digits, and underscores.
-
+* Identifiers must begin with a Unicode letter or an underscore (`_`), and may contain letters, digits, and underscores.
 * You can explicitly define an identifier using backticks: `+`non-standard-id`+`.
-Using backticks allows you to use any string as an identifier, even reserved words, or symbols or operators.
-The main use of this feature to override operators, like `+`==`+`.
-
+This allows you to use any string as an identifier—even reserved words, symbols, or operators.
+The primary use of this feature is to override operators, such as `+`==`+`.
 * Identifiers are case-sensitive.
 
 Some Unicode characters like `∞` (infinity) and `∅` (none) are automatically translated into meaningful identifiers (`inf`, `none`).
 
 [NOTE]
 ====
-Other languages allow overriding operators and define the functionality of operators using methods with some special names.
-For example, in Python you can override the `+` operator defining the `__plus__` method.
-Turicum does not need these special names.
-You can name your method to be `pass:[`+`]`.
+Many languages allow operator overloading through specially named methods.
+For example, in Python, you can override the `+` operator by defining a method named `pass:[__plus__]`.
+Turicum does not require such special naming conventions.
+You can simply define a method with the name `pass:[`+`]`.
 ====
-
 ==== Reserved Words
 
-Turicum has a set of reserved keywords that cannot be used as identifiers, unless you enclose the name between `+`+` backticks, like `+`if`+`.
+Turicum defines a set of reserved keywords that cannot be used as identifiers—unless the name is enclosed in backticks, like `+`if`+`.
 
-The keywords are:
+The reserved keywords are:
 
 
 
@@ -294,6 +297,7 @@ The keywords are:
 `while`
 `with`
 `yield`
+
 
 == Expressions and Operators
 
@@ -1980,7 +1984,8 @@ If you have too few you can extend the list:
 .source of snippet `flat_let_list5`
 [source]
 ----
-fn adjust(x, @to){
+fn adjust(_x, @to){
+    let x = _x
     if len(x) < to :
         while len(x) < to :
             x = [..x, none]
@@ -2018,7 +2023,8 @@ or even
 .source of snippet `flat_let_list6`
 [source]
 ----
-fn adjust(@to,[x]){
+fn adjust(@to,[_x]){
+    let x = _x
     if len(x) < to :
         while len(x) < to :
             x = [..x, none]
@@ -2308,6 +2314,23 @@ println{ while k < 5 list{
 
 To get the list as a result, you have to write the `list` keyword in front of the loop body.
 
+[NOTE]
+====
+
+When a loop executes, two distinct contexts are used: an *outer context* and an *inner context*.
+
+* The *outer context* is created before the loop begins and is discarded after the loop ends.
+* The *inner context* is created freshly for each execution of the loop body and is discarded immediately after that execution completes.
+
+The outer context *wraps* the surrounding scopes, and the inner context *wraps* the outer context. This means that both contexts have access to all variables defined in the surrounding code. Additionally, the inner context can read and modify variables from the outer context and the scopes it wraps. However, *new variables defined in the inner context do not propagate into the outer context*.
+
+* The *head condition* following the `+while+` keyword is evaluated in the outer context.
+
+* The *loop body* and the *exit condition* following the `+until+` keyword are evaluated in the inner context.
+
+This design ensures that each iteration of the loop starts in a clean environment. Variables defined inside a previous iteration are *not available* in the next iteration, unless explicitly defined in the outer context. This approach avoids unintended side effects and provides a clear and consistent model for variable visibility and lifecycle within loops.
+====
+
 ==== `for`
 
 For loop is very much similar to the conventional `for` loop we have since it was invented in the language C.
@@ -2474,10 +2497,26 @@ println {for i=0; i < 10 ; i = i + 1 list: i}
 
 To get the list as a result, you have to write the `list` keyword in front of the loop body.
 
+[NOTE]
+====
 
-==== `foreach`
+When a loop executes, two distinct contexts are used: an *outer context* and an *inner context*.
 
-Foreach iterate through a list
+* The *outer context* is created before the loop begins and is discarded after the loop ends.
+* The *inner context* is created freshly for each execution of the loop body and is discarded immediately after that execution completes.
+
+The outer context *wraps* the surrounding scopes, and the inner context *wraps* the outer context. This means that both contexts have access to all variables defined in the surrounding code. Additionally, the inner context can read and modify variables from the outer context and the scopes it wraps. However, *new variables defined in the inner context do not propagate into the outer context*.
+
+* The *start*, *condition*, and *step* expressions in the `+for+` loop header are evaluated in the outer context.
+
+* The *loop body* and the *exit condition* following the `+until+` keyword are evaluated in the inner context.
+
+This design ensures that each iteration of the loop starts in a clean environment. Variables defined inside a previous iteration are *not available* in the next iteration, unless explicitly defined in the outer context. This approach avoids unintended side effects and provides a clear and consistent model for variable visibility and lifecycle within loops.
+====
+
+==== `for each`
+
+The command `for each` iterates through a list
 
 
 .source of snippet `foreach1`
@@ -2554,7 +2593,7 @@ The index variable is local to the loop.
 Without this feature you would need to declare a variable one scope higher and then use it in the loop.
 That would violate the locality principle, not to rely on anything out of a scope that may change and even less modify anything out of the scope, which is in this case a loop.
 
-The value of the loop is the result of the last executed command.
+When used in an expression position, a `for each` loop returns the result of the last executed loop body.
 
 
 .source of snippet `for_each_result`
@@ -2579,8 +2618,8 @@ println {
 
 
 
-The loop can also be used to result a list.
-The list will contain the results of each body loop execution.
+The loop can also return a list: to do so, use the `list` keyword before the loop body.
+The result will include the result of each iteration.
 
 
 .source of snippet `for_each_list`
@@ -2606,6 +2645,25 @@ println {
 
 
 To get the list as a result, you have to write the `list` keyword in front of the loop body.
+
+[NOTE]
+====
+
+When a loop executes, two distinct contexts are used: an *outer context* and an *inner context*.
+
+* The *outer context* is created before the loop begins and is discarded after the loop ends.
+* The *inner context* is created freshly for each execution of the loop body and is discarded immediately after that execution completes.
+
+The outer context *wraps* the surrounding scopes, and the inner context *wraps* the outer context. This means that both contexts have access to all variables defined in the surrounding code. Additionally, the inner context can read and modify variables from the outer context and the scopes it wraps. However, *new variables defined in the inner context do not propagate into the outer context*.
+
+* The *list* is evaluated only once in the outer context.
+* The loop variable and the optional loop counter are part of the inner context, but they are pinned.
+Pinned variables cannot be modified.
+
+* The *loop body* and the *exit condition* following the `+until+` keyword are evaluated in the inner context.
+
+This design ensures that each iteration of the loop starts in a clean environment. Variables defined inside a previous iteration are *not available* in the next iteration, unless explicitly defined in the outer context. This approach avoids unintended side effects and provides a clear and consistent model for variable visibility and lifecycle within loops.
+====
 
 ==== `break`
 
@@ -3094,8 +3152,8 @@ execute("Thread 2",2)
  prime read 2
 Thread 1 generated 3
  prime read 3
-Thread 1 generated 5
- prime read 5
+Thread 1 generated  prime read 5
+5
 Thread 1 generated 7
  prime read 7
 Thread 1 generated 11
@@ -3106,13 +3164,13 @@ Thread 1 generated 23
 stopping
 exception Task stopped.
 Thread 2 generated 3
+Thread 2 generated 5
  prime read 2
  prime read 3
-Thread 2 generated 5
-Thread 2 generated 7
  prime read 5
-Thread 2 generated 11
+Thread 2 generated 7
  prime read 7
+Thread 2 generated 11
 Thread 2 generated 13
 stopping
 exception Task stopped.
@@ -3175,9 +3233,9 @@ println( (end-start)/1000000, "ms")
 [source]
 ----
 [1, 2, 3]
-306.60725ms
+309.849167ms
 [1, 2, 3]
-107.462041ms
+114.585084ms
 
 ----
 
@@ -3393,9 +3451,8 @@ a =3.6063454894655185
 a =3.6055513629176015
 a =3.6055512754639905
 a =3.6055512754639896
-a =3.6055512754639896
-sqrt(13) ≈ 3.6055512754639896
-square ≈ 13.000000000000002
+sqrt(13) ≈ 3.6055512754639905
+square ≈ 13.000000000000009
 
 ----
 
@@ -4198,6 +4255,16 @@ c(..(async numbers()))
 
 
 ====
+
+=== Modifying Arguments
+Function arguments in Turicum are immutable.
+
+When a function is called, its arguments are *pinned*—they are bound to their initial values and cannot be reassigned within the function body.
+
+The only exception is the `init` method, which acts as the object initializer.
+In this case, the arguments correspond to the fields of the object being constructed.
+Assignment is allowed during initialization, because these fields persist beyond the execution of `init`.
+If they were pinned like regular arguments, the object's fields would become permanently immutable, which is not desired.
 
 == Classes and Objects
 
@@ -5777,7 +5844,7 @@ Technically, the function loads a Turicum source file, executes it, and returns 
 If you have function or class definitions in the imported file, they will be fields in the new object.
 Instead of introducing a new command, Turicum uses this function.
 
-Other languages separate the module names, class names and alias definitions.
+Other languages separate the module names, class names, and alias definitions.
 In turicum when you import `mod.dul.name.file` it will find the file in one of the `mod/ul/name` subdirectories^*^ in the file `file.turi` via the appia.
 
 You can assign the returned object to a variable.
@@ -5946,7 +6013,7 @@ for each k in z {
 If you want a physical list with the elements, you can create it using the `..` spread operator:
 
 
-.source of snippet `rngThrousand`
+.source of snippet `rngThousand`
 [source]
 ----
 let z = rng(0,1000)
@@ -5959,7 +6026,7 @@ print( [..array[0 .. 5], ..array[-5 .. array.length]])
 
 
 
-.output of snippet `rngThrousand`
+.output of snippet `rngThousand`
 [source]
 ----
 [0, 1, 2, 3, 4, 995, 996, 997, 998, 999]
@@ -6043,6 +6110,33 @@ Special zero element range can have zero as step []
 but it is just the same as []
 
 ----
+
+
+
+It is recommended not to use the `rng()` function directly.
+You can import the system module `range` that defines a more flexible name:
+
+
+.source of snippet `rangeThousand`
+[source]
+----
+sys_import "turi.range"
+let z = range(start=0,end=1000,closend=true)
+let array = [ ..z ]
+print( array[0 .. 5] + array[-5 .. array.length])
+
+
+----
+
+
+
+
+.output of snippet `rangeThousand`
+[source]
+----
+[0, 1, 2, 3, 4, 996, 997, 998, 999, 1000]
+----
+
 
 
 
@@ -6441,82 +6535,80 @@ none
 .output of snippet `que`
 [source]
 ----
-task1 is not ready 0
 task2 is not ready 0
+task1 is not ready 0
 task2 is ready 1
 task1 is not ready 1
 task2 is not ready 0
-task2 is not ready 1
 task1 is not ready 2
-task1 is not ready 3task2 is not ready 2
-
+task2 is not ready 1
+task1 is not ready 3
+task2 is not ready 2
 task1 is ready 2
-task2 is not ready 3task1 is not ready 0
-
+task2 is not ready 3
+task1 is not ready 0
 task2 is not ready 4
 task1 is not ready 1
-task2 is not ready 5
 task1 is not ready 2
-task1 is not ready 3
-task2 is ready 3
+task2 is not ready 5
+task1 is not ready 3task2 is ready 3
+
 task2 is not ready 0
 task1 is not ready 4
 task2 is not ready 1
-task2 is not ready 2
-task1 is not ready 5
-task1 is not ready 6task2 is ready 4
+task2 is ready 4
+task1 is not ready 5task2 is not ready 0
 
-task2 is not ready 0
-task1 is not ready 7
+task1 is not ready 6
 task2 is not ready 1
-task1 is not ready 8
+task1 is not ready 7
 task2 is not ready 2
+task1 is not ready 8
 task2 is not ready 3
-task1 is ready 5
+task1 is ready 5task2 is not ready 4
+
 task1 is not ready 0
-task1 is not ready 1
-task2 is not ready 4
-task1 is not ready 2
 task2 is not ready 5
-task1 is ready 6
-task1 is not ready 0
+task1 is not ready 1
 task2 is not ready 6
+task1 is not ready 2
+task1 is not ready 3
+task2 is ready 6
+task2 is not ready 0
+task1 is not ready 4
+task2 is not ready 1
+task1 is not ready 5
+task2 is not ready 2
+task1 is ready 7
+task2 is not ready 3
+task1 is not ready 0
+task2 is not ready 4
+task1 is not ready 1
+task2 is not ready 5
+task1 is not ready 2
+task1 is ready 8
+task2 is not ready 6
+task1 is not ready 0
 task1 is not ready 1
 task2 is not ready 7
 task1 is not ready 2
 task2 is not ready 8
-task1 is ready 7task2 is not ready 9
-
+task1 is ready 9
+task2 is not ready 9
 task1 is not ready 0
 task2 is not ready 10
 task1 is not ready 1
-task1 is not ready 2
-task2 is not ready 11
-task1 is ready 8
-task2 is not ready 12
-task1 is not ready 0
-task2 is not ready 13
-task1 is not ready 1
-task1 is not ready 2
-task2 is not ready 14
-task1 is ready 9
-task2 is not ready 15
-task1 is not ready 0
-task2 is not ready 16task1 is not ready 1
+task1 is not ready 2task2 is not ready 11
 
-task2 is not ready 17
-task1 is not ready 2
-task2 is not ready 18
-task1 is not ready 3
 closing the channel
 channel is closed
 1 is done false
 2 is done false
 we start to wait the first time
-task1 is donetask2 is done
-
-task1 done true
-task2 done false
+task2 is done
+task1 is done
+task1 done false
+task2 done true
 We start to wait the second time
 task1 done true
 task2 done true
@@ -6952,14 +7044,14 @@ The steps of the preprocessing are the following:
 
 . Parse the command following the `#` symbol.
 This is the preprocessor command.
-It has to be a macro, a function or a closure.
+It has to be a macro, a function, or a closure.
 
 . Remove all the tokens from the token list that were already processed.
 
 . Create a preprocessor context.
 
 . Execute the commands that were parsed.
-This will create global variables, functions and classes in the preprocessor context.
+This will create global variables, functions, and classes in the preprocessor context.
 
 . Execute the command passing the list of tokens as the only argument.
 
@@ -6971,7 +7063,7 @@ When the remaining code is executed, the interpreter will use the preprocessor c
 If there is more than one preprocessor executed, they will share the same context.
 
 The following example shows preprocessing that adds lines defining a global variable `M`,
-defines a function `helvetic_hi()` and
+defines a function, and
 sets the value of the variable `M` to `"hello hello"`.
 
 

@@ -1034,7 +1034,8 @@ println b
 // end snippet
 
 // snippet flat_let_list5
-fn adjust(x, @to){
+fn adjust(_x, @to){
+    let x = _x
     if len(x) < to :
         while len(x) < to :
             x = [..x, none]
@@ -1050,7 +1051,8 @@ println d
 // end snippet
 
 // snippet flat_let_list6
-fn adjust(@to,[x]){
+fn adjust(@to,[_x]){
+    let x = _x
     if len(x) < to :
         while len(x) < to :
             x = [..x, none]
@@ -1731,10 +1733,17 @@ for each k in z {
 }until i > 5
 // end snippet
 
-// snippet rngThrousand
+// snippet rngThousand
 let z = rng(0,1000)
 let array = [ ..z ]
 print( [..array[0 .. 5], ..array[-5 .. array.length]])
+// end snippet
+
+// snippet rangeThousand
+sys_import "turi.range"
+let z = range(start=0,end=1000,closend=true)
+let array = [ ..z ]
+print( array[0 .. 5] + array[-5 .. array.length])
 // end snippet
 
 // snippet rngRange

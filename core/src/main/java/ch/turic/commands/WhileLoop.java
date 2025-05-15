@@ -27,12 +27,11 @@ public class WhileLoop extends AbstractCommand {
         Object result = null;
         final var list = resultList ? new LngList() : null;
         context.step();
-        final var loopContext = context.loop();
-        int loopCounter = 0;
+        final var loopContext = context.wrap();
         while (Cast.toBoolean(startCondition.execute(loopContext))) {
-            loopContext.count(loopCounter++);
+            final var innerContext= loopContext.wrap();
             if (body instanceof BlockCommand block) {
-                final var lp = block.loop(loopContext);
+                final var lp = block.loop(innerContext);
                 result = lp.result();
                 if(resultList){
                     list.array.add(result);
@@ -41,12 +40,12 @@ public class WhileLoop extends AbstractCommand {
                     return resultList ? list : result;
                 }
             } else {
-                result = body.execute(loopContext);
+                result = body.execute(innerContext);
                 if(resultList){
                     list.array.add(result);
                 }
             }
-            if (Cast.toBoolean(exitCondition.execute(loopContext))) {
+            if (Cast.toBoolean(exitCondition.execute(innerContext))) {
                 break;
             }
         }

@@ -108,7 +108,7 @@ public final class Closure extends AbstractCommand implements ClosureOrMacro, Ln
         final var ctx = context.wrap(this.wrapped);
         FunctionCall.defineArgumentsInContext(ctx, context, parameters, Arrays.stream(params)
                 .map(param -> new FunctionCall.ArgumentEvaluated(null, param)).
-                toArray(FunctionCall.ArgumentEvaluated[]::new));
+                toArray(FunctionCall.ArgumentEvaluated[]::new), true);
         return execute(ctx);
     }
 

@@ -24,7 +24,7 @@ public sealed interface ClosureOrMacro extends Command, HasFields permits Closur
         ctx.let0("cls", lngObject.lngClass());
         ctx.setCaller(context);
         freezeThisAndCls(ctx);
-        defineArgumentsInContext(ctx, context, it.parameters(), argValues);
+        defineArgumentsInContext(ctx, context, it.parameters(), argValues, true);
         return ctx;
     }
 
@@ -36,8 +36,10 @@ public sealed interface ClosureOrMacro extends Command, HasFields permits Closur
             ctx.let0("this", context.getLocal("this"));
             ctx.let0("cls", lngClass);
             freezeThisAndCls(ctx);
+            defineArgumentsInContext(ctx, context, it.parameters(), argValues, false);
+        } else {
+            defineArgumentsInContext(ctx, context, it.parameters(), argValues, true);
         }
-        defineArgumentsInContext(ctx, context, it.parameters(), argValues);
         return ctx;
     }
 

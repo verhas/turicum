@@ -1,1 +1,1 @@
-{that: {, cls: class A}, cls: class B}
+{that: {cls: class A}, cls: class B}

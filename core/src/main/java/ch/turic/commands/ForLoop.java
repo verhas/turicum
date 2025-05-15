@@ -52,15 +52,14 @@ public class ForLoop extends AbstractCommand {
         Object result = null;
         final var list = resultList ? new LngList() : null; // not only to save an object memory but also to fail fast
         context.step();
-        final var loopContext = context.loop();
+        final var loopContext = context.wrap();
         if (startCommand != null) {
             startCommand.execute(loopContext);
         }
-        int loopCounter = 0;
         while (Cast.toBoolean(loopCondition.execute(loopContext))) {
-            loopContext.count(loopCounter++);
+            final var innerContext = loopContext.wrap();
             if (body instanceof BlockCommand block) {
-                final var lp = block.loop(loopContext);
+                final var lp = block.loop(innerContext);
                 result = lp.result();
                 if (resultList) {
                     list.array.add(lp.result());
@@ -69,12 +68,12 @@ public class ForLoop extends AbstractCommand {
                     return resultList ? list : lp.result();
                 }
             } else {
-                result = body.execute(loopContext);
+                result = body.execute(innerContext);
                 if (resultList) {
                     list.array.add(result);
                 }
             }
-            if (Cast.toBoolean(exitCondition.execute(loopContext))) {
+            if (Cast.toBoolean(exitCondition.execute(innerContext))) {
                 break;
             }
             if (stepCommand != null) {

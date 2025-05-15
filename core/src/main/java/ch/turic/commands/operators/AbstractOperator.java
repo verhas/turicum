@@ -31,7 +31,7 @@ public abstract class AbstractOperator implements Operator {
                     ctx.let0("this", lngObject);
                 }
                 FunctionCall.freezeThisAndCls(ctx);
-                FunctionCall.defineArgumentsInContext(ctx, context, command.parameters(), argValues);
+                FunctionCall.defineArgumentsInContext(ctx, context, command.parameters(), argValues, true);
                 return command.execute(ctx);
             } else {
                 throw new ExecutionException("You can not execute the operator " + operatorMethod + " on a " + op2);
@@ -62,7 +62,7 @@ public abstract class AbstractOperator implements Operator {
             }
             ctx.setCaller(context);
             FunctionCall.freezeThisAndCls(ctx);
-            FunctionCall.defineArgumentsInContext(ctx, context, command.parameters(), argValues);
+            FunctionCall.defineArgumentsInContext(ctx, context, command.parameters(), argValues, true);
             return command.execute(ctx);
         }
         return binaryOp(context, op1, right);

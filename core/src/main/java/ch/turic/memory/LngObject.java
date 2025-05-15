@@ -107,7 +107,7 @@ public class LngObject implements HasFields, HasIndex, HasContext {
                 ctx.let0("cls", this.lngClass);
             }
             FunctionCall.freezeThisAndCls(ctx);
-            FunctionCall.defineArgumentsInContext(ctx, context, lngEquals.parameters(), argValues);
+            FunctionCall.defineArgumentsInContext(ctx, context, lngEquals.parameters(), argValues, true);
             return Cast.toBoolean(lngEquals.execute(ctx));
         }
         if (!Objects.equals(lngClass, lngObject.lngClass)) {
@@ -171,8 +171,8 @@ public class LngObject implements HasFields, HasIndex, HasContext {
                 final var object = context().get(key);
                 if (object != this) {
                     builder.append(sep).append(key).append(": ").append(object);
+                    sep = ", ";
                 }
-                sep = ", ";
             }
             builder.append("}");
             return builder.toString();

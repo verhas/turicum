@@ -13,20 +13,14 @@ public class AdHocTest {
     @Test
     void test1() throws Exception {
         test("""
-let commands = thunk({k = 13; suss = "huss"; let x = 3; println "hello"})
-println keys(commands);
-println();
-for each field in keys(commands) {
-    let sub = commands[field];
-    println "%s %s %s" % [field, type(sub), sub ]
+class P {
+    fn init {
+        println "init in P, cls='%s' this='%s'" % [cls, this]
+    }
 }
-
-commands = commands.commands
-for each command with i in commands {
-    println "%s %s %s" % [ i, type(command), command ]
+class C : P {
 }
-let `let` = commands[2];
-println `let`.assignments[0]
+let o = C();
 none
                 """,null);
     }

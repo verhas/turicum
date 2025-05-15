@@ -48,11 +48,11 @@ public class Lexer {
     private static final String[] OPERANDS = _OPERANDS.toArray(String[]::new);
 
     private static final String[] uniKeys = {
-            "\u221E", "inf",
-            "\u2205", "none",
-            "\u2208", "in",
-            "\u21F6", "async",
-            "\u23F3", "await",
+            "∞", "inf",
+            "∅", "none",
+            "∈", "in",
+            "⇶", "async",
+            "⏳", "await",
     };
 
     private static String getUnicodeKeyword(String ch) {
@@ -65,9 +65,11 @@ public class Lexer {
     }
 
     private static final String[] uniSymbols = {
-            "\u2026", "..",
-            "\u2192", "->",
-            "\u2260", "!="
+            "…", "..",
+            "→", "->",
+            "≠", "!=",
+            "≥", "<=",
+            "≤", ">=",
     };
 
     private static String getUnicodeSymbol(String ch) {
@@ -82,8 +84,8 @@ public class Lexer {
     public static LexList analyze(Input in) throws BadSyntax {
         final var list = new ArrayList<Lex>();
         // honour the shebang
-        if( in.startsWith("#!") == 0 ){
-            while( !in.isEmpty() && in.charAt(0) != '\n') {
+        if (in.startsWith("#!") == 0) {
+            while (!in.isEmpty() && in.charAt(0) != '\n') {
                 in.skip(1);
             }
         }
