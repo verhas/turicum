@@ -1,8 +1,5 @@
 #!/usr/local/bin/turi
-import "imported"
 
-let `This is an extreme\`identifier` = 5
-
-hello()
-
-println `This is an extreme\`identifier`
+let a = [1,2,3]
+a = a + 4 + 5 + 6
+println a

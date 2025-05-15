@@ -115,12 +115,15 @@ let project = maven_project({
     
     dependencyManagement : {
         dependencies : [
-            {
-                groupId : "ch.turic",
-                artifactId : "core",
-                version : "1.0.0-SNAPSHOT"
+          ..{
+              for each m in modules list{
+                  {
+                      groupId : "ch.turic",
+                      artifactId : m,
+                      version : VERSION
+                  }
+              }
             },
-            
             {
                 groupId : "org.junit.jupiter",
                 artifactId : "junit-jupiter-api",

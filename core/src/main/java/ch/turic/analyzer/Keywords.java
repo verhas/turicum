@@ -15,6 +15,7 @@ public interface Keywords {
     String FOR = "for";
     String FLOW = "flow";
     String EACH = "each";
+    String LIST = "list";
     String ELSE = "else";
     String ELSEIF = "elseif";
     String TRY = "try";

@@ -161,19 +161,19 @@ println(c)
 
 // snippet pinning
 let turicum = 13
-let list = [1,2,3]
+let `list` = [1,2,3]
 let object = { x:1, y:2};
-pin turicum, [list], {object}
+pin turicum, [`list`], {object}
 
 try {
   turicum = 14;
 }catch e: println("could not change the variable")
 
 try {
-  list[1] = 0;
-}catch e: println("could not change the list")
-list = [ 0, ..list, 4]
-println("variable 'list' still can be changed: ", list)
+  `list`[1] = 0;
+}catch e: println("could not change the `list`")
+`list` = [ 0, ..`list`, 4]
+println("variable 'list' still can be changed: ", `list`)
 
 try {
   object.x = 3;
@@ -1885,5 +1885,44 @@ for each command in commands {
         println "%s. after is_defined(x) = %s" % [i,is_defined(x)]
     }
     i = i + 1
+}
+// end snippet
+
+// snippet while_result
+println {
+    let k = 0
+    while k < 10 : k = k + 1
+}
+// end snippet
+// snippet for_result
+println {
+    let k = 0
+    for ; k < 10 ; : k = k + 1
+}
+// end snippet
+
+// snippet for_each_result
+println {
+    for each t with i in [1,2,3] : t + 10*i
+}
+// end snippet
+
+// snippet for_list
+println {for i=0; i < 10 ; i = i + 1 list: i}
+// end snippet
+
+// snippet for_each_list
+println {
+    for each z with i in [1,2,3] list { 10*i + z }
+    }
+// end snippet
+
+// snippet while_list
+let k = 0;
+println{ while k < 5 list{
+            let h = k;
+            k = k + 1;
+            h
+         }
 }
 // end snippet

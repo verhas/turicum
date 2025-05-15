@@ -31,12 +31,23 @@ public class ForLoopAnalyzer extends AbstractAnalyzer {
                 lexes.next();
             }
         }
-        Command stepCommand = CommandAnalyzer.INSTANCE.analyze(lexes);
+        final Command stepCommand;
+        if (lexes.is(":","{",Keywords.LIST)) {
+            stepCommand = null;
+        }else {
+            stepCommand = CommandAnalyzer.INSTANCE.analyze(lexes);
+        }
         checkClosingParen(lexes, withParentheses);
-
+        final boolean resultList;
+        if( lexes.is(Keywords.LIST)) {
+            resultList = true;
+            lexes.next();
+        }else{
+            resultList = false;
+        }
         final Command body = getLoopBody(lexes);
         final Command exitCondition = getOptionalExistCondition(lexes);
-        return new ForLoop(startCommand, loopCondition, exitCondition, stepCommand, body);
+        return new ForLoop(startCommand, loopCondition, exitCondition, stepCommand, resultList, body);
     }
 
     /**
@@ -68,7 +79,7 @@ public class ForLoopAnalyzer extends AbstractAnalyzer {
             BadSyntax.when(lexes, lexes.isNot(")"), "You have to close the parentheses in the 'for' or 'while' loop and 'with'");
             lexes.next();
         } else {
-            BadSyntax.when(lexes, lexes.isNot(":", "{"), "'for' or 'while' loop and 'with' body has to be after '{' or ':'");
+            BadSyntax.when(lexes, lexes.isNot(":", "{", Keywords.LIST), "'for' or 'while' loop and 'with' body has to be after '{' or ':'");
         }
     }
 

@@ -3,6 +3,7 @@ package ch.turic.commands;
 import ch.turic.ExecutionException;
 import ch.turic.commands.operators.Cast;
 import ch.turic.memory.Context;
+import ch.turic.memory.LngList;
 
 public class ForLoop extends AbstractCommand {
     final public Command startCommand;
@@ -10,6 +11,7 @@ public class ForLoop extends AbstractCommand {
     final public Command exitCondition;
     final public Command stepCommand;
     final public Command body;
+    final boolean resultList;
 
     public Command body() {
         return body;
@@ -31,37 +33,54 @@ public class ForLoop extends AbstractCommand {
         return stepCommand;
     }
 
-    public ForLoop(Command startCommand, Command loopCondition, Command exitCondition, Command stepCommand, Command body) {
+    public ForLoop(final Command startCommand,
+                   final Command loopCondition,
+                   final Command exitCondition,
+                   final Command stepCommand,
+                   final boolean resultList,
+                   final Command body) {
         this.startCommand = startCommand;
         this.loopCondition = loopCondition;
         this.exitCondition = exitCondition;
         this.stepCommand = stepCommand;
+        this.resultList = resultList;
         this.body = body;
     }
 
     @Override
     public Object _execute(final Context context) throws ExecutionException {
         Object result = null;
+        final var list = resultList ? new LngList() : null; // not only to save an object memory but also to fail fast
         context.step();
         final var loopContext = context.loop();
-        startCommand.execute(loopContext);
+        if (startCommand != null) {
+            startCommand.execute(loopContext);
+        }
         int loopCounter = 0;
         while (Cast.toBoolean(loopCondition.execute(loopContext))) {
             loopContext.count(loopCounter++);
             if (body instanceof BlockCommand block) {
                 final var lp = block.loop(loopContext);
                 result = lp.result();
+                if (resultList) {
+                    list.array.add(lp.result());
+                }
                 if (lp.isDone()) {
-                    return lp.result();
+                    return resultList ? list : lp.result();
                 }
             } else {
                 result = body.execute(loopContext);
+                if (resultList) {
+                    list.array.add(result);
+                }
             }
             if (Cast.toBoolean(exitCondition.execute(loopContext))) {
                 break;
             }
-            stepCommand.execute(loopContext);
+            if (stepCommand != null) {
+                stepCommand.execute(loopContext);
+            }
         }
-        return result;
+        return resultList ? list : result;
     }
 }

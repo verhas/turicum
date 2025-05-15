@@ -11,13 +11,20 @@ public class WhileLoopAnalyzer extends AbstractAnalyzer {
     @Override
     public Command _analyze(LexList lexes) throws BadSyntax {
         final Command startCondition;
-        if (lexes.is("{", ":")) {
+        if (lexes.is("{", ":", Keywords.LIST)) {
             startCondition = new ConstantExpression(true);
         } else {
             startCondition = ExpressionAnalyzer.INSTANCE.analyze(lexes);
         }
+        final boolean resultList;
+        if( lexes.is(Keywords.LIST)) {
+            resultList = true;
+            lexes.next();
+        }else{
+            resultList = false;
+        }
         final Command body = ForLoopAnalyzer.getLoopBody(lexes);
         final Command exitCondition = ForLoopAnalyzer.getOptionalExistCondition(lexes);
-        return new WhileLoop(startCondition,exitCondition,body);
+        return new WhileLoop(startCondition, exitCondition, resultList, body);
     }
 }

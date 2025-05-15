@@ -846,13 +846,13 @@ There are three types of loops in Turicum:
 * `for each` loop.
 
 Loops, like any command, have a result value.
-The value of a loop
+The value of a loop is either the last executed command or a list of the last executed command for each iteration.
 
 ==== `while`
 
 A while loop is front and tail conditioned.
 The front condition, following the keyword `while` is checked before each execution of the loop body.
-The body of the loop will only be executed if the front fondition is `true`.
+The body of the loop will only be executed if the front condition is `true`.
 
 The tail condition is optional, and follows the body of the loop with the `until` keyword.
 It is checked after the execution of the loop body.
@@ -864,6 +864,17 @@ The body of the loop can be a command block, or it can be a single command.
 If the body is a single command, not enclosed between `{` and `}` it has to be preceded by a `:`.
 
 {%S whileLoop2%}
+
+The value of the loop is the result of the last executed command.
+
+{%S while_result%}
+
+The loop can also be used to result a list.
+The list will contain the results of each body loop execution.
+
+{%S while_list%}
+
+{%@def GET_LIST=To get the list as a result, you have to write the `list` keyword in front of the loop body.%}
 
 ==== `for`
 
@@ -892,6 +903,18 @@ To use a variable from the enclosing wrapped scope, you can enclose the assignme
 In this last example we also use a single command as the body of the loop.
 In this case the command is preceded by a `:` character.
 
+The value of the loop is the result of the last executed command.
+
+{%S for_result%}
+
+The loop can also be used to result a list.
+The list will contain the results of each body loop execution.
+
+{%S for_list%}
+
+{%GET_LIST%}
+
+
 ==== `foreach`
 
 Foreach iterate through a list
@@ -910,6 +933,17 @@ The index starts from zero and increments with each execution by one.
 The index variable is local to the loop.
 Without this feature you would need to declare a variable one scope higher and then use it in the loop.
 That would violate the locality principle, not to rely on anything out of a scope that may change and even less modify anything out of the scope, which is in this case a loop.
+
+The value of the loop is the result of the last executed command.
+
+{%S for_each_result%}
+
+The loop can also be used to result a list.
+The list will contain the results of each body loop execution.
+
+{%S for_each_list%}
+
+{%GET_LIST%}
 
 ==== `break`
 
@@ -2392,16 +2426,16 @@ Commands also have values. It is the __result__ of the command.
               EXPRESSION |
               ;
 
- LOOP ::= ('while' [EXPRESSION] ( BLOCK | ':' COMMAND ) |
-           'for' COMMAND ';' [EXPRESSION] ';' COMMAND ( BLOCK | ':' COMMAND ) |
-           'for' '(' COMMAND [EXPRESSION] COMMAND ')' (  BLOCK | ':' COMMAND )  |
-           'for each' identifier [with identifier] 'in' EXPRESSION ( BLOCK | ':' COMMAND ) |
-           'for each' '(' identifier [with identifier] 'in' EXPRESSION ')' (  BLOCK | ':' COMMAND )
+ LOOP ::= ('while' [EXPRESSION] ['list']( BLOCK | ':' COMMAND ) |
+           'for' COMMAND ';' [EXPRESSION] ';' COMMAND ['list']( BLOCK | ':' COMMAND ) |
+           'for' '(' COMMAND [EXPRESSION] COMMAND ')' ['list'](  BLOCK | ':' COMMAND )  |
+           'for each' identifier [with identifier] 'in' EXPRESSION ['list']( BLOCK | ':' COMMAND ) |
+           'for each' '(' identifier ['with' identifier] 'in' EXPRESSION ')' ['list'](  BLOCK | ':' COMMAND )
           ) [ 'until' EXPRESSION]
  ;
 
 If the condition expression is missing after 'for' or 'while' it is `true`.
-The expression following the 'until' is not optional, but the whole `until` `EXPRESSION` part is.
+The expression following the 'until' keyword is not optional, but the whole `until` `EXPRESSION` part is.
 The value of a loop is the last __executed__ command.
 Equivalent to: `for(init; condition; step)`
 

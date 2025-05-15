@@ -284,6 +284,7 @@ The keywords are:
 `if`
 `in`
 `let`
+`list`
 `or`
 `pin`
 `return`
@@ -2086,19 +2087,19 @@ The following example demonstrates the different pinning possibilities:
 [source]
 ----
 let turicum = 13
-let list = [1,2,3]
+let `list` = [1,2,3]
 let object = { x:1, y:2};
-pin turicum, [list], {object}
+pin turicum, [`list`], {object}
 
 try {
   turicum = 14;
 }catch e: println("could not change the variable")
 
 try {
-  list[1] = 0;
-}catch e: println("could not change the list")
-list = [ 0, ..list, 4]
-println("variable 'list' still can be changed: ", list)
+  `list`[1] = 0;
+}catch e: println("could not change the `list`")
+`list` = [ 0, ..`list`, 4]
+println("variable 'list' still can be changed: ", `list`)
 
 try {
   object.x = 3;
@@ -2117,7 +2118,7 @@ println("variable 'object' still can be changed: ", object)
 [source]
 ----
 could not change the variable
-could not change the list
+could not change the `list`
 variable 'list' still can be changed: [0, 1, 2, 3, 4]
 could not change the object
 variable 'object' still can be changed: {x: 1, y: 3}
@@ -2185,13 +2186,13 @@ There are three types of loops in Turicum:
 * `for each` loop.
 
 Loops, like any command, have a result value.
-The value of a loop
+The value of a loop is either the last executed command or a list of the last executed command for each iteration.
 
 ==== `while`
 
 A while loop is front and tail conditioned.
 The front condition, following the keyword `while` is checked before each execution of the loop body.
-The body of the loop will only be executed if the front fondition is `true`.
+The body of the loop will only be executed if the front condition is `true`.
 
 The tail condition is optional, and follows the body of the loop with the `until` keyword.
 It is checked after the execution of the loop body.
@@ -2248,6 +2249,64 @@ println(i)
 ----
 
 
+
+The value of the loop is the result of the last executed command.
+
+
+.source of snippet `while_result`
+[source]
+----
+println {
+    let k = 0
+    while k < 10 : k = k + 1
+}
+
+
+----
+
+
+
+
+.output of snippet `while_result`
+[source]
+----
+10
+
+----
+
+
+
+The loop can also be used to result a list.
+The list will contain the results of each body loop execution.
+
+
+.source of snippet `while_list`
+[source]
+----
+let k = 0;
+println{ while k < 5 list{
+            let h = k;
+            k = k + 1;
+            h
+         }
+}
+
+
+----
+
+
+
+
+.output of snippet `while_list`
+[source]
+----
+[0, 1, 2, 3, 4]
+
+----
+
+
+
+To get the list as a result, you have to write the `list` keyword in front of the loop body.
 
 ==== `for`
 
@@ -2363,6 +2422,59 @@ println("i at end=",i);
 In this last example we also use a single command as the body of the loop.
 In this case the command is preceded by a `:` character.
 
+The value of the loop is the result of the last executed command.
+
+
+.source of snippet `for_result`
+[source]
+----
+println {
+    let k = 0
+    for ; k < 10 ; : k = k + 1
+}
+
+
+----
+
+
+
+
+.output of snippet `for_result`
+[source]
+----
+10
+
+----
+
+
+
+The loop can also be used to result a list.
+The list will contain the results of each body loop execution.
+
+
+.source of snippet `for_list`
+[source]
+----
+println {for i=0; i < 10 ; i = i + 1 list: i}
+
+
+----
+
+
+
+
+.output of snippet `for_list`
+[source]
+----
+[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+----
+
+
+
+To get the list as a result, you have to write the `list` keyword in front of the loop body.
+
+
 ==== `foreach`
 
 Foreach iterate through a list
@@ -2441,6 +2553,59 @@ The index starts from zero and increments with each execution by one.
 The index variable is local to the loop.
 Without this feature you would need to declare a variable one scope higher and then use it in the loop.
 That would violate the locality principle, not to rely on anything out of a scope that may change and even less modify anything out of the scope, which is in this case a loop.
+
+The value of the loop is the result of the last executed command.
+
+
+.source of snippet `for_each_result`
+[source]
+----
+println {
+    for each t with i in [1,2,3] : t + 10*i
+}
+
+
+----
+
+
+
+
+.output of snippet `for_each_result`
+[source]
+----
+23
+
+----
+
+
+
+The loop can also be used to result a list.
+The list will contain the results of each body loop execution.
+
+
+.source of snippet `for_each_list`
+[source]
+----
+println {
+    for each z with i in [1,2,3] list { 10*i + z }
+    }
+
+
+----
+
+
+
+
+.output of snippet `for_each_list`
+[source]
+----
+[1, 12, 23]
+
+----
+
+
+
+To get the list as a result, you have to write the `list` keyword in front of the loop body.
 
 ==== `break`
 
@@ -2940,12 +3105,12 @@ Thread 1 generated 19
 Thread 1 generated 23
 stopping
 exception Task stopped.
- prime read 2
 Thread 2 generated 3
+ prime read 2
  prime read 3
 Thread 2 generated 5
- prime read 5
 Thread 2 generated 7
+ prime read 5
 Thread 2 generated 11
  prime read 7
 Thread 2 generated 13
@@ -3010,9 +3175,9 @@ println( (end-start)/1000000, "ms")
 [source]
 ----
 [1, 2, 3]
-310.657291ms
+306.60725ms
 [1, 2, 3]
-104.229167ms
+107.462041ms
 
 ----
 
@@ -3227,8 +3392,10 @@ a =3.6820276497695854
 a =3.6063454894655185
 a =3.6055513629176015
 a =3.6055512754639905
-sqrt(13) ≈ 3.6055513629176015
-square ≈ 13.000000630636974
+a =3.6055512754639896
+a =3.6055512754639896
+sqrt(13) ≈ 3.6055512754639896
+square ≈ 13.000000000000002
 
 ----
 
@@ -6083,8 +6250,8 @@ println([ ..all_parents(K) -> type(it()) ])
 .output of snippet `all_parents`
 [source]
 ----
-[class B, class A]
-[B, A]
+[class A, class B]
+[A, B]
 
 ----
 
@@ -6276,78 +6443,78 @@ none
 ----
 task1 is not ready 0
 task2 is not ready 0
-task2 is not ready 1
-task1 is ready 1
-task1 is not ready 0
-task2 is not ready 2
+task2 is ready 1
 task1 is not ready 1
-task2 is not ready 3
-task1 is not ready 2
-task2 is ready 2
-task1 is not ready 3
 task2 is not ready 0
-task1 is not ready 4
 task2 is not ready 1
-task1 is not ready 5
-task2 is not ready 2
-task1 is ready 3
+task1 is not ready 2
+task1 is not ready 3task2 is not ready 2
+
+task1 is ready 2
 task2 is not ready 3task1 is not ready 0
 
-task1 is not ready 1
-task2 is not ready 4
-task1 is not ready 2
-task2 is not ready 5
-task1 is ready 4
-task2 is not ready 6
-task1 is not ready 0
-task2 is not ready 7
-task1 is not ready 1
-task2 is not ready 8
-task1 is not ready 2
-task2 is not ready 9
-task1 is not ready 3
-task2 is ready 5
-task1 is not ready 4
-task2 is not ready 0
-task1 is not ready 5
-task2 is not ready 1
-task1 is not ready 6
-task2 is not ready 2
-task1 is ready 6
-task1 is not ready 0
-task2 is not ready 3
 task2 is not ready 4
 task1 is not ready 1
 task2 is not ready 5
 task1 is not ready 2
-task2 is ready 7
-task2 is not ready 0
 task1 is not ready 3
-task2 is not ready 1
+task2 is ready 3
+task2 is not ready 0
 task1 is not ready 4
+task2 is not ready 1
 task2 is not ready 2
 task1 is not ready 5
-task2 is ready 8
-task1 is not ready 6
+task1 is not ready 6task2 is ready 4
+
 task2 is not ready 0
 task1 is not ready 7
 task2 is not ready 1
-task2 is not ready 2task1 is not ready 8
-
-task1 is ready 9
+task1 is not ready 8
+task2 is not ready 2
 task2 is not ready 3
+task1 is ready 5
 task1 is not ready 0
 task1 is not ready 1
 task2 is not ready 4
 task1 is not ready 2
 task2 is not ready 5
+task1 is ready 6
+task1 is not ready 0
+task2 is not ready 6
+task1 is not ready 1
+task2 is not ready 7
+task1 is not ready 2
+task2 is not ready 8
+task1 is ready 7task2 is not ready 9
+
+task1 is not ready 0
+task2 is not ready 10
+task1 is not ready 1
+task1 is not ready 2
+task2 is not ready 11
+task1 is ready 8
+task2 is not ready 12
+task1 is not ready 0
+task2 is not ready 13
+task1 is not ready 1
+task1 is not ready 2
+task2 is not ready 14
+task1 is ready 9
+task2 is not ready 15
+task1 is not ready 0
+task2 is not ready 16task1 is not ready 1
+
+task2 is not ready 17
+task1 is not ready 2
+task2 is not ready 18
+task1 is not ready 3
 closing the channel
 channel is closed
 1 is done false
 2 is done false
 we start to wait the first time
-task1 is done
-task2 is done
+task1 is donetask2 is done
+
 task1 done true
 task2 done false
 We start to wait the second time
@@ -6458,15 +6625,14 @@ received 2
 not ready 0
 not ready 1
 not ready 2
-not ready 3
 sending 3
 received 3
 not ready 0
 not ready 1
+not ready 2
 closing the channel
 channel is closed
 is done false
-not ready 2
 we are done
 is done true
 
@@ -6888,16 +7054,16 @@ Commands also have values. It is the __result__ of the command.
               EXPRESSION |
               ;
 
- LOOP ::= ('while' [EXPRESSION] ( BLOCK | ':' COMMAND ) |
-           'for' COMMAND ';' [EXPRESSION] ';' COMMAND ( BLOCK | ':' COMMAND ) |
-           'for' '(' COMMAND [EXPRESSION] COMMAND ')' (  BLOCK | ':' COMMAND )  |
-           'for each' identifier [with identifier] 'in' EXPRESSION ( BLOCK | ':' COMMAND ) |
-           'for each' '(' identifier [with identifier] 'in' EXPRESSION ')' (  BLOCK | ':' COMMAND )
+ LOOP ::= ('while' [EXPRESSION] ['list']( BLOCK | ':' COMMAND ) |
+           'for' COMMAND ';' [EXPRESSION] ';' COMMAND ['list']( BLOCK | ':' COMMAND ) |
+           'for' '(' COMMAND [EXPRESSION] COMMAND ')' ['list'](  BLOCK | ':' COMMAND )  |
+           'for each' identifier [with identifier] 'in' EXPRESSION ['list']( BLOCK | ':' COMMAND ) |
+           'for each' '(' identifier ['with' identifier] 'in' EXPRESSION ')' ['list'](  BLOCK | ':' COMMAND )
           ) [ 'until' EXPRESSION]
  ;
 
 If the condition expression is missing after 'for' or 'while' it is `true`.
-The expression following the 'until' is not optional, but the whole `until` `EXPRESSION` part is.
+The expression following the 'until' keyword is not optional, but the whole `until` `EXPRESSION` part is.
 The value of a loop is the last __executed__ command.
 Equivalent to: `for(init; condition; step)`
 
