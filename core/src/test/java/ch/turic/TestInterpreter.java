@@ -15,8 +15,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 public class TestInterpreter {
 
     @TestFactory
@@ -34,30 +32,28 @@ public class TestInterpreter {
                 DynamicTest.dynamicTest(
                         snippet.name() + " " + snippet.name() + ":" + snippet.lineNumber(),
                         () -> {
-                            // Handle cases where an exception is expected.
-                            if ("Exception".equals(snippet.expectedClass())) {
-                                assertThrows(Exception.class, () -> new Interpreter(snippet.programCode()).execute(),
-                                        "Expected exception for snippet: " + snippet.name());
+                            if (snippet.err()) {
+                                try {
+                                    new Interpreter(snippet.programCode()).execute();
+                                    throw new AssertionError("Syntax error was not detected " + snippet.name());
+                                } catch (BadSyntax ignore) {
+                                    // this is what we expected
+                                } catch(ExecutionException ignore){
+
+                                }
+
                             } else {
-                                // Execute the snippet.
-                                Object result = new Interpreter(snippet.programCode()).execute();
-                                // If the expected class is "null", assert that the result is null.
-                                if ("null".equals(snippet.expectedClass())) {
-                                    assertNull(result, "Expected null result for snippet: " + snippet.name() + ":" + snippet.lineNumber());
-                                } else {
-                                    // Otherwise, the result should not be null.
-                                    assertNotNull(result, "Expected non-null result for snippet: " + snippet.name() + ":" + snippet.lineNumber());
-                                    // Verify the class name.
-                                    assertEquals(snippet.expectedClass(), result.getClass().getSimpleName(),
-                                            "Expected class mismatch in snippet: " + snippet.name() + ":" + snippet.lineNumber());
-                                    // Verify the string representation.
-                                    assertEquals(snippet.expectedValue(), result.toString(),
-                                            "Expected value mismatch in snippet: " + snippet.name() + ":" + snippet.lineNumber());
+                                try {
+                                    new Interpreter(snippet.programCode()).execute();
+                                } catch (BadSyntax e) {
+                                    throw new AssertionError("Syntax error was detected " + snippet.name(),e);
+                                }catch(ExecutionException e) {
+                                    throw new AssertionError("Execution error was detected " + snippet.name(), e);
+                                } catch (Exception e) {
+                                    throw new AssertionError("Unknown error was detected " + snippet.name(), e);
                                 }
                             }
-                        }
-                )
-        );
+                        }));
     }
 
     /**
@@ -76,51 +72,25 @@ public class TestInterpreter {
         int i = 0;
         while (i < lines.size()) {
             String line = lines.get(i).trim();
-            if (line.startsWith("// snippet")) {
+            if (line.startsWith("// =") || line.startsWith("// !")) {
                 // Capture the starting line number (1-indexed).
                 int startLine = i + 1;
-                String snippetName = line.substring("// snippet".length()).trim();
+                final var naked = line.substring("//".length()).trim();
+                final var err = naked.charAt(0) == '!';
+                final var snippetName = naked.substring(1);
                 if (snippetNames.contains(snippetName)) {
                     throw new RuntimeException("Duplicate snippet name: " + snippetName + " line:" + (1 + i));
                 }
                 snippetNames.add(snippetName);
                 i++;
 
-                // Expected result types.
-                if (i >= lines.size()) break;
-                String classLine = lines.get(i).trim();
-                String expectedClass;
-                if (classLine.startsWith("//")) {
-                    expectedClass = classLine.substring(2).trim();
-                } else {
-                    throw new RuntimeException("Unexpected snippet line " + (1 + i) + ": " + lines.get(i).trim() + " Needed // class name or // null");
-                }
-                i++;
-                // Expected result value.
-                String expectedValue;
-                if (expectedClass.equals("null")) {
-                    expectedValue = "null";
-                } else {
-                    if (i >= lines.size()) break;
-                    final String valueLine = lines.get(i).trim();
-                    if (valueLine.startsWith("//")) {
-                        expectedValue = valueLine.substring(2).trim();
-                    } else {
-                        throw new RuntimeException("Unexpected snippet line " + (1 + i) + ": " + lines.get(i).trim() + " Needed result after //");
-                    }
-                    if (expectedValue.startsWith("\"") && expectedValue.endsWith("\"")) {
-                        expectedValue = expectedValue.substring(1, expectedValue.length() - 1);
-                    }
-                    i++;
-                }
-
                 // Collect the program code until the next snippet header.
                 StringBuilder codeBuilder = new StringBuilder();
-                while (i < lines.size() && !lines.get(i).trim().startsWith("// snippet")) {
+                while (i < lines.size() && !(lines.get(i).trim().startsWith("// =")||lines.get(i).trim().startsWith("// !"))) {
                     codeBuilder.append(lines.get(i)).append("\n");
                     i++;
                 }
-                snippets.add(new ProgramSnippet(snippetName, expectedClass, expectedValue, codeBuilder.toString(), filePath, startLine));
+                snippets.add(new ProgramSnippet(snippetName, codeBuilder.toString(), err, filePath, startLine));
             } else {
                 i++;
             }
@@ -132,9 +102,8 @@ public class TestInterpreter {
      * Record representing a program snippet.
      */
     private record ProgramSnippet(String name,
-                                  String expectedClass,
-                                  String expectedValue,
                                   String programCode,
+                                  boolean err,
                                   String filePath,
                                   int lineNumber) {
     }

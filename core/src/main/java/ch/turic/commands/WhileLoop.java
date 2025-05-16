@@ -5,7 +5,7 @@ import ch.turic.commands.operators.Cast;
 import ch.turic.memory.Context;
 import ch.turic.memory.LngList;
 
-public class WhileLoop extends AbstractCommand {
+public class WhileLoop extends Loop {
     public final Command startCondition;
     public final boolean resultList;
     public final Command body;
@@ -13,6 +13,10 @@ public class WhileLoop extends AbstractCommand {
 
     public Command body() {
         return body;
+    }
+
+    public Command exitCondition() {
+        return exitCondition;
     }
 
     public WhileLoop(Command startCondition, Command exitCondition, boolean resultList, Command body) {
@@ -24,31 +28,22 @@ public class WhileLoop extends AbstractCommand {
 
     @Override
     public Object _execute(final Context context) throws ExecutionException {
-        Object result = null;
-        final var list = resultList ? new LngList() : null;
+        Object lp = null;
+        final var listResult = resultList ? new LngList() : null;
         context.step();
         final var loopContext = context.wrap();
         while (Cast.toBoolean(startCondition.execute(loopContext))) {
-            final var innerContext= loopContext.wrap();
-            if (body instanceof BlockCommand block) {
-                final var lp = block.loop(innerContext);
-                result = lp.result();
-                if(resultList){
-                    list.array.add(result);
-                }
-                if (lp.isDone()) {
-                    return resultList ? list : result;
-                }
+            final var innerContext = loopContext.wrap();
+            lp = loopCore(body, innerContext, listResult);
+            if (breakLoop(lp)) {
+                return normalize(lp);
             } else {
-                result = body.execute(innerContext);
-                if(resultList){
-                    list.array.add(result);
-                }
+                lp = normalize(lp);
             }
-            if (Cast.toBoolean(exitCondition.execute(innerContext))) {
+            if (exitLoop(innerContext)) {
                 break;
             }
         }
-        return resultList ? list : result;
+        return resultList ? listResult : lp;
     }
 }

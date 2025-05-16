@@ -13,15 +13,8 @@ public class AdHocTest {
     @Test
     void test1() throws Exception {
         test("""
-class P {
-    fn init {
-        println "init in P, cls='%s' this='%s'" % [cls, this]
-    }
-}
-class C : P {
-}
-let o = C();
-none
+let i = 1
+println{while i < 10 { i = i + 1 } until i == 9;;;;}
                 """,null);
     }
     //@Test

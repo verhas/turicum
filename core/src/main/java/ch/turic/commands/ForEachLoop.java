@@ -1,12 +1,11 @@
 package ch.turic.commands;
 
 import ch.turic.ExecutionException;
-import ch.turic.commands.operators.Cast;
 import ch.turic.memory.Context;
 import ch.turic.memory.LeftValue;
 import ch.turic.memory.LngList;
 
-public class ForEachLoop extends AbstractCommand {
+public class ForEachLoop extends Loop {
     public final Identifier identifier;
     public final Identifier with;
     public final Command expression;
@@ -40,7 +39,7 @@ public class ForEachLoop extends AbstractCommand {
         context.step();
         final var loopContext = context.wrap();
         final var array = expression.execute(loopContext);
-        Object singleResult = null;
+        Object lp = null;
         final var listResult = resultList ? new LngList() : null;
         long loopCounter = 0;
         for (final var item : LeftValue.toIterable(array)) {
@@ -52,27 +51,22 @@ public class ForEachLoop extends AbstractCommand {
             innerContext.let0(identifier.name, item);
             innerContext.freeze(identifier.name);
 
-            if (body instanceof BlockCommand block) {
-                final var lp = block.loop(innerContext);
-                singleResult = lp.result();
-                if (resultList) {
-                    listResult.array.add(singleResult);
-                }
-                if (lp.isDone()) {
-                    return resultList ? listResult : lp.result();
-                }
+            lp = loopCore(body, innerContext, listResult);
+            if (breakLoop(lp)) {
+                return normalize(lp);
             } else {
-                singleResult = body.execute(innerContext);
-                if( resultList ){
-                    listResult.array.add(singleResult);
-                }
+                lp = normalize(lp);
             }
-
-            if (Cast.toBoolean(exitCondition.execute(innerContext))) {
+            if (exitLoop(innerContext)) {
                 break;
             }
             loopCounter++;
         }
-        return resultList ? listResult : singleResult;
+        return resultList ? listResult : lp;
+    }
+
+    @Override
+    public Command exitCondition() {
+        return exitCondition;
     }
 }

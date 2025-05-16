@@ -2238,9 +2238,11 @@ Returns a list of the classes that are the parent classes of the argument.
 === `all_parents`
 
 Returns a list of classes that are the parent classes of the argument with a transitive closure.
-It means that all classes, including the parents of the parents and so on recursively.
+It means that all classes, including the parents of the parents and so on, recursively.
 
 {%S all_parents%}
+
+The classes are ordered in inheritance order.
 
 === `sleep`
 
