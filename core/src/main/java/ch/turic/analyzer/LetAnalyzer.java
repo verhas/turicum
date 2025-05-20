@@ -3,7 +3,7 @@ package ch.turic.analyzer;
 import ch.turic.BadSyntax;
 import ch.turic.commands.Command;
 import ch.turic.commands.LetAssignment;
-import ch.turic.commands.MLetAssignment;
+import ch.turic.commands.MultiLetAssignment;
 
 public class LetAnalyzer extends AbstractAnalyzer {
     public static final LetAnalyzer INSTANCE = new LetAnalyzer();
@@ -22,9 +22,9 @@ public class LetAnalyzer extends AbstractAnalyzer {
             }
             lexes.next();
             final var rightHandSide = ExpressionAnalyzer.INSTANCE.analyze(lexes);
-            return new MLetAssignment(assignments, rightHandSide,switch( opening){
-                case "[" -> MLetAssignment.Type.LIST;
-                case "{" -> MLetAssignment.Type.OBJECT;
+            return new MultiLetAssignment(assignments, rightHandSide,switch( opening){
+                case "[" -> MultiLetAssignment.Type.LIST;
+                case "{" -> MultiLetAssignment.Type.OBJECT;
                 default -> throw new RuntimeException("Internal error 7343992kr6w");
             });
         } else {

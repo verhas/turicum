@@ -1,2 +1,2 @@
-[class A, class B]
-[A, B]
+[class B, class A]
+[B, A]

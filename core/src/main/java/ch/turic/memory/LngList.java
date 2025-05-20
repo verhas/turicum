@@ -5,6 +5,7 @@ import ch.turic.commands.operators.Cast;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 public class LngList implements HasIndex, HasFields {
     public final ArrayList<Object> array = new ArrayList<>();
@@ -110,7 +111,11 @@ public class LngList implements HasIndex, HasFields {
 
     @Override
     public String toString() {
-        return array.toString();
+        return "[" +
+        array.stream()
+                .map(s -> s == null ? "none" : s.toString()).
+                collect(Collectors.joining(", ")) +
+                "]";
     }
 
     @Override

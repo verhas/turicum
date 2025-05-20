@@ -19,7 +19,7 @@ public class CommandAnalyzer extends AbstractAnalyzer {
             lexes.next();
             return null;
         }
-        if (lexes.isNot("{") && lexes.isKeyword()) {
+        if ( lexes.isKeyword()) {
             final var command =  analyzeKeywordCommand(lexes);
             if( command != null ) {
                 return command;
@@ -92,6 +92,8 @@ public class CommandAnalyzer extends AbstractAnalyzer {
         analyzers.put(Keywords.IF, IfAnalyzer.INSTANCE);
         analyzers.put(Keywords.TRY, TryCatchAnalyzer.INSTANCE);
         analyzers.put(Keywords.BREAK, BreakAnalyzer.INSTANCE);
+        analyzers.put(Keywords.DIE, DieAnalyzer.INSTANCE);
+        analyzers.put(Keywords.CONTINUE, ContinueAnalyzer.INSTANCE);
         analyzers.put(Keywords.RETURN, ReturnAnalyzer.INSTANCE);
         analyzers.put(Keywords.YIELD, YieldAnalyzer.INSTANCE);
         analyzers.put(Keywords.WHILE, WhileLoopAnalyzer.INSTANCE);
@@ -125,6 +127,8 @@ public class CommandAnalyzer extends AbstractAnalyzer {
             case Keywords.PIN,
                  Keywords.GLOBAL,
                  Keywords.BREAK,
+                 Keywords.CONTINUE,
+                 Keywords.DIE,
                  Keywords.RETURN,
                  Keywords.YIELD,
                  Keywords.TRY,

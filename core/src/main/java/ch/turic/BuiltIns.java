@@ -28,12 +28,6 @@ public class BuiltIns {
             // is the special value that, when returned from a cell command, prevents the cell from updating
             // its value and halts propagation to dependent cells in a flow.
 
-            "pi", Math.PI,
-            // is the mathematical constant π (approximately 3.14159).
-
-            "e", Math.E,
-            // is the base of the natural logarithm (Euler’s number, approximately 2.71828).
-
             "nan", Double.NaN,
             // is the special IEEE-754 "not a number" floating-point value.
 

@@ -1,2 +1,4 @@
-let throw=die
+fn throw(x){
+    die x
+}
 export throw

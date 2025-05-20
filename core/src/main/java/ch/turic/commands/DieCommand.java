@@ -3,9 +3,8 @@ package ch.turic.commands;
 import ch.turic.ExecutionException;
 import ch.turic.commands.operators.Cast;
 import ch.turic.memory.Context;
-import ch.turic.memory.Sentinel;
 
-public class BreakCommand extends AbstractCommand {
+public class DieCommand extends AbstractCommand {
     final Command expression;
     final Command condition;
 
@@ -17,7 +16,7 @@ public class BreakCommand extends AbstractCommand {
         return condition;
     }
 
-    public BreakCommand(Command expression, Command condition) {
+    public DieCommand(Command expression, Command condition) {
         this.expression = expression;
         this.condition = condition;
     }
@@ -26,9 +25,14 @@ public class BreakCommand extends AbstractCommand {
     public Conditional _execute(Context context) throws ExecutionException {
         if (Cast.toBoolean(condition.execute(context))) {
             if (expression == null) {
-                return Conditional.doBreak(Sentinel.NO_VALUE);
+                throw new ExecutionException("");
             } else {
-                return Conditional.doBreak(expression.execute(context));
+                final var exception = expression.execute(context);
+                if (exception != null) {
+                    throw new ExecutionException(exception.toString());
+                } else {
+                    throw new ExecutionException("none");
+                }
             }
         } else {
             return null;

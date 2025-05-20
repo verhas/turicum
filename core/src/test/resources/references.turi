@@ -57,8 +57,8 @@ try{
         println(z);
         let z = 3
         }
-}catch e {
-    println(e)
+}catch ex {
+    println(ex)
 }
 // end snippet
 
@@ -70,14 +70,14 @@ class A {
     try{
        // you cannot change it without declaring that it is global
        glb = 5;
-    }catch(e){
-        println("exception 1:",e)
+    }catch(e1){
+        println("exception 1:",e1)
     }
     try{
        // you touched it as global, you cannot declare it as local anymore
        let glb = 5;
-    }catch(e){
-        println("exception 2:",e)
+    }catch(e2){
+        println("exception 2:",e2)
     }
     global glb;
     glb = "modified"
@@ -109,10 +109,10 @@ class X {
     println("this.g=",this.g)
     // the object wraps the class scope and not the other way around
     // there is no 'g' defined in the class
-    try: println("cls.g=",cls.g) catch err: println err
+    try: println("cls.g=",cls.g) catch err1: println err1
     // 'g' is in the wrapped scope of the object scope
     // this is same as 'this.g'
-    try: println("g=",g) catch err: println err
+    try: println("g=",g) catch err2: println err2
     // 'this.h' is the same as 'cls.h' because of wrapping
     println("this.h=",this.h)
     println("cls.h=",cls.h)
@@ -167,17 +167,17 @@ pin turicum, [`list`], {object}
 
 try {
   turicum = 14;
-}catch e: println("could not change the variable")
+}catch e1: println("could not change the variable")
 
 try {
   `list`[1] = 0;
-}catch e: println("could not change the `list`")
+}catch e2: println("could not change the `list`")
 `list` = [ 0, ..`list`, 4]
 println("variable 'list' still can be changed: ", `list`)
 
 try {
   object.x = 3;
-}catch e: println("could not change the object")
+}catch e3: println("could not change the object")
 object = { x:1, y:3 }
 println("variable 'object' still can be changed: ", object)
 
@@ -724,15 +724,16 @@ let b = a.B()
 // end snippet
 
 // snippet try1
-
-try {
-    z = 55 // undefined variable
-}catch err {
-  println err
-} finally {
-  println "this will always run"
+let z = {
+    try {
+        z = 55 // undefined variable
+    }catch e {
+      66
+    } finally {
+      println "this will always run"
+    }
 }
-
+println "z is now 66, is it ? ",z
 // end snippet
 
 // snippet try2
@@ -740,25 +741,39 @@ try{
     try {
         z = 55 // undefined variable
     }
-}catch(err): println err
-
+}catch e: println e
 // end snippet
 
 // snippet try3
-let error:err|none
 try{
         z = 55 // undefined variable
-}catch(err): error = err
+}catch x : let error:err = x
 
 println error
 
 // end snippet
 
 // snippet try4
+try{
+        z = 55 // undefined variable
+}catch error: ;
+
+println """message "%s" """ % [error.message]
+println """cause "%s" """ % [error.cause]
+println """suppressed %s" """ % [error.suppressed]
+for each st in error.stack_trace {
+    println("%s:%s:%s" % [st.file, st.line, st.column])
+    println "source: ", st.source
+    }
+
+
+// end snippet
+
+// snippet try5
 let error:err|none
 try{
         z = 55 // undefined variable
-}catch(err): error = err
+}catch err: error = err
 
 println """message "%s" """ % [error.message]
 println """cause "%s" """ % [error.cause]
@@ -1755,16 +1770,16 @@ print( [..range[0 .. 5], ..range[-5 .. range.length]])
 // snippet rngErrs
 try:
     rng(1,10,-1)
-catch e:
-    println e.message
+catch e1:
+    println e1.message
 try:
     rng(10,1,+1)
-catch e:
-    println e.message
+catch e2:
+    println e2.message
 try:
     rng(10,11,0)
-catch e:
-    println e.message
+catch e3:
+    println e3.message
 
 println "Special zero element range can have zero as step %s" % [rng(10,10,0)]
 println "but it is just the same as %s" % [rng(10,10)]
@@ -1935,3 +1950,96 @@ println{ while k < 5 list{
          }
 }
 // end snippet
+
+
+// snippet break1
+println {
+    for i=0 ; i < 10 ; i = i + 1 {
+      println ".. ",i;
+      break if i == 2
+    }
+}
+// end snippet
+
+// snippet break2
+println {
+    for i=0 ; i < 10 ; i = i +1 {
+      println ".. ",i;
+      break -2 if i == 2
+    }
+}
+// end snippet
+
+// snippet break3
+println {
+    for i=0 ; i < 10 ; i = i + 1 list{
+      break if i == 2
+      i;
+    }
+}
+// end snippet
+
+// snippet break4
+println {
+    for i=0 ; i < 10 ; i = i +1 list{
+      break -2 if i == 2
+      i;
+    }
+}
+// end snippet
+
+// snippet break5
+println {
+    for i=0 ; i < 10 ; i = i +1 list{
+      break none if i == 2
+      i;
+    }
+}
+// end snippet
+
+// snippet break6
+println {
+    for i=0 ; i < 4 ; i = i +1 {
+      if i == 2 : break;
+      println i;
+    }
+}
+println "however"
+println {
+    for i=0 ; i < 4 ; i = i +1 {
+      if i == 2 { break };
+      println i;
+    }
+}
+// end snippet
+
+// snippet break7
+println {
+    for i=0 ; i < 4 ; i = i +1 {
+      break (if i == 2 : 3 else : 4) if i == 2;
+      println i;
+    }
+}
+// end snippet
+
+// snippet return1
+fn a(x) {
+    if x == 2 {
+        return 2
+    }
+    return
+}
+println a(1)
+println a(2)
+println a(3)
+// end snippet
+
+
+// snippet continue1
+sys_import "turi.range"
+
+for each i in range(start=0, end=5) list{
+    println i
+}
+// end snippet
+

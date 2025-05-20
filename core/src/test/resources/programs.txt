@@ -1,3 +1,50 @@
+// = expression
+(53)
+
+// = try1
+let z = {
+    try : k = 3 // undefined variable
+    catch: ;
+}
+
+if z != none : die "z has value " % z
+
+// = try2
+// when there is an error the local variables are not changed
+// if there is no error the local variables are defined in the surrounding context
+
+let a = 1
+
+try:
+    let [b,c,d] = {
+        let b = 13;
+        let c = 55;
+        let D = 63;
+        k = 1/ 0;
+        [b,c,D]
+    }
+catch:;
+die "b" if is_defined(b)
+die "c" if is_defined(c)
+die "d" if is_defined(d)
+die "D" if is_defined(D)
+
+try:
+    let [b,c,d] = {
+        let b = 13;
+        let c = 55;
+        let D = 63;
+        [b,c,D]
+    }
+catch:;
+die "!b" if ! is_defined(b)
+die "!c" if ! is_defined(c)
+die "!d" if ! is_defined(d)
+// D is still not defined
+die "D" if is_defined(D)
+
+
+
 // = parents
 // Tests how classes and parents are defined
 class A {}
@@ -5,8 +52,8 @@ class B : A {}
 class C : B {}
 let K = class {}
 class D : A,C, K {}
-if ""+parents(D) != "[class A, class C, class #undefined]" :die "wrong parents list"
-if ""+all_parents(D) != "[class A, class C, class B, class #undefined]" : die "wrong all parents list %s != %s" % [all_parents(D),none]
+if ""+parents(D) != "[class A, class C, class #undefined]" : die "wrong parents list";
+if ""+all_parents(D) != "[class A, class C, class B, class #undefined]" : die "wrong all parents list %s != %s" % [all_parents(D),none];
 
 // = EmptyBlockIsObject
 
@@ -126,9 +173,9 @@ z / 2;
 let x = 10;
 let result = {
     if x > 5 {
-        result = x * 2;
+        x * 2;
     } else {
-        result = x / 2;
+        x / 2;
     }
 }
 result;
@@ -1071,18 +1118,6 @@ k(10)
         else: me(x-1) + me(x-2)
     }
 k(10)
-}
-
-// = LoopContext
-
-
-let i = 0
-while i < 10 {
-  let k = 5; // this is okay in a loop context
-  println( k + i)
-  // this is wrong, but since we are dynamic, Turi accepts it
-  if i > 0 : let k = 7
-  i = i + 1
 }
 
 // = argumentSpreading

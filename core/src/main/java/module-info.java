@@ -11,7 +11,7 @@ module ch.turic {
 
     provides ch.turic.TuriFunction with Len, Type, Macro, Evaluate, Println,
             Print, Reclose, Keys, Import, JavaNewObject, JavaMethodCall,
-            JavaMethodCallVararg, SysImport, Sleep, Set, SetGlobal, Throw,
+            JavaMethodCallVararg, SysImport, Sleep, Set, SetGlobal,
             Que, TryYield, YieldIsClosed, Rx, RxMatch, TuriHttpServer, XmlFormat,
             IsObject, IsType, ExportAll, Parents, AllParents, Rng, Time, NanoTime,
             Abs, Unthunk, Unwrap,BlockList, Command;

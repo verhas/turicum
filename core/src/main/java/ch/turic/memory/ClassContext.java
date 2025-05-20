@@ -38,6 +38,7 @@ public class ClassContext extends Context {
         return false;
     }
 
+    @Override
     public boolean containsLocal(String key) {
         if (super.containsLocal(key)) {
             return true;

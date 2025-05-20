@@ -221,12 +221,6 @@ Symbolic constants are `true`
 // is the special value that, when returned from a cell command, prevents the cell from updating
 // its value and halts propagation to dependent cells in a flow.
 
-`pi`
-// is the mathematical constant π (approximately 3.14159).
-
-`e`
-// is the base of the natural logarithm (Euler’s number, approximately 2.71828).
-
 `nan`
 // is the special IEEE-754 "not a number" floating-point value.
 
@@ -276,6 +270,8 @@ The reserved keywords are:
 `break`
 `catch`
 `class`
+`continue`
+`die`
 `each`
 `else`
 `elseif`
@@ -1419,8 +1415,8 @@ try{
         println(z);
         let z = 3
         }
-}catch e {
-    println(e)
+}catch ex {
+    println(ex)
 }
 
 
@@ -1458,14 +1454,14 @@ class A {
     try{
        // you cannot change it without declaring that it is global
        glb = 5;
-    }catch(e){
-        println("exception 1:",e)
+    }catch(e1){
+        println("exception 1:",e1)
     }
     try{
        // you touched it as global, you cannot declare it as local anymore
        let glb = 5;
-    }catch(e){
-        println("exception 2:",e)
+    }catch(e2){
+        println("exception 2:",e2)
     }
     global glb;
     glb = "modified"
@@ -1551,10 +1547,10 @@ class X {
     println("this.g=",this.g)
     // the object wraps the class scope and not the other way around
     // there is no 'g' defined in the class
-    try: println("cls.g=",cls.g) catch err: println err
+    try: println("cls.g=",cls.g) catch err1: println err1
     // 'g' is in the wrapped scope of the object scope
     // this is same as 'this.g'
-    try: println("g=",g) catch err: println err
+    try: println("g=",g) catch err2: println err2
     // 'this.h' is the same as 'cls.h' because of wrapping
     println("this.h=",this.h)
     println("cls.h=",cls.h)
@@ -1690,14 +1686,16 @@ The caller does not need to know that the implementation of the something it cal
 
 === Variable Declaration
 
-You can NOT read an undefined variable.
-If a variable is not defined, it will throw an exception.
-
 Upon first assignment the code has to use the keyword `let` to define the variable.
+Until that happens, you cannot use a variable.
+
+You cannot read an undefined variable.
+If a variable is not defined, it will throw an exception.
 
 NOTE: There is a subtle difference between an undefined variable and a defined variable having the value `none`.
 An undefined variable was never defined.
 An already defined variable can have the value of `none`, and it can also have type declaration.
+Also, you can assign values to object fields without the `let` keyword, even to define them.
 
 The syntax of a `let` command is the following:
 
@@ -2099,17 +2097,17 @@ pin turicum, [`list`], {object}
 
 try {
   turicum = 14;
-}catch e: println("could not change the variable")
+}catch e1: println("could not change the variable")
 
 try {
   `list`[1] = 0;
-}catch e: println("could not change the `list`")
+}catch e2: println("could not change the `list`")
 `list` = [ 0, ..`list`, 4]
 println("variable 'list' still can be changed: ", `list`)
 
 try {
   object.x = 3;
-}catch e: println("could not change the object")
+}catch e3: println("could not change the object")
 object = { x:1, y:3 }
 println("variable 'object' still can be changed: ", object)
 
@@ -2135,21 +2133,22 @@ variable 'object' still can be changed: {x: 1, y: 3}
 
 == Control Flow
 
-=== Conditional Execution (`if` / `else`)
+=== Conditional Execution (`if` / `elseif` / else`)
 
 Command `if` is very conventional and similar to any other programming language.
+The syntax of the command is:
 
 [source]
 ----
 'if' EXPRESSION ( ':' COMMAND | BLOCK ) [ 'else' ( ':' COMMAND | BLOCK )] ;
 ----
 
-If the expression is `true` it executes the first command or block.
-If the expression is `false` it executes the second command or block.
+If the expression is `true` the command executes the first command or block.
+If the expression is `false` it executes the second command or block following the `else` keyword.
 The second command or block along with the keyword `else` is optional.
 
 The block is a series of commands enclosed between `{` and `}`.
-If there is only a single command after the condition or the keyword `else` it has to be preceded with a `:`.
+If there is only a single command after the condition or the keyword `else` it can be preceded with a `:`, or enclosed in a block.
 
 The conditional expression may, but does not need to be enclosed between parentheses.
 
@@ -2180,6 +2179,10 @@ again odd
 
 
 
+The `if` command does not open a new context.
+The condition, and the commands following it, and the optional one after the `else` keyword evaluated and executed in the context the `if` statement is.
+
+If, however, the "then" or "else" commands are block commands then they themselves execute in a new context wrapping the actual context.
 
 === Loops
 
@@ -2669,7 +2672,12 @@ This design ensures that each iteration of the loop starts in a clean environmen
 
 The command can break the execution of the loop and can also specify the value of the loop.
 
-=== Returning, Breaking and Yielding
+==== `continue`
+
+Will continue the execution of the loop starting the body of the loop again without exeuting the rest of the commands in the loop body.
+
+
+=== Returning, Breaking, Continue and Yielding
 
 These three commands are in one family.
 each of them can pass a value, and each can have a conditionality following the expression.
@@ -2677,23 +2685,289 @@ The syntax is
 
 [source]
 ----
-break expression if condition
-return expression if condition
-yield expression if condition
+break [expression] [if condition]
+return [expression] [if condition]
+yield expression [if condition]
 ----
 
-The `if condition` part is optional.
-When it is missing the command is executed like if it was `if true`.
+The expression and the `if condition` parts are optional, except for the `yield`.
+When the conditional part is missing, the command is executed like if it was `if true`.
+
+You can interchangeably use the `when` keyword instead of `if` in this case.
 
 ==== `break`
 
 The command `break` stops the execution of a loop.
 If it is executed, the value of the loop will be the expression that follows the command.
+If it is missing then the value `none` will be the result.
+
+There is a slight difference between not having an expression or having an expression returning `none`.
+When the `break` command is used in a lis-resulting loop and there is an expression following the `break` keyword the value of this expression will be appended to the list as the last value.
+When there is no expression, then the execution of the loop still terminates, but no expression will be appended to the result list.
+
+The following samples demonstrate these cases.
+
+
+.source of snippet `break1`
+[source]
+----
+println {
+    for i=0 ; i < 10 ; i = i + 1 {
+      println ".. ",i;
+      break if i == 2
+    }
+}
+
+
+----
+
+
+
+
+.output of snippet `break1`
+[source]
+----
+.. 0
+.. 1
+.. 2
+none
+
+----
+
+
+
+
+.source of snippet `break2`
+[source]
+----
+println {
+    for i=0 ; i < 10 ; i = i +1 {
+      println ".. ",i;
+      break -2 if i == 2
+    }
+}
+
+
+----
+
+
+
+
+.output of snippet `break2`
+[source]
+----
+.. 0
+.. 1
+.. 2
+-2
+
+----
+
+
+
+
+.source of snippet `break3`
+[source]
+----
+println {
+    for i=0 ; i < 10 ; i = i + 1 list{
+      break if i == 2
+      i;
+    }
+}
+
+
+----
+
+
+
+
+.output of snippet `break3`
+[source]
+----
+[0, 1]
+
+----
+
+
+
+
+.source of snippet `break4`
+[source]
+----
+println {
+    for i=0 ; i < 10 ; i = i +1 list{
+      break -2 if i == 2
+      i;
+    }
+}
+
+
+----
+
+
+
+
+.output of snippet `break4`
+[source]
+----
+[0, 1, -2]
+
+----
+
+
+
+
+.source of snippet `break5`
+[source]
+----
+println {
+    for i=0 ; i < 10 ; i = i +1 list{
+      break none if i == 2
+      i;
+    }
+}
+
+
+----
+
+
+
+
+.output of snippet `break5`
+[source]
+----
+[0, 1, none]
+
+----
+
+
+
+The last example shows the difference between using the break statement following an `if` condition.
+In the first case the statement executes in the context of the loop and the `break` aborts the execution of the loop.
+
+In the second case the `break` is inside a block, and it aborts the execution of the block itself, the loop is not disturbed.
+
+
+.source of snippet `break6`
+[source]
+----
+println {
+    for i=0 ; i < 4 ; i = i +1 {
+      if i == 2 : break;
+      println i;
+    }
+}
+println "however"
+println {
+    for i=0 ; i < 4 ; i = i +1 {
+      if i == 2 { break };
+      println i;
+    }
+}
+
+
+----
+
+
+
+
+.output of snippet `break6`
+[source]
+----
+0
+1
+none
+however
+0
+1
+2
+3
+none
+
+----
+
+
+
+When the expression following the `break` keyword starts with the `if` keyword the expression has to be enclosed between `()` parentheses.
+
+
+.source of snippet `break7`
+[source]
+----
+println {
+    for i=0 ; i < 4 ; i = i +1 {
+      break (if i == 2 : 3 else : 4) if i == 2;
+      println i;
+    }
+}
+
+
+----
+
+
+
+
+.output of snippet `break7`
+[source]
+----
+0
+1
+3
+
+----
+
+
+
+==== `continue`
+
+The continue command will "break" the current loop execution and start the loop over for the next iteration.
+In the case of a for loop, the step command will be executed, and the exit condition will also be evaluated.
+
+The `continue` command can have an expression, but it is only allowed if the loop is a list-resulting loop.
+In this case the value of the expression will be appended to the resulting list.
+If the value of the expression is `none` then `none` as a value will be appended to the list.
+If there is no expression after the `continue` keyword, then the resulting list will remain untouched for the actual execution.
+
+
 
 ==== `return`
 
 The command `return` stops the execution of a function, method, closure, or macro.
 If it is executed, the value of the function, method, closure, or macro will be the expression that follows the command.
+
+If there is no expression following the `return` keyword then `none` will be returned.
+
+
+.source of snippet `return1`
+[source]
+----
+fn a(x) {
+    if x == 2 {
+        return 2
+    }
+    return
+}
+println a(1)
+println a(2)
+println a(3)
+
+
+----
+
+
+
+
+.output of snippet `return1`
+[source]
+----
+none
+2
+none
+
+----
+
+
 
 ==== `yield`
 
@@ -3151,27 +3425,27 @@ execute("Thread 2",2)
 ----
  prime read 2
 Thread 1 generated 3
- prime read 3
-Thread 1 generated  prime read 5
-5
+Thread 1 generated 5
 Thread 1 generated 7
- prime read 7
+Thread 1 generated 9
 Thread 1 generated 11
+ prime read 3
 Thread 1 generated 13
+ prime read 5
+ prime read 7
+Thread 1 generated 15
 Thread 1 generated 17
-Thread 1 generated 19
-Thread 1 generated 23
 stopping
 exception Task stopped.
-Thread 2 generated 3
-Thread 2 generated 5
  prime read 2
- prime read 3
+Thread 2 generated  prime read 3
+3
+Thread 2 generated 5
  prime read 5
 Thread 2 generated 7
  prime read 7
+Thread 2 generated 9
 Thread 2 generated 11
-Thread 2 generated 13
 stopping
 exception Task stopped.
 
@@ -3233,9 +3507,9 @@ println( (end-start)/1000000, "ms")
 [source]
 ----
 [1, 2, 3]
-309.849167ms
+315.500792ms
 [1, 2, 3]
-114.585084ms
+108.142583ms
 
 ----
 
@@ -3273,7 +3547,7 @@ These are evaluated in asynchronous threads.
 Scheduling and executing tasks based on dependencies start when the start cells are all finished and the flow has reached the initial state.
 
 If there are cells that have dependencies, and that way they are not start cells, but their transitive closure of their dependencies does not include any start cells, it is en error.
-It is detected during compilation time and result in syntax error.
+It is detected during compilation time and results in a syntax error.
 
 === Syntax
 
@@ -3450,9 +3724,8 @@ a =3.6820276497695854
 a =3.6063454894655185
 a =3.6055513629176015
 a =3.6055512754639905
-a =3.6055512754639896
-sqrt(13) ≈ 3.6055512754639905
-square ≈ 13.000000000000009
+sqrt(13) ≈ 3.6055513629176015
+square ≈ 13.000000630636974
 
 ----
 
@@ -3596,7 +3869,7 @@ println(inc(1))
 .output of snippet `fun1`
 [source]
 ----
-ch.turic.commands.Closure@7776ab
+ch.turic.commands.Closure@221a3fa4
 2
 
 ----
@@ -3625,7 +3898,7 @@ println(inc(1))
 .output of snippet `fun3`
 [source]
 ----
-ch.turic.commands.Closure@79179359
+ch.turic.commands.Closure@451001e5
 2
 
 ----
@@ -3656,7 +3929,7 @@ println(inc(1))
 .output of snippet `fun2`
 [source]
 ----
-ch.turic.commands.Closure@dbd8e44
+ch.turic.commands.Closure@2b40ff9c
 2
 
 ----
@@ -3840,7 +4113,7 @@ println(inc(1,how_much=5))
 .output of snippet `fun4`
 [source]
 ----
-ch.turic.commands.Closure@51acdf2e
+ch.turic.commands.Closure@3e08ff24
 6
 
 ----
@@ -4573,9 +4846,9 @@ let b = a.B()
 .output of snippet `class8`
 [source]
 ----
-this {that: {, cls: class A}, cls: class B}
+this {that: {cls: class A}, cls: class B}
 cls class B
-that {, cls: class A}
+that {cls: class A}
 
 ----
 
@@ -4725,7 +4998,7 @@ let o = C();
 .output of snippet `inherit4`
 [source]
 ----
-init in C, cls='class C' this='{, cls: class C}'
+init in C, cls='class C' this='{cls: class C}'
 
 ----
 
@@ -4766,9 +5039,9 @@ let o = C();
 .output of snippet `inherit5`
 [source]
 ----
-init in C, cls='class C' this='{, cls: class C}'
-init in P1, cls='class P1' this='{, cls: class C}'
-init in P2, cls='class P2' this='{, cls: class C}'
+init in C, cls='class C' this='{cls: class C}'
+init in P1, cls='class P1' this='{cls: class C}'
+init in P2, cls='class P2' this='{cls: class C}'
 
 ----
 
@@ -4798,7 +5071,7 @@ let o = C();
 .output of snippet `inherit6`
 [source]
 ----
-init in P, cls='class C' this='{, cls: class C}'
+init in P, cls='class C' this='{cls: class C}'
 
 ----
 
@@ -4821,10 +5094,9 @@ You can declare a variable to hold an error
 .source of snippet `try3`
 [source]
 ----
-let error:err|none
 try{
         z = 55 // undefined variable
-}catch(err): error = err
+}catch x : let error:err = x
 
 println error
 
@@ -4867,10 +5139,9 @@ An exception has
 .source of snippet `try4`
 [source]
 ----
-let error:err|none
 try{
         z = 55 // undefined variable
-}catch(err): error = err
+}catch error: ;
 
 println """message "%s" """ % [error.message]
 println """cause "%s" """ % [error.cause]
@@ -4894,14 +5165,14 @@ for each st in error.stack_trace {
 message "Variable 'z' is not defined." 
 cause "none" 
 suppressed []" 
-try4.turi:3:9
+try4.turi:2:9
 source:         z = 55 // undefined variable
-try4.turi:2:3
-source: try{
-try4.turi:4:18
-source: }catch(err): error = err
 try4.turi:1:4
-source: let error:err|none
+source: try{
+try4.turi:3:14
+source: }catch error: ;
+try4.turi:1:4
+source: try{
 
 ----
 
@@ -4910,69 +5181,39 @@ source: let error:err|none
 === Try-Catch
 
 Try is very similar to Java `try`-`catch`-`finally`.
-The command `try` tries to execute a block and if an exception happens it executes the block following the keyword `catch`.
+The command `try` tries to execute a block.
+If an exception happens it executes the block following the keyword `catch`.
 At the end it executes the block following the `finally` keyword.
 
+The syntax of the command is
 
-The `catch` and finally` blocks are optional.
-
-
-.source of snippet `try1`
 [source]
 ----
-
-try {
-    z = 55 // undefined variable
-}catch err {
-  println err
-} finally {
-  println "this will always run"
-}
-
-
-
+try ( ':' COMMAND | BLOCK ) [catch [exception_variable] (':' COMMAND | BLOCK)] [finally (':' COMMAND | BLOCK)]
 ----
 
+The command is executed in the same context as the whole try-catch command.
+If, however, a block between `{` and `}` is used, it will create its own context.
+In this case the use of the `:` is optional and is also discouraged, as clutter.
 
+If there is an exception variable specified, it will be defined when the exception is caught.
+This is same as defining a variable using the `let` command.
+It will hold the value of the exception during the execution of the catch part and after the whole try-catch command.
+If there was no exception the value of this variable will be `none`.
 
+The exception variable can be defined as `catch(e)` with parentheses to be a bit more familiar for Java developers.
 
-.output of snippet `try1`
-[source]
-----
-Variable 'z' is not defined.
-this will always run
+If an exception happens, the execution of the try command stops, the exception variable will get the exception object and the catch block starts to execute.
+The exception variable is not available during the execution of the try command.
 
-----
+The exception variable is pinned, cannot be modified.
 
+The value of the try-catch command is
 
+* the value of the try command if there was no exception, and
+* the value of the catch command if there was an exception.
 
-Another example without the optional part, but enclosed in an outer try-catch block:
-
-
-.source of snippet `try2`
-[source]
-----
-try{
-    try {
-        z = 55 // undefined variable
-    }
-}catch(err): println err
-
-
-
-----
-
-
-
-
-.output of snippet `try2`
-[source]
-----
-Variable 'z' is not defined.
-
-----
-
-
+The command after the `finally` keyword does not affect the result of the command.
 
 == Decorators, Metaprogramming
 
@@ -5232,12 +5473,6 @@ There are a few predefined variables, constants, and some special variables.
 * `non_mutat`
  is the special value that, when returned from a cell command, prevents the cell from updating
  its value and halts propagation to dependent cells in a flow.
-
-* `pi`
- is the mathematical constant π (approximately 3.14159).
-
-* `e`
- is the base of the natural logarithm (Euler’s number, approximately 2.71828).
 
 * `nan`
  is the special IEEE-754 * `not a number* ` floating-point value.
@@ -6079,16 +6314,16 @@ Essentially, stepping has to approach the end value.
 ----
 try:
     rng(1,10,-1)
-catch e:
-    println e.message
+catch e1:
+    println e1.message
 try:
     rng(10,1,+1)
-catch e:
-    println e.message
+catch e2:
+    println e2.message
 try:
     rng(10,11,0)
-catch e:
-    println e.message
+catch e3:
+    println e3.message
 
 println "Special zero element range can have zero as step %s" % [rng(10,10,0)]
 println "but it is just the same as %s" % [rng(10,10)]
@@ -6323,7 +6558,7 @@ println([ ..parents(K) -> type(it()) ])
 === `all_parents`
 
 Returns a list of classes that are the parent classes of the argument with a transitive closure.
-It means that all classes, including the parents of the parents and so on recursively.
+It means that all classes, including the parents of the parents and so on, recursively.
 
 
 .source of snippet `all_parents`
@@ -6344,12 +6579,14 @@ println([ ..all_parents(K) -> type(it()) ])
 .output of snippet `all_parents`
 [source]
 ----
-[class A, class B]
-[A, B]
+[class B, class A]
+[B, A]
 
 ----
 
 
+
+The classes are ordered in inheritance order.
 
 === `sleep`
 
@@ -6537,77 +6774,79 @@ none
 ----
 task2 is not ready 0
 task1 is not ready 0
-task2 is ready 1
-task1 is not ready 1
-task2 is not ready 0
-task1 is not ready 2
+task1 is ready 1
 task2 is not ready 1
-task1 is not ready 3
-task2 is not ready 2
-task1 is ready 2
-task2 is not ready 3
 task1 is not ready 0
-task2 is not ready 4
-task1 is not ready 1
-task1 is not ready 2
-task2 is not ready 5
-task1 is not ready 3task2 is ready 3
+task1 is not ready 1task2 is not ready 2
 
-task2 is not ready 0
-task1 is not ready 4
-task2 is not ready 1
-task2 is ready 4
-task1 is not ready 5task2 is not ready 0
-
-task1 is not ready 6
-task2 is not ready 1
-task1 is not ready 7
-task2 is not ready 2
-task1 is not ready 8
 task2 is not ready 3
-task1 is ready 5task2 is not ready 4
-
-task1 is not ready 0
-task2 is not ready 5
-task1 is not ready 1
-task2 is not ready 6
 task1 is not ready 2
-task1 is not ready 3
-task2 is ready 6
+task1 is not ready 3task2 is ready 2
+
 task2 is not ready 0
-task1 is not ready 4
-task2 is not ready 1
+task2 is not ready 1task1 is not ready 4
+
 task1 is not ready 5
 task2 is not ready 2
-task1 is ready 7
+task1 is not ready 6task2 is ready 3
+
+task2 is not ready 0
+task1 is not ready 7
+task2 is not ready 1
+task2 is not ready 2task1 is not ready 8
+
+task1 is not ready 9
+task2 is ready 4
+task2 is not ready 0
+task1 is not ready 10task2 is not ready 1
+
+task2 is not ready 2
+task1 is not ready 11
+task2 is ready 5
+task1 is not ready 12task2 is not ready 0
+
+task2 is not ready 1
+task1 is not ready 13
+task2 is not ready 2
+task1 is not ready 14
 task2 is not ready 3
+task1 is not ready 15
+task1 is ready 6
 task1 is not ready 0
 task2 is not ready 4
 task1 is not ready 1
 task2 is not ready 5
-task1 is not ready 2
-task1 is ready 8
 task2 is not ready 6
+task1 is ready 7
 task1 is not ready 0
-task1 is not ready 1
-task2 is not ready 7
-task1 is not ready 2
+task2 is not ready 7task1 is not ready 1
+
 task2 is not ready 8
-task1 is ready 9
+task1 is not ready 2
 task2 is not ready 9
+task1 is not ready 3
+task2 is ready 8
+task2 is not ready 0task1 is not ready 4
+
+task2 is not ready 1
+task1 is not ready 5
+task1 is not ready 6
+task2 is not ready 2
+task2 is not ready 3task1 is ready 9
+
 task1 is not ready 0
-task2 is not ready 10
 task1 is not ready 1
-task1 is not ready 2task2 is not ready 11
+task2 is not ready 4
+task1 is not ready 2task2 is not ready 5
 
 closing the channel
 channel is closed
 1 is done false
 2 is done false
-we start to wait the first time
-task2 is done
 task1 is done
-task1 done false
+task2 is done
+we start to wait the first time
+task1 done true
 task2 done true
 We start to wait the second time
 task1 done true

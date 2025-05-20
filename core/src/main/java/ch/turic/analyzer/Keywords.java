@@ -5,6 +5,8 @@ public interface Keywords {
     String PIN = "pin";
     String GLOBAL = "global";
     String BREAK = "break";
+    String CONTINUE = "continue";
+    String DIE = "die";
     String LET = "let";
     String FN = "fn";
     String CLASS = "class";

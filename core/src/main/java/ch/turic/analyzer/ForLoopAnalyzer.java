@@ -18,9 +18,6 @@ public class ForLoopAnalyzer extends AbstractAnalyzer {
             lexes.next();
         }
         final Command startCommand = getInitialAssignmentCommand(lexes);
-        if (lexes.is(";")) {
-            lexes.next();
-        }
         final Command loopCondition;
         if (lexes.is(";")) {
             loopCondition = new ConstantExpression(true);
@@ -65,9 +62,9 @@ public class ForLoopAnalyzer extends AbstractAnalyzer {
     private Command getInitialAssignmentCommand(LexList lexes) throws BadSyntax {
         final Command startCommand = CommandAnalyzer.INSTANCE.analyze(lexes);
         if (startCommand instanceof Assignment assignment
-                && assignment.leftValue() instanceof VariableLeftValue variableLeftValue) {
+                && assignment.leftValue() instanceof VariableLeftValue(String variable)) {
             return new LetAssignment(new AssignmentList.Assignment[]{
-                    new AssignmentList.Assignment(variableLeftValue.variable(), null, assignment.expression())
+                    new AssignmentList.Assignment(variable, null, assignment.expression())
             });
         } else {
             return startCommand;

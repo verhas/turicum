@@ -9,7 +9,12 @@ import java.util.function.BiFunction;
 public class BrReYiAnalyzer {
 
     static Command analyze(LexList lexes, BiFunction<Command, Command, Command> breyiCommandFunction) throws BadSyntax {
-        final var expression = ExpressionAnalyzer.INSTANCE.analyze(lexes);
+        final Command expression;
+        if (lexes.is(Keywords.IF, Keywords.WHEN, ";" , "}")) {
+            expression = null;
+        } else {
+            expression = ExpressionAnalyzer.INSTANCE.analyze(lexes);
+        }
         final Command condition;
         if (lexes.is(Keywords.IF, Keywords.WHEN)) {
             lexes.next();

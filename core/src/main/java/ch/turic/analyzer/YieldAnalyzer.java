@@ -9,6 +9,10 @@ public class YieldAnalyzer extends AbstractAnalyzer {
 
     @Override
     public Command _analyze(LexList lexes) throws BadSyntax {
-        return BrReYiAnalyzer.analyze(lexes, YieldCommand::new);
+        final YieldCommand command =  (YieldCommand) BrReYiAnalyzer.analyze(lexes, YieldCommand::new);
+        if( command.expression() == null ){
+            throw lexes.syntaxError("Missing expression for yield command");
+        }
+        return command;
     }
 }

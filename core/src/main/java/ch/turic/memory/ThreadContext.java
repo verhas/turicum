@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A special context holding constant string, like built-ins, one for the interpreter
+ * A special context holding the values for the thread.
  */
 public class ThreadContext {
     private Yielder yielder = null;
@@ -17,8 +17,18 @@ public class ThreadContext {
         return trace.size();
     }
 
+    /**
+     * This method is called when an exception is caught.
+     * <p>
+     * Before this call, the stack trace contains all the elements to the point and stack depth where the exception
+     * was caught.
+     * This call will reset the stack trace keeping only those elements; that are valid in the calling stack to the
+     * level of call stack where the exception was caught.
+     *
+     * @param size the size of the stack trace at the level of the exception catch
+     */
     public void resetTrace(int size) {
-        final var safe = new ArrayList<>(trace);
+        final var safe = getStackTrace();
         trace.clear();
         for (int i = 0; i < size; i++) {
             trace.add(safe.get(i));

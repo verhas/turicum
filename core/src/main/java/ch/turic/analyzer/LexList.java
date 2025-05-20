@@ -130,8 +130,8 @@ public class LexList extends LngList {
         return hasNext(i) && lexAt(index + i).type() == type;
     }
 
-    public boolean is(String... textAlternatives) {
-        return hasNext() && lexAt(index).is(textAlternatives);
+    public boolean is(String... s) {
+        return hasNext() && lexAt(index).is(s);
     }
 
     public boolean isIdentifier() {

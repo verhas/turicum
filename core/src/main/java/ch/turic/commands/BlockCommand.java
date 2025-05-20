@@ -5,6 +5,7 @@ import ch.turic.ExecutionException;
 import ch.turic.memory.Context;
 
 public class BlockCommand extends AbstractCommand {
+    public static final BlockCommand EMPTY_BLOCK = new BlockCommand(new Command[0], true);
     final Command[] commands;
 
     /**
@@ -58,17 +59,22 @@ public class BlockCommand extends AbstractCommand {
 
     /**
      * Same as execute, but it returns a record that also tells if the block executed a 'break' command.
-     * It is used inside loop constructs, as well as it is used in the main implementation of the block command above.
+     * It is used in the main implementation of the block command above.
      *
      * @param context the contex to execute the commands in
      * @return the Loop result including the break flag and the result
      */
-    Conditional loop(final Context context) {
+    private Conditional loop(final Context context) {
         Object result = null;
         for (final var cmd : commands) {
             result = cmd.execute(context);
-            if (result instanceof Conditional cResult && cResult.isDone()) {
-                return cResult;
+            if (result instanceof Conditional cResult) {
+                if (cResult.isDone()) {
+                    return cResult;
+                }
+                // important if it was the last command
+                // to avoid double conditional casketing
+                result = cResult.result();
             }
         }
         return Conditional.result(result);

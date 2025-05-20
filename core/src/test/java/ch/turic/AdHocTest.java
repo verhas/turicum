@@ -7,14 +7,23 @@ public class AdHocTest {
 
     private void test(String input, String expected) throws Exception {
         final var result = new Interpreter(input).execute();
-        Assertions.assertEquals("" + expected, "" + result);
+        Assertions.assertEquals(""+expected, "" + result);
     }
 
     @Test
     void test1() throws Exception {
         test("""
-let i = 1
-println{while i < 10 { i = i + 1 } until i == 9;;;;}
+
+let z = 5
+try{
+    z = {
+        println(z);
+        let z = 3
+        }
+}catch e {
+    println(e)
+}
+none
                 """,null);
     }
     //@Test

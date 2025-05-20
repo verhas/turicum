@@ -249,6 +249,7 @@ public class Context implements ch.turic.Context {
             return;
         }
 
+        // TODO it will not work for class context
         for (var ctx = this; ctx != null; ctx = ctx.wrapped) {
             if (ctx.frozen.contains(key)) {
                 throw new ExecutionException("Variable '%s' is pinned.", key);

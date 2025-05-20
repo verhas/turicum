@@ -6,6 +6,8 @@ import ch.turic.memory.LngException;
 
 public class TryCatch extends AbstractCommand {
 
+    private static final String[] ERR_TYPE = {"err"};
+    private static final String[] ERR_NONE_TYPE = {"none"};
     final Command tryBlock;
     final Command catchBlock;
     final Command finallyBlock;
@@ -22,55 +24,39 @@ public class TryCatch extends AbstractCommand {
 
     @Override
     public Object _execute(final Context context) throws ExecutionException {
-        Object result = null;
-        final var ctx = context.wrap();
+        Object result;
+        // save the position of the stack trace so we can drop the elements that are deeper when catching
         final int traceSize = context.threadContext.traceSize();
+        final var ctx = context.wrap();
         try {
             result = tryBlock.execute(ctx);
+            for( final var variable : ctx.allLocalKeys()){
+                context.let0(variable, ctx.get(variable));
+            }
+            if (exceptionVariable != null) {
+                context.let0(exceptionVariable, null);
+                context.freeze(exceptionVariable);
+            }
         } catch (ExecutionException e) {
+            if (exceptionVariable != null) {
+                final var exception = LngException.build(context, e, context.threadContext.getStackTrace());
+                context.let0(exceptionVariable, exception);
+                context.freeze(exceptionVariable);
+            }
+
             if (catchBlock == null) {
                 throw e;
+            } else {
+                // we reset the stack trace only now
+                // even if there is finally, but no catch the original trace lives on
+                context.threadContext.resetTrace(traceSize);
+                result = catchBlock.execute(context);
             }
-            final var exception = LngException.build(context, e, context.threadContext.getStackTrace());
-            ctx.let0(exceptionVariable, exception);
-            context.threadContext.resetTrace(traceSize);
-            catchBlock.execute(ctx);
         } finally {
             if (finallyBlock != null) {
-                result = finallyBlock.execute(ctx);
+                finallyBlock.execute(context);
             }
         }
         return result;
     }
 }
-/*
-// snippet TryCatch_Documentation
-
-{%command_section `try` / `catch` / `finally`%}
-
-The syntax of the command is
-
-[source]
-----
-  try command1 catch identifier command2 finally command3
-----
-
-The part with the `catch` and `finally` are optional.
-If the `catch` part is omitted, the exception will not be caught.
-
-If there is a `catch` block, all exceptions are caught.
-The exception will be assigned to the variable following the `catch` keyword.
-An exception is a Turicum object.
-
-The commands can be blocks or individual commands.
-If any of the commands is an individual command, then it must be preceded with a `:` character.
-
-The return value of the command is
-
-* the result of the `try` block.
-
-* unless there is an exception. In that case the result is `null`.
-
-* If there is a `finally` block then the result is the value of the `finally` block.
-
- */

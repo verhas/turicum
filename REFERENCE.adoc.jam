@@ -666,14 +666,16 @@ The caller does not need to know that the implementation of the something it cal
 
 === Variable Declaration
 
-You can NOT read an undefined variable.
-If a variable is not defined, it will throw an exception.
-
 Upon first assignment the code has to use the keyword `let` to define the variable.
+Until that happens, you cannot use a variable.
+
+You cannot read an undefined variable.
+If a variable is not defined, it will throw an exception.
 
 NOTE: There is a subtle difference between an undefined variable and a defined variable having the value `none`.
 An undefined variable was never defined.
 An already defined variable can have the value of `none`, and it can also have type declaration.
+Also, you can assign values to object fields without the `let` keyword, even to define them.
 
 The syntax of a `let` command is the following:
 
@@ -809,21 +811,22 @@ The following example demonstrates the different pinning possibilities:
 
 == Control Flow
 
-=== Conditional Execution (`if` / `else`)
+=== Conditional Execution (`if` / `elseif` / else`)
 
 Command `if` is very conventional and similar to any other programming language.
+The syntax of the command is:
 
 [source]
 ----
 'if' EXPRESSION ( ':' COMMAND | BLOCK ) [ 'else' ( ':' COMMAND | BLOCK )] ;
 ----
 
-If the expression is `true` it executes the first command or block.
-If the expression is `false` it executes the second command or block.
+If the expression is `true` the command executes the first command or block.
+If the expression is `false` it executes the second command or block following the `else` keyword.
 The second command or block along with the keyword `else` is optional.
 
 The block is a series of commands enclosed between `{` and `}`.
-If there is only a single command after the condition or the keyword `else` it has to be preceded with a `:`.
+If there is only a single command after the condition or the keyword `else` it can be preceded with a `:`, or enclosed in a block.
 
 The conditional expression may, but does not need to be enclosed between parentheses.
 
@@ -832,6 +835,10 @@ If the condition is `false` and there is no "else" block or command, then the re
 
 {%S ifCommand%}
 
+The `if` command does not open a new context.
+The condition, and the commands following it, and the optional one after the `else` keyword evaluated and executed in the context the `if` statement is.
+
+If, however, the "then" or "else" commands are block commands then they themselves execute in a new context wrapping the actual context.
 
 === Loops
 
@@ -979,7 +986,12 @@ Pinned variables cannot be modified.
 
 The command can break the execution of the loop and can also specify the value of the loop.
 
-=== Returning, Breaking and Yielding
+==== `continue`
+
+Will continue the execution of the loop starting the body of the loop again without exeuting the rest of the commands in the loop body.
+
+
+=== Returning, Breaking, Continue and Yielding
 
 These three commands are in one family.
 each of them can pass a value, and each can have a conditionality following the expression.
@@ -987,23 +999,69 @@ The syntax is
 
 [source]
 ----
-break expression if condition
-return expression if condition
-yield expression if condition
+break [expression] [if condition]
+return [expression] [if condition]
+yield expression [if condition]
 ----
 
-The `if condition` part is optional.
-When it is missing the command is executed like if it was `if true`.
+The expression and the `if condition` parts are optional, except for the `yield`.
+When the conditional part is missing, the command is executed like if it was `if true`.
+
+You can interchangeably use the `when` keyword instead of `if` in this case.
 
 ==== `break`
 
 The command `break` stops the execution of a loop.
 If it is executed, the value of the loop will be the expression that follows the command.
+If it is missing then the value `none` will be the result.
+
+There is a slight difference between not having an expression or having an expression returning `none`.
+When the `break` command is used in a lis-resulting loop and there is an expression following the `break` keyword the value of this expression will be appended to the list as the last value.
+When there is no expression, then the execution of the loop still terminates, but no expression will be appended to the result list.
+
+The following samples demonstrate these cases.
+
+{%S break1%}
+
+{%S break2%}
+
+{%S break3%}
+
+{%S break4%}
+
+{%S break5%}
+
+The last example shows the difference between using the break statement following an `if` condition.
+In the first case the statement executes in the context of the loop and the `break` aborts the execution of the loop.
+
+In the second case the `break` is inside a block, and it aborts the execution of the block itself, the loop is not disturbed.
+
+{%S break6%}
+
+When the expression following the `break` keyword starts with the `if` keyword the expression has to be enclosed between `()` parentheses.
+
+{%S break7%}
+
+==== `continue`
+
+The continue command will "break" the current loop execution and start the loop over for the next iteration.
+In the case of a for loop, the step command will be executed, and the exit condition will also be evaluated.
+
+The `continue` command can have an expression, but it is only allowed if the loop is a list-resulting loop.
+In this case the value of the expression will be appended to the resulting list.
+If the value of the expression is `none` then `none` as a value will be appended to the list.
+If there is no expression after the `continue` keyword, then the resulting list will remain untouched for the actual execution.
+
+
 
 ==== `return`
 
 The command `return` stops the execution of a function, method, closure, or macro.
 If it is executed, the value of the function, method, closure, or macro will be the expression that follows the command.
+
+If there is no expression following the `return` keyword then `none` will be returned.
+
+{%S return1%}
 
 ==== `yield`
 
@@ -1213,7 +1271,7 @@ These are evaluated in asynchronous threads.
 Scheduling and executing tasks based on dependencies start when the start cells are all finished and the flow has reached the initial state.
 
 If there are cells that have dependencies, and that way they are not start cells, but their transitive closure of their dependencies does not include any start cells, it is en error.
-It is detected during compilation time and result in syntax error.
+It is detected during compilation time and results in a syntax error.
 
 === Syntax
 
@@ -1798,17 +1856,39 @@ An exception has
 === Try-Catch
 
 Try is very similar to Java `try`-`catch`-`finally`.
-The command `try` tries to execute a block and if an exception happens it executes the block following the keyword `catch`.
+The command `try` tries to execute a block.
+If an exception happens it executes the block following the keyword `catch`.
 At the end it executes the block following the `finally` keyword.
 
+The syntax of the command is
 
-The `catch` and finally` blocks are optional.
+[source]
+----
+try ( ':' COMMAND | BLOCK ) [catch [exception_variable] (':' COMMAND | BLOCK)] [finally (':' COMMAND | BLOCK)]
+----
 
-{%S try1%}
+The command is executed in the same context as the whole try-catch command.
+If, however, a block between `{` and `}` is used, it will create its own context.
+In this case the use of the `:` is optional and is also discouraged, as clutter.
 
-Another example without the optional part, but enclosed in an outer try-catch block:
+If there is an exception variable specified, it will be defined when the exception is caught.
+This is same as defining a variable using the `let` command.
+It will hold the value of the exception during the execution of the catch part and after the whole try-catch command.
+If there was no exception the value of this variable will be `none`.
 
-{%S try2%}
+The exception variable can be defined as `catch(e)` with parentheses to be a bit more familiar for Java developers.
+
+If an exception happens, the execution of the try command stops, the exception variable will get the exception object and the catch block starts to execute.
+The exception variable is not available during the execution of the try command.
+
+The exception variable is pinned, cannot be modified.
+
+The value of the try-catch command is
+
+* the value of the try command if there was no exception, and
+* the value of the catch command if there was an exception.
+
+The command after the `finally` keyword does not affect the result of the command.
 
 == Decorators, Metaprogramming
 

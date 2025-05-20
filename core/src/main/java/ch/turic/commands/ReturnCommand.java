@@ -24,7 +24,11 @@ public class ReturnCommand extends AbstractCommand {
     @Override
     public Conditional _execute(Context context) throws ExecutionException {
         if (Cast.toBoolean(condition.execute(context))) {
-            return Conditional.doReturn(expression.execute(context));
+            if (expression == null) {
+                return Conditional.doReturn(null);
+            } else {
+                return Conditional.doReturn(expression.execute(context));
+            }
         } else {
             return Conditional.result(null);
         }
