@@ -85,6 +85,7 @@ public class CommandAnalyzer extends AbstractAnalyzer {
 
     static {
         analyzers.put(Keywords.LET, LetAnalyzer.INSTANCE);
+        analyzers.put(Keywords.MUT, LetAnalyzer.INSTANCE_MUT);
         analyzers.put(Keywords.PIN, PinAnalyzer.INSTANCE);
         analyzers.put(Keywords.GLOBAL, GlobalAnalyzer.INSTANCE);
         analyzers.put(Keywords.FN, FunctionDefinitionAnalyzer.INSTANCE);
@@ -96,6 +97,8 @@ public class CommandAnalyzer extends AbstractAnalyzer {
         analyzers.put(Keywords.CONTINUE, ContinueAnalyzer.INSTANCE);
         analyzers.put(Keywords.RETURN, ReturnAnalyzer.INSTANCE);
         analyzers.put(Keywords.YIELD, YieldAnalyzer.INSTANCE);
+        analyzers.put(Keywords.PRINT, PrintAnalyzer.INSTANCE);
+        analyzers.put(Keywords.PRINTLN, PrintAnalyzer.INSTANCE_NL);
         analyzers.put(Keywords.WHILE, WhileLoopAnalyzer.INSTANCE);
         analyzers.put(Keywords.WITH, WithAnalyzer.INSTANCE);
         analyzers.put(Keywords.FOR, ForLoopAnalyzer.INSTANCE);
@@ -131,7 +134,10 @@ public class CommandAnalyzer extends AbstractAnalyzer {
                  Keywords.DIE,
                  Keywords.RETURN,
                  Keywords.YIELD,
+                 Keywords.PRINT,
+                 Keywords.PRINTLN,
                  Keywords.TRY,
+                 Keywords.MUT,
                  Keywords.LET -> {
                 lexes.next();// eat the keyword
                 final var command = analyzers.get(keyword).analyze(lexes);

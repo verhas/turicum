@@ -1,8 +1,9 @@
 // = expression
-(53)
+if true : (mut k = 1; mut p = 3;) else: (mut k=2 ; mut p = 7;)
+println k,p
 
 // = try1
-let z = {
+mut z = {
     try : k = 3 // undefined variable
     catch: ;
 }
@@ -13,13 +14,13 @@ if z != none : die "z has value " % z
 // when there is an error the local variables are not changed
 // if there is no error the local variables are defined in the surrounding context
 
-let a = 1
+mut a = 1
 
 try:
-    let [b,c,d] = {
-        let b = 13;
-        let c = 55;
-        let D = 63;
+    mut [b,c,d] = {
+        mut b = 13;
+        mut c = 55;
+        mut D = 63;
         k = 1/ 0;
         [b,c,D]
     }
@@ -30,10 +31,10 @@ die "d" if is_defined(d)
 die "D" if is_defined(D)
 
 try:
-    let [b,c,d] = {
-        let b = 13;
-        let c = 55;
-        let D = 63;
+    mut [b,c,d] = {
+        mut b = 13;
+        mut c = 55;
+        mut D = 63;
         [b,c,D]
     }
 catch:;
@@ -50,14 +51,14 @@ die "D" if is_defined(D)
 class A {}
 class B : A {}
 class C : B {}
-let K = class {}
+mut K = class {}
 class D : A,C, K {}
 if ""+parents(D) != "[class A, class C, class #undefined]" : die "wrong parents list";
 if ""+all_parents(D) != "[class A, class C, class B, class #undefined]" : die "wrong all parents list %s != %s" % [all_parents(D),none];
 
 // = EmptyBlockIsObject
 
-let a = {}
+mut a = {}
 a.field
 
 // = singleLineComments
@@ -96,26 +97,26 @@ try: null catch err {}
 // = basicCommands
 
 
-let h = []
+mut h = []
 h[3].b = []
 h[3].b[2] = 5
-let z = h[3].b[2]
-let a = {}
-a.x = 10; let c = 30; let b = []; b[c] = 20; a.x + b[30] + c
+mut z = h[3].b[2]
+mut a = {}
+a.x = 10; mut c = 30; mut b = []; b[c] = 20; a.x + b[30] + c
 
 
 // = testArithmeticOperations
 
 
-let x = 100;
-let y = 50;
-let z = x - y * 2;
+mut x = 100;
+mut y = 50;
+mut z = x - y * 2;
 z;
 
 // = testFieldAccess
 
 
-let arr =  {}
+mut arr =  {}
 , z = {}
 arr.h = 42;
 z["field"] = "suss"
@@ -125,53 +126,53 @@ z.field + ({arr}.h + arr["h"]);
 // = testArrayAccess
 
 
-let arr = []
+mut arr = []
 arr[3] = 42;
-let z = {}
+mut z = {}
 z["field"] = "suss"
 z.field + {arr}[3] * 2;
 
 // = testNestedArrayAccess
 
 
-let arr = []
+mut arr = []
 arr[3][2] = 42;
 arr[3][2] * 2;
 
 // = testMultipleAssignments
 
 
-let obj = {}
+mut obj = {}
 obj.a = 5;
 obj.b = obj.a * 3;
-let arr = []
+mut arr = []
 arr[1] = obj.b + 2;
 arr[1];
 
 // = testComplexExpressions
 
 
-let x = {}
+mut x = {}
 x.val = 10;
-let y = []
+mut y = []
 y[{7}] = 5;
-let z = 2;
-let result = (x.val + y[7]) * z;
+mut z = 2;
+mut result = (x.val + y[7]) * z;
 result;
 
 // = testFloatingPointOperations
 // Double
 
-let x = 10.5;
-let y = 3.25;
-let z = x * y + 2.5;
+mut x = 10.5;
+mut y = 3.25;
+mut z = x * y + 2.5;
 z / 2;
 
 // = testIfStatement1
 
 
-let x = 10;
-let result = {
+mut x = 10;
+mut result = {
     if x > 5 {
         x * 2;
     } else {
@@ -183,8 +184,8 @@ result;
 // = testIfStatement2
 // Double
 
-let x = 3;
-let result = {if x > 5 {
+mut x = 3;
+mut result = {if x > 5 {
     x * 2;
 } else {
     x / 2;
@@ -194,32 +195,32 @@ result;
 // = testExportAssignment1
 
 
-let x = 10;
-{ let z = 1 ; export z}
+mut x = 10;
+{ mut z = 1 ; export z}
 { if none != {try: z catch: none }{"not ok"} else {"ok"} }
 
 // = testExportAssignment2
 
 
-let x = 10;
-let z = 7;
+mut x = 10;
+mut z = 7;
 { z = 2 }
 x * z;
 
 // = testExportAssignment3
 
 
-let x = 10;
-let z = 7;
+mut x = 10;
+mut z = 7;
 {{{{{{ z = 2 }}}}}}
 x * z;
 
 // = testGlobalDeclaration
 
 
-let x = 10;
-let z = 7;
-let h = 6;
+mut x = 10;
+mut z = 7;
+mut h = 6;
 { global x,z,h }
 5;
 
@@ -231,13 +232,13 @@ fn function x2, z, h {
 // = testFinalDeclaration1
 
 
-let a=1, b=2;
+mut a=1, b=2;
 pin a, b;
 a*b;
 
 // ! testFinalDeclaration2
 pin a=1, b=2;
-let a = 3;
+mut a = 3;
 
 // ! EmptyParentList
 class z : {}
@@ -245,14 +246,14 @@ class z : {}
 // = testQuotedIdentifier1
 
 
-let `a`=1, `pin`=2
+mut `a`=1, `pin`=2
 pin `a`, `pin`;
 a*`pin`;
 
 // = testQuotedIdentifier2
 
 
-let a=1, `this is a\\nmulti-line identifier`=2;
+mut a=1, `this is a\\nmulti-line identifier`=2;
 pin a, `this is a\\nmulti-line identifier`;
 a *`this is a\\nmulti-line identifier`;
 
@@ -267,7 +268,7 @@ f(1,1,1);
 // = testCallingFunction2
 
 
-let f = fn(a,b,c) {
+mut f = fn(a,b,c) {
     a + b + c
 }
 f(1,1,1);
@@ -275,7 +276,7 @@ f(1,1,1);
 // = testCallingFunction3
 
 
-let f = {}
+mut f = {}
 f.k = fn z(a,b,c) {
     a + b + c
 }
@@ -286,7 +287,7 @@ f.k(1,1,1);
 
 class meClass {
     global some = "it works";
-    let other = "local";
+    mut other = "local";
     fn a {1}
     fn b {2}
 }
@@ -300,7 +301,7 @@ class meClass {
     fn a {1}
     fn b {2}
 }
-let object = meClass();
+mut object = meClass();
 object.a() + object.b();
 
 // = testClassInheritance
@@ -312,7 +313,7 @@ class Parent {
 class meClass : Parent {
     fn b {2}
 }
-let object = meClass();
+mut object = meClass();
 object.a() + object.b();
 
 // = testMultipleInheritance
@@ -330,7 +331,7 @@ class P3 {
 class P4 : P3, P2 {
     fn p4 {4}
 }
-let object = P4();
+mut object = P4();
 "" + object.p1() + object.p2() + object.p3() + object.p4();
 
 // = testinitInheritance
@@ -352,7 +353,7 @@ class P4 : P3, P2 {
         p1()
     }
 }
-let object = P4(1,2,3);
+mut object = P4(1,2,3);
 "" + object.p1() + object.p2() + object.p3() + object.p4();
 
 // = testMethodInheritance
@@ -364,7 +365,7 @@ class Parent {
 class Child : Parent {
  fn child { parent() }
 }
-let child = Child();
+mut child = Child();
 child.child();
 
 // ! testThisIsFinal
@@ -379,14 +380,14 @@ class Class {
 // = testPipeOperator1
 
 
-let a = 1
-let b = a or 2
+mut a = 1
+mut b = a or 2
 
 // = testOROperator2
 
 
-let a = 1
-let b = none
+mut a = 1
+mut b = none
 or 2
 
 // = testClassExtension
@@ -402,17 +403,17 @@ Class().z();
 
 
 global msg = ""
-let PrinterClass = class {
-  let print = fn (message){
+mut PrinterClass = class {
+  mut `print` = fn (message){
     global msg;
     msg = msg + message
     }
 }
 pin PrinterClass
-let p = PrinterClass()
-p.print("csaka haha ")
-p.print("fogorvos hihi ")
-p.print("segithet huhu")
+mut p = PrinterClass()
+p.`print`("csaka haha ")
+p.`print`("fogorvos hihi ")
+p.`print`("segithet huhu")
 
 // = ifNoBlock
 
@@ -420,13 +421,13 @@ p.print("segithet huhu")
 if 1: 1 else: 2
 
 // ! constantTrue
-let true = 0
+mut true = 0
 
 // ! constantFalse
-let false = 0
+mut false = 0
 
 // ! constantNone
-let none = 0
+mut none = 0
 
 // = looping1
 
@@ -434,14 +435,14 @@ let none = 0
 /*
  while loop condition and body is executed in a local loop environment
 */
-let i = 1
+mut i = 1
 while i < 10 : i = i + 1
 
 // = looping2
 
 
-let i = 1
-let z
+mut i = 1
+mut z
 while i < 10 { i = i + 1;
   z = i}
 z
@@ -454,7 +455,7 @@ fn inci {
   global i
   i =  i + 1
 }
-let z
+mut z
 while i < 10 : z = inci()
 z
 
@@ -479,85 +480,85 @@ z
 // = looping5
 
 
-let i = 1
+mut i = 1
 while i < 10 { i = i + 1 } until i == 9;;;;
 
 // = looping6
 
 
-let i = 1
+mut i = 1
 while( i < 10 ) : i = i + 1 ; until i == 9;;;;
 
 // = forLoop1
 
 
-let z = 0
+mut z = 0
 for i=1 ; i<10 ; i=i+1 : z=i
 z
 
 // = forLoop2
 
 
-let z = 0
-for let i=1 ; i<10 ; i=i+1 : z=i
+mut z = 0
+for mut i=1 ; i<10 ; i=i+1 : z=i
 z
 
 // = forLoop3
 
 
-let z = 0
+mut z = 0
 for( i=1 ; i<10 ; i=i+1 ): z=i
 z
 
 // = forLoop5
 
 
-let z = 0
+mut z = 0
 for i=1 ; i<10 ; i=i+1 : z=i until i == 8
 z
 
 // = forLoop6
 
 
-let z = 0
+mut z = 0
 for (i=1 ; i<10 ; i=i+1 ):  z=i
 z
 
 // = forLoop7
 
 
-let i = 0
-let msg : str = ""
+mut i = 0
+mut msg : str = ""
 // the loop variable is local for the loop and
-// you do not explicitly write it to be 'let i ='...
+// you do not explicitly write it to be 'mut i ='...
 for i=1 ; i<10 ; i=i+1 :  msg = msg + i
 msg + i
 
 // = forLoop8
 
 
-let i = 0
-let msg : str = ""
+mut i = 0
+mut msg : str = ""
 // the loop variable is local for the loop and
-// you can explicitly write it to be 'let i ='... even with a type
-for let i : num =1 ; i<10 ; i=i+1 :  msg = msg + i
+// you can explicitly write it to be 'mut i ='... even with a type
+for mut i : num =1 ; i<10 ; i=i+1 :  msg = msg + i
 msg + i
 
 // = forLoop9
 
 
-let i = 0
-let msg : str = ""
+mut i = 0
+mut msg : str = ""
 // the loop variable is local for the loop and
-// you can explicitly write it to be 'let i ='... even with a type
-for let i : float  =1 ; i<10 ; i=i+1 :  msg = msg + i
+// you can explicitly write it to be 'mut i ='... even with a type
+for mut i : float  =1 ; i<10 ; i=i+1 :  msg = msg + i
 msg + i
 
 // = forLoop10
 
 
-let i = 0
-let msg : str = ""
+mut i = 0
+mut msg : str = ""
 // the loop variable is inherited in this case
 for {i=1} ; i<10 ; i=i+1 :  msg = msg + i
 msg + i
@@ -565,7 +566,7 @@ msg + i
 // = closure1
 
 
-let z = {| a,b,c | a+1 } ; z(2,3,4)
+mut z = {| a,b,c | a+1 } ; z(2,3,4)
 
 // = closure2
 
@@ -575,7 +576,7 @@ let z = {| a,b,c | a+1 } ; z(2,3,4)
 // = closure3
 
 
-let z = {| a,b,c | a+1 } ; z(2,3,4)
+mut z = {| a,b,c | a+1 } ; z(2,3,4)
 
 // = boost
 
@@ -603,14 +604,14 @@ let z = {| a,b,c | a+1 } ; z(2,3,4)
 // = listLiteral3
 
 
-let a = [1..3];
+mut a = [1..3];
 [..a,7][1]
 
 // = forEachLoop1
 
 
-let a = [1..4];
-let k = 0;
+mut a = [1..4];
+mut k = 0;
 for each z in a : k = k + z
 
 
@@ -623,13 +624,13 @@ It does not prevent code in enclosing scopes.
 It also does not prevent any inner/enclosed scopes to use the variable as modifiable, however any modification will
 be local to that level.
 """
-let i = 3; pin i; let j = 3, s = 5, k = 0;
+mut i = 3; pin i; mut j = 3, s = 5, k = 0;
 {
    s = s + 1;
    pin s;
    // you cannot do that, if 'i' is local then it is local
    // you cannot eat your cake and have it, not even if you are the UB
-   // let i = i + 4;
+   // mut i = i + 4;
    k= i + 4
    j = j + 4;
 }
@@ -650,7 +651,7 @@ class A {
           this
      }
   }
-  let `-` = macro({|right|
+  mut `-` = macro({|right|
          if( right ≠ none ) {
               A(this.zumba - evaluate(right).zumba)
          } else {
@@ -658,8 +659,8 @@ class A {
          }
      })
 }
-let a = -A(1);
-let b = A(2);
+mut a = -A(1);
+mut b = A(2);
 (b-a).zumba
 
 // = initAsFactory
@@ -669,7 +670,7 @@ class PrinterClass{
   fn init {
     this.msg = ""
   }
-  let print = fn (message){
+  mut `print` = fn (message){
     this.msg = this.msg + message
     }
 }
@@ -686,31 +687,31 @@ class y : PrinterClass {
     }
 }
 
-let p = PrinterClass()
-p.print("csaka haha ")
-p.print("fogorvos hihi ")
-p.print("segithet huhu\n")
+mut p = PrinterClass()
+p.`print`("csaka haha ")
+p.`print`("fogorvos hihi ")
+p.`print`("segithet huhu\n")
 z = z()
-z.print("csaka haha ")
-z.print("fogorvos hihi ")
-z.print("segithet huhu\n")
+z.`print`("csaka haha ")
+z.`print`("fogorvos hihi ")
+z.`print`("segithet huhu\n")
 y = y()
-y.print("csaka haha ")
-y.print("fogorvos hihi ")
-y.print("segithet huhu")
+y.`print`("csaka haha ")
+y.`print`("fogorvos hihi ")
+y.`print`("segithet huhu")
 
 
 // = stringIndexing1
 
 
-let string = "zabraa"
+mut string = "zabraa"
 string[1] = "e"
 string[0..-1]
 
 // = StringIndexing2
 
 
-let MESSAGE = "1234"
+mut MESSAGE = "1234"
 // you can replace part of the string in an assignment
 // it can be longer than the part replaces, can be shorter, even empty
 MESSAGE[1..3] = 775
@@ -719,21 +720,21 @@ MESSAGE
 // = StringIndexing3
 
 
-let X = {}
+mut X = {}
 X.MESSAGE = "1234"
 X.MESSAGE[1..3] = 32
 X.MESSAGE[-∞..2] // bad luck
 
 // = reclosingClosure
-let MESSAGE = ""
-let z = 55;
-let y = 77;
-let x = {|| MESSAGE = MESSAGE + z + " "
+mut MESSAGE = ""
+mut z = 55;
+mut y = 77;
+mut x = {|| MESSAGE = MESSAGE + z + " "
         z = y;
     };
 x(); // 55, z <- 77
 {
-  let z = 63;
+  mut z = 63;
   x(); // 77
   MESSAGE = MESSAGE + z + " " // 77
   y = 99;
@@ -746,9 +747,9 @@ MESSAGE = MESSAGE[0…-1]
 // = catchingException
 
 
-let MESSAGE = ""
+mut MESSAGE = ""
 try {
-  let h = nonexistent()
+  mut h = nonexistent()
 }catch exception {
   MESSAGE = exception.message
 }
@@ -758,14 +759,14 @@ MESSAGE
 
 
 
-let a : any|str = "alma ata"
+mut a : any|str = "alma ata"
 
 // = badType
 
 
-let ex;
+mut ex;
 try {
-    let a: str = 13
+    mut a: str = 13
     }catch exception: ex = exception
 "" + ex
 
@@ -833,16 +834,16 @@ fn f([x], [x]) { }
 
 // = closureWithNamedOnly
 
-let f = {| @x=1, @y=(2|3) | }
+mut f = {| @x=1, @y=(2|3) | }
 none
 
 // = closureWithAllParamKinds
 
-let f = {| !a, b = 2, @x = 3, [rest], {meta}, ^block| }
+mut f = {| !a, b = 2, @x = 3, [rest], {meta}, ^block| }
 none
 
 // ! closureRestAfterClosure
-let f = {| a, ^block, [rest] | }
+mut f = {| a, ^block, [rest] | }
 
 // = namedArguments1
 
@@ -909,9 +910,9 @@ fn fun(@a:bool, [rest],{meta},^closurea){
   else:
     ""+rest[0] + rest[1] + meta.b
 }
-let x = fun(a=true,3, 45, b="ka"){|a,b,c,d| ""+ d + c + b }
-let klos = {|a,b,c,d| ""+ d + c + b }
-let y = fun(a=false,3, 45, b="ka", klos)
+mut x = fun(a=true,3, 45, b="ka"){|a,b,c,d| ""+ d + c + b }
+mut klos = {|a,b,c,d| ""+ d + c + b }
+mut y = fun(a=false,3, 45, b="ka", klos)
 x + y
 // = positionalOnly1
 
@@ -997,7 +998,7 @@ fn adhoc(){ // this will be deleted, it only exists in the preprocessor context
 }
 # {|lexes|
 ["""
-    let M:str = ""
+    mut M:str = ""
     fn adhic(){
       "hihi "
     }
@@ -1010,11 +1011,11 @@ M = M + adhic() + "hangyavadasz"
 // = jsonLazyObject
 
 
-let z = &{
-a : k, b : println("hubabba")
+mut z = &{
+a : k, b : (println("hubabba"))
 }
-let M = ""
-let k = 1
+mut M = ""
+mut k = 1
 M = M + z.a
 k = 2
 M = M + z.a
@@ -1029,9 +1030,9 @@ class A {
   }
 }
 
-let x = A()
-let y = A()
-let z = {}
+mut x = A()
+mut y = A()
+mut z = {}
 
 x.a = 1
 x.b = "x"
@@ -1046,9 +1047,9 @@ z.b = "z"
 
 // = pinObject
 
-let a = {x:1,y:2};
+mut a = {x:1,y:2};
 pin {a}
-let hu = { try {
+mut hu = { try {
     a.x = 3
     print("huhh")
 }catch e {
@@ -1060,7 +1061,7 @@ hu
 // = typeExpression
 
 
-let a :("str") = "kuka"
+mut a :("str") = "kuka"
 
 // = async
 
@@ -1075,13 +1076,13 @@ fn future {
   global mikka_makka
   "abraka dabra " + mikka_makka
 }
-let a = 1
-let b = 3
-let k = [ .. {async {let a = 7, b = 9 ;generator(a,b);}},keys()]
+mut a = 1
+mut b = 3
+mut k = [ .. {async {mut a = 7, b = 9 ;generator(a,b);}},keys()]
 println("The value of a is ", a);
 println(k)
 global mikka_makka = "Maminti"
-let f = async {let a=5;future()}
+mut f = async {mut a=5;future()}
 println(await f)
 
 // = streaming
@@ -1093,7 +1094,7 @@ fn gen_1_to_10 {
     return 1000
 }
 
-let st = async gen_1_to_10();
+mut st = async gen_1_to_10();
 println( st );
 while st.has_next() :
     println(st.next());
@@ -1136,8 +1137,8 @@ a(..{a:1,b:2,c:3,d:4}) + b(..[1,2,3,4])
 
 class K {fn p(){println "original K" }}
 fn h():K = K()
-let t:fn = {
-   let _K = K;
+mut t:fn = {
+   mut _K = K;
    {|| _K()}
 }
 class K {fn p(){println "overwritten K" }}

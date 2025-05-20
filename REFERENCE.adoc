@@ -31,7 +31,7 @@ and objects that inherit properties from their class.
 * **Dynamic**
 +
 All definitions occur at runtime and can be modified at runtime.
-For example, a class or function is created when its definition is executed, and it exists within the defining scope.
+For example, a class or function is created when its definition is executed, and it exists within the defining context.
 Methods are just fields containing closures or function values, and they can be added to any class or object—even after creation.
 
 * **Flexible**
@@ -78,11 +78,12 @@ The language is intended for **experienced developers**, especially those workin
 
 Turicum syntax is clean, indentation-insensitive, and largely expression-oriented.
 It does not aim to reinvent syntax, so it will feel familiar to programmers coming from Java, C, and—occasionally—Python.
-At the same time, it avoids syntactically superfluous elements, such as mandatory parentheses `()` around `if` conditions.
+At the same time, it avoids syntactically superfluous elements, such as mandatory parentheses `()` around `if` conditions, or loop header parts.
 
 The core syntactic conventions are as follows:
 
 * Semicolons (`;`) may be used to separate commands but are generally optional.
+It is recommended to use semicolons to avoid ambiguity.
 * Code blocks are enclosed in curly braces `{}` and evaluate to the result of the last executed command.
 * Single-line comments begin with `//` and continue to the end of the line.
 * Multiline comments start with `+/*+` and end with `*/`, like in Java, C, Go etc.
@@ -125,22 +126,24 @@ Hello, World
 
 
 
-A command is usually terminated by a newline or a semicolon (`;`).
-A semicolon can always be replaced by a newline at the end of a command—except when the syntax explicitly requires the semicolon inside the command, such as in a `for` loop.
+A command is usually terminated by a semicolon (`;`).
+A semicolon can sometimes be replaced by a newline at the end of a command.
+Some commands explicitly require the use of `;`, like the `for` loop.
 
 Commands can be grouped into blocks, enclosed in `{` and `}`.
-Everything in Turicum has a value—even commands.
+Everything in Turicum has a value.
+Even commands result in a value.
 For example, an `if` statement returns the value of the executed command:
 
 * the branch after the `if` condition,
-* the `else` block if the condition is false and an `else` is present, or
+* the `else` block if the condition is `false` and an `else` is present, or
 * `none` if there is no `else` block.
 
 
 .source of snippet `if_value`
 [source]
 ----
-let z : num = {if 232 % 2 == 0 : 1 else: 2 }
+mut z : num = {if 232 % 2 == 0 : 1 else: 2 }
 println(z)
 
 
@@ -165,8 +168,8 @@ The value of a command block is the result of the last executed expression.
 .source of snippet `block_value`
 [source]
 ----
-let z = {
-    let k = "Hi";
+mut z = {
+    mut k = "Hi";
     k + "cory"
     }
 println(z)
@@ -193,13 +196,14 @@ Expressions may contain:
 ** numbers
 ** JSON values
 * Variables
-* Operators
+* Operators (with precedences fixed)
 * Function calls
 * Closure calls
 * Macro calls
 * Method calls
 * Async expressions
 * Code blocks
+* block commands enclosed between `{` and `}` or `(` and `)`.
 
 Symbolic constants are `true`
 // has the constant boolean __true__ value.
@@ -229,6 +233,8 @@ pinned (immutable, final) global variables.
 ==== Shebang
 
 The interpreter ignores the first line of the program if it begins with `#!`.
+It is not only the command line version, but all embedding.
+This helps to use the same source in any embedding on any operating system.
 
 ==== Whitespace and Line Breaks
 
@@ -236,14 +242,18 @@ Whitespace—including spaces, tabs, and line breaks—is generally insignifican
 Multiple blank lines are allowed between tokens and commands.
 Line breaks alone do not terminate a command.
 
+Whitespace terminates tokens, so `1 2` are two tokens, and `12` is one.
+
 ==== Identifiers
 
 Identifiers are names used for variables, functions, classes, and other user-defined symbols.
 
 * Identifiers must begin with a Unicode letter or an underscore (`_`), and may contain letters, digits, and underscores.
+
 * You can explicitly define an identifier using backticks: `+`non-standard-id`+`.
 This allows you to use any string as an identifier—even reserved words, symbols, or operators.
 The primary use of this feature is to override operators, such as `+`==`+`.
+
 * Identifiers are case-sensitive.
 
 Some Unicode characters like `∞` (infinity) and `∅` (none) are automatically translated into meaningful identifiers (`inf`, `none`).
@@ -255,6 +265,7 @@ For example, in Python, you can override the `+` operator by defining a method n
 Turicum does not require such special naming conventions.
 You can simply define a method with the name `pass:[`+`]`.
 ====
+
 ==== Reserved Words
 
 Turicum defines a set of reserved keywords that cannot be used as identifiers—unless the name is enclosed in backticks, like `+`if`+`.
@@ -284,8 +295,11 @@ The reserved keywords are:
 `in`
 `let`
 `list`
+`mut`
 `or`
 `pin`
+`print`
+`println`
 `return`
 `try`
 `until`
@@ -310,11 +324,10 @@ Numeric literals can be either integers or floating-point numbers.
 * or in hexadecimal with `0x` prefix
 
 
-
 .source of snippet `hexNumber`
 [source]
 ----
-let z = 0xFfE3;
+mut z = 0xFfE3;
 println z
 
 
@@ -339,10 +352,11 @@ Type promotion is automatic and based on the context of usage.
 Internal implementation of numerical types uses `Long` and `Double`.
 
 There is no hexadecimal floating point literal like in Java.
+Turicum does not implement a feature just because it is fancy.
 
 ==== String Literals
 
-Strings in Turicum are enclosed in double quotes (`"`), e.g., ``"hello world"``.
+Strings in Turicum are enclosed in double quotes(`"`), e.g., ``"hello world"``.
 
 Backslash escapes are supported:
 
@@ -377,7 +391,8 @@ this is a simple string
 
 Multiline string literals are enclosed between triple quotes `pass["""]`.
 
-They preserve line breaks and indentation exactly as written. Escape sequences are still processed.
+They preserve line breaks and indentation exactly as written.
+Escape sequences are still processed.
 
 Example:
 
@@ -417,15 +432,15 @@ Turicum supports JSON-like literals directly in the language syntax. These can b
 .source of snippet `json1`
 [source]
 ----
-let project = {
-                  name : "turicum-parent",
-                  packaging : "pom",
-                  groupId : "ch.turic",
-                  artifactId : "turicum-parent",
-                  version : "1.0.0-SNAPSHOT",
-                  description : "Turicum programming language",
-                  modules : [ "core", "maven", "cli" ]
-                  }
+mut project = {
+      name : "turicum-parent",
+      packaging : "pom",
+      groupId : "ch.turic",
+      artifactId : "turicum-parent",
+      version : "1.0.0-SNAPSHOT",
+      description : "Turicum programming language",
+      modules : [ "core", "maven", "cli" ]
+      }
 println project.name
 println project.packaging
 
@@ -456,19 +471,52 @@ To defer the evaluation of a JSON literal until it is accessed, Turicum provides
 
 These are written with a `+&+` prefix before the JSON object:
 
+
+.source of snippet `lazy_json1`
 [source]
 ----
-&{
-  `timestamp`: now(),
-  user: getCurrentUser()
+fn get_name(){
+    println "Getting name";
+    "turicum-parent"
 }
+mut project = &{
+      name : get_name(),
+      packaging : "pom",
+      groupId : "ch.turic",
+      artifactId : "turicum-parent",
+      version : "1.0.0-SNAPSHOT",
+      description : "Turicum programming language",
+      modules : [ "core", "maven", "cli" ]
+      }
+println project.name
+println project.packaging
+println project.name
+
+
 ----
+
+
+
+
+.output of snippet `lazy_json1`
+[source]
+----
+Getting name
+turicum-parent
+pom
+Getting name
+turicum-parent
+
+----
+
+
 
 Lazy JSON is not evaluated at definition time.
 Each field is computed lazily, on demand, using the current execution context wrapping the context where the JSON was defined.
 This behavior is similar to that of closures.
 
-In the example above `getCurrentUser()` is only invoked if and when the field `user` is accessed.
+In the example above `get_name()` is only invoked if and when the field `name` is accessed.
+However, it is called both times the field was accessed.
 Lazy JSON objects are pinned, a.k.a. it is not possible to change any of their fields.
 
 ==== List Literals
@@ -481,10 +529,10 @@ List elements are expressions and are separated by commas:
 .source of snippet `ListLiteral1`
 [source]
 ----
-let computed = {fn(a,b) = a + b}(1,2);
-println([1, 2, 3, 4])
-println(["apple", "banana", "cherry"])
-println([1 + 2, computed])
+mut computed = {fn(a,b) = a + b}(1,2);
+println [1, 2, 3, 4]
+println ["apple", "banana", "cherry"]
+println [1 + 2, computed]
 
 
 ----
@@ -503,10 +551,6 @@ println([1 + 2, computed])
 
 
 
-NOTE: The call to the built-in function `println` in the example above need the `(` and `)`.
-Without that the syntax analyser will recognite `println[...]` as array access.
-The possibility to omit the `(` and `)` around fucntion calls if they stand as a statement should only be used if that supports readability.
-
 Lists are mutable by default and can be indexed using the `+[]+` operator.
 They support iteration in `+for each+` loops.
 
@@ -521,8 +565,8 @@ For example:
 .source of snippet `ListLiteral2`
 [source]
 ----
-let a = [1, 2, 3, 4]
-let b = ["apple", ..a, "banana", "cherry"]
+mut a = [1, 2, 3, 4]
+mut b = ["apple", ..a, "banana", "cherry"]
 println b
 
 
@@ -546,8 +590,8 @@ This is also the way to concatenate lists:
 .source of snippet `ListLiteral3`
 [source]
 ----
-let a = [1, 2, 3, 4]
-let b = [5, 6, 7]
+mut a = [1, 2, 3, 4]
+mut b = [5, 6, 7]
 println([..a, ..b])
 
 
@@ -571,13 +615,13 @@ The `pass:[+]`, `-` and `*` operators are also defined for lists.
 .source of snippet `ListLiteral4`
 [source]
 ----
-let a = [1, 2, 3, 4]
-let b = [1, 3]
-println(a+b)
-println(a-b)
-println(a*b)
-println(a+"sixteen")
-println(a-2)
+mut a = [1, 2, 3, 4]
+mut b = [1, 3]
+println a,"+",b,"=", a+b
+println a,"-",b,"=", a-b
+println a,"*", b,"=", a*b
+println a,"+\"sixteen\"=", a+"sixteen"
+println a,"-",2,"=", a-2
 
 
 ----
@@ -588,11 +632,11 @@ println(a-2)
 .output of snippet `ListLiteral4`
 [source]
 ----
-[1, 2, 3, 4, 1, 3]
-[2, 4]
-[[1, 1], [1, 3], [2, 1], [2, 3], [3, 1], [3, 3], [4, 1], [4, 3]]
-[1, 2, 3, 4, sixteen]
-[1, 3, 4]
+[1, 2, 3, 4]+[1, 3]=[1, 2, 3, 4, 1, 3]
+[1, 2, 3, 4]-[1, 3]=[2, 4]
+[1, 2, 3, 4]*[1, 3]=[[1, 1], [1, 3], [2, 1], [2, 3], [3, 1], [3, 3], [4, 1], [4, 3]]
+[1, 2, 3, 4]+"sixteen"=[1, 2, 3, 4, sixteen]
+[1, 2, 3, 4]-2=[1, 3, 4]
 
 ----
 
@@ -605,9 +649,9 @@ If you want to append a list to a list instead of concatenation, you have to enc
 .source of snippet `ListLiteral5`
 [source]
 ----
-let a = [1, 2, 3, 4]
-let b = [1, 3]
-println(a+[b])
+mut a = [1, 2, 3, 4]
+mut b = [1, 3]
+println a+[b]
 
 
 ----
@@ -628,14 +672,14 @@ The `-` will remove the elements from the list.
 
 The operator `*` will create the Descartes product of the two lists.
 
-If you want to remove a certain element or part of the list you can compose a new list from the necessary parts:
+If you want to remove a certain element or part of the list, you can compose a new list from the necessary parts:
 
 
 .source of snippet `ListLiteral6`
 [source]
 ----
-let a = [1, 2, 3, 4]
-println([a[0],..a[2..inf]])
+mut a = [1, 2, 3, 4]
+println [a[0],..a[2..inf]]
 
 
 ----
@@ -659,7 +703,7 @@ For example:
 .source of snippet `ListLiteral7`
 [source]
 ----
-let a = [1, 2, 3, 4 ? {|x| x % 2 == 0 } ]
+mut a = [1, 2, 3, 4 ? {|x| x % 2 == 0 } ]
 println a
 
 
@@ -685,7 +729,7 @@ You can also apply mappers following `->`, for example:
 .source of snippet `ListLiteral8`
 [source]
 ----
-let a = [1, 2, 3, 4 ? {|x| x % 2 == 0 } -> {|z| return z/2 }]
+mut a = [1, 2, 3, 4 ? {|x| x % 2 == 0 } -> {|z| return z/2 }]
 println a
 
 
@@ -714,7 +758,7 @@ It can save up using an argument:
 .source of snippet `ListLiteral9`
 [source]
 ----
-let a = [1, 2, 3, 4 ? {|| it % 2 == 0 } -> {|| return it/2 }]
+mut a = [1, 2, 3, 4 ? {|| it % 2 == 0 } -> {|| return it/2 }]
 println a
 
 
@@ -738,7 +782,7 @@ To ease more the syntax, you can use ordinary expressions instead of closures:
 .source of snippet `ListLiteral10`
 [source]
 ----
-let a = [1, 2, 3, 4 ? it % 2 == 0  -> it/2 ]
+mut a = [1, 2, 3, 4 ? it % 2 == 0  -> it/2 ]
 println a
 
 
@@ -758,6 +802,7 @@ println a
 
 This makes writing filters and mappers very easy.
 
+.Some deep technical detail
 [NOTE]
 ====
 The closure definition `{|x|x*2}` is technically an expression.
@@ -773,27 +818,25 @@ Closures are just objects and can be in a list.
 The answer is that it does not.
 If it sees a closure as the result of the expression, it will evaluate it.
 
-If you want to map a list element to a closure, then you have to write a closure that returns that closue you want to be the list element.
+If you want to map a list element to a closure, then you have to write a closure that returns that closure you want to be the list element.
 ====
-
-
 
 ==== Operators and Symbols
 
-The lexer recognizes both symbolic and word-based operators.
+The lexer recognizes both symbolic and word-based operators in expressions.
 Operators are tokenized with priority for the **longest matching operator**.
 
 Recognized symbols are:
 
 
-"--", "++", "pass:[->]", "<-", "=", "(", ")", ",", ".",
+"--", "++", "pass:[->]", "pass:[<-]", "=", "(", ")", ",", ".",
 "&{", "{", "}", "[", "]", ";", ":", "|", "?", "@", "^", "#"
 
  
 
-=== Operators
+=== Defined Operators
 
-Operators have precendence and are evaluated from left to right.
+Operators have precedence and are evaluated from left to right.
 You can use `(` and `)` to change the evaluation order.
 The operators are the followings in order of growing precedence:
 
@@ -877,20 +920,20 @@ dandy
 ----
 
 
-
 Note, that you cannot divide by zero, the result is an error and not `inf`.
 
 * `..` range operator. `start..end`` will result a range to index a list.
 The first index is `start`, the last is `end-1`.
 Ranges can be used to index lists as values and also in left values to replace a part of a list.
 When used as a unary prefix operator, it must be inside a list literal and in front of a list to flatten the list content into the literal.
++
+It is also used to flatten objects or lists to function parameter passing.
 
 * `|` bitwise OR operation.
 The operator works the conventional ways on integers.
 The operator is also defined for lists.
 The result is the union of the two lists with the unique elements.
 That way you can also create a "set" from a list `|`-ing it with an empty list, as in the example below:
-You cannot `|` floating point numbers.
 
 
 .source of snippet `bor1`
@@ -918,6 +961,8 @@ Cannot calculate '3.0' or '3.14'
 ----
 
 
+
+You cannot `|` floating point numbers.
 
 * `^` bitwise XOR operation for integer values and power in the case of double values.
 It calculates the symmetric difference of lists (the concatenation of the two lists without the elements that appear in both).
@@ -988,9 +1033,9 @@ or on strings to check the existence of a substring.
 .source of snippet `equal1`
 [source]
 ----
-let k = { a:1 , b:2 }
-let q = { a:1 , b:2 }
-let w = "ohmy"
+mut k = { a:1 , b:2 }
+mut q = { a:1 , b:2 }
+mut w = "ohmy"
 println 1 == 1, " one is one"
 println 1 == 2, " one is not two"
 println 1 === 1, "one is the same as one"
@@ -1274,9 +1319,9 @@ class A {
   }
 }
 
-let x = A()
-let y = A()
-let z = { a: 1, b: "x" }
+mut x = A()
+mut y = A()
+mut z = { a: 1, b: "x" }
 
 x.a = 1
 x.b = "x"
@@ -1323,8 +1368,8 @@ class A {
   }
 }
 
-let y = A()
-let z = { a: 1, b: "x" }
+mut y = A()
+mut z = { a: 1, b: "x" }
 
 y.a = 1
 y.b = "y"
@@ -1346,30 +1391,117 @@ y == z is false
 
 
 
-== Variables and Scope
+=== Using parentheses
+
+
+The different operators have their precedences as in most of the programming languages.
+
+The operator's table is defined in the source file `BinaryExpressionAnalyzer.java`.
+
+
+|===
+|Precedence |Operators
+
+|0
+|or
+
+|1
+|`&#124;&#124;`
+
+|2
+|`&&`
+
+|3
+|`..`
+
+|4
+|`&#124;`
+
+|5
+|`^`
+
+|6
+|`&`
+
+|7
+|`===`, `==`, `!=`, `in`
+
+|8
+| `<`, `<=`, `>`, `>=`
+
+|9
+| `+`, `-`
+
+| 10
+| `*`, `/`, `%`
+|===
+
+The higher precedence operators are executed first, and the lower precedence operators are executed on the results.
+When the order of the operator execution can be altered using parenthese.
+This is a widespread practice in most programming languages.
+
+The usual practice is that you can have a whole expression between `()` characters.
+Turicum is more liberal and gives much more freedom to the developer.
+You can have a whole code block between the `()` characters, similarly to `{}`.
+
+The major difference between the two is that the code between `()` is executed in the same context as the expression, while the code block between `{}` opens a new context.
+
+
+.source of snippet `pscope`
+[source]
+----
+
+println "2*3=",2*(mut s=3)
+println "s is defined and it is ",s
+println "2*3=",2*{mut k=3}
+try : mut h = 2*k
+catch e : println e;
+
+
+----
+
+
+
+
+.output of snippet `pscope`
+[source]
+----
+2*3=6
+s is defined and it is 3
+2*3=6
+Variable 'k' is undefined.
+
+----
+
+
+
+Because not only every command is a value but also every expression is a command, you can use the `()` to group commands to be executed in the same context as the code environment.
+
+
+== Variables and Context
 
 Variables can be global or local.
 They are defined in scopes.
 Scopes are wrapped around each other.
-The top level scope is the global scope.
+The top level context is the global context.
 
 Scopes are created in run-time, like everything in Turicum.
 
 === Block scopes
 
-Code blocks open a new scope and they wrap the surrounding scope.
+Code blocks open a new context and they wrap the surrounding context.
 
 
 .source of snippet `scope1`
 [source]
 ----
-let z = "cory"
+mut z = "cory"
 z = { // z is global
     println "just a print"
-    let k = "Hi" // k is local
+    mut k = "Hi" // k is local
          + z // z is accessible
     // the value of the block is the last command executed
-    // 'let' assignments result the value assigned
+    // 'mut' assignments result the value assigned
     }
 println(z)
 try:
@@ -1397,23 +1529,23 @@ Variable 'k' is undefined.
 
 The variable `k` is local inside the code block, and it has no value outside.
 The variable `z` is part of the wrapped context, and in this case it is global.
-The block executes in its own scope, and this scope wraps the global scope.
+The block executes in its own context, and this context wraps the global context.
 
 You can nest scopes.
 
-You can use a variable name defined in a wrapped (outer) scope essentially hiding the outer variable, but only if you do not use the outer variable in the inner scope.
-You cannot refer to both in a scope.
-When you use a variable defined in a wrapped (outer) scope you cannot define it after that as local using `let`.
+You can use a variable name defined in a wrapped (outer) context essentially hiding the outer variable, but only if you do not use the outer variable in the inner context.
+You cannot refer to both in a context.
+When you use a variable defined in a wrapped (outer) context, you cannot define it after that as local using `let` or `mut`.
 
 
 .source of snippet `local_redefined_error`
 [source]
 ----
-let z = 5
+mut z = 5
 try{
     z = {
         println(z);
-        let z = 3
+        mut z = 3
         }
 }catch ex {
     println(ex)
@@ -1437,17 +1569,17 @@ Variable cannot be local, it is already used as non-local 'z'
 ----
 
 
-=== Class, object and function scope
+=== Class, object and function context
 
-Class declarations and functions do not wrap the surrounding scope.
+Class declarations and functions do not wrap the surrounding context.
 In the following example, modifying the global variable `glb` is not possible without declaration.
-The class and the function do not wrap the surrounding, global scope.
+The class and the function do not wrap the surrounding, global context.
 
 
 .source of snippet `function_scope`
 [source]
 ----
-let glb = "global variable";
+mut glb = "global variable";
 class A {
   fn z(){
     println("You can read glb, which is a " + glb)
@@ -1459,7 +1591,7 @@ class A {
     }
     try{
        // you touched it as global, you cannot declare it as local anymore
-       let glb = 5;
+       mut glb = 5;
     }catch(e2){
         println("exception 2:",e2)
     }
@@ -1468,7 +1600,7 @@ class A {
     return "You can access glb here it is " + glb ;
   }
 }
-let obj = A()
+mut obj = A()
 println(obj.z())
 
 
@@ -1491,7 +1623,7 @@ You can access glb here it is modified
 
 
 The methods, a.k.a. functions defined inside a class wrap the context of the class.
-Whenever a method is called its own scope is created and the "local variables" `cls` and `this` are created.
+Whenever a method is called its own context is created and the "local variables" `cls` and `this` are created.
 Unless the method is a constructor (named aptly as `constructor`) these variables are pinned, cannot be changed.
 
 Code inside a class, outside any method is executed when the class is defined.
@@ -1501,10 +1633,10 @@ Code inside a class, outside any method is executed when the class is defined.
 [source]
 ----
 class X {
-  let s = "hu"
+  mut s = "hu"
 }
 println("class var ", X.s)
-let x = X();
+mut x = X();
 println("object var ", x.s)
 
 
@@ -1514,11 +1646,11 @@ println("object var ", x.s)
 
 
 The code above defines a class named `X`.
-This class has a class scope variable `s`.
+This class has a class context variable `s`.
 It can be accessed as a field of the class itself `X.s`.
 
 Variable `x` is initialized to hold an instance of this class.
-Using `x.s` will reference the same variable, because objects wrap the scope of the class.
+Using `x.s` will reference the same variable, because objects wrap the context of the class.
 
 
 .output of snippet `class_definition`
@@ -1537,10 +1669,10 @@ The following example details these different access scenarios:
 [source]
 ----
 class X {
-  let s = "class field"
+  mut s = "class field"
   cls.h = "another class field"
   fn constructor {
-    let g = "object field"
+    mut g = "object field"
   }
   fn t(){
     // access object field explicitly through 'this'
@@ -1562,7 +1694,7 @@ class X {
     println("s=",s)
   }
 }
-let x = X();
+mut x = X();
 x.t()
 
 
@@ -1577,7 +1709,7 @@ x.t()
 ----
 this.g=none
 cls.g=none
-Variable 'g' is undefined.
+g=Variable 'g' is undefined.
 this.h=another class field
 cls.h=another class field
 h=another class field
@@ -1600,11 +1732,11 @@ The general syntax is:
 
 Note that executing a closure and calling a closure are two different things.
 When a closure is executed, it returns the closure.
-When a closure is called, the arguments are evaluated in the actual scope, and the closure is called in its scope.
-The scope of the closure does not wrap the scope of the caller.
-It does wrap the scope of the execution, where we created the closure.
+When a closure is called, the arguments are evaluated in the actual context, and the closure is called in its context.
+The context of the closure does not wrap the context of the caller.
+It does wrap the context of the execution, where we created the closure.
 
-Technically functions are closures that do not wrap any other scope.
+Technically functions are closures that do not wrap any other context.
 
 The following example inside a block.
 the closure can access and even modify the variable `whom`.
@@ -1613,8 +1745,8 @@ the closure can access and even modify the variable `whom`.
 .source of snippet `closure_example`
 [source]
 ----
-let c = {
-    let whom = "World!";
+mut c = {
+    mut whom = "World!";
     {|greeting|
         println(greeting,whom);
         whom = "Universe!"
@@ -1655,7 +1787,7 @@ The following simple macro reimplements the `if` command's functionality using i
 .source of snippet `macro_example`
 [source]
 ----
-let c = macro(
+mut c = macro(
     {|condition,then,`else`|
         if evaluate(condition) : evaluate(then) else: evaluate(`else`)
     })
@@ -1680,14 +1812,19 @@ yes, it is true
 
 
 
-When a macro calls the function `evaluate` the evaluation happens in the caller scope.
-This ensures the same scope and variable visibility like calling a function or closure.
+When a macro calls the function `evaluate` the evaluation happens in the caller context.
+This ensures the same context and variable visibility like calling a function or closure.
 The caller does not need to know that the implementation of the something it calls is a function, closure, or macro.
 
 === Variable Declaration
 
-Upon first assignment the code has to use the keyword `let` to define the variable.
+Upon first assignment the code has to use the keyword `let` or `mut` to define the variable.
 Until that happens, you cannot use a variable.
+
+Variables defined using the keyword `let` are not mutable.
+Variables defined using the keyword `mut` are mutable.
+Mutable variables can be pinned, made immutable any time using the `pin` command.
+Immutable variables remain immutable forever.
 
 You cannot read an undefined variable.
 If a variable is not defined, it will throw an exception.
@@ -1697,11 +1834,12 @@ An undefined variable was never defined.
 An already defined variable can have the value of `none`, and it can also have type declaration.
 Also, you can assign values to object fields without the `let` keyword, even to define them.
 
-The syntax of a `let` command is the following:
+The syntax of a `let` and `mut` command is the following:
 
 [source]
 ----
 let identifier : type = expression
+mut identifier : type = expression
 ----
 
 or
@@ -1709,6 +1847,7 @@ or
 [source]
 ----
 let {identifier:type , ... } = expression
+mut {identifier:type , ... } = expression
 ----
 
 or
@@ -1716,6 +1855,7 @@ or
 [source]
 ----
 let [identifier:type ...] = expression
+mut [identifier:type ...] = expression
 ----
 
 In the first version you assign a value to an identifier and optionally define the type.
@@ -1791,7 +1931,7 @@ The following example declares a variable that can hold a string or a numeric va
 .source of snippet `let_with_types_example`
 [source]
 ----
-let c : str |num = 3;
+mut c : str |num = 3;
 c = "" + c + " == " + c
 println(c)
 
@@ -1818,8 +1958,8 @@ Instead, the expression after the `=` is evaluated once, used as an object and t
 [source]
 ----
 
-let z = { a: "apple", b:"bier", c : "count" }
-let {a, b, c} = z
+mut z = { a: "apple", b:"bier", c : "count" }
+mut {a, b, c} = z
 println a
 println b
 println c
@@ -1848,8 +1988,8 @@ It is not an error if there are fields in the object not read during the assignm
 [source]
 ----
 
-let z = { a: "apple", b:"bier", c : "count" , d: "not used" }
-let {a, b, c, f} = z
+mut z = { a: "apple", b:"bier", c : "count" , d: "not used" }
+mut {a, b, c, f} = z
 println a
 println b
 println c
@@ -1880,7 +2020,7 @@ Instead, the expression after the `=` is evaluated once, used as a list and the 
 .source of snippet `flat_let_list1`
 [source]
 ----
-let [a, b, c] = [1,2,3]
+mut [a, b, c] = [1,2,3]
 println a
 println b
 println c
@@ -1909,7 +2049,7 @@ It is  an error if there are not enough or too many elements in the list on the 
 [source]
 ----
 try:
-    let [a, b, c, f] = [1,2,3]
+    mut [a, b, c, f] = [1,2,3]
 catch err: println err
 
 
@@ -1932,7 +2072,7 @@ catch err: println err
 [source]
 ----
 try:
-    let [a, b] = [1,2,3]
+    mut [a, b] = [1,2,3]
 catch err: println err
 
 
@@ -1956,7 +2096,7 @@ If you have too many elements you can cut the list:
 .source of snippet `flat_let_list4`
 [source]
 ----
-let [a, b] = [1,2,3,4,5,6,7,8][0..2]
+mut [a, b] = [1,2,3,4,5,6,7,8][0..2]
 println a
 println b
 
@@ -1983,7 +2123,7 @@ If you have too few you can extend the list:
 [source]
 ----
 fn adjust(_x, @to){
-    let x = _x
+    mut x = _x
     if len(x) < to :
         while len(x) < to :
             x = [..x, none]
@@ -1991,7 +2131,7 @@ fn adjust(_x, @to){
         x = x[0..len(x)]
     x
 }
-let [a, b, c, d] = adjust(to=4,[1,2])
+mut [a, b, c, d] = adjust(to=4,[1,2])
 println a
 println b
 println c
@@ -2022,7 +2162,7 @@ or even
 [source]
 ----
 fn adjust(@to,[_x]){
-    let x = _x
+    mut x = _x
     if len(x) < to :
         while len(x) < to :
             x = [..x, none]
@@ -2030,7 +2170,7 @@ fn adjust(@to,[_x]){
         x = x[0..len(x)]
     x
 }
-let [a, b, c, d] = adjust(to=4, 1,2)
+mut [a, b, c, d] = adjust(to=4, 1,2)
 println a
 println b
 println c
@@ -2059,7 +2199,7 @@ none
 
 ==== Pinned Variables
 
-Pinning a variable makes it illegal to change it in the scope.
+Pinning a variable makes it illegal to change it in the context.
 The syntax of the `pin` command is
 
 [source]
@@ -2090,9 +2230,9 @@ The following example demonstrates the different pinning possibilities:
 .source of snippet `pinning`
 [source]
 ----
-let turicum = 13
-let `list` = [1,2,3]
-let object = { x:1, y:2};
+mut turicum = 13
+mut `list` = [1,2,3]
+mut object = { x:1, y:2};
 pin turicum, [`list`], {object}
 
 try {
@@ -2159,7 +2299,7 @@ If the condition is `false` and there is no "else" block or command, then the re
 .source of snippet `ifCommand`
 [source]
 ----
-let a= 13
+mut a= 13
 if a%2 == 0: println("even") else: println("odd")
 a = {if a%2 == 0: "even" else: "odd"}
 print("again ",a)
@@ -2211,7 +2351,7 @@ Execution of the loop stops when the tail condition is  `true`.
 .source of snippet `whileLoop`
 [source]
 ----
-let i = 1;
+mut i = 1;
 while i < 5 {
   print(i," ");
   i = i + 1;
@@ -2238,7 +2378,7 @@ If the body is a single command, not enclosed between `{` and `}` it has to be p
 .source of snippet `whileLoop2`
 [source]
 ----
-let i = 1;
+ mut i = 1;
 while i < 5 :
   i = i + 1;
 until i % 3 == 0;
@@ -2266,7 +2406,7 @@ The value of the loop is the result of the last executed command.
 [source]
 ----
 println {
-    let k = 0
+    mut k = 0
     while k < 10 : k = k + 1
 }
 
@@ -2292,9 +2432,9 @@ The list will contain the results of each body loop execution.
 .source of snippet `while_list`
 [source]
 ----
-let k = 0;
+mut k = 0;
 println{ while k < 5 list{
-            let h = k;
+            mut h = k;
             k = k + 1;
             h
          }
@@ -2395,7 +2535,7 @@ If the start command is an assignment, it is interpreted as a local assignment.
 .source of snippet `for3`
 [source]
 ----
-// same as 'for( let i = 1 ;' ...
+// same as 'for( mut i = 1 ;' ...
 for( i = 1 ; i < 5 ; i=i+1 ){
   print(i," ")
 }until i%3 == 0 ;
@@ -2412,7 +2552,7 @@ catch err { println(); println err ; }
 .output of snippet `for3`
 [source]
 ----
-1 2 3 
+1 2 3 i at end=
 Variable 'i' is undefined.
 
 ----
@@ -2420,13 +2560,13 @@ Variable 'i' is undefined.
 
 
 The variable `i` after the loop is still undefined.
-To use a variable from the enclosing wrapped scope, you can enclose the assignment into a block.
+To use a variable from the enclosing wrapped context, you can enclose the assignment into a block.
 
 
 .source of snippet `for4`
 [source]
 ----
-let i;
+mut i;
 for {i = 1} ; i < 5 ; i=i+1 :  print(i," "); until i%3 == 0;
 println("i at end=",i);
 
@@ -2455,7 +2595,7 @@ The value of the loop is the result of the last executed command.
 [source]
 ----
 println {
-    let k = 0
+    mut k = 0
     for ; k < 10 ; : k = k + 1
 }
 
@@ -2593,8 +2733,8 @@ for each z with i in ["apple", "banana", "orange", "peach"] {
 
 The index starts from zero and increments with each execution by one.
 The index variable is local to the loop.
-Without this feature you would need to declare a variable one scope higher and then use it in the loop.
-That would violate the locality principle, not to rely on anything out of a scope that may change and even less modify anything out of the scope, which is in this case a loop.
+Without this feature you would need to declare a variable one context higher and then use it in the loop.
+That would violate the locality principle, not to rely on anything out of a context that may change and even less modify anything out of the context, which is in this case a loop.
 
 When used in an expression position, a `for each` loop returns the result of the last executed loop body.
 
@@ -2677,7 +2817,7 @@ The command can break the execution of the loop and can also specify the value o
 Will continue the execution of the loop starting the body of the loop again without exeuting the rest of the commands in the loop body.
 
 
-=== Returning, Breaking, Continue and Yielding
+=== Returning, Breaking, Continue, and Yielding
 
 These three commands are in one family.
 each of them can pass a value, and each can have a conditionality following the expression.
@@ -3012,7 +3152,7 @@ fn gen_1_to_10 {
         yield i;
 }
 
-let st = async gen_1_to_10();
+mut st = async gen_1_to_10();
 while st.has_next() :
     println(st.next());
 
@@ -3073,7 +3213,7 @@ class Resource {
     }
     fn exit(e){
         println "exit fom A"
-        return none // if there is an error, let it go
+        return none // if there is an error, mut it go
     }
 }
 with Resource() as a {
@@ -3185,8 +3325,8 @@ It means that the fields of the objects can be used as variables without prefixi
 .source of snippet `simpleWith`
 [source]
 ----
-let x = {a:1,b:2};
-let y = {a:4,c:5};
+mut x = {a:1,b:2};
+mut y = {a:4,c:5};
 with x,y {
     println a
     println b
@@ -3210,7 +3350,7 @@ with x,y {
 
 
 
-Technically, the command executes the block in a context that references the fields of the object and wraps the surrounding scope.
+Technically, the command executes the block in a context that references the fields of the object and wraps the surrounding context.
 When more than one object is listed, then multiple wrapping scopes are created from left to right.
 It also means that the objects to the right shadow the objects to the left.
 In the example both `x` and `y` have field `a` and since `y` is later in the list the field of `y` is used.
@@ -3221,13 +3361,13 @@ You can also modify or even create fields:
 .source of snippet `modifyWith`
 [source]
 ----
-let x = {a:1,b:2};
-let y = {a:4,c:5};
+mut x = {a:1,b:2};
+mut y = {a:4,c:5};
 with x,y {
     a = 0
     b = 0
     c = 0
-    let k = 55;
+    mut k = 55;
 }
 println x
 println y
@@ -3257,8 +3397,8 @@ The value of the command is the value of the block executed.
 .source of snippet `valueWith`
 [source]
 ----
-let x = {a:1,b:2};
-let y = {a:4,c:5};
+mut x = {a:1,b:2};
+mut y = {a:4,c:5};
 println {with x,y : a * b + c}
 
 
@@ -3295,7 +3435,7 @@ The `yield` command inside the task will either receive an object or send an obj
 .source of snippet `async`
 [source]
 ----
-let t:task = async {
+mut t:task = async {
     for i=0 ; i < 10 ; i = i + 1 {
         yield i
     }
@@ -3385,9 +3525,9 @@ fn is_prime(x:num):bool {
   * Then read from it and print.
   */
 fn execute(name:str, que_length:num){
-    let prime = async[in=que_length] {
+    mut prime = async[in=que_length] {
         yield 2;
-        let i = 3;
+        mut i = 3;
         while {
             if is_prime(i) {
                 yield i
@@ -3397,7 +3537,7 @@ fn execute(name:str, que_length:num){
         }
     }
 
-    let count = 0
+    mut count = 0
     while prime.has_next(){
         println " prime read ",prime.next()
         count = count + 1
@@ -3425,27 +3565,27 @@ execute("Thread 2",2)
 ----
  prime read 2
 Thread 1 generated 3
-Thread 1 generated 5
+ prime read 3
+Thread 1 generated  prime read 5
+5
 Thread 1 generated 7
+ prime read 7
 Thread 1 generated 9
 Thread 1 generated 11
- prime read 3
 Thread 1 generated 13
- prime read 5
- prime read 7
 Thread 1 generated 15
 Thread 1 generated 17
 stopping
 exception Task stopped.
  prime read 2
-Thread 2 generated  prime read 3
-3
+Thread 2 generated 3
+ prime read 3
 Thread 2 generated 5
  prime read 5
 Thread 2 generated 7
- prime read 7
 Thread 2 generated 9
-Thread 2 generated 11
+ prime read Thread 2 generated 11
+7
 stopping
 exception Task stopped.
 
@@ -3483,16 +3623,16 @@ fn sleeper(x) {
     x
     }
 {
-let start = nano_time()
-let serial = [sleeper(1), sleeper(2), sleeper(3)]
-let end = nano_time()
+mut start = nano_time()
+mut serial = [sleeper(1), sleeper(2), sleeper(3)]
+mut end = nano_time()
 println serial
 println( (end-start)/1000000, "ms")
 }
 {
-let start = nano_time()
-let serial = [ ..async([sleeper(1), sleeper(2), sleeper(3)]) -> it.get() ]
-let end = nano_time()
+mut start = nano_time()
+mut serial = [ ..async([sleeper(1), sleeper(2), sleeper(3)]) -> it.get() ]
+mut end = nano_time()
 println serial
 println( (end-start)/1000000, "ms")
 }
@@ -3507,9 +3647,9 @@ println( (end-start)/1000000, "ms")
 [source]
 ----
 [1, 2, 3]
-315.500792ms
-[1, 2, 3]
-108.142583ms
+312.254417ms
+[]
+330.707291ms
 
 ----
 
@@ -3693,11 +3833,11 @@ It shows how reactive cells can update each other iteratively until convergence 
 .source of snippet `example_flow_squareroot`
 [source]
 ----
-let sqrt = {
+mut sqrt = {
     flow until epsilon < 0.0001 {
         a <- 13;
         a <- {
-            let newA = (a + 13 / a) / 2;
+            mut newA = (a + 13 / a) / 2;
             println("a =", newA);
             newA;
         }
@@ -3724,8 +3864,10 @@ a =3.6820276497695854
 a =3.6063454894655185
 a =3.6055513629176015
 a =3.6055512754639905
-sqrt(13) ≈ 3.6055513629176015
-square ≈ 13.000000630636974
+a =3.6055512754639896
+a =3.6055512754639896
+sqrt(13) ≈ 3.6055512754639896
+square ≈ 13.000000000000002
 
 ----
 
@@ -3738,11 +3880,11 @@ It simulates a long-running or slow computation and demonstrates how flow execut
 .source of snippet `example_flow_timeout`
 [source]
 ----
-let result = {try {
+mut result = {try {
     flow timeout 0.01 {  // 10 milliseconds
         counter <- 0;
         counter <- {
-            let n = counter + 1;
+            mut n = counter + 1;
             println("counter =", n);
             sleep(0.005);  // 5 milliseconds per step
             n;
@@ -3779,11 +3921,11 @@ It shows how the system halts with a clear error message once the execution limi
 [source]
 ----
 
-let result = {try {
+mut result = {try {
                flow limit 5 {
                    x <- 1;
                    x <- {
-                       let newX = x + 1;
+                       mut newX = x + 1;
                        println("x =", newX);
                        newX;
                    }
@@ -3869,7 +4011,7 @@ println(inc(1))
 .output of snippet `fun1`
 [source]
 ----
-ch.turic.commands.Closure@221a3fa4
+ch.turic.commands.Closure@7803bfd
 2
 
 ----
@@ -3898,7 +4040,7 @@ println(inc(1))
 .output of snippet `fun3`
 [source]
 ----
-ch.turic.commands.Closure@451001e5
+ch.turic.commands.Closure@42bc14c1
 2
 
 ----
@@ -3914,7 +4056,7 @@ When it does not have a name, then `(` and `)` must present even if there are ze
 .source of snippet `fun2`
 [source]
 ----
-let inc = fn (x) {
+mut inc = fn (x) {
   x+1
 }
 println(inc)
@@ -3929,7 +4071,7 @@ println(inc(1))
 .output of snippet `fun2`
 [source]
 ----
-ch.turic.commands.Closure@2b40ff9c
+ch.turic.commands.Closure@531f4093
 2
 
 ----
@@ -3948,7 +4090,7 @@ The following code does not do what you expect:
 .source of snippet `fun10`
 [source]
 ----
-class K {   fn p()=println "original K" }
+class K {   fn p()=(println "original K") }
 fn h():K = K()
 h().p()
 
@@ -3961,6 +4103,7 @@ h().p()
 .output of snippet `fun10`
 [source]
 ----
+original K
 
 ----
 
@@ -3976,7 +4119,7 @@ If you use the `(` and `)` characters after the `println` function call, then th
 .source of snippet `fun11`
 [source]
 ----
-class K {   fn p()=println("original K") }
+class K {   fn p()=(println("original K")) }
 fn h():K = K()
 h().p()
 
@@ -4054,7 +4197,7 @@ The types are evaluated when the function is defined.
 .source of snippet `fun9`
 [source]
 ----
-let myString="num"
+mut myString="num"
 fn concat(a:str, b:str):(myString) = 13
 myString = "str"
 try:
@@ -4113,7 +4256,7 @@ println(inc(1,how_much=5))
 .output of snippet `fun4`
 [source]
 ----
-ch.turic.commands.Closure@3e08ff24
+ch.turic.commands.Closure@62ef27a8
 6
 
 ----
@@ -4225,7 +4368,7 @@ The following example shows how you can use the rest-parameter:
 .source of snippet `restParameters`
 [source]
 ----
-let f = fn (a,b,[rest]) {
+mut f = fn (a,b,[rest]) {
   println("a=",a)
   println("b=",b)
   for each r in rest: print("%s " % r)
@@ -4255,7 +4398,7 @@ The following example demonstrates the use of the meta-parameter:
 .source of snippet `metaParameters`
 [source]
 ----
-let f = fn (a,b,{meta}) {
+mut f = fn (a,b,{meta}) {
   println("a=",a)
   println("b=",b)
   for each r in keys(meta): print("%s=%s\n" % [r , meta[r]])
@@ -4309,7 +4452,7 @@ You can also combine the two:
 .source of snippet `metaRestParameters`
 [source]
 ----
-let f = fn (a,b,[rest],{meta}) {
+mut f = fn (a,b,[rest],{meta}) {
   println("a=",a);
   println("b=",b);
   for each r in keys(meta): print("%s=%s\n" % [r , meta[r]]);
@@ -4349,7 +4492,7 @@ For example:
 .source of snippet `closureArgument`
 [source]
 ----
-let f = fn (a,b,^closure) {
+mut f = fn (a,b,^closure) {
   println("a=",a);
   println("b=",b);
   println(closure(a,b))
@@ -4552,12 +4695,12 @@ A class is defined when the class definition is executed.
 ----
 class A {
     fn init {
-        let a = "a";
+        mut a = "a";
     }
-    let c = "c"
+    mut c = "c"
 }
-let a1 = A()
-let a2 = A()
+mut a1 = A()
+mut a2 = A()
 a1.a = "1"
 a2.a = "2"
 A.c = "d"
@@ -4606,8 +4749,8 @@ class A {
     }
     cls.c = "c"
 }
-let a1 = A()
-let a2 = A()
+mut a1 = A()
+mut a2 = A()
 a1.a = "1"
 a2.a = "2"
 A.c = "d"
@@ -4648,12 +4791,12 @@ class A {
         println "I am class level"
     }
 }
-let a1 = A()
+mut a1 = A()
 a1.p()
 a1.p = fn (){
   println "I am a1"
 }
-let a2 = A()
+mut a2 = A()
 a2.p = fn (){
   println "I am a2"
 }
@@ -4834,8 +4977,8 @@ class A {
     }
 }
 
-let a = A()
-let b = a.B()
+mut a = A()
+mut b = a.B()
 
 
 ----
@@ -4866,13 +5009,13 @@ When you declare a class the parent class or classes are specified by their name
 ----
 class P {
     fn a()=1
-    let v = 2
+    mut v = 2
 }
 class C : P {
     fn b()=3
-    let z = 4
+    mut z = 4
 }
-let o = C();
+mut o = C();
 println o.a(),o.v,o.b(),o.z;
 
 
@@ -4899,17 +5042,17 @@ You can inherit from multiple parent classes:
 ----
 class P1 {
     fn a()=1
-    let v = 2
+    mut v = 2
 }
 class P2 {
     fn aa()=3
-    let vv = 4
+    mut vv = 4
 }
 class C : P1,P2 {
     fn b()=5
-    let z = 6
+    mut z = 6
 }
-let o = C();
+mut o = C();
 println o.a(), o.v, o.aa(), o.vv, o.b(), o.z;
 
 
@@ -4936,17 +5079,17 @@ It is important when there are multiple implementatios of the same method name o
 ----
 class P1 {
     fn a()=1
-    let v = 2
+    mut v = 2
 }
 class P2 {
     fn a()=3
-    let v = 4
+    mut v = 4
 }
 class C : P1,P2 {
     fn b()=5
-    let z = 6
+    mut z = 6
 }
-let o = C();
+mut o = C();
 println o.a(), o.v, o.b(), o.z;
 
 
@@ -4987,7 +5130,7 @@ class C : P1,P2 {
         println "init in C, cls='%s' this='%s'" % [cls, this]
     }
 }
-let o = C();
+mut o = C();
 
 
 ----
@@ -5028,7 +5171,7 @@ class C : P1,P2 {
         P2.init()
     }
 }
-let o = C();
+mut o = C();
 
 
 ----
@@ -5060,7 +5203,7 @@ class P {
 }
 class C : P {
 }
-let o = C();
+mut o = C();
 
 
 ----
@@ -5096,7 +5239,7 @@ You can declare a variable to hold an error
 ----
 try{
         z = 55 // undefined variable
-}catch x : let error:err = x
+}catch x : mut error:err = x
 
 println error
 
@@ -5215,6 +5358,89 @@ The value of the try-catch command is
 
 The command after the `finally` keyword does not affect the result of the command.
 
+Also note that the execution of the `try` command has an atomic nature.
+
+
+.source of snippet `try6`
+[source]
+----
+try : (mut a = 1;
+       mut b = 2;
+       mut c = 1 / 0;
+      )
+catch e : println e;
+
+println "Do we have a? ", is_defined(a)
+println "Do we have b? ", is_defined(b)
+println "Do we have c? ", is_defined(c)
+
+
+----
+
+
+
+
+.output of snippet `try6`
+[source]
+----
+Cannot divide by zero
+Do we have a? false
+Do we have b? false
+Do we have c? false
+
+----
+
+
+
+In the example above, the local variables defined in the expression are not defined afterward because an error, division by zero, has happened.
+
+The next example shows how this atomic behavior works.
+
+
+.source of snippet `try7`
+[source]
+----
+mut a = 3;
+try : (mut a = 1;
+       println "we redefined 'a'"
+       mut b = 2;
+       println "we defined 'b'"
+      )
+catch e : println e;
+
+println "Do we have a? ", is_defined(a)
+println "Was it changed or still 3? It is ",a
+println "Do we have b? ", is_defined(b)
+
+
+----
+
+
+
+
+.output of snippet `try7`
+[source]
+----
+Variable 'a' is already defined.
+Do we have a? true
+Was it changed or still 3? It is 3
+Do we have b? false
+
+----
+
+
+
+When the code following the `try` executes it opens a new context.
+This context is a so-called shadow context.
+It wraps the surrounding context.
+When you define a new variable in this context, it checks not only this context but also the surrounding context to see whether the variable is already defined.
+
+To be precise, it checks not only the surrounding shadow context but all shadow contexts wrapped in the line.
+It has effect when `try` commands are nested.
+
+When and if the `try` command finishes successfully the variables from the shadow context are moved to the wrapped context, one level higher.
+
+
 == Decorators, Metaprogramming
 
 Decorators are an inherent part of Turicum.
@@ -5230,7 +5456,7 @@ fn closure_decorator(^closure){
   {|| println("We start"); closure(); println("We finish")}
 }
 
-let z = closure_decorator(){|| println("We are closure") }
+mut z = closure_decorator(){|| println("We are closure") }
 
 z()
 
@@ -5261,7 +5487,7 @@ fn closure_decorator(^closure){
   {|| println("We start@"); closure(); println("We finish@")}
 }
 
-let z = @closure_decorator(){|| println("We are closure") }
+mut z = @closure_decorator(){|| println("We are closure") }
 
 z()
 
@@ -5294,7 +5520,7 @@ When the `@` precedes the function call, a `fn` or `class` are also recognized a
     {|| println("We start the fun"); closure(); println("The fun is over")}
   }
 
-let z =
+mut z =
 @fun_decorator()
 fn q(){
   println("We function");
@@ -5333,7 +5559,7 @@ The code can, however, be fixed:
     {|| println("We start the fun"); closure(); println("The fun is over")}
   }
 
-let z =
+mut z =
 fun_decorator(
 fn q(){
   println("We function");
@@ -5365,7 +5591,7 @@ They can also modify the existing definition.
 .source of snippet `fnDecorator3`
 [source]
 ----
-let fun_decorator={|^closure|
+mut fun_decorator={|^closure|
         set(closure.name,
             {|| println("We start the fun"); closure(); println("The fun is over")}
            )
@@ -5405,7 +5631,7 @@ To redefine an already existing variable, it needs to be a closure.
 You usually just assign a value to the variable updating its value.
 In this case we have to use the built-in `set` function, because we have the name of the variable as a string.
 
-In the following example we moved the function definition to a local scope.
+In the following example we moved the function definition to a local context.
 The decorator in this case simply defines the global variable of the same name as we used locally for the function.
 The value is the closure or function, whatever we decorate itself.
 
@@ -5496,14 +5722,14 @@ When a class name is used as a field in an object either directly injected to th
 [source]
 ----
 class OuterClass {
-    let name = "outer class";
+    mut name = "outer class";
     fn init(){
-      let name = "outer object"
+      mut name = "outer object"
     }
     class InnerClass {
-        let name = "inner class";
+        mut name = "inner class";
         fn init() {
-            let name = "inner object"
+            mut name = "inner object"
             println("this name %s " % this.name)
             println("this name %s " % cls.name)
             println("this name %s " % that.name)
@@ -5511,8 +5737,8 @@ class OuterClass {
             }
         }
     }
-let outer = OuterClass()
-let inner = outer.InnerClass()
+mut outer = OuterClass()
+mut inner = outer.InnerClass()
 
 
 ----
@@ -5586,7 +5812,7 @@ If we create the same program using a class memoizing the results:
 [source]
 ----
 class FibCalculator {
-    let cache = [];
+    mut cache = [];
     fn fib(x) {
         if x == 1 || x == 0 : 1
         else{
@@ -5654,7 +5880,7 @@ One solution can be to convert the function to a closure:
 [source]
 ----
 {
-    let fib={|x|
+    mut fib={|x|
         if x == 1 || x == 0 : 1
         else: fib(x - 1) + fib(x - 2)
     }
@@ -5753,8 +5979,8 @@ As an extra, here is a version of the fibonacci calculation using a closure with
 .source of snippet `fibonacci7`
 [source]
 ----
-let fib = {
-    let cache = [];
+mut fib = {
+    mut cache = [];
     {|x|
         if x == 1 || x == 0 : 1
         else{
@@ -5788,7 +6014,7 @@ Finally, here is a modified fibonacci calculation that can replace the start val
 ----
 class FibCalculator {
     fn init(start=1) {
-        let cache = [];
+        mut cache = [];
     }
     fn fib(x) {
         if x == 1 || x == 0 : start
@@ -5877,8 +6103,8 @@ println "56. ","aaa".sha_256()
 println "57. ","aaa".sha_512()
 println "60. ","aaa".digest("MD5")
 println "61. ",61.hex()
-println "62. ","let z = if a == 3 :  3 else: 5;".turi_lex()
-println "63. ","let M= \"\"; for i=0 ; i < 8 ; i = i +1 : M = M + i; M".execute()
+println "62. ","mut z = if a == 3 :  3 else: 5;".turi_lex()
+println "63. ","mut M= \"\"; for i=0 ; i < 8 ; i = i +1 : M = M + i; M".execute()
 println "64. ",M
 
 
@@ -5949,7 +6175,7 @@ println "64. ",M
 57. d6f644b19812e97b5d871658d6d3400ecd4787faeb9b8990c1e7608288664be77257104a58d033bcf1a0e0945ff06468ebe53e2dff36e248424c7273117dac09
 60. 47bce5c74f589f4867dbd57e9ca9f808
 61. 0x3D
-62. [Lex{types=RESERVED, text='let'}, Lex{types=IDENTIFIER, text='z'}, Lex{types=RESERVED, text='='}, Lex{types=RESERVED, text='if'}, Lex{types=IDENTIFIER, text='a'}, Lex{types=RESERVED, text='=='}, Lex{types=INTEGER, text='3'}, Lex{types=RESERVED, text=':'}, Lex{types=INTEGER, text='3'}, Lex{types=RESERVED, text='else'}, Lex{types=RESERVED, text=':'}, Lex{types=INTEGER, text='5'}, Lex{types=RESERVED, text=';'}]
+62. [Lex{types=RESERVED, text='mut'}, Lex{types=IDENTIFIER, text='z'}, Lex{types=RESERVED, text='='}, Lex{types=RESERVED, text='if'}, Lex{types=IDENTIFIER, text='a'}, Lex{types=RESERVED, text='=='}, Lex{types=INTEGER, text='3'}, Lex{types=RESERVED, text=':'}, Lex{types=INTEGER, text='3'}, Lex{types=RESERVED, text='else'}, Lex{types=RESERVED, text=':'}, Lex{types=INTEGER, text='5'}, Lex{types=RESERVED, text=';'}]
 63. 01234567
 64. 01234567
 
@@ -5971,7 +6197,7 @@ If you try to evaluate anything else than a macro argument, you will get an erro
 .source of snippet `evaluate1`
 [source]
 ----
-let twice = macro(fn (arg){ evaluate(arg); evaluate(arg);});
+mut twice = macro(fn (arg){ evaluate(arg); evaluate(arg);});
 twice( {println("Hello")} )
 
 
@@ -6087,8 +6313,8 @@ If you want a specific class or function in your name space you can simply `let`
 
 [source]
 ----
-let MyImport = import("mod.ul.name.file")
-let my_function = MyImport.imported_function;
+mut MyImport = import("mod.ul.name.file")
+mut my_function = MyImport.imported_function;
 my_function("hello")
 
 ----
@@ -6111,7 +6337,7 @@ These are two functions to be used in files imported.
 The macro `export` will export the variables listed as arguments.
 That way these variables will be copied into the context of the importing code.
 
-`export_all()` will export all the variables from the importing scope.
+`export_all()` will export all the variables from the importing context.
 Note that in the case of `export_all()` you cannot omit the `(` and `)`.
 If you do, the line will be an expression with a function as a result, and the execution will not call the function.
 
@@ -6218,8 +6444,8 @@ The next example demonstrates that you can have extremely large ranges.
 .source of snippet `rng`
 [source]
 ----
-let z = rng(0,9223372036854775807)
-let i = 0
+mut z = rng(0,9223372036854775807)
+mut i = 0
 for each k in z {
   println k
   i = i + 1
@@ -6251,8 +6477,8 @@ If you want a physical list with the elements, you can create it using the `..` 
 .source of snippet `rngThousand`
 [source]
 ----
-let z = rng(0,1000)
-let array = [ ..z ]
+mut z = rng(0,1000)
+mut array = [ ..z ]
 print( [..array[0 .. 5], ..array[-5 .. array.length]])
 
 
@@ -6278,8 +6504,8 @@ You can index a number range, and you can also use a range to index another rang
 .source of snippet `rngRange`
 [source]
 ----
-let z = rng(100,9223372036854775807,100)
-let range = z[20..2000000]
+mut z = rng(100,9223372036854775807,100)
+mut range = z[20..2000000]
 print( [..range[0 .. 5], ..range[-5 .. range.length]])
 
 
@@ -6356,8 +6582,8 @@ You can import the system module `range` that defines a more flexible name:
 [source]
 ----
 sys_import "turi.range"
-let z = range(start=0,end=1000,closend=true)
-let array = [ ..z ]
+mut z = range(start=0,end=1000,closend=true)
+mut array = [ ..z ]
 print( array[0 .. 5] + array[-5 .. array.length])
 
 
@@ -6385,7 +6611,7 @@ An example is in the sample:
 .source of snippet `fnDecorator3`
 [source]
 ----
-let fun_decorator={|^closure|
+mut fun_decorator={|^closure|
         set(closure.name,
             {|| println("We start the fun"); closure(); println("The fun is over")}
            )
@@ -6430,9 +6656,9 @@ This method returns the type of the argument as a string.
 [source]
 ----
 
-let s = "13"; let i = 13; let d = 3.14;
+mut s = "13"; mut i = 13; mut d = 3.14;
 
-let err
+mut err
 try: z = 6.55
 catch ex: err=ex
 class A {}
@@ -6498,8 +6724,8 @@ The return value is true if the object is an instance of the class or is an inst
 ----
 class A {}
 class B : A {}
-let K = class : B {}
-let z = K()
+mut K = class : B {}
+mut z = K()
 println is_type(z,"A")," yes"
 println is_type(z,"H")," no"
 println is_type(z,"K")," no" // it is a no named class
@@ -6537,7 +6763,7 @@ Returns a list of the classes that are the parent classes of the argument.
 ----
 class A {}
 class B : A {}
-let K = class : B {}
+mut K = class : B {}
 println([ ..parents(K) -> type(it()) ])
 
 
@@ -6566,7 +6792,7 @@ It means that all classes, including the parents of the parents and so on, recur
 ----
 class A {}
 class B : A {}
-let K = class : B {}
+mut K = class : B {}
 println all_parents(K)
 println([ ..all_parents(K) -> type(it()) ])
 
@@ -6622,7 +6848,7 @@ This function converts a closure or a function into a macro.
 .source of snippet `macro_example`
 [source]
 ----
-let c = macro(
+mut c = macro(
     {|condition,then,`else`|
         if evaluate(condition) : evaluate(then) else: evaluate(`else`)
     })
@@ -6656,13 +6882,13 @@ This function will "open" and relose a closure in the current environment.
 [source]
 ----
 fn my_fun(@close_it) {
-  let s: str = "in function";
+  mut s: str = "in function";
   return reclose(close_it)
 }
 
-let s:str ="outer";
-let closure = {|x| println s; s = x};
-let reclosure = my_fun(close_it=closure);
+mut s:str ="outer";
+mut closure = {|x| println s; s = x};
+mut reclosure = my_fun(close_it=closure);
 
 closure("closure 1")
 reclosure("reclosure 1")
@@ -6715,9 +6941,9 @@ Here is a complex example using this function:
  * A printing function that will print the objects received through the que `q` till it gets closed.
  */
 fn printer(q,@name){
-    let n = 0 // counts the number of not ready que attempts
+    mut n = 0 // counts the number of not ready que attempts
     while {
-        let s = q.try_receive(); // try to receive one or get none if there is nothing in the queue
+        mut s = q.try_receive(); // try to receive one or get none if there is nothing in the queue
         return { println "%s is done" % name } if q.is_closed(); // return when the que is closed
         if s == none {
             println "%s is not ready %s" % [name,n]
@@ -6731,10 +6957,10 @@ fn printer(q,@name){
 }
 
 // create ONE queue that will be consumed by two
-let q : que = que(3)
+mut q : que = que(3)
 // create two asynchronous task. they start immediately
-let task1 : task = async printer(q,name="task1")
-let task2 : task = async printer(q,name="task2")
+mut task1 : task = async printer(q,name="task1")
+mut task2 : task = async printer(q,name="task2")
 // send the numbers 1 to 10 to the queue, whoever is lucky can get it
 for i=1 ; i < 10 ; i = i +1 {
     q.send(i);
@@ -6747,7 +6973,7 @@ println "1 is done %s" % task1.is_done()
 println "2 is done %s" % task2.is_done()
 
 // get only the tasks into the list which are not done yet
-let task_list = [ task1, task2 ? !it.is_done() ]
+mut task_list = [ task1, task2 ? !it.is_done() ]
 
 println "we start to wait the first time"
 await task_list
@@ -6772,79 +6998,79 @@ none
 .output of snippet `que`
 [source]
 ----
+task1 is not ready 0
 task2 is not ready 0
-task1 is not ready 0
-task1 is ready 1
 task2 is not ready 1
+task1 is ready 1
 task1 is not ready 0
-task1 is not ready 1task2 is not ready 2
+task2 is not ready 2task1 is not ready 1
 
 task2 is not ready 3
 task1 is not ready 2
-task1 is not ready 3task2 is ready 2
-
+task2 is ready 2
+task1 is not ready 3
 task2 is not ready 0
-task2 is not ready 1task1 is not ready 4
-
+task1 is not ready 4
+task2 is not ready 1
 task1 is not ready 5
 task2 is not ready 2
-task1 is not ready 6task2 is ready 3
-
-task2 is not ready 0
-task1 is not ready 7
-task2 is not ready 1
-task2 is not ready 2task1 is not ready 8
-
-task1 is not ready 9
-task2 is ready 4
-task2 is not ready 0
-task1 is not ready 10task2 is not ready 1
-
-task2 is not ready 2
-task1 is not ready 11
-task2 is ready 5
-task1 is not ready 12task2 is not ready 0
-
-task2 is not ready 1
-task1 is not ready 13
-task2 is not ready 2
-task1 is not ready 14
+task1 is ready 3
 task2 is not ready 3
-task1 is not ready 15
-task1 is ready 6
 task1 is not ready 0
 task2 is not ready 4
 task1 is not ready 1
 task2 is not ready 5
-task2 is not ready 6
-task1 is ready 7
-task1 is not ready 0
-task2 is not ready 7task1 is not ready 1
-
-task2 is not ready 8
 task1 is not ready 2
-task2 is not ready 9
+task2 is ready 4
 task1 is not ready 3
-task2 is ready 8
-task2 is not ready 0task1 is not ready 4
+task2 is not ready 0
+task1 is not ready 4
+task2 is not ready 1
+task2 is not ready 2
+task1 is not ready 5
+task2 is not ready 3
+task1 is not ready 6
+task2 is ready 5
+task2 is not ready 0
+task1 is not ready 7
+task2 is not ready 1
+task1 is not ready 8
+task2 is not ready 2
+task1 is not ready 9
+task2 is ready 6
+task2 is not ready 0task1 is not ready 10
 
 task2 is not ready 1
-task1 is not ready 5
-task1 is not ready 6
+task1 is not ready 11
 task2 is not ready 2
-task2 is not ready 3task1 is ready 9
-
-task1 is not ready 0
-task1 is not ready 1
-task2 is not ready 4
-task1 is not ready 2task2 is not ready 5
+task1 is not ready 12
+task2 is ready 7
+task1 is not ready 13
+task2 is not ready 0
+task1 is not ready 14
+task2 is not ready 1
+task1 is not ready 15
+task2 is not ready 2
+task2 is ready 8
+task1 is not ready 16
+task2 is not ready 0
+task1 is not ready 17
+task2 is not ready 1
+task1 is not ready 18
+task2 is not ready 2
+task2 is not ready 3
+task1 is not ready 19
+task2 is ready 9
+task2 is not ready 0
+task1 is not ready 20
+task2 is not ready 1task1 is not ready 21
 
 closing the channel
 channel is closed
-1 is done false
-2 is done false
-task1 is done
 task2 is done
+task1 is done
+1 is done false
+2 is done true
 we start to wait the first time
 task1 done true
 task2 done true
@@ -6907,9 +7133,9 @@ It does not wait and returns `none` if there is no message or the channel is clo
 [source]
 ----
 fn printer(){
-    let n = 0
+    mut n = 0
     while {
-        let s = try_yield();
+        mut s = try_yield();
         return { println "we are done" } if yield_is_closed();
         if s == none {
             println "not ready %s" % n
@@ -6922,7 +7148,7 @@ fn printer(){
     }
 }
 
-let task : task = async printer()
+mut task : task = async printer()
 for i=1 ; i < 4 ; i = i +1 {
  println "sending ",i
  task.send(i);
@@ -6962,6 +7188,7 @@ not ready 0
 not ready 1
 not ready 2
 closing the channel
+not ready 3
 channel is closed
 is done false
 we are done
@@ -6985,14 +7212,14 @@ sys_import "turi.re"
 
 fn print_match(m){
     for i=0 ; i < len(m.group) ; i = i + 1 {
-        let {index, start, end } = m.group[i];
+        mut {index, start, end } = m.group[i];
         println "%s. '%s'.substring(%s,%s)='%s'" % [index,s,start, end,s[start..end]];
     }
 }
 
-let s = "abrakadabra";
-let rx =Re("a(b)ra(ka)(dabra)")
-let m = rx.match(s);
+mut s = "abrakadabra";
+mut rx =Re("a(b)ra(ka)(dabra)")
+mut m = rx.match(s);
 println m
 print_match(m);
 
@@ -7052,7 +7279,7 @@ In the following example we have named arguments:
 ----
 sys_import "turi.re"
 
-let m = Re("a(?<firstb>b)ra(?<twoletter>ka)(dabra)").match("abrakadabra");
+mut m = Re("a(?<firstb>b)ra(?<twoletter>ka)(dabra)").match("abrakadabra");
 println "the ks is '%s'" % [m.name.twoletter]
 
 
@@ -7081,7 +7308,7 @@ This macro accepts an identifier and returns `true` if the identifier is defined
 [source]
 ----
 if is_defined(z) : println "defined" else: println "not defined";
-let z = 1
+mut z = 1
 if is_defined(z) : println "defined" else: println "not defined";
 try:
     println {if is_defined(z+2) : "defined" else: "not defined"}
@@ -7123,7 +7350,7 @@ class Z {
         unlet obj;
     }
 }
-let z = Z({
+mut z = Z({
     a: {
         B : "abraka"
         },
@@ -7201,7 +7428,7 @@ The following example shows how these functions work.
 .source of snippet `thunk_unthunk`
 [source]
 ----
-let z = thunk({let x = 3; println "hello"})
+mut z = thunk({mut x = 3; println "hello"})
 println "before eval"
 unthunk(z)
 println "after eval"
@@ -7238,11 +7465,11 @@ The following example shows you how it can be used together with `thunk` and `un
 .source of snippet `block_list`
 [source]
 ----
-let commands = block_list(thunk({k = 13; suss = "huss"; let x = 3; println "hello"}))
+mut commands = block_list(thunk({k = 13; suss = "huss"; mut x = 3; println "hello"}))
 println "before execution"
-let i = 1;
+mut i = 1;
 for each command in commands {
-    let suss;
+    mut suss;
     println "%s. before is_defined(x) = %s" % [i,is_defined(x)]
     if i == 1 {
         try: unthunk(command) catch e: println "ERROR: %s" % [e];
@@ -7316,14 +7543,14 @@ fn hi(){ // this will be deleted, it only exists in the preprocessor context
 # {|lexes|
 ["""
     // this is a string that will lead the new lexical token list
-    let M:str = ""
+    mut M:str = ""
     fn helvetic_hi(){
       "Gruetzi "
     }
     M = M + "hello ";
     M = M + (hi() or "none ");
 """,
-// and just let's have the rest of the tokens
+// and just mut's have the rest of the tokens
 ..lexes]
 } // end of the preprocessor command
 
@@ -7420,7 +7647,7 @@ For functions with a block body, both the function name and parameter list are o
 
  FN_BLOCK  ::= 'fn' [ IDENTIFIER ] [ '(' IDENTIFIER_LIST ')' ] BLOCK ;
 
-Variables declared as local will be local to the scope, even if the same name is used in some enclosing scope
+Variables declared as local will be local to the context, even if the same name is used in some enclosing context
 or as a global variable
 the value of the local declaration is the value of the last assignment in the command
 
@@ -7433,7 +7660,7 @@ The value of the global declaration is the value of the last assignment in the c
 
  GLOBAL ::= 'global' IDENTIFIER_ASSIGNMENT_LIST;
 
-Variables pinned cannot be changed in the local scope.
+Variables pinned cannot be changed in the local context.
 Pinning has no effect to outer scopes.
 You can also pin an object. In that case use `{variable}` instead of the name.
 
@@ -7473,7 +7700,7 @@ Unary operators and primary expressions
  | FN
  | CLASS
  | IDENTIFIER
- | '(' EXPRESSION ')'
+ | '(' COMMAND_LIST ')'
  | FUNCTION_CALL
  | FIELD_ACCESS
  | METHOD_CALL
@@ -7495,7 +7722,9 @@ Method call: obj.method(params)
 
 Block returning an expression value. The value of the block is always the last executed expression.
 
- BLOCK ::= '{' { COMMAND [';'] } '}' ;
+ BLOCK ::= '{' COMMAND_LIST '}' ;
+
+ COMMAND_LIST ::= { COMMAND [';' | '\n'] }
 
  BREAK  ::= 'break' CONDITIONAL_VALUE ;
  RETURN  ::= 'return' CONDITIONAL_VALUE ;

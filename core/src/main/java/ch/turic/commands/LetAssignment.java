@@ -7,13 +7,15 @@ import ch.turic.memory.Context;
 
 public class LetAssignment extends AbstractCommand {
     final AssignmentList.Assignment[] assignments;
+    final boolean mut;
 
     public AssignmentList.Assignment[] assignments() {
         return assignments;
     }
 
-    public LetAssignment(AssignmentList.Assignment[] assignments) {
+    public LetAssignment(AssignmentList.Assignment[] assignments, boolean mut) {
         this.assignments = assignments;
+        this.mut = mut;
     }
 
     @Override
@@ -36,11 +38,17 @@ public class LetAssignment extends AbstractCommand {
                         null,
                         typeNames);
                 ctx.local(assignment.identifier(), null);
+                if (!mut) {
+                    ctx.freeze(assignment.identifier());
+                }
             } else {
                 value = assignment.expression().execute(ctx);
                 ctx.defineTypeChecked(assignment.identifier(),
                         value,
                         typeNames);
+                if (!mut) {
+                    ctx.freeze(assignment.identifier());
+                }
             }
         }
         return value;

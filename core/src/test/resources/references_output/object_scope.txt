@@ -1,6 +1,6 @@
 this.g=none
 cls.g=none
-Variable 'g' is undefined.
+g=Variable 'g' is undefined.
 this.h=another class field
 cls.h=another class field
 h=another class field

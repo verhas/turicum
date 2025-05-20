@@ -10,6 +10,8 @@ public class BinaryExpressionAnalyzer extends AbstractAnalyzer {
     final String[][] binops;
 
     static final String[][] binaryOperators = {
+            // snippet operators
+            // this is not included, copied and checked against modification
             {Keywords.OR}, // 0
             {"||"},        // 1
             {"&&"},        // 2
@@ -22,6 +24,7 @@ public class BinaryExpressionAnalyzer extends AbstractAnalyzer {
             {"<<", ">>", ">>>"},
             {"+", "-"},
             {"*", "/", "%"}
+            // end snippet
     };
     static final BinaryExpressionAnalyzer INSTANCE = new BinaryExpressionAnalyzer(binaryOperators);
     static final BinaryExpressionAnalyzer BINARY_DEFAULT_EXPRESSION_ANALYZER = new BinaryExpressionAnalyzer(Arrays.copyOf(binaryOperators, binaryOperators.length));

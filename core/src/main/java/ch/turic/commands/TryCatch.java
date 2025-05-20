@@ -6,8 +6,6 @@ import ch.turic.memory.LngException;
 
 public class TryCatch extends AbstractCommand {
 
-    private static final String[] ERR_TYPE = {"err"};
-    private static final String[] ERR_NONE_TYPE = {"none"};
     final Command tryBlock;
     final Command catchBlock;
     final Command finallyBlock;
@@ -27,12 +25,11 @@ public class TryCatch extends AbstractCommand {
         Object result;
         // save the position of the stack trace so we can drop the elements that are deeper when catching
         final int traceSize = context.threadContext.traceSize();
-        final var ctx = context.wrap();
+        // create a temporary context: we will export from it if no error occurs
+        final var ctx = context.shadow();
         try {
             result = tryBlock.execute(ctx);
-            for( final var variable : ctx.allLocalKeys()){
-                context.let0(variable, ctx.get(variable));
-            }
+            exportFromTemporaryContext(ctx, context);
             if (exceptionVariable != null) {
                 context.let0(exceptionVariable, null);
                 context.freeze(exceptionVariable);
@@ -58,5 +55,23 @@ public class TryCatch extends AbstractCommand {
             }
         }
         return result;
+    }
+
+
+    /**
+     * Exports all local variables from a temporary context to another context.
+     * This method copies all local variables and their values from the source context
+     * to the destination context using let0 operation.
+     *
+     * @param from source context containing the variables to be exported
+     * @param to   destination context where variables will be copied to
+     */
+    private void exportFromTemporaryContext(Context from, Context to) {
+        for (final var variable : from.allFrameKeys()) {
+            if (to.containsFrame(variable)) {
+                throw new ExecutionException("Variable '%s' is already defined.", variable);
+            }
+            to.local(variable, from.get(variable));
+        }
     }
 }

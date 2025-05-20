@@ -8,16 +8,19 @@ import ch.turic.commands.Command;
 import java.util.ArrayList;
 
 public class BlockAnalyzer extends AbstractAnalyzer {
-    public static final BlockAnalyzer INSTANCE = new BlockAnalyzer(true);
-    public static final BlockAnalyzer UNWRAPPED = new BlockAnalyzer(false);
+    public static final BlockAnalyzer INSTANCE = new BlockAnalyzer("}", true);
+    public static final BlockAnalyzer UNWRAPPED = new BlockAnalyzer("}", false);
+    public static final BlockAnalyzer FLAT = new BlockAnalyzer(")", false);
 
+    final String closing;
     final boolean wrap;
 
     public boolean wrap() {
         return wrap;
     }
 
-    public BlockAnalyzer(boolean wrap) {
+    private BlockAnalyzer(String closing, boolean wrap) {
+        this.closing = closing;
         this.wrap = wrap;
     }
 
@@ -28,9 +31,9 @@ public class BlockAnalyzer extends AbstractAnalyzer {
         return new BlockCommand(commands.toArray(Command[]::new), wrap);
     }
 
-    static ArrayList<Command> getCommands(LexList lexes) throws BadSyntax {
+    ArrayList<Command> getCommands(LexList lexes) throws BadSyntax {
         final var commands = new ArrayList<Command>();
-        while( lexes.isNot("}")){
+        while( lexes.isNot(closing)){
             final var cmd = CommandAnalyzer.INSTANCE.analyze(lexes);
             if( cmd != null ) {
                 commands.add(cmd);

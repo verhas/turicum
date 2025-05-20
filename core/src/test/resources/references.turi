@@ -1,16 +1,38 @@
 // snippet json1
-let project = {
-                  name : "turicum-parent",
-                  packaging : "pom",
-                  groupId : "ch.turic",
-                  artifactId : "turicum-parent",
-                  version : "1.0.0-SNAPSHOT",
-                  description : "Turicum programming language",
-                  modules : [ "core", "maven", "cli" ]
-                  }
+mut project = {
+      name : "turicum-parent",
+      packaging : "pom",
+      groupId : "ch.turic",
+      artifactId : "turicum-parent",
+      version : "1.0.0-SNAPSHOT",
+      description : "Turicum programming language",
+      modules : [ "core", "maven", "cli" ]
+      }
 println project.name
 println project.packaging
 // end snippet
+
+// snippet lazy_json1
+fn get_name(){
+    println "Getting name";
+    "turicum-parent"
+}
+mut project = &{
+      name : get_name(),
+      packaging : "pom",
+      groupId : "ch.turic",
+      artifactId : "turicum-parent",
+      version : "1.0.0-SNAPSHOT",
+      description : "Turicum programming language",
+      modules : [ "core", "maven", "cli" ]
+      }
+println project.name
+println project.packaging
+println project.name
+// end snippet
+
+
+
 
 // snippet blabla
 println("blala")
@@ -23,26 +45,26 @@ for i=1 ; i < 3 ; i = i+1 : println(i)
 // end snippet
 
 // snippet if_value
-let z : num = {if 232 % 2 == 0 : 1 else: 2 }
+mut z : num = {if 232 % 2 == 0 : 1 else: 2 }
 println(z)
 // end snippet
 
 // snippet block_value
-let z = {
-    let k = "Hi";
+mut z = {
+    mut k = "Hi";
     k + "cory"
     }
 println(z)
 // end snippet
 
 // snippet scope1
-let z = "cory"
+mut z = "cory"
 z = { // z is global
     println "just a print"
-    let k = "Hi" // k is local
+    mut k = "Hi" // k is local
          + z // z is accessible
     // the value of the block is the last command executed
-    // 'let' assignments result the value assigned
+    // 'mut' assignments result the value assigned
     }
 println(z)
 try:
@@ -51,11 +73,11 @@ catch err: println err
 // end snippet
 
 // snippet local_redefined_error
-let z = 5
+mut z = 5
 try{
     z = {
         println(z);
-        let z = 3
+        mut z = 3
         }
 }catch ex {
     println(ex)
@@ -63,7 +85,7 @@ try{
 // end snippet
 
 // snippet function_scope
-let glb = "global variable";
+mut glb = "global variable";
 class A {
   fn z(){
     println("You can read glb, which is a " + glb)
@@ -75,7 +97,7 @@ class A {
     }
     try{
        // you touched it as global, you cannot declare it as local anymore
-       let glb = 5;
+       mut glb = 5;
     }catch(e2){
         println("exception 2:",e2)
     }
@@ -84,25 +106,25 @@ class A {
     return "You can access glb here it is " + glb ;
   }
 }
-let obj = A()
+mut obj = A()
 println(obj.z())
 // end snippet
 
 // snippet class_definition
 class X {
-  let s = "hu"
+  mut s = "hu"
 }
 println("class var ", X.s)
-let x = X();
+mut x = X();
 println("object var ", x.s)
 // end snippet
 
 // snippet object_scope
 class X {
-  let s = "class field"
+  mut s = "class field"
   cls.h = "another class field"
   fn constructor {
-    let g = "object field"
+    mut g = "object field"
   }
   fn t(){
     // access object field explicitly through 'this'
@@ -124,13 +146,13 @@ class X {
     println("s=",s)
   }
 }
-let x = X();
+mut x = X();
 x.t()
 // end snippet
 
 // snippet closure_example
-let c = {
-    let whom = "World!";
+mut c = {
+    mut whom = "World!";
     {|greeting|
         println(greeting,whom);
         whom = "Universe!"
@@ -141,7 +163,7 @@ c("Hi, ")
 // end snippet
 
 // snippet macro_example
-let c = macro(
+mut c = macro(
     {|condition,then,`else`|
         if evaluate(condition) : evaluate(then) else: evaluate(`else`)
     })
@@ -154,15 +176,15 @@ print(
 // end snippet
 
 // snippet let_with_types_example
-let c : str |num = 3;
+mut c : str |num = 3;
 c = "" + c + " == " + c
 println(c)
 // end snippet
 
 // snippet pinning
-let turicum = 13
-let `list` = [1,2,3]
-let object = { x:1, y:2};
+mut turicum = 13
+mut `list` = [1,2,3]
+mut object = { x:1, y:2};
 pin turicum, [`list`], {object}
 
 try {
@@ -184,14 +206,14 @@ println("variable 'object' still can be changed: ", object)
 // end snippet
 
 // snippet ifCommand
-let a= 13
+mut a= 13
 if a%2 == 0: println("even") else: println("odd")
 a = {if a%2 == 0: "even" else: "odd"}
 print("again ",a)
 // end snippet
 
 // snippet whileLoop
-let i = 1;
+mut i = 1;
 while i < 5 {
   print(i," ");
   i = i + 1;
@@ -199,7 +221,7 @@ while i < 5 {
 // end snippet
 
 // snippet whileLoop2
-let i = 1;
+ mut i = 1;
 while i < 5 :
   i = i + 1;
 until i % 3 == 0;
@@ -217,7 +239,7 @@ for( i = 1 ; i < 5 ; i=i+1 ){
 }
 // end snippet
 // snippet for3
-// same as 'for( let i = 1 ;' ...
+// same as 'for( mut i = 1 ;' ...
 for( i = 1 ; i < 5 ; i=i+1 ){
   print(i," ")
 }until i%3 == 0 ;
@@ -226,7 +248,7 @@ try:
 catch err { println(); println err ; }
 // end snippet
 // snippet for4
-let i;
+mut i;
 for {i = 1} ; i < 5 ; i=i+1 :  print(i," "); until i%3 == 0;
 println("i at end=",i);
 // end snippet
@@ -259,7 +281,7 @@ fn gen_1_to_10 {
         yield i;
 }
 
-let st = async gen_1_to_10();
+mut st = async gen_1_to_10();
 while st.has_next() :
     println(st.next());
 // end snippet
@@ -281,7 +303,7 @@ println(inc(1))
 // end snippet
 
 // snippet fun2
-let inc = fn (x) {
+mut inc = fn (x) {
   x+1
 }
 println(inc)
@@ -313,7 +335,7 @@ catch e: println("There is an error",e)
 // end snippet
 
 // snippet restParameters
-let f = fn (a,b,[rest]) {
+mut f = fn (a,b,[rest]) {
   println("a=",a)
   println("b=",b)
   for each r in rest: print("%s " % r)
@@ -323,7 +345,7 @@ f(1,2,3,4,5,6)
 // end snippet
 
 // snippet metaParameters
-let f = fn (a,b,{meta}) {
+mut f = fn (a,b,{meta}) {
   println("a=",a)
   println("b=",b)
   for each r in keys(meta): print("%s=%s\n" % [r , meta[r]])
@@ -333,7 +355,7 @@ f(1,b=2,k=3,x=4,juice=5,six=6)
 // end snippet
 
 // snippet metaRestParameters
-let f = fn (a,b,[rest],{meta}) {
+mut f = fn (a,b,[rest],{meta}) {
   println("a=",a);
   println("b=",b);
   for each r in keys(meta): print("%s=%s\n" % [r , meta[r]]);
@@ -345,7 +367,7 @@ f(1,b=2,k=3,x=4,juice=5,7,six=6);
 // end snippet
 
 // snippet closureArgument
-let f = fn (a,b,^closure) {
+mut f = fn (a,b,^closure) {
   println("a=",a);
   println("b=",b);
   println(closure(a,b))
@@ -386,7 +408,7 @@ c(..(async numbers()))
     {|| println("We start"); closure(); println("We finish")}
   }
 
-  let z = closure_decorator(){|| println("We are closure") }
+  mut z = closure_decorator(){|| println("We are closure") }
 
   z()
 // end snippet
@@ -396,7 +418,7 @@ c(..(async numbers()))
     {|| println("We start@"); closure(); println("We finish@")}
   }
 
-  let z = @closure_decorator(){|| println("We are closure") }
+  mut z = @closure_decorator(){|| println("We are closure") }
 
   z()
 // end snippet
@@ -406,7 +428,7 @@ c(..(async numbers()))
     {|| println("We start the fun"); closure(); println("The fun is over")}
   }
 
-let z =
+mut z =
 @fun_decorator()
 fn q(){
   println("We function");
@@ -419,7 +441,7 @@ fn q(){
     {|| println("We start the fun"); closure(); println("The fun is over")}
   }
 
-let z =
+mut z =
 fun_decorator(
 fn q(){
   println("We function");
@@ -428,7 +450,7 @@ fn q(){
 // end snippet
 
 // snippet fnDecorator3
-let fun_decorator={|^closure|
+mut fun_decorator={|^closure|
         set(closure.name,
             {|| println("We start the fun"); closure(); println("The fun is over")}
            )
@@ -458,14 +480,14 @@ q()
 
 // snippet that
 class OuterClass {
-    let name = "outer class";
+    mut name = "outer class";
     fn init(){
-      let name = "outer object"
+      mut name = "outer object"
     }
     class InnerClass {
-        let name = "inner class";
+        mut name = "inner class";
         fn init() {
-            let name = "inner object"
+            mut name = "inner object"
             println("this name %s " % this.name)
             println("this name %s " % cls.name)
             println("this name %s " % that.name)
@@ -473,8 +495,8 @@ class OuterClass {
             }
         }
     }
-let outer = OuterClass()
-let inner = outer.InnerClass()
+mut outer = OuterClass()
+mut inner = outer.InnerClass()
 // end snippet
 
 // snippet fibonacci1
@@ -487,7 +509,7 @@ println(fib(10))
 
 // snippet fibonacci2
 class FibCalculator {
-    let cache = [];
+    mut cache = [];
     fn fib(x) {
         if x == 1 || x == 0 : 1
         else{
@@ -512,7 +534,7 @@ try
 
 // snippet fibonacci4
 {
-    let fib={|x|
+    mut fib={|x|
         if x == 1 || x == 0 : 1
         else: fib(x - 1) + fib(x - 2)
     }
@@ -541,8 +563,8 @@ try
 // end snippet
 
 // snippet fibonacci7
-let fib = {
-    let cache = [];
+mut fib = {
+    mut cache = [];
     {|x|
         if x == 1 || x == 0 : 1
         else{
@@ -557,7 +579,7 @@ println(fib(10))
 // snippet fibonacci8
 class FibCalculator {
     fn init(start=1) {
-        let cache = [];
+        mut cache = [];
     }
     fn fib(x) {
         if x == 1 || x == 0 : start
@@ -572,7 +594,7 @@ println(FibCalculator(2).fib(10))
 // end snippet
 
 // snippet evaluate1
-let twice = macro(fn (arg){ evaluate(arg); evaluate(arg);});
+mut twice = macro(fn (arg){ evaluate(arg); evaluate(arg);});
 twice( {println("Hello")} )
 // end snippet
 
@@ -590,8 +612,8 @@ macro(fn (!arg,[rest],{meta},^closure)
 
 // snippet import
 try{
-let MyImport = import("mod.ul.name.file")
-let my_function = MyImport.imported_function;
+mut MyImport = import("mod.ul.name.file")
+mut my_function = MyImport.imported_function;
 my_function("hello")
 }catch e{}
 // end snippet
@@ -599,12 +621,12 @@ my_function("hello")
 // snippet class1
 class A {
     fn init {
-        let a = "a";
+        mut a = "a";
     }
-    let c = "c"
+    mut c = "c"
 }
-let a1 = A()
-let a2 = A()
+mut a1 = A()
+mut a2 = A()
 a1.a = "1"
 a2.a = "2"
 A.c = "d"
@@ -619,8 +641,8 @@ class A {
     }
     cls.c = "c"
 }
-let a1 = A()
-let a2 = A()
+mut a1 = A()
+mut a2 = A()
 a1.a = "1"
 a2.a = "2"
 A.c = "d"
@@ -637,12 +659,12 @@ class A {
         println "I am class level"
     }
 }
-let a1 = A()
+mut a1 = A()
 a1.p()
 a1.p = fn (){
   println "I am a1"
 }
-let a2 = A()
+mut a2 = A()
 a2.p = fn (){
   println "I am a2"
 }
@@ -719,12 +741,12 @@ class A {
     }
 }
 
-let a = A()
-let b = a.B()
+mut a = A()
+mut b = a.B()
 // end snippet
 
 // snippet try1
-let z = {
+mut z = {
     try {
         z = 55 // undefined variable
     }catch e {
@@ -747,7 +769,7 @@ try{
 // snippet try3
 try{
         z = 55 // undefined variable
-}catch x : let error:err = x
+}catch x : mut error:err = x
 
 println error
 
@@ -770,7 +792,7 @@ for each st in error.stack_trace {
 // end snippet
 
 // snippet try5
-let error:err|none
+mut error:err|none
 try{
         z = 55 // undefined variable
 }catch err: error = err
@@ -786,11 +808,46 @@ for each st in error.stack_trace {
 
 // end snippet
 
+// snippet try6
+try : (mut a = 1;
+       mut b = 2;
+       mut c = 1 / 0;
+      )
+catch e : println e;
+
+println "Do we have a? ", is_defined(a)
+println "Do we have b? ", is_defined(b)
+println "Do we have c? ", is_defined(c)
+// end snippet
+
+// snippet try7
+mut a = 3;
+try : (mut a = 1;
+       println "we redefined 'a'"
+       mut b = 2;
+       println "we defined 'b'"
+      )
+catch e : println e;
+
+println "Do we have a? ", is_defined(a)
+println "Was it changed or still 3? It is ",a
+println "Do we have b? ", is_defined(b)
+// end snippet
+
+// snippet pscope
+
+println "2*3=",2*(mut s=3)
+println "s is defined and it is ",s
+println "2*3=",2*{mut k=3}
+try : mut h = 2*k
+catch e : println e;
+// end snippet
+
 // snippet type1
 
-let s = "13"; let i = 13; let d = 3.14;
+mut s = "13"; mut i = 13; mut d = 3.14;
 
-let err
+mut err
 try: z = 6.55
 catch ex: err=ex
 class A {}
@@ -820,13 +877,13 @@ sleep(0.001) // sleep one mili
 
 // snippet reclose
 fn my_fun(@close_it) {
-  let s: str = "in function";
+  mut s: str = "in function";
   return reclose(close_it)
 }
 
-let s:str ="outer";
-let closure = {|x| println s; s = x};
-let reclosure = my_fun(close_it=closure);
+mut s:str ="outer";
+mut closure = {|x| println s; s = x};
+mut reclosure = my_fun(close_it=closure);
 
 closure("closure 1")
 reclosure("reclosure 1")
@@ -852,9 +909,9 @@ catch ex:
  * A printing function that will print the objects received through the que `q` till it gets closed.
  */
 fn printer(q,@name){
-    let n = 0 // counts the number of not ready que attempts
+    mut n = 0 // counts the number of not ready que attempts
     while {
-        let s = q.try_receive(); // try to receive one or get none if there is nothing in the queue
+        mut s = q.try_receive(); // try to receive one or get none if there is nothing in the queue
         return { println "%s is done" % name } if q.is_closed(); // return when the que is closed
         if s == none {
             println "%s is not ready %s" % [name,n]
@@ -868,10 +925,10 @@ fn printer(q,@name){
 }
 
 // create ONE queue that will be consumed by two
-let q : que = que(3)
+mut q : que = que(3)
 // create two asynchronous task. they start immediately
-let task1 : task = async printer(q,name="task1")
-let task2 : task = async printer(q,name="task2")
+mut task1 : task = async printer(q,name="task1")
+mut task2 : task = async printer(q,name="task2")
 // send the numbers 1 to 10 to the queue, whoever is lucky can get it
 for i=1 ; i < 10 ; i = i +1 {
     q.send(i);
@@ -884,7 +941,7 @@ println "1 is done %s" % task1.is_done()
 println "2 is done %s" % task2.is_done()
 
 // get only the tasks into the list which are not done yet
-let task_list = [ task1, task2 ? !it.is_done() ]
+mut task_list = [ task1, task2 ? !it.is_done() ]
 
 println "we start to wait the first time"
 await task_list
@@ -903,16 +960,16 @@ none
 
 // snippet async_list
 
-let z = async[] [ 1, 2,  3, 4];
-let k = await z
+mut z = async[] [ 1, 2,  3, 4];
+mut k = await z
 print k
 
 // end snippet
 // snippet try_yield
 fn printer(){
-    let n = 0
+    mut n = 0
     while {
-        let s = try_yield();
+        mut s = try_yield();
         return { println "we are done" } if yield_is_closed();
         if s == none {
             println "not ready %s" % n
@@ -925,7 +982,7 @@ fn printer(){
     }
 }
 
-let task : task = async printer()
+mut task : task = async printer()
 for i=1 ; i < 4 ; i = i +1 {
  println "sending ",i
  task.send(i);
@@ -942,7 +999,7 @@ none
 // end snippet
 
 // snippet async
-let t:task = async {
+mut t:task = async {
     for i=0 ; i < 10 ; i = i + 1 {
         yield i
     }
@@ -973,9 +1030,9 @@ fn is_prime(x:num):bool {
   * Then read from it and print.
   */
 fn execute(name:str, que_length:num){
-    let prime = async[in=que_length] {
+    mut prime = async[in=que_length] {
         yield 2;
-        let i = 3;
+        mut i = 3;
         while {
             if is_prime(i) {
                 yield i
@@ -985,7 +1042,7 @@ fn execute(name:str, que_length:num){
         }
     }
 
-    let count = 0
+    mut count = 0
     while prime.has_next(){
         println " prime read ",prime.next()
         count = count + 1
@@ -1006,8 +1063,8 @@ execute("Thread 2",2)
 
 // snippet flat_let_object1
 
-let z = { a: "apple", b:"bier", c : "count" }
-let {a, b, c} = z
+mut z = { a: "apple", b:"bier", c : "count" }
+mut {a, b, c} = z
 println a
 println b
 println c
@@ -1015,8 +1072,8 @@ println c
 
 // snippet flat_let_object2
 
-let z = { a: "apple", b:"bier", c : "count" , d: "not used" }
-let {a, b, c, f} = z
+mut z = { a: "apple", b:"bier", c : "count" , d: "not used" }
+mut {a, b, c, f} = z
 println a
 println b
 println c
@@ -1024,7 +1081,7 @@ println f
 // end snippet
 
 // snippet flat_let_list1
-let [a, b, c] = [1,2,3]
+mut [a, b, c] = [1,2,3]
 println a
 println b
 println c
@@ -1032,25 +1089,25 @@ println c
 
 // snippet flat_let_list2
 try:
-    let [a, b, c, f] = [1,2,3]
+    mut [a, b, c, f] = [1,2,3]
 catch err: println err
 // end snippet
 
 // snippet flat_let_list3
 try:
-    let [a, b] = [1,2,3]
+    mut [a, b] = [1,2,3]
 catch err: println err
 // end snippet
 
 // snippet flat_let_list4
-let [a, b] = [1,2,3,4,5,6,7,8][0..2]
+mut [a, b] = [1,2,3,4,5,6,7,8][0..2]
 println a
 println b
 // end snippet
 
 // snippet flat_let_list5
 fn adjust(_x, @to){
-    let x = _x
+    mut x = _x
     if len(x) < to :
         while len(x) < to :
             x = [..x, none]
@@ -1058,7 +1115,7 @@ fn adjust(_x, @to){
         x = x[0..len(x)]
     x
 }
-let [a, b, c, d] = adjust(to=4,[1,2])
+mut [a, b, c, d] = adjust(to=4,[1,2])
 println a
 println b
 println c
@@ -1067,7 +1124,7 @@ println d
 
 // snippet flat_let_list6
 fn adjust(@to,[_x]){
-    let x = _x
+    mut x = _x
     if len(x) < to :
         while len(x) < to :
             x = [..x, none]
@@ -1075,7 +1132,7 @@ fn adjust(@to,[_x]){
         x = x[0..len(x)]
     x
 }
-let [a, b, c, d] = adjust(to=4, 1,2)
+mut [a, b, c, d] = adjust(to=4, 1,2)
 println a
 println b
 println c
@@ -1087,14 +1144,14 @@ sys_import "turi.re"
 
 fn print_match(m){
     for i=0 ; i < len(m.group) ; i = i + 1 {
-        let {index, start, end } = m.group[i];
+        mut {index, start, end } = m.group[i];
         println "%s. '%s'.substring(%s,%s)='%s'" % [index,s,start, end,s[start..end]];
     }
 }
 
-let s = "abrakadabra";
-let rx =Re("a(b)ra(ka)(dabra)")
-let m = rx.match(s);
+mut s = "abrakadabra";
+mut rx =Re("a(b)ra(ka)(dabra)")
+mut m = rx.match(s);
 println m
 print_match(m);
 
@@ -1113,7 +1170,7 @@ print_match(m);
 // snippet re2
 sys_import "turi.re"
 
-let m = Re("a(?<firstb>b)ra(?<twoletter>ka)(dabra)").match("abrakadabra");
+mut m = Re("a(?<firstb>b)ra(?<twoletter>ka)(dabra)").match("abrakadabra");
 println "the ks is '%s'" % [m.name.twoletter]
 // end snippet
 
@@ -1125,14 +1182,14 @@ fn hi(){ // this will be deleted, it only exists in the preprocessor context
 # {|lexes|
 ["""
     // this is a string that will lead the new lexical token list
-    let M:str = ""
+    mut M:str = ""
     fn helvetic_hi(){
       "Gruetzi "
     }
     M = M + "hello ";
     M = M + (hi() or "none ");
 """,
-// and just let's have the rest of the tokens
+// and just mut's have the rest of the tokens
 ..lexes]
 } // end of the preprocessor command
 
@@ -1144,47 +1201,47 @@ print M
 // snippet inherit1
 class P {
     fn a()=1
-    let v = 2
+    mut v = 2
 }
 class C : P {
     fn b()=3
-    let z = 4
+    mut z = 4
 }
-let o = C();
+mut o = C();
 println o.a(),o.v,o.b(),o.z;
 // end snippet
 
 // snippet inherit2
 class P1 {
     fn a()=1
-    let v = 2
+    mut v = 2
 }
 class P2 {
     fn aa()=3
-    let vv = 4
+    mut vv = 4
 }
 class C : P1,P2 {
     fn b()=5
-    let z = 6
+    mut z = 6
 }
-let o = C();
+mut o = C();
 println o.a(), o.v, o.aa(), o.vv, o.b(), o.z;
 // end snippet
 
 // snippet inherit3
 class P1 {
     fn a()=1
-    let v = 2
+    mut v = 2
 }
 class P2 {
     fn a()=3
-    let v = 4
+    mut v = 4
 }
 class C : P1,P2 {
     fn b()=5
-    let z = 6
+    mut z = 6
 }
-let o = C();
+mut o = C();
 println o.a(), o.v, o.b(), o.z;
 // end snippet
 
@@ -1204,7 +1261,7 @@ class C : P1,P2 {
         println "init in C, cls='%s' this='%s'" % [cls, this]
     }
 }
-let o = C();
+mut o = C();
 // end snippet
 
 // snippet inherit5
@@ -1225,7 +1282,7 @@ class C : P1,P2 {
         P2.init()
     }
 }
-let o = C();
+mut o = C();
 // end snippet
 
 // snippet inherit6
@@ -1236,7 +1293,7 @@ class P {
 }
 class C : P {
 }
-let o = C();
+mut o = C();
 // end snippet
 
 // snippet fun7
@@ -1252,7 +1309,7 @@ catch err: println err
 // end snippet
 
 // snippet fun9
-let myString="num"
+mut myString="num"
 fn concat(a:str, b:str):(myString) = 13
 myString = "str"
 try:
@@ -1261,20 +1318,20 @@ catch err: println err
 // end snippet
 
 // snippet fun10
-class K {   fn p()=println "original K" }
+class K {   fn p()=(println "original K") }
 fn h():K = K()
 h().p()
 // end snippet
 
 // snippet fun11
-class K {   fn p()=println("original K") }
+class K {   fn p()=(println("original K")) }
 fn h():K = K()
 h().p()
 // end snippet
 
 // snippet is_defined
 if is_defined(z) : println "defined" else: println "not defined";
-let z = 1
+mut z = 1
 if is_defined(z) : println "defined" else: println "not defined";
 try:
     println {if is_defined(z+2) : "defined" else: "not defined"}
@@ -1313,9 +1370,9 @@ class A {
   }
 }
 
-let x = A()
-let y = A()
-let z = { a: 1, b: "x" }
+mut x = A()
+mut y = A()
+mut z = { a: 1, b: "x" }
 
 x.a = 1
 x.b = "x"
@@ -1335,8 +1392,8 @@ class A {
   }
 }
 
-let y = A()
-let z = { a: 1, b: "x" }
+mut y = A()
+mut z = { a: 1, b: "x" }
 
 y.a = 1
 y.b = "y"
@@ -1353,7 +1410,7 @@ class Z {
         unlet obj;
     }
 }
-let z = Z({
+mut z = Z({
     a: {
         B : "abraka"
         },
@@ -1363,62 +1420,62 @@ println z
 // end snippet
 
 // snippet ListLiteral1
-let computed = {fn(a,b) = a + b}(1,2);
-println([1, 2, 3, 4])
-println(["apple", "banana", "cherry"])
-println([1 + 2, computed])
+mut computed = {fn(a,b) = a + b}(1,2);
+println [1, 2, 3, 4]
+println ["apple", "banana", "cherry"]
+println [1 + 2, computed]
 // end snippet
 
 // snippet ListLiteral2
-let a = [1, 2, 3, 4]
-let b = ["apple", ..a, "banana", "cherry"]
+mut a = [1, 2, 3, 4]
+mut b = ["apple", ..a, "banana", "cherry"]
 println b
 // end snippet
 
 // snippet ListLiteral3
-let a = [1, 2, 3, 4]
-let b = [5, 6, 7]
+mut a = [1, 2, 3, 4]
+mut b = [5, 6, 7]
 println([..a, ..b])
 // end snippet
 
 // snippet ListLiteral4
-let a = [1, 2, 3, 4]
-let b = [1, 3]
-println(a+b)
-println(a-b)
-println(a*b)
-println(a+"sixteen")
-println(a-2)
+mut a = [1, 2, 3, 4]
+mut b = [1, 3]
+println a,"+",b,"=", a+b
+println a,"-",b,"=", a-b
+println a,"*", b,"=", a*b
+println a,"+\"sixteen\"=", a+"sixteen"
+println a,"-",2,"=", a-2
 // end snippet
 
 // snippet ListLiteral5
-let a = [1, 2, 3, 4]
-let b = [1, 3]
-println(a+[b])
+mut a = [1, 2, 3, 4]
+mut b = [1, 3]
+println a+[b]
 // end snippet
 
 // snippet ListLiteral6
-let a = [1, 2, 3, 4]
-println([a[0],..a[2..inf]])
+mut a = [1, 2, 3, 4]
+println [a[0],..a[2..inf]]
 // end snippet
 
 // snippet ListLiteral7
-let a = [1, 2, 3, 4 ? {|x| x % 2 == 0 } ]
+mut a = [1, 2, 3, 4 ? {|x| x % 2 == 0 } ]
 println a
 // end snippet
 
 // snippet ListLiteral8
-let a = [1, 2, 3, 4 ? {|x| x % 2 == 0 } -> {|z| return z/2 }]
+mut a = [1, 2, 3, 4 ? {|x| x % 2 == 0 } -> {|z| return z/2 }]
 println a
 // end snippet
 
 // snippet ListLiteral9
-let a = [1, 2, 3, 4 ? {|| it % 2 == 0 } -> {|| return it/2 }]
+mut a = [1, 2, 3, 4 ? {|| it % 2 == 0 } -> {|| return it/2 }]
 println a
 // end snippet
 
 // snippet ListLiteral10
-let a = [1, 2, 3, 4 ? it % 2 == 0  -> it/2 ]
+mut a = [1, 2, 3, 4 ? it % 2 == 0  -> it/2 ]
 println a
 // end snippet
 
@@ -1445,9 +1502,9 @@ println([1,2,3] >> [-1,-2,-3])
 // end snippet
 
 // snippet equal1
-let k = { a:1 , b:2 }
-let q = { a:1 , b:2 }
-let w = "ohmy"
+mut k = { a:1 , b:2 }
+mut q = { a:1 , b:2 }
+mut w = "ohmy"
 println 1 == 1, " one is one"
 println 1 == 2, " one is not two"
 println 1 === 1, "one is the same as one"
@@ -1568,13 +1625,13 @@ println "56. ","aaa".sha_256()
 println "57. ","aaa".sha_512()
 println "60. ","aaa".digest("MD5")
 println "61. ",61.hex()
-println "62. ","let z = if a == 3 :  3 else: 5;".turi_lex()
-println "63. ","let M= \"\"; for i=0 ; i < 8 ; i = i +1 : M = M + i; M".execute()
+println "62. ","mut z = if a == 3 :  3 else: 5;".turi_lex()
+println "63. ","mut M= \"\"; for i=0 ; i < 8 ; i = i +1 : M = M + i; M".execute()
 println "64. ",M
 // end snippet
 
 // snippet hexNumber
-let z = 0xFfE3;
+mut z = 0xFfE3;
 println z
 // end snippet
 
@@ -1591,8 +1648,8 @@ Goodbye.
 // end snippet
 
 // snippet simpleWith
-let x = {a:1,b:2};
-let y = {a:4,c:5};
+mut x = {a:1,b:2};
+mut y = {a:4,c:5};
 with x,y {
     println a
     println b
@@ -1601,21 +1658,21 @@ with x,y {
 // end snippet
 
 // snippet modifyWith
-let x = {a:1,b:2};
-let y = {a:4,c:5};
+mut x = {a:1,b:2};
+mut y = {a:4,c:5};
 with x,y {
     a = 0
     b = 0
     c = 0
-    let k = 55;
+    mut k = 55;
 }
 println x
 println y
 // end snippet
 
 // snippet valueWith
-let x = {a:1,b:2};
-let y = {a:4,c:5};
+mut x = {a:1,b:2};
+mut y = {a:4,c:5};
 println {with x,y : a * b + c}
 // end snippet
 
@@ -1638,8 +1695,8 @@ class B {
         println "exit fom B"
     }
 }
-let x = A();
-let y = B();
+mut x = A();
+mut y = B();
 with x,y {
   println "executing with A and B"
 }
@@ -1679,7 +1736,7 @@ class Resource {
     }
     fn exit(e){
         println "exit fom A"
-        return none // if there is an error, let it go
+        return none // if there is an error, mut it go
     }
 }
 with Resource() as a {
@@ -1714,8 +1771,8 @@ println "Exception was eliminated"
 // snippet is_type
 class A {}
 class B : A {}
-let K = class : B {}
-let z = K()
+mut K = class : B {}
+mut z = K()
 println is_type(z,"A")," yes"
 println is_type(z,"H")," no"
 println is_type(z,"K")," no" // it is a no named class
@@ -1727,21 +1784,21 @@ println is_type(z,"#undefined")," yes" // bit strange, but actually
 // snippet parents
 class A {}
 class B : A {}
-let K = class : B {}
+mut K = class : B {}
 println([ ..parents(K) -> type(it()) ])
 // end snippet
 
 // snippet all_parents
 class A {}
 class B : A {}
-let K = class : B {}
+mut K = class : B {}
 println all_parents(K)
 println([ ..all_parents(K) -> type(it()) ])
 // end snippet
 
 // snippet rng
-let z = rng(0,9223372036854775807)
-let i = 0
+mut z = rng(0,9223372036854775807)
+mut i = 0
 for each k in z {
   println k
   i = i + 1
@@ -1749,21 +1806,21 @@ for each k in z {
 // end snippet
 
 // snippet rngThousand
-let z = rng(0,1000)
-let array = [ ..z ]
+mut z = rng(0,1000)
+mut array = [ ..z ]
 print( [..array[0 .. 5], ..array[-5 .. array.length]])
 // end snippet
 
 // snippet rangeThousand
 sys_import "turi.range"
-let z = range(start=0,end=1000,closend=true)
-let array = [ ..z ]
+mut z = range(start=0,end=1000,closend=true)
+mut array = [ ..z ]
 print( array[0 .. 5] + array[-5 .. array.length])
 // end snippet
 
 // snippet rngRange
-let z = rng(100,9223372036854775807,100)
-let range = z[20..2000000]
+mut z = rng(100,9223372036854775807,100)
+mut range = z[20..2000000]
 print( [..range[0 .. 5], ..range[-5 .. range.length]])
 // end snippet
 
@@ -1792,27 +1849,27 @@ fn sleeper(x) {
     x
     }
 {
-let start = nano_time()
-let serial = [sleeper(1), sleeper(2), sleeper(3)]
-let end = nano_time()
+mut start = nano_time()
+mut serial = [sleeper(1), sleeper(2), sleeper(3)]
+mut end = nano_time()
 println serial
 println( (end-start)/1000000, "ms")
 }
 {
-let start = nano_time()
-let serial = [ ..async([sleeper(1), sleeper(2), sleeper(3)]) -> it.get() ]
-let end = nano_time()
+mut start = nano_time()
+mut serial = [ ..async([sleeper(1), sleeper(2), sleeper(3)]) -> it.get() ]
+mut end = nano_time()
 println serial
 println( (end-start)/1000000, "ms")
 }
 // end snippet
 
 // snippet example_flow_squareroot
-let sqrt = {
+mut sqrt = {
     flow until epsilon < 0.0001 {
         a <- 13;
         a <- {
-            let newA = (a + 13 / a) / 2;
+            mut newA = (a + 13 / a) / 2;
             println("a =", newA);
             newA;
         }
@@ -1826,11 +1883,11 @@ println("square ≈ ", sqrt * sqrt);
 // end snippet
 
 // snippet example_flow_timeout
-let result = {try {
+mut result = {try {
     flow timeout 0.01 {  // 10 milliseconds
         counter <- 0;
         counter <- {
-            let n = counter + 1;
+            mut n = counter + 1;
             println("counter =", n);
             sleep(0.005);  // 5 milliseconds per step
             n;
@@ -1844,11 +1901,11 @@ println("Final counter = ", result);
 
 // snippet example_flow_limit
 
-let result = {try {
+mut result = {try {
                flow limit 5 {
                    x <- 1;
                    x <- {
-                       let newX = x + 1;
+                       mut newX = x + 1;
                        println("x =", newX);
                        newX;
                    }
@@ -1860,7 +1917,7 @@ let result = {try {
 // end snippet
 
 //  flow_mermaid_output
-let norm = command({flow test {
+mut norm = command({flow test {
         a <- 3;
         b <- 4;
         a <- {
@@ -1876,7 +1933,7 @@ let norm = command({flow test {
 })
 
 println("graph TD;")
-let d_cells = norm.commands[0].dependentCells
+mut d_cells = norm.commands[0].dependentCells
 for each k in keys(d_cells) {
     for each dep in d_cells[k] {
         println("    %s-->%s" % [k, dep.id])
@@ -1885,7 +1942,7 @@ for each k in keys(d_cells) {
 //
 
 // snippet thunk_unthunk
-let z = thunk({let x = 3; println "hello"})
+mut z = thunk({mut x = 3; println "hello"})
 println "before eval"
 unthunk(z)
 println "after eval"
@@ -1896,11 +1953,11 @@ println x             // then the value
 // end snippet
 
 // snippet block_list
-let commands = block_list(thunk({k = 13; suss = "huss"; let x = 3; println "hello"}))
+mut commands = block_list(thunk({k = 13; suss = "huss"; mut x = 3; println "hello"}))
 println "before execution"
-let i = 1;
+mut i = 1;
 for each command in commands {
-    let suss;
+    mut suss;
     println "%s. before is_defined(x) = %s" % [i,is_defined(x)]
     if i == 1 {
         try: unthunk(command) catch e: println "ERROR: %s" % [e];
@@ -1914,13 +1971,13 @@ for each command in commands {
 
 // snippet while_result
 println {
-    let k = 0
+    mut k = 0
     while k < 10 : k = k + 1
 }
 // end snippet
 // snippet for_result
 println {
-    let k = 0
+    mut k = 0
     for ; k < 10 ; : k = k + 1
 }
 // end snippet
@@ -1942,9 +1999,9 @@ println {
 // end snippet
 
 // snippet while_list
-let k = 0;
+mut k = 0;
 println{ while k < 5 list{
-            let h = k;
+            mut h = k;
             k = k + 1;
             h
          }

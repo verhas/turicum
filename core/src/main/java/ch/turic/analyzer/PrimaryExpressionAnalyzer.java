@@ -32,7 +32,7 @@ public class PrimaryExpressionAnalyzer extends AbstractAnalyzer {
     @Override
     public Command _analyze(LexList lexes) throws BadSyntax {
         if (lexes.isEmpty()) {
-            throw lexes.syntaxError( "Expression is empty");
+            throw lexes.syntaxError("Expression is empty");
         }
         if (lexes.is(Keywords.YIELD)) {
             lexes.next();
@@ -40,7 +40,7 @@ public class PrimaryExpressionAnalyzer extends AbstractAnalyzer {
             if (lexes.is("(")) {
                 lexes.next();
                 if (lexes.isNot(")")) {
-                    throw lexes.syntaxError( "Expected a closing parenthesis after 'yield'");
+                    throw lexes.syntaxError("Expected a closing parenthesis after 'yield'");
                 }
                 lexes.next();
             }
@@ -62,7 +62,7 @@ public class PrimaryExpressionAnalyzer extends AbstractAnalyzer {
             return FunctionDefinitionAnalyzer.INSTANCE.analyze(lexes);
         }
         if (lexes.is("(")) {
-            final var left = getExpressionBetweenParentheses(lexes);
+            final var left = BlockAnalyzer.FLAT.analyze(lexes);
             return getAccessOrCall(lexes, left, false);
         }
         if (lexes.is("&{")) {
@@ -95,7 +95,7 @@ public class PrimaryExpressionAnalyzer extends AbstractAnalyzer {
                 } else if (lexes.is("]", "?", "->")) {
                     break;
                 } else {
-                    throw lexes.syntaxError( "Unexpected end of expression list in array literal");
+                    throw lexes.syntaxError("Unexpected end of expression list in array literal");
                 }
             }
             final var modifiers = getModifierChain(lexes);
@@ -116,8 +116,7 @@ public class PrimaryExpressionAnalyzer extends AbstractAnalyzer {
             case STRING -> getAccessOrCall(lexes, new StringConstant(lex.text()), false);
             case INTEGER -> getAccessOrCall(lexes, new IntegerConstant(lex.text()), false);
             case FLOAT -> getAccessOrCall(lexes, new FloatConstant(lex.text()), false);
-            default ->
-                    throw lexes.syntaxError( "Expression: expected identifier, or constant, got '%s'", lex.text());
+            default -> throw lexes.syntaxError("Expression: expected identifier, or constant, got '%s'", lex.text());
         }
 
                 ;
@@ -164,16 +163,6 @@ public class PrimaryExpressionAnalyzer extends AbstractAnalyzer {
         return left;
     }
 
-    private static Command getExpressionBetweenParentheses(LexList lexes) throws BadSyntax {
-        lexes.next();// step over the opening (
-        final var expression = ExpressionAnalyzer.INSTANCE.analyze(lexes);
-        if (lexes.is(")")) {
-            lexes.next();
-            return expression;
-        }
-        throw lexes.syntaxError( "Expression is not well formed, missing ')'");
-    }
-
     /**
      * Analyse the actual arguments after a function call.
      *
@@ -218,7 +207,7 @@ public class PrimaryExpressionAnalyzer extends AbstractAnalyzer {
                 final var klass = ClassAnalyzer.INSTANCE.analyze(lexes);
                 arguments.add(new FunctionCall.Argument(null, klass));
             } else {
-                throw lexes.syntaxError( "Could not find what to decorate. Only closures, functions and classes can be decorated as for now.");
+                throw lexes.syntaxError("Could not find what to decorate. Only closures, functions and classes can be decorated as for now.");
             }
         }
         return arguments.toArray(FunctionCall.Argument[]::new);

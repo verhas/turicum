@@ -2,8 +2,6 @@ ch.turic.builtins.functions.Len
 ch.turic.builtins.functions.Type
 ch.turic.builtins.functions.Macro
 ch.turic.builtins.functions.Evaluate
-ch.turic.builtins.functions.Print
-ch.turic.builtins.functions.Println
 ch.turic.builtins.functions.Reclose
 ch.turic.builtins.functions.Keys
 ch.turic.builtins.functions.Import

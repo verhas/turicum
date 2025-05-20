@@ -6,7 +6,14 @@ import ch.turic.commands.LetAssignment;
 import ch.turic.commands.MultiLetAssignment;
 
 public class LetAnalyzer extends AbstractAnalyzer {
-    public static final LetAnalyzer INSTANCE = new LetAnalyzer();
+    public static final LetAnalyzer INSTANCE = new LetAnalyzer(false);
+    public static final LetAnalyzer INSTANCE_MUT = new LetAnalyzer(true);
+
+    private final boolean mut;
+
+    public LetAnalyzer(boolean mut) {
+        this.mut = mut;
+    }
 
     @Override
     public Command _analyze(LexList lexes) throws BadSyntax {
@@ -26,10 +33,10 @@ public class LetAnalyzer extends AbstractAnalyzer {
                 case "[" -> MultiLetAssignment.Type.LIST;
                 case "{" -> MultiLetAssignment.Type.OBJECT;
                 default -> throw new RuntimeException("Internal error 7343992kr6w");
-            });
+            },mut);
         } else {
             AssignmentList.Assignment[] assignments = AssignmentList.INSTANCE.analyze(lexes);
-            return new LetAssignment(assignments);
+            return new LetAssignment(assignments,mut);
         }
     }
 }

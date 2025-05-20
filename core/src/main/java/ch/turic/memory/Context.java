@@ -18,11 +18,22 @@ public class Context implements ch.turic.Context {
     public final ThreadContext threadContext;
     public Context caller = null;
     private final List<String> exporting = new ArrayList<>();
+    private final boolean shadow;
 
     public Set<String> keys() {
         return frame.keySet();
     }
 
+    /**
+     * Retrieves a set containing all keys present in the current context.
+     * This includes both local keys and global keys. The method combines the keys
+     * from the local context and the global context, ensuring no duplicates.
+     * <p>
+     * Since this returns the set of only the keys it is meaningless to ask which is returned in case of name collision.
+     * It is the name only.
+     *
+     * @return a set of all keys available in the current context, including local and global keys
+     */
     public Set<String> allKeys() {
         final var keySet = new HashSet<String>();
         keySet.addAll(allLocalKeys());
@@ -30,6 +41,13 @@ public class Context implements ch.turic.Context {
         return keySet;
     }
 
+    /**
+     * Retrieves all local keys from the current context and all wrapped contexts.
+     * This method traverses through the chain of wrapped contexts, collecting the keys
+     * from each context's local frame.
+     *
+     * @return a set of all local keys present in the current context and its wrapped contexts
+     */
     public Set<String> allLocalKeys() {
         final var keySet = new HashSet<String>();
         var ctx = this;
@@ -38,6 +56,17 @@ public class Context implements ch.turic.Context {
             ctx = ctx.wrapped;
         }
         return keySet;
+    }
+
+    /**
+     * Retrieves a set containing all keys from the local frame of the current context.
+     * This method provides access solely to the keys from the local frame, without including
+     * keys from any global or wrapped contexts.
+     *
+     * @return a set of all keys present in the local frame of the current context
+     */
+    public Set<String> allFrameKeys() {
+        return new HashSet<>(frame.keySet());
     }
 
     /**
@@ -57,6 +86,7 @@ public class Context implements ch.turic.Context {
         this.wrapped = null;
         this.frame = globalContext.heap;
         this.threadContext = new ThreadContext();
+        this.shadow = false;
     }
 
     public Context(final GlobalContext globalContext, final ThreadContext threadContext) {
@@ -64,6 +94,7 @@ public class Context implements ch.turic.Context {
         this.frame = new HashMap<>();
         this.globalContext = globalContext;
         this.threadContext = threadContext;
+        this.shadow = false;
     }
 
     /**
@@ -83,6 +114,16 @@ public class Context implements ch.turic.Context {
         this.threadContext = clone.threadContext;
         this.frame = new HashMap<>();
         this.wrapped = wrapped;
+        this.shadow = false;
+    }
+
+    private Context(final Context thisContext, final Context wrappedContext, final boolean shadow) {
+        this.globalContext = thisContext.globalContext;
+        this.threadContext = thisContext.threadContext;
+        this.frame = new HashMap<>();
+        this.wrapped = wrappedContext;
+        this.shadow = shadow;
+
     }
 
     private Context(final Context thisContext, final Context wrappedContext, final Context withContext) {
@@ -90,6 +131,7 @@ public class Context implements ch.turic.Context {
         this.threadContext = thisContext.threadContext;
         this.frame = withContext.frame;
         this.wrapped = wrappedContext;
+        this.shadow = false;
     }
 
     /**
@@ -145,6 +187,15 @@ public class Context implements ch.turic.Context {
         // we are lenient when we have a "let" inside a loop, as it will be executed multiple times
         if (frame.containsKey(key)) {
             throw new ExecutionException("Variable '%s' is already defined.", key);
+        }
+        if (shadow) {
+            var ctx = this;
+            while (ctx != null && ctx.shadow) {
+                ctx = ctx.wrapped;
+                if (ctx != null && ctx.frame.containsKey(key)) {
+                    throw new ExecutionException("Variable '%s' is already defined.", key);
+                }
+            }
         }
         final var v = new Variable(key);
         v.types = Variable.getTypes(this, typeNames);
@@ -218,6 +269,10 @@ public class Context implements ch.turic.Context {
      */
     public Context wrap() {
         return new Context(this, this);
+    }
+
+    public Context shadow() {
+        return new Context(this, this, true);
     }
 
     /**
@@ -325,11 +380,27 @@ public class Context implements ch.turic.Context {
         return frame.containsKey(key);
     }
 
+    /**
+     * Checks whether the specified key exists in the local frame or in any wrapped context.
+     *
+     * @param key the name of the key to check for presence within the local frame or wrapped contexts
+     * @return true if the key is found in the local frame or any wrapped context, false otherwise
+     */
     public boolean containsLocal(String key) {
         if (frame.containsKey(key)) {
             return true;
         }
         return wrapped != null && wrapped.containsLocal(key);
+    }
+
+    /**
+     * Checks if the specified key exists within the local frame of the current context.
+     *
+     * @param key the name of the key to check within the local frame
+     * @return true if the key exists in the local frame, false otherwise
+     */
+    public boolean containsFrame(String key) {
+        return frame.containsKey(key);
     }
 
     /**

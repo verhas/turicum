@@ -65,7 +65,7 @@ public class ForLoopAnalyzer extends AbstractAnalyzer {
                 && assignment.leftValue() instanceof VariableLeftValue(String variable)) {
             return new LetAssignment(new AssignmentList.Assignment[]{
                     new AssignmentList.Assignment(variable, null, assignment.expression())
-            });
+            }, true);
         } else {
             return startCommand;
         }

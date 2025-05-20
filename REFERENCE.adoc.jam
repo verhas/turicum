@@ -55,7 +55,7 @@ and objects that inherit properties from their class.
 * **Dynamic**
 +
 All definitions occur at runtime and can be modified at runtime.
-For example, a class or function is created when its definition is executed, and it exists within the defining scope.
+For example, a class or function is created when its definition is executed, and it exists within the defining context.
 Methods are just fields containing closures or function values, and they can be added to any class or object—even after creation.
 
 * **Flexible**
@@ -102,11 +102,12 @@ The language is intended for **experienced developers**, especially those workin
 
 Turicum syntax is clean, indentation-insensitive, and largely expression-oriented.
 It does not aim to reinvent syntax, so it will feel familiar to programmers coming from Java, C, and—occasionally—Python.
-At the same time, it avoids syntactically superfluous elements, such as mandatory parentheses `()` around `if` conditions.
+At the same time, it avoids syntactically superfluous elements, such as mandatory parentheses `()` around `if` conditions, or loop header parts.
 
 The core syntactic conventions are as follows:
 
 * Semicolons (`;`) may be used to separate commands but are generally optional.
+It is recommended to use semicolons to avoid ambiguity.
 * Code blocks are enclosed in curly braces `{}` and evaluate to the result of the last executed command.
 * Single-line comments begin with `//` and continue to the end of the line.
 * Multiline comments start with `+/*+` and end with `*/`, like in Java, C, Go etc.
@@ -126,15 +127,17 @@ A Turicum program is a list of commands, executed from start to end.
 
 {%S first_sample%}
 
-A command is usually terminated by a newline or a semicolon (`;`).
-A semicolon can always be replaced by a newline at the end of a command—except when the syntax explicitly requires the semicolon inside the command, such as in a `for` loop.
+A command is usually terminated by a semicolon (`;`).
+A semicolon can sometimes be replaced by a newline at the end of a command.
+Some commands explicitly require the use of `;`, like the `for` loop.
 
 Commands can be grouped into blocks, enclosed in `{` and `}`.
-Everything in Turicum has a value—even commands.
+Everything in Turicum has a value.
+Even commands result in a value.
 For example, an `if` statement returns the value of the executed command:
 
 * the branch after the `if` condition,
-* the `else` block if the condition is false and an `else` is present, or
+* the `else` block if the condition is `false` and an `else` is present, or
 * `none` if there is no `else` block.
 
 {%S if_value%}
@@ -151,13 +154,14 @@ Expressions may contain:
 ** numbers
 ** JSON values
 * Variables
-* Operators
+* Operators (with precedences fixed)
 * Function calls
 * Closure calls
 * Macro calls
 * Method calls
 * Async expressions
 * Code blocks
+* block commands enclosed between `{` and `}` or `(` and `)`.
 
 Symbolic constants are {%#trimLines
 {%#replaceLines replace=/"(.*?)",[^"]+/`$1`,/ replace=/,$//
@@ -166,6 +170,8 @@ Symbolic constants are {%#trimLines
 ==== Shebang
 
 The interpreter ignores the first line of the program if it begins with `#!`.
+It is not only the command line version, but all embedding.
+This helps to use the same source in any embedding on any operating system.
 
 ==== Whitespace and Line Breaks
 
@@ -173,14 +179,18 @@ Whitespace—including spaces, tabs, and line breaks—is generally insignifican
 Multiple blank lines are allowed between tokens and commands.
 Line breaks alone do not terminate a command.
 
+Whitespace terminates tokens, so `1 2` are two tokens, and `12` is one.
+
 ==== Identifiers
 
 Identifiers are names used for variables, functions, classes, and other user-defined symbols.
 
 * Identifiers must begin with a Unicode letter or an underscore (`_`), and may contain letters, digits, and underscores.
+
 * You can explicitly define an identifier using backticks: `+`non-standard-id`+`.
 This allows you to use any string as an identifier—even reserved words, symbols, or operators.
 The primary use of this feature is to override operators, such as `+`==`+`.
+
 * Identifiers are case-sensitive.
 
 Some Unicode characters like `∞` (infinity) and `∅` (none) are automatically translated into meaningful identifiers (`inf`, `none`).
@@ -192,6 +202,7 @@ For example, in Python, you can override the `+` operator by defining a method n
 Turicum does not require such special naming conventions.
 You can simply define a method with the name `pass:[`+`]`.
 ====
+
 ==== Reserved Words
 
 Turicum defines a set of reserved keywords that cannot be used as identifiers—unless the name is enclosed in backticks, like `+`if`+`.
@@ -220,7 +231,6 @@ Numeric literals can be either integers or floating-point numbers.
 * Integers are written as sequences of digits, e.g., `42`, `0`, `123456`.
 * or in hexadecimal with `0x` prefix
 
-
 {%S hexNumber%}
 
 * Floating-point numbers contain a decimal point or exponent part, e.g., `3.14`, `2e10`, `1.0e-3`.
@@ -230,10 +240,11 @@ Type promotion is automatic and based on the context of usage.
 Internal implementation of numerical types uses `Long` and `Double`.
 
 There is no hexadecimal floating point literal like in Java.
+Turicum does not implement a feature just because it is fancy.
 
 ==== String Literals
 
-Strings in Turicum are enclosed in double quotes (`"`), e.g., ``"hello world"``.
+Strings in Turicum are enclosed in double quotes(`"`), e.g., ``"hello world"``.
 
 Backslash escapes are supported:
 
@@ -250,7 +261,8 @@ Example:
 
 Multiline string literals are enclosed between triple quotes `pass["""]`.
 
-They preserve line breaks and indentation exactly as written. Escape sequences are still processed.
+They preserve line breaks and indentation exactly as written.
+Escape sequences are still processed.
 
 Example:
 {%S mlstring%}
@@ -272,19 +284,14 @@ To defer the evaluation of a JSON literal until it is accessed, Turicum provides
 
 These are written with a `+&+` prefix before the JSON object:
 
-[source]
-----
-&{
-  `timestamp`: now(),
-  user: getCurrentUser()
-}
-----
+{%S lazy_json1%}
 
 Lazy JSON is not evaluated at definition time.
 Each field is computed lazily, on demand, using the current execution context wrapping the context where the JSON was defined.
 This behavior is similar to that of closures.
 
-In the example above `getCurrentUser()` is only invoked if and when the field `user` is accessed.
+In the example above `get_name()` is only invoked if and when the field `name` is accessed.
+However, it is called both times the field was accessed.
 Lazy JSON objects are pinned, a.k.a. it is not possible to change any of their fields.
 
 ==== List Literals
@@ -294,10 +301,6 @@ Lists can be defined using square brackets `+[]+`.
 List elements are expressions and are separated by commas:
 
 {%S ListLiteral1%}
-
-NOTE: The call to the built-in function `println` in the example above need the `(` and `)`.
-Without that the syntax analyser will recognite `println[...]` as array access.
-The possibility to omit the `(` and `)` around fucntion calls if they stand as a statement should only be used if that supports readability.
 
 Lists are mutable by default and can be indexed using the `+[]+` operator.
 They support iteration in `+for each+` loops.
@@ -328,7 +331,7 @@ The `-` will remove the elements from the list.
 
 The operator `*` will create the Descartes product of the two lists.
 
-If you want to remove a certain element or part of the list you can compose a new list from the necessary parts:
+If you want to remove a certain element or part of the list, you can compose a new list from the necessary parts:
 
 {%S ListLiteral6%}
 
@@ -358,6 +361,7 @@ To ease more the syntax, you can use ordinary expressions instead of closures:
 
 This makes writing filters and mappers very easy.
 
+.Some deep technical detail
 [NOTE]
 ====
 The closure definition `{|x|x*2}` is technically an expression.
@@ -373,14 +377,12 @@ Closures are just objects and can be in a list.
 The answer is that it does not.
 If it sees a closure as the result of the expression, it will evaluate it.
 
-If you want to map a list element to a closure, then you have to write a closure that returns that closue you want to be the list element.
+If you want to map a list element to a closure, then you have to write a closure that returns that closure you want to be the list element.
 ====
-
-
 
 ==== Operators and Symbols
 
-The lexer recognizes both symbolic and word-based operators.
+The lexer recognizes both symbolic and word-based operators in expressions.
 Operators are tokenized with priority for the **longest matching operator**.
 
 Recognized symbols are:
@@ -388,11 +390,11 @@ Recognized symbols are:
 {%#replace (regex) /
 {%#trimLines
 {%@snip OPERANDS%}
- %} /`(.*?)`/`$1` /->/pass:[->]/%}
+ %} /`(.*?)`/`$1` /->/pass:[->]/<-/pass:[<-]/%}
 
-=== Operators
+=== Defined Operators
 
-Operators have precendence and are evaluated from left to right.
+Operators have precedence and are evaluated from left to right.
 You can use `(` and `)` to change the evaluation order.
 The operators are the followings in order of growing precedence:
 
@@ -411,22 +413,24 @@ The right side is only evaluated if the left side is none.
 {%EX%}
 
 {%S and%}
-
 Note, that you cannot divide by zero, the result is an error and not `inf`.
 
 * `..` range operator. `start..end`` will result a range to index a list.
 The first index is `start`, the last is `end-1`.
 Ranges can be used to index lists as values and also in left values to replace a part of a list.
 When used as a unary prefix operator, it must be inside a list literal and in front of a list to flatten the list content into the literal.
++
+It is also used to flatten objects or lists to function parameter passing.
 
 * `|` bitwise OR operation.
 The operator works the conventional ways on integers.
 The operator is also defined for lists.
 The result is the union of the two lists with the unique elements.
 That way you can also create a "set" from a list `|`-ing it with an empty list, as in the example below:
-You cannot `|` floating point numbers.
 
 {%S bor1%}
+
+You cannot `|` floating point numbers.
 
 * `^` bitwise XOR operation for integer values and power in the case of double values.
 It calculates the symmetric difference of lists (the concatenation of the two lists without the elements that appear in both).
@@ -553,18 +557,78 @@ If we modify the equality check to consider the classes, we get a different resu
 
 {%S myEqual2%}
 
-== Variables and Scope
+=== Using parentheses
+{%@snip:check hash="0b69197b" id=operators message="check the operator table for change"%}
+
+The different operators have their precedences as in most of the programming languages.
+
+The operator's table is defined in the source file {%#file (format="`$simpleName`") {%@snip:file operators%}%}.
+
+
+|===
+|Precedence |Operators
+
+|0
+|or
+
+|1
+|`&#124;&#124;`
+
+|2
+|`&&`
+
+|3
+|`..`
+
+|4
+|`&#124;`
+
+|5
+|`^`
+
+|6
+|`&`
+
+|7
+|`===`, `==`, `!=`, `in`
+
+|8
+| `<`, `<=`, `>`, `>=`
+
+|9
+| `+`, `-`
+
+| 10
+| `*`, `/`, `%`
+|===
+
+The higher precedence operators are executed first, and the lower precedence operators are executed on the results.
+When the order of the operator execution can be altered using parenthese.
+This is a widespread practice in most programming languages.
+
+The usual practice is that you can have a whole expression between `()` characters.
+Turicum is more liberal and gives much more freedom to the developer.
+You can have a whole code block between the `()` characters, similarly to `{}`.
+
+The major difference between the two is that the code between `()` is executed in the same context as the expression, while the code block between `{}` opens a new context.
+
+{%S pscope%}
+
+Because not only every command is a value but also every expression is a command, you can use the `()` to group commands to be executed in the same context as the code environment.
+
+
+== Variables and Context
 
 Variables can be global or local.
 They are defined in scopes.
 Scopes are wrapped around each other.
-The top level scope is the global scope.
+The top level context is the global context.
 
 Scopes are created in run-time, like everything in Turicum.
 
 === Block scopes
 
-Code blocks open a new scope and they wrap the surrounding scope.
+Code blocks open a new context and they wrap the surrounding context.
 
 {%sample scope1%}
 
@@ -574,13 +638,13 @@ will output
 
 The variable `k` is local inside the code block, and it has no value outside.
 The variable `z` is part of the wrapped context, and in this case it is global.
-The block executes in its own scope, and this scope wraps the global scope.
+The block executes in its own context, and this context wraps the global context.
 
 You can nest scopes.
 
-You can use a variable name defined in a wrapped (outer) scope essentially hiding the outer variable, but only if you do not use the outer variable in the inner scope.
-You cannot refer to both in a scope.
-When you use a variable defined in a wrapped (outer) scope you cannot define it after that as local using `let`.
+You can use a variable name defined in a wrapped (outer) context essentially hiding the outer variable, but only if you do not use the outer variable in the inner context.
+You cannot refer to both in a context.
+When you use a variable defined in a wrapped (outer) context, you cannot define it after that as local using `let` or `mut`.
 
 {%sample local_redefined_error%}
 
@@ -588,11 +652,11 @@ will output:
 
 {%output%}
 
-=== Class, object and function scope
+=== Class, object and function context
 
-Class declarations and functions do not wrap the surrounding scope.
+Class declarations and functions do not wrap the surrounding context.
 In the following example, modifying the global variable `glb` is not possible without declaration.
-The class and the function do not wrap the surrounding, global scope.
+The class and the function do not wrap the surrounding, global context.
 
 {%sample function_scope%}
 
@@ -601,7 +665,7 @@ The output of the program is:
 {%output%}
 
 The methods, a.k.a. functions defined inside a class wrap the context of the class.
-Whenever a method is called its own scope is created and the "local variables" `cls` and `this` are created.
+Whenever a method is called its own context is created and the "local variables" `cls` and `this` are created.
 Unless the method is a constructor (named aptly as `constructor`) these variables are pinned, cannot be changed.
 
 Code inside a class, outside any method is executed when the class is defined.
@@ -609,11 +673,11 @@ Code inside a class, outside any method is executed when the class is defined.
 {%sample class_definition%}
 
 The code above defines a class named `X`.
-This class has a class scope variable `s`.
+This class has a class context variable `s`.
 It can be accessed as a field of the class itself `X.s`.
 
 Variable `x` is initialized to hold an instance of this class.
-Using `x.s` will reference the same variable, because objects wrap the scope of the class.
+Using `x.s` will reference the same variable, because objects wrap the context of the class.
 
 {%output%}
 
@@ -635,11 +699,11 @@ The general syntax is:
 
 Note that executing a closure and calling a closure are two different things.
 When a closure is executed, it returns the closure.
-When a closure is called, the arguments are evaluated in the actual scope, and the closure is called in its scope.
-The scope of the closure does not wrap the scope of the caller.
-It does wrap the scope of the execution, where we created the closure.
+When a closure is called, the arguments are evaluated in the actual context, and the closure is called in its context.
+The context of the closure does not wrap the context of the caller.
+It does wrap the context of the execution, where we created the closure.
 
-Technically functions are closures that do not wrap any other scope.
+Technically functions are closures that do not wrap any other context.
 
 The following example inside a block.
 the closure can access and even modify the variable `whom`.
@@ -660,14 +724,19 @@ The following simple macro reimplements the `if` command's functionality using i
 
 {%S macro_example%}
 
-When a macro calls the function `evaluate` the evaluation happens in the caller scope.
-This ensures the same scope and variable visibility like calling a function or closure.
+When a macro calls the function `evaluate` the evaluation happens in the caller context.
+This ensures the same context and variable visibility like calling a function or closure.
 The caller does not need to know that the implementation of the something it calls is a function, closure, or macro.
 
 === Variable Declaration
 
-Upon first assignment the code has to use the keyword `let` to define the variable.
+Upon first assignment the code has to use the keyword `let` or `mut` to define the variable.
 Until that happens, you cannot use a variable.
+
+Variables defined using the keyword `let` are not mutable.
+Variables defined using the keyword `mut` are mutable.
+Mutable variables can be pinned, made immutable any time using the `pin` command.
+Immutable variables remain immutable forever.
 
 You cannot read an undefined variable.
 If a variable is not defined, it will throw an exception.
@@ -677,11 +746,12 @@ An undefined variable was never defined.
 An already defined variable can have the value of `none`, and it can also have type declaration.
 Also, you can assign values to object fields without the `let` keyword, even to define them.
 
-The syntax of a `let` command is the following:
+The syntax of a `let` and `mut` command is the following:
 
 [source]
 ----
 let identifier : type = expression
+mut identifier : type = expression
 ----
 
 or
@@ -689,6 +759,7 @@ or
 [source]
 ----
 let {identifier:type , ... } = expression
+mut {identifier:type , ... } = expression
 ----
 
 or
@@ -696,6 +767,7 @@ or
 [source]
 ----
 let [identifier:type ...] = expression
+mut [identifier:type ...] = expression
 ----
 
 In the first version you assign a value to an identifier and optionally define the type.
@@ -780,7 +852,7 @@ or even
 
 ==== Pinned Variables
 
-Pinning a variable makes it illegal to change it in the scope.
+Pinning a variable makes it illegal to change it in the context.
 The syntax of the `pin` command is
 
 [source]
@@ -918,7 +990,7 @@ If the start command is an assignment, it is interpreted as a local assignment.
 {%S for3%}
 
 The variable `i` after the loop is still undefined.
-To use a variable from the enclosing wrapped scope, you can enclose the assignment into a block.
+To use a variable from the enclosing wrapped context, you can enclose the assignment into a block.
 
 {%S for4%}
 
@@ -959,8 +1031,8 @@ You can also define an index variable following the `with` keyword.
 
 The index starts from zero and increments with each execution by one.
 The index variable is local to the loop.
-Without this feature you would need to declare a variable one scope higher and then use it in the loop.
-That would violate the locality principle, not to rely on anything out of a scope that may change and even less modify anything out of the scope, which is in this case a loop.
+Without this feature you would need to declare a variable one context higher and then use it in the loop.
+That would violate the locality principle, not to rely on anything out of a context that may change and even less modify anything out of the context, which is in this case a loop.
 
 When used in an expression position, a `for each` loop returns the result of the last executed loop body.
 
@@ -991,7 +1063,7 @@ The command can break the execution of the loop and can also specify the value o
 Will continue the execution of the loop starting the body of the loop again without exeuting the rest of the commands in the loop body.
 
 
-=== Returning, Breaking, Continue and Yielding
+=== Returning, Breaking, Continue, and Yielding
 
 These three commands are in one family.
 each of them can pass a value, and each can have a conditionality following the expression.
@@ -1140,7 +1212,7 @@ It means that the fields of the objects can be used as variables without prefixi
 
 {%S simpleWith%}
 
-Technically, the command executes the block in a context that references the fields of the object and wraps the surrounding scope.
+Technically, the command executes the block in a context that references the fields of the object and wraps the surrounding context.
 When more than one object is listed, then multiple wrapping scopes are created from left to right.
 It also means that the objects to the right shadow the objects to the left.
 In the example both `x` and `y` have field `a` and since `y` is later in the list the field of `y` is used.
@@ -1890,6 +1962,27 @@ The value of the try-catch command is
 
 The command after the `finally` keyword does not affect the result of the command.
 
+Also note that the execution of the `try` command has an atomic nature.
+
+{%S try6%}
+
+In the example above, the local variables defined in the expression are not defined afterward because an error, division by zero, has happened.
+
+The next example shows how this atomic behavior works.
+
+{%S try7%}
+
+When the code following the `try` executes it opens a new context.
+This context is a so-called shadow context.
+It wraps the surrounding context.
+When you define a new variable in this context, it checks not only this context but also the surrounding context to see whether the variable is already defined.
+
+To be precise, it checks not only the surrounding shadow context but all shadow contexts wrapped in the line.
+It has effect when `try` commands are nested.
+
+When and if the `try` command finishes successfully the variables from the shadow context are moved to the wrapped context, one level higher.
+
+
 == Decorators, Metaprogramming
 
 Decorators are an inherent part of Turicum.
@@ -1934,7 +2027,7 @@ To redefine an already existing variable, it needs to be a closure.
 You usually just assign a value to the variable updating its value.
 In this case we have to use the built-in `set` function, because we have the name of the variable as a string.
 
-In the following example we moved the function definition to a local scope.
+In the following example we moved the function definition to a local context.
 The decorator in this case simply defines the global variable of the same name as we used locally for the function.
 The value is the closure or function, whatever we decorate itself.
 
@@ -2140,7 +2233,7 @@ These are two functions to be used in files imported.
 The macro `export` will export the variables listed as arguments.
 That way these variables will be copied into the context of the importing code.
 
-`export_all()` will export all the variables from the importing scope.
+`export_all()` will export all the variables from the importing context.
 Note that in the case of `export_all()` you cannot omit the `(` and `)`.
 If you do, the line will be an expression with a function as a result, and the execution will not call the function.
 
@@ -2589,7 +2682,7 @@ For functions with a block body, both the function name and parameter list are o
 
  FN_BLOCK  ::= 'fn' [ IDENTIFIER ] [ '(' IDENTIFIER_LIST ')' ] BLOCK ;
 
-Variables declared as local will be local to the scope, even if the same name is used in some enclosing scope
+Variables declared as local will be local to the context, even if the same name is used in some enclosing context
 or as a global variable
 the value of the local declaration is the value of the last assignment in the command
 
@@ -2602,7 +2695,7 @@ The value of the global declaration is the value of the last assignment in the c
 
  GLOBAL ::= 'global' IDENTIFIER_ASSIGNMENT_LIST;
 
-Variables pinned cannot be changed in the local scope.
+Variables pinned cannot be changed in the local context.
 Pinning has no effect to outer scopes.
 You can also pin an object. In that case use `{variable}` instead of the name.
 
@@ -2642,7 +2735,7 @@ Unary operators and primary expressions
  | FN
  | CLASS
  | IDENTIFIER
- | '(' EXPRESSION ')'
+ | '(' COMMAND_LIST ')'
  | FUNCTION_CALL
  | FIELD_ACCESS
  | METHOD_CALL
@@ -2664,7 +2757,9 @@ Method call: obj.method(params)
 
 Block returning an expression value. The value of the block is always the last executed expression.
 
- BLOCK ::= '{' { COMMAND [';'] } '}' ;
+ BLOCK ::= '{' COMMAND_LIST '}' ;
+
+ COMMAND_LIST ::= { COMMAND [';' | '\n'] }
 
  BREAK  ::= 'break' CONDITIONAL_VALUE ;
  RETURN  ::= 'return' CONDITIONAL_VALUE ;

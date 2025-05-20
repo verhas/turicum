@@ -13,16 +13,14 @@ public class AdHocTest {
     @Test
     void test1() throws Exception {
         test("""
+let a = 3;
+try : (let a = 1;
+       let b = 2;
+      )
+catch e : println e;
 
-let z = 5
-try{
-    z = {
-        println(z);
-        let z = 3
-        }
-}catch e {
-    println(e)
-}
+println "Do we have a? ", is_defined(a)
+println "Do we have b? ", is_defined(b)
 none
                 """,null);
     }

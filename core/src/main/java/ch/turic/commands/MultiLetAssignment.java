@@ -14,6 +14,7 @@ public class MultiLetAssignment extends AbstractCommand {
     final AssignmentList.Assignment[] assignments;
     final Command rightHandSide;
     final Type type;
+    final boolean mut;
 
     public enum Type {
         LIST, OBJECT
@@ -26,10 +27,11 @@ public class MultiLetAssignment extends AbstractCommand {
      * @param rightHandSide Command that produces the value to be assigned
      * @param type          Type of assignment (LIST or OBJECT)
      */
-    public MultiLetAssignment(AssignmentList.Assignment[] assignments, Command rightHandSide, Type type) {
+    public MultiLetAssignment(AssignmentList.Assignment[] assignments, Command rightHandSide, Type type, boolean mut) {
         this.assignments = assignments;
         this.rightHandSide = rightHandSide;
         this.type = type;
+        this.mut = mut;
     }
 
     /**
@@ -70,6 +72,9 @@ public class MultiLetAssignment extends AbstractCommand {
                     throw new ExecutionException("[multi-let] assignment right hand side has too few values", value);
                 }
                 ctx.defineTypeChecked(assignment.identifier(), iterator.next(), typeNames);
+                if( !mut ){
+                    ctx.freeze(assignment.identifier());
+                }
             }
             if( iterator.hasNext() ) {
                 throw new ExecutionException("[multi-let] assignment right hand side has too many values", value);

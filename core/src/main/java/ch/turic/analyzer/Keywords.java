@@ -2,34 +2,37 @@ package ch.turic.analyzer;
 
 public interface Keywords {
     // snippet KEYWORDS
-    String PIN = "pin";
-    String GLOBAL = "global";
+    String AS = "as";
+    String ASYNC = "async";
+    String AWAIT = "await";
     String BREAK = "break";
+    String CATCH = "catch";
+    String CLASS = "class";
     String CONTINUE = "continue";
     String DIE = "die";
-    String LET = "let";
+    String EACH = "each";
+    String ELSE = "else";
+    String ELSEIF = "elseif";
+    String FINALLY = "finally";
+    String FLOW = "flow";
+    String FOR = "for";
     String FN = "fn";
-    String CLASS = "class";
+    String GLOBAL = "global";
     String IF = "if";
+    String IN = "in";
+    String LET = "let";
+    String LIST = "list";
+    String MUT = "mut";
+    String OR = "or";
+    String PIN = "pin";
+    String PRINT = "print";
+    String PRINTLN = "println";
+    String RETURN = "return";
+    String TRY = "try";
+    String UNTIL = "until";
     String WHEN = "when";
     String WHILE = "while";
     String WITH = "with";
-    String FOR = "for";
-    String FLOW = "flow";
-    String EACH = "each";
-    String LIST = "list";
-    String ELSE = "else";
-    String ELSEIF = "elseif";
-    String TRY = "try";
-    String CATCH = "catch";
-    String FINALLY = "finally";
-    String OR = "or";
-    String IN = "in";
-    String UNTIL = "until";
-    String RETURN = "return";
     String YIELD = "yield";
-    String ASYNC = "async";
-    String AWAIT = "await";
-    String AS = "as";
     // end snippet
 }

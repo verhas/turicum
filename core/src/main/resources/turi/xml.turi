@@ -9,7 +9,7 @@ fn to_xml(object, @top, @plurals= {}) : str {
     }
 
     return  "<%s>%s</%s>" % [top,object,top] if !is_obj(object);
-    let XML = "<%s" % [top];
+    mut XML = "<%s" % [top];
     for each tag in keys(object){
         if tag[0] == "@" : XML = XML + " " + tag[1..inf] + "=\"" + object[tag] + "\"";
     }

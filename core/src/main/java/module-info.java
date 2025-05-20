@@ -1,6 +1,7 @@
 import ch.turic.builtins.classes.*;
 import ch.turic.builtins.functions.*;
 import ch.turic.builtins.macros.*;
+import ch.turic.commands.Print;
 
 module ch.turic {
     requires java.desktop;
@@ -9,8 +10,8 @@ module ch.turic {
     exports ch.turic;
     opens turi;
 
-    provides ch.turic.TuriFunction with Len, Type, Macro, Evaluate, Println,
-            Print, Reclose, Keys, Import, JavaNewObject, JavaMethodCall,
+    provides ch.turic.TuriFunction with Len, Type, Macro, Evaluate,
+            Reclose, Keys, Import, JavaNewObject, JavaMethodCall,
             JavaMethodCallVararg, SysImport, Sleep, Set, SetGlobal,
             Que, TryYield, YieldIsClosed, Rx, RxMatch, TuriHttpServer, XmlFormat,
             IsObject, IsType, ExportAll, Parents, AllParents, Rng, Time, NanoTime,
