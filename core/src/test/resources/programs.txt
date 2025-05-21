@@ -493,7 +493,9 @@ while( i < 10 ) : i = i + 1 ; until i == 9;;;;
 
 
 mut z = 0
+
 for i=1 ; i<10 ; i=i+1 : z=i
+
 z
 
 // = forLoop2
@@ -584,7 +586,6 @@ mut z = {| a,b,c | a+1 } ; z(2,3,4)
 +{fn map(x) {
   x * 2
 }}(1)
-//burst b = 0 ; { for i = 1 ; i < 3 ; i++ : yield i } → map → {|a| a * 2} →  {|a| b = b + a }
 
 // = range
 // Range
@@ -700,6 +701,12 @@ y.`print`("csaka haha ")
 y.`print`("fogorvos hihi ")
 y.`print`("segithet huhu")
 
+// = for_loop_context_pin
+
+for i=0 ; i < 10 ; i = i + 1 {
+    try: i = i +1
+    catch: println "cannot change i from %s" % i
+}
 
 // = stringIndexing1
 

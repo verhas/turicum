@@ -58,7 +58,9 @@ public class ForLoop extends Loop {
         }
         while (Cast.toBoolean(loopCondition.execute(loopContext))) {
             final var innerContext = loopContext.wrap();
-            lp = loopCore(body, innerContext, listResult);
+            try (final var x = loopContext.lock()) {
+                lp = loopCore(body, innerContext, listResult);
+            }
             if (breakLoop(lp)) {
                 return normalize(lp);
             } else {

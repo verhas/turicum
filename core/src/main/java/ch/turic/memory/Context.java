@@ -20,6 +20,8 @@ public class Context implements ch.turic.Context {
     private final List<String> exporting = new ArrayList<>();
     private final boolean shadow;
 
+    private boolean pinned = false;
+
     public Set<String> keys() {
         return frame.keySet();
     }
@@ -310,6 +312,9 @@ public class Context implements ch.turic.Context {
                 throw new ExecutionException("Variable '%s' is pinned.", key);
             }
             if (ctx.frame.containsKey(key)) {
+                if (ctx.pinned) {
+                    throw new ExecutionException("Variable '%s' is in a pinned context.", key);
+                }
                 if (ctx != this) {
                     nonlocal.add(key);
                 }
@@ -319,6 +324,35 @@ public class Context implements ch.turic.Context {
         }
         ExecutionException.when(nonlocal.contains(key), "Variable '%s' was used as global, but is not declared, cannot be changed.", key);
         throw new ExecutionException("Variable '%s' is not defined.", key);
+    }
+
+    public class ContextLock implements AutoCloseable {
+
+        @Override
+        public void close() {
+            Context.this.pinned = false;
+        }
+    }
+
+    /**
+     * Locks the current context by setting its `pinned` state to true and returns a {@code ContextLock} instance.
+     * The returned {@code ContextLock} ensures the context remains locked until the {@code close} method of the lock
+     * is called.
+     * <p>
+     * The recommended usage is with try-with-resources statement to ensure the context is automatically unlocked:
+     *
+     * <pre>
+     * try (var lock = context.lock()) {
+     *     // context is locked here
+     *     // perform operations that require locking
+     * } // context is automatically unlocked when exiting try block
+     * </pre>
+     *
+     * @return a new {@code ContextLock} instance that manages the lock state of the current context
+     */
+    public ContextLock lock() {
+        pinned = true;
+        return new ContextLock();
     }
 
     /**

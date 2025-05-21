@@ -972,12 +972,18 @@ This design ensures that each iteration of the loop starts in a clean environmen
 
 ==== `for`
 
-For loop is very much similar to the conventional `for` loop we have since it was invented in the language C.
-The difference is that the start, condition, and end steps do not need to be enclosed between `(` and `)`.
+The `for` loop is very much similar to the conventional `for` loop we have since it was invented in the language C.
+There are some syntactical and some execution differences though.
+
+The syntactical difference is that the start, condition, and end steps do not need to be enclosed between `(` and `)`.
 The start, condition, and end parts are separated by `;` and they are commands.
 The `;` in this place is not optional.
 
 {%S for1%}
+
+The semantic difference is that you cannot alter the loop variable, or variables if there are multiple inside the loop.
+
+{%S for5%}
 
 The `for` loop also has an optional `until` part the same way as `while`.
 The next example shows the same loop with the optional parentheses but without the tail condition.

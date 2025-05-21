@@ -252,6 +252,14 @@ mut i;
 for {i = 1} ; i < 5 ; i=i+1 :  print(i," "); until i%3 == 0;
 println("i at end=",i);
 // end snippet
+// snippet for5
+mut i;
+for i = 1 ; i < 3 ; i=i+1 {
+    try: i = i + 1
+    catch e: println "not possible to change loop variable in the loop it remained ",i
+}
+
+// end snippet
 // snippet foreach1
 for each i in [1,2,3,4]: print(i," ");
 // end snippet

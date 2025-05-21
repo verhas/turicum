@@ -2476,8 +2476,10 @@ This design ensures that each iteration of the loop starts in a clean environmen
 
 ==== `for`
 
-For loop is very much similar to the conventional `for` loop we have since it was invented in the language C.
-The difference is that the start, condition, and end steps do not need to be enclosed between `(` and `)`.
+The `for` loop is very much similar to the conventional `for` loop we have since it was invented in the language C.
+There are some syntactical and some execution differences though.
+
+The syntactical difference is that the start, condition, and end steps do not need to be enclosed between `(` and `)`.
 The start, condition, and end parts are separated by `;` and they are commands.
 The `;` in this place is not optional.
 
@@ -2499,6 +2501,35 @@ for i = 1 ; i < 5 ; i=i+1 {
 [source]
 ----
 1 2 3 
+----
+
+
+
+The semantic difference is that you cannot alter the loop variable, or variables if there are multiple inside the loop.
+
+
+.source of snippet `for5`
+[source]
+----
+mut i;
+for i = 1 ; i < 3 ; i=i+1 {
+    try: i = i + 1
+    catch e: println "not possible to change loop variable in the loop it remained ",i
+}
+
+
+
+----
+
+
+
+
+.output of snippet `for5`
+[source]
+----
+not possible to change loop variable in the loop it remained 1
+not possible to change loop variable in the loop it remained 2
+
 ----
 
 
@@ -3565,27 +3596,27 @@ execute("Thread 2",2)
 ----
  prime read 2
 Thread 1 generated 3
- prime read 3
-Thread 1 generated  prime read 5
-5
+Thread 1 generated 5
 Thread 1 generated 7
- prime read 7
 Thread 1 generated 9
 Thread 1 generated 11
-Thread 1 generated 13
+ prime read 3
+ prime read 5
+Thread 1 generated  prime read 13
+7
 Thread 1 generated 15
 Thread 1 generated 17
 stopping
 exception Task stopped.
- prime read 2
 Thread 2 generated 3
- prime read 3
+ prime read 2
 Thread 2 generated 5
+ prime read 3
  prime read 5
 Thread 2 generated 7
+ prime read 7
 Thread 2 generated 9
- prime read Thread 2 generated 11
-7
+Thread 2 generated 11
 stopping
 exception Task stopped.
 
@@ -3647,9 +3678,9 @@ println( (end-start)/1000000, "ms")
 [source]
 ----
 [1, 2, 3]
-312.254417ms
+311.942833ms
 []
-330.707291ms
+313.518583ms
 
 ----
 
@@ -3865,9 +3896,8 @@ a =3.6063454894655185
 a =3.6055513629176015
 a =3.6055512754639905
 a =3.6055512754639896
-a =3.6055512754639896
-sqrt(13) ≈ 3.6055512754639896
-square ≈ 13.000000000000002
+sqrt(13) ≈ 3.6055512754639905
+square ≈ 13.000000000000009
 
 ----
 
@@ -4011,7 +4041,7 @@ println(inc(1))
 .output of snippet `fun1`
 [source]
 ----
-ch.turic.commands.Closure@7803bfd
+ch.turic.commands.Closure@70ed52de
 2
 
 ----
@@ -4040,7 +4070,7 @@ println(inc(1))
 .output of snippet `fun3`
 [source]
 ----
-ch.turic.commands.Closure@42bc14c1
+ch.turic.commands.Closure@496bc455
 2
 
 ----
@@ -4071,7 +4101,7 @@ println(inc(1))
 .output of snippet `fun2`
 [source]
 ----
-ch.turic.commands.Closure@531f4093
+ch.turic.commands.Closure@59402b8f
 2
 
 ----
@@ -4256,7 +4286,7 @@ println(inc(1,how_much=5))
 .output of snippet `fun4`
 [source]
 ----
-ch.turic.commands.Closure@62ef27a8
+ch.turic.commands.Closure@7188af83
 6
 
 ----
@@ -6998,81 +7028,81 @@ none
 .output of snippet `que`
 [source]
 ----
-task1 is not ready 0
 task2 is not ready 0
-task2 is not ready 1
-task1 is ready 1
 task1 is not ready 0
-task2 is not ready 2task1 is not ready 1
+task2 is ready 1task1 is not ready 1
 
-task2 is not ready 3
-task1 is not ready 2
-task2 is ready 2
-task1 is not ready 3
 task2 is not ready 0
-task1 is not ready 4
+task1 is not ready 2
 task2 is not ready 1
-task1 is not ready 5
+task1 is not ready 3
 task2 is not ready 2
-task1 is ready 3
-task2 is not ready 3
+task1 is ready 2
 task1 is not ready 0
-task2 is not ready 4
+task2 is not ready 3
+task1 is not ready 1task2 is not ready 4
+
+task2 is ready 3task1 is not ready 2
+
+task2 is not ready 0
+task1 is not ready 3task2 is not ready 1
+
+task2 is not ready 2task1 is not ready 4
+
+task1 is not ready 5task2 is not ready 3
+
+task1 is ready 4
+task2 is not ready 4task1 is not ready 0
+
 task1 is not ready 1
 task2 is not ready 5
 task1 is not ready 2
-task2 is ready 4
+task2 is not ready 6
+task2 is not ready 7
+task1 is ready 5
+task1 is not ready 0
+task2 is not ready 8task1 is not ready 1
+
+task2 is not ready 9
+task1 is not ready 2
+task2 is ready 6
 task1 is not ready 3
 task2 is not ready 0
-task1 is not ready 4
 task2 is not ready 1
+task1 is not ready 4
 task2 is not ready 2
 task1 is not ready 5
-task2 is not ready 3
 task1 is not ready 6
-task2 is ready 5
-task2 is not ready 0
-task1 is not ready 7
-task2 is not ready 1
-task1 is not ready 8
-task2 is not ready 2
-task1 is not ready 9
-task2 is ready 6
-task2 is not ready 0task1 is not ready 10
-
-task2 is not ready 1
-task1 is not ready 11
-task2 is not ready 2
-task1 is not ready 12
 task2 is ready 7
-task1 is not ready 13
 task2 is not ready 0
-task1 is not ready 14
-task2 is not ready 1
-task1 is not ready 15
-task2 is not ready 2
+task1 is not ready 7task2 is not ready 1
+
+task2 is not ready 2task1 is not ready 8
+
+task1 is not ready 9
 task2 is ready 8
-task1 is not ready 16
 task2 is not ready 0
-task1 is not ready 17
+task1 is not ready 10
 task2 is not ready 1
-task1 is not ready 18
 task2 is not ready 2
-task2 is not ready 3
-task1 is not ready 19
+task1 is not ready 11
+task2 is not ready 3task1 is not ready 12
+
+task1 is not ready 13
 task2 is ready 9
 task2 is not ready 0
-task1 is not ready 20
-task2 is not ready 1task1 is not ready 21
-
+task2 is not ready 1
+task1 is not ready 14
+task2 is not ready 2
+task1 is not ready 15
 closing the channel
 channel is closed
+1 is done false
+2 is done false
+we start to wait the first time
 task2 is done
 task1 is done
-1 is done false
-2 is done true
-we start to wait the first time
-task1 done true
+task1 done false
 task2 done true
 We start to wait the second time
 task1 done true
@@ -7188,7 +7218,6 @@ not ready 0
 not ready 1
 not ready 2
 closing the channel
-not ready 3
 channel is closed
 is done false
 we are done
