@@ -61,8 +61,8 @@ public class WithCommand extends AbstractCommand {
      * <p>
      * If no alias is provided, the context is updated with the context of the {@link LngObject} directly.
      * <p>
-     * Any violation—such as a missing or invalid {@code entry} method or an unexpected type—results in
-     * an {@link ExecutionException}.
+     * Any violation—such as a missing or invalid {@code entry} method when 'as' alias is defined,
+     * or an unexpected type—results in an {@link ExecutionException}.
      *
      * @param context the current execution context, used for calling entry methods
      * @param pair    the {@link WithAnalyzer.WithPair} representing the expression and optional alias
@@ -75,7 +75,9 @@ public class WithCommand extends AbstractCommand {
      */
     private static Context wrapCallingEntry(Context context, WithAnalyzer.WithPair pair, Object obj, ArrayList<LngObject> objects, Context ctx) {
         if (obj instanceof LngObject lngObject) {
-            if (pair.alias() != null) {
+            if (pair.alias() == null) {
+                ctx = ctx.with(lngObject.context());
+            } else {
                 objects.add(lngObject);
                 final var entry = lngObject.getField(METHOD_NAME_ENTRY);
                 final LngObject resourceHandle;
@@ -95,8 +97,6 @@ public class WithCommand extends AbstractCommand {
                 }
                 ctx = ctx.wrap();
                 ctx.let0(pair.alias(), resourceHandle);
-            } else {
-                ctx = ctx.with(lngObject.context());
             }
         } else {
             throw new ExecutionException("expression '%s' in 'with' resulted a non-object '%s'", pair, obj);

@@ -1,3 +1,26 @@
+// snippet istring1
+let a = 3;
+println $"a is ${a}"
+// end snippet
+
+// snippet istring2
+println $"define a, but local ${let a = 3}"
+println $"define b, not local $(let b = 4)"
+println "is a defined? ", if is_defined(a) : $"yes, it is ${a}" else: "no"
+println "is b defined? ", if is_defined(b) : $"yes, it is ${b}" else: "no"
+// end snippet
+
+// snippet istring3
+println $"${ $\"${6*6}\"}"
+// end snippet
+
+// snippet bnot
+println $"negating all bits in 3 ${~3}"
+println $"!true is ${!true}"
+println $"+13 is just ${+13}"
+println $"-13 is just ${-(13)}"
+// end snippet
+
 // snippet json1
 mut project = {
       name : "turicum-parent",

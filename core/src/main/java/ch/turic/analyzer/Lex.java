@@ -30,11 +30,18 @@ public class Lex implements HasFields {
 
     boolean atLineStart;
 
-    public Lex(Type type, String text, boolean atLineStart, Pos position) {
+    final public boolean interpolated;
+
+    public Lex(Type type, String text, boolean atLineStart, Pos position, boolean interpolated) {
         this.type = type;
         this.text = text;
         this.atLineStart = atLineStart;
         this.position = position.clone();
+        this.interpolated = interpolated;
+    }
+
+    public Lex(Type type, String text, boolean atLineStart, Pos position) {
+        this(type, text, atLineStart, position, false);
     }
 
     @Override

@@ -135,9 +135,16 @@ public class Lexer {
                 }
                 continue;
             }
+            if( in.charAt(0) == '$' && in.length() >= 2 && in.charAt(1) == '"') {
+                in.skip(1);
+                final var str = ch.turic.analyzer.StringFetcher.getString(in);
+                final var lex = new Lex(Lex.Type.STRING, str, atLineStart, position, true);
+                list.add(lex);
+                continue;
+            }
             if (in.charAt(0) == '"') {
                 final var str = ch.turic.analyzer.StringFetcher.getString(in);
-                final var lex = new Lex(Lex.Type.STRING, str, atLineStart, position);
+                final var lex = new Lex(Lex.Type.STRING, str, atLineStart, position, false);
                 list.add(lex);
                 continue;
             }

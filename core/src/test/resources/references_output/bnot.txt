@@ -1,0 +1,4 @@
+negating all bits in 3 -4
+!true is false
++13 is just 13
+-13 is just -13

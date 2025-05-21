@@ -93,6 +93,7 @@ Unlike Java, nested multiline comments are supported.
 * All keywords are lowercase.
 * Strings enclosed in double quotes (`"`) must terminate on the same line.
 Multiline strings are enclosed in triple double quotes (`"""`).
+* String literals preceeded with a `$` character are interpolated.
 
 
 More details about expressions, control flow, and declarations can be found in the chapters that follow.
@@ -423,6 +424,135 @@ Goodbye.
 ----
 
 
+
+==== Interpolated Strings
+
+A string literal starting with `$"` or `$"""` is interpolated every time it is used.
+Interpolation means that the parts of the string enclosed between `${}` and `$()` are executed as command blocks and their result takes their place in the string.
+
+
+.source of snippet `istring1`
+[source]
+----
+let a = 3;
+println $"a is ${a}"
+
+
+----
+
+
+
+
+.output of snippet `istring1`
+[source]
+----
+a is 3
+
+----
+
+
+
+The blocks are executed in the same context as the string.
+The `${}` being a wrapping block opens a new local context.
+On the other hand, `$()` does not open a new local context.
+That way any declaration inside the `$()` will happen in the surrounding context.
+
+
+.source of snippet `istring2`
+[source]
+----
+println $"define a, but local ${let a = 3}"
+println $"define b, not local $(let b = 4)"
+println "is a defined? ", if is_defined(a) : $"yes, it is ${a}" else: "no"
+println "is b defined? ", if is_defined(b) : $"yes, it is ${b}" else: "no"
+
+
+----
+
+
+
+
+.output of snippet `istring2`
+[source]
+----
+define a, but local 3
+define b, not local 4
+is a defined? no
+is b defined? yes, it is 4
+
+----
+
+
+
+
+You can use any expression or Turicum command inside interpolated strings, but the following rules apply:
+
+* Within the interpolated sections:
+** From `${` to `}`
+** From `$(` to `)`
+
+* The number of opening and closing brackets must match:
+** The number of `{` must equal the number of `}`
+** The number of `(` must equal the number of `)`
+
+This restriction is usually simple and should not affect your code in most cases.
+
+However, in more complex scenarios—especially when you try to include string literals inside the interpolated parts—it may confuse the parser. That’s why the rule exists.
+
+If you find this rule limiting, you are likely overcomplicating your usage of interpolation.
+
+Prefer simpler expressions and commands within interpolated strings.
+
+Here is a convoluted example that you have to avoid:
+
+
+.source of snippet `istring3`
+[source]
+----
+println $"${ $\"${6*6}\"}"
+
+
+----
+
+
+
+
+.output of snippet `istring3`
+[source]
+----
+36
+
+----
+
+
+
+It's best to use simple, clear expressions and straightforward commands that avoid nested structures or embedded string literals.
+
+[NOTE]
+====
+To implement string interpolation, we selected `${}` because it is
+widely recognized and familiar from other languages such as JavaScript, Kotlin, and Bash.
+It clearly delimits the interpolated expression and is easy to parse when balanced.
+By using `${}`, Turicum allows embedding full expressions, including blocks, directly into strings.
+
+Instead of making all strings implicitly interpolated when `${` appears, which would introduce
+ambiguity and reduce readability, Turicum requires an explicit prefix. The character `$` was
+chosen as the prefix for interpolated strings (e.g. `$"..."`) because:
+
+- It is widely associated with interpolation (e.g., C#, PowerShell).
+- It is not allowed as part of an identifier in Turicum, so there is no syntactic ambiguity.
+- It is visually lightweight and avoids keyword clashes that might arise from using prefixes like `s`, `f`, or `t`.
+
+Turicum extends the interpolation mechanism with two syntactic forms, each with distinct semantics:
+
+- `${expression}` evaluates the given expression in a *new temporary context*. This is useful when
+a local computation is needed that should not affect the surrounding environment.
+- `$(expression)` evaluates the expression in the *surrounding context*, allowing modifications
+(e.g., variable definition useing `let` or `mut`) to persist beyond the interpolated expression.
+
+This dual syntax provides clarity and control over variable scope and side effects inside interpolated strings,
+supporting both functional and imperative styles of expression.
+====
 
 ==== JSON Constants
 
@@ -1226,7 +1356,7 @@ This is to avoid accidentally writing `pass:[++i]` or `--i`, which would otherwi
 Their meaning would otherwise be `+(+i)` and `-(-i)`.
 ====
 
-They work for numerical types, string types as usually, and they can also work on any object that defines them.
+Operators work for numerical types, string types as usually, and they can also work on any object that defines them.
 The name of the method implementing the operator should be the operator itself.
 There is not any name association, like in Python dunder plus.
 Instead, you can use it, for example, `pass:[`+`]` as an operator identifier.
@@ -1235,7 +1365,39 @@ The operator methods must have one single positional argument, usually named `ot
 The functionality should implement the operation and return the result of "`this` operation `other`".
 When an operation is used as prefix unary operator the value of other will be `none` and `this` will hold the value on the right of the operator.
 
-Only `+`, `-`, `!`, `..` can be used as unary operators.
+Only `+`, `-`, `~`, `!`, `..` can be used as unary operators.
+
+As mentioned above `+`, `-`, and `..` are binary as well as unary operators.
+
+The unary operator `!` is logical negation.
+The unary operator `~` is bitwise negation.
+
+
+.source of snippet `bnot`
+[source]
+----
+println $"negating all bits in 3 ${~3}"
+println $"!true is ${!true}"
+println $"+13 is just ${+13}"
+println $"-13 is just ${-(13)}"
+
+
+----
+
+
+
+
+.output of snippet `bnot`
+[source]
+----
+negating all bits in 3 -4
+!true is false
++13 is just 13
+-13 is just -13
+
+----
+
+
 
 === Operators
 
@@ -3602,16 +3764,16 @@ Thread 1 generated 9
 Thread 1 generated 11
  prime read 3
  prime read 5
-Thread 1 generated  prime read 13
-7
+Thread 1 generated  prime read 137
+
 Thread 1 generated 15
 Thread 1 generated 17
 stopping
 exception Task stopped.
-Thread 2 generated 3
  prime read 2
-Thread 2 generated 5
+Thread 2 generated 3
  prime read 3
+Thread 2 generated 5
  prime read 5
 Thread 2 generated 7
  prime read 7
@@ -3678,9 +3840,9 @@ println( (end-start)/1000000, "ms")
 [source]
 ----
 [1, 2, 3]
-311.942833ms
+306.0165ms
 []
-313.518583ms
+313.230125ms
 
 ----
 
@@ -4041,7 +4203,7 @@ println(inc(1))
 .output of snippet `fun1`
 [source]
 ----
-ch.turic.commands.Closure@70ed52de
+ch.turic.commands.Closure@59402b8f
 2
 
 ----
@@ -4070,7 +4232,7 @@ println(inc(1))
 .output of snippet `fun3`
 [source]
 ----
-ch.turic.commands.Closure@496bc455
+ch.turic.commands.Closure@7188af83
 2
 
 ----
@@ -4101,7 +4263,7 @@ println(inc(1))
 .output of snippet `fun2`
 [source]
 ----
-ch.turic.commands.Closure@59402b8f
+ch.turic.commands.Closure@6be968ce
 2
 
 ----
@@ -4286,7 +4448,7 @@ println(inc(1,how_much=5))
 .output of snippet `fun4`
 [source]
 ----
-ch.turic.commands.Closure@7188af83
+ch.turic.commands.Closure@7c37508a
 6
 
 ----
@@ -7028,73 +7190,71 @@ none
 .output of snippet `que`
 [source]
 ----
-task2 is not ready 0
 task1 is not ready 0
-task2 is ready 1task1 is not ready 1
-
+task2 is ready 1
 task2 is not ready 0
-task1 is not ready 2
+task1 is not ready 1
 task2 is not ready 1
-task1 is not ready 3
+task1 is not ready 2
 task2 is not ready 2
-task1 is ready 2
-task1 is not ready 0
 task2 is not ready 3
-task1 is not ready 1task2 is not ready 4
+task1 is not ready 3
+task1 is ready 2task2 is not ready 4
 
-task2 is ready 3task1 is not ready 2
-
+task1 is not ready 0
+task2 is not ready 5
+task1 is not ready 1
+task1 is not ready 2
+task2 is not ready 6
+task2 is not ready 7
+task1 is ready 3
+task1 is not ready 0
+task2 is not ready 8
+task1 is not ready 1
+task1 is not ready 2
+task2 is not ready 9
+task2 is ready 4
+task1 is not ready 3
 task2 is not ready 0
-task1 is not ready 3task2 is not ready 1
-
-task2 is not ready 2task1 is not ready 4
-
-task1 is not ready 5task2 is not ready 3
-
-task1 is ready 4
-task2 is not ready 4task1 is not ready 0
-
+task1 is not ready 4
+task2 is not ready 1
+task1 is not ready 5
+task2 is not ready 2
+task1 is ready 5
+task2 is not ready 3
+task1 is not ready 0
+task2 is not ready 4
 task1 is not ready 1
 task2 is not ready 5
 task1 is not ready 2
 task2 is not ready 6
-task2 is not ready 7
-task1 is ready 5
+task1 is ready 6
 task1 is not ready 0
-task2 is not ready 8task1 is not ready 1
-
-task2 is not ready 9
+task2 is not ready 7
+task1 is not ready 1
+task2 is not ready 8
 task1 is not ready 2
-task2 is ready 6
-task1 is not ready 3
+task2 is ready 7task1 is not ready 3
+
 task2 is not ready 0
 task2 is not ready 1
 task1 is not ready 4
-task2 is not ready 2
-task1 is not ready 5
-task1 is not ready 6
-task2 is ready 7
-task2 is not ready 0
-task1 is not ready 7task2 is not ready 1
+task2 is not ready 2task1 is not ready 5
 
-task2 is not ready 2task1 is not ready 8
-
-task1 is not ready 9
 task2 is ready 8
+task1 is not ready 6
 task2 is not ready 0
+task2 is not ready 1
+task1 is not ready 7
+task2 is not ready 2
+task1 is not ready 8
+task2 is ready 9
+task2 is not ready 0
+task1 is not ready 9
 task1 is not ready 10
 task2 is not ready 1
 task2 is not ready 2
 task1 is not ready 11
-task2 is not ready 3task1 is not ready 12
-
-task1 is not ready 13
-task2 is ready 9
-task2 is not ready 0
-task2 is not ready 1
-task1 is not ready 14
-task2 is not ready 2
-task1 is not ready 15
 closing the channel
 channel is closed
 1 is done false
@@ -7207,16 +7367,16 @@ not ready 0
 received 1
 not ready 0
 not ready 1
+not ready 2
 sending 2
 received 2
 not ready 0
 not ready 1
-not ready 2
-sending 3
+sending not ready 23
+
 received 3
 not ready 0
 not ready 1
-not ready 2
 closing the channel
 channel is closed
 is done false

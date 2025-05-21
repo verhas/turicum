@@ -18,7 +18,7 @@ public interface Operator {
             new Compare.Equal(),new Compare.Same(), new Compare.NotEqual(),
             new Compare.LessOrEqual(), new Compare.LessThan(),
             new Compare.GreaterOrEqual(), new Compare.GreaterThan(),
-            new And(), new Or(), new Not(), new Pipe(), new RangeOp(),
+            new And(), new Or(), new Not(),new BNot(), new Pipe(), new RangeOp(),
             new ShiftLeft(), new ShiftRight(), new ShiftRightSigned(), new Contains(),
             new Xor(), new Bor(), new Band()
     };

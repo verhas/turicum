@@ -14,13 +14,10 @@ public class AdHocTest {
     void test1() throws Exception {
         test("""
 let a = 3;
-try : (let a = 1;
-       let b = 2;
-      )
-catch e : println e;
+println $"${\\"\\"+(a+a)+\\" haha\\"} $(let b=7) ${let c= 8}"
+println b
+println is_defined(c)
 
-println "Do we have a? ", is_defined(a)
-println "Do we have b? ", is_defined(b)
 none
                 """,null);
     }

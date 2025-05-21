@@ -113,7 +113,7 @@ public class PrimaryExpressionAnalyzer extends AbstractAnalyzer {
         final var lex = lexes.next();
         return switch (lex.type()) {
             case IDENTIFIER -> getAccessOrCall(lexes, new Identifier(lex.text()), false);
-            case STRING -> getAccessOrCall(lexes, new StringConstant(lex.text()), false);
+            case STRING -> getAccessOrCall(lexes, new StringConstant(lex.text(), lex.interpolated), false);
             case INTEGER -> getAccessOrCall(lexes, new IntegerConstant(lex.text()), false);
             case FLOAT -> getAccessOrCall(lexes, new FloatConstant(lex.text()), false);
             default -> throw lexes.syntaxError("Expression: expected identifier, or constant, got '%s'", lex.text());

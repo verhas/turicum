@@ -117,6 +117,7 @@ Unlike Java, nested multiline comments are supported.
 * All keywords are lowercase.
 * Strings enclosed in double quotes (`"`) must terminate on the same line.
 Multiline strings are enclosed in triple double quotes (`"""`).
+* String literals preceeded with a `$` character are interpolated.
 
 
 More details about expressions, control flow, and declarations can be found in the chapters that follow.
@@ -266,6 +267,71 @@ Escape sequences are still processed.
 
 Example:
 {%S mlstring%}
+
+==== Interpolated Strings
+
+A string literal starting with `$"` or `$"""` is interpolated every time it is used.
+Interpolation means that the parts of the string enclosed between `${}` and `$()` are executed as command blocks and their result takes their place in the string.
+
+{%S istring1%}
+
+The blocks are executed in the same context as the string.
+The `${}` being a wrapping block opens a new local context.
+On the other hand, `$()` does not open a new local context.
+That way any declaration inside the `$()` will happen in the surrounding context.
+
+{%S istring2%}
+
+
+You can use any expression or Turicum command inside interpolated strings, but the following rules apply:
+
+* Within the interpolated sections:
+** From `${` to `}`
+** From `$(` to `)`
+
+* The number of opening and closing brackets must match:
+** The number of `{` must equal the number of `}`
+** The number of `(` must equal the number of `)`
+
+This restriction is usually simple and should not affect your code in most cases.
+
+However, in more complex scenarios—especially when you try to include string literals inside the interpolated parts—it may confuse the parser. That’s why the rule exists.
+
+If you find this rule limiting, you are likely overcomplicating your usage of interpolation.
+
+Prefer simpler expressions and commands within interpolated strings.
+
+Here is a convoluted example that you have to avoid:
+
+{%S istring3%}
+
+It's best to use simple, clear expressions and straightforward commands that avoid nested structures or embedded string literals.
+
+[NOTE]
+====
+To implement string interpolation, we selected `${}` because it is
+widely recognized and familiar from other languages such as JavaScript, Kotlin, and Bash.
+It clearly delimits the interpolated expression and is easy to parse when balanced.
+By using `${}`, Turicum allows embedding full expressions, including blocks, directly into strings.
+
+Instead of making all strings implicitly interpolated when `${` appears, which would introduce
+ambiguity and reduce readability, Turicum requires an explicit prefix. The character `$` was
+chosen as the prefix for interpolated strings (e.g. `$"..."`) because:
+
+- It is widely associated with interpolation (e.g., C#, PowerShell).
+- It is not allowed as part of an identifier in Turicum, so there is no syntactic ambiguity.
+- It is visually lightweight and avoids keyword clashes that might arise from using prefixes like `s`, `f`, or `t`.
+
+Turicum extends the interpolation mechanism with two syntactic forms, each with distinct semantics:
+
+- `${expression}` evaluates the given expression in a *new temporary context*. This is useful when
+a local computation is needed that should not affect the surrounding environment.
+- `$(expression)` evaluates the expression in the *surrounding context*, allowing modifications
+(e.g., variable definition useing `let` or `mut`) to persist beyond the interpolated expression.
+
+This dual syntax provides clarity and control over variable scope and side effects inside interpolated strings,
+supporting both functional and imperative styles of expression.
+====
 
 ==== JSON Constants
 
@@ -506,7 +572,7 @@ This is to avoid accidentally writing `pass:[++i]` or `--i`, which would otherwi
 Their meaning would otherwise be `+(+i)` and `-(-i)`.
 ====
 
-They work for numerical types, string types as usually, and they can also work on any object that defines them.
+Operators work for numerical types, string types as usually, and they can also work on any object that defines them.
 The name of the method implementing the operator should be the operator itself.
 There is not any name association, like in Python dunder plus.
 Instead, you can use it, for example, `pass:[`+`]` as an operator identifier.
@@ -515,7 +581,14 @@ The operator methods must have one single positional argument, usually named `ot
 The functionality should implement the operation and return the result of "`this` operation `other`".
 When an operation is used as prefix unary operator the value of other will be `none` and `this` will hold the value on the right of the operator.
 
-Only `+`, `-`, `!`, `..` can be used as unary operators.
+Only `+`, `-`, `~`, `!`, `..` can be used as unary operators.
+
+As mentioned above `+`, `-`, and `..` are binary as well as unary operators.
+
+The unary operator `!` is logical negation.
+The unary operator `~` is bitwise negation.
+
+{%S bnot%}
 
 === Operators
 
