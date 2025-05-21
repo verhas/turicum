@@ -3,7 +3,7 @@ import "turicum_versions"
 
 let project = maven_project({
     name : "Command Line Turicum",
-    artifactId : "cli",
+    artifactId : "turicum-cli",
     version : VERSION,
     description : "Turicum programming language CLI",
     parent : {
