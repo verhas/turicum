@@ -2498,6 +2498,33 @@ There are three types of loops in Turicum:
 
 Loops, like any command, have a result value.
 The value of a loop is either the last executed command or a list of the last executed command for each iteration.
+If the loop is skipped then the value is either `none` or an empty list.
+
+
+.source of snippet `emptyLoopResult`
+[source]
+----
+
+println { for i=0 ; i < 0 ; i=i+1 : "anything, not executed, will print none" }
+println { for i=0 ; i < 0 ; i=i+1 list: "anything, not executed, will print []" }
+
+
+
+
+----
+
+
+
+
+.output of snippet `emptyLoopResult`
+[source]
+----
+none
+[]
+
+----
+
+
 
 ==== `while`
 
@@ -3760,25 +3787,25 @@ execute("Thread 2",2)
 Thread 1 generated 3
 Thread 1 generated 5
 Thread 1 generated 7
-Thread 1 generated 9
 Thread 1 generated 11
+Thread 1 generated 13
  prime read 3
  prime read 5
-Thread 1 generated  prime read 137
-
-Thread 1 generated 15
+ prime read 7
 Thread 1 generated 17
+Thread 1 generated 19
+Thread 1 generated 23
 stopping
 exception Task stopped.
- prime read 2
 Thread 2 generated 3
+ prime read 2
  prime read 3
 Thread 2 generated 5
- prime read 5
 Thread 2 generated 7
+ prime read 5
  prime read 7
-Thread 2 generated 9
 Thread 2 generated 11
+Thread 2 generated 13
 stopping
 exception Task stopped.
 
@@ -3840,9 +3867,9 @@ println( (end-start)/1000000, "ms")
 [source]
 ----
 [1, 2, 3]
-306.0165ms
+314.765083ms
 []
-313.230125ms
+318.463625ms
 
 ----
 
@@ -4058,8 +4085,9 @@ a =3.6063454894655185
 a =3.6055513629176015
 a =3.6055512754639905
 a =3.6055512754639896
-sqrt(13) ≈ 3.6055512754639905
-square ≈ 13.000000000000009
+a =3.6055512754639896
+sqrt(13) ≈ 3.6055512754639896
+square ≈ 13.000000000000002
 
 ----
 
@@ -4203,7 +4231,7 @@ println(inc(1))
 .output of snippet `fun1`
 [source]
 ----
-ch.turic.commands.Closure@59402b8f
+ch.turic.commands.Closure@496bc455
 2
 
 ----
@@ -4232,7 +4260,7 @@ println(inc(1))
 .output of snippet `fun3`
 [source]
 ----
-ch.turic.commands.Closure@7188af83
+ch.turic.commands.Closure@59402b8f
 2
 
 ----
@@ -4263,7 +4291,7 @@ println(inc(1))
 .output of snippet `fun2`
 [source]
 ----
-ch.turic.commands.Closure@6be968ce
+ch.turic.commands.Closure@7188af83
 2
 
 ----
@@ -4333,7 +4361,20 @@ original K
 The parameter list is comma-separated.
 Each element defines a formal parameter.
 
-Types are optional and follow the same syntax as in the case of variables.
+Types are optional and follow similar syntax as in variable declarations, but function parameters are always immutable.
+You cannot use `mut` or `let` in the parameter list.
+Attempting to do so will result in a syntax error.
+
+[NOTE]
+====
+Function parameters are implicitly immutable.
+You cannot use `mut` or `let` in a function or closure parameter list.
+
+The only exception is the `init` method: its parameters become fields of the object being initialized, and therefore they are mutable.
+====
+
+
+
 The individual types can be identifiers or `(` and `)` enclosed expressions.
 The types are separated by `|`.
 The type of the returned value is checked against the declared types upon returning from a function.
@@ -4448,7 +4489,7 @@ println(inc(1,how_much=5))
 .output of snippet `fun4`
 [source]
 ----
-ch.turic.commands.Closure@7c37508a
+ch.turic.commands.Closure@6be968ce
 6
 
 ----
@@ -7191,79 +7232,81 @@ none
 [source]
 ----
 task1 is not ready 0
-task2 is ready 1
 task2 is not ready 0
-task1 is not ready 1
-task2 is not ready 1
-task1 is not ready 2
-task2 is not ready 2
-task2 is not ready 3
-task1 is not ready 3
-task1 is ready 2task2 is not ready 4
+task1 is ready 1
+task1 is not ready 0task2 is not ready 1
 
-task1 is not ready 0
-task2 is not ready 5
 task1 is not ready 1
-task1 is not ready 2
-task2 is not ready 6
-task2 is not ready 7
-task1 is ready 3
-task1 is not ready 0
-task2 is not ready 8
-task1 is not ready 1
-task1 is not ready 2
-task2 is not ready 9
-task2 is ready 4
-task1 is not ready 3
+task2 is not ready 2
+task1 is not ready 2task2 is not ready 3
+
+task2 is ready 2task1 is not ready 3
+
 task2 is not ready 0
-task1 is not ready 4
-task2 is not ready 1
+task1 is not ready 4task2 is not ready 1
+
+task2 is not ready 2
 task1 is not ready 5
+task2 is ready 3
+task2 is not ready 0
+task1 is not ready 6
+task2 is not ready 1
+task1 is not ready 7
+task1 is not ready 8
 task2 is not ready 2
-task1 is ready 5
+task1 is ready 4
 task2 is not ready 3
 task1 is not ready 0
-task2 is not ready 4
 task1 is not ready 1
+task2 is not ready 4
 task2 is not ready 5
 task1 is not ready 2
-task2 is not ready 6
-task1 is ready 6
-task1 is not ready 0
-task2 is not ready 7
-task1 is not ready 1
-task2 is not ready 8
-task1 is not ready 2
-task2 is ready 7task1 is not ready 3
-
+task1 is not ready 3
+task2 is ready 5
 task2 is not ready 0
-task2 is not ready 1
 task1 is not ready 4
-task2 is not ready 2task1 is not ready 5
-
-task2 is ready 8
-task1 is not ready 6
+task2 is not ready 1
+task2 is not ready 2
+task1 is not ready 5
+task2 is ready 6
 task2 is not ready 0
+task1 is not ready 6
 task2 is not ready 1
 task1 is not ready 7
 task2 is not ready 2
 task1 is not ready 8
-task2 is ready 9
-task2 is not ready 0
-task1 is not ready 9
-task1 is not ready 10
-task2 is not ready 1
-task2 is not ready 2
-task1 is not ready 11
+task2 is not ready 3
+task1 is ready 7
+task1 is not ready 0
+task1 is not ready 1
+task2 is not ready 4
+task2 is not ready 5
+task1 is not ready 2
+task1 is not ready 3
+task2 is not ready 6
+task1 is ready 8
+task1 is not ready 0
+task2 is not ready 7
+task1 is not ready 1
+task2 is not ready 8
+task1 is not ready 2
+task2 is not ready 9
+task1 is ready 9
+task2 is not ready 10
+task1 is not ready 0
+task2 is not ready 11
+task1 is not ready 1
+task1 is not ready 2
+task2 is not ready 12
 closing the channel
 channel is closed
 1 is done false
 2 is done false
 we start to wait the first time
-task2 is done
 task1 is done
-task1 done false
-task2 done true
+task2 is done
+task1 done true
+task2 done false
 We start to wait the second time
 task1 done true
 task2 done true
@@ -7367,16 +7410,16 @@ not ready 0
 received 1
 not ready 0
 not ready 1
-not ready 2
 sending 2
 received 2
 not ready 0
 not ready 1
-sending not ready 23
-
+not ready 2
+sending 3
 received 3
 not ready 0
 not ready 1
+not ready 2
 closing the channel
 channel is closed
 is done false

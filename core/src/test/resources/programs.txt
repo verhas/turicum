@@ -1,3 +1,18 @@
+// = for_loop_return
+
+fn a(x:num) : bool {
+
+    for i = 0 ; i < 3 ; i = i + 1{
+        if i == x {
+            return false
+        }
+    }
+    return true
+}
+
+println a(2)
+
+
 // = expression
 if true : (mut k = 1; mut p = 3;) else: (mut k=2 ; mut p = 7;)
 println k,p

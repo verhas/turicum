@@ -23,7 +23,9 @@ public abstract class Loop extends AbstractCommand {
             if (c.result() == Sentinel.NO_VALUE) {
                 return null;
             }
-            return c.result();
+            if (lp instanceof Conditional.BreakResult) {
+                return c.result();
+            }
         }
         return lp;
     }

@@ -997,6 +997,9 @@ There are three types of loops in Turicum:
 
 Loops, like any command, have a result value.
 The value of a loop is either the last executed command or a list of the last executed command for each iteration.
+If the loop is skipped then the value is either `none` or an empty list.
+
+{%S emptyLoopResult%}
 
 ==== `while`
 
@@ -1646,7 +1649,20 @@ If you use the `(` and `)` characters after the `println` function call, then th
 The parameter list is comma-separated.
 Each element defines a formal parameter.
 
-Types are optional and follow the same syntax as in the case of variables.
+Types are optional and follow similar syntax as in variable declarations, but function parameters are always immutable.
+You cannot use `mut` or `let` in the parameter list.
+Attempting to do so will result in a syntax error.
+
+[NOTE]
+====
+Function parameters are implicitly immutable.
+You cannot use `mut` or `let` in a function or closure parameter list.
+
+The only exception is the `init` method: its parameters become fields of the object being initialized, and therefore they are mutable.
+====
+
+
+
 The individual types can be identifiers or `(` and `)` enclosed expressions.
 The types are separated by `|`.
 The type of the returned value is checked against the declared types upon returning from a function.

@@ -13,10 +13,9 @@ public class AdHocTest {
     @Test
     void test1() throws Exception {
         test("""
-let a = 3;
-println $"${\\"\\"+(a+a)+\\" haha\\"} $(let b=7) ${let c= 8}"
-println b
-println is_defined(c)
+let k = []
+k[7] = none
+println k
 
 none
                 """,null);
