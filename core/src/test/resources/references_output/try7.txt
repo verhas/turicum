@@ -1,0 +1,4 @@
+Variable 'a' is already defined.
+Do we have a? true
+Was it changed or still 3? It is 3
+Do we have b? false

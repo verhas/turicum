@@ -1,0 +1,10 @@
+before execution
+1. before is_defined(x) = false
+ERROR: Variable 'k' is not defined.
+2. before is_defined(x) = false
+2. after is_defined(x) = false
+3. before is_defined(x) = false
+3. after is_defined(x) = true
+4. before is_defined(x) = false
+hello
+4. after is_defined(x) = false

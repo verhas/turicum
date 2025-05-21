@@ -1,0 +1,5 @@
+Getting name
+turicum-parent
+pom
+Getting name
+turicum-parent
