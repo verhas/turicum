@@ -9,8 +9,11 @@ import ch.turic.memory.LngObject;
  */
 public class Print extends AbstractCommand {
 
+    // snipline PRINT_TARGET filter=.*"(.*?)"
     private static final String PRINT_TARGET = "print_target";
+    // snipline PRINT_TARGET_WRITE filter=.*"(.*?)"
     private static final String WRITE = "write";
+    // snipline PRINT_TARGET_FLUSH filter=.*"(.*?)"
     private static final String FLUSH = "flush";
     private final Command[] commands;
     private final boolean nl;

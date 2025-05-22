@@ -1003,6 +1003,17 @@ They both accept a list of expressions separated by commas.
 
 By default, the output goes to the standard output using the Java `System.out` static field.
 
+The output of `print` and `println` can also be redirected.
+If the variable `{%@snip PRINT_TARGET%}` is defined and is an object or closure the output of the statements will be redirected.
+
+When the `{%@snip PRINT_TARGET%}` is an object the method `{%@snip PRINT_TARGET_WRITE%}` is used to send the strings and
+`{%@snip PRINT_TARGET_FLUSH%}` is called to close every print statement.
+`{%@snip PRINT_TARGET_WRITE%}` has to be defined, `{%@snip PRINT_TARGET_FLUSH%}` is optional, but when defined it has to be a method.
+
+When the `{%@snip PRINT_TARGET%}` is a closure it is used to send the strings and flushing is ignored.
+
+The following example shows how to use this feature:
+
 {%S print_redirect%}
 
 

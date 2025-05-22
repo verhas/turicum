@@ -2618,6 +2618,17 @@ They both accept a list of expressions separated by commas.
 
 By default, the output goes to the standard output using the Java `System.out` static field.
 
+The output of `print` and `println` can also be redirected.
+If the variable `print_target` is defined and is an object or closure the output of the statements will be redirected.
+
+When the `print_target` is an object the method `write` is used to send the strings and
+`flush` is called to close every print statement.
+`write` has to be defined, `flush` is optional, but when defined it has to be a method.
+
+When the `print_target` is a closure it is used to send the strings and flushing is ignored.
+
+The following example shows how to use this feature:
+
 
 .source of snippet `print_redirect`
 [source]
@@ -4045,14 +4056,14 @@ execute("Thread 2",2)
 [source]
 ----
  prime read 2
-Thread 1 generated 3
+Thread 1 prime read 3
+ generated 3
 Thread 1 generated 5
 Thread 1 generated 7
-Thread 1 generated 11
-Thread 1 generated 13
- prime read 3
  prime read 5
  prime read 7
+Thread 1 generated 11
+Thread 1 generated 13
 Thread 1 generated 17
 Thread 1 generated 19
 Thread 1 generated 23
@@ -4064,8 +4075,8 @@ Thread 2 generated 3
 Thread 2 generated 5
  prime read 5
 Thread 2 generated 7
- prime read 7
 Thread 2 generated 11
+ prime read 7
 Thread 2 generated 13
 stopping
 exception Task stopped.
@@ -4128,9 +4139,9 @@ println( (end-start)/1000000, "ms")
 [source]
 ----
 [1, 2, 3]
-309.383125ms
+312.194417ms
 []
-315.49475ms
+316.543084ms
 
 ----
 
@@ -4491,7 +4502,7 @@ println(inc(1))
 .output of snippet `fun1`
 [source]
 ----
-ch.turic.commands.Closure@17fc391b
+ch.turic.commands.Closure@7776ab
 2
 
 ----
@@ -4520,7 +4531,7 @@ println(inc(1))
 .output of snippet `fun3`
 [source]
 ----
-ch.turic.commands.Closure@2b30a42c
+ch.turic.commands.Closure@79179359
 2
 
 ----
@@ -4551,7 +4562,7 @@ println(inc(1))
 .output of snippet `fun2`
 [source]
 ----
-ch.turic.commands.Closure@609e8838
+ch.turic.commands.Closure@dbd8e44
 2
 
 ----
@@ -4747,7 +4758,7 @@ println(inc(1,how_much=5))
 .output of snippet `fun4`
 [source]
 ----
-ch.turic.commands.Closure@359df09a
+ch.turic.commands.Closure@51acdf2e
 6
 
 ----
@@ -7486,71 +7497,71 @@ none
 ----
 task2 is not ready 0
 task1 is not ready 0
-task2 is ready 1
-task2 is not ready 0
-task1 is not ready 1
-task1 is not ready 2
+task1 is ready 1
 task2 is not ready 1
-task2 is not ready 2task1 is not ready 3
-
-task2 is ready 2
-task1 is not ready 4task2 is not ready 0
-
-task2 is not ready 1
-task1 is not ready 5
-task1 is not ready 6
+task1 is not ready 0
 task2 is not ready 2
+task1 is not ready 1
 task2 is not ready 3
-task1 is ready 3
-task1 is not ready 0
-task1 is not ready 1
-task2 is not ready 4
 task1 is not ready 2
-task2 is not ready 5
+task1 is not ready 3
+task2 is ready 2
+task2 is not ready 0
+task1 is not ready 4
+task2 is not ready 1
+task2 is not ready 2
+task1 is not ready 5
+task2 is ready 3
+task1 is not ready 6
+task2 is not ready 0
+task1 is not ready 7
+task2 is not ready 1
+task1 is not ready 8
+task2 is not ready 2
 task1 is ready 4
-task2 is not ready 6
+task2 is not ready 3
 task1 is not ready 0
+task2 is not ready 4
 task1 is not ready 1
+task2 is not ready 5task1 is not ready 2
+
+task2 is not ready 6
+task1 is ready 5
+task1 is not ready 0
 task2 is not ready 7
+task1 is not ready 1
 task2 is not ready 8
 task1 is not ready 2
-task1 is ready 5
 task2 is not ready 9
-task1 is not ready 0
-task1 is not ready 1task2 is not ready 10
-
-task1 is not ready 2
-task2 is not ready 11
-task1 is ready 6task2 is not ready 12
-
-task1 is not ready 0
-task2 is not ready 13
-task1 is not ready 1
-task2 is not ready 14
-task1 is not ready 2
-task2 is not ready 15
-task1 is ready 7
-task1 is not ready 0
-task1 is not ready 1
-task2 is not ready 16
-task1 is not ready 2
-task2 is not ready 17
-task1 is not ready 3task2 is not ready 18
-
-task2 is ready 8task1 is not ready 4
-
+task1 is not ready 3
+task2 is ready 6
+task1 is not ready 4
 task2 is not ready 0
 task1 is not ready 5
 task2 is not ready 1
-task1 is not ready 6
+task1 is ready 7
+task1 is not ready 0
 task2 is not ready 2
 task2 is not ready 3
+task1 is not ready 1
+task2 is not ready 4
+task1 is not ready 2
+task2 is ready 8
+task1 is not ready 3
+task2 is not ready 0
+task1 is not ready 4
+task2 is not ready 1
+task1 is not ready 5
+task2 is not ready 2
 task1 is ready 9
+task2 is not ready 3
 task1 is not ready 0
 task2 is not ready 4
 task1 is not ready 1
 task2 is not ready 5
 task1 is not ready 2
+task2 is not ready 6
+task1 is not ready 3
 closing the channel
 channel is closed
 1 is done false
@@ -7558,7 +7569,7 @@ channel is closed
 we start to wait the first time
 task2 is done
 task1 is done
-task1 done false
+task1 done true
 task2 done true
 We start to wait the second time
 task1 done true
