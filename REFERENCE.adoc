@@ -234,8 +234,8 @@ pinned (immutable, final) global variables.
 ==== Shebang
 
 The interpreter ignores the first line of the program if it begins with `#!`.
-It is not only the command line version, but all embedding.
-This helps to use the same source in any embedding on any operating system.
+This applies not only to the command line version but to all embeddings.
+This helps use the same source code across any embedding on any operating system.
 
 ==== Whitespace and Line Breaks
 
@@ -269,7 +269,7 @@ You can simply define a method with the name `pass:[`+`]`.
 
 ==== Reserved Words
 
-Turicum defines a set of reserved keywords that cannot be used as identifiers—unless the name is enclosed in backticks, like `+`if`+`.
+Turicum defines a set of reserved keywords that cannot be used as identifiers—unless the name is enclosed in backticks, like `if`.
 
 The reserved keywords are:
 
@@ -350,7 +350,7 @@ println z
 
 There is no special suffix for numeric types.
 Type promotion is automatic and based on the context of usage.
-Internal implementation of numerical types uses `Long` and `Double`.
+The internal implementation of numerical types uses `Long` and `Double`.
 
 There is no hexadecimal floating point literal like in Java.
 Turicum does not implement a feature just because it is fancy.
@@ -2240,8 +2240,8 @@ There are predefined type names.
 
 
 
-If the name starts with `java.` then the variable can hold a Java object.
-For example `java.java.math.BigInteger` can hold any `java.math.BigInteger` object.
+If the name starts with `java.`, then the variable can hold a Java object.
+For example, `java.java.math.BigInteger` can hold any `java.math.BigInteger` object.
 
 In other cases the type can be the name of a class defined in the program.
 The class has to be defined by the time the variable is defined.
@@ -3911,7 +3911,7 @@ println {with x,y : a * b + c}
 === Asynchronous execution
 
 You can execute any command asynchronously using the `async` command.
-You symply have to wite `async` in front of the command.
+You simply have to write `async` in front of the command.
 The command will start the execution in a separate thread (Java 21 virtual thread) and the starting thread will go on executing.
 
 The return value of the `async` command is a handler to the started task.
@@ -6404,7 +6404,7 @@ One solution can be to convert the function to a closure:
 
 
 
-Closures wrap the surrounding context, therefore the body of the closure knows the value of `fib`, which is the closure itself.
+Closures wrap the surrounding context, therefore, the body of the closure knows the value of `fib`, which is the closure itself.
 If you do not want to wrap the whole context, you can do a little trick using functions.
 
 
@@ -6435,7 +6435,7 @@ If you do not want to wrap the whole context, you can do a little trick using fu
 
 
 The function `fib` has an extra optional parameter.
-The left side of the `fib=fib` is the name of the parameter, which will become a variable in the context if the function.
+The left side of the `fib=fib` is the name of the parameter, which will become a variable in the context of the function.
 The right side is the default value, which is evaluated in the caller context before the call.
 
 One may like this approach, for explicitly declaring that `fib` needs access to `fib` hence a recursive call.
@@ -6693,7 +6693,7 @@ Built-in functions are functions provided by the interpreter, which extend the f
 
 Macro implementations use this function.
 Macros get their arguments unevaluated and can use this function to evaluate them.
-If you try to evaluate anything else than a macro argument, you will get an error.
+If you try to evaluate anything other than a macro argument, you will get an error.
 
 
 .source of snippet `evaluate1`
@@ -6728,7 +6728,7 @@ The function first called `evaluate` to get the function or closure.
 Since this function is never called as a function, only after it is converted to be a macro, the argument is never a function, but a function definition.
 Evaluating it will result in the function.
 
-When we call this function adding `(..rest,..meta,..closure)` after it we spread the extra parameters.
+When we call this function adding `(..rest,..meta,..closure)` after it, we spread the extra parameters.
 In this example the three argument values for these parameters are
 
 * `{}` empty object,
@@ -8134,8 +8134,8 @@ The result of a function declaration is the function itself.
 
  FN ::= FN_EXPR | FN_BLOCK ;
 
-For functions with an expression body following a '=' the parameter list is mandatory.
-The parameter list may be empty having only '(' and ')'
+For functions with an expression body following a '=', the parameter list is mandatory.
+The parameter list may be empty, having only '(' and ')'.
 
  FN_EXPR   ::= 'fn' [ IDENTIFIER ] '(' IDENTIFIER_LIST ')' '=' EXPRESSION ;
 
