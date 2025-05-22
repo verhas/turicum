@@ -82,7 +82,7 @@ public class WithCommand extends AbstractCommand {
                 final var entry = lngObject.getField(METHOD_NAME_ENTRY);
                 final LngObject resourceHandle;
                 if (entry instanceof Closure closure) {
-                    final var entryResult = closure.call(context, NO_PARAMS);
+                    final var entryResult = closure.callAsMethod(context, lngObject, METHOD_NAME_ENTRY, NO_PARAMS);
                     if (entryResult == null) {
                         resourceHandle = lngObject;
                     } else {
@@ -182,22 +182,22 @@ public class WithCommand extends AbstractCommand {
      *
      * @param context           the current execution {@link Context}, used for building exceptions and calling closures
      * @param exception         the {@link ExecutionException} that caused the termination, or {@code null}
-     * @param objects           a list of {@link LngObject}s whose {@code exit} methods are to be called
+     * @param lngObjects           a list of {@link LngObject}s whose {@code exit} methods are to be called
      * @param supressExceptions an {@link AtomicBoolean} flag indicating whether exceptions should be suppressed;
      *                          updated based on the return values of the {@code exit} closures
      * @param closeExceptions   a list to collect any {@link RuntimeException}s thrown during method execution
      */
     private static void callExitMethods(final Context context,
                                         final ExecutionException exception,
-                                        final ArrayList<LngObject> objects,
+                                        final ArrayList<LngObject> lngObjects,
                                         final AtomicBoolean supressExceptions,
                                         final ArrayList<RuntimeException> closeExceptions) {
         final var param = exception != null ? LngException.build(context, exception, context.threadContext.getStackTrace()) : null;
-        for (final var object : objects.reversed()) {
+        for (final var lngObject : lngObjects.reversed()) {
             try {
-                final var entry = object.getField(METHOD_NAME_EXIT);
+                final var entry = lngObject.getField(METHOD_NAME_EXIT);
                 if (entry instanceof Closure closure) {
-                    final var exitValue = Cast.toBoolean(closure.call(context, param));
+                    final var exitValue = Cast.toBoolean(closure.callAsMethod(context, lngObject, METHOD_NAME_EXIT,param));
                     supressExceptions.set(supressExceptions.get() || exitValue);
                 }
             } catch (Exception e) {

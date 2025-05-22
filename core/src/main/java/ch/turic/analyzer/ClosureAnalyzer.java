@@ -29,7 +29,7 @@ public class ClosureAnalyzer extends AbstractAnalyzer {
         final var opening = lexes.next();
         final ParameterList identifiers;
         if (opening.is("|")) {// if it is '||' then there are no identifiers
-            identifiers = ParameterDefinition.INSTANCE.analyze(lexes);
+            identifiers = ParameterDefinition.FOR_CLOSURE.analyze(lexes);
             lexes.peek(Lex.Type.RESERVED, "|", "Closure arguments but be between two '|' characters");
             lexes.next();
         } else {

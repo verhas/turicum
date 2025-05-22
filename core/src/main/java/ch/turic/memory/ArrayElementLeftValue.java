@@ -17,7 +17,7 @@ public record ArrayElementLeftValue(LeftValue arrayLeftValue, Command index) imp
         final var guaranteedObject = arrayLeftValue.getIndexable(ctx, indexValue);
         final var existing = guaranteedObject.getIndex(indexValue);
         if (existing == null) {
-            final var newObject = new LngObject(null, ctx.open());
+            final var newObject = LngObject.newEmpty(ctx);
             guaranteedObject.setIndex(indexValue, newObject);
             return newObject;
         } else {

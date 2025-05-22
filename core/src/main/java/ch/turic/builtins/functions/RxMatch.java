@@ -32,24 +32,24 @@ public class RxMatch implements TuriFunction {
 
             final var groups = new LngList();
             for (int i = 1; i <= gc; i++) {
-                final var group = new LngObject(null, ctx.open());
+                final var group = LngObject.newEmpty(ctx);
                 group.setField("index", i);
                 group.setField("start", matcher.start(i));
                 group.setField("end", matcher.end(i));
                 groups.array.add(group);
             }
-            final var namedObject = new LngObject(null, ctx.open());
+            final var namedObject = LngObject.newEmpty(ctx);
             for (final var e : matcher.namedGroups().entrySet()) {
                 namedObject.setField(e.getKey(), groups.getIndex(e.getValue()));
             }
-            final var match = new LngObject(null, ctx.open());
+            final var match = LngObject.newEmpty(ctx);
             match.setField("group", groups);
             match.setField("name", namedObject);
             match.setField("start", matcher.start());
             match.setField("end", matcher.end());
             return match;
         } else {
-            return new LngObject(null, ctx.open());
+            return LngObject.newEmpty(ctx);
         }
     }
 }

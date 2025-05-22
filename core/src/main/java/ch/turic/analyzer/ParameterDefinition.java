@@ -8,7 +8,13 @@ import ch.turic.commands.TypeDeclaration;
 import java.util.ArrayList;
 
 public class ParameterDefinition {
-    public static final ParameterDefinition INSTANCE = new ParameterDefinition();
+    private final boolean forClosure;
+    public static final ParameterDefinition INSTANCE = new ParameterDefinition(false);
+    public static final ParameterDefinition FOR_CLOSURE = new ParameterDefinition(true);
+
+    public ParameterDefinition(boolean forClosure) {
+        this.forClosure = forClosure;
+    }
 
 
     public ParameterList analyze(final LexList lexes) throws BadSyntax {
@@ -74,7 +80,7 @@ public class ParameterDefinition {
             final TypeDeclaration[] types;
             if (lexes.is(":")) {
                 lexes.next();
-                types = AssignmentList.getTheTypeDefinitions(lexes);
+                types = forClosure ? AssignmentList.getTheTypeDefinitionsClosureArgs(lexes) : AssignmentList.getTheTypeDefinitions(lexes);
             } else {
                 types = AssignmentList.EMPTY_TYPE;
             }

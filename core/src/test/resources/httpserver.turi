@@ -1,0 +1,42 @@
+let s = server({
+host : "localhost", port: 8080,
+routes : [{
+    path : "/",
+    handler: { let counter:num=0;
+                {|request,response|
+                    with request {
+                        println "Request uri: %s" % uri
+                        println "Request method: %s" % method
+                        println "Client host: %s" % client.host
+                        println "Client port: %s" % client.port
+                        println "Server host: %s" % server.host
+                        println "Server port: %s" % server.port
+                        println "Request protocol: %s" % protocol
+                        println()
+                        println "Headers:"
+                        for each h in keys(headers) {
+                            let header = headers[h];
+                            if len(header) == 1 :
+                                println h,": ", headers[h][0]
+                            else:
+                                println h,": ", headers[h]
+                        }
+                    }
+                    println "I was invoked %d" % counter
+                    counter = counter + 1;
+                    return "hello " + counter;
+                }
+             }
+    }]
+}
+);
+
+let i = 0
+while {
+    let request =  s.receive();
+    println "REQUEST: %s" % [request];
+    println "-"*60;
+    i = i + 1;
+}
+
+none

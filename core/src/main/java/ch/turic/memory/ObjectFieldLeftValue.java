@@ -15,7 +15,7 @@ public record ObjectFieldLeftValue(LeftValue object, String field) implements Le
         final var guaranteedObject = object.getObject(ctx);
         final var existing = guaranteedObject.getField(field);
         if (existing == null) {
-            final var newObject = new LngObject(null, ctx.open());
+            final var newObject = LngObject.newEmpty(ctx);
             guaranteedObject.setField(field, newObject);
             return newObject;
         } else {

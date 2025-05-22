@@ -1,0 +1,40 @@
+class Printer {
+    fn init(m:str="");
+    fn write(s:str){
+        if !len(m) == 0 && !m.ends_with("\n"):
+            m = m + " "
+        m = m + s;
+    }
+    fn flush {
+        println "flushing is essential"
+    }
+    fn entry {
+        this
+    }
+    fn exit(e){
+    }
+
+    fn get {
+        m
+    }
+}
+
+
+let printer = Printer();
+
+with printer as print_target {
+    println "Once upon a midnight dreary","Edgar"
+    println "God in his wisdom made the fly","Ogden"
+    }
+println "Are you mental mixing poems?"
+println printer.get()
+
+{
+mut print_target = {|message:str|
+                        let print_target = none;
+                        if message == "\n" :
+                            println ;
+                        print "Said the raven:", message;
+                        }
+println "never more, to the fly";
+}

@@ -114,25 +114,25 @@ public class TuriHttpServer implements TuriFunction {
     }
 
     private LngObject mapResponse(HttpExchange exchange, ch.turic.memory.Context ctx) {
-        final var response = new LngObject(null, ctx.open());
+        final var response = LngObject.newEmpty(ctx);
         response.setField("headers", exchange.getResponseHeaders());
         response.setField("code", exchange.getResponseCode());
         return response;
     }
 
     private LngObject mapRequest(HttpExchange exchange, ch.turic.memory.Context ctx) {
-        final var request = new LngObject(null, ctx.open());
+        final var request = LngObject.newEmpty(ctx);
         request.setField("method", exchange.getRequestMethod());
-        final var client = new LngObject(null, ctx.open());
+        final var client = LngObject.newEmpty(ctx);
         client.setField("host", exchange.getRemoteAddress().getAddress().getHostAddress());
         client.setField("port", exchange.getRemoteAddress().getPort());
         request.setField("client", client);
         request.setField("protocol", exchange.getProtocol());
-        final var srv = new LngObject(null, ctx.open());
+        final var srv = LngObject.newEmpty(ctx);
         srv.setField("host", exchange.getLocalAddress().getAddress().getHostAddress());
         srv.setField("port", exchange.getLocalAddress().getPort());
         request.setField("server", srv);
-        final var headers = new LngObject(null, ctx.open());
+        final var headers = LngObject.newEmpty(ctx);
         for( final var h : exchange.getRequestHeaders().entrySet() ) {
             final var headerValues = new LngList();
             headerValues.array.addAll(h.getValue());

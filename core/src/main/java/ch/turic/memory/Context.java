@@ -12,13 +12,14 @@ public class Context implements ch.turic.Context {
     Map<String, Variable> frame;
     private final Set<String> globals = new HashSet<>();
     private final Set<String> nonlocal = new HashSet<>();
-    private final Set<String> frozen = new HashSet<>();
+    private final Set<String> frozen;
     private final Context wrapped;
     public final GlobalContext globalContext;
     public final ThreadContext threadContext;
     public Context caller = null;
     private final List<String> exporting = new ArrayList<>();
     private final boolean shadow;
+    private final boolean with;
 
     private boolean pinned = false;
 
@@ -89,6 +90,8 @@ public class Context implements ch.turic.Context {
         this.frame = globalContext.heap;
         this.threadContext = new ThreadContext();
         this.shadow = false;
+        this.with = false;
+        this.frozen = new HashSet<>();
     }
 
     public Context(final GlobalContext globalContext, final ThreadContext threadContext) {
@@ -97,6 +100,8 @@ public class Context implements ch.turic.Context {
         this.globalContext = globalContext;
         this.threadContext = threadContext;
         this.shadow = false;
+        this.with = false;
+        this.frozen = new HashSet<>();
     }
 
     /**
@@ -117,6 +122,8 @@ public class Context implements ch.turic.Context {
         this.frame = new HashMap<>();
         this.wrapped = wrapped;
         this.shadow = false;
+        this.with = false;
+        this.frozen = new HashSet<>();
     }
 
     private Context(final Context thisContext, final Context wrappedContext, final boolean shadow) {
@@ -125,15 +132,18 @@ public class Context implements ch.turic.Context {
         this.frame = new HashMap<>();
         this.wrapped = wrappedContext;
         this.shadow = shadow;
-
+        this.with = false;
+        this.frozen = new HashSet<>();
     }
 
     private Context(final Context thisContext, final Context wrappedContext, final Context withContext) {
         this.globalContext = thisContext.globalContext;
         this.threadContext = thisContext.threadContext;
         this.frame = withContext.frame;
+        this.frozen = withContext.frozen;
         this.wrapped = wrappedContext;
         this.shadow = false;
+        this.with = true;
     }
 
     /**
@@ -144,7 +154,22 @@ public class Context implements ch.turic.Context {
      */
     public void freeze(String identifier) {
         ExecutionException.when(frozen.contains(identifier), "variable is already pinned '" + identifier + "'");
-        frozen.add(identifier);
+        if (!contains(identifier)) {
+            throw new ExecutionException("variable '" + identifier + "' is not defined, cannot be pinned");
+        }
+        if (with) {
+            if (containsFrame(identifier)) {
+                frozen.add(identifier);
+            }else{
+                if( wrapped != null ) {
+                    wrapped.freeze(identifier);
+                }else{
+                    throw new ExecutionException("variable '" + identifier + "' is defined, but not found in freeze. It is an internal error.");
+                }
+            }
+        }else {
+            frozen.add(identifier);
+        }
     }
 
     /**

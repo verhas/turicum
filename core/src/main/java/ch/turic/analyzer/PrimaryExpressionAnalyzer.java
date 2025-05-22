@@ -148,10 +148,11 @@ public class PrimaryExpressionAnalyzer extends AbstractAnalyzer {
     }
 
     private Command getAccessOrCall(LexList lexes, Command left, boolean isDecorator) throws BadSyntax {
-        while (lexes.is("(", ".", "[")) {
+        while (lexes.is("(", ".", ".?", "[")) {
             left = switch (lexes.next().text()) {
                 case "(" -> new FunctionCall(left, analyzeArguments(lexes, isDecorator, true));
-                case "." -> new FieldAccess(left, lexes.next(Lex.Type.IDENTIFIER).text());
+                case "." -> new FieldAccess(left, lexes.next(Lex.Type.IDENTIFIER).text(), false);
+                case ".?" -> new FieldAccess(left, lexes.next(Lex.Type.IDENTIFIER).text(), true);
                 case "[" -> {
                     final var indexExpression = new ArrayAccess(left, ExpressionAnalyzer.INSTANCE.analyze(lexes));
                     lexes.next(Lex.Type.RESERVED, "]", "Array indexing is not close with ]");

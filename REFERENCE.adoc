@@ -959,10 +959,217 @@ Operators are tokenized with priority for the **longest matching operator**.
 Recognized symbols are:
 
 
-"--", "++", "pass:[->]", "pass:[<-]", "=", "(", ")", ",", ".",
+"--", "++", "pass:[->]", "pass:[<-]", "=", "(", ")", ",", ".", ".?",
 "&{", "{", "}", "[", "]", ";", ":", "|", "?", "@", "^", "#"
 
  
+
+=== Field Access
+
+Objects have fields that the code can set and read.
+They are accessed
+
+* using the `.` operator followed by the identifier of the field, or
+* using the field identifier, as a string between `[`, and `]`.
+
+
+.source of snippet `field_access`
+[source]
+----
+let a = {}
+a.k = 55
+a["z"] = a["k"]
+die if a.z != 55
+println "it is ok"
+
+
+----
+
+
+
+
+.output of snippet `field_access`
+[source]
+----
+it is ok
+
+----
+
+
+
+Creating new fields in an object requires less care than creating new variables.
+You do not need to use the `let` or `mut` keyword to create a new field.
+As soon as you assign a value to a field, it will be added to the object.
+
+By default, fields are mutable, but you can pin them.
+You cannot write `pin a.b`, however.
+It would be a syntax error.
+`pin` works on identifiers and not on expressions.
+
+On the other hand, you can use the `pin` command inside the class functions, where the fields are a kind of local variables,
+and you can also use the `with` command.
+
+The following example demonstrates how the code can pin a field and leave another mutable:
+
+
+.source of snippet `pinned_field`
+[source]
+----
+class Car {
+    fn init(power:num=125, color:str="red"){
+        pin power
+    }
+    fn repaint(color:str){
+        this.color = color
+    }
+}
+let my_porsch = Car(power=467)
+my_porsch.repaint("yellow")
+try {
+    with my_porsch {
+        power = power + 100;
+    }
+}catch e : println "You cannot do home tuning on a porsch";
+print $"The color of my porsch is ${my_porsch.color}"
+
+
+----
+
+
+
+
+.output of snippet `pinned_field`
+[source]
+----
+You cannot do home tuning on a porsch
+The color of my porsch is yellow
+----
+
+
+
+The following example gives you an example to pin a field of a classless object.
+
+
+.source of snippet `pinned_field_with`
+[source]
+----
+let a = {}
+a.b = 13
+with a : pin b
+try{ a.b = 14 } catch e: println e
+println a.b
+
+
+----
+
+
+
+
+.output of snippet `pinned_field_with`
+[source]
+----
+pinned variable cannot be altered 'b'
+13
+
+----
+
+
+
+The automatic creation of the fields is transitive.
+
+
+.source of snippet `field_transitive_creation`
+[source]
+----
+let a = {}
+a.b.c.d.e.f = 1
+println a
+
+
+----
+
+
+
+
+.output of snippet `field_transitive_creation`
+[source]
+----
+{b: {c: {d: {e: {f: 1}}}}}
+
+----
+
+
+
+You do not need to create `b`,`c`,`d`, and `e` one by one.
+They will become automatically an `{}` classless object.
+
+Accessing a field on the right-hand side of an assignment, or in any expression is more restrictive.
+You can still access a field that is nonexistent, and the value will be `none`, but you cannot access a field on `none`.
+To overcome this, you can use the `or` operator as in the example, or use can use the `.?` field access.
+
+
+.source of snippet `field_none_access`
+[source]
+----
+let a  = {}
+println $"is a.b defined? ${with a: is_defined(b)}"
+try: let q = a.b.c
+catch e: println e
+// q is still undefined we can assign
+let p = (a.b or {}).c
+// the same, but shorter
+let q = a.b.?c
+println $"q is ${q}.. eventually, but at least exists..."
+println $"a was not changed ${a}"
+
+
+----
+
+
+
+
+.output of snippet `field_none_access`
+[source]
+----
+is a.b defined? false
+Cannot access the field 'c' because the object it is used on is undefined.
+q is none.. eventually, but at least exists...
+a was not changed {}
+
+----
+
+
+
+In the example above we cannot directly access `a.b.c`, but `a.b.?c` works.
+It is also important that accessing the non-existent `a.b` this way will *not* insert a new classless object into `a`.
+It is just a lenient way of accessing fields.
+
+On the left side of the `.?` can be any expression resulting in an object or `none`, even a `["xxx"]` style field access.
+On the other hand, there is no `.?` equivalent accessing a field through the `["xxx"]`.
+In that case theonly remedy is the `or` operator:
+
+
+.source of snippet `field_none_indexed_access`
+[source]
+----
+let a  = {}
+let q = (a["b"] or {}) ["c"]
+println $"q is ${q}"
+
+
+----
+
+
+
+
+.output of snippet `field_none_indexed_access`
+[source]
+----
+q is none
+
+----
+
+
 
 === Defined Operators
 
@@ -1399,7 +1606,7 @@ negating all bits in 3 -4
 
 
 
-=== Operators
+=== Operator Overloading
 
 Operators can be overridden in the classes.
 If you have a method named the same name as an operator, it will be invoked to perform the calculation.
@@ -1416,7 +1623,7 @@ class LN {
             LN( this.a * other.a )
     }
 }
-println( (LN(2) + LN(4)).a )
+println (LN(2) + LN(4)).a
 
 
 ----
@@ -1435,37 +1642,6 @@ println( (LN(2) + LN(4)).a )
 
 In the example above the class is redefining the `+` operator, and it returns an object that has the product of the fields `a`.
 Thus `LN(2) + LN(4)` is `LN(8)`.
-
-[NOTE]
-====
-You have to use the `(` and `)` after the `print`, otherwise it will think that `LN(2) + LN(4)` is the argument and `.a` tries to use the result of the function `print`, which is `none`.
-It is also possible to use the
-
-
-.source of snippet `objectAddition2`
-[source]
-----
-class LN {
-    fn init( a ){
-
-    }
-    fn `+` ( other ){
-            LN( this.a * other.a )
-    }
-}
-println {LN(2) + LN(4)}.a
-
-
-----
-
-
-
-
-format.
-In this case there is no `(` following the name of the function `println`.
-
-Generally, it is recommended to use the opening and closing `(` and `)` characters to avoid confusion.
-====
 
 You can override any of the predefined operators.
 
@@ -2433,6 +2609,83 @@ variable 'object' still can be changed: {x: 1, y: 3}
 
 
 
+== `print`, `println` commands
+
+`print` and `println` are implemented as commands.
+They both accept a list of expressions separated by commas.
+`print` prints out the values from left to right.
+`println` does the same, but also appends a new line character at the end.
+
+By default, the output goes to the standard output using the Java `System.out` static field.
+
+
+.source of snippet `print_redirect`
+[source]
+----
+class Printer {
+    fn init(m:str="");
+    fn write(s:str){
+        if !len(m) == 0 && !m.ends_with("\n"):
+            m = m + " "
+        m = m + s;
+    }
+    fn flush {
+        println "flushing is essential"
+    }
+    fn entry {
+        this
+    }
+    fn exit(e){
+    }
+
+    fn get {
+        m
+    }
+}
+
+
+let printer = Printer();
+
+with printer as print_target {
+    println "Once upon a midnight dreary","Edgar"
+    println "God in his wisdom made the fly","Ogden"
+    }
+println "Are you mental mixing poems?"
+println printer.get()
+
+{
+mut print_target = {|message:str|
+                        let print_target = none;
+                        if message == "\n" :
+                            println ;
+                        print "Said the raven:", message;
+                        }
+println "never more, to the fly";
+}
+
+
+----
+
+
+
+
+.output of snippet `print_redirect`
+[source]
+----
+flushing is essential
+flushing is essential
+Are you mental mixing poems?
+Once upon a midnight drearyEdgar
+God in his wisdom made the flyOgden
+
+Said the raven:never more, to the fly
+Said the raven:
+
+----
+
+
+
+
 == Control Flow
 
 === Conditional Execution (`if` / `elseif` / else`)
@@ -2504,11 +2757,8 @@ If the loop is skipped then the value is either `none` or an empty list.
 .source of snippet `emptyLoopResult`
 [source]
 ----
-
 println { for i=0 ; i < 0 ; i=i+1 : "anything, not executed, will print none" }
 println { for i=0 ; i < 0 ; i=i+1 list: "anything, not executed, will print []" }
-
-
 
 
 ----
@@ -3034,7 +3284,7 @@ The command can break the execution of the loop and can also specify the value o
 
 ==== `continue`
 
-Will continue the execution of the loop starting the body of the loop again without exeuting the rest of the commands in the loop body.
+Will continue the execution of the loop starting the body of the loop again without executing the rest of the commands in the loop body.
 
 
 === Returning, Breaking, Continue, and Yielding
@@ -3289,6 +3539,29 @@ In this case the value of the expression will be appended to the resulting list.
 If the value of the expression is `none` then `none` as a value will be appended to the list.
 If there is no expression after the `continue` keyword, then the resulting list will remain untouched for the actual execution.
 
+The use of `continue` is restricted.
+You can use it only inside a loop as a top-level command, and not inside a block, or part of other commands, like `if`.
+
+
+.source of snippet `bad_continue`
+[source]
+----
+try: let k = {for each z in [1,2,3] { if z%2 == 0 : continue 2*z else: continue 3*z}}
+catch e: println e
+
+
+----
+
+
+
+
+.output of snippet `bad_continue`
+[source]
+----
+Continue executed in non-loop.
+
+----
+
 
 
 ==== `return`
@@ -3402,7 +3675,7 @@ while st.has_next() :
 
 === `with`
 
-The `with` command executes a block in the context of one or more objects, and also it functions as a resource manager like similar to Python.
+The `with` command executes a block in the context of one or more objects, and also it functions as a resource manager similar to Python.
 
 [source]
 ----
@@ -3419,28 +3692,63 @@ with object list : command
 The `object list` is a comma separated list of expressions each with an optional `as identifier` part.
 When there is an `as identifier` the functionality is similar to that of Python.
 
+When there is an `as ID` after the expression, then the expression is treated as a resource manager.
+The method `entry()` is invoked on the resource manager, and the returned value is assigned to the given `ID`.
+The returned value is usually a resource object.
+
+For example, handling a file, the resource manager should return an object you can use to write into a file.
+
+The identifier is used in the block following the `with` command referencing the handle returned by `entry`.
+
+If `entry` returns `none`, then the resource manager object itself is used as a resource.
+This can be used in simplified cases when the resource manager and the resource object are the same.
+
+When the execution of the block is finished the method `exit` will be invoked on the resource manager.
+This method will be invoked even if there was any error during the execution of the block.
 
 
 .source of snippet `withAs`
 [source]
 ----
-class Resource {
-    fn init(a=1,b=2);
+class ResourceManager {
+    fn init {
+        // each resource manager object can manage one resource object
+        let res = Resource();
+    }
+
     fn entry {
-        println "entry to A"
-        // the value is not instance of A
-        { a: 7, b:8 }
+        println $"entry to ResourceManager ${this}"
+        res
     }
-    fn exit(e){
-        println "exit fom A"
-        return none // if there is an error, mut it go
+
+    fn exit( e: err|none = none) {
+        println $"exit fom ResourceManager ${this} with \"${e}\" as exception"
+        if e != none : // we handle the exception printing it
+            println e
+        res.close() // close the resource
+        return true; // suppress exceptions
     }
 }
-with Resource() as a {
-    println type(a)
-    println a.a
-    println a.b
+
+class Resource {
+    fn init {
+        println "Creating resource"
+    }
+    fn printf(s,[rest]){
+        println "printf was called"
+        println s % rest
+    }
+    fn close(){
+        println $"closing resource"
+    }
 }
+
+with ResourceManager() as r {
+    println $"r resource is ${r}"
+    r.printf("executing with resource %s %s",1,2)
+    die "mad dog"
+}
+println "did not die"
 
 
 ----
@@ -3451,72 +3759,21 @@ with Resource() as a {
 .output of snippet `withAs`
 [source]
 ----
-entry to A
-obj
-7
-8
-exit fom A
+Creating resource
+entry to ResourceManager {res: {cls: class Resource}, cls: class ResourceManager}
+r resource is {cls: class Resource}
+printf was called
+executing with resource 1 2
+exit fom ResourceManager {res: {cls: class Resource}, cls: class ResourceManager} with "mad dog" as exception
+mad dog
+closing resource
+did not die
 
 ----
 
 
 
-When there is an `as ID` after the expression, then the expression is treated as a resource.
-The method `entry()` is invoked on the resource, and the returned value is assigned to the given `ID`.
-The returned value is usually ab object to handle the resource.
-
-For example, if the resource is a file, then the handle is an object you can use to write into a file.
-
-The identifier is used in the block following the `with` command referencing the handle returned by `entry`.
-
-If `entry` returns `none, then the resource is used as a handle.
-This can be used in simplified cases when the resource and the resource handle object are the same.
-
-When the execution of the block is finished the method `exit` will be invoked on the resource (not on the handle).
-This method will be invoked even if there was any error during the execution of the block.
-
-
-.source of snippet `withAsExceptionHandled`
-[source]
-----
-class Resource {
-    fn init(a=1,b=2);
-    fn entry {
-        println "entry to A"
-        // the value is not instance of A
-        { a: 7, b:8 }
-    }
-    fn exit(exception) {
-        println "exit fom A"
-        if exception != none:
-            println "There was an exception '%s'" % [exception.message]
-        return true // we handled the exception, no more
-    }
-}
-with Resource() as a {
-    die "Raise an exception"
-}
-println "Exception was eliminated"
-
-
-----
-
-
-
-
-.output of snippet `withAsExceptionHandled`
-[source]
-----
-entry to A
-exit fom A
-There was an exception 'Raise an exception'
-Exception was eliminated
-
-----
-
-
-
-The argument to the method is the exception that was raised while processing the block, or `none` if there was not any.
+The argument to the method `exit` is the exception that was raised while processing the block, or `none` if there was not any.
 If the return value of the method `exit` is `true` or anything that can be converted to boolean and has the value `true` following the cast, then the exception is treated as caught and handled.
 If there is any exception during the closing, then it will be thrown.
 Exceptions during resource closing do not get suppressed.
@@ -3526,14 +3783,14 @@ The last "opened" resource is closed first.
 
 [NOTE]
 ====
-Handling the resources this way is similar to how Python handles the resources with some notable differences.
+Handling the resources this way is similar to how Python handles the resources with some notable differences:
 
 * There are no underscore characters in the name of the method `entry` and `exit`.
 * `exit` may not exist
 * `entry` may return `none`.
-It has the same effect, and it is also recommended to return `this`.
+It is the same as returning `this`.
 * `exit` gets only one argument, the exception that holds all the information.
-In Pythn you get the stack trace and the exception type in a separate argument.
+In Python, you get the stack trace and the exception type in a separate argument.
 * You _MUST_ provide an `as` alias for resources, otherwise the expression is not treated as a resource (see below).
 ====
 
@@ -3575,7 +3832,7 @@ When more than one object is listed, then multiple wrapping scopes are created f
 It also means that the objects to the right shadow the objects to the left.
 In the example both `x` and `y` have field `a` and since `y` is later in the list the field of `y` is used.
 
-You can also modify or even create fields:
+You can also modify or even create and pin fields:
 
 
 .source of snippet `modifyWith`
@@ -3583,12 +3840,14 @@ You can also modify or even create fields:
 ----
 mut x = {a:1,b:2};
 mut y = {a:4,c:5};
-with x,y {
+with x, y {
     a = 0
     b = 0
     c = 0
     mut k = 55;
+    pin b
 }
+try: x.b = 55 catch e: println e
 println x
 println y
 
@@ -3601,6 +3860,7 @@ println y
 .output of snippet `modifyWith`
 [source]
 ----
+pinned variable cannot be altered 'b'
 {a: 1, b: 0}
 {a: 0, c: 0, k: 55}
 
@@ -3610,6 +3870,7 @@ println y
 
 Note that the field `x.a` was not modified, because it is shadowed by `y.a`.
 You can only create new fields in the right most object.
+You can pin a field in any of the objects unless they are shadowed.
 
 The value of the command is the value of the block executed.
 
@@ -3797,12 +4058,12 @@ Thread 1 generated 19
 Thread 1 generated 23
 stopping
 exception Task stopped.
-Thread 2 generated 3
  prime read 2
+Thread 2 generated 3
  prime read 3
 Thread 2 generated 5
-Thread 2 generated 7
  prime read 5
+Thread 2 generated 7
  prime read 7
 Thread 2 generated 11
 Thread 2 generated 13
@@ -3867,9 +4128,9 @@ println( (end-start)/1000000, "ms")
 [source]
 ----
 [1, 2, 3]
-314.765083ms
+309.383125ms
 []
-318.463625ms
+315.49475ms
 
 ----
 
@@ -4085,9 +4346,8 @@ a =3.6063454894655185
 a =3.6055513629176015
 a =3.6055512754639905
 a =3.6055512754639896
-a =3.6055512754639896
-sqrt(13) ≈ 3.6055512754639896
-square ≈ 13.000000000000002
+sqrt(13) ≈ 3.6055512754639905
+square ≈ 13.000000000000009
 
 ----
 
@@ -4231,7 +4491,7 @@ println(inc(1))
 .output of snippet `fun1`
 [source]
 ----
-ch.turic.commands.Closure@496bc455
+ch.turic.commands.Closure@17fc391b
 2
 
 ----
@@ -4260,7 +4520,7 @@ println(inc(1))
 .output of snippet `fun3`
 [source]
 ----
-ch.turic.commands.Closure@59402b8f
+ch.turic.commands.Closure@2b30a42c
 2
 
 ----
@@ -4291,7 +4551,7 @@ println(inc(1))
 .output of snippet `fun2`
 [source]
 ----
-ch.turic.commands.Closure@7188af83
+ch.turic.commands.Closure@609e8838
 2
 
 ----
@@ -4332,8 +4592,6 @@ original K
 The expression following the `=` is an identifier, which by the time of the invocation results a callable object.
 The string following it is not part of the expression.
 The string constant is just a statement with no effect.
-
-If you use the `(` and `)` characters after the `println` function call, then the expression will include the string argument, and the code will work as expected.
 
 
 .source of snippet `fun11`
@@ -4489,7 +4747,7 @@ println(inc(1,how_much=5))
 .output of snippet `fun4`
 [source]
 ----
-ch.turic.commands.Closure@6be968ce
+ch.turic.commands.Closure@359df09a
 6
 
 ----
@@ -7154,11 +7412,6 @@ s = closure 2
 The function opens and "recloses" the closure in the context of the function call.
 It will see and alter the `s` in that context of the re-closing, while the original closure alters and sees the global `s`.
 
-=== `print`, `println`
-
-Prints the arguments to the standard output.
-`println` also prints a new-line at the end.
-
 === `que`
 
 This function will create a FIFO queue that different code fragments can write and read.
@@ -7231,82 +7484,82 @@ none
 .output of snippet `que`
 [source]
 ----
+task2 is not ready 0
 task1 is not ready 0
+task2 is ready 1
 task2 is not ready 0
-task1 is ready 1
-task1 is not ready 0task2 is not ready 1
-
 task1 is not ready 1
-task2 is not ready 2
-task1 is not ready 2task2 is not ready 3
-
-task2 is ready 2task1 is not ready 3
-
-task2 is not ready 0
-task1 is not ready 4task2 is not ready 1
-
-task2 is not ready 2
-task1 is not ready 5
-task2 is ready 3
-task2 is not ready 0
-task1 is not ready 6
+task1 is not ready 2
 task2 is not ready 1
-task1 is not ready 7
-task1 is not ready 8
+task2 is not ready 2task1 is not ready 3
+
+task2 is ready 2
+task1 is not ready 4task2 is not ready 0
+
+task2 is not ready 1
+task1 is not ready 5
+task1 is not ready 6
 task2 is not ready 2
-task1 is ready 4
 task2 is not ready 3
+task1 is ready 3
 task1 is not ready 0
 task1 is not ready 1
 task2 is not ready 4
-task2 is not ready 5
 task1 is not ready 2
-task1 is not ready 3
-task2 is ready 5
-task2 is not ready 0
-task1 is not ready 4
-task2 is not ready 1
-task2 is not ready 2
-task1 is not ready 5
-task2 is ready 6
-task2 is not ready 0
-task1 is not ready 6
-task2 is not ready 1
-task1 is not ready 7
-task2 is not ready 2
-task1 is not ready 8
-task2 is not ready 3
+task2 is not ready 5
+task1 is ready 4
+task2 is not ready 6
+task1 is not ready 0
+task1 is not ready 1
+task2 is not ready 7
+task2 is not ready 8
+task1 is not ready 2
+task1 is ready 5
+task2 is not ready 9
+task1 is not ready 0
+task1 is not ready 1task2 is not ready 10
+
+task1 is not ready 2
+task2 is not ready 11
+task1 is ready 6task2 is not ready 12
+
+task1 is not ready 0
+task2 is not ready 13
+task1 is not ready 1
+task2 is not ready 14
+task1 is not ready 2
+task2 is not ready 15
 task1 is ready 7
 task1 is not ready 0
 task1 is not ready 1
+task2 is not ready 16
+task1 is not ready 2
+task2 is not ready 17
+task1 is not ready 3task2 is not ready 18
+
+task2 is ready 8task1 is not ready 4
+
+task2 is not ready 0
+task1 is not ready 5
+task2 is not ready 1
+task1 is not ready 6
+task2 is not ready 2
+task2 is not ready 3
+task1 is ready 9
+task1 is not ready 0
 task2 is not ready 4
+task1 is not ready 1
 task2 is not ready 5
 task1 is not ready 2
-task1 is not ready 3
-task2 is not ready 6
-task1 is ready 8
-task1 is not ready 0
-task2 is not ready 7
-task1 is not ready 1
-task2 is not ready 8
-task1 is not ready 2
-task2 is not ready 9
-task1 is ready 9
-task2 is not ready 10
-task1 is not ready 0
-task2 is not ready 11
-task1 is not ready 1
-task1 is not ready 2
-task2 is not ready 12
 closing the channel
 channel is closed
 1 is done false
 2 is done false
 we start to wait the first time
-task1 is done
 task2 is done
-task1 done true
-task2 done false
+task1 is done
+task1 done false
+task2 done true
 We start to wait the second time
 task1 done true
 task2 done true

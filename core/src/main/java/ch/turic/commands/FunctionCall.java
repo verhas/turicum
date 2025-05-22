@@ -139,7 +139,7 @@ public class FunctionCall extends AbstractCommand {
                                                 final boolean freeze) {
         final var filled = new boolean[pList.parameters().length];
         final var rest = new LngList();
-        final var meta = new LngObject(null, ctx.open());
+        final var meta = LngObject.newEmpty(ctx);
         Object closure = null;
         for (int i = 0; i < argValues.length; i++) {
             final var arg = argValues[i];
@@ -389,9 +389,9 @@ public class FunctionCall extends AbstractCommand {
             final var thisObject = context.contains("this") ? context.get("this") : null;
             final var clsObject = context.contains("cls") ? context.get("cls") : null;
             if (thisObject instanceof LngObject lngObject && lngObject.context().containsLocal(id.name())) {
-                myObject = new FieldAccess(new Identifier("this"), id.name());
+                myObject = new FieldAccess(new Identifier("this"), id.name(),false);
             } else if (clsObject instanceof LngClass lngClass && lngClass.context().containsLocal(id.name())) {
-                myObject = new FieldAccess(new Identifier("cls"), id.name());
+                myObject = new FieldAccess(new Identifier("cls"), id.name(),false);
             } else {
                 myObject = object;
             }

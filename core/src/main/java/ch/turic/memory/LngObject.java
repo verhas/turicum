@@ -30,6 +30,19 @@ public class LngObject implements HasFields, HasIndex, HasContext {
         this.context = context;
     }
 
+    /**
+     * Creates a new empty without class opening a new context under the provided one.
+     *
+     * @param context the context in which the object is created. The context of the object will be opened from
+     *                this object using {@link Context#open()}, thus the object does not wrap the provided
+     *                context, but it is necessary to create the context of the object in the given interpreter
+     *                (global context is inherited).
+     * @return a new instance of LngObject with no associated class.
+     */
+    public static LngObject newEmpty(Context context) {
+        return new LngObject(null, context.open());
+    }
+    
     @Override
     public void setField(String name, Object value) {
         ExecutionException.when(pinned.get(), "You cannot change a pinned object");

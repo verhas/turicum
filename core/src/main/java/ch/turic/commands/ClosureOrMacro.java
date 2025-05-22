@@ -43,6 +43,21 @@ public sealed interface ClosureOrMacro extends Command, HasFields permits Closur
         return ctx;
     }
 
+    /**
+     * Calls a specified method on the provided object or class within a given execution context.
+     * The method execution is influenced by the provided arguments and the closure or macro logic.
+     * If the object is an instance of {@code LngObject}, it invokes the method in the object context.
+     * If the object is an instance of {@code LngClass}, it invokes the method in the class context.
+     * If neither condition is met, an empty {@code NullableOptional} is returned.
+     *
+     * @param context the execution context in which the method is called
+     * @param obj the target object or class (must implement {@code HasFields}) on which the method is invoked
+     * @param methodName the name of the method to be called
+     * @param argValues the pre-evaluated arguments to be passed to the method
+     * @param it the closure or macro defining the method execution logic
+     * @return a {@code NullableOptional} containing the result of the method execution if successful,
+     *         or an empty {@code NullableOptional} if the method invocation is not applicable
+     */
     static NullableOptional<Object> callTheMethod(Context context, HasFields obj, String methodName, FunctionCall.ArgumentEvaluated[] argValues, ClosureOrMacro it) {
         if (obj instanceof LngObject lngObject) {
             final Context ctx = ClosureOrMacro.prepareObjectContext(context, lngObject, argValues, it);

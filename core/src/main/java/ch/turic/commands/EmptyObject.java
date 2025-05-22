@@ -10,7 +10,7 @@ public class EmptyObject extends AbstractCommand {
     @Override
     public Object _execute(final Context ctx) throws ExecutionException {
         ctx.step();
-        return new LngObject(null, ctx.open());
+        return LngObject.newEmpty(ctx);
     }
 }
 

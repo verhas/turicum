@@ -1,3 +1,63 @@
+// snippet field_access
+let a = {}
+a.k = 55
+a["z"] = a["k"]
+die if a.z != 55
+println "it is ok"
+// end snippet
+
+// snippet field_none_indexed_access
+let a  = {}
+let q = (a["b"] or {}) ["c"]
+println $"q is ${q}"
+// end snippet
+
+// snippet field_none_access
+let a  = {}
+println $"is a.b defined? ${with a: is_defined(b)}"
+try: let q = a.b.c
+catch e: println e
+// q is still undefined we can assign
+let p = (a.b or {}).c
+// the same, but shorter
+let q = a.b.?c
+println $"q is ${q}.. eventually, but at least exists..."
+println $"a was not changed ${a}"
+// end snippet
+
+// snippet field_transitive_creation
+let a = {}
+a.b.c.d.e.f = 1
+println a
+// end snippet
+
+// snippet pinned_field
+class Car {
+    fn init(power:num=125, color:str="red"){
+        pin power
+    }
+    fn repaint(color:str){
+        this.color = color
+    }
+}
+let my_porsch = Car(power=467)
+my_porsch.repaint("yellow")
+try {
+    with my_porsch {
+        power = power + 100;
+    }
+}catch e : println "You cannot do home tuning on a porsch";
+print $"The color of my porsch is ${my_porsch.color}"
+// end snippet
+
+// snippet pinned_field_with
+let a = {}
+a.b = 13
+with a : pin b
+try{ a.b = 14 } catch e: println e
+println a.b
+// end snippet
+
 // snippet istring1
 let a = 3;
 println $"a is ${a}"
@@ -15,11 +75,13 @@ println $"${ $\"${6*6}\"}"
 // end snippet
 
 // snippet emptyLoopResult
-
 println { for i=0 ; i < 0 ; i=i+1 : "anything, not executed, will print none" }
 println { for i=0 ; i < 0 ; i=i+1 list: "anything, not executed, will print []" }
+// end snippet
 
-
+// snippet bad_continue
+try: let k = {for each z in [1,2,3] { if z%2 == 0 : continue 2*z else: continue 3*z}}
+catch e: println e
 // end snippet
 
 // snippet bnot
@@ -1387,19 +1449,7 @@ class LN {
             LN( this.a * other.a )
     }
 }
-println( (LN(2) + LN(4)).a )
-// end snippet
-
-// snippet objectAddition2
-class LN {
-    fn init( a ){
-
-    }
-    fn `+` ( other ){
-            LN( this.a * other.a )
-    }
-}
-println {LN(2) + LN(4)}.a
+println (LN(2) + LN(4)).a
 // end snippet
 
 // snippet myEqual
@@ -1699,12 +1749,14 @@ with x,y {
 // snippet modifyWith
 mut x = {a:1,b:2};
 mut y = {a:4,c:5};
-with x,y {
+with x, y {
     a = 0
     b = 0
     c = 0
     mut k = 55;
+    pin b
 }
+try: x.b = 55 catch e: println e
 println x
 println y
 // end snippet
@@ -1715,29 +1767,88 @@ mut y = {a:4,c:5};
 println {with x,y : a * b + c}
 // end snippet
 
+// snippet print_redirect
+class Printer {
+    fn init(m:str="");
+    fn write(s:str){
+        if !len(m) == 0 && !m.ends_with("\n"):
+            m = m + " "
+        m = m + s;
+    }
+    fn flush {
+        println "flushing is essential"
+    }
+    fn entry {
+        this
+    }
+    fn exit(e){
+    }
+
+    fn get {
+        m
+    }
+}
+
+
+let printer = Printer();
+
+with printer as print_target {
+    println "Once upon a midnight dreary","Edgar"
+    println "God in his wisdom made the fly","Ogden"
+    }
+println "Are you mental mixing poems?"
+println printer.get()
+
+{
+mut print_target = {|message:str|
+                        let print_target = none;
+                        if message == "\n" :
+                            println ;
+                        print "Said the raven:", message;
+                        }
+println "never more, to the fly";
+}
+// end snippet
+
 // snippet entryAndExitWith
 class A {
-    fn init(a=1,b=2);
-    fn entry {
-        println "entry to A"
+    fn init {
+        let res = Resource();
     }
-    fn exit {
-        println "exit fom A"
+
+    fn entry {
+        println $"entry to A ${this}"
+        res
+    }
+
+    fn exit( e: err|none = none) {
+        println $"exit fom A ${this} with ${e} as exception"
+        res.close()
+        return true; // suppress  exceptions
     }
 }
-class B {
-    fn init(a=4,c=5);
-    fn entry {
-        println "entry to B"
+
+mut object_counter = 0;
+
+class Resource {
+    fn init {
+        global object_counter;
+        let me_counter = object_counter;
+        object_counter = object_counter + 1;
     }
-    fn exit {
-        println "exit fom B"
+    fn printf(x,[rest]){
+        println s % rest
+    }
+    fn close(){
+        println $"closing resource ${me_counter}"
     }
 }
-mut x = A();
-mut y = B();
-with x,y {
-  println "executing with A and B"
+
+let x = A();
+with x as a {
+    println $"a resource id is ${a.me_counter}"
+    println "executing with A and B"
+    die "mad dog"
 }
 // end snippet
 
@@ -1766,45 +1877,45 @@ with A() as x, B() as y {
 }
 // end snippet
 // snippet withAs
-class Resource {
-    fn init(a=1,b=2);
-    fn entry {
-        println "entry to A"
-        // the value is not instance of A
-        { a: 7, b:8 }
+class ResourceManager {
+    fn init {
+        // each resource manager object can manage one resource object
+        let res = Resource();
     }
-    fn exit(e){
-        println "exit fom A"
-        return none // if there is an error, mut it go
-    }
-}
-with Resource() as a {
-    println type(a)
-    println a.a
-    println a.b
-}
-// end snippet
 
-
-// snippet withAsExceptionHandled
-class Resource {
-    fn init(a=1,b=2);
     fn entry {
-        println "entry to A"
-        // the value is not instance of A
-        { a: 7, b:8 }
+        println $"entry to ResourceManager ${this}"
+        res
     }
-    fn exit(exception) {
-        println "exit fom A"
-        if exception != none:
-            println "There was an exception '%s'" % [exception.message]
-        return true // we handled the exception, no more
+
+    fn exit( e: err|none = none) {
+        println $"exit fom ResourceManager ${this} with \"${e}\" as exception"
+        if e != none : // we handle the exception printing it
+            println e
+        res.close() // close the resource
+        return true; // suppress exceptions
     }
 }
-with Resource() as a {
-    die "Raise an exception"
+
+class Resource {
+    fn init {
+        println "Creating resource"
+    }
+    fn printf(s,[rest]){
+        println "printf was called"
+        println s % rest
+    }
+    fn close(){
+        println $"closing resource"
+    }
 }
-println "Exception was eliminated"
+
+with ResourceManager() as r {
+    println $"r resource is ${r}"
+    r.printf("executing with resource %s %s",1,2)
+    die "mad dog"
+}
+println "did not die"
 // end snippet
 
 // snippet is_type

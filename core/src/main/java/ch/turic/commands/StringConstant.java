@@ -110,7 +110,7 @@ public class StringConstant extends AbstractCommand {
         } else {
             final var sb = new StringBuilder();
             for (Command command : commands) {
-                sb.append(command.execute(context));
+                sb.append(Objects.requireNonNullElse(command.execute(context),"none"));
             }
             return sb.toString();
         }

@@ -1,2 +1,3 @@
+pinned variable cannot be altered 'b'
 {a: 1, b: 0}
 {a: 0, c: 0, k: 55}

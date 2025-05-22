@@ -33,7 +33,7 @@ public abstract class AbstractCommand implements Command , HasFields {
 
     private LngObject _toLngObject(Object object, Context context) throws ExecutionException {
         try {
-            final var lngObject = new LngObject(null, context.open());
+            final var lngObject = LngObject.newEmpty(context);
             lngObject.setField("java$canonicalName", object.getClass().getCanonicalName());
             for (final var f : object.getClass().getDeclaredFields()) {
                 final var name = f.getName();
@@ -75,7 +75,7 @@ public abstract class AbstractCommand implements Command , HasFields {
     }
 
     private LngObject castMap(Context context, Map<?, ?> map) throws ExecutionException {
-        final var lngObject = new LngObject(null, context.open());
+        final var lngObject = LngObject.newEmpty(context);
         map.forEach((key, value) -> lngObject.setField(key.toString(), cast2Lang(context, value)));
         return lngObject;
     }

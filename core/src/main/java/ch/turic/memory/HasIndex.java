@@ -17,7 +17,7 @@ public interface HasIndex extends Iterable<Object> {
         if (Cast.isLong(indexValue)) {
             newIndexable = new LngList();
         } else {
-            newIndexable = new LngObject(null, ctx.open());
+            newIndexable = LngObject.newEmpty(ctx);
         }
         return newIndexable;
     }

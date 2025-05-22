@@ -458,6 +458,59 @@ Recognized symbols are:
 {%@snip OPERANDS%}
  %} /`(.*?)`/`$1` /->/pass:[->]/<-/pass:[<-]/%}
 
+=== Field Access
+
+Objects have fields that the code can set and read.
+They are accessed
+
+* using the `.` operator followed by the identifier of the field, or
+* using the field identifier, as a string between `[`, and `]`.
+
+{%S field_access%}
+
+Creating new fields in an object requires less care than creating new variables.
+You do not need to use the `let` or `mut` keyword to create a new field.
+As soon as you assign a value to a field, it will be added to the object.
+
+By default, fields are mutable, but you can pin them.
+You cannot write `pin a.b`, however.
+It would be a syntax error.
+`pin` works on identifiers and not on expressions.
+
+On the other hand, you can use the `pin` command inside the class functions, where the fields are a kind of local variables,
+and you can also use the `with` command.
+
+The following example demonstrates how the code can pin a field and leave another mutable:
+
+{%S pinned_field%}
+
+The following example gives you an example to pin a field of a classless object.
+
+{%S pinned_field_with%}
+
+The automatic creation of the fields is transitive.
+
+{%S field_transitive_creation%}
+
+You do not need to create `b`,`c`,`d`, and `e` one by one.
+They will become automatically an `{}` classless object.
+
+Accessing a field on the right-hand side of an assignment, or in any expression is more restrictive.
+You can still access a field that is nonexistent, and the value will be `none`, but you cannot access a field on `none`.
+To overcome this, you can use the `or` operator as in the example, or use can use the `.?` field access.
+
+{%S field_none_access%}
+
+In the example above we cannot directly access `a.b.c`, but `a.b.?c` works.
+It is also important that accessing the non-existent `a.b` this way will *not* insert a new classless object into `a`.
+It is just a lenient way of accessing fields.
+
+On the left side of the `.?` can be any expression resulting in an object or `none`, even a `["xxx"]` style field access.
+On the other hand, there is no `.?` equivalent accessing a field through the `["xxx"]`.
+In that case theonly remedy is the `or` operator:
+
+{%S field_none_indexed_access%}
+
 === Defined Operators
 
 Operators have precedence and are evaluated from left to right.
@@ -590,7 +643,7 @@ The unary operator `~` is bitwise negation.
 
 {%S bnot%}
 
-=== Operators
+=== Operator Overloading
 
 Operators can be overridden in the classes.
 If you have a method named the same name as an operator, it will be invoked to perform the calculation.
@@ -599,19 +652,6 @@ If you have a method named the same name as an operator, it will be invoked to p
 
 In the example above the class is redefining the `+` operator, and it returns an object that has the product of the fields `a`.
 Thus `LN(2) + LN(4)` is `LN(8)`.
-
-[NOTE]
-====
-You have to use the `(` and `)` after the `print`, otherwise it will think that `LN(2) + LN(4)` is the argument and `.a` tries to use the result of the function `print`, which is `none`.
-It is also possible to use the
-
-{%sample/objectAddition2%}
-
-format.
-In this case there is no `(` following the name of the function `println`.
-
-Generally, it is recommended to use the opening and closing `(` and `)` characters to avoid confusion.
-====
 
 You can override any of the predefined operators.
 
@@ -954,6 +994,18 @@ The following example demonstrates the different pinning possibilities:
 
 {%S pinning%}
 
+== `print`, `println` commands
+
+`print` and `println` are implemented as commands.
+They both accept a list of expressions separated by commas.
+`print` prints out the values from left to right.
+`println` does the same, but also appends a new line character at the end.
+
+By default, the output goes to the standard output using the Java `System.out` static field.
+
+{%S print_redirect%}
+
+
 == Control Flow
 
 === Conditional Execution (`if` / `elseif` / else`)
@@ -1142,7 +1194,7 @@ The command can break the execution of the loop and can also specify the value o
 
 ==== `continue`
 
-Will continue the execution of the loop starting the body of the loop again without exeuting the rest of the commands in the loop body.
+Will continue the execution of the loop starting the body of the loop again without executing the rest of the commands in the loop body.
 
 
 === Returning, Breaking, Continue, and Yielding
@@ -1206,7 +1258,10 @@ In this case the value of the expression will be appended to the resulting list.
 If the value of the expression is `none` then `none` as a value will be appended to the list.
 If there is no expression after the `continue` keyword, then the resulting list will remain untouched for the actual execution.
 
+The use of `continue` is restricted.
+You can use it only inside a loop as a top-level command, and not inside a block, or part of other commands, like `if`.
 
+{%S bad_continue%}
 
 ==== `return`
 
@@ -1231,7 +1286,7 @@ The return value can be used in a `for each` loop, or you can iterate through it
 
 === `with`
 
-The `with` command executes a block in the context of one or more objects, and also it functions as a resource manager like similar to Python.
+The `with` command executes a block in the context of one or more objects, and also it functions as a resource manager similar to Python.
 
 [source]
 ----
@@ -1248,26 +1303,23 @@ with object list : command
 The `object list` is a comma separated list of expressions each with an optional `as identifier` part.
 When there is an `as identifier` the functionality is similar to that of Python.
 
+When there is an `as ID` after the expression, then the expression is treated as a resource manager.
+The method `entry()` is invoked on the resource manager, and the returned value is assigned to the given `ID`.
+The returned value is usually a resource object.
 
-{%S withAs%}
-
-When there is an `as ID` after the expression, then the expression is treated as a resource.
-The method `entry()` is invoked on the resource, and the returned value is assigned to the given `ID`.
-The returned value is usually ab object to handle the resource.
-
-For example, if the resource is a file, then the handle is an object you can use to write into a file.
+For example, handling a file, the resource manager should return an object you can use to write into a file.
 
 The identifier is used in the block following the `with` command referencing the handle returned by `entry`.
 
-If `entry` returns `none, then the resource is used as a handle.
-This can be used in simplified cases when the resource and the resource handle object are the same.
+If `entry` returns `none`, then the resource manager object itself is used as a resource.
+This can be used in simplified cases when the resource manager and the resource object are the same.
 
-When the execution of the block is finished the method `exit` will be invoked on the resource (not on the handle).
+When the execution of the block is finished the method `exit` will be invoked on the resource manager.
 This method will be invoked even if there was any error during the execution of the block.
 
-{%S withAsExceptionHandled%}
+{%S withAs%}
 
-The argument to the method is the exception that was raised while processing the block, or `none` if there was not any.
+The argument to the method `exit` is the exception that was raised while processing the block, or `none` if there was not any.
 If the return value of the method `exit` is `true` or anything that can be converted to boolean and has the value `true` following the cast, then the exception is treated as caught and handled.
 If there is any exception during the closing, then it will be thrown.
 Exceptions during resource closing do not get suppressed.
@@ -1277,14 +1329,14 @@ The last "opened" resource is closed first.
 
 [NOTE]
 ====
-Handling the resources this way is similar to how Python handles the resources with some notable differences.
+Handling the resources this way is similar to how Python handles the resources with some notable differences:
 
 * There are no underscore characters in the name of the method `entry` and `exit`.
 * `exit` may not exist
 * `entry` may return `none`.
-It has the same effect, and it is also recommended to return `this`.
+It is the same as returning `this`.
 * `exit` gets only one argument, the exception that holds all the information.
-In Pythn you get the stack trace and the exception type in a separate argument.
+In Python, you get the stack trace and the exception type in a separate argument.
 * You _MUST_ provide an `as` alias for resources, otherwise the expression is not treated as a resource (see below).
 ====
 
@@ -1299,12 +1351,13 @@ When more than one object is listed, then multiple wrapping scopes are created f
 It also means that the objects to the right shadow the objects to the left.
 In the example both `x` and `y` have field `a` and since `y` is later in the list the field of `y` is used.
 
-You can also modify or even create fields:
+You can also modify or even create and pin fields:
 
 {%S modifyWith%}
 
 Note that the field `x.a` was not modified, because it is shadowed by `y.a`.
 You can only create new fields in the right most object.
+You can pin a field in any of the objects unless they are shadowed.
 
 The value of the command is the value of the block executed.
 
@@ -1641,8 +1694,6 @@ The following code does not do what you expect:
 The expression following the `=` is an identifier, which by the time of the invocation results a callable object.
 The string following it is not part of the expression.
 The string constant is just a statement with no effect.
-
-If you use the `(` and `)` characters after the `println` function call, then the expression will include the string argument, and the code will work as expected.
 
 {%S fun11%}
 
@@ -2532,11 +2583,6 @@ This function will "open" and relose a closure in the current environment.
 
 The function opens and "recloses" the closure in the context of the function call.
 It will see and alter the `s` in that context of the re-closing, while the original closure alters and sees the global `s`.
-
-=== `print`, `println`
-
-Prints the arguments to the standard output.
-`println` also prints a new-line at the end.
 
 === `que`
 

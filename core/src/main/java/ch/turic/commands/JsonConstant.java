@@ -28,7 +28,7 @@ public class JsonConstant extends AbstractCommand {
         if (lazy) {
             return new LazyObject(ctx.open(), fields);
         } else {
-            final var result = new LngObject(null, ctx.open());
+            final var result = LngObject.newEmpty(ctx);
             fields.forEach((key, value) -> result.context().let0(key, value.execute(ctx)));
             return result;
         }
