@@ -1,3 +1,9 @@
+// snippet abs
+println  $"${abs(-3)} ${abs(6e23)} ${abs (-7.3)}"
+try: let q = abs("abraka dabra")
+catch e: println e
+// end snippet
+
 // snippet field_access
 let a = {}
 a.k = 55
@@ -983,8 +989,8 @@ fn my_fun(@close_it) {
 }
 
 mut s:str ="outer";
-mut closure = {|x| println s; s = x};
-mut reclosure = my_fun(close_it=closure);
+let closure = {|x| println s; s = x};
+let reclosure = my_fun(close_it=closure);
 
 closure("closure 1")
 reclosure("reclosure 1")
@@ -1395,6 +1401,20 @@ class P {
 class C : P {
 }
 mut o = C();
+// end snippet
+
+// snippet inherit7
+class P {
+    fn init(a,b);
+}
+class C : P {
+    fn init(b,c){
+        P.init(3,4)
+    }
+}
+
+let object = C(1,2);
+print object
 // end snippet
 
 // snippet fun7
@@ -2091,6 +2111,31 @@ for each k in keys(d_cells) {
 }
 //
 
+// snippet min_max
+println max(3,5,8,7,4,11,-1)
+println max([3,5,8,7,4,11,-1])
+println min(3,5,8,7,4,11,-1)
+println min([3,5,8,7,4,11,-1])
+
+println max( "giraffe", "zibra", "elephant" )
+println min( "affe", "zibra", "elephant" )
+
+class Complex {
+    fn init( real:float|num, imaginary:float|num ){
+        pin real
+        pin imaginary
+    }
+    fn `<`(other:Complex):bool = real*real + imaginary*imaginary < (with other: real*real + imaginary*imaginary);
+    fn to_string()= $"${real}+i${imaginary}"
+}
+
+println min( Complex(1,1), Complex(3,2), Complex(0.5,1.7))
+println max( Complex(1,1), Complex(3,2), Complex(0.5,1.7))
+
+try: max( Complex(1,1), "Donald")
+catch e: println e
+// end snippet
+
 // snippet thunk_unthunk
 mut z = thunk({mut x = 3; println "hello"})
 println "before eval"
@@ -2100,6 +2145,15 @@ println is_defined(x) // will print false
 unthunk(unwrap(z))
 println is_defined(x) // will print true and
 println x             // then the value
+// end snippet
+
+// snippet as_object
+let z = thunk({let k = 5})
+println as_object(z)
+// end snippet
+
+// snippet nano_time
+println nano_time()
 // end snippet
 
 // snippet block_list

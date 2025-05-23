@@ -32,3 +32,5 @@ ch.turic.builtins.functions.Abs
 ch.turic.builtins.functions.Unthunk
 ch.turic.builtins.functions.Unwrap
 ch.turic.builtins.functions.BlockList
+ch.turic.builtins.functions.Max
+ch.turic.builtins.functions.Min

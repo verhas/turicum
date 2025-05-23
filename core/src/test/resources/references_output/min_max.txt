@@ -1,0 +1,9 @@
+11
+11
+-1
+-1
+zibra
+affe
+1+i1
+3+i2
+Cannot set variable 'other' to value 'Donald' as it does not fit any of the accepted type of the variable (Complex)

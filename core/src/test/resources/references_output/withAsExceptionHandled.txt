@@ -1,4 +1,0 @@
-entry to A
-exit fom A
-There was an exception 'Raise an exception'
-Exception was eliminated

@@ -160,10 +160,12 @@ public class Lexer {
                 final var str = new StringBuilder();
                 str.append(in.fetchNumber());
                 final Lex.Type type;
-                if (in.length() >= 2 && in.charAt(0) == '.' && Character.isDigit(in.charAt(1))) {
-                    str.append('.');
-                    in.skip(1);
-                    str.append(in.fetchNumber());
+                if (in.length() >= 2 && (in.charAt(0) == '.' && Character.isDigit(in.charAt(1))) || in.charAt(0) == 'e' || in.charAt(0) == 'E') {
+                    if( in.charAt(0) == '.') {
+                        str.append('.');
+                        in.skip(1);
+                        str.append(in.fetchNumber());
+                    }
                     if (!in.isEmpty() && (in.charAt(0) == 'e' || in.charAt(0) == 'E')) {
                         str.append('e');
                         in.skip(1);

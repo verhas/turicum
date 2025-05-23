@@ -54,7 +54,7 @@ and objects that inherit properties from their class.
 
 * **Dynamic**
 +
-All definitions occur at runtime and can be modified at runtime.
+All definitions are created at runtime and can be modified at runtime.
 For example, a class or function is created when its definition is executed, and it exists within the defining context.
 Methods are just fields containing closures or function values, and they can be added to any class or object—even after creation.
 
@@ -106,7 +106,7 @@ At the same time, it avoids syntactically superfluous elements, such as mandator
 
 The core syntactic conventions are as follows:
 
-* Semicolons (`;`) may be used to separate commands but are generally optional.
+* Semicolons (`;`) can be used to separate commands but are generally optional.
 It is recommended to use semicolons to avoid ambiguity.
 * Code blocks are enclosed in curly braces `{}` and evaluate to the result of the last executed command.
 * Single-line comments begin with `//` and continue to the end of the line.
@@ -117,7 +117,7 @@ Unlike Java, nested multiline comments are supported.
 * All keywords are lowercase.
 * Strings enclosed in double quotes (`"`) must terminate on the same line.
 Multiline strings are enclosed in triple double quotes (`"""`).
-* String literals preceeded with a `$` character are interpolated.
+* String literals preceded with a `$` character are interpolated.
 
 
 More details about expressions, control flow, and declarations can be found in the chapters that follow.
@@ -148,7 +148,7 @@ The value of a command block is the result of the last executed expression.
 
 {%S block_value%}
 
-Expressions may contain:
+Expressions can contain:
 
 * Literals:
 ** strings
@@ -186,7 +186,7 @@ Whitespace terminates tokens, so `1 2` are two tokens, and `12` is one.
 
 Identifiers are names used for variables, functions, classes, and other user-defined symbols.
 
-* Identifiers must begin with a Unicode letter or an underscore (`_`), and may contain letters, digits, and underscores.
+* Identifiers must begin with a Unicode letter or an underscore (`_`), and can contain letters, digits, and underscores.
 
 * You can explicitly define an identifier using backticks: `+`non-standard-id`+`.
 This allows you to use any string as an identifier—even reserved words, symbols, or operators.
@@ -295,7 +295,7 @@ You can use any expression or Turicum command inside interpolated strings, but t
 
 This restriction is usually simple and should not affect your code in most cases.
 
-However, in more complex scenarios—especially when you try to include string literals inside the interpolated parts—it may confuse the parser. That’s why the rule exists.
+However, in more complex scenarios—especially when you try to include string literals inside the interpolated parts—it can confuse the parser. That’s why the rule exists.
 
 If you find this rule limiting, you are likely overcomplicating your usage of interpolation.
 
@@ -507,7 +507,7 @@ It is just a lenient way of accessing fields.
 
 On the left side of the `.?` can be any expression resulting in an object or `none`, even a `["xxx"]` style field access.
 On the other hand, there is no `.?` equivalent accessing a field through the `["xxx"]`.
-In that case theonly remedy is the `or` operator:
+In that case the only remedy is the `or` operator:
 
 {%S field_none_indexed_access%}
 
@@ -523,7 +523,7 @@ The right side is only evaluated if the left side is none.
 
 {%S oror%}
 
-*  `||` logical OR operation, shortcut evaluated.
+* `||` logical OR operation, shortcut evaluated.
 {%@def EX=The example below demonstrates the shortcut evaluation, as it works and does not throw an exception:%}
 
 {%S logical_or%}
@@ -741,7 +741,7 @@ Scopes are created in run-time, like everything in Turicum.
 
 === Block scopes
 
-Code blocks open a new context and they wrap the surrounding context.
+Code blocks open a new context, and they wrap the surrounding context.
 
 {%sample scope1%}
 
@@ -811,19 +811,42 @@ The general syntax is:
 ----
 
 Note that executing a closure and calling a closure are two different things.
-When a closure is executed, it returns the closure.
+When the closure command definition is executed, it returns the closure.
 When a closure is called, the arguments are evaluated in the actual context, and the closure is called in its context.
 The context of the closure does not wrap the context of the caller.
-It does wrap the context of the execution, where we created the closure.
+It does wrap the context of the definition, where we created the closure.
 
-Technically functions are closures that do not wrap any other context.
+Technically functions are closures that do not wrap their definition contexts.
 
-The following example inside a block.
-the closure can access and even modify the variable `whom`.
+In the following example, the closure can access and even modify the variable `whom` inside a block.
 
 {%S closure_example%}
 
 The variable `whom` lives only inside the block.
+The closure wraps this context and keeps the variable alive so long as long the closure is there and also modifies the content of the variable.
+
+[NOTE]
+====
+The closure arguments follow the same syntax as the function arguments.
+There is however, a small difference.
+
+When a closure argument list defines types and alternatives for the types, how does the parser know that the `|` is separating different types or close the closure argument list.
+For example, in the next example
+
+  {|a:str| "*" + a + "*" }
+
+`a:str|` could continue with alternative types, like `a:str|any`.
+The syntax analyzer looks ahead a few tokens, and in the case of closures it treats the `|` as a type alternatives separator if
+
+* the next token after it is an identifier and after that another `|`, a `=`, or `,` follows, or
+* the next token is `(`.
+
+This analysis is heuristic and can cause issue.
+To avoid those:
+
+* Do not start the first command of the closure with `(` if the closure's last argument has type.
+
+====
 
 === Macro scopes
 
@@ -863,8 +886,8 @@ The syntax of a `let` and `mut` command is the following:
 
 [source]
 ----
-let identifier : type = expression
-mut identifier : type = expression
+let identifier:type = expression
+mut identifier:type = expression
 ----
 
 or
@@ -893,7 +916,7 @@ Note that if you do not define an expression but you define a type that is not `
 The `: type` and the `= expression` parts are optional.
 If the type is not defined, then the variable can get any value.
 If the expression is missing the value will be `none`.
-There can be multiple `identifier : type = expression` after the `let` keyword comma separated.
+There can be multiple `identifier: type = expression` after the `let` keyword comma separated.
 There are predefined type names.
 
 {%#trimLines
@@ -942,7 +965,7 @@ Instead, the expression after the `=` is evaluated once, used as a list and the 
 
 {%S flat_let_list1%}
 
-It is  an error if there are not enough or too many elements in the list on the right-hand side.
+It is an error if there are not enough or too many elements in the list on the right-hand side.
 
 {%S flat_let_list2%}
 
@@ -1036,7 +1059,7 @@ The second command or block along with the keyword `else` is optional.
 The block is a series of commands enclosed between `{` and `}`.
 If there is only a single command after the condition or the keyword `else` it can be preceded with a `:`, or enclosed in a block.
 
-The conditional expression may, but does not need to be enclosed between parentheses.
+The conditional expression can, but does not need to be enclosed between parentheses.
 
 The result of the command is the value of the command or block executed.
 If the condition is `false` and there is no "else" block or command, then the result is `none`.
@@ -1072,7 +1095,7 @@ The body of the loop will only be executed if the front condition is `true`.
 
 The tail condition is optional, and follows the body of the loop with the `until` keyword.
 It is checked after the execution of the loop body.
-Execution of the loop stops when the tail condition is  `true`.
+Execution of the loop stops when the tail condition is `true`.
 
 {%S whileLoop%}
 
@@ -1177,7 +1200,7 @@ You can also define an index variable following the `with` keyword.
 The index starts from zero and increments with each execution by one.
 The index variable is local to the loop.
 Without this feature you would need to declare a variable one context higher and then use it in the loop.
-That would violate the locality principle, not to rely on anything out of a context that may change and even less modify anything out of the context, which is in this case a loop.
+That would violate the locality principle, not to rely on anything out of a context that can change and even less modify anything out of the context, which is in this case a loop.
 
 When used in an expression position, a `for each` loop returns the result of the last executed loop body.
 
@@ -1308,7 +1331,7 @@ or
 
 [source]
 ----
-with object list : command
+with object list: command
 ----
 
 The `object list` is a comma separated list of expressions each with an optional `as identifier` part.
@@ -1343,8 +1366,8 @@ The last "opened" resource is closed first.
 Handling the resources this way is similar to how Python handles the resources with some notable differences:
 
 * There are no underscore characters in the name of the method `entry` and `exit`.
-* `exit` may not exist
-* `entry` may return `none`.
+* `exit` cannot exist
+* `entry` can return `none`.
 It is the same as returning `this`.
 * `exit` gets only one argument, the exception that holds all the information.
 In Python, you get the stack trace and the exception type in a separate argument.
@@ -1518,7 +1541,7 @@ Optional.
 A numeric constant that sets the maximum number of dependent cell executions allowed.
 - `timeout <seconds>`::
 Optional.
-A numeric constant (may be fractional) specifying the maximum wall-clock time allowed for execution, in seconds.
+A numeric constant (can be fractional) specifying the maximum wall-clock time allowed for execution, in seconds.
 
 [NOTE]
 ====
@@ -1594,11 +1617,11 @@ There is no guarantee for any order.
 When it is recognized that a cell variable one of the blocks depends on, (uses it as a variable in some calculation), then it will be scheduled for execution and started as soon as the JVM and the operating system start it.
 Each cell block is executed in a new virtual thread.
 
-It may happen that the same block executes parallel in multiple instances.
+It can happen that the same block executes parallel in multiple instances.
 It could lead to instability in the flow.
-An earlier started version may run longer than a later instance.
-Also, different blocks may update the same {%@def CSV=__cell state variable__%}.
-To avoid this the `flow` command only updates a  {%CSV%} to the value resulting from a cell block execution only if the {%CSV%} was not updated in the meantime.
+An earlier started version can run longer than a later instance.
+Also, different blocks can update the same {%@def CSV=__cell state variable__%}.
+To avoid this the `flow` command only updates a {%CSV%} to the value resulting from a cell block execution only if the {%CSV%} was not updated in the meantime.
 If the {%CSV%} was already updated, the result is ignored.
 It is implemented using {%CSV%} version counters.
 
@@ -1681,7 +1704,7 @@ fn function_name (parameters) -> types {
 {%S fun1%}
 
 `function_name` is the name of the function.
-It may be missing, typically when the result, the function itself is assigned to a variable or passed directly as an argument.
+It can be missing, typically when the result, the function itself is assigned to a variable or passed directly as an argument.
 
 {%S fun3%}
 
@@ -1773,7 +1796,7 @@ There is one notable difference: default value expressions can use the binary or
 
 You are allowed to use positional and named parameters intermixed.
 There can be a named parameter and then a position following it.
-It may be beneficial in some special situations, but the general recommendation is not to overuse this feature.
+It can be beneficial in some special situations, but the general recommendation is not to overuse this feature.
 List the positional parameters first, named following, and optional parameters (see soon) the last.
 
 The actual algorithm of parameter passing is the following:
@@ -1800,7 +1823,7 @@ To do that, there are three extra arguments you can use in your function definit
 You can name them any way you want, but for the same of simplicity we will use the names above.
 The syntax distinguishing them from the other parameters is the use of the extra `[]`, `{}`, and `^` characters.
 If they are present, they have to be the last formal parameters in the order as listed above.
-Any of them may be missing, but if two present then `[rest]` should be before `{meta}` and `^closure`, and `{meta}` has to precede `^closure`.
+Any of them can be missing, but if two present then `[rest]` should be before `{meta}` and `^closure`, and `{meta}` has to precede `^closure`.
 
 When the function code starts
 
@@ -1840,7 +1863,7 @@ You can also combine the two:
 
 {%S metaRestParameters%}
 
-The last argument, preceeded by the `^` character is special.
+The last argument, preceded by the `^` character is special.
 When you call a function and the last argument is a closure then you can place that closure outside of the `(` and `)` of the arguments, but ONLY if the closure is defined right there.
 
 For example:
@@ -2017,38 +2040,51 @@ In this situation a special variable called `that` will point to `a`.
 === Class inheritance
 
 Classes can inherit in Turicum.
-When you declare a class the parent class or classes are specified by their name after a `:`.
+When you declare a class the parent class or classes are specified by the name after a `:`.
 
 {%S inherit1%}
 
-You can use the methods or fields declared in the class as well as any other method defined in the marent classes.
+You can use the methods or fields declared in the class as well as any other method and fields defined in the parent classes.
 You can inherit from multiple parent classes:
 
 {%S inherit2%}
 
 Inheritance is ordered.
-It is important when there are multiple implementatios of the same method name or the same field.
+It is important when there are multiple implementations of the same method name or the same field.
 
 {%S inherit3%}
 
 In the example `P1` is inherited/extended first in the list, so it prevails over `P2` when there is a name collision.
 
-Initializing a class having parent classes is a bit tricky.
+Initializing a class having parent classes is not trivial.
+Since there can be, and in the example there are multiple parents, the initialization does not automatically invoke the initialization of the parent classes.
 
 {%S inherit4%}
 
-Since there can be, and in the example there are multiple parents, the initialization does not automatically invoke the initialization of the father classes.
-You may invoke them directly:
+You can invoke them directly:
 
 {%S inherit5%}
 
-If you do not implement `init` but some of the parent classes do, then it will be invoked.
+If a class does not implement `init` but some of the parent classes do, then it will be invoked.
 
 {%S inherit6%}
 
 Note the difference in the value of the field `cls`.
 When the parent class `init` is invoked directly from the child `init` the `cls` points to the parent.
-When it is inherited, the `init` is executed in the context of the child class, it is simply inherited, hence the value of the field `cls` points to the child class.
+When it is inherited, the `init` is executed in the context of the child class; it is simply inherited, hence the value of the field `cls` points to the child class.
+
+When a class has parent class or classes, the class methods and fields are inherited, but there is only one single `this` object.
+There is a single set of object fields.
+Object fields do not "shadow" each other, because there is only one field for a given name.
+
+{%S inherit7%}
+
+In the example `b` is `4`, even though it is initialized to be `1` when calling the initializer of `C` but it is overwritten when the `P` initializer is invoked.
+
+There is no restriction on which other classes initializers can or should an initializer invoke.
+Your code theoretically could call the initializer of a class the current does not extend.
+
+
 
 == Error Handling
 
@@ -2169,7 +2205,7 @@ The code can, however, be fixed:
 {%S fnDecorator2%}
 
 The application of the `@` is therefore only a syntactic sugar.
-The following example shows that a decorator can not only return the decorated 0, class, or closure.
+The following example shows that a decorator cannot only return the decorated 0, class, or closure.
 They can also modify the existing definition.
 
 {%S fnDecorator3%}
@@ -2272,8 +2308,8 @@ The function `fib` has an extra optional parameter.
 The left side of the `fib=fib` is the name of the parameter, which will become a variable in the context of the function.
 The right side is the default value, which is evaluated in the caller context before the call.
 
-One may like this approach, for explicitly declaring that `fib` needs access to `fib` hence a recursive call.
-Others may find it cryptic,
+One can like this approach, for explicitly declaring that `fib` needs access to `fib` hence a recursive call.
+Others can find it cryptic,
 and it is not really clear
 without knowing the details how contexts and default values for variable declarations work in Turicum.
 
@@ -2282,7 +2318,7 @@ An alternative possibility is to use the special variable `me`.
 {%S fibonacci6%}
 
 This variable is reserved for this purpose, and it gets the function itself as its value before a function is called.
-It may also be appealing that the recursive call is explicit whatever the name of the function is, not needing renaming when the function is renamed.
+It can also be appealing that the recursive call is explicit whatever the name of the function is, not needing renaming when the function is renamed.
 
 As an extra, here is a version of the fibonacci calculation using a closure with a retained local context as a state instead of a class:
 
@@ -2304,6 +2340,33 @@ Turicum defines many methods to handle strings.
 == Built-in Functions
 
 Built-in functions are functions provided by the interpreter, which extend the functionality of the run-time.
+
+=== `abs`
+
+Returns the absolute value of the argument.
+It can only be used for numeric arguments.
+
+{%S abs%}
+
+
+=== `all_parents`
+
+Returns a list of classes that are the parent classes of the argument with a transitive closure.
+It means that all classes, including the parents of the parents and so on, recursively.
+
+{%S all_parents%}
+
+The classes are ordered in inheritance order.
+
+=== `die`
+
+This function will throw an exception.
+The argument is the message of the exception.
+The naming of the function is a tribute to the programming language Perl.
+If you feel the naming offensive, you can use the lame `throw` form after importing it:
+
+{%S die%}
+
 
 === `evaluate`
 
@@ -2352,6 +2415,16 @@ The philosophy of Turicum is to be dense and use extra characters where it helps
 Omitting the requirement around a `fn` (or for that matter a `class`) definition inside an expression make the language leaner, but this does not make a function or class definition to be an expression itself.
 ====
 
+=== `export`, `export_all`
+
+These are two functions to be used in files imported.
+The macro `export` will export the variables listed as arguments.
+That way these variables will be copied into the context of the importing code.
+
+`export_all()` will export all the variables from the importing context.
+Note that in the case of `export_all()` you cannot omit the `(` and `)`.
+If you do, the line will be an expression with a function as a result, and the execution will not call the function.
+
 === `import`
 
 Import allows you to get definitions in other files into your code.
@@ -2376,23 +2449,16 @@ The import searches for the file in the directories listed in the environment va
 This variable is a list of directories separated by `|` characters.
 They are searched from the first to the last until the file is found.
 
-=== `sys_import`
+=== `is_type`
 
-This command can be used to import Turicum system files.
-These are classes and functions that give an interface to the surrounding environment through the Java VM.
-Although Turicum can call any Java method using the functions `java_object`, `java_call` and `java_call_vararg` there are not meant to be used in application code.
-They are primitives and are used as part of the system library part of the run-time.
-When you use `sys_import` you import the file from the Java resource path, that delivers more Turicum idiomatic API.
+This function accepts two arguments:
 
-=== `export`, `export_all()`
+* and object, and
+* a string naming a class or the class itself.
 
-These are two functions to be used in files imported.
-The macro `export` will export the variables listed as arguments.
-That way these variables will be copied into the context of the importing code.
+The return value is true if the object is an instance of the class or is an instance of a child class of the named class.
 
-`export_all()` will export all the variables from the importing context.
-Note that in the case of `export_all()` you cannot omit the `(` and `)`.
-If you do, the line will be an expression with a function as a result, and the execution will not call the function.
+{%S is_type%}
 
 === `java_...`
 
@@ -2448,9 +2514,9 @@ class files {
 }
 
 class path {
-    fn `of`(file_name,[rest]){
-        java_call_vararg("java.nio.file.Path","of",file_name,rest)
-    }
+ fn `of`(file_name,[rest]){
+ java_call_vararg("java.nio.file.Path","of",file_name,rest)
+ }
 }
 ----
 
@@ -2476,6 +2542,47 @@ The argument can be:
 * Java array
 
 * Java collection
+
+=== `macro`
+
+This function converts a closure or a function into a macro.
+
+{%S macro_example%}
+
+=== `min`, `max`
+
+These functions return the minium and the maximum value of their arguments.
+If there is only one argument and that argument is a list, then the functions return the extreme element of the list.
+
+The elements can be anything that is comparable, numbers, string.
+If the arguments are objects they must have the `pass:[`<`]` method defined.
+
+{%S min_max%}}
+
+=== `nano_time`
+
+The `nano_time` function in Turicum returns the current value of the most precise available system timer, expressed in nanoseconds.
+It is a direct wrapper around Java’s `+System.nanoTime()+` method and is typically used for measuring elapsed time with high resolution.
+Unlike timestamps, the returned value has no absolute meaning but is strictly monotonic, making it ideal for performance profiling and timing operations.
+
+{%S nano_time%}
+
+
+
+=== `parents`
+
+Returns a list of the classes that are the parent classes of the argument.
+
+{%S parents%}
+
+=== `reclose`
+
+This function will "open" and reclose a closure in the current environment.
+
+{%S reclose%}
+
+The function opens and "recloses" the closure in the context of the function call.
+It will see and alter the `s` in that context of the re-closing, while the original closure alters and sees the global `s`.
 
 === `rng`
 
@@ -2525,6 +2632,16 @@ You can import the system module `range` that defines a more flexible name:
 
 {%S rangeThousand%}
 
+=== `que`
+
+This function will create a FIFO queue that different code fragments can write and read.
+These fragments will probably run in different threads.
+
+Here is a complex example using this function:
+
+{%S que%}
+
+
 
 === `set`
 
@@ -2540,6 +2657,14 @@ uses this function to decorate a function and then set the variable of the same 
 
 It is simlar to `set()` but it sets the variable as global.
 
+=== `sys_import`
+
+This command can be used to import Turicum system files.
+These are classes and functions that give an interface to the surrounding environment through the Java VM.
+Although Turicum can call any Java method using the functions `java_object`, `java_call` and `java_call_vararg` there are not meant to be used in application code.
+They are primitives and are used as part of the system library part of the run-time.
+When you use `sys_import` you import the file from the Java resource path, that delivers more Turicum idiomatic API.
+
 === `type`
 
 This method returns the type of the argument as a string.
@@ -2547,72 +2672,11 @@ This method returns the type of the argument as a string.
 {%S type1%}
 
 When the argument is a Java object then the type is `java.` + the canonical name of the class.
-
-=== `is_type`
-
-This function accepts two arguments:
-
-* and object, and
-* a string naming a class or the class itself.
-
-The return value is true if the object is an instance of the class or is an instance of a child class of the named class.
-
-{%S is_type%}
-
-=== `parents`
-
-Returns a list of the classes that are the parent classes of the argument.
-
-{%S parents%}
-
-=== `all_parents`
-
-Returns a list of classes that are the parent classes of the argument with a transitive closure.
-It means that all classes, including the parents of the parents and so on, recursively.
-
-{%S all_parents%}
-
-The classes are ordered in inheritance order.
-
 === `sleep`
 
 Will sleep the execution of the thread for the given number of seconds.
 
 {%S sleep%}
-
-=== `macro`
-
-This function converts a closure or a function into a macro.
-
-{%S macro_example%}
-
-=== `reclose`
-
-This function will "open" and relose a closure in the current environment.
-
-{%S reclose%}
-
-The function opens and "recloses" the closure in the context of the function call.
-It will see and alter the `s` in that context of the re-closing, while the original closure alters and sees the global `s`.
-
-=== `que`
-
-This function will create a FIFO queue that different code fragments can write and read.
-These fragments will probably run in different threads.
-
-Here is a complex example using this function:
-
-{%S que%}
-
-
-=== `die`
-
-This function will throw an exception.
-The argument is the message of the exception.
-The naming of the function is a tribute to the programming language Perl.
-If you feel the naming offensive, you can use the lame `throw` form after importing it:
-
-{%S die%}
 
 
 === `yield()`, `try_yield()`, `yield_is_close()`
@@ -2679,6 +2743,8 @@ This is a function that returns `true` if the argument is an object.
 
 === Elephant functions: `thunk`, `unthunk`, `unwrap`, `block_list`
 
+==== `thunk`
+
 The `thunk` macro returns its argument unevaluated, preserving it as a command or expression.
 This deferred computation can later be executed using `unthunk`.
 
@@ -2697,6 +2763,8 @@ Although `evaluate` provides similar functionality, it differs in two key ways:
 Note also that the argument to `thunk` can only be an expression and not an arbitrary command.
 That is a restriction that comes from Turicum syntax.
 However, you can enclose any command into a block, and then you can use the block as an expression or part of an expression.
+
+==== `unthunk`
 
 When you `unthunk` a block it will be evaluated in a local context freshly created for the block execution.
 Although this context wraps the surrounding context, but defined local variables will not be visible after the execution of the block.
@@ -2724,10 +2792,20 @@ The following example shows how these functions work.
 
 {%S thunk_unthunk%}
 
+==== `blocl_list`
+
 The function `block_list` will return a list containing the commands in a command block.
 The following example shows you how it can be used together with `thunk` and `unthunk`.
 
 {%S block_list%}
+
+==== `as_object`
+
+This function converts a command into an object.
+This function supports reflective programming and is likely used together with the `thunk`, `unthunk` and inside macros.
+
+{%S as_object%}
+
 == Preprocessing
 
 When the syntax analyzer meets a `#` symbol it stops parsing the tokens and starts preprocessing.
@@ -2781,8 +2859,8 @@ Non-literal terminal symbols are:
 * string
 
 A program is a series of commands.
-Commands may be separated by `;` character, and it is recommended to use it, but it is not required.
-New line may replace the use of `;`.
+Commands can be separated by `;` character, and it is recommended to use it, but it is not required.
+New line can replace the use of `;`.
 
  PROGRAM ::= { COMMAND [;] } ;
 
@@ -2897,30 +2975,30 @@ Unary operators and primary expressions
 
 Function call: name(params)
 
- FUNCTION_CALL ::= IDENTIFIER '(' [ EXPRESSION { ',' EXPRESSION } ] ')' ;
+ FUNCTION_CALL: := IDENTIFIER '(' [ EXPRESSION { ',' EXPRESSION } ] ')' ;
 
 Field access: obj.field
 
- FIELD_ACCESS ::= PRIMARY_EXPRESSION '.' IDENTIFIER ;
+ FIELD_ACCESS: := PRIMARY_EXPRESSION '.' IDENTIFIER ;
 
 Method call: obj.method(params)
 
- METHOD_CALL ::= PRIMARY_EXPRESSION '.' IDENTIFIER '(' [ EXPRESSION { ',' EXPRESSION } ] ')' ;
+ METHOD_CALL: := PRIMARY_EXPRESSION '.' IDENTIFIER '(' [ EXPRESSION { ',' EXPRESSION } ] ')' ;
 
 Block returning an expression value. The value of the block is always the last executed expression.
 
- BLOCK ::= '{' COMMAND_LIST '}' ;
+ BLOCK: := '{' COMMAND_LIST '}' ;
 
- COMMAND_LIST ::= { COMMAND [';' | '\n'] }
+ COMMAND_LIST: := { COMMAND [';' | '\n'] }
 
- BREAK  ::= 'break' CONDITIONAL_VALUE ;
- RETURN  ::= 'return' CONDITIONAL_VALUE ;
- YIELD ::= 'yield' CONDITIONAL_VALUE ;
+ BREAK: := 'break' CONDITIONAL_VALUE ;
+ RETURN: := 'return' CONDITIONAL_VALUE ;
+ YIELD: := 'yield' CONDITIONAL_VALUE ;
  CONDITIONAL_VALUE = EXPRESSION [ ('if' | 'when') EXPRESSION ];
 
 Array element access: array[index]
 
- ARRAY_ACCESS ::= PRIMARY_EXPRESSION '[' EXPRESSION ']' ;
+ ARRAY_ACCESS: := PRIMARY_EXPRESSION '[' EXPRESSION ']' ;
 
 Unary operators
 

@@ -1,40 +1,29 @@
-class Printer {
-    fn init(m:str="");
-    fn write(s:str){
-        if !len(m) == 0 && !m.ends_with("\n"):
-            m = m + " "
-        m = m + s;
+class Parent {
+    fn init(a,b,c){
+        println "Parent init"
+        println $"this is ${this} in Parent"
+        }
+    fn seta(t){
+        a = t
     }
-    fn flush {
-        println "flushing is essential"
+    fn printa(){
+        println this.a
     }
-    fn entry {
+}
+class Child : Parent {
+    fn init(b,c,d){
+        println $"this is ${this} in Child"
+        println "Child init"
+        Parent.init(0,b,c)
         this
     }
-    fn exit(e){
-    }
-
-    fn get {
-        m
-    }
 }
 
-
-let printer = Printer();
-
-with printer as print_target {
-    println "Once upon a midnight dreary","Edgar"
-    println "God in his wisdom made the fly","Ogden"
-    }
-println "Are you mental mixing poems?"
-println printer.get()
-
-{
-mut print_target = {|message:str|
-                        let print_target = none;
-                        if message == "\n" :
-                            println ;
-                        print "Said the raven:", message;
-                        }
-println "never more, to the fly";
-}
+let k = Child(1,2,3);
+k.seta(8)
+println k
+k.a = 7
+k.printa()
+println k
+println Child.init(3,4,5)
+println is_defined(b)

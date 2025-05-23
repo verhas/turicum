@@ -1,5 +1,8 @@
 package ch.turic.memory;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ClassContext extends Context {
     private final LngClass[] parents;
 
@@ -24,6 +27,14 @@ public class ClassContext extends Context {
         } else {
             return null;
         }
+    }
+
+    public List<Context> wrappingContexts() {
+        final var ctxList = new ArrayList<>(super.wrappingContexts());
+        for (final var parent : parents) {
+            ctxList.addAll(parent.context().wrappingContexts());
+        }
+        return ctxList;
     }
 
     @Override

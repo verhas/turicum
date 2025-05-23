@@ -12,6 +12,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * An object in the language
  */
 public class LngObject implements HasFields, HasIndex, HasContext {
+    public static final String TO_STRING_METHOD = "to_string";
     final LngClass lngClass;
     final Context context;
     public final AtomicBoolean pinned = new AtomicBoolean(false);
@@ -42,7 +43,7 @@ public class LngObject implements HasFields, HasIndex, HasContext {
     public static LngObject newEmpty(Context context) {
         return new LngObject(null, context.open());
     }
-    
+
     @Override
     public void setField(String name, Object value) {
         ExecutionException.when(pinned.get(), "You cannot change a pinned object");
@@ -177,21 +178,29 @@ public class LngObject implements HasFields, HasIndex, HasContext {
 
     @Override
     public String toString() {
-        final var builder = new StringBuilder("{");
-        String sep = "";
-        try {
-            for (var key : context().keys()) {
-                final var object = context().get(key);
-                if (object != this) {
-                    builder.append(sep).append(key).append(": ").append(object);
-                    sep = ", ";
+        final var to_string = getField(TO_STRING_METHOD);
+        if (to_string == null) {
+            final var builder = new StringBuilder("{");
+            String sep = "";
+            try {
+                for (var key : context().keys()) {
+                    final var object = context().get(key);
+                    if (object != this) {
+                        builder.append(sep).append(key).append(": ").append(object);
+                        sep = ", ";
+                    }
                 }
+                builder.append("}");
+                return builder.toString();
+            } catch (ConcurrentModificationException cme) {
+                System.out.println("ouch");
+                return "";
             }
-            builder.append("}");
-            return builder.toString();
-        } catch (ConcurrentModificationException cme) {
-            System.out.println("ouch");
-            return "";
+        } else {
+            if (!(to_string instanceof Closure closure)) {
+                throw new ExecutionException("output handler does not have '%s()' method", TO_STRING_METHOD);
+            }
+            return Objects.requireNonNullElse(closure.callAsMethod(context, this, TO_STRING_METHOD), "none").toString();
         }
     }
 

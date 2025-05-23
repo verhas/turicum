@@ -1,5 +1,0 @@
-graph TD;
-    a-->a
-    a-->b
-    b-->a
-    b-->b

@@ -160,14 +160,14 @@ public class Context implements ch.turic.Context {
         if (with) {
             if (containsFrame(identifier)) {
                 frozen.add(identifier);
-            }else{
-                if( wrapped != null ) {
+            } else {
+                if (wrapped != null) {
                     wrapped.freeze(identifier);
-                }else{
+                } else {
                     throw new ExecutionException("variable '" + identifier + "' is defined, but not found in freeze. It is an internal error.");
                 }
             }
-        }else {
+        } else {
             frozen.add(identifier);
         }
     }
@@ -315,10 +315,15 @@ public class Context implements ch.turic.Context {
     }
 
     /**
-     * Assign a new value to an identifier. If the identifier is already defined in the wrapper context, including the
-     * transitive closures of the wrappers, then redefine that.
-     * <p>
+     * Assign a new value to an already defined identifier.
      * It is an error if the variable is not defined.
+     * <p>
+     * If the variable was declared as global, then update the value in the global context.
+     * In this case the variable may not exist yet.
+     * This is an exception.
+     * <p>
+     * If the variable is not global, then the method tries to find the variable in the context and then in the wrapped
+     * contexts one after the other, and it will update the one it finds the earliest.
      *
      * @param key   the identifier
      * @param value the value of the local whatnot
@@ -331,8 +336,7 @@ public class Context implements ch.turic.Context {
             return;
         }
 
-        // TODO it will not work for class context
-        for (var ctx = this; ctx != null; ctx = ctx.wrapped) {
+        for (final var ctx : wrappingContexts()) {
             if (ctx.frozen.contains(key)) {
                 throw new ExecutionException("Variable '%s' is pinned.", key);
             }
@@ -349,6 +353,15 @@ public class Context implements ch.turic.Context {
         }
         ExecutionException.when(nonlocal.contains(key), "Variable '%s' was used as global, but is not declared, cannot be changed.", key);
         throw new ExecutionException("Variable '%s' is not defined.", key);
+    }
+
+    public List<Context> wrappingContexts() {
+        final var ctxList = new ArrayList<Context>();
+        ctxList.add(this);
+        if( wrapped!= null ) {
+            ctxList.addAll(wrapped.wrappingContexts());
+        }
+        return ctxList;
     }
 
     public class ContextLock implements AutoCloseable {

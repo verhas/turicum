@@ -50,13 +50,13 @@ public sealed interface ClosureOrMacro extends Command, HasFields permits Closur
      * If the object is an instance of {@code LngClass}, it invokes the method in the class context.
      * If neither condition is met, an empty {@code NullableOptional} is returned.
      *
-     * @param context the execution context in which the method is called
-     * @param obj the target object or class (must implement {@code HasFields}) on which the method is invoked
+     * @param context    the execution context in which the method is called
+     * @param obj        the target object or class (must implement {@code HasFields}) on which the method is invoked
      * @param methodName the name of the method to be called
-     * @param argValues the pre-evaluated arguments to be passed to the method
-     * @param it the closure or macro defining the method execution logic
+     * @param argValues  the pre-evaluated arguments to be passed to the method
+     * @param it         the closure or macro defining the method execution logic
      * @return a {@code NullableOptional} containing the result of the method execution if successful,
-     *         or an empty {@code NullableOptional} if the method invocation is not applicable
+     * or an empty {@code NullableOptional} if the method invocation is not applicable
      */
     static NullableOptional<Object> callTheMethod(Context context, HasFields obj, String methodName, FunctionCall.ArgumentEvaluated[] argValues, ClosureOrMacro it) {
         if (obj instanceof LngObject lngObject) {
@@ -65,9 +65,28 @@ public sealed interface ClosureOrMacro extends Command, HasFields permits Closur
         }
         if (obj instanceof LngClass lngClass) {
             final var ctx = ClosureOrMacro.getClassContext(context, methodName, lngClass, argValues, it);
-            return NullableOptional.of(it.execute(ctx));
+            if (methodName.equals("init") && context.containsLocal("this")) {
+                final var resultObject = it.execute(ctx);
+                exportFromParentFrame(ctx, context);
+                return NullableOptional.of(resultObject);
+            } else {
+                return NullableOptional.of(it.execute(ctx));
+            }
         }
         return NullableOptional.empty();
+    }
+
+    private static void exportFromParentFrame(Context parent, Context to) {
+        for (final var variable : parent.allFrameKeys()) {
+            switch (variable) {
+                case "this":
+                case "cls":
+                    break;
+                default:
+                    to.local(variable, parent.get(variable));
+                    break;
+            }
+        }
     }
 
     ParameterList parameters();
