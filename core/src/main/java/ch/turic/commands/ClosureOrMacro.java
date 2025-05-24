@@ -13,6 +13,9 @@ import static ch.turic.commands.FunctionCall.defineArgumentsInContext;
 import static ch.turic.commands.FunctionCall.freezeThisAndCls;
 
 public sealed interface ClosureOrMacro extends Command, HasFields permits Closure, Macro {
+
+    Set<String> SPECIAL_VARIABLES = Set.of("this", "cls", "me", "it");
+
     static Context prepareObjectContext(Context context, LngObject lngObject, FunctionCall.ArgumentEvaluated[] argValues, ClosureOrMacro it) {
         final Context ctx;
         if (it.wrapped() == null) {
@@ -67,26 +70,13 @@ public sealed interface ClosureOrMacro extends Command, HasFields permits Closur
             final var ctx = ClosureOrMacro.getClassContext(context, methodName, lngClass, argValues, it);
             if (methodName.equals("init") && context.containsLocal("this")) {
                 final var resultObject = it.execute(ctx);
-                exportFromParentFrame(ctx, context);
+                context.mergeVariablesFrom(ctx, SPECIAL_VARIABLES);
                 return NullableOptional.of(resultObject);
             } else {
                 return NullableOptional.of(it.execute(ctx));
             }
         }
         return NullableOptional.empty();
-    }
-
-    private static void exportFromParentFrame(Context parent, Context to) {
-        for (final var variable : parent.allFrameKeys()) {
-            switch (variable) {
-                case "this":
-                case "cls":
-                    break;
-                default:
-                    to.local(variable, parent.get(variable));
-                    break;
-            }
-        }
     }
 
     ParameterList parameters();

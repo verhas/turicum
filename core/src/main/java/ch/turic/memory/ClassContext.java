@@ -29,6 +29,18 @@ public class ClassContext extends Context {
         }
     }
 
+    /**
+     * Retrieves a list of wrapping contexts, including those from the current context 
+     * and recursively from the contexts of the parent classes.
+     *
+     * The method uses recursion instead of a simple loop because parent contexts can be 
+     * different implementations of Context (like ClassContext), each with their own 
+     * wrapping behavior. A loop would not correctly handle these varying context types 
+     * and their specific implementations of wrappingContexts().
+     *
+     * @return a list of {@link Context} instances, comprising the wrapping contexts 
+     *         of this instance and all parent contexts.
+     */
     public List<Context> wrappingContexts() {
         final var ctxList = new ArrayList<>(super.wrappingContexts());
         for (final var parent : parents) {

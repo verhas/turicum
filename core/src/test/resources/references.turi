@@ -1417,6 +1417,23 @@ let object = C(1,2);
 print object
 // end snippet
 
+// snippet inherit8
+class Parent {
+    fn init(b:str){
+        }
+}
+class Child : Parent {
+    fn init(b:num){
+        Parent.init("mutabor")
+        this
+    }
+}
+
+let k = Child(42);
+try: k.b = none; // will fail as it is num and str, which
+catch e: println e; // we should see in the error
+// end snippet
+
 // snippet fun7
 fn concat(a:str, b:str):str = a + b
 println concat("ab","ba")
@@ -1428,6 +1445,7 @@ try:
     println concat("ab","ba")
 catch err: println err
 // end snippet
+
 
 // snippet fun9
 mut myString="num"

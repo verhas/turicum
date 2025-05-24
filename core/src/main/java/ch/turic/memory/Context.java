@@ -241,6 +241,43 @@ public class Context implements ch.turic.Context {
         frame.remove(key);
     }
 
+
+    public void mergeVariablesFrom(Context ctx, Set<String> exceptions) throws ExecutionException {
+        for (final var e : ctx.frame.entrySet()) {
+            final var key = e.getKey();
+            final var value = e.getValue();
+            if (!exceptions.contains(key)) {
+                if (frame.containsKey(key)) {
+                    final var v = frame.get(key);
+                    final var types = new ArrayList<Variable.Type>(v.types.length + value.types.length);
+                    for (final var t : v.types) {
+                        if (isNewType(types, t)) {
+                            types.add(t);
+                        }
+                    }
+                    for (final var t : value.types) {
+                        if (isNewType(types, t)) {
+                            types.add(t);
+                        }
+                    }
+                    v.types = types.toArray(Variable.Type[]::new);
+                    v.set(value.value);
+                } else {
+                    frame.put(key, value);
+                }
+            }
+        }
+    }
+
+    private boolean isNewType(List<Variable.Type> types, Variable.Type type) {
+        for (final var t : types) {
+            if (t.equals(type)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public void local(String key, Object value) throws ExecutionException {
         ExecutionException.when(globals.contains(key), "Local variable is already defined as global '" + key + "'");
         ExecutionException.when(nonlocal.contains(key), "Variable cannot be local, it is already used as non-local '" + key + "'");
@@ -358,7 +395,7 @@ public class Context implements ch.turic.Context {
     public List<Context> wrappingContexts() {
         final var ctxList = new ArrayList<Context>();
         ctxList.add(this);
-        if( wrapped!= null ) {
+        if (wrapped != null) {
             ctxList.addAll(wrapped.wrappingContexts());
         }
         return ctxList;

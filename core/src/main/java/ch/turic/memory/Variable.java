@@ -7,6 +7,7 @@ import ch.turic.commands.Macro;
 import ch.turic.commands.operators.Cast;
 
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -20,12 +21,28 @@ public class Variable {
     /**
      * @param javaType the declared types of the variable or null if there are no declared types
      * @param lngClass the class object if the types is LngObject, otherwise null and ignored
+     * @param declaration is the name used to define the type
      */
     public record Type(Class<?> javaType, LngClass lngClass, Identifier declaration) {
         @Override
         public String toString() {
             return declaration.name();
         }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(javaType, lngClass);
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) return true;
+            if (obj == null || getClass() != obj.getClass()) return false;
+            Type type = (Type) obj;
+            return Objects.equals(javaType, type.javaType) &&
+                    Objects.equals(lngClass, type.lngClass);
+        }
+
     }
 
     public final String name;
@@ -38,8 +55,8 @@ public class Variable {
             throw new ExecutionException(
                     "Cannot set variable '%s' to value '%s' as it does not fit any of the accepted type of the variable (%s)",
                     name,
-                    newValue,
-                    Arrays.stream(types).map(Type::toString).collect(Collectors.joining(",")));
+                    Objects.requireNonNullElse(newValue,"none"),
+                    Arrays.stream(types).map(Type::toString).collect(Collectors.joining("|")));
         }
         this.value = newValue;
     }
@@ -135,7 +152,7 @@ public class Variable {
                     }
                 }
                 if( context == null ){
-                    throw new RuntimeException();
+                    throw new RuntimeException("Null context, internal error.");
                 }
                 ExecutionException.when(!context.contains(name), "Type '%s' is not defined.", name);
                 final var classObject = context.get(name);

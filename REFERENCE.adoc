@@ -4080,8 +4080,8 @@ execute("Thread 2",2)
 ----
  prime read 2
 Thread 1 generated 3
-Thread 1 generated 5
  prime read 3
+Thread 1 generated 5
  prime read 5
 Thread 1 generated 7
  prime read 7
@@ -4096,9 +4096,9 @@ exception Task stopped.
 Thread 2 generated 3
  prime read 3
 Thread 2 generated 5
-Thread 2 generated 7
  prime read 5
- prime read 7
+Thread 2 generated  prime read 7
+7
 Thread 2 generated 11
 Thread 2 generated 13
 stopping
@@ -4162,9 +4162,9 @@ println( (end-start)/1000000, "ms")
 [source]
 ----
 [1, 2, 3]
-315.57075ms
+315.473042ms
 []
-315.363917ms
+312.900792ms
 
 ----
 
@@ -4526,7 +4526,7 @@ println(inc(1))
 .output of snippet `fun1`
 [source]
 ----
-ch.turic.commands.Closure@305ffe9e
+ch.turic.commands.Closure@61c4eee0
 2
 
 ----
@@ -4555,7 +4555,7 @@ println(inc(1))
 .output of snippet `fun3`
 [source]
 ----
-ch.turic.commands.Closure@302c971f
+ch.turic.commands.Closure@6f10d5b6
 2
 
 ----
@@ -4586,7 +4586,7 @@ println(inc(1))
 .output of snippet `fun2`
 [source]
 ----
-ch.turic.commands.Closure@1972e513
+ch.turic.commands.Closure@1040be71
 2
 
 ----
@@ -4782,7 +4782,7 @@ println(inc(1,how_much=5))
 .output of snippet `fun4`
 [source]
 ----
-ch.turic.commands.Closure@7ae0a9ec
+ch.turic.commands.Closure@548a24a
 6
 
 ----
@@ -5789,7 +5789,45 @@ In the example `b` is `4`, even though it is initialized to be `1` when calling 
 There is no restriction on which other classes initializers can or should an initializer invoke.
 Your code theoretically could call the initializer of a class the current does not extend.
 
+The object fields are created when the initializers are invoked.
+The type declaration of a parent class may not be the same for a field as in the child class.
+In this case the type definition of the field will be the union of the types.
 
+
+.source of snippet `inherit8`
+[source]
+----
+class Parent {
+    fn init(b:str){
+        }
+}
+class Child : Parent {
+    fn init(b:num){
+        Parent.init("mutabor")
+        this
+    }
+}
+
+let k = Child(42);
+try: k.b = none; // will fail as it is num and str, which
+catch e: println e; // we should see in the error
+
+
+----
+
+
+
+
+.output of snippet `inherit8`
+[source]
+----
+Cannot set variable 'b' to value 'none' as it does not fit any of the accepted type of the variable (num|str)
+
+----
+
+
+
+The field `b` is declared to be a number in the class `Child` but it also inherits the type `str` through the invocation of the initializer of `Parent`.
 
 == Error Handling
 
@@ -7236,7 +7274,7 @@ println nano_time()
 .output of snippet `nano_time`
 [source]
 ----
-297660282919875
+363144662018541
 
 ----
 
@@ -7568,81 +7606,81 @@ none
 .output of snippet `que`
 [source]
 ----
-task1 is not ready 0
-task2 is not ready 0
+task1 is not ready 0task2 is not ready 0
+
 task1 is ready 1
 task1 is not ready 0
 task2 is not ready 1
 task1 is not ready 1
 task2 is not ready 2
-task1 is ready 2
-task2 is not ready 3
-task1 is not ready 0
-task1 is not ready 1
-task2 is not ready 4
-task1 is not ready 2
-task2 is not ready 5
-task1 is ready 3
-task2 is not ready 6
-task1 is not ready 0
-task2 is not ready 7
-task1 is not ready 1
-task1 is not ready 2
-task2 is not ready 8
-task1 is not ready 3
-task2 is not ready 9
-task2 is not ready 10
-task1 is ready 4
-task1 is not ready 0
-task2 is not ready 11
-task1 is not ready 1
-task1 is not ready 2
-task2 is not ready 12
-task1 is not ready 3
-task2 is ready 5
+task2 is not ready 3task1 is not ready 2
+
+task2 is ready 2task1 is not ready 3
+
 task2 is not ready 0
 task2 is not ready 1
 task1 is not ready 4
-task2 is not ready 2
-task1 is not ready 5
-task2 is ready 6
-task2 is not ready 0
+task2 is not ready 2task1 is not ready 5
+
 task1 is not ready 6
-task2 is not ready 1
+task2 is ready 3
+task2 is not ready 0
 task1 is not ready 7
-task2 is not ready 2
+task2 is not ready 1
 task1 is not ready 8
-task1 is ready 7
+task2 is ready 4
+task2 is not ready 0
+task1 is not ready 9
+task2 is not ready 1
+task2 is not ready 2
+task1 is not ready 10
 task2 is not ready 3
+task1 is not ready 11
+task2 is not ready 4task1 is ready 5
+
 task1 is not ready 0
-task2 is not ready 4
-task1 is not ready 1
 task2 is not ready 5
+task1 is not ready 1
+task1 is not ready 2
+task2 is not ready 6
+task1 is ready 6
+task1 is not ready 0
+task2 is not ready 7
+task1 is not ready 1
+task2 is not ready 8
+task1 is not ready 2
+task2 is not ready 9
+task2 is not ready 10
+task1 is ready 7
+task1 is not ready 0
+task2 is not ready 11task1 is not ready 1
+
+task2 is not ready 12
 task1 is not ready 2
 task2 is ready 8
 task1 is not ready 3
 task2 is not ready 0
-task2 is not ready 1
 task1 is not ready 4
+task2 is not ready 1
 task1 is not ready 5
 task2 is not ready 2
-task1 is ready 9
-task1 is not ready 0
+task1 is not ready 6
 task2 is not ready 3
-task1 is not ready 1
+task1 is ready 9
 task2 is not ready 4
-task1 is not ready 2
+task1 is not ready 0
 task2 is not ready 5
+task1 is not ready 1
+task2 is not ready 6
+task1 is not ready 2
 closing the channel
-task1 is not ready 3task2 is not ready 6
 channel is closed
-
 1 is done false
 2 is done false
 we start to wait the first time
 task2 is done
 task1 is done
-task1 done true
+task1 done false
 task2 done true
 We start to wait the second time
 task1 done true

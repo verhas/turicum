@@ -1,29 +1,14 @@
 class Parent {
-    fn init(a,b,c){
-        println "Parent init"
-        println $"this is ${this} in Parent"
+    fn init(a,b:str,c){
         }
-    fn seta(t){
-        a = t
-    }
-    fn printa(){
-        println this.a
-    }
 }
 class Child : Parent {
-    fn init(b,c,d){
-        println $"this is ${this} in Child"
-        println "Child init"
-        Parent.init(0,b,c)
+    fn init(b:num,c,d){
+        Parent.init(0,""+b,c)
         this
     }
 }
 
 let k = Child(1,2,3);
-k.seta(8)
-println k
-k.a = 7
-k.printa()
-println k
-println Child.init(3,4,5)
-println is_defined(b)
+try: k.b = none; // will fail as it is num and str
+catch e: println e; // we should see it in the error

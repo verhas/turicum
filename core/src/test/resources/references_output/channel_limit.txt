@@ -1,7 +1,7 @@
  prime read 2
 Thread 1 generated 3
-Thread 1 generated 5
  prime read 3
+Thread 1 generated 5
  prime read 5
 Thread 1 generated 7
  prime read 7
@@ -16,9 +16,9 @@ exception Task stopped.
 Thread 2 generated 3
  prime read 3
 Thread 2 generated 5
-Thread 2 generated 7
  prime read 5
- prime read 7
+Thread 2 generated  prime read 7
+7
 Thread 2 generated 11
 Thread 2 generated 13
 stopping

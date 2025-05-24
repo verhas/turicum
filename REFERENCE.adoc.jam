@@ -2084,7 +2084,13 @@ In the example `b` is `4`, even though it is initialized to be `1` when calling 
 There is no restriction on which other classes initializers can or should an initializer invoke.
 Your code theoretically could call the initializer of a class the current does not extend.
 
+The object fields are created when the initializers are invoked.
+The type declaration of a parent class may not be the same for a field as in the child class.
+In this case the type definition of the field will be the union of the types.
 
+{%S inherit8%}
+
+The field `b` is declared to be a number in the class `Child` but it also inherits the type `str` through the invocation of the initializer of `Parent`.
 
 == Error Handling
 
