@@ -1,4 +1,4 @@
 sys_import "turi.option";
 
-let k = option(none)
+let k = option((let some=1))
 println k
