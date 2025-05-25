@@ -21,12 +21,16 @@ public class Variable {
     /**
      * @param javaType the declared types of the variable or null if there are no declared types
      * @param lngClass the class object if the types is LngObject, otherwise null and ignored
-     * @param declaration is the name used to define the type
+     * @param declaration is the name used to define the type. It is used only for printouts.
      */
-    public record Type(Class<?> javaType, LngClass lngClass, Identifier declaration) {
+    public record Type(Class<?> javaType, LngClass lngClass, String declaration) {
+        public Type(Class<?> javaType, LngClass lngClass, Identifier id){
+            this(javaType, lngClass, id.name());
+        }
+
         @Override
         public String toString() {
-            return declaration.name();
+            return declaration;
         }
 
         @Override
@@ -176,7 +180,6 @@ public class Variable {
                 return false;
             }
         } else {
-
             return (javaType == NoneType.class && value == null) ||
                     (javaType == Double.class || javaType == Float.class && Cast.isDouble(value)) ||
                     (value != null && javaType.isAssignableFrom(value.getClass()));

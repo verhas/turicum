@@ -1,1 +1,1 @@
-ch.turic.memory.Channel$SimpleMessage@5c80cf32
+ch.turic.memory.Channel$SimpleMessage@3549bca9

@@ -1,15 +1,40 @@
+/**
+ * A container object which may or may not contain a non-null value.
+ * If a value is present, is_present() returns true. If no value is present, the object is considered empty.
+ */
 class option {
+    /**
+     * Creates a new option containing the specified object.
+     * @param object The value to store in this option
+     */
     fn init(object){
     }
+    /**
+     * Returns an empty option instance with no value present.
+     * @return An empty option
+     */
     fn empty(){
         option(none)
         }
+    /**
+     * Returns true if this option contains no value.
+     * @return true if no value is present, false otherwise
+     */
     fn is_empty(){
         object == none
         }
+    /**
+     * Returns true if this option contains a value.
+     * @return true if a value is present, false otherwise
+     */
     fn is_present(){
         object != none
         }
+    /**
+     * Returns the value contained by this option if present.
+     * @return The value contained by this option
+     * @throws If no value is present
+     */
     fn get(){
         if object == none : die "option is empty"
         object
