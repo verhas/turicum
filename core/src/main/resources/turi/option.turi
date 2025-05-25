@@ -7,7 +7,7 @@ class option {
      * Creates a new option containing the specified object.
      * @param object The value to store in this option
      */
-    fn init(object){
+    fn init(object:some){
     }
     /**
      * Returns an empty option instance with no value present.

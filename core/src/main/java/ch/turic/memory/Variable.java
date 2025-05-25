@@ -19,12 +19,12 @@ public class Variable {
     }
 
     /**
-     * @param javaType the declared types of the variable or null if there are no declared types
-     * @param lngClass the class object if the types is LngObject, otherwise null and ignored
+     * @param javaType    the declared types of the variable or null if there are no declared types
+     * @param lngClass    the class object if the types is LngObject, otherwise null and ignored
      * @param declaration is the name used to define the type. It is used only for printouts.
      */
     public record Type(Class<?> javaType, LngClass lngClass, String declaration) {
-        public Type(Class<?> javaType, LngClass lngClass, Identifier id){
+        public Type(Class<?> javaType, LngClass lngClass, Identifier id) {
             this(javaType, lngClass, id.name());
         }
 
@@ -54,13 +54,21 @@ public class Variable {
     Object value;
     Type[] types;
 
-    public void set(Object newValue) {
+    public void set(Object newValue) throws ExecutionException {
         if (!isOfTypes(newValue, types)) {
-            throw new ExecutionException(
-                    "Cannot set variable '%s' to value '%s' as it does not fit any of the accepted type of the variable (%s)",
-                    name,
-                    Objects.requireNonNullElse(newValue,"none"),
-                    Arrays.stream(types).map(Type::toString).collect(Collectors.joining("|")));
+            if (types.length == 1) {
+                throw new ExecutionException(
+                        "Cannot set variable '%s' to value '%s' because it does not fit the declared type %s",
+                        name,
+                        Objects.requireNonNullElse(newValue, "none"),
+                        types[0].toString());
+            } else {
+                throw new ExecutionException(
+                        "Cannot set variable '%s' to value '%s' because it does not fit any of the declared types of the variable (%s)",
+                        name,
+                        Objects.requireNonNullElse(newValue, "none"),
+                        Arrays.stream(types).map(Type::toString).collect(Collectors.joining("|")));
+            }
         }
         this.value = newValue;
     }
@@ -96,13 +104,21 @@ public class Variable {
      *
      * <p>Recognized built-in types:
      * <ul>
-     *   <li>{@code "bool"} boolean type stored as a {@link Boolean}</li>
-     *   <li>{@code "str"} is a string stored as {@link String}</li>
-     *   <li>{@code "num"} a number stored as {@link Long}</li>
-     *   <li>{@code "float"} a number stored as {@link Double}</li>
-     *   <li>{@code "any"} any type, it is represented by the {@code null} value as a type</li>
-     *   <li>{@code "obj"}, {@code "lst"} any object without defining the actual class {@link LngObject}</li>
-     *   <li>{@code "cls"} a class type{@link LngClass}</li>
+     * <li> {@code bool} boolean type
+     * <li> {@code str} string
+     * <li> {@code num} any numeric type, integer or float
+     * <li> {@code float} float type
+     * <li> {@code any} the variable can hold any value
+     * <li> {@code obj} the variable can hols any object without restriction on the class of that object
+     * <li> {@code lst} the variable has to be a list
+     * <li> {@code que} the variable has to be a queue
+     * <li> {@code task} the variable has to be an asynchronous task
+     * <li> {@code err} the variable has to be an asynchronous task
+     * <li> {@code cls} the variable has to be a class
+     * <li> {@code fn} the variable value has to be a function of closure
+     * <li> {@code macro} the variable value has to be a macro
+     * <li> {@code none} the variable can hold the value {@code none}
+     * <li> {@code some} the variable can hold any value, except {@code none}
      * </ul>
      * <p>
      * If the type name starts with {@code "java."}, the method tries to load the corresponding class
@@ -146,6 +162,8 @@ public class Variable {
             // the variable value has to be a macro
             case "none" -> new Variable.Type(NoneType.class, null, new Identifier(name));
             // the variable can hold the value `none`
+            case "some" -> new Variable.Type(SomeType.class, null, new Identifier(name));
+            // the variable can hold any value, except `none`
             // end snippet
             default -> {
                 if (name.startsWith("java.")) {
@@ -155,7 +173,7 @@ public class Variable {
                         throw new ExecutionException("Type '%s' could not be found.", name);
                     }
                 }
-                if( context == null ){
+                if (context == null) {
                     throw new RuntimeException("Null context, internal error.");
                 }
                 ExecutionException.when(!context.contains(name), "Type '%s' is not defined.", name);
@@ -180,9 +198,10 @@ public class Variable {
                 return false;
             }
         } else {
-            return (javaType == NoneType.class && value == null) ||
-                    (javaType == Double.class || javaType == Float.class && Cast.isDouble(value)) ||
-                    (value != null && javaType.isAssignableFrom(value.getClass()));
+            if (javaType == NoneType.class) return value == null;
+            if (javaType == SomeType.class) return value != null;
+            if (javaType == Double.class || javaType == Float.class) return Cast.isDouble(value);
+            return value != null && javaType.isAssignableFrom(value.getClass());
         }
     }
 

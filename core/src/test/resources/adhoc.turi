@@ -1,14 +1,4 @@
-class Parent {
-    fn init(a,b:str,c){
-        }
-}
-class Child : Parent {
-    fn init(b:num,c,d){
-        Parent.init(0,""+b,c)
-        this
-    }
-}
+sys_import "turi.option";
 
-let k = Child(1,2,3);
-try: k.b = none; // will fail as it is num and str
-catch e: println e; // we should see it in the error
+let k = option(none)
+println k
