@@ -1,0 +1,53 @@
+sys_import "turi.maven"
+import "turicum_versions"
+
+let project = maven_project({
+    name : "maven extension",
+    artifactId : "turicum-maven-extension"
+    version : VERSION,
+    description : "Turicum maven extension",
+    parent : {
+        groupId: groupId,
+        artifactId: "turicum-parent",
+        version: VERSION
+    }
+    build : { 
+        plugins : [
+            maven_plugin("source"),
+            maven_plugin("javadoc"),
+            {
+                groupId : "org.codehaus.plexus",
+                artifactId : "plexus-component-metadata",
+                version : "2.2.0",
+                executions : [
+                    {
+                        goals : [ "generate-metadata" ]
+                    }
+                ]
+            }
+        ]
+    },
+    dependencies: [
+        {
+            groupId : "ch.turic",
+            artifactId : "turicum",
+            version : VERSION
+        },
+        {
+            groupId : "org.junit.jupiter",
+            artifactId : "junit-jupiter-api",
+        },
+        {
+            groupId : "org.junit.jupiter",
+            artifactId : "junit-jupiter-engine",
+        },
+        {
+            groupId : "org.apache.maven",
+            artifactId : "maven-core",
+            version : "3.9.8",
+            scope : "provided",
+        }
+    ]
+});
+
+project.done();

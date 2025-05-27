@@ -22,14 +22,6 @@ let b = {a:1, b:2, c:3}
 try: pin [b]; catch e2: println e2
 // end snippet
 
-
-
-// snippet abs
-println  $"${abs(-3)} ${abs(6e23)} ${abs (-7.3)}"
-try: let q = abs("abraka dabra")
-catch e: println e
-// end snippet
-
 // snippet field_access
 let a = {}
 a.k = 55
@@ -2399,7 +2391,7 @@ println "next_up(1.0) = ", next_up(1.0)
 println "random() = ", random()
 println "rint(3.7) = ", rint(3.7)
 println "round(3.7) = ", round(3.7)
-println "sig_num(-3.7) = ", sig_num(-3.7)
+println "signum(-3.7) = ", signum(-3.7)
 println "ulp(1.0) = ", ulp(1.0)
 println "scalb(2.0,3) = ", scalb(2.0,3)
 // end snippet

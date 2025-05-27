@@ -34,6 +34,7 @@ public class TuriString implements TuriClass {
         }
 
         return switch (identifier) {
+            case "to_string" -> new TuriMethod<>((args)-> String.format("%s",string));
             case "after" -> new TuriMethod<>((args) -> {
                 final var afterWhat = "" + args[0];
                 final var pos = string.indexOf(afterWhat);

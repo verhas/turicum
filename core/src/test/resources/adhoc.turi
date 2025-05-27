@@ -1,8 +1,14 @@
 sys_import "turi.trace";
 
-@trace(f="asdag")
-fn a(x) {
-    println $"x is ${x}"
-}
-
-a(13)
+mut s = 13.to_string()
+println type(s)
+println s
+s = 3.14.to_string()
+println type(s)
+println s
+s = "kaka".to_string()
+println type(s)
+println s
+s = none.to_string()
+println type(s)
+println s

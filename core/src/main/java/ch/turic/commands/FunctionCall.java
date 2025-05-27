@@ -3,6 +3,7 @@ package ch.turic.commands;
 import ch.turic.ExecutionException;
 import ch.turic.LngCallable;
 import ch.turic.TuriClass;
+import ch.turic.builtins.classes.TuriNone;
 import ch.turic.memory.*;
 
 import java.util.Arrays;
@@ -333,9 +334,10 @@ public class FunctionCall extends AbstractCommand {
      */
     private static Object getMethod(Context context, HasFields obj, String identifier) {
         return switch (obj) {
+            case null -> null;
             case JavaObject jo -> {
                 if (jo.object() == null) {
-                    yield null;
+                    yield TuriNone.INSTANCE.getMethod(null, identifier);
                 }
                 final var turi = getTuriClass(context, jo);
                 if (turi != null) {

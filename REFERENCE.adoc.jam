@@ -2394,12 +2394,6 @@ All mathematical functions from Java's Math class are available in Turicum:
 
 {%S math_functions%}
 
-==== `abs`
-
-Returns the absolute value of the argument.
-It can only be used for numeric arguments.
-
-{%S abs%}
 
 === `all_parents`
 

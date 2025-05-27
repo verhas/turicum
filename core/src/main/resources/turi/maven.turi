@@ -14,4 +14,27 @@ class maven_project {
     }
 }
 
+let license = {
+        apache2_0: {
+            name : "The Apache License, Version 2.0",
+            url : "https://www.apache.org/licenses/LICENSE-2.0.txt"
+            }
+}
+
+fn github(user:str, repository:str) {
+            {
+            connection : $"scm:git:git://github.com/${user}/${repository}.git",
+            developerConnection : $"scm:git:ssh://github.com/${user}/${repository}.git",
+            url : $"https:/github.com/${user}/${repository}"
+            }
+}
+
+fn maven_plugin(plugin:str,@executions={}){
+            {
+                groupId: "org.apache.maven.plugins",
+                artifactId: $"maven-${plugin}-plugin",
+                executions: executions
+            }
+}
+
 export_all();

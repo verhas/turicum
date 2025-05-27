@@ -3,49 +3,24 @@ import "turicum_versions"
 
 let project = maven_project({
     name: "turicum",
-    groupId : groupId,
     artifactId : "turicum",
     version : VERSION,
     description : "Turicum programming language core implementation",
-    build :{
-    plugins : [
-                {
-                    groupId: "org.apache.maven.plugins",
-                    artifactId: "maven-source-plugin",
-                    version: "3.3.1"
-                },
-                {
-                    groupId: "org.apache.maven.plugins",
-                    artifactId: "maven-compiler-plugin",
-                    version: "3.13.0",
-                    configuration : {
-                        encoding: "UTF-8",
-                        source: "21",
-                        target: "21",
-                        release: "21"}
-                },
-                {
-                    groupId: "org.apache.maven.plugins",
-                    artifactId: "maven-resources-plugin",
-                    version: "3.3.1",
-                    configuration : {encoding: "UTF-8"}
-                },
-                {
-                    groupId: "org.apache.maven.plugins",
-                    artifactId: "maven-javadoc-plugin",
-                    version: "3.11.2"
-                },
-                {
-                    groupId: "org.sonatype.plugins",
-                    artifactId: "nexus-staging-maven-plugin",
-                    version: "1.7.0"
-                },
-                {
-                    groupId: "org.apache.maven.plugins",
-                    artifactId: "maven-surefire-plugin",
-                    version: "3.5.2"
-                }
-            ]
+    packaging : "jar",
+    parent : {
+        groupId: groupId,
+        artifactId: "turicum-parent",
+        version: VERSION
+    }
+
+    build : {
+        plugins : [
+                maven_plugin("source"),
+                maven_plugin("javadoc"),
+                maven_plugin("compiler"),
+                maven_plugin("resources"),
+                maven_plugin("surefire")
+        ]
     }
     dependencies:[
         {
@@ -66,7 +41,24 @@ let project = maven_project({
             version: "5.12.0",
             scope: "test"
         }
-    ]
+    ],
+        profiles : [ {
+            id : "release",
+            build : {
+                plugins : [
+                    maven_plugin("gpg"),
+                    {
+                        groupId : "org.sonatype.central",
+                        artifactId : "central-publishing-maven-plugin",
+                        extensions : true,
+                        configuration : {
+                                publishingServerId: "central",
+                                autoPublish: true
+                              }
+                    }
+               ]
+            }
+        } ]
 })
 
 project.done()

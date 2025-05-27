@@ -11,17 +11,17 @@
             <dependency>
                 <groupId>ch.turic</groupId>
                 <artifactId>core</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
+                <version>0.0.1</version>
             </dependency>
             <dependency>
                 <groupId>ch.turic</groupId>
                 <artifactId>maven</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
+                <version>0.0.1</version>
             </dependency>
             <dependency>
                 <groupId>ch.turic</groupId>
                 <artifactId>cli</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
+                <version>0.0.1</version>
             </dependency>
             <dependency>
                 <scope>test</scope>
@@ -67,7 +67,15 @@
                         </executions>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
-                        <version>3.2.7</version>
+                    </plugin>
+                    <plugin>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <autoPublish>true</autoPublish>
+                            <publishingServerId>central</publishingServerId>
+                        </configuration>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
                     </plugin>
                 </plugins>
             </build>
@@ -76,29 +84,19 @@
     </profiles>
     <description>Turicum programming language</description>
     <packaging>pom</packaging>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>0.0.1</version>
     <modules>
         <module>core</module>
         <module>maven</module>
         <module>cli</module>
     </modules>
-    <url>https:/github.com/verhas/turicum/tree/master</url>
+    <url>https:/github.com/verhas/turicum</url>
     <licenses>
         <license>
             <name>The Apache License, Version 2.0</name>
             <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
         </license>
     </licenses>
-    <distributionManagement>
-        <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
-        <repository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-        </repository>
-    </distributionManagement>
     <build>
         <pluginManagement>
             <plugins>
@@ -116,6 +114,32 @@
                     <version>3.3.1</version>
                 </plugin>
                 <plugin>
+                    <configuration>
+                        <archive>
+                            <manifest>
+                                <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                                <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                            </manifest>
+                        </archive>
+                    </configuration>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>3.4.2</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-assembly-plugin</artifactId>
+                    <version>3.7.1</version>
+                </plugin>
+                <plugin>
+                    <executions>
+                        <execution>
+                            <id>attach-javadoc</id>
+                            <goals>
+                                <goal>jar</goal>
+                            </goals>
+                        </execution>
+                    </executions>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
                     <version>3.11.2</version>
@@ -124,11 +148,20 @@
                     <configuration>
                         <release>21</release>
                         <source>21</source>
+                        <encoding>UTF-8</encoding>
                         <target>21</target>
                     </configuration>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>3.13.0</version>
+                </plugin>
+                <plugin>
+                    <configuration>
+                        <encoding>UTF-8</encoding>
+                    </configuration>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>3.3.1</version>
                 </plugin>
                 <plugin>
                     <executions>
@@ -149,30 +182,28 @@
                     <version>3.5.3</version>
                 </plugin>
                 <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-gpg-plugin</artifactId>
+                    <version>3.2.7</version>
+                </plugin>
+                <plugin>
                     <extensions>true</extensions>
                     <configuration>
-                        <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                        <autoReleaseAfterClose>true</autoReleaseAfterClose>
-                        <serverId>ossrh</serverId>
+                        <autoPublish>true</autoPublish>
+                        <publishingServerId>central</publishingServerId>
                     </configuration>
-                    <groupId>org.sonatype.plugins</groupId>
-                    <artifactId>nexus-staging-maven-plugin</artifactId>
-                    <version>1.7.0</version>
+                    <groupId>org.sonatype.central</groupId>
+                    <artifactId>central-publishing-maven-plugin</artifactId>
+                    <version>0.7.0</version>
                 </plugin>
             </plugins>
         </pluginManagement>
-        <plugins>
-            <plugin>
-                <groupId>org.sonatype.plugins</groupId>
-                <artifactId>nexus-staging-maven-plugin</artifactId>
-            </plugin>
-        </plugins>
     </build>
-    <name>turicum-parent</name>
+    <name>ch.turic:turicum-parent</name>
     <artifactId>turicum-parent</artifactId>
     <scm>
         <connection>scm:git:git://github.com/verhas/turicum.git</connection>
-        <url>https:/github.com/verhas/turicum/tree/master</url>
+        <url>https:/github.com/verhas/turicum</url>
         <developerConnection>scm:git:ssh://github.com/verhas/turicum.git</developerConnection>
     </scm>
     <properties>

@@ -1,54 +1,68 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project>
+    <parent>
+        <groupId>ch.turic</groupId>
+        <artifactId>turicum-parent</artifactId>
+        <version>0.0.1</version>
+    </parent>
     <build>
         <plugins>
             <plugin>
+                <executions/>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>3.3.1</version>
             </plugin>
             <plugin>
-                <configuration>
-                    <release>21</release>
-                    <source>21</source>
-                    <encoding>UTF-8</encoding>
-                    <target>21</target>
-                </configuration>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.13.0</version>
-            </plugin>
-            <plugin>
-                <configuration>
-                    <encoding>UTF-8</encoding>
-                </configuration>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>3.3.1</version>
-            </plugin>
-            <plugin>
+                <executions/>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.11.2</version>
             </plugin>
             <plugin>
-                <groupId>org.sonatype.plugins</groupId>
-                <artifactId>nexus-staging-maven-plugin</artifactId>
-                <version>1.7.0</version>
+                <executions/>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
             </plugin>
             <plugin>
+                <executions/>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <executions/>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.5.2</version>
             </plugin>
         </plugins>
     </build>
     <modelVersion>4.0.0</modelVersion>
-    <groupId>ch.turic</groupId>
     <name>turicum</name>
+    <profiles>
+        <profile>
+            <build>
+                <plugins>
+                    <plugin>
+                        <executions/>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                    </plugin>
+                    <plugin>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <autoPublish>true</autoPublish>
+                            <publishingServerId>central</publishingServerId>
+                        </configuration>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                    </plugin>
+                </plugins>
+            </build>
+            <id>release</id>
+        </profile>
+    </profiles>
     <description>Turicum programming language core implementation</description>
     <artifactId>turicum</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+    <version>0.0.1</version>
     <dependencies>
         <dependency>
             <scope>test</scope>

@@ -17,6 +17,7 @@ public class TuriLong implements TuriClass {
             throw new ExecutionException("Wrong target type, need Long, probably internal error");
         }
         return switch (identifier) {
+            case "to_string" -> new TuriMethod<>((args)-> String.format("%s",num));
             case "times" -> new TuriMethod<>((args) -> times(num, args[0]));
             case "hex" -> new TuriMethod<>((args) -> String.format("0x%X", num));
             default -> null;

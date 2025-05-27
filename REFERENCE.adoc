@@ -4154,26 +4154,26 @@ execute("Thread 2",2)
 .output of snippet `channel_limit`
 [source]
 ----
- prime read 2
-Thread 1 prime read  generated 3
-3
+ prime read Thread 1 generated 3
+2
 Thread 1 generated 5
+ prime read Thread 1 generated 7
+3
  prime read 5
-Thread 1 generated 7 prime read 7
-
-Thread 1 generated 11
+ prime read Thread 17
+ generated 11
 Thread 1 generated 13
 Thread 1 generated 17
 Thread 1 generated 19
 Thread 1 generated 23
 stopping
 exception Task stopped.
-Thread 2 generated 3
  prime read 2
+Thread 2 generated 3
  prime read 3
 Thread 2 generated 5
-Thread 2 generated 7
  prime read 5
+Thread 2 generated 7
  prime read 7
 Thread 2 generated 11
 Thread 2 generated 13
@@ -4238,9 +4238,9 @@ println( (end-start)/1000000, "ms")
 [source]
 ----
 [1, 2, 3]
-311.07725ms
+312.296166ms
 []
-322.595208ms
+314.387917ms
 
 ----
 
@@ -4457,10 +4457,9 @@ a =3.6063454894655185
 a =3.6055513629176015
 a =3.6055512754639905
 a =3.6055512754639896
-a =3.6055512754639896
-sqrt(13) ≈ 3.6055512754639896
+sqrt(13) ≈ 3.6055512754639905
 sqrt(13) ≈ 3.605551275463989 calulated by java Math
-square ≈ 13.000000000000002
+square ≈ 13.000000000000009
 
 ----
 
@@ -4604,7 +4603,7 @@ println(inc(1))
 .output of snippet `fun1`
 [source]
 ----
-ch.turic.commands.Closure@5b7a7f33
+ch.turic.commands.Closure@65f8f5ae
 2
 
 ----
@@ -4633,7 +4632,7 @@ println(inc(1))
 .output of snippet `fun3`
 [source]
 ----
-ch.turic.commands.Closure@790da477
+ch.turic.commands.Closure@431cd9b2
 2
 
 ----
@@ -4664,7 +4663,7 @@ println(inc(1))
 .output of snippet `fun2`
 [source]
 ----
-ch.turic.commands.Closure@5c7933ad
+ch.turic.commands.Closure@38467116
 2
 
 ----
@@ -4860,7 +4859,7 @@ println(inc(1,how_much=5))
 .output of snippet `fun4`
 [source]
 ----
-ch.turic.commands.Closure@57bc27f5
+ch.turic.commands.Closure@5b7a7f33
 6
 
 ----
@@ -6945,7 +6944,7 @@ println "next_up(1.0) = ", next_up(1.0)
 println "random() = ", random()
 println "rint(3.7) = ", rint(3.7)
 println "round(3.7) = ", round(3.7)
-println "sig_num(-3.7) = ", sig_num(-3.7)
+println "signum(-3.7) = ", signum(-3.7)
 println "ulp(1.0) = ", ulp(1.0)
 println "scalb(2.0,3) = ", scalb(2.0,3)
 
@@ -6964,6 +6963,7 @@ cos(1) = 0.5403023058681398
 acos(0.5) = 1.0471975511965979
 asin(0.5) = 0.5235987755982989
 atan(1) = 0.7853981633974483
+atan2(1,1) = 0.7853981633974483
 cbrt(27) = 3.0
 ceil(3.2) = 4.0
 abs(-3) = 3.0
@@ -6979,51 +6979,22 @@ cosh(1) = 1.543080634815244
 to_degrees(3.14159) = 179.9998479605043
 to_radians(180) = 3.141592653589793
 pow(3,3) =27.0
-atan2(1,1) = 0.7853981633974483
-copy_sign(1,-2) = -1.0
-get_exponent(16.0) = 4
+copy_sign(3.5,-2.1) = -3.5
+get_exponent(123.456) = 6
 hypot(3,4) = 5.0
-ieee_remainder(5,3) = -1.0
+ieee_remainder(5,2) = 1.0
 next_after(1.0,2.0) = 1.0000000000000002
 next_down(1.0) = 0.9999999999999999
 next_up(1.0) = 1.0000000000000002
-random() = 0.2837239535096897
+random() = 0.06316793551020483
 rint(3.7) = 4.0
 round(3.7) = 4
-signum(-5) = -1.0
+signum(-3.7) = -1.0
 ulp(1.0) = 2.220446049250313E-16
 scalb(2.0,3) = 16.0
 
 ----
 
-
-
-==== `abs`
-
-Returns the absolute value of the argument.
-It can only be used for numeric arguments.
-
-
-.source of snippet `abs`
-[source]
-----
-println  $"${abs(-3)} ${abs(6e23)} ${abs (-7.3)}"
-try: let q = abs("abraka dabra")
-catch e: println e
-
-
-----
-
-
-
-
-.output of snippet `abs`
-[source]
-----
-3.0 6.0E23 7.3
-abs argument is not a long/double
-
-----
 
 
 
@@ -7479,7 +7450,7 @@ println nano_time()
 .output of snippet `nano_time`
 [source]
 ----
-602907265557958
+610262722772250
 
 ----
 
@@ -7813,71 +7784,69 @@ none
 ----
 task1 is not ready 0
 task2 is not ready 0
-task2 is ready 1
-task2 is not ready 0
-task1 is not ready 1
+task1 is ready 1
+task1 is not ready 0
 task2 is not ready 1
-task1 is not ready 2
+task1 is not ready 1
 task2 is not ready 2
 task1 is ready 2
-task1 is not ready 0
 task2 is not ready 3
-task1 is not ready 1
+task1 is not ready 0
+task2 is not ready 4task1 is not ready 1
+
 task1 is not ready 2
-task2 is not ready 4
-task1 is not ready 3
 task2 is not ready 5
-task2 is not ready 6task1 is ready 3
-
-task1 is not ready 0
-task2 is not ready 7
-task1 is not ready 1
-task1 is not ready 2
-task2 is not ready 8
-task2 is not ready 9
-task1 is ready 4
-task1 is not ready 0
-task2 is not ready 10
-task1 is not ready 1
-task1 is not ready 2
-task2 is not ready 11
+task2 is ready 3
 task1 is not ready 3
-task2 is ready 5
 task2 is not ready 0
-task1 is not ready 4
 task2 is not ready 1
-task2 is not ready 2task1 is not ready 5
+task1 is not ready 4
+task1 is not ready 5
+task2 is not ready 2
+task1 is not ready 6
+task2 is ready 4
+task2 is not ready 0
+task1 is not ready 7
+task2 is not ready 1
+task1 is not ready 8
+task2 is not ready 2
+task1 is ready 5
+task2 is not ready 3task1 is not ready 0
 
-task1 is ready 6
-task2 is not ready 3
-task1 is not ready 0
 task2 is not ready 4
 task1 is not ready 1
-task1 is not ready 2task2 is not ready 5
-
-task1 is not ready 3task2 is not ready 6
-
-task2 is not ready 7task1 is ready 7
-
-task1 is not ready 0
-task2 is not ready 8
-task1 is not ready 1
+task2 is not ready 5
 task1 is not ready 2
-task2 is not ready 9
-task1 is ready 8
-task2 is not ready 10
-task1 is not ready 0
-task2 is not ready 11
-task1 is not ready 1
-task1 is not ready 2
-task2 is not ready 12
+task2 is ready 6
+task1 is not ready 3
+task2 is not ready 0
+task2 is not ready 1
+task1 is not ready 4
+task2 is not ready 2
+task1 is not ready 5
+task2 is ready 7
+task1 is not ready 6
+task2 is not ready 0
+task1 is not ready 7
+task2 is not ready 1
+task2 is not ready 2
+task1 is not ready 8
+task2 is ready 8
+task2 is not ready 0
+task1 is not ready 9
+task1 is not ready 10
+task2 is not ready 1
+task1 is not ready 11task2 is not ready 2
+
+task1 is not ready 12
+task2 is not ready 3
 task1 is ready 9
 task1 is not ready 0
-task2 is not ready 13
-task2 is not ready 14task1 is not ready 1
-
+task2 is not ready 4
+task2 is not ready 5
+task1 is not ready 1
+task2 is not ready 6
 task1 is not ready 2
-task2 is not ready 15
 closing the channel
 channel is closed
 1 is done false
@@ -7886,7 +7855,7 @@ we start to wait the first time
 task1 is done
 task2 is done
 task1 done true
-task2 done false
+task2 done true
 We start to wait the second time
 task1 done true
 task2 done true
@@ -8164,7 +8133,6 @@ not ready 0
 not ready 1
 not ready 2
 closing the channel
-not ready 3
 channel is closed
 is done false
 we are done

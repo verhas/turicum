@@ -5,7 +5,7 @@ import "turicum_versions"
 let modules =  [ "core", "maven", "cli" ];
 
 let project = maven_project({
-    name : "turicum-parent",
+    name : $"${groupId}:turicum-parent",
     packaging : "pom",
     groupId : groupId,
     artifactId : "turicum-parent",
@@ -13,45 +13,21 @@ let project = maven_project({
     description : "Turicum programming language",
     modules : modules,
 
-    licenses : [ {
-            name : "The Apache License, Version 2.0",
-            url : "https://www.apache.org/licenses/LICENSE-2.0.txt"
-    } ],
+    licenses : [ license.apache2_0 ],
     
     developers: [ {
             name: "Peter Verhas",
             email: "peter@verhas.com"
     } ],
-    scm : {
-        connection : "scm:git:git://github.com/verhas/turicum.git",
-        developerConnection : "scm:git:ssh://github.com/verhas/turicum.git",
-        url : "https:/github.com/verhas/turicum/tree/master"
-        }
-    
+    scm : github("verhas","turicum"),
 
-    url : "https:/github.com/verhas/turicum/tree/master",
+    url : "https:/github.com/verhas/turicum",
     properties : {
         "project.build.sourceEncoding" : "UTF-8",
         "maven.plugin.validation" : "VERBOSE"
         }
-    
-    distributionManagement : {
-        snapshotRepository : {
-            id : "ossrh",
-            url : "https://oss.sonatype.org/content/repositories/snapshots"
-            }
-        repository : {
-            id : "ossrh",
-            url : "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
-            }
-    }
-    
-    build : {
-        plugins : [ {
-                groupId : "org.sonatype.plugins",
-                artifactId : "nexus-staging-maven-plugin",
-        } ],
-        
+
+        build : {
         pluginManagement : {
             plugins : [ 
                 {
@@ -63,11 +39,32 @@ let project = maven_project({
                             goals : [ "jar" ]
                             } ]
                 },
-                    
+                {
+                    groupId: "org.apache.maven.plugins",
+                    artifactId: "maven-jar-plugin",
+                    version: "3.4.2",
+                    configuration: {
+                        archive :{
+                            manifest : {
+                                addDefaultImplementationEntries: "true",
+                                addDefaultSpecificationEntries: "true",
+                            }
+                        }
+                    }
+                },
+                {
+                    groupId: "org.apache.maven.plugins",
+                    artifactId: "maven-assembly-plugin",
+                    version: "3.7.1",
+                },
                 {
                     groupId : "org.apache.maven.plugins",
                     artifactId : "maven-javadoc-plugin",
                     version : `maven-javadoc-plugin`
+                    executions : [ {
+                            id : "attach-javadoc",
+                            goals : [ "jar" ]
+                            } ]
                 },
                     
                 {
@@ -75,12 +72,18 @@ let project = maven_project({
                     artifactId : "maven-compiler-plugin",
                     version : `maven-compiler-plugin`,
                     configuration : {
-                        source : "%s" % JAVA_VERSION,
-                        target : "%s" % JAVA_VERSION,
-                        release : "%s" % JAVA_VERSION
+                        encoding: "UTF-8",
+                        source : JAVA_VERSION.to_string(),
+                        target : JAVA_VERSION.to_string(),
+                        release : JAVA_VERSION.to_string()
                         }
                 },
-                
+                {
+                    groupId: "org.apache.maven.plugins",
+                    artifactId: "maven-resources-plugin",
+                    version: "3.3.1",
+                    configuration : {encoding: "UTF-8"}
+                },
                 {
                     groupId : "org.apache.maven.plugins",
                     artifactId : "maven-dependency-plugin",
@@ -96,18 +99,21 @@ let project = maven_project({
                     artifactId : "maven-surefire-plugin",
                     version : `maven-surefire-plugin`
                 },
-                
                 {
-                    groupId : "org.sonatype.plugins",
-                    artifactId : "nexus-staging-maven-plugin",
-                    version : `nexus-staging-maven-plugin`,
-                    extensions : "true",
+                    groupId : "org.apache.maven.plugins",
+                    artifactId : "maven-gpg-plugin",
+                    version : "3.2.7",
+                },
+                {
+                    groupId : "org.sonatype.central",
+                    artifactId : "central-publishing-maven-plugin",
+                    version : "0.7.0",
+                    extensions : true,
                     configuration : {
-                        serverId : "ossrh",
-                        nexusUrl : "https://oss.sonatype.org/",
-                        autoReleaseAfterClose : "true"
-                    }
-                }    
+                            publishingServerId: "central",
+                            autoPublish: true
+                          }
+                }
                 ]
         }// end of plugin management
     },
@@ -159,13 +165,22 @@ let project = maven_project({
             plugins : [ {
                     groupId : "org.apache.maven.plugins",
                     artifactId : "maven-gpg-plugin",
-                    version : "3.2.7",
                     executions : [ {
                             id : "sign-artifacts",
                             phase : "verify",
                             goals : [ "sign" ]
                             } ]
-            } ]
+                    },
+                    {
+                        groupId : "org.sonatype.central",
+                        artifactId : "central-publishing-maven-plugin",
+                        extensions : true,
+                        configuration : {
+                                publishingServerId: "central",
+                                autoPublish: true
+                              }
+                    }
+           ]
         }
     } ]
 });

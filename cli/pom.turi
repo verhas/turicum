@@ -15,23 +15,15 @@ let project = maven_project({
 
     build: {
         plugins: [
+            maven_plugin("source"),
+            maven_plugin("javadoc"),
             {
                 groupId: "org.apache.maven.plugins",
                 artifactId: "maven-jar-plugin",
-                version: "3.4.2",
-                configuration: {
-                    archive :{
-                        manifest : {
-                            addDefaultImplementationEntries: "true",
-                            addDefaultSpecificationEntries: "true",
-                        }
-                    }
-                }
             },
             {
                 groupId: "org.apache.maven.plugins",
                 artifactId: "maven-assembly-plugin",
-                version: "3.7.1",
                 executions : [
                     {
                         id: "dist",
@@ -58,7 +50,7 @@ let project = maven_project({
         {
             groupId: "ch.turic",
             artifactId: "turicum",
-            version: "1.0.0-SNAPSHOT",
+            version: VERSION,
         },
         {
             groupId: "org.junit.jupiter",
@@ -74,7 +66,31 @@ let project = maven_project({
             version: "3.9.8",
             scope: "provided",
         }
-    ]
+    ],
+        profiles : [ {
+            id : "release",
+            build : {
+                plugins : [ {
+                        groupId : "org.apache.maven.plugins",
+                        artifactId : "maven-gpg-plugin",
+                        executions : [ {
+                                id : "sign-artifacts",
+                                phase : "verify",
+                                goals : [ "sign" ]
+                                } ]
+                        },
+                        {
+                            groupId : "org.sonatype.central",
+                            artifactId : "central-publishing-maven-plugin",
+                            extensions : true,
+                            configuration : {
+                                    publishingServerId: "central",
+                                    autoPublish: true
+                                  }
+                        }
+               ]
+            }
+        } ]
     }
 );
 
