@@ -752,12 +752,21 @@ macro(fn (!arg,[rest],{meta},^closure)
      (fn () {println("Hello")})
 // end snippet
 
+// snippet limited_import
+sys_import "turi.maven" , "lic*"
+
+println license
+
+try : println github("verhas", "turicum"); catch e: println e
+// end snippet
+
 // snippet import
-try{
-mut MyImport = import("mod.ul.name.file")
-mut my_function = MyImport.imported_function;
-my_function("hello")
-}catch e{}
+global APPIA = ["./src/test/resources/"];
+
+let fun = import("import_this").imported_fun
+
+print fun()
+
 // end snippet
 
 // snippet class1

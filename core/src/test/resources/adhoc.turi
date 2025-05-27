@@ -1,14 +1,5 @@
-sys_import "turi.trace";
+global APPIA = ["./src/test/resources/"];
 
-mut s = 13.to_string()
-println type(s)
-println s
-s = 3.14.to_string()
-println type(s)
-println s
-s = "kaka".to_string()
-println type(s)
-println s
-s = none.to_string()
-println type(s)
-println s
+let fun = import("import_this").imported_fun
+
+print fun()

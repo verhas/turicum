@@ -2467,33 +2467,72 @@ These are two functions to be used in files imported.
 The macro `export` will export the variables listed as arguments.
 That way these variables will be copied into the context of the importing code.
 
+You can specify identifiers and expressions resulting in strings as arguments.
+
 `export_all()` will export all the variables from the importing context.
 Note that in the case of `export_all()` you cannot omit the `(` and `)`.
-If you do, the line will be an expression with a function as a result, and the execution will not call the function.
 
 === `import`
 
-Import allows you to get definitions in other files into your code.
+Import allows you to get definitions from external files into your code.
 
-Technically, the function loads a Turicum source file, executes it, and returns the global context as an object.
+When you have a large application, you can separate some of the function definitions or classes into separate files.
+These separate files can be referenced, and the definitions from these can be loaded into the currently running interpreter.
+
+The function `import` searches the file looking at each directory listed in the environment variable `APPIA`.
+
+[NOTE]
+====
+The application
+
+* first looks at the variable named `APPIA` (either global or local),
+* then it tries the Java system property named `APPIA`,
+* then the environment variable, and finally
+* it tries to load the search path from the local directory `.env` file.
+
+Handling the `.env` file is implemented in the code, there is no need to use external helper tools.
+====
+
+`APPIA` is a string that lists the directories where the imported files may be.
+The individual directories are separated using `|` characters.
+
+NOTE: The character `|` was selected because it works on Windows as well as on Linux or other unix-based operating systems.
+The drawback is that it may be interpreted by the shell, but the value of `APPIA` is rarely defined on the comand line.
+
+When the import function sees a request to import the file `a.b.c.d` it will look at the subdirectory `a/b/c` for each `APPIA` directory.
+The search is left to right as the directories are defined in the variable.
+The first location when the  `d.turi` file is found "wins" and the file is loaded.
+
+Technically, the function
+
+* loads a Turicum source file,
+* executes using a separate interpreter, and
+* returns the global context of the interpreter as a class-less object.
+
 If you have function or class definitions in the imported file, they will be fields in the new object.
-Instead of introducing a new command, Turicum uses this function.
 
-Other languages separate the module names, class names, and alias definitions.
-In turicum when you import `mod.dul.name.file` it will find the file in one of the `mod/ul/name` subdirectories^*^ in the file `file.turi` via the appia.
+You can assign the returned object to a variable or use it right away cherry-picking certain field from it.
 
-You can assign the returned object to a variable.
-If you want a specific class or function in your name space you can simply `let` assign it to a variable
+If you want a specific class or function in your name space you can simply `let` assign it to a variable.
 
+.file `import_this.turi`
 [source]
 ----
-{%#ranges range=2..-2
-{%@snip import%}%}
+{%@include [verbatim] ./core/src/test/resources/import_this.turi%}
 ----
 
-The import searches for the file in the directories listed in the environment variable `APPIA`.
-This variable is a list of directories separated by `|` characters.
-They are searched from the first to the last until the file is found.
+{%S import%}
+
+There are two pairs to the function `import`: `export()` and `export_all()`.
+When these are used in an imported file, the variables from the imported file are copied automatically to the importing context.
+
+Specifying extra arguments after the imported file name can define the symbols you want to import.
+These arguments can be identifiers or expressions resulting in a string.
+If there is such a list in the import function the `export()` or `export_all()` in the imported file is ignored.
+
+{%S limited_import%}
+
+The list can contain strings and
 
 === `is_type`
 

@@ -4,11 +4,9 @@ ch.turic.builtins.functions.Macro
 ch.turic.builtins.functions.Evaluate
 ch.turic.builtins.functions.Reclose
 ch.turic.builtins.functions.Keys
-ch.turic.builtins.functions.Import
 ch.turic.builtins.functions.JavaNewObject
 ch.turic.builtins.functions.JavaMethodCall
 ch.turic.builtins.functions.JavaMethodCallVararg
-ch.turic.builtins.functions.SysImport
 ch.turic.builtins.functions.Sleep
 ch.turic.builtins.functions.Set
 ch.turic.builtins.functions.SetGlobal

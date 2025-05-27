@@ -11,12 +11,10 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Stream;
 
 public class TestReferenceSnippets {
@@ -24,7 +22,7 @@ public class TestReferenceSnippets {
     @TestFactory
     Stream<DynamicTest> dynamicTestsForInterpreterPrograms() throws URISyntaxException, IOException {
         // Locate the resource file.
-        Path filePath = Paths.get(Objects.requireNonNull(getClass().getResource("/references.turi")).toURI());
+        Path filePath = Path.of("./src/test/resources/references.turi");
         final var outputDir = Path.of("src/test/resources/references_output");
         String absoluteFilePath = filePath.toAbsolutePath().toString();
         // Read all lines from the resource file.
@@ -41,13 +39,13 @@ public class TestReferenceSnippets {
                             final var ps = new PrintStream(baos);
                             System.setOut(ps);
                             // Execute the snippet.
-                            Object result = new Interpreter(new Input( new StringBuilder(snippet.programCode()),snippet.filePath)).execute();
+                            Object result = new Interpreter(new Input(new StringBuilder(snippet.programCode()), snippet.filePath)).execute();
                             ps.close();
                             baos.close();
                             final var output = outputDir.resolve(snippet.name() + ".txt");
                             Files.writeString(output, baos.toString(), StandardCharsets.UTF_8, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
                             final var routput = outputDir.resolve(snippet.name() + "_result.txt");
-                            Files.writeString(routput, ""+result, StandardCharsets.UTF_8, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
+                            Files.writeString(routput, "" + result, StandardCharsets.UTF_8, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
                             System.setOut(out);
                         }
                 )
@@ -88,7 +86,7 @@ public class TestReferenceSnippets {
                     i++;
                 }
                 i++; // skip end snippet
-                snippets.add(new ProgramSnippet(snippetName, codeBuilder.toString(), snippetName+".turi", startLine));
+                snippets.add(new ProgramSnippet(snippetName, codeBuilder.toString(), snippetName + ".turi", startLine));
             } else {
                 i++;
                 if (i >= lines.size()) break; // no more snippets

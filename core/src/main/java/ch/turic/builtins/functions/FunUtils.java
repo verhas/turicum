@@ -22,6 +22,11 @@ public class FunUtils {
         return args[0];
     }
 
+    public static Object oneOrMoreArgs(final String name, Object[] args) {
+        ExecutionException.when(args.length == 0, "Built-in function '%s' needs exactly argument", name);
+        return args[0];
+    }
+
     public static void twoArgs(final String name, Object[] args) {
         ExecutionException.when(args.length != 2, "Function %s needs two arguments.", name);
     }

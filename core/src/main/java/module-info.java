@@ -13,8 +13,8 @@ module ch.turic {
     opens turi;
 
     provides ch.turic.TuriFunction with Len, Type, Macro, Evaluate,
-            Reclose, Keys, Import, JavaNewObject, JavaMethodCall,
-            JavaMethodCallVararg, SysImport, Sleep, Set, SetGlobal, SetCaller,
+            Reclose, Keys, JavaNewObject, JavaMethodCall,
+            JavaMethodCallVararg, Sleep, Set, SetGlobal, SetCaller,
             Que, TryYield, YieldIsClosed, Rx, RxMatch, TuriHttpServer, XmlFormat,
             IsObject, IsType, ExportAll, Parents, AllParents, Rng, Time, NanoTime,
             MathFunctions.Abs, MathFunctions.Sin, MathFunctions.Cos, MathFunctions.ACos,
@@ -28,6 +28,6 @@ module ch.turic {
             MathFunctions.NextUp, MathFunctions.Random, MathFunctions.Rint, MathFunctions.Round,
             MathFunctions.SigNum, MathFunctions.Ulp,
             Unthunk, Unwrap, BlockList, Command, Min, Max, MathFunctions.Pow, MathFunctions.Scalb;
-    provides ch.turic.TuriMacro with Export, IsDefined, UnLet, Thunk;
+    provides ch.turic.TuriMacro with Export, IsDefined, UnLet, Thunk, Import, SysImport;
     provides ch.turic.TuriClass with TuriString, TuriLong, TuriDouble, TuriIterator, TuriChannel;
 }

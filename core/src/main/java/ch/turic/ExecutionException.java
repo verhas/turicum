@@ -11,7 +11,7 @@ public class ExecutionException extends RuntimeException {
 
     private LngException embedded = null;
 
-    public ExecutionException(String message, Exception cause) {
+    public ExecutionException(Exception cause, String message) {
         super(message, cause);
     }
 

@@ -2,18 +2,19 @@ package ch.turic.builtins.functions;
 
 import ch.turic.Context;
 import ch.turic.ExecutionException;
-import ch.turic.TuriFunction;
+import ch.turic.TuriMacro;
+import ch.turic.commands.Command;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 import static ch.turic.builtins.functions.Import.doImportExport;
+import static ch.turic.builtins.functions.Import.getImportsList;
 
 /**
  * Imports a file as turi source code from the classpath.
  */
-public class SysImport implements TuriFunction {
+public class SysImport implements TuriMacro {
 
     @Override
     public String name() {
@@ -22,11 +23,14 @@ public class SysImport implements TuriFunction {
 
     @Override
     public Object call(Context context, Object[] args) throws ExecutionException {
-        if (!(context instanceof ch.turic.memory.Context ctx)) {
-            throw new ExecutionException("context must be a context of type ch.turic.memory.Context");
+        final var ctx = FunUtils.ctx(context);
+        final var argO = FunUtils.oneOrMoreArgs(name(), args);
+        final String sys_name;
+        if (argO instanceof Command cmd) {
+            sys_name = cmd.execute(ctx).toString();
+        } else {
+            throw new ExecutionException("Import needs a string first argument");
         }
-        ExecutionException.when(args.length != 1 || args[0] == null, "Built-in function %s needs exactly one argument", name());
-        final var sys_name = args[0].toString();
         final var resourceName = sys_name.replace(".", "/") + ".turi";
 
         try (final var is = this.getClass().getClassLoader().getResourceAsStream(resourceName)) {
@@ -34,7 +38,8 @@ public class SysImport implements TuriFunction {
                 throw new ExecutionException("Could not find sys import " + sys_name + " in " + resourceName);
             }
             final var source = new String(is.readAllBytes(), StandardCharsets.UTF_8);
-            return doImportExport(ctx, source);
+            final var imports = getImportsList(args, ctx);
+            return doImportExport(ctx, source, imports);
         } catch (IOException e) {
             throw new ExecutionException("Cannot read the sys import '%s'", sys_name);
         }

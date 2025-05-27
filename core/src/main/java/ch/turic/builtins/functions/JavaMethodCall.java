@@ -83,7 +83,14 @@ public class JavaMethodCall implements TuriFunction {
                         final Object[] args = Arrays.copyOfRange(arguments, 2, arguments.length);
                         return method.invoke(object, args);
                     }
-                } catch (IllegalAccessException | InvocationTargetException e) {
+                }catch( InvocationTargetException ite){
+                    Throwable cause = ite.getCause();
+                    while(cause.getCause() != null){
+                        cause = cause.getCause();
+                    }
+                    throw new ExecutionException(cause,"Exception while executing method call '"+methodName+"'");
+                }
+                catch (IllegalAccessException  e) {
                     throw new ExecutionException("Cannot invoke method '" + methodName + "'.", e);
                 }
             }

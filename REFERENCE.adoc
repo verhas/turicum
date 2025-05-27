@@ -4154,27 +4154,27 @@ execute("Thread 2",2)
 .output of snippet `channel_limit`
 [source]
 ----
- prime read Thread 1 generated 3
-2
+ prime read Thread 1 generated 32
+
+ prime read 3
 Thread 1 generated 5
- prime read Thread 1 generated 7
-3
  prime read 5
- prime read Thread 17
- generated 11
+Thread 1 generated 7
+ prime read 7
+Thread 1 generated 11
 Thread 1 generated 13
 Thread 1 generated 17
 Thread 1 generated 19
 Thread 1 generated 23
 stopping
 exception Task stopped.
- prime read 2
 Thread 2 generated 3
- prime read 3
+ prime read 2
 Thread 2 generated 5
+ prime read 3
  prime read 5
-Thread 2 generated 7
- prime read 7
+Thread 2 generated  prime read 7
+7
 Thread 2 generated 11
 Thread 2 generated 13
 stopping
@@ -4238,9 +4238,9 @@ println( (end-start)/1000000, "ms")
 [source]
 ----
 [1, 2, 3]
-312.296166ms
+311.881125ms
 []
-314.387917ms
+310.335167ms
 
 ----
 
@@ -4603,7 +4603,7 @@ println(inc(1))
 .output of snippet `fun1`
 [source]
 ----
-ch.turic.commands.Closure@65f8f5ae
+ch.turic.commands.Closure@530712d
 2
 
 ----
@@ -4632,7 +4632,7 @@ println(inc(1))
 .output of snippet `fun3`
 [source]
 ----
-ch.turic.commands.Closure@431cd9b2
+ch.turic.commands.Closure@2df6226d
 2
 
 ----
@@ -4663,7 +4663,7 @@ println(inc(1))
 .output of snippet `fun2`
 [source]
 ----
-ch.turic.commands.Closure@38467116
+ch.turic.commands.Closure@12ed9db6
 2
 
 ----
@@ -4859,7 +4859,7 @@ println(inc(1,how_much=5))
 .output of snippet `fun4`
 [source]
 ----
-ch.turic.commands.Closure@5b7a7f33
+ch.turic.commands.Closure@4ff4357f
 6
 
 ----
@@ -6986,7 +6986,7 @@ ieee_remainder(5,2) = 1.0
 next_after(1.0,2.0) = 1.0000000000000002
 next_down(1.0) = 0.9999999999999999
 next_up(1.0) = 1.0000000000000002
-random() = 0.06316793551020483
+random() = 0.3691353666740742
 rint(3.7) = 4.0
 round(3.7) = 4
 signum(-3.7) = -1.0
@@ -7181,35 +7181,122 @@ These are two functions to be used in files imported.
 The macro `export` will export the variables listed as arguments.
 That way these variables will be copied into the context of the importing code.
 
+You can specify identifiers and expressions resulting in strings as arguments.
+
 `export_all()` will export all the variables from the importing context.
 Note that in the case of `export_all()` you cannot omit the `(` and `)`.
-If you do, the line will be an expression with a function as a result, and the execution will not call the function.
 
 === `import`
 
-Import allows you to get definitions in other files into your code.
+Import allows you to get definitions from external files into your code.
 
-Technically, the function loads a Turicum source file, executes it, and returns the global context as an object.
+When you have a large application, you can separate some of the function definitions or classes into separate files.
+These separate files can be referenced, and the definitions from these can be loaded into the currently running interpreter.
+
+The function `import` searches the file looking at each directory listed in the environment variable `APPIA`.
+
+[NOTE]
+====
+The application
+
+* first looks at the variable named `APPIA` (either global or local),
+* then it tries the Java system property named `APPIA`,
+* then the environment variable, and finally
+* it tries to load the search path from the local directory `.env` file.
+
+Handling the `.env` file is implemented in the code, there is no need to use external helper tools.
+====
+
+`APPIA` is a string that lists the directories where the imported files may be.
+The individual directories are separated using `|` characters.
+
+NOTE: The character `|` was selected because it works on Windows as well as on Linux or other unix-based operating systems.
+The drawback is that it may be interpreted by the shell, but the value of `APPIA` is rarely defined on the comand line.
+
+When the import function sees a request to import the file `a.b.c.d` it will look at the subdirectory `a/b/c` for each `APPIA` directory.
+The search is left to right as the directories are defined in the variable.
+The first location when the  `d.turi` file is found "wins" and the file is loaded.
+
+Technically, the function
+
+* loads a Turicum source file,
+* executes using a separate interpreter, and
+* returns the global context of the interpreter as a class-less object.
+
 If you have function or class definitions in the imported file, they will be fields in the new object.
-Instead of introducing a new command, Turicum uses this function.
 
-Other languages separate the module names, class names, and alias definitions.
-In turicum when you import `mod.dul.name.file` it will find the file in one of the `mod/ul/name` subdirectories^*^ in the file `file.turi` via the appia.
+You can assign the returned object to a variable or use it right away cherry-picking certain field from it.
 
-You can assign the returned object to a variable.
-If you want a specific class or function in your name space you can simply `let` assign it to a variable
+If you want a specific class or function in your name space you can simply `let` assign it to a variable.
 
+.file `import_this.turi`
 [source]
 ----
-mut MyImport = import("mod.ul.name.file")
-mut my_function = MyImport.imported_function;
-my_function("hello")
+fn imported_fun(){
+    "fluffy dog"
+}
 
 ----
 
-The import searches for the file in the directories listed in the environment variable `APPIA`.
-This variable is a list of directories separated by `|` characters.
-They are searched from the first to the last until the file is found.
+
+.source of snippet `import`
+[source]
+----
+global APPIA = ["./src/test/resources/"];
+
+let fun = import("import_this").imported_fun
+
+print fun()
+
+
+
+----
+
+
+
+
+.output of snippet `import`
+[source]
+----
+fluffy dog
+----
+
+
+
+There are two pairs to the function `import`: `export()` and `export_all()`.
+When these are used in an imported file, the variables from the imported file are copied automatically to the importing context.
+
+Specifying extra arguments after the imported file name can define the symbols you want to import.
+These arguments can be identifiers or expressions resulting in a string.
+If there is such a list in the import function the `export()` or `export_all()` in the imported file is ignored.
+
+
+.source of snippet `limited_import`
+[source]
+----
+sys_import "turi.maven" , "lic*"
+
+println license
+
+try : println github("verhas", "turicum"); catch e: println e
+
+
+----
+
+
+
+
+.output of snippet `limited_import`
+[source]
+----
+{apache2_0: {name: The Apache License, Version 2.0, url: https://www.apache.org/licenses/LICENSE-2.0.txt}}
+Variable 'github' is undefined.
+
+----
+
+
+
+The list can contain strings and
 
 === `is_type`
 
@@ -7450,7 +7537,7 @@ println nano_time()
 .output of snippet `nano_time`
 [source]
 ----
-610262722772250
+647204696435958
 
 ----
 
@@ -7782,44 +7869,46 @@ none
 .output of snippet `que`
 [source]
 ----
-task1 is not ready 0
 task2 is not ready 0
-task1 is ready 1
 task1 is not ready 0
-task2 is not ready 1
 task1 is not ready 1
-task2 is not ready 2
-task1 is ready 2
-task2 is not ready 3
-task1 is not ready 0
-task2 is not ready 4task1 is not ready 1
-
-task1 is not ready 2
-task2 is not ready 5
-task2 is ready 3
-task1 is not ready 3
+task2 is ready 1
 task2 is not ready 0
 task2 is not ready 1
+task1 is not ready 2
+task2 is not ready 2
+task1 is not ready 3
+task2 is ready 2
+task2 is not ready 0
 task1 is not ready 4
+task2 is not ready 1
 task1 is not ready 5
 task2 is not ready 2
 task1 is not ready 6
-task2 is ready 4
-task2 is not ready 0
-task1 is not ready 7
-task2 is not ready 1
-task1 is not ready 8
-task2 is not ready 2
-task1 is ready 5
-task2 is not ready 3task1 is not ready 0
-
-task2 is not ready 4
+task1 is ready 3
+task1 is not ready 0
+task2 is not ready 3
 task1 is not ready 1
+task2 is not ready 4
+task1 is not ready 2
 task2 is not ready 5
+task1 is ready 4task2 is not ready 6
+
+task1 is not ready 0
+task2 is not ready 7
+task1 is not ready 1
+task2 is not ready 8
+task1 is not ready 2
+task1 is ready 5
+task2 is not ready 9
+task1 is not ready 0
+task2 is not ready 10
+task1 is not ready 1
+task2 is not ready 11
 task1 is not ready 2
 task2 is ready 6
-task1 is not ready 3
 task2 is not ready 0
+task1 is not ready 3
 task2 is not ready 1
 task1 is not ready 4
 task2 is not ready 2
@@ -7829,23 +7918,23 @@ task1 is not ready 6
 task2 is not ready 0
 task1 is not ready 7
 task2 is not ready 1
-task2 is not ready 2
 task1 is not ready 8
+task2 is not ready 2
+task1 is not ready 9
+task2 is not ready 3
 task2 is ready 8
 task2 is not ready 0
-task1 is not ready 9
 task1 is not ready 10
 task2 is not ready 1
-task1 is not ready 11task2 is not ready 2
-
+task1 is not ready 11
 task1 is not ready 12
-task2 is not ready 3
-task1 is ready 9
+task2 is not ready 2
+task2 is not ready 3task1 is ready 9
+
 task1 is not ready 0
 task2 is not ready 4
-task2 is not ready 5
 task1 is not ready 1
-task2 is not ready 6
+task2 is not ready 5
 task1 is not ready 2
 closing the channel
 channel is closed
@@ -7855,7 +7944,7 @@ we start to wait the first time
 task1 is done
 task2 is done
 task1 done true
-task2 done true
+task2 done false
 We start to wait the second time
 task1 done true
 task2 done true
