@@ -1,3 +1,29 @@
+
+
+// snippet pin_object
+let a = {a:1, b:2};
+pin {a};
+
+try: a.k = 13 catch e: println e
+
+// end snippet
+
+// snippet pin_list
+let a = [1,2,3,4];
+pin [a];
+
+try: a[0] = 13 catch e: println e
+// end snippet
+
+// snippet pin_wrong
+let a = [1,2,3,4];
+try: pin {a}; catch e1: println e1
+let b = {a:1, b:2, c:3}
+try: pin [b]; catch e2: println e2
+// end snippet
+
+
+
 // snippet abs
 println  $"${abs(-3)} ${abs(6e23)} ${abs (-7.3)}"
 try: let q = abs("abraka dabra")
@@ -583,6 +609,23 @@ q()
     }
 }
 q()
+// end snippet
+
+// snippet fnDecorator5
+fn fun_decorator(^closure){
+        set_caller(closure.name,
+            {|| println("We start the fun"); closure(); println("The fun is over")}
+           )
+    }
+
+{
+    @fun_decorator()
+    fn q(){
+      println("We function");
+    }
+
+    q()
+}
 // end snippet
 
 // snippet that
@@ -2053,7 +2096,7 @@ println( (end-start)/1000000, "ms")
 // end snippet
 
 // snippet example_flow_squareroot
-mut sqrt = {
+mut _sqrt = {
     flow until epsilon < 0.0001 {
         a <- 13;
         a <- {
@@ -2066,8 +2109,9 @@ mut sqrt = {
     }
 }
 
-println("sqrt(13) ≈ ", sqrt);
-println("square ≈ ", sqrt * sqrt);
+println("sqrt(13) ≈ ", _sqrt);
+println("sqrt(13) ≈ ", sqrt(13), " calulated by java Math");
+println("square ≈ ", _sqrt * _sqrt);
 // end snippet
 
 // snippet example_flow_timeout
@@ -2320,5 +2364,43 @@ sys_import "turi.range"
 for each i in range(start=0, end=5) list{
     println i
 }
+// end snippet
+
+// snippet math_functions
+println "Testing math functions:"
+println "sin(1) = ", sin(1)
+println "cos(1) = ", cos(1) 
+println "acos(0.5) = ", acos(0.5)
+println "asin(0.5) = ", asin(0.5)
+println "atan(1) = ", atan(1)
+println "atan2(1,1) = ", atan2(1,1)
+println "cbrt(27) = ", cbrt(27)
+println "ceil(3.2) = ", ceil(3.2)
+println "abs(-3) = ", abs(-3)
+println "exp(1) = ", exp(1)
+println "floor(3.8) = ", floor(3.8)
+println "log(2.718281828459045) = ", log(2.718281828459045)
+println "log10(100) = ", log10(100)
+println "sqrt(16) = ", sqrt(16)
+println "tan(1) = ", tan(1)
+println "tanh(1) = ", tanh(1)
+println "sinh(1) = ", sinh(1)
+println "cosh(1) = ", cosh(1)
+println "to_degrees(3.14159) = ", to_degrees(3.14159)
+println "to_radians(180) = ", to_radians(180)
+println "pow(3,3) =", pow(3,3)
+println "copy_sign(3.5,-2.1) = ", copy_sign(3.5,-2.1)
+println "get_exponent(123.456) = ", get_exponent(123.456)
+println "hypot(3,4) = ", hypot(3,4)
+println "ieee_remainder(5,2) = ", ieee_remainder(5,2)
+println "next_after(1.0,2.0) = ", next_after(1.0,2.0)
+println "next_down(1.0) = ", next_down(1.0)
+println "next_up(1.0) = ", next_up(1.0)
+println "random() = ", random()
+println "rint(3.7) = ", rint(3.7)
+println "round(3.7) = ", round(3.7)
+println "sig_num(-3.7) = ", sig_num(-3.7)
+println "ulp(1.0) = ", ulp(1.0)
+println "scalb(2.0,3) = ", scalb(2.0,3)
 // end snippet
 

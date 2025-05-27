@@ -2260,6 +2260,8 @@ There are predefined type names.
  the variable value has to be a macro
 * `none`
  the variable can hold the value `none`
+* `some`
+ the variable can hold any value, except `none`
 
 
 
@@ -2578,12 +2580,86 @@ The list is comma separated elements, can be
 
 A variable in the list will make the variable in the current context pinned.
 If the variable name is decorated with `{}` then the object, which is the value of the variable gets pinned.
-Note that this is changing the object itself and not the variable.
+Note that this is changing the mutability of the object itself and not the variable.
+
+
+.source of snippet `pin_object`
+[source]
+----
+let a = {a:1, b:2};
+pin {a};
+
+try: a.k = 13 catch e: println e
+
+
+
+----
+
+
+
+
+.output of snippet `pin_object`
+[source]
+----
+You cannot change a pinned object
+
+----
+
+
 
 If the variable name is decorated with `[]` then the list, which is the value of the variable gets pinned.
-Note that this is changing the list itself and not the variable.
+Note that this is changing the mutability of the list itself and not the variable.
+
+
+.source of snippet `pin_list`
+[source]
+----
+let a = [1,2,3,4];
+pin [a];
+
+try: a[0] = 13 catch e: println e
+
+
+----
+
+
+
+
+.output of snippet `pin_list`
+[source]
+----
+Cannot change a pinned list.
+
+----
+
+
 
 It is an error using the decoration on a variable that is not an object or list.
+
+
+.source of snippet `pin_wrong`
+[source]
+----
+let a = [1,2,3,4];
+try: pin {a}; catch e1: println e1
+let b = {a:1, b:2, c:3}
+try: pin [b]; catch e2: println e2
+
+
+----
+
+
+
+
+.output of snippet `pin_wrong`
+[source]
+----
+value of 'a' is not an object to be pinned
+value of 'b' is not a list to be pinned
+
+----
+
+
 
 The following example demonstrates the different pinning possibilities:
 
@@ -4079,12 +4155,12 @@ execute("Thread 2",2)
 [source]
 ----
  prime read 2
-Thread 1 generated 3
- prime read 3
+Thread 1 prime read  generated 3
+3
 Thread 1 generated 5
  prime read 5
-Thread 1 generated 7
- prime read 7
+Thread 1 generated 7 prime read 7
+
 Thread 1 generated 11
 Thread 1 generated 13
 Thread 1 generated 17
@@ -4092,13 +4168,13 @@ Thread 1 generated 19
 Thread 1 generated 23
 stopping
 exception Task stopped.
- prime read 2
 Thread 2 generated 3
+ prime read 2
  prime read 3
 Thread 2 generated 5
+Thread 2 generated 7
  prime read 5
-Thread 2 generated  prime read 7
-7
+ prime read 7
 Thread 2 generated 11
 Thread 2 generated 13
 stopping
@@ -4162,9 +4238,9 @@ println( (end-start)/1000000, "ms")
 [source]
 ----
 [1, 2, 3]
-315.473042ms
+311.07725ms
 []
-312.900792ms
+322.595208ms
 
 ----
 
@@ -4348,7 +4424,7 @@ It shows how reactive cells can update each other iteratively until convergence 
 .source of snippet `example_flow_squareroot`
 [source]
 ----
-mut sqrt = {
+mut _sqrt = {
     flow until epsilon < 0.0001 {
         a <- 13;
         a <- {
@@ -4361,8 +4437,9 @@ mut sqrt = {
     }
 }
 
-println("sqrt(13) ≈ ", sqrt);
-println("square ≈ ", sqrt * sqrt);
+println("sqrt(13) ≈ ", _sqrt);
+println("sqrt(13) ≈ ", sqrt(13), " calulated by java Math");
+println("square ≈ ", _sqrt * _sqrt);
 
 
 ----
@@ -4382,6 +4459,7 @@ a =3.6055512754639905
 a =3.6055512754639896
 a =3.6055512754639896
 sqrt(13) ≈ 3.6055512754639896
+sqrt(13) ≈ 3.605551275463989 calulated by java Math
 square ≈ 13.000000000000002
 
 ----
@@ -4526,7 +4604,7 @@ println(inc(1))
 .output of snippet `fun1`
 [source]
 ----
-ch.turic.commands.Closure@61c4eee0
+ch.turic.commands.Closure@5b7a7f33
 2
 
 ----
@@ -4555,7 +4633,7 @@ println(inc(1))
 .output of snippet `fun3`
 [source]
 ----
-ch.turic.commands.Closure@6f10d5b6
+ch.turic.commands.Closure@790da477
 2
 
 ----
@@ -4586,7 +4664,7 @@ println(inc(1))
 .output of snippet `fun2`
 [source]
 ----
-ch.turic.commands.Closure@1040be71
+ch.turic.commands.Closure@5c7933ad
 2
 
 ----
@@ -4782,7 +4860,7 @@ println(inc(1,how_much=5))
 .output of snippet `fun4`
 [source]
 ----
-ch.turic.commands.Closure@548a24a
+ch.turic.commands.Closure@57bc27f5
 6
 
 ----
@@ -5821,7 +5899,7 @@ catch e: println e; // we should see in the error
 .output of snippet `inherit8`
 [source]
 ----
-Cannot set variable 'b' to value 'none' as it does not fit any of the accepted type of the variable (num|str)
+Cannot set variable 'b' to value 'none' because it does not fit any of the declared types of the variable (num|str)
 
 ----
 
@@ -6115,7 +6193,8 @@ We finish@
 
 The `@` helps you emphasize that the call is a decorator call that modifies the closure following it.
 The use of `@` also notifies the syntax analyzer that the call is a decorator call, and it extends the recognition of the following `^closure` parameter.
-When the `@` precedes the function call, a `fn` or `class` are also recognized as `^closure` parameter.
+When the `@` precedes the function call, a `fn` or `class` are also recognized as `^closure` parameter,
+and you do not need to enclose them between `{` and `}`.
 
 
 .source of snippet `fnDecorator1`
@@ -6792,7 +6871,134 @@ println "64. ",M
 
 Built-in functions are functions provided by the interpreter, which extend the functionality of the run-time.
 
-=== `abs`
+=== Mathematical Functions
+
+All mathematical functions from Java's Math class are available in Turicum:
+
+* `acos(x)` - Returns the arc cosine of a value
+* `asin(x)` - Returns the arc sine of a value
+* `atan(x)` - Returns the arc tangent of a value
+* `atan2(y,x)` - Returns the angle theta from the conversion of rectangular coordinates (x,y) to polar coordinates
+* `cbrt(x)` - Returns the cube root of a value
+* `ceil(x)` - Returns the smallest integer greater than or equal to the argument
+* `copy_sign(magnitude,sign)` - Returns first argument with the sign of the second argument
+* `cos(x)` - Returns the trigonometric cosine of an angle
+* `cosh(x)` - Returns the hyperbolic cosine of x
+* `exp(x)` - Returns Euler's number e raised to the power of x
+* `floor(x)` - Returns the largest integer less than or equal to the argument
+* `get_exponent(x)` - Returns the unbiased exponent used in the representation of a floating point number
+* `hypot(x,y)` - Returns sqrt(x^2 + y^2) without intermediate overflow or underflow
+* `ieee_remainder(x,y)` - Returns the IEEE 754 floating-point remainder of division
+* `log(x)` - Returns the natural logarithm (base e) of x
+* `log10(x)` - Returns the base 10 logarithm of x
+* `next_after(start,direction)` - Returns the floating-point number adjacent to start in the direction of direction
+* `next_down(x)` - Returns the floating-point value adjacent to x in the direction of negative infinity
+* `next_up(x)` - Returns the floating-point value adjacent to x in the direction of positive infinity
+* `pow(x,y)` - Returns the value of x raised to the power of y
+* `random()` - Returns a random number between 0.0 and 1.0
+* `rint(x)` - Returns the closest integer to x (as a double)
+* `round(x)` - Returns the closest integer to x (as a long)
+* `scalb(x,scaleFactor)` - Returns x * 2^scaleFactor
+* `sig_num(x)` - Returns the signum function of x
+* `sin(x)` - Returns the trigonometric sine of an angle
+* `sinh(x)` - Returns the hyperbolic sine of x
+* `sqrt(x)` - Returns the square root of x
+* `tan(x)` - Returns the trigonometric tangent of an angle
+* `tanh(x)` - Returns the hyperbolic tangent of x
+* `to_degrees(x)` - Converts an angle measured in radians to degrees
+* `to_radians(x)` - Converts an angle measured in degrees to radians
+* `ulp(x)` - Returns the size of an ulp (unit in last place) of x
+
+
+.source of snippet `math_functions`
+[source]
+----
+println "Testing math functions:"
+println "sin(1) = ", sin(1)
+println "cos(1) = ", cos(1)
+println "acos(0.5) = ", acos(0.5)
+println "asin(0.5) = ", asin(0.5)
+println "atan(1) = ", atan(1)
+println "atan2(1,1) = ", atan2(1,1)
+println "cbrt(27) = ", cbrt(27)
+println "ceil(3.2) = ", ceil(3.2)
+println "abs(-3) = ", abs(-3)
+println "exp(1) = ", exp(1)
+println "floor(3.8) = ", floor(3.8)
+println "log(2.718281828459045) = ", log(2.718281828459045)
+println "log10(100) = ", log10(100)
+println "sqrt(16) = ", sqrt(16)
+println "tan(1) = ", tan(1)
+println "tanh(1) = ", tanh(1)
+println "sinh(1) = ", sinh(1)
+println "cosh(1) = ", cosh(1)
+println "to_degrees(3.14159) = ", to_degrees(3.14159)
+println "to_radians(180) = ", to_radians(180)
+println "pow(3,3) =", pow(3,3)
+println "copy_sign(3.5,-2.1) = ", copy_sign(3.5,-2.1)
+println "get_exponent(123.456) = ", get_exponent(123.456)
+println "hypot(3,4) = ", hypot(3,4)
+println "ieee_remainder(5,2) = ", ieee_remainder(5,2)
+println "next_after(1.0,2.0) = ", next_after(1.0,2.0)
+println "next_down(1.0) = ", next_down(1.0)
+println "next_up(1.0) = ", next_up(1.0)
+println "random() = ", random()
+println "rint(3.7) = ", rint(3.7)
+println "round(3.7) = ", round(3.7)
+println "sig_num(-3.7) = ", sig_num(-3.7)
+println "ulp(1.0) = ", ulp(1.0)
+println "scalb(2.0,3) = ", scalb(2.0,3)
+
+
+----
+
+
+
+
+.output of snippet `math_functions`
+[source]
+----
+Testing math functions:
+sin(1) = 0.8414709848078965
+cos(1) = 0.5403023058681398
+acos(0.5) = 1.0471975511965979
+asin(0.5) = 0.5235987755982989
+atan(1) = 0.7853981633974483
+cbrt(27) = 3.0
+ceil(3.2) = 4.0
+abs(-3) = 3.0
+exp(1) = 2.7182818284590455
+floor(3.8) = 3.0
+log(2.718281828459045) = 1.0
+log10(100) = 2.0
+sqrt(16) = 4.0
+tan(1) = 1.5574077246549023
+tanh(1) = 0.7615941559557649
+sinh(1) = 1.1752011936438014
+cosh(1) = 1.543080634815244
+to_degrees(3.14159) = 179.9998479605043
+to_radians(180) = 3.141592653589793
+pow(3,3) =27.0
+atan2(1,1) = 0.7853981633974483
+copy_sign(1,-2) = -1.0
+get_exponent(16.0) = 4
+hypot(3,4) = 5.0
+ieee_remainder(5,3) = -1.0
+next_after(1.0,2.0) = 1.0000000000000002
+next_down(1.0) = 0.9999999999999999
+next_up(1.0) = 1.0000000000000002
+random() = 0.2837239535096897
+rint(3.7) = 4.0
+round(3.7) = 4
+signum(-5) = -1.0
+ulp(1.0) = 2.220446049250313E-16
+scalb(2.0,3) = 16.0
+
+----
+
+
+
+==== `abs`
 
 Returns the absolute value of the argument.
 It can only be used for numeric arguments.
@@ -6814,11 +7020,10 @@ catch e: println e
 .output of snippet `abs`
 [source]
 ----
-3 6.0E23 7.3
+3.0 6.0E23 7.3
 abs argument is not a long/double
 
 ----
-
 
 
 
@@ -7247,7 +7452,7 @@ zibra
 affe
 1+i1
 3+i2
-Cannot set variable 'other' to value 'Donald' as it does not fit any of the accepted type of the variable (Complex)
+Cannot set variable 'other' to value 'Donald' because it does not fit the declared type Complex
 
 ----
 
@@ -7274,7 +7479,7 @@ println nano_time()
 .output of snippet `nano_time`
 [source]
 ----
-363144662018541
+602907265557958
 
 ----
 
@@ -7606,82 +7811,82 @@ none
 .output of snippet `que`
 [source]
 ----
-task1 is not ready 0task2 is not ready 0
-
-task1 is ready 1
 task1 is not ready 0
-task2 is not ready 1
+task2 is not ready 0
+task2 is ready 1
+task2 is not ready 0
 task1 is not ready 1
+task2 is not ready 1
+task1 is not ready 2
 task2 is not ready 2
-task2 is not ready 3task1 is not ready 2
-
-task2 is ready 2task1 is not ready 3
-
-task2 is not ready 0
-task2 is not ready 1
-task1 is not ready 4
-task2 is not ready 2task1 is not ready 5
-
-task1 is not ready 6
-task2 is ready 3
-task2 is not ready 0
-task1 is not ready 7
-task2 is not ready 1
-task1 is not ready 8
-task2 is ready 4
-task2 is not ready 0
-task1 is not ready 9
-task2 is not ready 1
-task2 is not ready 2
-task1 is not ready 10
-task2 is not ready 3
-task1 is not ready 11
-task2 is not ready 4task1 is ready 5
-
+task1 is ready 2
 task1 is not ready 0
-task2 is not ready 5
+task2 is not ready 3
 task1 is not ready 1
 task1 is not ready 2
-task2 is not ready 6
-task1 is ready 6
+task2 is not ready 4
+task1 is not ready 3
+task2 is not ready 5
+task2 is not ready 6task1 is ready 3
+
 task1 is not ready 0
 task2 is not ready 7
 task1 is not ready 1
+task1 is not ready 2
 task2 is not ready 8
-task1 is not ready 2
 task2 is not ready 9
-task2 is not ready 10
-task1 is ready 7
+task1 is ready 4
 task1 is not ready 0
-task2 is not ready 11task1 is not ready 1
-
-task2 is not ready 12
+task2 is not ready 10
+task1 is not ready 1
 task1 is not ready 2
-task2 is ready 8
+task2 is not ready 11
 task1 is not ready 3
+task2 is ready 5
 task2 is not ready 0
 task1 is not ready 4
 task2 is not ready 1
-task1 is not ready 5
-task2 is not ready 2
-task1 is not ready 6
+task2 is not ready 2task1 is not ready 5
+
+task1 is ready 6
 task2 is not ready 3
-task1 is ready 9
-task2 is not ready 4
 task1 is not ready 0
-task2 is not ready 5
+task2 is not ready 4
 task1 is not ready 1
-task2 is not ready 6
+task1 is not ready 2task2 is not ready 5
+
+task1 is not ready 3task2 is not ready 6
+
+task2 is not ready 7task1 is ready 7
+
+task1 is not ready 0
+task2 is not ready 8
+task1 is not ready 1
 task1 is not ready 2
+task2 is not ready 9
+task1 is ready 8
+task2 is not ready 10
+task1 is not ready 0
+task2 is not ready 11
+task1 is not ready 1
+task1 is not ready 2
+task2 is not ready 12
+task1 is ready 9
+task1 is not ready 0
+task2 is not ready 13
+task2 is not ready 14task1 is not ready 1
+
+task1 is not ready 2
+task2 is not ready 15
 closing the channel
 channel is closed
 1 is done false
 2 is done false
 we start to wait the first time
-task2 is done
 task1 is done
-task1 done false
-task2 done true
+task2 is done
+task1 done true
+task2 done false
 We start to wait the second time
 task1 done true
 task2 done true
@@ -7690,9 +7895,17 @@ task2 done true
 
 
 
+=== Setting values in Contexts
 
+Currently, there are three 'set' functions to update the value of a variable when the name of the variable is available in a string.
 
-=== `set`
+* `set`
+* `set_global`
+* `set_caller`
+
+The use of these functions should be considered only for special meta-programming cases like writing decorators.
+
+==== `set`
 
 Set the value of a variable in the local context.
 This function is useful for meta-programming when the name of the variable is available in a string.
@@ -7734,9 +7947,55 @@ The fun is over
 
 uses this function to decorate a function and then set the variable of the same name, overwriting the definition with a new, decorated closure.
 
-=== `set_global`
+==== `set_global`
 
-It is simlar to `set()` but it sets the variable as global.
+It is simlar to `set()` but it sets the value of a global variable.
+
+==== `set_caller`
+
+This function sets the variable in the caller context.
+This comes handy when you implement a decorator that wants to redefine a function or class, and the decorator is in a different context than the decorated function.
+You can set the name as a global name, but that will define the name globally, and if the function is in a local context, it may not exactly work as expected.
+
+Calling this function from inside a function can redefine a variable in the context of the code that is calling the function or closure.
+
+
+.source of snippet `fnDecorator5`
+[source]
+----
+fn fun_decorator(^closure){
+        set_caller(closure.name,
+            {|| println("We start the fun"); closure(); println("The fun is over")}
+           )
+    }
+
+{
+    @fun_decorator()
+    fn q(){
+      println("We function");
+    }
+
+    q()
+}
+
+
+----
+
+
+
+
+.output of snippet `fnDecorator5`
+[source]
+----
+We start the fun
+We function
+The fun is over
+
+----
+
+
+
+
 
 === `sys_import`
 
@@ -7905,6 +8164,7 @@ not ready 0
 not ready 1
 not ready 2
 closing the channel
+not ready 3
 channel is closed
 is done false
 we are done

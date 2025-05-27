@@ -14,10 +14,20 @@ module ch.turic {
 
     provides ch.turic.TuriFunction with Len, Type, Macro, Evaluate,
             Reclose, Keys, Import, JavaNewObject, JavaMethodCall,
-            JavaMethodCallVararg, SysImport, Sleep, Set, SetGlobal,
+            JavaMethodCallVararg, SysImport, Sleep, Set, SetGlobal, SetCaller,
             Que, TryYield, YieldIsClosed, Rx, RxMatch, TuriHttpServer, XmlFormat,
             IsObject, IsType, ExportAll, Parents, AllParents, Rng, Time, NanoTime,
-            Abs, Unthunk, Unwrap, BlockList, Command, Min, Max;
+            MathFunctions.Abs, MathFunctions.Sin, MathFunctions.Cos, MathFunctions.ACos,
+            MathFunctions.Asin, MathFunctions.Atan, MathFunctions.Cbrt, MathFunctions.Ceil,
+            MathFunctions.Exp, MathFunctions.Floor, MathFunctions.Log, MathFunctions.Log10,
+            MathFunctions.Sqrt, MathFunctions.Tan, MathFunctions.Tanh, MathFunctions.Sinh,
+            MathFunctions.Cosh, MathFunctions.ToDegrees, MathFunctions.ToRadians,
+            MathFunctions.Atan2, MathFunctions.CopySign,
+            MathFunctions.GetExponent, MathFunctions.Hypot, MathFunctions.IEEERemainder,
+            MathFunctions.NextAfter, MathFunctions.NextDown,
+            MathFunctions.NextUp, MathFunctions.Random, MathFunctions.Rint, MathFunctions.Round,
+            MathFunctions.SigNum, MathFunctions.Ulp,
+            Unthunk, Unwrap, BlockList, Command, Min, Max, MathFunctions.Pow, MathFunctions.Scalb;
     provides ch.turic.TuriMacro with Export, IsDefined, UnLet, Thunk;
     provides ch.turic.TuriClass with TuriString, TuriLong, TuriDouble, TuriIterator, TuriChannel;
 }

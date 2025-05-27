@@ -1,4 +1,8 @@
-sys_import "turi.option";
+sys_import "turi.trace";
 
-let k = option((let some=1))
-println k
+@trace(f="asdag")
+fn a(x) {
+    println $"x is ${x}"
+}
+
+a(13)

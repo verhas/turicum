@@ -1,2 +1,2 @@
-3 6.0E23 7.3
+3.0 6.0E23 7.3
 abs argument is not a long/double

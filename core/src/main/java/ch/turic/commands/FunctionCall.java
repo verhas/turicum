@@ -2,6 +2,7 @@ package ch.turic.commands;
 
 import ch.turic.ExecutionException;
 import ch.turic.LngCallable;
+import ch.turic.TuriClass;
 import ch.turic.memory.*;
 
 import java.util.Arrays;
@@ -82,9 +83,7 @@ public class FunctionCall extends AbstractCommand {
             if (function instanceof ClosureOrMacro command) {
                 final ArgumentEvaluated[] argValues = command.evaluateArguments(context, this.arguments);
                 final var ctx = context.wrap(command.wrapped());
-                if (command instanceof Macro) {
-                    ctx.setCaller(context);
-                }
+                ctx.setCaller(context);
                 ctx.let0("me", function);
                 ctx.freeze("me");
                 defineArgumentsInContext(ctx, context, command.parameters(), argValues, true);
@@ -169,7 +168,7 @@ public class FunctionCall extends AbstractCommand {
                 } else {
                     final var value = parameter.defaultExpression().execute(callerContext);
                     ctx.defineTypeChecked(parameter.identifier(), value, calculateTypeNames(ctx, parameter.types()));
-                    if( freeze) {
+                    if (freeze) {
                         ctx.freeze(parameter.identifier());
                     }
                 }
@@ -177,19 +176,19 @@ public class FunctionCall extends AbstractCommand {
         }
         if (pList.rest() != null) {
             ctx.let0(pList.rest(), rest);
-            if( freeze) {
+            if (freeze) {
                 ctx.freeze(pList.rest());
             }
         }
         if (pList.meta() != null) {
             ctx.let0(pList.meta(), meta);
-            if( freeze) {
+            if (freeze) {
                 ctx.freeze(pList.meta());
             }
         }
         if (pList.closure() != null) {
             ctx.let0(pList.closure(), closure);
-            if( freeze) {
+            if (freeze) {
                 ctx.freeze(pList.closure());
             }
         }
@@ -204,8 +203,8 @@ public class FunctionCall extends AbstractCommand {
      * @param argValue the argument values
      * @param meta     the object holding the extra named parameters
      * @param filled   the array keeping track of which parameters had got value from the caller
-     * @param lenient do not care if a named value does not have a corresponding parameter. This is used when an object
-     *                is spread. In that case, it is not a problem, if there is no "cls", "this" or some other parameters-
+     * @param lenient  do not care if a named value does not have a corresponding parameter. This is used when an object
+     *                 is spread. In that case, it is not a problem, if there is no "cls", "this" or some other parameters-
      * @throws ExecutionException if there is no 'meta' and the name is not defined
      */
     private static void addNamedParameter(Context ctx, ParameterList pList, ArgumentEvaluated argValue, LngObject meta, boolean[] filled, boolean lenient) {
@@ -290,7 +289,7 @@ public class FunctionCall extends AbstractCommand {
                 if (pList.parameters()[index].type() != ParameterList.Parameter.Type.NAMED_ONLY && !filled[index]) {
                     final var id = pList.parameters()[index].identifier();
                     ctx.defineTypeChecked(id, argValue.value, calculateTypeNames(ctx, pList.parameters()[index].types()));
-                    if( freeze) {
+                    if (freeze) {
                         ctx.freeze(id);
                     }
                     filled[index] = true;
@@ -338,27 +337,7 @@ public class FunctionCall extends AbstractCommand {
                 if (jo.object() == null) {
                     yield null;
                 }
-                var turi = context.globalContext.getTuriClass(jo.object().getClass());
-                if (turi == null) {
-                    var papi = jo.object().getClass();
-                    while (papi != null) {
-                        turi = context.globalContext.getTuriClass(papi);
-                        if (turi != null) {
-                            break;
-                        }
-                        for (final var face : papi.getInterfaces()) {
-                            turi = context.globalContext.getTuriClass(face);
-                            if (turi != null) {
-                                break;
-                            }
-                        }
-                        if (turi != null) {
-                            break;
-                        }
-                        papi = papi.getSuperclass();
-                    }
-
-                }
+                final var turi = getTuriClass(context, jo);
                 if (turi != null) {
                     yield turi.getMethod(jo.object(), identifier);
                 }
@@ -369,16 +348,59 @@ public class FunctionCall extends AbstractCommand {
     }
 
     /**
-     * Handle the method calls when there is no preceding "this" in front of the method name.
+     * Retrieves the {@link TuriClass} associated with the specified object's class or its hierarchy, including its
+     * implemented interfaces and superclasses, using the provided context.
+     * <p>
+     * Search order for TuriClass:
+     * 1. Direct class match
+     * 2. Superclass hierarchy (bottom-up)
+     * 3. Interfaces of each class in the hierarchy
+     *
+     * @param context the execution context providing access to the global context
+     *                for resolving TuriClass associations
+     * @param jo      the JavaObject whose associated TuriClass needs to be resolved
+     * @return the corresponding TuriClass for the JavaObject's class or
+     * null if no matching TuriClass is found
+     */
+    private static TuriClass getTuriClass(Context context, JavaObject jo) {
+        var turi = context.globalContext.getTuriClass(jo.object().getClass());
+        if (turi == null) {
+            var papi = jo.object().getClass();
+            while (papi != null) {
+                turi = context.globalContext.getTuriClass(papi);
+                if (turi != null) {
+                    break;
+                }
+                for (final var face : papi.getInterfaces()) {
+                    turi = context.globalContext.getTuriClass(face);
+                    if (turi != null) {
+                        break;
+                    }
+                }
+                if (turi != null) {
+                    break;
+                }
+                papi = papi.getSuperclass();
+            }
+
+        }
+        return turi;
+    }
+
+    /**
+     * Convert the {@code object} to a field access if it is an identifier referencing an object or class field in the
+     * current context.
+     * <p>
+     * Helps to handle the method calls when there is no preceding "this" or "cls" in front of the method name.
      * <p>
      * If the {@code object} is an {@link Identifier} with a {@code name}, and the context contains a
-     * {@code "this"} reference, the method checks whether the {@code this} object (assumed to be an
+     * {@code "this"} or {@code cls} reference, then the method checks whether the {@code this} object (assumed to be an
      * {@link LngObject}) has a field with the given name. If such a field exists, it returns a
-     * {@link FieldAccess} expression referring to {@code this.name}. Otherwise, it returns the original
-     * {@code object}.
+     * {@link FieldAccess} expression referring to {@code this.name}.
      * <p>
-     * If the {@code object} is not an {@link Identifier} or there is no {@code "this"} in the context,
-     * the method returns the original {@code object}.
+     * If not, then it tries the same with the {@code cls} class object assuming it is {@code LngClass}.
+     * <p>
+     * Otherwise, it returns the original {@code object}.
      *
      * @param context the current evaluation context containing variable bindings, possibly including {@code "this"}
      * @return a {@link Command} representing either a field access on {@code this} or the original object
@@ -389,9 +411,9 @@ public class FunctionCall extends AbstractCommand {
             final var thisObject = context.contains("this") ? context.get("this") : null;
             final var clsObject = context.contains("cls") ? context.get("cls") : null;
             if (thisObject instanceof LngObject lngObject && lngObject.context().containsLocal(id.name())) {
-                myObject = new FieldAccess(new Identifier("this"), id.name(),false);
+                myObject = new FieldAccess(new Identifier("this"), id.name(), false);
             } else if (clsObject instanceof LngClass lngClass && lngClass.context().containsLocal(id.name())) {
-                myObject = new FieldAccess(new Identifier("cls"), id.name(),false);
+                myObject = new FieldAccess(new Identifier("cls"), id.name(), false);
             } else {
                 myObject = object;
             }

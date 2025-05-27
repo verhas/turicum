@@ -1006,12 +1006,18 @@ The list is comma separated elements, can be
 
 A variable in the list will make the variable in the current context pinned.
 If the variable name is decorated with `{}` then the object, which is the value of the variable gets pinned.
-Note that this is changing the object itself and not the variable.
+Note that this is changing the mutability of the object itself and not the variable.
+
+{%S pin_object%}
 
 If the variable name is decorated with `[]` then the list, which is the value of the variable gets pinned.
-Note that this is changing the list itself and not the variable.
+Note that this is changing the mutability of the list itself and not the variable.
+
+{%S pin_list%}
 
 It is an error using the decoration on a variable that is not an object or list.
+
+{%S pin_wrong%}
 
 The following example demonstrates the different pinning possibilities:
 
@@ -2197,7 +2203,8 @@ If you add a `@` then the result is the same:
 
 The `@` helps you emphasize that the call is a decorator call that modifies the closure following it.
 The use of `@` also notifies the syntax analyzer that the call is a decorator call, and it extends the recognition of the following `^closure` parameter.
-When the `@` precedes the function call, a `fn` or `class` are also recognized as `^closure` parameter.
+When the `@` precedes the function call, a `fn` or `class` are also recognized as `^closure` parameter,
+and you do not need to enclose them between `{` and `}`.
 
 {%S fnDecorator1%}
 
@@ -2347,13 +2354,52 @@ Turicum defines many methods to handle strings.
 
 Built-in functions are functions provided by the interpreter, which extend the functionality of the run-time.
 
-=== `abs`
+=== Mathematical Functions
+
+All mathematical functions from Java's Math class are available in Turicum:
+
+* `acos(x)` - Returns the arc cosine of a value
+* `asin(x)` - Returns the arc sine of a value
+* `atan(x)` - Returns the arc tangent of a value
+* `atan2(y,x)` - Returns the angle theta from the conversion of rectangular coordinates (x,y) to polar coordinates
+* `cbrt(x)` - Returns the cube root of a value
+* `ceil(x)` - Returns the smallest integer greater than or equal to the argument
+* `copy_sign(magnitude,sign)` - Returns first argument with the sign of the second argument
+* `cos(x)` - Returns the trigonometric cosine of an angle
+* `cosh(x)` - Returns the hyperbolic cosine of x
+* `exp(x)` - Returns Euler's number e raised to the power of x
+* `floor(x)` - Returns the largest integer less than or equal to the argument
+* `get_exponent(x)` - Returns the unbiased exponent used in the representation of a floating point number
+* `hypot(x,y)` - Returns sqrt(x^2 + y^2) without intermediate overflow or underflow
+* `ieee_remainder(x,y)` - Returns the IEEE 754 floating-point remainder of division
+* `log(x)` - Returns the natural logarithm (base e) of x
+* `log10(x)` - Returns the base 10 logarithm of x
+* `next_after(start,direction)` - Returns the floating-point number adjacent to start in the direction of direction
+* `next_down(x)` - Returns the floating-point value adjacent to x in the direction of negative infinity
+* `next_up(x)` - Returns the floating-point value adjacent to x in the direction of positive infinity
+* `pow(x,y)` - Returns the value of x raised to the power of y
+* `random()` - Returns a random number between 0.0 and 1.0
+* `rint(x)` - Returns the closest integer to x (as a double)
+* `round(x)` - Returns the closest integer to x (as a long)
+* `scalb(x,scaleFactor)` - Returns x * 2^scaleFactor
+* `sig_num(x)` - Returns the signum function of x
+* `sin(x)` - Returns the trigonometric sine of an angle
+* `sinh(x)` - Returns the hyperbolic sine of x
+* `sqrt(x)` - Returns the square root of x
+* `tan(x)` - Returns the trigonometric tangent of an angle
+* `tanh(x)` - Returns the hyperbolic tangent of x
+* `to_degrees(x)` - Converts an angle measured in radians to degrees
+* `to_radians(x)` - Converts an angle measured in degrees to radians
+* `ulp(x)` - Returns the size of an ulp (unit in last place) of x
+
+{%S math_functions%}
+
+==== `abs`
 
 Returns the absolute value of the argument.
 It can only be used for numeric arguments.
 
 {%S abs%}
-
 
 === `all_parents`
 
@@ -2647,9 +2693,17 @@ Here is a complex example using this function:
 
 {%S que%}
 
+=== Setting values in Contexts
 
+Currently, there are three 'set' functions to update the value of a variable when the name of the variable is available in a string.
 
-=== `set`
+* `set`
+* `set_global`
+* `set_caller`
+
+The use of these functions should be considered only for special meta-programming cases like writing decorators.
+
+==== `set`
 
 Set the value of a variable in the local context.
 This function is useful for meta-programming when the name of the variable is available in a string.
@@ -2659,9 +2713,21 @@ An example is in the sample:
 
 uses this function to decorate a function and then set the variable of the same name, overwriting the definition with a new, decorated closure.
 
-=== `set_global`
+==== `set_global`
 
-It is simlar to `set()` but it sets the variable as global.
+It is simlar to `set()` but it sets the value of a global variable.
+
+==== `set_caller`
+
+This function sets the variable in the caller context.
+This comes handy when you implement a decorator that wants to redefine a function or class, and the decorator is in a different context than the decorated function.
+You can set the name as a global name, but that will define the name globally, and if the function is in a local context, it may not exactly work as expected.
+
+Calling this function from inside a function can redefine a variable in the context of the code that is calling the function or closure.
+
+{%S fnDecorator5%}
+
+
 
 === `sys_import`
 

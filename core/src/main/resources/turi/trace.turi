@@ -1,0 +1,14 @@
+fn trace({trace_params},^fun){
+    set_caller(fun.name, {|[rest]|
+               let start = nano_time()
+               let tp_str = ",".join((for each k in keys(trace_params) list {""+k+"=" + trace_params[k]}))
+               let args = ",".join(rest)
+               println $"${fun.name}(${args}) started ${tp_str}"
+               let return_value = fun(..rest)
+               let dT = (nano_time() - start)/ 1E6
+               println $"${fun.name}(${args}) returned ${dT}ms ${return_value}"
+               return_value
+           })
+}
+
+export trace;

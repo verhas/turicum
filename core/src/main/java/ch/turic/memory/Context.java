@@ -157,7 +157,7 @@ public class Context implements ch.turic.Context {
         if (!contains(identifier)) {
             throw new ExecutionException("variable '" + identifier + "' is not defined, cannot be pinned");
         }
-        if (with) {
+        if (with) {// we can freeze in the wrapped context if we are in a 'with' command
             if (containsFrame(identifier)) {
                 frozen.add(identifier);
             } else {
