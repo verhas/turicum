@@ -4154,9 +4154,9 @@ execute("Thread 2",2)
 .output of snippet `channel_limit`
 [source]
 ----
- prime read Thread 1 generated 32
-
- prime read 3
+ prime read 2
+ prime read Thread 13
+ generated 3
 Thread 1 generated 5
  prime read 5
 Thread 1 generated 7
@@ -4169,12 +4169,12 @@ Thread 1 generated 23
 stopping
 exception Task stopped.
 Thread 2 generated 3
- prime read 2
-Thread 2 generated 5
+ prime read Thread 2 generated 2
+5
  prime read 3
  prime read 5
-Thread 2 generated  prime read 7
-7
+Thread 2 generated 7
+ prime read 7
 Thread 2 generated 11
 Thread 2 generated 13
 stopping
@@ -4238,9 +4238,9 @@ println( (end-start)/1000000, "ms")
 [source]
 ----
 [1, 2, 3]
-311.881125ms
+315.598916ms
 []
-310.335167ms
+320.058709ms
 
 ----
 
@@ -4603,7 +4603,7 @@ println(inc(1))
 .output of snippet `fun1`
 [source]
 ----
-ch.turic.commands.Closure@530712d
+ch.turic.commands.Closure@f1da57d
 2
 
 ----
@@ -4632,7 +4632,7 @@ println(inc(1))
 .output of snippet `fun3`
 [source]
 ----
-ch.turic.commands.Closure@2df6226d
+ch.turic.commands.Closure@194fad1
 2
 
 ----
@@ -4663,7 +4663,7 @@ println(inc(1))
 .output of snippet `fun2`
 [source]
 ----
-ch.turic.commands.Closure@12ed9db6
+ch.turic.commands.Closure@26abb146
 2
 
 ----
@@ -4859,7 +4859,7 @@ println(inc(1,how_much=5))
 .output of snippet `fun4`
 [source]
 ----
-ch.turic.commands.Closure@4ff4357f
+ch.turic.commands.Closure@72c8e7b
 6
 
 ----
@@ -6986,7 +6986,7 @@ ieee_remainder(5,2) = 1.0
 next_after(1.0,2.0) = 1.0000000000000002
 next_down(1.0) = 0.9999999999999999
 next_up(1.0) = 1.0000000000000002
-random() = 0.3691353666740742
+random() = 0.8109390483582796
 rint(3.7) = 4.0
 round(3.7) = 4
 signum(-3.7) = -1.0
@@ -7207,6 +7207,12 @@ The application
 Handling the `.env` file is implemented in the code, there is no need to use external helper tools.
 ====
 
+[NOTE]
+====
+JavaScipt and Python and some other scripting languages differentiate between static and dynamic importing.
+Due to it's fully dynamic nature all imports are dynamic in Turicum.
+====
+
 `APPIA` is a string that lists the directories where the imported files may be.
 The individual directories are separated using `|` characters.
 
@@ -7276,8 +7282,8 @@ If there is such a list in the import function the `export()` or `export_all()` 
 ----
 sys_import "turi.maven" , "lic*"
 
-println license
-
+println license.apache2_0.name
+println "The next printout is the error message, because github() is exported but we do not import it."
 try : println github("verhas", "turicum"); catch e: println e
 
 
@@ -7289,7 +7295,8 @@ try : println github("verhas", "turicum"); catch e: println e
 .output of snippet `limited_import`
 [source]
 ----
-{apache2_0: {name: The Apache License, Version 2.0, url: https://www.apache.org/licenses/LICENSE-2.0.txt}}
+The Apache License, Version 2.0
+The next printout is the error message, because github() is exported but we do not import it.
 Variable 'github' is undefined.
 
 ----
@@ -7537,7 +7544,7 @@ println nano_time()
 .output of snippet `nano_time`
 [source]
 ----
-647204696435958
+682806755246208
 
 ----
 
@@ -7869,82 +7876,82 @@ none
 .output of snippet `que`
 [source]
 ----
-task2 is not ready 0
 task1 is not ready 0
-task1 is not ready 1
+task2 is not ready 0
 task2 is ready 1
 task2 is not ready 0
+task1 is not ready 1
 task2 is not ready 1
 task1 is not ready 2
 task2 is not ready 2
+task1 is ready 2
+task1 is not ready 0
+task2 is not ready 3
+task1 is not ready 1
+task2 is not ready 4
+task1 is not ready 2
+task2 is ready 3
 task1 is not ready 3
-task2 is ready 2
 task2 is not ready 0
 task1 is not ready 4
 task2 is not ready 1
 task1 is not ready 5
 task2 is not ready 2
 task1 is not ready 6
-task1 is ready 3
-task1 is not ready 0
 task2 is not ready 3
-task1 is not ready 1
+task2 is ready 4
+task1 is not ready 7
+task2 is not ready 0
+task1 is not ready 8
+task2 is not ready 1
+task2 is not ready 2
+task1 is not ready 9
+task1 is ready 5
+task2 is not ready 3
+task1 is not ready 0
 task2 is not ready 4
+task1 is not ready 1
 task1 is not ready 2
 task2 is not ready 5
-task1 is ready 4task2 is not ready 6
-
+task2 is not ready 6
+task1 is ready 6
 task1 is not ready 0
 task2 is not ready 7
 task1 is not ready 1
+task1 is not ready 2
 task2 is not ready 8
-task1 is not ready 2
-task1 is ready 5
+task1 is ready 7
+task1 is not ready 0
 task2 is not ready 9
-task1 is not ready 0
+task1 is not ready 1
 task2 is not ready 10
-task1 is not ready 1
+task1 is not ready 2
 task2 is not ready 11
-task1 is not ready 2
-task2 is ready 6
-task2 is not ready 0
-task1 is not ready 3
-task2 is not ready 1
-task1 is not ready 4
-task2 is not ready 2
-task1 is not ready 5
-task2 is ready 7
-task1 is not ready 6
-task2 is not ready 0
-task1 is not ready 7
-task2 is not ready 1
-task1 is not ready 8
-task2 is not ready 2
-task1 is not ready 9
-task2 is not ready 3
-task2 is ready 8
-task2 is not ready 0
-task1 is not ready 10
-task2 is not ready 1
-task1 is not ready 11
-task1 is not ready 12
-task2 is not ready 2
-task2 is not ready 3task1 is ready 9
-
+task1 is ready 8
+task2 is not ready 12
 task1 is not ready 0
-task2 is not ready 4
-task1 is not ready 1
-task2 is not ready 5
+task2 is not ready 13task1 is not ready 1
+
+task2 is not ready 14
 task1 is not ready 2
+task2 is not ready 15
+task1 is not ready 3
+task2 is ready 9
+task1 is not ready 4
+task2 is not ready 0
+task1 is not ready 5
+task2 is not ready 1
+task1 is not ready 6
+task2 is not ready 2
 closing the channel
 channel is closed
 1 is done false
 2 is done false
 we start to wait the first time
-task1 is done
 task2 is done
-task1 done true
-task2 done false
+task1 is done
+task1 done false
+task2 done true
 We start to wait the second time
 task1 done true
 task2 done true

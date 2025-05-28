@@ -2493,6 +2493,12 @@ The application
 Handling the `.env` file is implemented in the code, there is no need to use external helper tools.
 ====
 
+[NOTE]
+====
+JavaScipt and Python and some other scripting languages differentiate between static and dynamic importing.
+Due to it's fully dynamic nature all imports are dynamic in Turicum.
+====
+
 `APPIA` is a string that lists the directories where the imported files may be.
 The individual directories are separated using `|` characters.
 
