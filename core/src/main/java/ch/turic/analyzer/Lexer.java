@@ -10,7 +10,7 @@ import java.util.Set;
 
 public class Lexer {
 
-    final static private Set<String> RESERVED = new HashSet<>(Set.of(
+    final static public Set<String> RESERVED = new HashSet<>(Set.of(
             Keywords.CLASS, Keywords.PIN, Keywords.FN, Keywords.LET, Keywords.GLOBAL, Keywords.IF, Keywords.ELSE,
             Keywords.ELSEIF, Keywords.DIE, Keywords.BREAK, Keywords.CONTINUE, Keywords.WHILE, Keywords.WITH, Keywords.UNTIL, Keywords.FOR, Keywords.FLOW,
             Keywords.EACH, Keywords.LIST, Keywords.IN, Keywords.RETURN, Keywords.YIELD, Keywords.WHEN, Keywords.TRY, Keywords.CATCH,

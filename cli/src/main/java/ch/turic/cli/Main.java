@@ -16,6 +16,7 @@ public class Main {
             "version",
             "APPIA",
             "dry",
+            "REPL",
             "help"
             // end snippet
     );
@@ -39,8 +40,13 @@ public class Main {
                     "  -version                   display version\n" +
                     "  -APPIA=<import path>       list of directories looking for files when importing\n" +
                     "  -dry                       compile only\n" +
+                    "  -REPL                      start REPL" +
                     // end snippet
                     "");
+            return;
+        }
+        if( params.get("REPL").isPresent() ) {
+            JLineRepl.execute();
             return;
         }
         if (params.get(0).isEmpty()) {

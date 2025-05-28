@@ -43,14 +43,17 @@ let project = maven_project({
                     }
                 ]
             }
-        ]
-    }
-
+        ],
+    },
     dependencies : [
         {
             groupId: "ch.turic",
             artifactId: "turicum",
             version: VERSION,
+        },
+        {
+            groupId: "org.jline",
+            artifactId: "jline"
         },
         {
             groupId: "org.junit.jupiter",
@@ -66,7 +69,7 @@ let project = maven_project({
             version: "3.9.8",
             scope: "provided",
         }
-    ],
+        ],
         profiles : [ {
             id : "release",
             build : {

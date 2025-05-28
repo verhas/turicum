@@ -1,7 +1,6 @@
 sys_import "turi.maven"
 import "turicum_versions"
 
-
 let modules =  [ "core", "maven", "cli" ];
 
 let project = maven_project({
@@ -155,7 +154,13 @@ let project = maven_project({
                 artifactId : "mockito-core",
                 version : `org.mockito`,
                 scope : "test"
+            },
+            {
+                groupId : "org.jline",
+                artifactId : "jline",
+                version : "3.30.0"
             }
+
         ]
     },
 
