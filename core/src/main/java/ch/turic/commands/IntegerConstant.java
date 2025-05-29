@@ -3,6 +3,7 @@ package ch.turic.commands;
 
 import ch.turic.ExecutionException;
 import ch.turic.memory.Context;
+import ch.turic.utils.Unmarshaller;
 
 public class IntegerConstant extends AbstractCommand {
     final long value;
@@ -20,6 +21,10 @@ public class IntegerConstant extends AbstractCommand {
                 Long.parseLong(value.substring(2), 16) :
                 Long.parseLong(value)
         );
+    }
+
+    public static IntegerConstant factory(Unmarshaller.Args args) {
+        return new IntegerConstant(args.get("value", Long.class));
     }
 
     @Override

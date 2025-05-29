@@ -39,7 +39,7 @@ public class TestReferenceSnippets {
                             final var ps = new PrintStream(baos);
                             System.setOut(ps);
                             // Execute the snippet.
-                            Object result = new Interpreter(new Input(new StringBuilder(snippet.programCode()), snippet.filePath)).execute();
+                            Object result = new Interpreter(new Input(new StringBuilder(snippet.programCode()), snippet.filePath)).compileAndExecute();
                             ps.close();
                             baos.close();
                             final var output = outputDir.resolve(snippet.name() + ".txt");

@@ -1,6 +1,7 @@
 package ch.turic.memory;
 
 import ch.turic.commands.Command;
+import ch.turic.utils.Unmarshaller;
 
 public class CompositionModifier {
     public static class Filter extends CompositionModifier {
@@ -8,6 +9,10 @@ public class CompositionModifier {
 
         public Filter(Command expression) {
             this.expression = expression;
+        }
+
+        public static Filter factory(final Unmarshaller.Args args) {
+            return new Filter(args.command("expression"));
         }
     }
 
@@ -18,6 +23,9 @@ public class CompositionModifier {
             this.expression = expression;
         }
 
+        public static Mapper factory(final Unmarshaller.Args args) {
+            return new Mapper(args.command("expression"));
+        }
     }
 
 }

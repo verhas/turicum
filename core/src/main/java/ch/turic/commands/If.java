@@ -4,6 +4,7 @@ package ch.turic.commands;
 import ch.turic.ExecutionException;
 import ch.turic.commands.operators.Cast;
 import ch.turic.memory.Context;
+import ch.turic.utils.Unmarshaller;
 
 public class If extends AbstractCommand {
     final Command condition;
@@ -20,6 +21,12 @@ public class If extends AbstractCommand {
 
     public Command then() {
         return then;
+    }
+
+    public static If factory(Unmarshaller.Args args) {
+        return new If(args.command("condition"),
+                args.command("then"),
+                args.command("otherwise"));
     }
 
     public If(Command condition, Command then, Command otherwise) {

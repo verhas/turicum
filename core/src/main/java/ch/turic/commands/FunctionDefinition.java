@@ -2,6 +2,7 @@ package ch.turic.commands;
 
 import ch.turic.ExecutionException;
 import ch.turic.memory.Context;
+import ch.turic.utils.Unmarshaller;
 
 public class FunctionDefinition extends AbstractCommand {
     public final String functionName;
@@ -14,6 +15,15 @@ public class FunctionDefinition extends AbstractCommand {
 
     public BlockCommand body() {
         return body;
+    }
+
+    public static FunctionDefinition factory(final Unmarshaller.Args args) {
+        return new FunctionDefinition(
+                args.str("functionName"),
+                args.get("arguments", ParameterList.class),
+                args.get("returnType", TypeDeclaration[].class),
+                args.get("body", BlockCommand.class)
+        );
     }
 
     public FunctionDefinition(String functionName, ParameterList arguments, final TypeDeclaration[] returnType, BlockCommand body) {

@@ -4,6 +4,7 @@ import ch.turic.ExecutionException;
 import ch.turic.memory.Context;
 import ch.turic.memory.LeftValue;
 import ch.turic.memory.LngList;
+import ch.turic.utils.Unmarshaller;
 
 public class ForEachLoop extends Loop {
     public final Identifier identifier;
@@ -24,6 +25,17 @@ public class ForEachLoop extends Loop {
 
     public Command body() {
         return body;
+    }
+
+    public static ForEachLoop factory(final Unmarshaller.Args args) {
+        return new ForEachLoop(
+                args.get("identifier", Identifier.class),
+                args.get("with", Identifier.class),
+                args.command("expression"),
+                args.bool("resultList"),
+                args.command("body"),
+                args.command("exitCondition")
+        );
     }
 
     public Command expression() {

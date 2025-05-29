@@ -4,14 +4,14 @@ import ch.turic.ExecutionException;
 import ch.turic.analyzer.Pos;
 import ch.turic.memory.*;
 
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Array;
 import java.lang.reflect.Modifier;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public abstract class AbstractCommand implements Command , HasFields {
-
+public abstract class AbstractCommand implements Command, HasFields {
     private Pos startPosition;
     private Pos endPosition;
     private volatile LngObject lngObjectRef = null;
@@ -168,4 +168,5 @@ public abstract class AbstractCommand implements Command , HasFields {
         }
         return fieldSet;
     }
+
 }

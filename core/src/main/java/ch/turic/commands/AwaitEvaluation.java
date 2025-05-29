@@ -5,6 +5,7 @@ import ch.turic.commands.operators.Cast;
 import ch.turic.memory.AsyncStreamHandler;
 import ch.turic.memory.Context;
 import ch.turic.memory.LngList;
+import ch.turic.utils.Unmarshaller;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -14,6 +15,14 @@ import java.util.concurrent.TimeUnit;
 public class AwaitEvaluation extends AbstractCommand {
     private final Command command;
     private final Map<String, Command> options;
+
+
+    public static AwaitEvaluation factory(final Unmarshaller.Args args) {
+        return new AwaitEvaluation(
+                args.command("command"),
+                args.get("options", Map.class)
+        );
+    }
 
     public AwaitEvaluation(Command command, Map<String, Command> options) {
         this.command = command;

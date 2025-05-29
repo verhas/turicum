@@ -3,17 +3,24 @@ package ch.turic.commands;
 import ch.turic.ExecutionException;
 import ch.turic.analyzer.AssignmentList;
 import ch.turic.memory.Context;
+import ch.turic.utils.Unmarshaller;
 
 public class GlobalAssignment extends AbstractCommand {
-    public AssignmentList.Assignment[] assignments() {
-        return assignments;
+    final AssignmentList.Assignment[] assignments;
+
+    public static GlobalAssignment factory(final Unmarshaller.Args args) {
+        return new GlobalAssignment(
+                args.get("assignments", AssignmentList.Assignment[].class)
+        );
     }
 
     public GlobalAssignment(AssignmentList.Assignment[] assignments) {
         this.assignments = assignments;
     }
 
-    final AssignmentList.Assignment[] assignments;
+    public AssignmentList.Assignment[] assignments() {
+        return assignments;
+    }
 
     @Override
     public Object _execute(final Context context) throws ExecutionException {

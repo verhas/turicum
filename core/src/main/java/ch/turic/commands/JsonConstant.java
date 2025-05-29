@@ -5,6 +5,7 @@ import ch.turic.ExecutionException;
 import ch.turic.memory.Context;
 import ch.turic.memory.LazyObject;
 import ch.turic.memory.LngObject;
+import ch.turic.utils.Unmarshaller;
 
 import java.util.Map;
 import java.util.Objects;
@@ -21,6 +22,10 @@ public class JsonConstant extends AbstractCommand {
         Objects.requireNonNull(fields);
         this.fields = fields;
         this.lazy = lazy;
+    }
+
+    public static JsonConstant factory(Unmarshaller.Args args) {
+        return new JsonConstant(args.get("fields",Map.class),args.bool("lazy"));
     }
 
     @Override

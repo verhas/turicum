@@ -6,6 +6,7 @@ import ch.turic.analyzer.BlockAnalyzer;
 import ch.turic.analyzer.Input;
 import ch.turic.analyzer.Lexer;
 import ch.turic.memory.Context;
+import ch.turic.utils.Unmarshaller;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -14,8 +15,18 @@ public class StringConstant extends AbstractCommand {
     final private String value;
     final private Command[] commands;
 
+    public static StringConstant factory(Unmarshaller.Args args) {
+        return new StringConstant(args.str("value"),
+                args.commands());
+    }
+
     public String value() {
         return value;
+    }
+
+    private StringConstant(final String value, final Command[] commands) {
+        this.value = value;
+        this.commands = commands;
     }
 
     public StringConstant(final String value, final boolean interpolated) {
@@ -51,10 +62,10 @@ public class StringConstant extends AbstractCommand {
                         parts.add(str.substring(start, end));
                         start = end = end + 1;
                         inLiteral = false;
-                        if( terminator == '{' ){
+                        if (terminator == '{') {
                             bCounter--;
                             terminator = '}';
-                        }else{
+                        } else {
                             pCounter--;
                             terminator = ')';
                         }
@@ -89,15 +100,15 @@ public class StringConstant extends AbstractCommand {
             }
             end++;
         }
-        if( pCounter != 0 ){
+        if (pCounter != 0) {
             throw new ExecutionException("Invalid string constant syntax, unbalanced '(' and ')' character(s)");
         }
-        if( bCounter != 0 ){
+        if (bCounter != 0) {
             throw new ExecutionException("Invalid string constant syntax, unbalanced '{' and '}' character(s)");
         }
-        if( inLiteral ) {
+        if (inLiteral) {
             parts.add(str.substring(start, end));
-        }else{
+        } else {
             throw new ExecutionException("Invalid string constant syntax, unclosed interpolated expression.");
         }
         return parts.toArray(String[]::new);
@@ -110,7 +121,7 @@ public class StringConstant extends AbstractCommand {
         } else {
             final var sb = new StringBuilder();
             for (Command command : commands) {
-                sb.append(Objects.requireNonNullElse(command.execute(context),"none"));
+                sb.append(Objects.requireNonNullElse(command.execute(context), "none"));
             }
             return sb.toString();
         }

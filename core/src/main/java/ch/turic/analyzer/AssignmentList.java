@@ -4,6 +4,7 @@ import ch.turic.BadSyntax;
 import ch.turic.ExecutionException;
 import ch.turic.commands.Command;
 import ch.turic.commands.TypeDeclaration;
+import ch.turic.utils.Unmarshaller;
 
 import java.util.ArrayList;
 
@@ -12,6 +13,13 @@ public class AssignmentList {
     public static final TypeDeclaration[] EMPTY_TYPE = new TypeDeclaration[0];
 
     public record Assignment(String identifier, TypeDeclaration[] types, Command expression) {
+        public static Assignment factory(Unmarshaller.Args args) {
+            return new Assignment(
+                    args.str("identifier"),
+                    args.get("types", TypeDeclaration[].class),
+                    args.command("expression")
+            );
+        }
     }
 
     /**

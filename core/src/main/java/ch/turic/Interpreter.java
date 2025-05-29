@@ -4,8 +4,8 @@ import ch.turic.analyzer.Input;
 import ch.turic.analyzer.LexList;
 import ch.turic.analyzer.Lexer;
 import ch.turic.analyzer.ProgramAnalyzer;
-import ch.turic.commands.BlockCommand;
 import ch.turic.commands.Command;
+import ch.turic.commands.Program;
 import ch.turic.memory.Context;
 
 import java.util.ArrayList;
@@ -24,7 +24,7 @@ import java.util.ArrayList;
  * usage pattern, and the interpreter should ideally be used from a single thread.
  */
 public class Interpreter {
-    private final Input source;
+    private Input source = null;
     private volatile Command code = null;
     private final Object lock = new Object();
     private Context preprocessorContext;
@@ -36,6 +36,10 @@ public class Interpreter {
 
     public Interpreter(Input source) {
         this.source = source;
+    }
+
+    public Interpreter(Command code) {
+        this.code = code;
     }
 
     public ch.turic.Context getImportContext() {
@@ -54,31 +58,12 @@ public class Interpreter {
      * @throws BadSyntax          if the source code contains syntax errors
      * @throws ExecutionException if an error occurs during execution
      */
-    public Object execute() throws BadSyntax, ExecutionException {
-        Command localCode = code; // Read volatile field only once
-        if (localCode == null) {
-            synchronized (lock) {
-                localCode = code; // may have changed since we synchronized
-                if (localCode == null) {
-                    final var analyzer = new ProgramAnalyzer();
-                    LexList lexes = Lexer.analyze(source);
-                    if (lexes.isEmpty()) {
-                        localCode = new BlockCommand(new Command[0], false);
-                    } else {
-                        localCode = analyzer.analyze(lexes);
-                    }
-                    code = localCode;
-                    preprocessorContext = analyzer.context();
-                }
-            }
-        }
+    public Object compileAndExecute() throws BadSyntax, ExecutionException {
+        Command localCode = compile();
+        return execute(localCode);
+    }
 
-        if (preprocessorContext == null) {
-            ctx = new Context();
-            BuiltIns.register(ctx);
-        } else {
-            ctx = preprocessorContext.wrap();
-        }
+    private Object execute(Command localCode) {
         try {
             return localCode.execute(ctx);
         } catch (ExecutionException e) {
@@ -97,5 +82,33 @@ public class Interpreter {
             turiException.setStackTrace(newStackTrace.toArray(StackTraceElement[]::new));
             throw turiException;
         }
+    }
+
+    public Program compile() {
+        Command localCode = code; // Read volatile field only once
+        if (localCode == null) {
+            synchronized (lock) {
+                localCode = code; // may have changed since we synchronized
+                if (localCode == null) {
+                    final var analyzer = new ProgramAnalyzer();
+                    LexList lexes = Lexer.analyze(source);
+                    if (lexes.isEmpty()) {
+                        localCode = new Program(new Command[0]);
+                    } else {
+                        localCode = analyzer.analyze(lexes);
+                    }
+                    code = localCode;
+                    preprocessorContext = analyzer.context();
+                }
+            }
+        }
+
+        if (preprocessorContext == null) {
+            ctx = new Context();
+            BuiltIns.register(ctx);
+        } else {
+            ctx = preprocessorContext.wrap();
+        }
+        return (Program)localCode;
     }
 }

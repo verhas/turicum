@@ -4,6 +4,7 @@ import ch.turic.BadSyntax;
 import ch.turic.ExecutionException;
 import ch.turic.commands.Command;
 import ch.turic.commands.WithCommand;
+import ch.turic.utils.Unmarshaller;
 
 import java.util.ArrayList;
 
@@ -13,6 +14,13 @@ public class WithAnalyzer extends AbstractAnalyzer {
     public record WithPair(
             Command command,
             String alias) {
+
+        public static WithPair factory(final Unmarshaller.Args args) {
+            return new WithPair(
+                    args.command("command"),
+                    args.str("alias")
+            );
+        }
     }
 
 

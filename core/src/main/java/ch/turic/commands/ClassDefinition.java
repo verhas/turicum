@@ -4,6 +4,7 @@ import ch.turic.ExecutionException;
 import ch.turic.memory.ClassContext;
 import ch.turic.memory.Context;
 import ch.turic.memory.LngClass;
+import ch.turic.utils.Unmarshaller;
 
 import java.util.Objects;
 
@@ -21,6 +22,13 @@ public class ClassDefinition extends AbstractCommand {
 
     public String[] parents() {
         return parents;
+    }
+
+    public static ClassDefinition factory(final Unmarshaller.Args args) {
+        return new ClassDefinition(
+                args.str("className"),
+                args.get("parents",String[].class),
+                args.get("body", BlockCommand.class));
     }
 
     public ClassDefinition(String className, String[] parents, BlockCommand body) {

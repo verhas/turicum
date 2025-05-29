@@ -5,6 +5,7 @@ import ch.turic.LngCallable;
 import ch.turic.TuriClass;
 import ch.turic.builtins.classes.TuriNone;
 import ch.turic.memory.*;
+import ch.turic.utils.Unmarshaller;
 
 import java.util.Arrays;
 
@@ -43,13 +44,21 @@ public class FunctionCall extends AbstractCommand {
         this.object = object;
     }
 
+    public static FunctionCall factory(final Unmarshaller.Args args) {
+        return new FunctionCall(
+                args.command("object"),
+                args.get("arguments",Argument[].class));
+    }
+
     /*
      * arguments are the arguments of the function call to be evaluated or passed to the implementation if the
      * object is a {@link Macro}
      */
     public final Argument[] arguments;
 
+    
     public record Argument(Identifier id, Command expression) {
+        
     }
 
     public record ArgumentEvaluated(Identifier id, Object value) {

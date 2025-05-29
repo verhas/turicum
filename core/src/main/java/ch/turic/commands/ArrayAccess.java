@@ -4,9 +4,11 @@ package ch.turic.commands;
 import ch.turic.ExecutionException;
 import ch.turic.memory.Context;
 import ch.turic.memory.LeftValue;
+import ch.turic.utils.Unmarshaller;
 
 public class ArrayAccess extends AbstractCommand {
     final Command object;
+    final Command index;
 
     public Command index() {
         return index;
@@ -16,12 +18,16 @@ public class ArrayAccess extends AbstractCommand {
         return object;
     }
 
+
+    public static ArrayAccess factory(Unmarshaller.Args args) {
+        return new ArrayAccess(args.command("object"), args.command("index"));
+    }
+
     public ArrayAccess(Command object, Command index) {
         this.index = index;
         this.object = object;
     }
 
-    final Command index;
 
     @Override
     public Object _execute(final Context context) throws ExecutionException {

@@ -4,12 +4,13 @@ import ch.turic.ExecutionException;
 import ch.turic.commands.operators.Cast;
 import ch.turic.memory.Context;
 import ch.turic.memory.LngList;
+import ch.turic.utils.Unmarshaller;
 
 public class WhileLoop extends Loop {
     public final Command startCondition;
+    public final Command exitCondition;
     public final boolean resultList;
     public final Command body;
-    public final Command exitCondition;
 
     public Command body() {
         return body;
@@ -17,6 +18,15 @@ public class WhileLoop extends Loop {
 
     public Command exitCondition() {
         return exitCondition;
+    }
+
+    public static WhileLoop factory(final Unmarshaller.Args args) {
+        return new WhileLoop(
+                args.command("startCondition"),
+                args.command("exitCondition"),
+                args.bool("resultList"),
+                args.command("body")
+        );
     }
 
     public WhileLoop(Command startCondition, Command exitCondition, boolean resultList, Command body) {

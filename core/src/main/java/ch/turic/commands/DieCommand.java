@@ -3,6 +3,7 @@ package ch.turic.commands;
 import ch.turic.ExecutionException;
 import ch.turic.commands.operators.Cast;
 import ch.turic.memory.Context;
+import ch.turic.utils.Unmarshaller;
 
 public class DieCommand extends AbstractCommand {
     final Command expression;
@@ -14,6 +15,10 @@ public class DieCommand extends AbstractCommand {
 
     public Command condition() {
         return condition;
+    }
+
+    public static DieCommand factory(final Unmarshaller.Args args) {
+        return new DieCommand(args.command("expression"), args.command("condition"));
     }
 
     public DieCommand(Command expression, Command condition) {

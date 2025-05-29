@@ -51,7 +51,7 @@ public class CustomModelProcessor implements ModelProcessor {
         final String xml;
         try {
             final var interpreter = new ch.turic.Interpreter(Input.fromFile(Path.of(fileName)));
-            xml = interpreter.execute().toString();
+            xml = interpreter.compileAndExecute().toString();
         } catch (Exception e) {
             throw new RuntimeException("Jamal error processing the file " + fileName + "\n" + dumpException(e), e);
         }

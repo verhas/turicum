@@ -19,7 +19,6 @@ import org.jline.terminal.TerminalBuilder;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Objects;
 
 public class JLineRepl {
 
@@ -144,17 +143,25 @@ public class JLineRepl {
             if (state == SyntaxState.OK && !buffer.isEmpty()) {
                 try {
                     System.out.println(
-                            Objects.requireNonNullElse(interpreter.execute(buffer.toString()),
-                                    "none"));
+                            formatValue(interpreter.execute(buffer.toString())));
                     history.add(buffer.toString());
                     // if multi-line it will be added
                     // if single line, it is already there, does not alter the history
                     buffer.setLength(0);
                 } catch (BadSyntax bs) {
-                    state = SyntaxState.NOT_READY;
-                    lastError = bs;
+                    if (interpreter.lexes.hasNext()) {
+                        System.out.println(bs.getMessage());
+                        buffer.setLength(0);
+                        state = SyntaxState.DROP_DEAD;
+                        lastError = null;
+                    } else {
+                        state = SyntaxState.NOT_READY;
+                        lastError = bs;
+                    }
                 } catch (Exception e) {
                     System.out.println(e.getMessage());
+                    buffer.setLength(0);
+                    state = SyntaxState.DROP_DEAD;
                 }
             }
         }
@@ -190,15 +197,19 @@ public class JLineRepl {
     }
 
     private static void printVariable(String k, Context context) {
-        Object value = Objects.requireNonNullElse(context.get(k), "none");
-        value = switch (value) {
+        Object value = formatValue(context.get(k));
+        System.out.printf("%s: %s\n", k, value);
+    }
+
+    private static String formatValue(Object value) {
+        return switch (value) {
             case TuriMacro ignored -> "built-in";
             case TuriFunction ignored -> "built-in";
             case Closure ignored -> "fn()";
             case Macro ignored -> "macro fn()";
-            default -> value;
+            case null -> "none";
+            default -> value.toString();
         };
-        System.out.printf("%s: %s\n", k, value);
     }
 
     private static SyntaxState countBraces(String s) {

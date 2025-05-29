@@ -1,8 +1,8 @@
 package ch.turic.commands;
 
 import ch.turic.ExecutionException;
-import ch.turic.commands.operators.Cast;
 import ch.turic.memory.Context;
+import ch.turic.utils.Unmarshaller;
 
 public class ContinueCommand extends AbstractCommand {
     final Command expression;
@@ -19,6 +19,13 @@ public class ContinueCommand extends AbstractCommand {
     public ContinueCommand(Command expression, Command condition) {
         this.expression = expression;
         this.condition = condition;
+    }
+
+    public static ContinueCommand factory(final Unmarshaller.Args args) {
+        return new ContinueCommand(
+                args.command("expression"),
+                args.command("condition")
+        );
     }
 
     @Override

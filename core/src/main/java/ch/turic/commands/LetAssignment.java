@@ -4,6 +4,7 @@ package ch.turic.commands;
 import ch.turic.ExecutionException;
 import ch.turic.analyzer.AssignmentList;
 import ch.turic.memory.Context;
+import ch.turic.utils.Unmarshaller;
 
 public class LetAssignment extends AbstractCommand {
     final AssignmentList.Assignment[] assignments;
@@ -16,6 +17,12 @@ public class LetAssignment extends AbstractCommand {
     public LetAssignment(AssignmentList.Assignment[] assignments, boolean mut) {
         this.assignments = assignments;
         this.mut = mut;
+    }
+
+    public static LetAssignment factory(Unmarshaller.Args args) {
+        return new LetAssignment(
+                args.get("assignments", AssignmentList.Assignment[].class),
+                args.bool("mut"));
     }
 
     @Override

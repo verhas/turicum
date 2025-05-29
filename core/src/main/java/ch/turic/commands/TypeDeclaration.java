@@ -1,6 +1,7 @@
 package ch.turic.commands;
 
 import ch.turic.memory.Context;
+import ch.turic.utils.Unmarshaller;
 
 /**
  * A type declaration.
@@ -12,6 +13,13 @@ import ch.turic.memory.Context;
  * @param expression the expression
  */
 public record TypeDeclaration(String identifier, Command expression) {
+
+    public static TypeDeclaration factory(final Unmarshaller.Args args) {
+        return new TypeDeclaration(
+                args.str("identifier"),
+                args.command("expression")
+        );
+    }
 
     /**
      * Calculate the type name. If the type is given by a name, it is just the name give, otherwise call the expression,

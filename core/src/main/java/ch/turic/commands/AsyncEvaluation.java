@@ -3,6 +3,7 @@ package ch.turic.commands;
 import ch.turic.ExecutionException;
 import ch.turic.commands.operators.Cast;
 import ch.turic.memory.*;
+import ch.turic.utils.Unmarshaller;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -13,6 +14,10 @@ public class AsyncEvaluation extends AbstractCommand {
     private static final ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
     private final Command command;
     private final Map<String, Command> options;
+
+    public static AsyncEvaluation factory(Unmarshaller.Args args) {
+        return new AsyncEvaluation(args.command("command"),args.get("options",Map.class));
+    }
 
     public AsyncEvaluation(Command command, Map<String, Command> options) {
         this.command = command;

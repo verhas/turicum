@@ -3,6 +3,7 @@ package ch.turic.commands;
 import ch.turic.ExecutionException;
 import ch.turic.memory.Context;
 import ch.turic.memory.LngObject;
+import ch.turic.utils.Unmarshaller;
 
 /**
  * Evaluate a Command
@@ -17,6 +18,10 @@ public class Print extends AbstractCommand {
     private static final String FLUSH = "flush";
     private final Command[] commands;
     private final boolean nl;
+
+    public static Print factory(Unmarshaller.Args args) {
+        return new Print(args.commands(), args.bool("nl"));
+    }
 
     public Print(Command[] commands, boolean nl) {
         this.commands = commands;

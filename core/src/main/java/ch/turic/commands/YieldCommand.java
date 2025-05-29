@@ -4,6 +4,7 @@ import ch.turic.ExecutionException;
 import ch.turic.commands.operators.Cast;
 import ch.turic.memory.Channel;
 import ch.turic.memory.Context;
+import ch.turic.utils.Unmarshaller;
 
 public class YieldCommand extends AbstractCommand {
     final Command expression;
@@ -15,6 +16,13 @@ public class YieldCommand extends AbstractCommand {
 
     public Command expression() {
         return expression;
+    }
+
+    public static YieldCommand factory(final Unmarshaller.Args args) {
+        return new YieldCommand(
+                args.command("expression"),
+                args.command("condition")
+        );
     }
 
     public YieldCommand(Command expression, Command condition) {

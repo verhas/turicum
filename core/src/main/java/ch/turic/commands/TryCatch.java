@@ -3,6 +3,7 @@ package ch.turic.commands;
 import ch.turic.ExecutionException;
 import ch.turic.memory.Context;
 import ch.turic.memory.LngException;
+import ch.turic.utils.Unmarshaller;
 
 public class TryCatch extends AbstractCommand {
 
@@ -11,6 +12,15 @@ public class TryCatch extends AbstractCommand {
     final Command finallyBlock;
 
     final String exceptionVariable;
+
+    public static TryCatch factory(final Unmarshaller.Args args) {
+        return new TryCatch(
+                args.command("try"),
+                args.command("catch"),
+                args.command("finally"),
+                args.str("exception")
+        );
+    }
 
     public TryCatch(Command tryBlock, Command catchBlock, Command finallyBlock, String exceptionVariable) {
         this.tryBlock = tryBlock;

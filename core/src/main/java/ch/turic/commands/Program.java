@@ -2,13 +2,18 @@ package ch.turic.commands;
 
 import ch.turic.ExecutionException;
 import ch.turic.memory.Context;
+import ch.turic.utils.Unmarshaller;
 
 public class Program extends AbstractCommand {
+    final Command[] commands;
+
     public Command[] commands() {
         return commands;
     }
 
-    final Command[] commands;
+    public static Program factory(final Unmarshaller.Args args) {
+        return new Program(args.get("commands", Command[].class));
+    }
 
     public Program(Command[] commands) {
         this.commands = commands;

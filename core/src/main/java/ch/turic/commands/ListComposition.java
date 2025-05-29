@@ -3,6 +3,7 @@ package ch.turic.commands;
 import ch.turic.ExecutionException;
 import ch.turic.commands.operators.Cast;
 import ch.turic.memory.*;
+import ch.turic.utils.Unmarshaller;
 
 import java.util.Objects;
 
@@ -12,6 +13,12 @@ public class ListComposition extends AbstractCommand {
 
     public Command[] array() {
         return array;
+    }
+
+    public static ListComposition factory(final Unmarshaller.Args args) {
+        return new ListComposition(
+                args.commands("array"),
+                args.get("modifiers",CompositionModifier[].class));
     }
 
     public ListComposition(Command[] array, CompositionModifier[] modifiers) {

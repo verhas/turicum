@@ -6,6 +6,7 @@ import ch.turic.memory.Context;
 import ch.turic.memory.HasFields;
 import ch.turic.memory.LeftValue;
 import ch.turic.memory.LngObject;
+import ch.turic.utils.Unmarshaller;
 
 /**
  * Represents a command that accesses a specific field from an object.
@@ -26,6 +27,14 @@ public class FieldAccess extends AbstractCommand {
 
     public Command object() {
         return object;
+    }
+
+    public static FieldAccess factory(final Unmarshaller.Args args) {
+        return new FieldAccess(
+                args.command("object"),
+                args.str("identifier"),
+                args.bool("lenient")
+        );
     }
 
     public FieldAccess(Command object, String identifier, boolean lenient) {

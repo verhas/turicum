@@ -13,7 +13,7 @@ public class TestRun {
         final var baos = new ByteArrayOutputStream();
         this.getClass().getClassLoader().getResourceAsStream("queens.turi").transferTo(baos);
         Interpreter interpreter = new Interpreter(Input.fromString(baos.toString(StandardCharsets.UTF_8),"queens.turi"));
-        interpreter.execute();
+        interpreter.compileAndExecute();
     }
 
 

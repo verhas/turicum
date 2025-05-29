@@ -4,6 +4,7 @@ import ch.turic.ExecutionException;
 import ch.turic.commands.operators.Cast;
 import ch.turic.memory.Context;
 import ch.turic.memory.Sentinel;
+import ch.turic.utils.Unmarshaller;
 
 public class BreakCommand extends AbstractCommand {
     final Command expression;
@@ -15,6 +16,13 @@ public class BreakCommand extends AbstractCommand {
 
     public Command condition() {
         return condition;
+    }
+
+    public static BreakCommand factory(final Unmarshaller.Args args) {
+        return new BreakCommand(
+                args.command("expression"),
+                args.command("condition")
+        );
     }
 
     public BreakCommand(Command expression, Command condition) {

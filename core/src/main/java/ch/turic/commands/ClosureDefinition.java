@@ -2,6 +2,7 @@ package ch.turic.commands;
 
 import ch.turic.ExecutionException;
 import ch.turic.memory.Context;
+import ch.turic.utils.Unmarshaller;
 
 public class ClosureDefinition extends AbstractCommand {
     public final ParameterList arguments;
@@ -17,6 +18,13 @@ public class ClosureDefinition extends AbstractCommand {
     public ClosureDefinition(ParameterList arguments, BlockCommand body) {
         this.arguments = arguments;
         this.body = body;
+    }
+
+    public static ClosureDefinition factory(final Unmarshaller.Args args) {
+        return new ClosureDefinition(
+                args.get("arguments", ParameterList.class),
+                args.get("body", BlockCommand.class)
+        );
     }
 
     public final BlockCommand body;

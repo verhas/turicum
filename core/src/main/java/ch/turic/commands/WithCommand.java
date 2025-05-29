@@ -6,6 +6,7 @@ import ch.turic.commands.operators.Cast;
 import ch.turic.memory.Context;
 import ch.turic.memory.LngException;
 import ch.turic.memory.LngObject;
+import ch.turic.utils.Unmarshaller;
 
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -18,6 +19,13 @@ public class WithCommand extends AbstractCommand {
 
     public Command body() {
         return body;
+    }
+
+    public static WithCommand factory(final Unmarshaller.Args args) {
+        return new WithCommand(
+                args.get("pairs", WithAnalyzer.WithPair[].class),
+                args.command("body")
+        );
     }
 
     public WithCommand(WithAnalyzer.WithPair[] pairs, Command body) {

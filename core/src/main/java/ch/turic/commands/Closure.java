@@ -7,6 +7,7 @@ import ch.turic.memory.HasFields;
 import ch.turic.memory.LngObject;
 import ch.turic.memory.Variable;
 import ch.turic.utils.NullableOptional;
+import ch.turic.utils.Unmarshaller;
 
 import java.util.Arrays;
 import java.util.SequencedMap;
@@ -32,6 +33,16 @@ public final class Closure extends AbstractCommand implements ClosureOrMacro, Ln
         this.wrapped = wrapped;
         this.returnType = returnType;
         this.command = command;
+    }
+
+    public static Closure factory(final Unmarshaller.Args args) {
+        return new Closure(
+                args.str("name"),
+                args.get("parameters", ParameterList.class),
+                args.get("wrapped", Context.class),
+                args.get("returnType", String[].class),
+                args.get("command", BlockCommand.class)
+        );
     }
 
     @Override

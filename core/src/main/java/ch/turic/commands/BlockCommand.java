@@ -3,6 +3,7 @@ package ch.turic.commands;
 
 import ch.turic.ExecutionException;
 import ch.turic.memory.Context;
+import ch.turic.utils.Unmarshaller;
 
 public class BlockCommand extends AbstractCommand {
     public static final BlockCommand EMPTY_BLOCK = new BlockCommand(new Command[0], true);
@@ -24,6 +25,10 @@ public class BlockCommand extends AbstractCommand {
      */
     public boolean wrap() {
         return wrap;
+    }
+
+    public static BlockCommand factory(Unmarshaller.Args args) {
+        return new BlockCommand(args.commands(), args.bool("wrap"));
     }
 
     /**

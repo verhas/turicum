@@ -6,11 +6,17 @@ import ch.turic.memory.Context;
 import ch.turic.memory.LngClass;
 import ch.turic.memory.LngList;
 import ch.turic.memory.LngObject;
+import ch.turic.utils.Unmarshaller;
 
 public class Pin extends AbstractCommand {
     public Item[] items() {
         return items;
     }
+
+    public static Pin factory(final Unmarshaller.Args args) {
+        return new Pin(args.get("items", Item[].class));
+    }
+
 
     public Pin(Item[] items) {
         this.items = items;
@@ -19,6 +25,13 @@ public class Pin extends AbstractCommand {
     final Item[] items;
 
     public record Item(Identifier id, Type type) {
+        public static Item factory(final Unmarshaller.Args args) {
+            return new Item(
+                    args.get("id", Identifier.class),
+                    args.get("type", Type.class)
+            );
+        }
+
         public enum Type {VARIABLE, OBJECT, LIST}
     }
 

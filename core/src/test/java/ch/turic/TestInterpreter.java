@@ -34,7 +34,7 @@ public class TestInterpreter {
                         () -> {
                             if (snippet.err()) {
                                 try {
-                                    new Interpreter(snippet.programCode()).execute();
+                                    new Interpreter(snippet.programCode()).compileAndExecute();
                                     throw new AssertionError("Syntax error was not detected " + snippet.name());
                                 } catch (BadSyntax ignore) {
                                     // this is what we expected
@@ -44,7 +44,7 @@ public class TestInterpreter {
 
                             } else {
                                 try {
-                                    new Interpreter(snippet.programCode()).execute();
+                                    new Interpreter(snippet.programCode()).compileAndExecute();
                                 } catch (BadSyntax e) {
                                     throw new AssertionError("Syntax error was detected " + snippet.name(),e);
                                 }catch(ExecutionException e) {

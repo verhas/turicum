@@ -1,6 +1,9 @@
 package ch.turic;
 
-import ch.turic.analyzer.*;
+import ch.turic.analyzer.Input;
+import ch.turic.analyzer.LexList;
+import ch.turic.analyzer.Lexer;
+import ch.turic.analyzer.ProgramAnalyzer;
 import ch.turic.commands.BlockCommand;
 import ch.turic.commands.Command;
 import ch.turic.memory.Context;
@@ -16,13 +19,14 @@ import java.util.Collection;
 public class Repl {
 
     public Context ctx;
+    public LexList lexes;
 
-    public Repl(){
+    public Repl() {
         ctx = new Context();
         BuiltIns.register(ctx);
     }
 
-    public Collection<String> completions(){
+    public Collection<String> completions() {
         final var result = new ArrayList<String>();
         result.addAll(Lexer.RESERVED);
         result.addAll(ctx.allKeys());
@@ -32,7 +36,7 @@ public class Repl {
     public Object execute(String source) throws BadSyntax, ExecutionException {
         Command localCode;
         final var analyzer = new ProgramAnalyzer();
-        LexList lexes = Lexer.analyze(Input.fromString(source));
+        lexes = Lexer.analyze(Input.fromString(source));
         if (lexes.isEmpty()) {
             localCode = new BlockCommand(new Command[0], false);
         } else {

@@ -1,10 +1,15 @@
 package ch.turic.memory;
 
 import ch.turic.ExecutionException;
+import ch.turic.utils.Unmarshaller;
 
 import java.util.Objects;
 
 public record VariableLeftValue(String variable) implements LeftValue {
+
+    public static VariableLeftValue factory(final Unmarshaller.Args args) {
+        return new VariableLeftValue(args.str("variable"));
+    }
 
     public VariableLeftValue(String variable) {
         this.variable = Objects.requireNonNull(variable);

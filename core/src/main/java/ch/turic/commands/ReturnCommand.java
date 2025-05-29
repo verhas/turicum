@@ -3,6 +3,7 @@ package ch.turic.commands;
 import ch.turic.ExecutionException;
 import ch.turic.commands.operators.Cast;
 import ch.turic.memory.Context;
+import ch.turic.utils.Unmarshaller;
 
 public class ReturnCommand extends AbstractCommand {
     final Command expression;
@@ -14,6 +15,13 @@ public class ReturnCommand extends AbstractCommand {
 
     public Command expression() {
         return expression;
+    }
+
+    public static ReturnCommand factory(final Unmarshaller.Args args) {
+        return new ReturnCommand(
+                args.command("expression"),
+                args.command("condition")
+        );
     }
 
     public ReturnCommand(Command expression, Command condition) {

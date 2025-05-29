@@ -4,6 +4,7 @@ package ch.turic.commands;
 import ch.turic.ExecutionException;
 import ch.turic.commands.operators.Operator;
 import ch.turic.memory.Context;
+import ch.turic.utils.Unmarshaller;
 
 import java.util.Objects;
 
@@ -30,6 +31,14 @@ public class Operation extends AbstractCommand {
         this.operator = operator;
         this.left = left;
         this.right = right;
+    }
+
+    public static Operation factory(final Unmarshaller.Args args) {
+        return new Operation(
+                args.str("operator"),
+                args.command("left"),
+                args.command("right")
+        );
     }
 
 

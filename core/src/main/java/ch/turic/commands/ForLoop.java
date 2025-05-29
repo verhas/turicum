@@ -4,6 +4,7 @@ import ch.turic.ExecutionException;
 import ch.turic.commands.operators.Cast;
 import ch.turic.memory.Context;
 import ch.turic.memory.LngList;
+import ch.turic.utils.Unmarshaller;
 
 public class ForLoop extends Loop {
     final public Command startCommand;
@@ -31,6 +32,17 @@ public class ForLoop extends Loop {
 
     public Command stepCommand() {
         return stepCommand;
+    }
+
+    public static ForLoop factory(final Unmarshaller.Args args) {
+        return new ForLoop(
+                args.command("startCommand"),
+                args.command("loopCondition"),
+                args.command("exitCondition"),
+                args.command("stepCommand"),
+                args.bool("resultList"),
+                args.command("body")
+        );
     }
 
     public ForLoop(final Command startCommand,

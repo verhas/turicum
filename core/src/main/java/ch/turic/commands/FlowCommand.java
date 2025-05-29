@@ -5,6 +5,7 @@ import ch.turic.commands.operators.Cast;
 import ch.turic.memory.Context;
 import ch.turic.memory.NameGen;
 import ch.turic.memory.Sentinel;
+import ch.turic.utils.Unmarshaller;
 
 import java.lang.reflect.Array;
 import java.util.*;
@@ -48,6 +49,9 @@ public class FlowCommand extends AbstractCommand {
      * @param command the command to compute the value of the cell
      */
     record Cell(String id, Command command) {
+        public static Cell factory(Unmarshaller.Args args) {
+            return new Cell(args.str("id"), args.command("command"));
+        }
     }
 
     /**
@@ -58,6 +62,11 @@ public class FlowCommand extends AbstractCommand {
      * @param cell   the original cell whose command produced the result
      */
     record CellWithResult(Object result, Cell cell, Long counter) {
+        public static CellWithResult factory(Unmarshaller.Args args) {
+            return new CellWithResult(args.get("result", Object.class),
+                    args.get("cell", Cell.class),
+                    args.get("counter", Long.class));
+        }
     }
 
     private static final ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
@@ -68,7 +77,41 @@ public class FlowCommand extends AbstractCommand {
     private final Command resultExpression;
     private final Cell[] cells;
     private final Cell[] startCells;
-    private final Map<String, Cell[]> dependentCells = new HashMap<>();
+    private final Map<String, Cell[]> dependentCells;
+
+
+    private FlowCommand(
+            final String flowId,
+            final Command exitCondition,
+            final Command limitExpression,
+            final Command timeoutExpression,
+            final Command resultExpression,
+            final Cell[] cells,
+            final Cell[] startCells,
+            final Map<String, Cell[]> dependentCells) {
+        this.flowId = flowId;
+        this.exitCondition = exitCondition;
+        this.limitExpression = limitExpression;
+        this.timeoutExpression = timeoutExpression;
+        this.resultExpression = resultExpression;
+        this.cells = cells;
+        this.startCells = startCells;
+        this.dependentCells = dependentCells;
+    }
+
+    public static FlowCommand factory(final Unmarshaller.Args args) {
+        return new FlowCommand(
+                args.str("flowId"),
+                args.command("exitCondition"),
+                args.command("limitExpression"),
+                args.command("timeoutExpression"),
+                args.command("resultExpression"),
+                args.get("cells", Cell[].class),
+                args.get("startCells", Cell[].class),
+                args.get("dependentCells", Map.class)
+        );
+    }
+
 
     /**
      * Constructs a {@code FlowCommand} with optional termination criteria and a list of reactive cells.
@@ -83,6 +126,7 @@ public class FlowCommand extends AbstractCommand {
      * @throws ExecutionException       if the internal dependency analysis fails
      */
     public FlowCommand(String flowId, Command exitCondition, Command limitExpression, Command timeoutExpression, Command resultExpression, String[] cellIdentifiers, Command[] cellCommands) {
+        this.dependentCells = new HashMap<>();
         this.flowId = Objects.requireNonNullElse(flowId, "#unnamed");
         this.exitCondition = exitCondition;
         this.limitExpression = limitExpression;

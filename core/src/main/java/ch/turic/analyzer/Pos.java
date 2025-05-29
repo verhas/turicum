@@ -1,5 +1,7 @@
 package ch.turic.analyzer;
 
+import ch.turic.utils.Unmarshaller;
+
 public class Pos {
 
     public final String file;
@@ -21,5 +23,14 @@ public class Pos {
         this(file,lines);
         this.line = line;
         this.column = column;
+    }
+
+    public static Pos factory(final Unmarshaller.Args args) {
+        return new Pos(
+                args.str("file"),
+                args.get("line",Integer.class),
+                args.get("column",Integer.class),
+                args.get("lines", String[].class)
+        );
     }
 }

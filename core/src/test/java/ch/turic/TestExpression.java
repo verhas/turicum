@@ -9,7 +9,7 @@ public class TestExpression {
 
     private void test(final String input, final Object expected) throws Exception {
         final var interpreter = new Interpreter(input);
-        final var result = interpreter.execute();
+        final var result = interpreter.compileAndExecute();
         Assertions.assertEquals(expected, result);
     }
 

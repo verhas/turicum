@@ -65,7 +65,7 @@ public class Import implements TuriMacro {
 
     static Object doImportExport(ch.turic.memory.Context ctx, String source, List<String> imports) {
         final var interpreter = new Interpreter(source);
-        interpreter.execute();
+        interpreter.compileAndExecute();
         final var importedContext = (ch.turic.memory.Context) interpreter.getImportContext();
         final var set = new HashSet<String>();
         for (final var exported : (imports == null || imports.isEmpty()) ? importedContext.exporting() : imports) {

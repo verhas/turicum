@@ -5,6 +5,7 @@ import ch.turic.ExecutionException;
 import ch.turic.analyzer.AssignmentList;
 import ch.turic.memory.Context;
 import ch.turic.memory.HasFields;
+import ch.turic.utils.Unmarshaller;
 
 /**
  * Command implementation for multi-let assignments that handles both list and object assignments.
@@ -18,6 +19,15 @@ public class MultiLetAssignment extends AbstractCommand {
 
     public enum Type {
         LIST, OBJECT
+    }
+
+    public static MultiLetAssignment factory(final Unmarshaller.Args args) {
+        return new MultiLetAssignment(
+                args.get("assignments", AssignmentList.Assignment[].class),
+                args.command("rightHandSide"),
+                args.get("type", Type.class),
+                args.bool("mut")
+        );
     }
 
     /**

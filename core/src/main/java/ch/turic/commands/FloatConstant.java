@@ -3,6 +3,7 @@ package ch.turic.commands;
 
 import ch.turic.ExecutionException;
 import ch.turic.memory.Context;
+import ch.turic.utils.Unmarshaller;
 
 public class FloatConstant extends AbstractCommand {
 
@@ -18,6 +19,10 @@ public class FloatConstant extends AbstractCommand {
 
     public FloatConstant(String value) {
         this(Double.parseDouble(value));
+    }
+
+    public static FloatConstant factory(final Unmarshaller.Args args) {
+        return new FloatConstant(args.get("value", double.class));
     }
 
     @Override

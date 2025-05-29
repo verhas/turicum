@@ -2,6 +2,7 @@ package ch.turic.commands;
 
 import ch.turic.BadSyntax;
 import ch.turic.analyzer.Pos;
+import ch.turic.utils.Unmarshaller;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -43,6 +44,17 @@ import java.util.HashSet;
 
 public record ParameterList(Parameter[] parameters, String rest, String meta, String closure, Pos position) {
     public static final ParameterList EMPTY = new ParameterList(new ParameterList.Parameter[0], null, null, null, new Pos("", null));
+
+    public static ParameterList factory(final Unmarshaller.Args args) {
+        return new ParameterList(
+                args.get("parameters", Parameter[].class),
+                args.str("rest"),
+                args.str("meta"),
+                args.str("closure"),
+                args.get("position", Pos.class)
+        );
+    }
+
 
     public record Parameter(String identifier,
                             Type type,

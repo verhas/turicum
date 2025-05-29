@@ -2,6 +2,7 @@ package ch.turic.commands;
 
 import ch.turic.ExecutionException;
 import ch.turic.memory.Context;
+import ch.turic.utils.Unmarshaller;
 
 /**
  * An identifier that identifies something, like a variable, a class or object.
@@ -22,6 +23,10 @@ public class Identifier extends AbstractCommand {
 
     public Identifier(String name) {
         this.name = name;
+    }
+
+    public static Identifier factory(Unmarshaller.Args args) {
+        return new Identifier(args.str("name"));
     }
 
     @Override
