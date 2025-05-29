@@ -22,35 +22,44 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 public class JLineRepl {
+
+    private enum SyntaxState {
+        OK,
+        NOT_READY,
+        DROP_DEAD
+    }
+
     public static void execute() throws IOException {
         final var interpreter = new Repl();
         Terminal terminal = TerminalBuilder.builder().system(true).build();
         Parser parser = new DefaultParser();
+        final var history = new DefaultHistory();
         LineReader reader = LineReaderBuilder.builder()
                 .appName("Turicum")
                 .terminal(terminal)
                 .completer(new StringsCompleter(interpreter::completions))
                 .parser(parser)
-                .history(new DefaultHistory())
+                .history(history)
                 .build();
 
-        String prompt = ">>> ";
-        String morePrompt = "... ";
-
+        final var prompt = ">>> ";
+        final var morePrompt = "... ";
+        var prefix = "";
+        Throwable lastError = null;
         System.out.println("Turicum REPL with JLine (//help for more info)");
 
         StringBuilder buffer = new StringBuilder();
-        int openBraces = 0;
+        var state = SyntaxState.OK;
         final var ctx_stack = new ArrayList<Context>();
 
         while (true) {
             String line;
             try {
                 final var actualPrompt =
-                        switch (openBraces) {
-                            case -1 -> "ERROR, INPUT IGNORED\n" + prompt;
-                            case 0 -> prompt;
-                            default -> morePrompt;
+                        switch (state) {
+                            case DROP_DEAD -> "ERROR, INPUT IGNORED\n" + prefix + prompt;
+                            case OK -> prefix + prompt;
+                            case NOT_READY -> prefix + morePrompt;
                         };
                 line = reader.readLine(actualPrompt);
             } catch (UserInterruptException | EndOfFileException e) {
@@ -69,7 +78,7 @@ public class JLineRepl {
                         >>>    is the starting prompt
                         ...    is the continuation prompt
                         {      starts a new context
-                        }      closes the current context (the context level is show at the start of the prompt)
+                        }      closes the current context (the context level is shown at the start of the prompt)
                         //     to drop the current input and start a new one
                         ?      list the local variables (current frame)
                         ??     list all variables
@@ -81,7 +90,7 @@ public class JLineRepl {
             if (cmd.startsWith("//") && cmd.endsWith("exit") && cmd.substring(2, cmd.length() - 4).isBlank()) break;
             if (cmd.equals("//")) {
                 buffer.setLength(0);
-                openBraces = 0;
+                state = SyntaxState.OK;
                 continue;
             }
             if (cmd.startsWith("??")) {
@@ -92,37 +101,32 @@ public class JLineRepl {
                         printVariable(k, context);
                     }
                 }
-                openBraces = 0;
                 continue;
             }
             if (line.trim().equals("?")) {
-                for (final var k : interpreter.ctx.allFrameKeys()) {
-                    printVariable(k, interpreter.ctx);
+                if (!buffer.isEmpty() && lastError != null) {
+                    System.out.println(lastError.getMessage());
+                } else {
+                    for (final var k : interpreter.ctx.allFrameKeys()) {
+                        printVariable(k, interpreter.ctx);
+                    }
                 }
-                openBraces = 0;
                 continue;
             }
+            lastError = null;
             buffer.append(line);
             cmd = buffer.toString();
             if (cmd.matches("\\{+")) {
-                openBraces = 0;
-                prompt = "{".repeat(cmd.length()) + prompt;
-                for (int i = 0; i < cmd.length(); i++) {
-                    ctx_stack.add(interpreter.ctx);
-                    interpreter.ctx = interpreter.ctx.wrap();
-                }
-                buffer.setLength(0);
+                state = SyntaxState.OK;
+                prefix = openContexts(cmd.length(), ctx_stack, interpreter, buffer);
                 continue;
             }
             if (cmd.matches("}+")) {
-                openBraces = 0;
                 if (ctx_stack.isEmpty()) {
-                    openBraces = -1;
+                    state = SyntaxState.DROP_DEAD;
                 } else {
-                    prompt = prompt.substring(cmd.length());
-                    for (int i = 0; i < cmd.length(); i++) {
-                        interpreter.ctx = ctx_stack.removeLast();
-                    }
+                    state = SyntaxState.OK;
+                    prefix = closeContexts(cmd.length(), interpreter, ctx_stack);
                 }
                 buffer.setLength(0);
                 continue;
@@ -130,22 +134,58 @@ public class JLineRepl {
 
             buffer.append("\n");
 
-            openBraces = countBraces(buffer.toString());
+            state = countBraces(buffer.toString());
 
-            if (openBraces == -1) {
+            if (state == SyntaxState.DROP_DEAD) {
                 buffer.setLength(0);
                 continue;
             }
 
-            if (openBraces == 0 && !buffer.isEmpty()) {
-                String input = buffer.toString();
-                buffer.setLength(0);
+            if (state == SyntaxState.OK && !buffer.isEmpty()) {
                 try {
-                    System.out.println(Objects.requireNonNullElse(interpreter.execute(input), "none"));
+                    System.out.println(
+                            Objects.requireNonNullElse(interpreter.execute(buffer.toString()),
+                                    "none"));
+                    history.add(buffer.toString());
+                    // if multi-line it will be added
+                    // if single line, it is already there, does not alter the history
+                    buffer.setLength(0);
+                } catch (BadSyntax bs) {
+                    state = SyntaxState.NOT_READY;
+                    lastError = bs;
                 } catch (Exception e) {
                     System.out.println(e.getMessage());
                 }
             }
+        }
+    }
+
+    private static String openContexts(int num, ArrayList<Context> ctx_stack, Repl interpreter, StringBuilder buffer) {
+        String prefix;
+        for (int i = 0; i < num; i++) {
+            ctx_stack.add(interpreter.ctx);
+            interpreter.ctx = interpreter.ctx.wrap();
+        }
+        prefix = calculatePrefix(ctx_stack);
+        buffer.setLength(0);
+        return prefix;
+    }
+
+    private static String closeContexts(int num, Repl interpreter, ArrayList<Context> ctx_stack) {
+        String prefix;
+        for (int i = 0; i < num; i++) {
+            interpreter.ctx = ctx_stack.removeLast();
+        }
+        prefix = calculatePrefix(ctx_stack);
+        return prefix;
+    }
+
+    private static String calculatePrefix(ArrayList<Context> ctx_stack) {
+        final var num = ctx_stack.size();
+        if (num > 5) {
+            return "{" + (num) + "{";
+        } else {
+            return "{".repeat(num);
         }
     }
 
@@ -161,7 +201,7 @@ public class JLineRepl {
         System.out.printf("%s: %s\n", k, value);
     }
 
-    private static int countBraces(String s) {
+    private static SyntaxState countBraces(String s) {
         try {
             final var lexes = Lexer.analyze(Input.fromString(s));
             final var braces = new ArrayList<Lex>();
@@ -170,22 +210,22 @@ public class JLineRepl {
                     braces.add(lexes.next());
                 } else if (lexes.is("}", ")", "]")) {
                     if (braces.isEmpty()) {
-                        return -1;
+                        return SyntaxState.DROP_DEAD;
                     }
                     final var lastB = braces.removeLast();
                     if ((lexes.is("}") && !lastB.text().equals("{")) ||
                             (lexes.is(")") && !lastB.text().equals("(")) ||
                             (lexes.is("]") && !lastB.text().equals("["))) {
-                        return -1;
+                        return SyntaxState.DROP_DEAD;
                     }
                     lexes.next();
                 } else {
                     lexes.next();
                 }
             }
-            return braces.size();
+            return braces.isEmpty() ? SyntaxState.OK : SyntaxState.NOT_READY;
         } catch (BadSyntax e) {
-            return 1;// we will see how to handle this
+            return SyntaxState.NOT_READY;// we will see how to handle this
         }
     }
 }
