@@ -61,7 +61,7 @@ public class Interpreter {
      * from files ending with ".turc".
      *
      * @param file the path to the source or compiled program file
-     * @throws IOException if an I/O error occurs while reading the file
+     * @throws IOException      if an I/O error occurs while reading the file
      * @throws RuntimeException if the file type is unsupported
      */
     public Interpreter(Path file) throws IOException {
@@ -159,12 +159,8 @@ public class Interpreter {
             }
         }
 
-        if (preprocessorContext == null) {
-            ctx = new Context();
-            BuiltIns.register(ctx);
-        } else {
-            ctx = preprocessorContext.wrap();
-        }
+        ctx = new Context();
+        BuiltIns.register(ctx);
         return (Program) localCode;
     }
 

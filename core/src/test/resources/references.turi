@@ -1337,6 +1337,7 @@ fn hi(){ // this will be deleted, it only exists in the preprocessor context
     fn helvetic_hi(){
       "Gruetzi "
     }
+    fn hi() { "hullo" }
     M = M + "hello ";
     M = M + (hi() or "none ");
 """,
