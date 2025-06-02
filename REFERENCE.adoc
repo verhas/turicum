@@ -7,6 +7,8 @@
 
 
 
+
+
 == Introduction
 
 === What is Turicum?
@@ -53,6 +55,30 @@ It can run as a standalone command-line tool or be integrated into Java or Kotli
 Turicum is implemented in Java and is designed to be approachable for JVM developers while introducing powerful new abstractions.
 
 The name “Turicum” is the ancient Roman name for the city of Zürich, Switzerland, where the language is being developed.
+
+=== Implementations
+
+The interpreter is currently available in three different application:
+
+* command line version
+
+* as a Maven extension
+
+* as a Java library.
+
+== Command Line
+
+The command line version is available as an installation kit for Windows, Linux, and MacOS.
+The kits are available on GitHub, and they include everything you need to run Turicum programs.
+
+To get an on-screen help type
+
+  turi -h
+
+after the installation.
+
+== Maven Extension
+== Java library
 
 === Design Goals and Philosophy
 
@@ -4154,28 +4180,28 @@ execute("Thread 2",2)
 .output of snippet `channel_limit`
 [source]
 ----
-Thread 1 generated 3
  prime read 2
-Thread 1 generated 5
+Thread 1 generated 3
+ prime read Thread 1 generated 5
+3
 Thread 1 generated 7
- prime read Thread 13
  prime read 5
- generated  prime read 7
-11
+ prime read 7
+Thread 1 generated 11
 Thread 1 generated 13
 Thread 1 generated 17
 Thread 1 generated 19
 Thread 1 generated 23
 stopping
 exception Task stopped.
-Thread 2 generated 3
  prime read 2
- prime read 3
+Thread 2 generated  prime read 3
+3
 Thread 2 generated 5
-Thread 2 generated 7
  prime read 5
- prime read 7
+Thread 2 generated 7
 Thread 2 generated 11
+ prime read 7
 Thread 2 generated 13
 stopping
 exception Task stopped.
@@ -4238,9 +4264,9 @@ println( (end-start)/1000000, "ms")
 [source]
 ----
 [1, 2, 3]
-315.979583ms
+319.428709ms
 []
-324.419375ms
+324.625292ms
 
 ----
 
@@ -4456,9 +4482,10 @@ a =3.6820276497695854
 a =3.6063454894655185
 a =3.6055513629176015
 a =3.6055512754639905
-sqrt(13) ≈ 3.6055513629176015
+a =3.6055512754639896
+sqrt(13) ≈ 3.6055512754639905
 sqrt(13) ≈ 3.605551275463989 calulated by java Math
-square ≈ 13.000000630636974
+square ≈ 13.000000000000009
 
 ----
 
@@ -4602,7 +4629,7 @@ println(inc(1))
 .output of snippet `fun1`
 [source]
 ----
-ch.turic.commands.Closure@530712d
+ch.turic.commands.Closure@2c07545f
 2
 
 ----
@@ -4631,7 +4658,7 @@ println(inc(1))
 .output of snippet `fun3`
 [source]
 ----
-ch.turic.commands.Closure@2df6226d
+ch.turic.commands.Closure@32c726ee
 2
 
 ----
@@ -4662,7 +4689,7 @@ println(inc(1))
 .output of snippet `fun2`
 [source]
 ----
-ch.turic.commands.Closure@12ed9db6
+ch.turic.commands.Closure@c94fd30
 2
 
 ----
@@ -4858,7 +4885,7 @@ println(inc(1,how_much=5))
 .output of snippet `fun4`
 [source]
 ----
-ch.turic.commands.Closure@4ff4357f
+ch.turic.commands.Closure@2c4d1ac
 6
 
 ----
@@ -6985,7 +7012,7 @@ ieee_remainder(5,2) = 1.0
 next_after(1.0,2.0) = 1.0000000000000002
 next_down(1.0) = 0.9999999999999999
 next_up(1.0) = 1.0000000000000002
-random() = 0.9631891707844563
+random() = 0.5682544303167705
 rint(3.7) = 4.0
 round(3.7) = 4
 signum(-3.7) = -1.0
@@ -7543,7 +7570,7 @@ println nano_time()
 .output of snippet `nano_time`
 [source]
 ----
-687811551955541
+770779271787041
 
 ----
 
@@ -7877,78 +7904,78 @@ none
 ----
 task2 is not ready 0
 task1 is not ready 0
-task1 is not ready 1
-task2 is ready 1
-task2 is not ready 0
-task1 is not ready 2
 task2 is not ready 1
-task2 is not ready 2task1 is not ready 3
-
-task2 is ready 2
-task1 is not ready 4
-task2 is not ready 0
-task2 is not ready 1
-task1 is not ready 5
-task2 is not ready 2task1 is not ready 6
-
-task1 is ready 3
+task1 is ready 1
 task1 is not ready 0
-task2 is not ready 3
-task2 is not ready 4
-task1 is not ready 1
-task2 is not ready 5
+task2 is not ready 2task1 is not ready 1
+
 task1 is not ready 2
+task2 is not ready 3
 task1 is not ready 3
-task2 is ready 4
+task2 is ready 2
 task2 is not ready 0
 task1 is not ready 4
 task2 is not ready 1
 task1 is not ready 5
 task2 is not ready 2
-task1 is ready 5
+task1 is ready 3
 task2 is not ready 3
 task1 is not ready 0
-task2 is not ready 4
 task1 is not ready 1
-task1 is not ready 2task2 is not ready 5
-
-task1 is ready 6
+task2 is not ready 4
+task2 is not ready 5
+task1 is not ready 2
 task2 is not ready 6
+task1 is ready 4
 task1 is not ready 0
 task2 is not ready 7
 task1 is not ready 1
-task2 is not ready 8task1 is not ready 2
-
-task2 is ready 7
-task2 is not ready 0
+task1 is not ready 2
+task2 is not ready 8
 task1 is not ready 3
+task2 is ready 5
+task2 is not ready 0
 task1 is not ready 4task2 is not ready 1
 
-task1 is not ready 5
 task2 is not ready 2
-task1 is not ready 6task2 is not ready 3
+task1 is not ready 5
+task1 is not ready 6
+task2 is ready 6
+task2 is not ready 0
+task2 is not ready 1
+task1 is not ready 7
+task1 is not ready 8task2 is not ready 2
 
-task1 is ready 8
-task1 is not ready 0task2 is not ready 4
-
-task1 is not ready 1
-task2 is not ready 5
-task1 is not ready 2
-task2 is not ready 6
-task1 is ready 9task2 is not ready 7
+task1 is ready 7task2 is not ready 3
 
 task1 is not ready 0
-task2 is not ready 8
-task1 is not ready 1
-task2 is not ready 9
+task2 is not ready 4task1 is not ready 1
+
+task2 is not ready 5
 task1 is not ready 2
+task1 is ready 8
+task1 is not ready 0
+task2 is not ready 6
+task1 is not ready 1task2 is not ready 7
+
+task2 is not ready 8
+task1 is not ready 2
+task2 is not ready 9
+task1 is not ready 3
+task1 is not ready 4
+task2 is ready 9
+task2 is not ready 0
+task1 is not ready 5
+task2 is not ready 1
+task1 is not ready 6
+task2 is not ready 2
 closing the channel
 channel is closed
 1 is done false
 2 is done false
 we start to wait the first time
-task1 is done
 task2 is done
+task1 is done
 task1 done false
 task2 done true
 We start to wait the second time
@@ -8221,14 +8248,13 @@ sending 2
 received 2
 not ready 0
 not ready 1
-not ready 2
 sending 3
 received 3
 not ready 0
 not ready 1
 not ready 2
-closing the channel
 not ready 3
+closing the channel
 channel is closed
 is done false
 we are done
@@ -8621,6 +8647,7 @@ fn hi(){ // this will be deleted, it only exists in the preprocessor context
     fn helvetic_hi(){
       "Gruetzi "
     }
+    fn hi() { "hullo" }
     M = M + "hello ";
     M = M + (hi() or "none ");
 """,
@@ -8641,7 +8668,7 @@ print M
 .output of snippet `preprocessorSample`
 [source]
 ----
-hello hello Gruetzi ant hunter
+hello hulloGruetzi ant hunter
 ----
 
 
@@ -8654,30 +8681,37 @@ Preprocessors are usually defined in imported files and invoked using a simple f
 === Full Annotated EBNF
 
 The following is the non-standard EBNF definition of the programming language called Turicum.
-Strings between ' characters are literal keywords.
-Syntax between `[` and `]` are optional
-Syntax between `{` and `}` are repeated zero or more times
-Syntax between `(` and `)` is a group with alternatives
-Alternative syntaxes are separated using the `|` character.
-Non-terminal symbols are all capital letters.
-EBNF non-terminals are followed by `::=` and then the definition closed by `;`
-Non-literal terminal symbols are:
 
-* IDENTIFIER
-* number
-* string
+* Strings between ' characters are literal keywords.
+* Syntax between `[` and `]` are optional
+* Syntax between `{` and `}` are repeated zero or more times
+* Syntax between `(` and `)` is a group with alternatives
+* Alternative syntaxes are separated using the `|` character.
+* Non-terminal symbols are all capital letters.
+* EBNF non-terminals are followed by `::=` and then the definition closed by `;`
+
+* Non-literal terminal symbols are:
+
+** IDENTIFIER
+** number
+** string
 
 A program is a series of commands.
 Commands can be separated by `;` character, and it is recommended to use it, but it is not required.
 New line can replace the use of `;`.
+The recognition of the command end upon new-line is heuristic.
+The safe way is to use `;` to close commands.
 
  PROGRAM ::= { COMMAND [;] } ;
 
-Commands also have values. It is the __result__ of the command.
+A program is an ordered list of commands optionally separated by `;`.
+
+Commands have values. It is the __result__ of the command.
 
  COMMAND ::=  IF |
               LOOP |
               CLASS |
+              FLOW |
               FN |
               LOCAL | GLOBAL | PIN
               BREAK | YIELD | RETURN |
@@ -8686,7 +8720,8 @@ Commands also have values. It is the __result__ of the command.
               EXPRESSION |
               ;
 
- LOOP ::= ('while' [EXPRESSION] ['list']( BLOCK | ':' COMMAND ) |
+ LOOP ::= (
+           'while' [EXPRESSION] ['list']( BLOCK | ':' COMMAND )|
            'for' COMMAND ';' [EXPRESSION] ';' COMMAND ['list']( BLOCK | ':' COMMAND ) |
            'for' '(' COMMAND [EXPRESSION] COMMAND ')' ['list'](  BLOCK | ':' COMMAND )  |
            'for each' identifier [with identifier] 'in' EXPRESSION ['list']( BLOCK | ':' COMMAND ) |
@@ -8696,38 +8731,40 @@ Commands also have values. It is the __result__ of the command.
 
 If the condition expression is missing after 'for' or 'while' it is `true`.
 The expression following the 'until' keyword is not optional, but the whole `until` `EXPRESSION` part is.
-The value of a loop is the last __executed__ command.
-Equivalent to: `for(init; condition; step)`
+The value of a loop is the last __executed__ command, or a list if the `list` keyword was specified.
+The elements of the list are the last __executed__ commands for each iteration.
 
 The value of an `IF` command is the value of the first or the second block, whichever is executed.
 If the condition expression is false and there is no second block, then the value is `none`.
 
  IF ::= 'if' EXPRESSION ( ':' COMMAND | BLOCK ) [ 'else' ( ':' COMMAND | BLOCK )] ;
 
-The result of a CLASS declaration is the class itself.
+The result of a CLASS declaration is the declared class itself.
 
  CLASS ::= 'class' [IDENTIFIER] [ ':' IDENTIFIER_LIST ] BLOCK ;
+
+The class object is also assigned to the variable denoted by the `IDENTIFIER` in the current context.
 
 The result of a function declaration is the function itself.
 
  FN ::= FN_EXPR | FN_BLOCK ;
+ FN_EXPR   ::= 'fn' [ IDENTIFIER ] '(' IDENTIFIER_LIST ')' '=' EXPRESSION ;
+ FN_BLOCK  ::= 'fn' [ IDENTIFIER ] [ '(' IDENTIFIER_LIST ')' ] BLOCK ;
 
 For functions with an expression body following a '=', the parameter list is mandatory.
 The parameter list may be empty, having only '(' and ')'.
 
- FN_EXPR   ::= 'fn' [ IDENTIFIER ] '(' IDENTIFIER_LIST ')' '=' EXPRESSION ;
-
 For functions with a block body, both the function name and parameter list are optional, but you must have at least one of them.
 
- FN_BLOCK  ::= 'fn' [ IDENTIFIER ] [ '(' IDENTIFIER_LIST ')' ] BLOCK ;
-
-Variables declared as local will be local to the context, even if the same name is used in some enclosing context
-or as a global variable
-the value of the local declaration is the value of the last assignment in the command
+Variables declared as local will be local to the context, even if the same name is used in some enclosing context or as a global variable.
+The value of the local declaration is the value of the last assignment in the command
 
  LOCAL ::= 'let' IDENTIFIER_ASSIGNMENT_LIST |
            'let' '{' TYPED_IDENTIFIER_LIST '}' '=' EXPRESSION|
            'let' '[' TYPED_IDENTIFIER_LIST ']' '=' EXPRESSION ;
+
+When there are braces or brackets around the identifier list the `EXPRESSION` has to be an object (for braces) or a list (for brackets).
+The fields or the elements of the object or list are assigned to the individual variables.
 
 Variables declared global will refer to the global variable.
 The value of the global declaration is the value of the last assignment in the command.

@@ -21,6 +21,11 @@ let license = {
             }
 }
 
+fn licenses([licenses]){
+    global project;
+    priject.licenses = licenses;
+}
+
 fn github(user:str, repository:str) {
             {
             connection : $"scm:git:git://github.com/${user}/${repository}.git",
