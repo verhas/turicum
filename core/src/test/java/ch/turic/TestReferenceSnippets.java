@@ -2,6 +2,7 @@ package ch.turic;
 
 import ch.turic.analyzer.Input;
 import ch.turic.utils.Marshaller;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
 
@@ -49,7 +50,8 @@ public class TestReferenceSnippets {
                             ps.close();
                             baos.close();
                             var output = outputDir.resolve(snippet.name() + ".txt");
-                            Files.writeString(output, baos.toString(), StandardCharsets.UTF_8, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
+                            final var originalOutput = baos.toString();
+                            Files.writeString(output, originalOutput, StandardCharsets.UTF_8, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
                             var routput = outputDir.resolve(snippet.name() + "_result.txt");
                             Files.writeString(routput, "" + result, StandardCharsets.UTF_8, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
 
@@ -64,11 +66,12 @@ public class TestReferenceSnippets {
                             ps.close();
                             baos.close();
                             output = outputDir.resolve(snippet.name() + ".turc.txt");
-                            Files.writeString(output, baos.toString(), StandardCharsets.UTF_8, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
+                            String fromCompressedOutput = baos.toString();
+                            Files.writeString(output, fromCompressedOutput, StandardCharsets.UTF_8, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
                             routput = outputDir.resolve(snippet.name() + "_result.turc.txt");
                             Files.writeString(routput, "" + result, StandardCharsets.UTF_8, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
-
                             System.setOut(out);
+                            //Assertions.assertEquals(fromCompressedOutput, originalOutput);
                         }
                 )
         );

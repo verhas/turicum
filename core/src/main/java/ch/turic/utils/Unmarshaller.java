@@ -4,6 +4,7 @@ import ch.turic.Command;
 import ch.turic.Program;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.lang.reflect.Array;
@@ -11,12 +12,15 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.zip.Inflater;
+import java.util.zip.InflaterInputStream;
 
 public class Unmarshaller {
 
     private final Map<Short, Class<?>> classRegistry = new HashMap<>();
 
-    public Program deserialize(byte[] data) {
+    public Program deserialize(byte[] compressedData) {
+        final var data = decompress(compressedData);
         try (var bais = new ByteArrayInputStream(data);
              var input = new DataInputStream(bais)) {
 
@@ -36,6 +40,20 @@ public class Unmarshaller {
             throw new RuntimeException("Failed to deserialize", e);
         }
     }
+
+    public static byte[] decompress(byte[] compressedData) {
+        try (
+                ByteArrayInputStream bais = new ByteArrayInputStream(compressedData);
+                InflaterInputStream inflaterStream = new InflaterInputStream(bais);
+                ByteArrayOutputStream baos = new ByteArrayOutputStream()
+        ) {
+            inflaterStream.transferTo(baos);
+            return baos.toByteArray();
+        } catch (IOException e) {
+            throw new RuntimeException("Decompression failed", e);
+        }
+    }
+
 
     private Object unmarshall(DataInputStream input) throws IOException, ReflectiveOperationException {
         short marker = input.readShort();

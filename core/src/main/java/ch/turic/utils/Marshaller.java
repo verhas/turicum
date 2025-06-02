@@ -3,6 +3,7 @@ package ch.turic.utils;
 import ch.turic.ExecutionException;
 import ch.turic.Program;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -12,6 +13,8 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.zip.Deflater;
+import java.util.zip.DeflaterOutputStream;
 
 public class Marshaller {
 
@@ -46,11 +49,26 @@ public class Marshaller {
                 buffer.writeUTF(className);
             }
             buffer.write(code);
-            return baos.toByteArray();
+            byte[] serialized = baos.toByteArray();
+            return compress(serialized);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
+    }
+
+    private byte[] compress(byte[] serialized) {
+        final var deflater = new Deflater(Deflater.BEST_COMPRESSION );
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
+             DeflaterOutputStream dStream = new DeflaterOutputStream(baos,deflater)) {
+            new ByteArrayInputStream(serialized).transferTo(dStream);
+            dStream.finish();
+            return baos.toByteArray();
+        } catch (Exception e) {
+            throw new RuntimeException("Compression failed", e);
+        }finally {
+            deflater.end();
+        }
     }
 
     /**
@@ -62,9 +80,9 @@ public class Marshaller {
      */
     private byte[] marshall(Object object) {
         if (object == null) {
-            return new byte[]{NULL_SIGN,NULL_SIGN};
+            return new byte[]{NULL_SIGN, NULL_SIGN};
         }
-        if( object instanceof Map map){
+        if (object instanceof Map map) {
             return marshall_map(map);
         }
         if (object.getClass().isArray()) {
@@ -74,12 +92,12 @@ public class Marshaller {
         }
     }
 
-    private byte[] marshall_map(Map<?,?> map) {
+    private byte[] marshall_map(Map<?, ?> map) {
         try (final var baos = new ByteArrayOutputStream();
              final var buffer = new DataOutputStream(baos)) {
             buffer.writeShort(MAP_SIGN);
             buffer.writeInt(map.size());
-            for( final var entry : map.entrySet()) {
+            for (final var entry : map.entrySet()) {
                 buffer.write(marshall(entry.getKey()));
                 buffer.write(marshall(entry.getValue()));
             }
@@ -89,6 +107,7 @@ public class Marshaller {
         }
 
     }
+
     /**
      * Marshals an array into its byte array representation. This method ensures that the input
      * is an array and serializes its elements along with the necessary metadata such as the array identifier
