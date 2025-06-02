@@ -1,6 +1,7 @@
 package ch.turic;
 
 import ch.turic.analyzer.Input;
+import ch.turic.utils.Marshaller;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
 
@@ -35,17 +36,38 @@ public class TestReferenceSnippets {
                 DynamicTest.dynamicTest(
                         snippet.name() + " " + snippet.name() + ":" + snippet.lineNumber(),
                         () -> {
-                            final var baos = new ByteArrayOutputStream();
-                            final var ps = new PrintStream(baos);
+                            var baos = new ByteArrayOutputStream();
+                            var ps = new PrintStream(baos);
                             System.setOut(ps);
                             // Execute the snippet.
-                            Object result = new Interpreter(new Input(new StringBuilder(snippet.programCode()), snippet.filePath)).compileAndExecute();
+                            Interpreter interpreter = new Interpreter(new Input(new StringBuilder(snippet.programCode()), snippet.filePath));
+                            final var program = interpreter.compile();
+                            var result = interpreter.execute(program);
+                            final var marshaller = new Marshaller();
+                            Path turcFile = outputDir.resolve(snippet.name() + ".turc");
+                            Files.write(turcFile, marshaller.serialize(program));
                             ps.close();
                             baos.close();
-                            final var output = outputDir.resolve(snippet.name() + ".txt");
+                            var output = outputDir.resolve(snippet.name() + ".txt");
                             Files.writeString(output, baos.toString(), StandardCharsets.UTF_8, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
-                            final var routput = outputDir.resolve(snippet.name() + "_result.txt");
+                            var routput = outputDir.resolve(snippet.name() + "_result.txt");
                             Files.writeString(routput, "" + result, StandardCharsets.UTF_8, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
+
+
+                            // execute the binary version
+                            baos = new ByteArrayOutputStream();
+                            ps = new PrintStream(baos);
+                            System.setOut(ps);
+                            // Execute the snippet.
+                            interpreter = new Interpreter(turcFile);
+                            result = interpreter.execute(program);
+                            ps.close();
+                            baos.close();
+                            output = outputDir.resolve(snippet.name() + ".turc.txt");
+                            Files.writeString(output, baos.toString(), StandardCharsets.UTF_8, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
+                            routput = outputDir.resolve(snippet.name() + "_result.turc.txt");
+                            Files.writeString(routput, "" + result, StandardCharsets.UTF_8, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
+
                             System.setOut(out);
                         }
                 )

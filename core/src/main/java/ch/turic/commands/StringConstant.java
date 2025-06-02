@@ -1,9 +1,10 @@
 package ch.turic.commands;
 
 
+import ch.turic.Command;
 import ch.turic.ExecutionException;
+import ch.turic.Input;
 import ch.turic.analyzer.BlockAnalyzer;
-import ch.turic.analyzer.Input;
 import ch.turic.analyzer.Lexer;
 import ch.turic.memory.Context;
 import ch.turic.utils.Unmarshaller;
@@ -38,7 +39,7 @@ public class StringConstant extends AbstractCommand {
                 commands[i] = new StringConstant(parts[i], false);
             }
             for (int i = 1; i < parts.length; i += 2) {
-                final var lexes = Lexer.analyze(Input.fromString(parts[i]));
+                final var lexes = Lexer.analyze((ch.turic.analyzer.Input)Input.fromString(parts[i]));
                 commands[i] = lexes.is("(") ? BlockAnalyzer.FLAT.analyze(lexes) : BlockAnalyzer.INSTANCE.analyze(lexes);
             }
             this.value = null;

@@ -1,7 +1,7 @@
 package ch.turic.cli;
 
+import ch.turic.Input;
 import ch.turic.Interpreter;
-import ch.turic.analyzer.Input;
 import ch.turic.commands.operators.Cast;
 import ch.turic.utils.Marshaller;
 import ch.turic.utils.Unmarshaller;
@@ -62,7 +62,7 @@ public class Main {
         try {
             final Interpreter interpreter;
             if (inputFile.endsWith(".turi")) {
-                interpreter = new Interpreter(Input.fromFile(Path.of(inputFile)));
+                interpreter = new Interpreter((ch.turic.analyzer.Input)Input.fromFile(Path.of(inputFile)));
             } else if (inputFile.endsWith(".turc")) {
                 if (params.get("compile").isPresent()) {
                     System.out.println("'.turc' files are already compiled");

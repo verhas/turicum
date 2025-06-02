@@ -3,7 +3,7 @@ package ch.turic.builtins.functions;
 import ch.turic.Context;
 import ch.turic.ExecutionException;
 import ch.turic.TuriMacro;
-import ch.turic.commands.Command;
+import ch.turic.Command;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

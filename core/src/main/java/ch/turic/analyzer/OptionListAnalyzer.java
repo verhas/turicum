@@ -1,7 +1,7 @@
 package ch.turic.analyzer;
 
 import ch.turic.BadSyntax;
-import ch.turic.commands.Command;
+import ch.turic.Command;
 
 import java.util.HashMap;
 import java.util.Map;

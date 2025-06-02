@@ -5,7 +5,7 @@ import ch.turic.analyzer.Input;
 import ch.turic.analyzer.LexList;
 import ch.turic.analyzer.Lexer;
 import ch.turic.analyzer.ProgramAnalyzer;
-import ch.turic.commands.Program;
+import ch.turic.Program;
 import ch.turic.memory.Context;
 import org.junit.jupiter.api.Test;
 
@@ -20,7 +20,7 @@ public class TestMarshalling {
 
     Object run(String s) {
         final var analyzer = new ProgramAnalyzer();
-        LexList lexes = Lexer.analyze(Input.fromString(s));
+        LexList lexes = Lexer.analyze((Input)ch.turic.Input.fromString(s));
         final var code = analyzer.analyze(lexes);
         if (!(code instanceof Program program)) {
             throw new RuntimeException("code is not a Program");

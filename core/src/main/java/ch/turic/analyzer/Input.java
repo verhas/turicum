@@ -5,7 +5,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public class Input implements CharSequence {
+public class Input implements ch.turic.Input, CharSequence {
 
     public final Pos position;
     private final StringBuilder builder;
@@ -14,18 +14,6 @@ public class Input implements CharSequence {
         final var lines = builder.toString().split("\n", -1);
         position = new Pos(fn, lines);
         this.builder = builder;
-    }
-
-    public static Input fromString(final String s) {
-        return new Input(new StringBuilder(s), "none");
-    }
-
-    public static Input fromString(final String s, String fn) {
-        return new Input(new StringBuilder(s), fn);
-    }
-
-    public static Input fromFile(final Path path) throws IOException {
-        return new Input(new StringBuilder(Files.readString(path, StandardCharsets.UTF_8)), path.normalize().toAbsolutePath().toString());
     }
 
     @Override

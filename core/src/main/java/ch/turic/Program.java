@@ -1,6 +1,6 @@
-package ch.turic.commands;
+package ch.turic;
 
-import ch.turic.ExecutionException;
+import ch.turic.commands.AbstractCommand;
 import ch.turic.memory.Context;
 import ch.turic.utils.Unmarshaller;
 

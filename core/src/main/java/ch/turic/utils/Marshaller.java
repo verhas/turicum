@@ -1,7 +1,7 @@
 package ch.turic.utils;
 
 import ch.turic.ExecutionException;
-import ch.turic.commands.Program;
+import ch.turic.Program;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -142,8 +142,14 @@ public class Marshaller {
                 case Long l -> {
                     buffer.writeLong(l);
                 }
+                case Integer i -> {
+                    buffer.writeInt(i);
+                }
                 case Double d -> {
                     buffer.writeDouble(d);
+                }
+                case Enum<?> e -> {
+                    buffer.writeUTF(e.name());
                 }
                 default -> {
                     short fieldCounter = countFields(object);
@@ -183,9 +189,6 @@ public class Marshaller {
 
     private short getClassId(Object object) {
         final var cname = object.getClass().getName();
-        if (cname == null) {
-            throw new RuntimeException(String.format("Object %s has no name", object));
-        }
         if (!classRegistry.containsKey(cname)) {
             classRegistry.put(cname, registryCounter++);
             classes.add(cname);

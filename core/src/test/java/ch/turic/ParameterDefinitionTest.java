@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ParameterDefinitionTest {
 
     private ParameterList parseParams(String code) {
-        final var lexes = Lexer.analyze(Input.fromString(code));
+        final var lexes = Lexer.analyze((Input)ch.turic.Input.fromString(code));
         return ParameterDefinition.INSTANCE.analyze(lexes);
     }
 

@@ -1,6 +1,7 @@
 package ch.turic.analyzer;
 
 import ch.turic.BadSyntax;
+import ch.turic.Command;
 import ch.turic.commands.*;
 import ch.turic.memory.VariableLeftValue;
 

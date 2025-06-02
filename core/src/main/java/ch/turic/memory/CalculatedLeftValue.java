@@ -1,7 +1,7 @@
 package ch.turic.memory;
 
 import ch.turic.ExecutionException;
-import ch.turic.commands.Command;
+import ch.turic.Command;
 
 import java.util.Objects;
 

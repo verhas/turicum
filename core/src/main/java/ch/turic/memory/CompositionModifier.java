@@ -1,6 +1,6 @@
 package ch.turic.memory;
 
-import ch.turic.commands.Command;
+import ch.turic.Command;
 import ch.turic.utils.Unmarshaller;
 
 public class CompositionModifier {

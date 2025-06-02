@@ -1,7 +1,7 @@
 package ch.turic.analyzer;
 
 import ch.turic.BadSyntax;
-import ch.turic.commands.Command;
+import ch.turic.Command;
 
 /**
  * Same as {@link ExpressionAnalyzer} but does not allow {@code |} binary or.

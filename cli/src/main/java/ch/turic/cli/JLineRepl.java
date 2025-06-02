@@ -1,10 +1,6 @@
 package ch.turic.cli;
 
-import ch.turic.BadSyntax;
-import ch.turic.Repl;
-import ch.turic.TuriFunction;
-import ch.turic.TuriMacro;
-import ch.turic.analyzer.Input;
+import ch.turic.*;
 import ch.turic.analyzer.Lex;
 import ch.turic.analyzer.Lexer;
 import ch.turic.commands.Closure;
@@ -214,7 +210,7 @@ public class JLineRepl {
 
     private static SyntaxState countBraces(String s) {
         try {
-            final var lexes = Lexer.analyze(Input.fromString(s));
+            final var lexes = Lexer.analyze((ch.turic.analyzer.Input)Input.fromString(s));
             final var braces = new ArrayList<Lex>();
             while (lexes.hasNext()) {
                 if (lexes.is("{", "(", "[")) {

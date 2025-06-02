@@ -3,8 +3,7 @@ package ch.turic.analyzer;
 
 import ch.turic.BadSyntax;
 import ch.turic.commands.BlockCommand;
-import ch.turic.commands.Command;
-import ch.turic.commands.EmptyObject;
+import ch.turic.Command;
 import ch.turic.commands.TryCatch;
 
 import java.util.Objects;

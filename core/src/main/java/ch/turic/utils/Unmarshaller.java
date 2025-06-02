@@ -1,7 +1,7 @@
 package ch.turic.utils;
 
-import ch.turic.commands.Command;
-import ch.turic.commands.Program;
+import ch.turic.Command;
+import ch.turic.Program;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
@@ -54,19 +54,26 @@ public class Unmarshaller {
         Class<?> cls = classRegistry.get(marker);
         if (cls == null) throw new ClassNotFoundException("Unknown class ID: " + marker);
 
-        return switch (cls.getCanonicalName()) {
+        final var name = cls.getCanonicalName();
+        return switch (name) {
             case "java.lang.String" -> input.readUTF();
             case "java.lang.Boolean" -> input.readBoolean();
             case "java.lang.Long" -> input.readLong();
+            case "java.lang.Integer" -> input.readInt();
             case "java.lang.Double" -> input.readDouble();
             default -> {
-                final var args = new Args();
-                short fieldCount = input.readShort();
-                for (int i = 0; i < fieldCount; i++) {
-                    String fieldName = input.readUTF();
-                    args.put(fieldName, unmarshall(input));
+                if (cls.isEnum()) {
+                    final var enumString = input.readUTF();
+                    yield Enum.valueOf((Class<Enum>) cls, enumString);
+                } else {
+                    final var args = new Args();
+                    short fieldCount = input.readShort();
+                    for (int i = 0; i < fieldCount; i++) {
+                        String fieldName = input.readUTF();
+                        args.put(fieldName, unmarshall(input));
+                    }
+                    yield constructViaFactory(cls, args);
                 }
-                yield constructViaFactory(cls, args);
             }
         };
     }
@@ -94,6 +101,7 @@ public class Unmarshaller {
     private Object constructViaFactory(Class<?> cls, Args fieldMap) {
         try {
             Method factory = cls.getDeclaredMethod("factory", Args.class);
+            factory.setAccessible(true);
             if (!Modifier.isStatic(factory.getModifiers())) {
                 throw new IllegalStateException(cls.getName() + " factory method must be static");
             }
@@ -167,6 +175,20 @@ public class Unmarshaller {
                 }
 
                 return (T) result;
+            } else if (targetClass.isPrimitive()) {
+                // Handle primitive types
+                return switch (obj) {
+                    case Number number when targetClass == double.class -> (T) (Object) number.doubleValue();
+                    case Number number when targetClass == float.class -> (T) (Object) number.floatValue();
+                    case Number number when targetClass == long.class -> (T) (Object) number.longValue();
+                    case Number number when targetClass == int.class -> (T) (Object) number.intValue();
+                    case Number number when targetClass == short.class -> (T) (Object) number.shortValue();
+                    case Number number when targetClass == byte.class -> (T) (Object) number.byteValue();
+                    case Character c when targetClass == char.class -> (T) c;
+                    case Boolean b when targetClass == boolean.class -> (T) obj;
+                    default ->
+                            throw new ClassCastException("Cannot cast " + obj.getClass().getName() + " to " + targetClass.getName());
+                };
             } else {
                 // single object cast
                 return targetClass.cast(obj);

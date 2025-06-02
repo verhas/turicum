@@ -2,7 +2,7 @@ package ch.turic.analyzer;
 
 import ch.turic.BadSyntax;
 import ch.turic.commands.AbstractCommand;
-import ch.turic.commands.Command;
+import ch.turic.Command;
 
 public abstract class AbstractAnalyzer implements Analyzer {
 

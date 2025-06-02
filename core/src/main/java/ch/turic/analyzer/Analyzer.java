@@ -1,7 +1,7 @@
 package ch.turic.analyzer;
 
 import ch.turic.BadSyntax;
-import ch.turic.commands.Command;
+import ch.turic.Command;
 
 /**
  * An analyzer reads the lexical elements, advances the {@link LexList} removing from the start the consumed elements

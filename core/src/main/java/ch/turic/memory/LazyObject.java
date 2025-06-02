@@ -1,9 +1,8 @@
 package ch.turic.memory;
 
 import ch.turic.ExecutionException;
-import ch.turic.commands.Command;
+import ch.turic.Command;
 
-import java.util.Iterator;
 import java.util.Map;
 import java.util.stream.Collectors;
 

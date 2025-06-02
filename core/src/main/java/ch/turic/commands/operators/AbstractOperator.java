@@ -1,5 +1,6 @@
 package ch.turic.commands.operators;
 
+import ch.turic.Command;
 import ch.turic.ExecutionException;
 import ch.turic.commands.*;
 import ch.turic.memory.Context;

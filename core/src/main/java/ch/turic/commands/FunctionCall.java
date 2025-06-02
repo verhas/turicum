@@ -1,5 +1,6 @@
 package ch.turic.commands;
 
+import ch.turic.Command;
 import ch.turic.ExecutionException;
 import ch.turic.LngCallable;
 import ch.turic.TuriClass;
@@ -58,7 +59,11 @@ public class FunctionCall extends AbstractCommand {
 
     
     public record Argument(Identifier id, Command expression) {
-        
+        public static Argument factory(final Unmarshaller.Args args) {
+            return new Argument(
+                    args.get("id", Identifier.class),
+                    args.command("expression"));
+        }
     }
 
     public record ArgumentEvaluated(Identifier id, Object value) {

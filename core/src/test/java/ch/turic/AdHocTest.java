@@ -1,6 +1,5 @@
 package ch.turic;
 
-import ch.turic.analyzer.Input;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -10,7 +9,7 @@ public class AdHocTest {
     @Test
     void adHocTest() throws Exception {
         System.out.println(new File(".").getAbsolutePath());
-        Interpreter interpreter = new Interpreter(Input.fromFile(Path.of("./src/test/resources/adhoc.turi")));
+        Interpreter interpreter = new Interpreter((ch.turic.analyzer.Input)Input.fromFile(Path.of("./src/test/resources/adhoc.turi")));
         interpreter.compileAndExecute();
     }
 }

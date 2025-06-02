@@ -1,6 +1,5 @@
 package ch.turic;
 
-import ch.turic.analyzer.Input;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;

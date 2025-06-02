@@ -1,11 +1,9 @@
 package ch.turic;
 
-import ch.turic.analyzer.Input;
 import ch.turic.analyzer.LexList;
 import ch.turic.analyzer.Lexer;
 import ch.turic.analyzer.ProgramAnalyzer;
 import ch.turic.commands.BlockCommand;
-import ch.turic.commands.Command;
 import ch.turic.memory.Context;
 
 import java.util.ArrayList;
@@ -36,7 +34,7 @@ public class Repl {
     public Object execute(String source) throws BadSyntax, ExecutionException {
         Command localCode;
         final var analyzer = new ProgramAnalyzer();
-        lexes = Lexer.analyze(Input.fromString(source));
+        lexes = Lexer.analyze((ch.turic.analyzer.Input)Input.fromString(source));
         if (lexes.isEmpty()) {
             localCode = new BlockCommand(new Command[0], false);
         } else {

@@ -3,7 +3,7 @@ package ch.turic.analyzer;
 import ch.turic.BadSyntax;
 import ch.turic.commands.AsyncEvaluation;
 import ch.turic.commands.AwaitEvaluation;
-import ch.turic.commands.Command;
+import ch.turic.Command;
 
 import java.util.Map;
 import java.util.Set;

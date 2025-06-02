@@ -3,6 +3,11 @@ package ch.turic.analyzer;
 
 import ch.turic.BadSyntax;
 
+/**
+ * This class provides utility methods to handle escape sequences, process normal characters,
+ * and normalize newlines in an input stream. It is designed to process and manipulate characters
+ * in a controlled manner, such as handling escape sequences in strings and normalizing line endings.
+ */
 class Escape {
     private static char octal(Input in, int maxLen) {
         int i = maxLen;

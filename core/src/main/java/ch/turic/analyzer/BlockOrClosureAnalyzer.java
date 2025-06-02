@@ -1,7 +1,7 @@
 package ch.turic.analyzer;
 
 import ch.turic.BadSyntax;
-import ch.turic.commands.Command;
+import ch.turic.Command;
 
 public class BlockOrClosureAnalyzer extends AbstractAnalyzer {
     public static final BlockOrClosureAnalyzer INSTANCE = new BlockOrClosureAnalyzer();

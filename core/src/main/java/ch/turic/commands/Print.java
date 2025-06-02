@@ -1,5 +1,6 @@
 package ch.turic.commands;
 
+import ch.turic.Command;
 import ch.turic.ExecutionException;
 import ch.turic.memory.Context;
 import ch.turic.memory.LngObject;

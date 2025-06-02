@@ -1,10 +1,17 @@
 package ch.turic.memory;
 
 import ch.turic.ExecutionException;
+import ch.turic.utils.Unmarshaller;
 
 import java.util.Objects;
 
 public record ObjectFieldLeftValue(LeftValue object, String field) implements LeftValue {
+    public static ObjectFieldLeftValue factory(final Unmarshaller.Args args) {
+        return new ObjectFieldLeftValue(
+                args.get("object", LeftValue.class),
+                args.str("field")
+        );
+    }
 
     public ObjectFieldLeftValue {
         Objects.requireNonNull(field);

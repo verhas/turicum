@@ -2,6 +2,8 @@ package ch.turic.analyzer;
 
 import ch.turic.utils.Unmarshaller;
 
+import java.util.Objects;
+
 public class Pos {
 
     public final String file;
@@ -28,9 +30,9 @@ public class Pos {
     public static Pos factory(final Unmarshaller.Args args) {
         return new Pos(
                 args.str("file"),
-                args.get("line",Integer.class),
-                args.get("column",Integer.class),
-                args.get("lines", String[].class)
+                Objects.requireNonNullElse(args.get("line",Integer.class),0),
+                Objects.requireNonNullElse(args.get("column",Integer.class),0),
+                args.get("lines",String[].class)
         );
     }
 }

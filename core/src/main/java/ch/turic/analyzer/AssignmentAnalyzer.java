@@ -2,7 +2,7 @@ package ch.turic.analyzer;
 
 import ch.turic.BadSyntax;
 import ch.turic.commands.Assignment;
-import ch.turic.commands.Command;
+import ch.turic.Command;
 
 public class AssignmentAnalyzer extends AbstractAnalyzer {
     public static final AssignmentAnalyzer INSTANCE = new AssignmentAnalyzer();

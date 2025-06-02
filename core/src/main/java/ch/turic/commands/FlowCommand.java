@@ -1,5 +1,6 @@
 package ch.turic.commands;
 
+import ch.turic.Command;
 import ch.turic.ExecutionException;
 import ch.turic.commands.operators.Cast;
 import ch.turic.memory.Context;
@@ -35,7 +36,7 @@ import java.util.stream.Collectors;
  * <p>
  * Flow execution is thread-safe and based on {@code CompletableFuture} using virtual threads.
  *
- * @see ch.turic.commands.Command
+ * @see Command
  * @see ch.turic.memory.Context
  */
 public class FlowCommand extends AbstractCommand {

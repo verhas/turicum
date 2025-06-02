@@ -4,7 +4,7 @@ import ch.turic.Context;
 import ch.turic.ExecutionException;
 import ch.turic.TuriMacro;
 import ch.turic.builtins.functions.FunUtils;
-import ch.turic.commands.Command;
+import ch.turic.Command;
 import ch.turic.commands.Identifier;
 
 /**

@@ -1,11 +1,18 @@
 package ch.turic.memory;
 
 import ch.turic.ExecutionException;
-import ch.turic.commands.Command;
+import ch.turic.Command;
+import ch.turic.utils.Unmarshaller;
 
 import java.util.Objects;
 
 public record ArrayElementLeftValue(LeftValue arrayLeftValue, Command index) implements LeftValue {
+    public static ArrayElementLeftValue factory(final Unmarshaller.Args args) {
+        return new ArrayElementLeftValue(
+                args.get("arrayLeftValue", LeftValue.class),
+                args.command("index")
+        );
+    }
 
     public ArrayElementLeftValue {
         Objects.requireNonNull(index);

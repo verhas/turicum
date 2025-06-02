@@ -1,10 +1,10 @@
 package ch.turic.commands;
 
+import ch.turic.Command;
 import ch.turic.ExecutionException;
 import ch.turic.analyzer.Pos;
 import ch.turic.memory.*;
 
-import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Array;
 import java.lang.reflect.Modifier;
 import java.util.HashSet;

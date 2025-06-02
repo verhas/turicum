@@ -2,7 +2,7 @@ package ch.turic.commands.operators;
 
 import ch.turic.ExecutionException;
 import ch.turic.commands.Closure;
-import ch.turic.commands.Command;
+import ch.turic.Command;
 import ch.turic.memory.Context;
 import ch.turic.memory.LngObject;
 

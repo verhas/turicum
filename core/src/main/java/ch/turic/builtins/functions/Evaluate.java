@@ -3,7 +3,7 @@ package ch.turic.builtins.functions;
 import ch.turic.Context;
 import ch.turic.ExecutionException;
 import ch.turic.TuriFunction;
-import ch.turic.commands.Command;
+import ch.turic.Command;
 
 /**
  * Evaluate a Command in the caller context. (Whoever was calling the macro.)

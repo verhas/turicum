@@ -20,7 +20,7 @@ class StringFetcherTest {
         @Test
         @DisplayName("Empty string returns empty string")
         void emptyString() throws BadSyntax {
-            Input input = Input.fromString("\"\"");
+            Input input = (Input)ch.turic.Input.fromString("\"\"");
             assertEquals("", StringFetcher.getString(input));
             assertTrue(input.isEmpty());
         }
@@ -28,7 +28,7 @@ class StringFetcherTest {
         @Test
         @DisplayName("Simple string without escapes")
         void simpleString() throws BadSyntax {
-            Input input = Input.fromString("\"Hello, World!\"");
+            Input input = (Input)ch.turic.Input.fromString("\"Hello, World!\"");
             assertEquals("Hello, World!", StringFetcher.getString(input));
             assertTrue(input.isEmpty());
         }
@@ -36,7 +36,7 @@ class StringFetcherTest {
         @Test
         @DisplayName("String with remaining input")
         void stringWithRemainingInput() throws BadSyntax {
-            Input input = Input.fromString("\"Hello\" remaining");
+            Input input = (Input)ch.turic.Input.fromString("\"Hello\" remaining");
             assertEquals("Hello", StringFetcher.getString(input));
             assertEquals(" remaining", input.toString());
         }
@@ -44,14 +44,14 @@ class StringFetcherTest {
         @Test
         @DisplayName("Unterminated string throws BadSyntax")
         void unterminatedString() {
-            Input input = Input.fromString("\"Hello");
+            Input input = (Input)ch.turic.Input.fromString("\"Hello");
             assertThrows(BadSyntax.class, () -> StringFetcher.getString(input));
         }
 
         @Test
         @DisplayName("String with newline in the middle throws BadSyntax")
         void stringWithNewline() {
-            Input input = Input.fromString("\"Hello\nWorld\"");
+            Input input = (Input)ch.turic.Input.fromString("\"Hello\nWorld\"");
             BadSyntax ex = assertThrows(BadSyntax.class, () -> StringFetcher.getString(input));
             assertTrue(ex.getMessage().startsWith("String not terminated before eol"));
         }
@@ -59,7 +59,7 @@ class StringFetcherTest {
         @Test
         @DisplayName("String with carriage return in the middle throws BadSyntax")
         void stringWithCarriageReturn() {
-            Input input = Input.fromString("\"Hello\rWorld\"");
+            Input input = (Input)ch.turic.Input.fromString("\"Hello\rWorld\"");
             BadSyntax ex = assertThrows(BadSyntax.class, () -> StringFetcher.getString(input));
             assertTrue(ex.getMessage().startsWith("String not terminated before eol"));
         }
@@ -71,7 +71,7 @@ class StringFetcherTest {
         @ParameterizedTest(name = "Escape sequence \\{0} becomes {1}")
         @MethodSource("escapeSequences")
         void testEscapeSequences(String input, String expected) throws BadSyntax {
-            Input in = Input.fromString("\"" + input + "\"");
+            Input in = (Input)ch.turic.Input.fromString("\"" + input + "\"");
             assertEquals(expected, StringFetcher.getString(in));
         }
 
@@ -100,21 +100,21 @@ class StringFetcherTest {
         @Test
         @DisplayName("Invalid escape sequence throws BadSyntax")
         void invalidEscapeSequence() {
-            Input input = Input.fromString("\"\\x\"");
+            Input input = (Input)ch.turic.Input.fromString("\"\\x\"");
             assertThrows(BadSyntax.class, () -> StringFetcher.getString(input));
         }
 
         @Test
         @DisplayName("Escape at end of string throws BadSyntax")
         void escapeAtEnd() {
-            Input input = Input.fromString("\"\\");
+            Input input = (Input)ch.turic.Input.fromString("\"\\");
             assertThrows(BadSyntax.class, () -> StringFetcher.getString(input));
         }
 
         @Test
         @DisplayName("Three digit octal escape starting with 4-7 should only use two digits")
         void threeDigitOctalStartingWith4() throws BadSyntax {
-            Input input = Input.fromString("\"\\477\"");
+            Input input = (Input)ch.turic.Input.fromString("\"\\477\"");
             // Should read only "\\47" as octal, leaving "7" as a regular character
             assertEquals("\477", StringFetcher.getString(input));
         }
@@ -126,28 +126,28 @@ class StringFetcherTest {
         @Test
         @DisplayName("Empty multi-line string")
         void emptyMultilineString() throws BadSyntax {
-            Input input = Input.fromString("\"\"\"\"\"\"");
+            Input input = (Input)ch.turic.Input.fromString("\"\"\"\"\"\"");
             assertEquals("", StringFetcher.getString(input));
         }
 
         @Test
         @DisplayName("Multi-line string with actual line breaks")
         void multilineStringWithBreaks() throws BadSyntax {
-            Input input = Input.fromString("\"\"\"\nFirst Line\nSecond Line\n\"\"\"");
+            Input input = (Input)ch.turic.Input.fromString("\"\"\"\nFirst Line\nSecond Line\n\"\"\"");
             assertEquals("\nFirst Line\nSecond Line\n", StringFetcher.getString(input));
         }
 
         @Test
         @DisplayName("Multi-line string with mixed line endings")
         void mixedLineEndings() throws BadSyntax {
-            Input input = Input.fromString("\"\"\"\nFirst\rSecond\r\nThird\"\"\"");
+            Input input = (Input)ch.turic.Input.fromString("\"\"\"\nFirst\rSecond\r\nThird\"\"\"");
             assertEquals("\nFirst\nSecond\nThird", StringFetcher.getString(input));
         }
 
         @Test
         @DisplayName("Unterminated multi-line string throws BadSyntax")
         void unterminatedMultilineString() {
-            Input input = Input.fromString("\"\"\"Content");
+            Input input = (Input)ch.turic.Input.fromString("\"\"\"Content");
             assertThrows(BadSyntax.class, () -> StringFetcher.getString(input));
         }
     }
@@ -159,14 +159,14 @@ class StringFetcherTest {
         @Test
         @DisplayName("String with all types of escapes")
         void complexString() throws BadSyntax {
-            Input input = Input.fromString("\"Hello\\n\\t\\\"World\\\"\\077\"");
+            Input input = (Input)ch.turic.Input.fromString("\"Hello\\n\\t\\\"World\\\"\\077\"");
             assertEquals("Hello\n\t\"World\"?", StringFetcher.getString(input));
         }
 
         @Test
         @DisplayName("Multi-line string with escapes")
         void multilineWithEscapes() throws BadSyntax {
-            Input input = Input.fromString("\"\"\"\n\\t First\n\\\"Second\\\"\\n\"\"\"");
+            Input input = (Input)ch.turic.Input.fromString("\"\"\"\n\\t First\n\\\"Second\\\"\\n\"\"\"");
             assertEquals("\n\t First\n\"Second\"\n", StringFetcher.getString(input));
         }
     }

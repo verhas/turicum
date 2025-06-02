@@ -1,7 +1,6 @@
-package ch.turic.commands;
+package ch.turic;
 
 
-import ch.turic.ExecutionException;
 import ch.turic.memory.Context;
 
 /**

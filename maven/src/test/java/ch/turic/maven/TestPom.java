@@ -13,7 +13,7 @@ public class TestPom {
     //@Test
     void test() throws Exception {
         final var fn = "../pom.turi";
-        final var interpreter = new Interpreter(Input.fromFile(Path.of(fn)));
+        final var interpreter = new Interpreter(ch.turic.Input.fromFile(Path.of(fn)));
         final var pomXml = interpreter.compileAndExecute().toString();
         Files.writeString(Path.of("../pom.xml"), pomXml, StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
     }

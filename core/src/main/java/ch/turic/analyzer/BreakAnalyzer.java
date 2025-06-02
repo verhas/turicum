@@ -2,7 +2,7 @@ package ch.turic.analyzer;
 
 import ch.turic.BadSyntax;
 import ch.turic.commands.BreakCommand;
-import ch.turic.commands.Command;
+import ch.turic.Command;
 
 public class BreakAnalyzer extends AbstractAnalyzer {
     public static final BreakAnalyzer INSTANCE = new BreakAnalyzer();

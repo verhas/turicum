@@ -3,9 +3,10 @@ package ch.turic.analyzer;
 import ch.turic.BadSyntax;
 import ch.turic.BuiltIns;
 import ch.turic.ExecutionException;
+import ch.turic.Input;
 import ch.turic.commands.Closure;
-import ch.turic.commands.Command;
-import ch.turic.commands.Program;
+import ch.turic.Command;
+import ch.turic.Program;
 import ch.turic.memory.Context;
 
 import java.util.ArrayList;
@@ -50,7 +51,7 @@ public class ProgramAnalyzer extends AbstractAnalyzer {
                     if (item instanceof Lex lex) {
                         lexes.array.add(lex);
                     } else {
-                        lexes.array.addAll(Lexer.analyze(Input.fromString(item.toString())).array);
+                        lexes.array.addAll(Lexer.analyze((ch.turic.analyzer.Input)Input.fromString(item.toString())).array);
                     }
                 });
             } else {

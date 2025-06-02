@@ -1,6 +1,7 @@
 package ch.turic.commands;
 
 import ch.turic.BadSyntax;
+import ch.turic.Command;
 import ch.turic.analyzer.Pos;
 import ch.turic.utils.Unmarshaller;
 
@@ -60,6 +61,16 @@ public record ParameterList(Parameter[] parameters, String rest, String meta, St
                             Type type,
                             TypeDeclaration[] types,
                             Command defaultExpression) {
+
+        public static Parameter factory(final Unmarshaller.Args args) {
+            return new Parameter(
+                    args.str("identifier"),
+                    args.get("type", Type.class),
+                    args.get("types", TypeDeclaration[].class),
+                    args.command("defaultExpression")
+            );
+        }
+
         public enum Type {
             POSITIONAL_ONLY, NAMED_ONLY, POSITIONAL_OR_NAMED
         }

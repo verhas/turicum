@@ -3,11 +3,11 @@ package ch.turic.builtins.classes;
 import ch.turic.ExecutionException;
 import ch.turic.LngCallable;
 import ch.turic.TuriClass;
-import ch.turic.analyzer.Input;
+import ch.turic.Input;
 import ch.turic.analyzer.Lexer;
 import ch.turic.analyzer.ProgramAnalyzer;
 import ch.turic.builtins.functions.FunUtils;
-import ch.turic.commands.Command;
+import ch.turic.Command;
 import ch.turic.commands.operators.Cast;
 import ch.turic.memory.LngList;
 
@@ -92,11 +92,11 @@ public class TuriString implements TuriClass {
                 list.array.addAll(Arrays.asList(string.split("\\W+", -1)));
                 return list;
             });
-            case "turi_lex" -> new TuriMethod<>((args) -> Lexer.analyze(Input.fromString(string)));
+            case "turi_lex" -> new TuriMethod<>((args) -> Lexer.analyze((ch.turic.analyzer.Input)Input.fromString(string)));
             case "execute" -> (LngCallable.LngCallableClosure) (context, args) -> {
                 final var ctx = FunUtils.ctx(context);
                 final var analyzer = new ProgramAnalyzer();
-                Command code = analyzer.analyze(Lexer.analyze(Input.fromString(string)));
+                Command code = analyzer.analyze(Lexer.analyze((ch.turic.analyzer.Input)Input.fromString(string)));
                 Object result = null;
                 try {
                     result = code.execute(ctx);

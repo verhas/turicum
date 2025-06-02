@@ -4,7 +4,7 @@ import ch.turic.Context;
 import ch.turic.ExecutionException;
 import ch.turic.Interpreter;
 import ch.turic.TuriMacro;
-import ch.turic.commands.Command;
+import ch.turic.Command;
 import ch.turic.commands.Identifier;
 import ch.turic.memory.LngList;
 import ch.turic.memory.LngObject;
