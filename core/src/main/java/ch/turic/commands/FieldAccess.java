@@ -14,7 +14,7 @@ import ch.turic.utils.Unmarshaller;
  * FieldAccess is used to resolve the value of a field identified by its name
  * from an object while optionally handling undefined objects leniently.
  * <p>
- * The operator {@code .?} will return {@code none} when the value on the left side is {@code none}.
+ * The operator {@code ?.} will return {@code none} when the value on the left side is {@code none}.
  * This access is supported by the field {@code lenient}.
  */
 public class FieldAccess extends AbstractCommand {

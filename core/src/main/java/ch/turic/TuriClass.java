@@ -14,6 +14,13 @@ import java.util.List;
  */
 public interface TuriClass extends ServiceLoaded {
 
+    /**
+     * Retrieves a list of instances of classes that implement the {@code TuriClass} interface.
+     * These instances are loaded using the service loader mechanism. If no instances are found through
+     * the primary approach, a fallback mechanism attempts to load the classes using the {@code META-INF/services} resources.
+     *
+     * @return a list of instances of classes implementing the {@code TuriClass} interface
+     */
     static List<TuriClass> getInstances() {
         return ServiceLoaded.getInstances(TuriClass.class);
     }

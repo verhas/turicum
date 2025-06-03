@@ -66,4 +66,5 @@ ch.turic.builtins.functions.MathFunctions$Rint
 ch.turic.builtins.functions.MathFunctions$CopySign
 ch.turic.builtins.functions.MathFunctions$Atan2
 ch.turic.builtins.functions.MathFunctions$Cosh
+ch.turic.builtins.functions.TuriHttpClient
 

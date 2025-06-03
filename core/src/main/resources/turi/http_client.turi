@@ -1,0 +1,28 @@
+class http {
+    fn do(!url,@body=none,@headers={},@method="GET",{extra}){
+        http_client({
+            "method": "GET",
+            "body": body,
+            "headers": headers,
+            "url": url
+        } + extra )
+        }
+    fn get(!url,@headers={},{extra}){
+        do(url,method="GET",headers=headers,..extra)
+    }
+    fn delete(!url,@headers={},{extra}){
+        do(url,method="DELETE",headers=headers,..extra)
+    }
+    fn post(!url,@body=none,@headers={},{extra}){
+        do(url,method="POST",body=body,headers=headers,..extra)
+    }
+    fn put(!url,@body=none,@headers={},{extra}){
+        do(url,method="PUT",body=body,headers=headers,..extra)
+    }
+    fn patch(!url,@body=none,@headers={},{extra}){
+        do(url,method="PATCH",body=body,headers=headers,..extra)
+    }
+}
+
+
+export_all();

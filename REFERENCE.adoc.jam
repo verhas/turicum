@@ -524,16 +524,16 @@ They will become automatically an `{}` classless object.
 
 Accessing a field on the right-hand side of an assignment, or in any expression is more restrictive.
 You can still access a field that is nonexistent, and the value will be `none`, but you cannot access a field on `none`.
-To overcome this, you can use the `or` operator as in the example, or use can use the `.?` field access.
+To overcome this, you can use the `or` operator as in the example, or use can use the `?.` field access.
 
 {%S field_none_access%}
 
-In the example above we cannot directly access `a.b.c`, but `a.b.?c` works.
+In the example above we cannot directly access `a.b.c`, but `a.b?.c` works.
 It is also important that accessing the non-existent `a.b` this way will *not* insert a new classless object into `a`.
 It is just a lenient way of accessing fields.
 
-On the left side of the `.?` can be any expression resulting in an object or `none`, even a `["xxx"]` style field access.
-On the other hand, there is no `.?` equivalent accessing a field through the `["xxx"]`.
+On the left side of the `?.` can be any expression resulting in an object or `none`, even a `["xxx"]` style field access.
+On the other hand, there is no `?.` equivalent accessing a field through the `["xxx"]`.
 In that case the only remedy is the `or` operator:
 
 {%S field_none_indexed_access%}
@@ -542,11 +542,11 @@ In that case the only remedy is the `or` operator:
 
 Operators have precedence and are evaluated from left to right.
 You can use `(` and `)` to change the evaluation order.
-The operators are the followings in order of growing precedence:
+The operators are the following in order of growing precedence:
 
 * `or` results the left side expression if it is defined and the right side if the left side value is `none` (undefined).
 The operator does short-cut evaluation.
-The right side is only evaluated if the left side is none.
+The right side is only evaluated if the left side is `none`.
 
 {%S oror%}
 
@@ -661,14 +661,19 @@ The operator methods must have one single positional argument, usually named `ot
 The functionality should implement the operation and return the result of "`this` operation `other`".
 When an operation is used as prefix unary operator the value of other will be `none` and `this` will hold the value on the right of the operator.
 
-Only `+`, `-`, `~`, `!`, `..` can be used as unary operators.
+Only `+`, `-`, `~`, `!`, `..`, `?` can be used as unary operators.
 
 As mentioned above `+`, `-`, and `..` are binary as well as unary operators.
 
 The unary operator `!` is logical negation.
 The unary operator `~` is bitwise negation.
+The unary operator `?` returns the original value without any modification or `none` if the calculation of the argument resulted in an error.
 
 {%S bnot%}
+
+NOTE: The character `?` can have different meaning based on the context.
+It can be part of conditional field access, when used as `a?.b` returning `none` when `a` is `none` or has no field `b`.
+It can also signal the start of a filter in a list literal.
 
 === Operator Overloading
 
@@ -740,6 +745,9 @@ The operator's table is defined in the source file {%#file (format="`$simpleName
 
 | 10
 | `*`, `/`, `%`
+
+| 11
+| `.`, `?.`
 |===
 
 The higher precedence operators are executed first, and the lower precedence operators are executed on the results.

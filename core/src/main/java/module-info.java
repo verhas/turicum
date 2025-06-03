@@ -1,14 +1,12 @@
 import ch.turic.builtins.classes.*;
 import ch.turic.builtins.functions.*;
-import ch.turic.builtins.macros.Export;
-import ch.turic.builtins.macros.IsDefined;
-import ch.turic.builtins.macros.Thunk;
-import ch.turic.builtins.macros.UnLet;
+import ch.turic.builtins.macros.*;
 
 module ch.turic {
     requires java.desktop;
     requires java.sql;
     requires jdk.httpserver;
+    requires java.net.http;
     exports ch.turic;
     opens turi;
 
@@ -27,7 +25,8 @@ module ch.turic {
             MathFunctions.NextAfter, MathFunctions.NextDown,
             MathFunctions.NextUp, MathFunctions.Random, MathFunctions.Rint, MathFunctions.Round,
             MathFunctions.SigNum, MathFunctions.Ulp,
-            Unthunk, Unwrap, BlockList, Command, Min, Max, MathFunctions.Pow, MathFunctions.Scalb;
+            Unthunk, Unwrap, BlockList, Command, Min, Max, MathFunctions.Pow, MathFunctions.Scalb,
+            TuriHttpClient;
     provides ch.turic.TuriMacro with Export, IsDefined, UnLet, Thunk, Import, SysImport;
     provides ch.turic.TuriClass with TuriString, TuriLong, TuriDouble, TuriIterator, TuriChannel;
 }

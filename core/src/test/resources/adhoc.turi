@@ -1,21 +1,16 @@
-fn hi(){ // this will be deleted, it only exists in the preprocessor context
-  "hello "
-}
-// the next line starts the preprocessor
-# {|lexes|
-["""
-    // this is a string that will lead the new lexical token list
-    mut M:str = ""
-    fn helvetic_hi(){
-      "Gruetzi "
-    }
-    fn hi() { "hullo " }
-    M = M + "hello ";
-    M = M + (hi() or "none ");
-""",
-// and just mut's have the rest of the tokens
-..lexes]
-} // end of the preprocessor command
-// this is preprocessed
-M = M + helvetic_hi() + "ant hunter"
-println M
+sys_import "turi.duration"
+sys_import "turi.http_client"
+
+let z = http.post("https://httpbin.org/post",
+                 headers={
+                     "User-Agent" : "Moozilla"
+                 },
+                 body= """
+                 { "a" : 13, "b": 52 }
+                 """
+        );
+
+
+println z
+
+println $"BODY:\n\"\"\"${z.body}\"\"\""

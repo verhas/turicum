@@ -11,6 +11,14 @@ public class LngList implements HasIndex, HasFields {
     public final ArrayList<Object> array = new ArrayList<>();
     public final AtomicBoolean pinned = new AtomicBoolean(false);
 
+    public void add(Object value) {
+        array.add(value);
+    }
+
+    public void addAll(Collection<?> values) {
+        array.addAll(values);
+    }
+
     @Override
     public void setIndex(Object index, Object value) throws ExecutionException {
         ExecutionException.when(pinned.get(), "Cannot change a pinned list.");

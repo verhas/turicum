@@ -1,0 +1,7 @@
+
+fn duration(!amount:num, unit:str="SECONDS"){
+    let java_unit = java_call("java.time.temporal.ChronoUnit","valueOf", unit.upper_case())
+    java_call("java.time.Duration","of",amount,java_unit);
+}
+
+export_all();

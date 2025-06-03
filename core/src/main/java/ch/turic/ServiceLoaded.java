@@ -33,6 +33,16 @@ public interface ServiceLoaded {
         return getInstances(service, ServiceLoaded.class.getClassLoader());
     }
 
+    /**
+     * Retrieves a list of instances that implement the specified service interface using the provided class loader.
+     * This method attempts to load the implementations through the ServiceLoader API.
+     * If no implementations are found, a secondary mechanism is used to try loading via META-INF services resources.
+     *
+     * @param <T>    the type of the service interface
+     * @param service the service interface class for which implementations are to be loaded
+     * @param cl      the class loader to use for loading the service implementations
+     * @return a list containing instances of classes implementing the specified service interface
+     */
     static <T> List<T> getInstances(Class<T> service, final ClassLoader cl) {
         List<T> list = new ArrayList<>();
         try {
