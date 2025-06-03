@@ -1166,12 +1166,12 @@ a was not changed {}
 
 
 
-In the example above we cannot directly access `a.b.c`, but `a.b.?c` works.
+In the example above we cannot directly access `a.b.c`, but `a.b?.c` works.
 It is also important that accessing the non-existent `a.b` this way will *not* insert a new classless object into `a`.
 It is just a lenient way of accessing fields.
 
-On the left side of the `.?` can be any expression resulting in an object or `none`, even a `["xxx"]` style field access.
-On the other hand, there is no `.?` equivalent accessing a field through the `["xxx"]`.
+On the left side of the `?.` can be any expression resulting in an object or `none`, even a `["xxx"]` style field access.
+On the other hand, there is no `?.` equivalent accessing a field through the `["xxx"]`.
 In that case the only remedy is the `or` operator:
 
 
@@ -1803,6 +1803,9 @@ The operator's table is defined in the source file `BinaryExpressionAnalyzer.jav
 
 | 10
 | `*`, `/`, `%`
+
+| 11
+| `.`, `?.`
 |===
 
 The higher precedence operators are executed first, and the lower precedence operators are executed on the results.
@@ -4269,9 +4272,9 @@ println( (end-start)/1000000, "ms")
 [source]
 ----
 [1, 2, 3]
-312.579709ms
+306.314667ms
 []
-313.671167ms
+313.137916ms
 
 ----
 
@@ -7017,7 +7020,7 @@ ieee_remainder(5,2) = 1.0
 next_after(1.0,2.0) = 1.0000000000000002
 next_down(1.0) = 0.9999999999999999
 next_up(1.0) = 1.0000000000000002
-random() = 0.7481531935730874
+random() = 0.8675347711989101
 rint(3.7) = 4.0
 round(3.7) = 4
 signum(-3.7) = -1.0
@@ -7575,7 +7578,7 @@ println nano_time()
 .output of snippet `nano_time`
 [source]
 ----
-849777526320416
+863178656816333
 
 ----
 
@@ -7907,79 +7910,83 @@ none
 .output of snippet `que`
 [source]
 ----
-task1 is not ready 0
 task2 is not ready 0
+task1 is not ready 0
 task2 is ready 1
-task1 is not ready 1
 task2 is not ready 0
+task1 is not ready 1
 task1 is not ready 2
 task2 is not ready 1
-task2 is not ready 2task1 is not ready 3
-
-task2 is not ready 3
+task1 is not ready 3
+task2 is not ready 2
 task1 is ready 2
-task1 is not ready 0
-task2 is not ready 4
-task1 is not ready 1
-task1 is ready 3
-task2 is not ready 5
-task1 is not ready 0
-task2 is not ready 6
-task1 is not ready 1
-task2 is not ready 7
-task1 is not ready 2
-task2 is not ready 8
-task1 is not ready 3
-task2 is ready 4
-task1 is not ready 4
-task2 is not ready 0
-task1 is not ready 5
-task2 is not ready 1
-task1 is not ready 6
-task2 is not ready 2
-task1 is ready 5
 task2 is not ready 3
 task1 is not ready 0
-task2 is not ready 4
 task1 is not ready 1
+task2 is not ready 4
 task2 is not ready 5
 task1 is not ready 2
-task2 is ready 6
+task2 is ready 3
 task2 is not ready 0
 task1 is not ready 3
 task2 is not ready 1
 task1 is not ready 4
 task2 is not ready 2
 task1 is not ready 5
-task2 is ready 7
-task1 is not ready 6task2 is not ready 0
+task2 is ready 4task1 is not ready 6
 
+task2 is not ready 0
+task1 is not ready 7
+task2 is not ready 1
+task1 is not ready 8
+task2 is not ready 2
+task1 is not ready 9
+task2 is not ready 3
+task1 is ready 5
+task1 is not ready 0
+task2 is not ready 4
+task1 is not ready 1task2 is not ready 5
+
+task1 is not ready 2
+task2 is not ready 6
+task1 is ready 6
+task1 is not ready 0
+task2 is not ready 7
+task2 is not ready 8
+task1 is not ready 1
+task2 is not ready 9
+task1 is not ready 2
+task2 is ready 7
+task2 is not ready 0
+task1 is not ready 3
+task2 is not ready 1
+task1 is not ready 4
+task2 is not ready 2
+task1 is not ready 5
+task2 is ready 8
+task2 is not ready 0
+task1 is not ready 6
 task2 is not ready 1
 task1 is not ready 7
 task2 is not ready 2
 task1 is not ready 8
-task1 is not ready 9
-task2 is not ready 3
-task1 is ready 8
-task1 is not ready 0task2 is not ready 4
-
-task2 is not ready 5
-task1 is not ready 1
 task2 is ready 9
-task1 is not ready 2
 task2 is not ready 0
-task1 is not ready 3
+task1 is not ready 9
 task2 is not ready 1
-task1 is not ready 4
+task1 is not ready 10
 task2 is not ready 2
+task1 is not ready 11
+task2 is not ready 3
+task1 is not ready 12
 closing the channel
 channel is closed
 1 is done false
 2 is done false
 we start to wait the first time
-task2 is done
 task1 is done
-task1 done false
+task2 is done
+task1 done true
 task2 done true
 We start to wait the second time
 task1 done true

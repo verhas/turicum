@@ -1,19 +1,16 @@
-
-println ?{a:1}?.a
-/*
-
 sys_import "turi.duration"
 sys_import "turi.http_client"
 
-let z = http.get("https://httpbin.org/get",
-                 timeout=duration(53,"nanos"),
+let z = http.post("https://httpbin.org/post",
                  headers={
                      "User-Agent" : "Moozilla"
                  },
+                 body= """
+                 { "a" : 13, "b": 52 }
+                 """
         );
 
 
 println z
 
 println $"BODY:\n\"\"\"${z.body}\"\"\""
-*/

@@ -1,6 +1,6 @@
  prime read 2
-Thread 1 prime read 3
- generated 3
+Thread 1 generated  prime read 3
+3
 Thread 1 generated 5
  prime read 5
 Thread 1 generated 7

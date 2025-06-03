@@ -11,6 +11,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import java.util.Set;
 
 public class TuriHttpClient implements TuriFunction {
     @Override
@@ -53,8 +54,8 @@ public class TuriHttpClient implements TuriFunction {
         final var headers = LngObject.newEmpty(context);
         for (final var header : response.headers().map().entrySet()) {
             final var headerValues = new LngList();
-            headerValues.array.addAll(header.getValue());
-            headers.setField(header.getKey(), header.getValue());
+            headerValues.addAll(header.getValue());
+            headers.setField(header.getKey(), headerValues);
         }
         result.setField("headers", headers);
     }
@@ -64,8 +65,13 @@ public class TuriHttpClient implements TuriFunction {
 
         final var redirect = str(parameters.getField("redirect_policy"));
         if (redirect != null) {
-            builder.followRedirects(HttpClient.Redirect.valueOf(redirect));
+            try {
+                builder.followRedirects(HttpClient.Redirect.valueOf(redirect));
+            } catch (IllegalArgumentException e) {
+                throw new ExecutionException("Invalid redirect policy: " + redirect);
+            }
         }
+
         final var timeout = parameters.getField("timeout");
         if (timeout != null) {
             if (timeout instanceof Duration dur) {
@@ -82,7 +88,10 @@ public class TuriHttpClient implements TuriFunction {
         final var builder = HttpRequest.newBuilder();
 
         final var method = str(parameters.getField("method", "GET"));
-
+        final var validMethods = Set.of("GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS");
+        if (!validMethods.contains(method.toUpperCase())) {
+            throw new ExecutionException("Invalid HTTP method: " + method);
+        }
         final var body = str(parameters.getField("body"));
         final HttpRequest.BodyPublisher bodyPublisher;
         if (body == null) {
@@ -114,7 +123,11 @@ public class TuriHttpClient implements TuriFunction {
         if (url == null) {
             throw new ExecutionException("Missing 'url' parameter");
         }
-        builder.uri(URI.create(url));
+        try {
+            builder.uri(URI.create(url));
+        } catch (IllegalArgumentException e) {
+            throw new ExecutionException("Invalid URL: " + url);
+        }
         return builder.build();
     }
 }

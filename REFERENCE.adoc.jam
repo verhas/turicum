@@ -528,12 +528,12 @@ To overcome this, you can use the `or` operator as in the example, or use can us
 
 {%S field_none_access%}
 
-In the example above we cannot directly access `a.b.c`, but `a.b.?c` works.
+In the example above we cannot directly access `a.b.c`, but `a.b?.c` works.
 It is also important that accessing the non-existent `a.b` this way will *not* insert a new classless object into `a`.
 It is just a lenient way of accessing fields.
 
-On the left side of the `.?` can be any expression resulting in an object or `none`, even a `["xxx"]` style field access.
-On the other hand, there is no `.?` equivalent accessing a field through the `["xxx"]`.
+On the left side of the `?.` can be any expression resulting in an object or `none`, even a `["xxx"]` style field access.
+On the other hand, there is no `?.` equivalent accessing a field through the `["xxx"]`.
 In that case the only remedy is the `or` operator:
 
 {%S field_none_indexed_access%}
@@ -745,6 +745,9 @@ The operator's table is defined in the source file {%#file (format="`$simpleName
 
 | 10
 | `*`, `/`, `%`
+
+| 11
+| `.`, `?.`
 |===
 
 The higher precedence operators are executed first, and the lower precedence operators are executed on the results.
