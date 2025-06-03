@@ -985,7 +985,7 @@ Operators are tokenized with priority for the **longest matching operator**.
 Recognized symbols are:
 
 
-"--", "++", "pass:[->]", "pass:[<-]", "=", "(", ")", ",", ".", ".?",
+"--", "++", "pass:[->]", "pass:[<-]", "=", "(", ")", ",", ".", "?.",
 "&{", "{", "}", "[", "]", ";", ":", "|", "?", "@", "^", "#"
 
  
@@ -1131,7 +1131,7 @@ They will become automatically an `{}` classless object.
 
 Accessing a field on the right-hand side of an assignment, or in any expression is more restrictive.
 You can still access a field that is nonexistent, and the value will be `none`, but you cannot access a field on `none`.
-To overcome this, you can use the `or` operator as in the example, or use can use the `.?` field access.
+To overcome this, you can use the `or` operator as in the example, or use can use the `?.` field access.
 
 
 .source of snippet `field_none_access`
@@ -1144,7 +1144,7 @@ catch e: println e
 // q is still undefined we can assign
 let p = (a.b or {}).c
 // the same, but shorter
-let q = a.b.?c
+let q = a.b?.c
 println $"q is ${q}.. eventually, but at least exists..."
 println $"a was not changed ${a}"
 
@@ -1201,11 +1201,11 @@ q is none
 
 Operators have precedence and are evaluated from left to right.
 You can use `(` and `)` to change the evaluation order.
-The operators are the followings in order of growing precedence:
+The operators are the following in order of growing precedence:
 
 * `or` results the left side expression if it is defined and the right side if the left side value is `none` (undefined).
 The operator does short-cut evaluation.
-The right side is only evaluated if the left side is none.
+The right side is only evaluated if the left side is `none`.
 
 
 .source of snippet `oror`
@@ -1598,12 +1598,13 @@ The operator methods must have one single positional argument, usually named `ot
 The functionality should implement the operation and return the result of "`this` operation `other`".
 When an operation is used as prefix unary operator the value of other will be `none` and `this` will hold the value on the right of the operator.
 
-Only `+`, `-`, `~`, `!`, `..` can be used as unary operators.
+Only `+`, `-`, `~`, `!`, `..`, `?` can be used as unary operators.
 
 As mentioned above `+`, `-`, and `..` are binary as well as unary operators.
 
 The unary operator `!` is logical negation.
 The unary operator `~` is bitwise negation.
+The unary operator `?` returns the original value without any modification or `none` if the calculation of the argument resulted in an error.
 
 
 .source of snippet `bnot`
@@ -1631,6 +1632,10 @@ negating all bits in 3 -4
 ----
 
 
+
+NOTE: The character `?` can have different meaning based on the context.
+It can be part of conditional field access, when used as `a?.b` returning `none` when `a` is `none` or has no field `b`.
+It can also signal the start of a filter in a list literal.
 
 === Operator Overloading
 
@@ -4181,11 +4186,11 @@ execute("Thread 2",2)
 [source]
 ----
  prime read 2
-Thread 1 generated 3
- prime read Thread 1 generated 5
+Thread 1 generated  prime read 3
 3
-Thread 1 generated 7
+Thread 1 generated 5
  prime read 5
+Thread 1 generated 7
  prime read 7
 Thread 1 generated 11
 Thread 1 generated 13
@@ -4194,14 +4199,14 @@ Thread 1 generated 19
 Thread 1 generated 23
 stopping
 exception Task stopped.
+Thread 2 generated 3
  prime read 2
-Thread 2 generated  prime read 3
-3
+ prime read 3
 Thread 2 generated 5
- prime read 5
 Thread 2 generated 7
-Thread 2 generated 11
+ prime read 5
  prime read 7
+Thread 2 generated 11
 Thread 2 generated 13
 stopping
 exception Task stopped.
@@ -4264,9 +4269,9 @@ println( (end-start)/1000000, "ms")
 [source]
 ----
 [1, 2, 3]
-319.428709ms
+312.579709ms
 []
-324.625292ms
+313.671167ms
 
 ----
 
@@ -4629,7 +4634,7 @@ println(inc(1))
 .output of snippet `fun1`
 [source]
 ----
-ch.turic.commands.Closure@2c07545f
+ch.turic.commands.Closure@22f31dec
 2
 
 ----
@@ -4658,7 +4663,7 @@ println(inc(1))
 .output of snippet `fun3`
 [source]
 ----
-ch.turic.commands.Closure@32c726ee
+ch.turic.commands.Closure@76f4b65
 2
 
 ----
@@ -4689,7 +4694,7 @@ println(inc(1))
 .output of snippet `fun2`
 [source]
 ----
-ch.turic.commands.Closure@c94fd30
+ch.turic.commands.Closure@7f0d96f2
 2
 
 ----
@@ -4885,7 +4890,7 @@ println(inc(1,how_much=5))
 .output of snippet `fun4`
 [source]
 ----
-ch.turic.commands.Closure@2c4d1ac
+ch.turic.commands.Closure@76a2ddf3
 6
 
 ----
@@ -7012,7 +7017,7 @@ ieee_remainder(5,2) = 1.0
 next_after(1.0,2.0) = 1.0000000000000002
 next_down(1.0) = 0.9999999999999999
 next_up(1.0) = 1.0000000000000002
-random() = 0.5682544303167705
+random() = 0.7481531935730874
 rint(3.7) = 4.0
 round(3.7) = 4
 signum(-3.7) = -1.0
@@ -7570,7 +7575,7 @@ println nano_time()
 .output of snippet `nano_time`
 [source]
 ----
-770779271787041
+849777526320416
 
 ----
 
@@ -7902,72 +7907,70 @@ none
 .output of snippet `que`
 [source]
 ----
+task1 is not ready 0
 task2 is not ready 0
-task1 is not ready 0
+task2 is ready 1
+task1 is not ready 1
+task2 is not ready 0
+task1 is not ready 2
 task2 is not ready 1
-task1 is ready 1
-task1 is not ready 0
-task2 is not ready 2task1 is not ready 1
+task2 is not ready 2task1 is not ready 3
 
-task1 is not ready 2
 task2 is not ready 3
-task1 is not ready 3
-task2 is ready 2
-task2 is not ready 0
-task1 is not ready 4
-task2 is not ready 1
-task1 is not ready 5
-task2 is not ready 2
-task1 is ready 3
-task2 is not ready 3
+task1 is ready 2
 task1 is not ready 0
-task1 is not ready 1
 task2 is not ready 4
-task2 is not ready 5
-task1 is not ready 2
-task2 is not ready 6
-task1 is ready 4
-task1 is not ready 0
-task2 is not ready 7
 task1 is not ready 1
+task1 is ready 3
+task2 is not ready 5
+task1 is not ready 0
+task2 is not ready 6
+task1 is not ready 1
+task2 is not ready 7
 task1 is not ready 2
 task2 is not ready 8
 task1 is not ready 3
-task2 is ready 5
+task2 is ready 4
+task1 is not ready 4
 task2 is not ready 0
-task1 is not ready 4task2 is not ready 1
-
-task2 is not ready 2
 task1 is not ready 5
+task2 is not ready 1
 task1 is not ready 6
+task2 is not ready 2
+task1 is ready 5
+task2 is not ready 3
+task1 is not ready 0
+task2 is not ready 4
+task1 is not ready 1
+task2 is not ready 5
+task1 is not ready 2
 task2 is ready 6
 task2 is not ready 0
+task1 is not ready 3
+task2 is not ready 1
+task1 is not ready 4
+task2 is not ready 2
+task1 is not ready 5
+task2 is ready 7
+task1 is not ready 6task2 is not ready 0
+
 task2 is not ready 1
 task1 is not ready 7
-task1 is not ready 8task2 is not ready 2
-
-task1 is ready 7task2 is not ready 3
-
-task1 is not ready 0
-task2 is not ready 4task1 is not ready 1
+task2 is not ready 2
+task1 is not ready 8
+task1 is not ready 9
+task2 is not ready 3
+task1 is ready 8
+task1 is not ready 0task2 is not ready 4
 
 task2 is not ready 5
-task1 is not ready 2
-task1 is ready 8
-task1 is not ready 0
-task2 is not ready 6
-task1 is not ready 1task2 is not ready 7
-
-task2 is not ready 8
-task1 is not ready 2
-task2 is not ready 9
-task1 is not ready 3
-task1 is not ready 4
+task1 is not ready 1
 task2 is ready 9
+task1 is not ready 2
 task2 is not ready 0
-task1 is not ready 5
+task1 is not ready 3
 task2 is not ready 1
-task1 is not ready 6
+task1 is not ready 4
 task2 is not ready 2
 closing the channel
 channel is closed
@@ -8248,13 +8251,14 @@ sending 2
 received 2
 not ready 0
 not ready 1
+not ready 2
 sending 3
 received 3
 not ready 0
 not ready 1
 not ready 2
-not ready 3
 closing the channel
+not ready 3
 channel is closed
 is done false
 we are done

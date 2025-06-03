@@ -1,15 +1,16 @@
-package ch.turic.builtins.functions;
+package ch.turic.builtins.macros;
 
 import ch.turic.Context;
 import ch.turic.ExecutionException;
 import ch.turic.TuriMacro;
 import ch.turic.Command;
+import ch.turic.builtins.functions.FunUtils;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-import static ch.turic.builtins.functions.Import.doImportExport;
-import static ch.turic.builtins.functions.Import.getImportsList;
+import static ch.turic.builtins.macros.Import.doImportExport;
+import static ch.turic.builtins.macros.Import.getImportsList;
 
 /**
  * Imports a file as turi source code from the classpath.

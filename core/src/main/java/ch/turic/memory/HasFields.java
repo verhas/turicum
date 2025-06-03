@@ -10,6 +10,11 @@ public interface HasFields extends HasIndex {
 
     Object getField(String name) throws ExecutionException;
 
+    default Object getField(String name, Object defaultValue) {
+        final var value = getField(name);
+        return value == null ? defaultValue : value;
+    }
+
     Set<String> fields();
 
     default void setIndex(Object index, Object value) throws ExecutionException {

@@ -13,7 +13,14 @@ public abstract class AbstractOperator implements Operator {
     @Override
     public final Object execute(Context context, Command left, Command right) throws ExecutionException {
         if (left == null) {
-            final var op2 = right.execute(context);
+            final Object op2;
+            final var shadowed = context.shadow();
+            try {
+                op2 = right.execute(shadowed);
+                TryCatch.exportFromTemporaryContext(shadowed, context);
+            }catch (ExecutionException e) {
+                return exceptionHandler(shadowed, e, right);
+            }
             if (!(op2 instanceof LngObject lngObject)) {
                 return unaryOp(context, op2);
             }
@@ -38,7 +45,16 @@ public abstract class AbstractOperator implements Operator {
                 throw new ExecutionException("You can not execute the operator " + operatorMethod + " on a " + op2);
             }
         }
-        final var op1 = left.execute(context);
+
+        final Object op1;
+        final var shadowed = context.shadow();
+        try {
+            op1 = left.execute(shadowed);
+            TryCatch.exportFromTemporaryContext(shadowed, context);
+        }catch (ExecutionException e) {
+            return exceptionHandler(shadowed, e, right);
+        }
+
         if (!(op1 instanceof LngObject lngObject)) {
             return binaryOp(context, op1, right);
         }
@@ -74,6 +90,10 @@ public abstract class AbstractOperator implements Operator {
     }
 
     public abstract Object binaryOp(Context ctx, Object left, Command right) throws ExecutionException;
+
+    public Object exceptionHandler(Context ctx, ExecutionException t, Command right) throws ExecutionException {
+        throw t;
+    }
 
     protected Object binary(final String name,
                             final Object op1, final Object op2,

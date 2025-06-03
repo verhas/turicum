@@ -44,7 +44,7 @@ catch e: println e
 // q is still undefined we can assign
 let p = (a.b or {}).c
 // the same, but shorter
-let q = a.b.?c
+let q = a.b?.c
 println $"q is ${q}.. eventually, but at least exists..."
 println $"a was not changed ${a}"
 // end snippet

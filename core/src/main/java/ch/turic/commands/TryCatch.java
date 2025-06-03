@@ -80,7 +80,7 @@ public class TryCatch extends AbstractCommand {
      * @param from source context containing the variables to be exported
      * @param to   destination context where variables will be copied to
      */
-    private void exportFromTemporaryContext(Context from, Context to) {
+    public static void exportFromTemporaryContext(Context from, Context to) {
         for (final var variable : from.allFrameKeys()) {
             if (to.containsFrame(variable)) {
                 throw new ExecutionException("Variable '%s' is already defined.", variable);

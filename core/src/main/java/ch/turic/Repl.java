@@ -10,9 +10,17 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /**
- * A repl interpreter executes a small piece of code, and then it can be reinvoked with ever newer pieces of codes.
+ * A REPL (Read-Eval-Print Loop) interpreter that executes code incrementally.
+ * This interpreter can process and execute small pieces of code sequentially,
+ * maintaining state between executions.
  * <p>
- * It cannot be embedded in a multi-thread environment.
+ * The interpreter manages its own context and provides support for code completion
+ * through the {@link #completions()} method. It handles lexical analysis, program
+ * analysis, and execution of the provided code.
+ * <p>
+ * Thread Safety: This class is not thread-safe and should not be used in a
+ * multi-threaded environment. Each instance maintains mutable state that could be
+ * corrupted by concurrent access.
  */
 public class Repl {
 
@@ -31,6 +39,14 @@ public class Repl {
         return result;
     }
 
+    /**
+     * Executes the provided source code and returns the result of the execution.
+     *
+     * @param source The source code to execute as a string
+     * @return The result of executing the code, which can be any Object
+     * @throws BadSyntax          if the provided code contains syntax errors
+     * @throws ExecutionException if an error occurs during code execution
+     */
     public Object execute(String source) throws BadSyntax, ExecutionException {
         Command localCode;
         final var analyzer = new ProgramAnalyzer();
