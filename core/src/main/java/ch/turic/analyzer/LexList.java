@@ -75,7 +75,12 @@ public class LexList extends LngList {
     }
 
     public BadSyntax syntaxError(String msg, Object... params) {
-        return new BadSyntax(position(), msg, params);
+        final var e = new BadSyntax(position(), msg, params);
+        final var oldSt = e.getStackTrace();
+        final var newSt = new StackTraceElement[oldSt.length-1];
+        System.arraycopy(oldSt, 1, newSt, 0, oldSt.length - 1);
+        e.setStackTrace(newSt);
+        return e;
     }
 
     public Pos position() {

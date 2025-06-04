@@ -40,7 +40,7 @@ public class Add extends AbstractOperator {
             return joinedList;
         }
 
-        // if the left side is a list, then merge the lists or append the right side to the list
+        // if the left side is an object, then merge the objects
         if (op1 instanceof LngObject obj1 && op2 instanceof LngObject obj2) {
             final var merged = new LngObject(obj1.lngClass(), ctx.open());
             for (final var f : obj1.fields()) {

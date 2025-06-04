@@ -4,6 +4,7 @@ import ch.turic.ExecutionException;
 import ch.turic.utils.Unmarshaller;
 
 import java.util.Objects;
+import java.util.function.Function;
 
 public record VariableLeftValue(String variable) implements LeftValue {
 
@@ -30,6 +31,13 @@ public record VariableLeftValue(String variable) implements LeftValue {
     @Override
     public void assign(Context ctx, Object value) throws ExecutionException {
         ctx.update(variable, value);
+    }
+    @Override
+    public Object reassign(Context ctx,  Function<Object,Object> newValueCalculator) throws ExecutionException {
+        final var value = ctx.get(variable);
+        final var newValue = newValueCalculator.apply(value);
+        ctx.update(variable, newValue);
+        return newValue;
     }
 
     @Override

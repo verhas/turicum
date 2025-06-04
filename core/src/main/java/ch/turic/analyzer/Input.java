@@ -1,10 +1,5 @@
 package ch.turic.analyzer;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-
 public class Input implements ch.turic.Input, CharSequence {
 
     public final Pos position;
@@ -118,8 +113,8 @@ public class Input implements ch.turic.Input, CharSequence {
 
     /**
      * @param c the character to check
-     * @return {@code true} if the character can be used as the first character of a lazy identifier. Currently, these
-     * are {@code $}, {@code _} (underscore), {@code :} (colon) and any alphabetic character.
+     * @return {@code true} if the character can be used as the first character of an identifier. Currently, these
+     * are {@code _} (underscore) and any alphabetic character.
      */
     static boolean validId1stChar(char c) {
         return c == '_' || Character.isAlphabetic(c);

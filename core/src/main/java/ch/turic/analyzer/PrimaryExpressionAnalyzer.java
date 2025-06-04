@@ -69,6 +69,10 @@ public class PrimaryExpressionAnalyzer extends AbstractAnalyzer {
         if (lexes.is("&{")) {
             return getAccessOrCall(lexes, JsonStructureAnalyzer.INSTANCE.analyze(lexes), false);
         }
+        if ((lexes.is("++", "--") && lexes.isAt(1, Lex.Type.IDENTIFIER) && !lexes.isAt(2, "[", ".", "(")) ||
+                (lexes.isIdentifier() && lexes.isAt(1, "++", "--"))) {
+            return AssignmentAnalyzer.INSTANCE.analyze(lexes);
+        }
         if (lexes.is("{")) {
             if (lexes.isAt(1, "}")) {
                 lexes.next();

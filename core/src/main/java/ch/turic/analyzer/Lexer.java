@@ -3,10 +3,7 @@ package ch.turic.analyzer;
 
 import ch.turic.BadSyntax;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class Lexer {
 
@@ -18,10 +15,14 @@ public class Lexer {
     ));
     final static private ArrayList<String> _OPERANDS = new ArrayList<>(Arrays.asList(
             // snippet OPERANDS
-            "--", "++", "->", "<-", "=", "(", ")", ",", ".", "?.",
-            "&{", "{", "}", "[", "]", ";", ":", "|", "?", "@", "^", "#"
+            "--", "++", "->", "<-", "(", ")", ",", ".", "?.",
+            "&{", "{", "}", "[", "]", ";", ":", "|", "?", "@", "^", "#", "**"
             // end snippet
     ));
+    final static public String[] ASSIGNMENT_OPERATORS = {
+            // snipline ASSIGNMENT_OPERATORS
+            "=", "+=", "-=", "*=", "/=", "%=", "&=", "|=", "^=", "**=", "or=", "&&=", "||=", "<<=", ">>=", ">>>=",
+    };
 
     static {
         Arrays.stream(BinaryExpressionAnalyzer.binaryOperators).flatMap(Arrays::stream).forEach(
@@ -42,6 +43,8 @@ public class Lexer {
                     }
                 }
         );
+        _OPERANDS.addAll(List.of(ASSIGNMENT_OPERATORS));
+
         _OPERANDS.sort((a, b) -> Integer.compare(b.length(), a.length()));
     }
 
@@ -83,7 +86,7 @@ public class Lexer {
 
     public static LexList analyze(Input in) throws BadSyntax {
         final var list = new ArrayList<Lex>();
-        // honour the shebang
+        // honor the shebang
         if (in.startsWith("#!") == 0) {
             while (!in.isEmpty() && in.charAt(0) != '\n') {
                 in.skip(1);
@@ -126,6 +129,13 @@ public class Lexer {
                 in.skip(1);
                 continue;
             }
+            int operandIndex = in.startsWith(OPERANDS);
+            if (operandIndex >= 0) {
+                final var lex = new Lex(Lex.Type.RESERVED, OPERANDS[operandIndex], atLineStart, position);
+                list.add(lex);
+                in.skip(OPERANDS[operandIndex].length());
+                continue;
+            }
             if (Input.validId1stChar(in.charAt(0))) {
                 final var id = in.fetchId();
                 if (RESERVED.contains(id)) {
@@ -135,7 +145,7 @@ public class Lexer {
                 }
                 continue;
             }
-            if( in.charAt(0) == '$' && in.length() >= 2 && in.charAt(1) == '"') {
+            if (in.charAt(0) == '$' && in.length() >= 2 && in.charAt(1) == '"') {
                 in.skip(1);
                 final var str = ch.turic.analyzer.StringFetcher.getString(in);
                 final var lex = new Lex(Lex.Type.STRING, str, atLineStart, position, true);
@@ -161,7 +171,7 @@ public class Lexer {
                 str.append(in.fetchNumber());
                 final Lex.Type type;
                 if (in.length() >= 2 && (in.charAt(0) == '.' && Character.isDigit(in.charAt(1))) || (!in.isEmpty() && (in.charAt(0) == 'e' || in.charAt(0) == 'E'))) {
-                    if( in.charAt(0) == '.') {
+                    if (in.charAt(0) == '.') {
                         str.append('.');
                         in.skip(1);
                         str.append(in.fetchNumber());
@@ -188,13 +198,6 @@ public class Lexer {
                 final var lex = new Lex(Lex.Type.RESERVED, uniSym, atLineStart, position);
                 list.add(lex);
                 in.skip(1);
-                continue;
-            }
-            int operandIndex = in.startsWith(OPERANDS);
-            if (operandIndex >= 0) {
-                final var lex = new Lex(Lex.Type.RESERVED, OPERANDS[operandIndex], atLineStart, position);
-                list.add(lex);
-                in.skip(OPERANDS[operandIndex].length());
                 continue;
             }
             throw new BadSyntax(in.position, "Unexpected character '" + in.charAt(0) + "' in the input");

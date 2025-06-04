@@ -20,7 +20,7 @@ public interface Operator {
             new Compare.GreaterOrEqual(), new Compare.GreaterThan(),
             new And(), new Or(), new Not(),new BNot(), new Pipe(), new RangeOp(),
             new ShiftLeft(), new ShiftRight(), new ShiftRightSigned(), new Contains(),
-            new Xor(), new Bor(), new Band(), new Fallible()
+            new Xor(), new Bor(), new Band(), new Fallible(), new Pow()
     };
 
     Map<String, Operator> OPERATORS = register();

@@ -60,3 +60,6 @@
 62. [Lex{types=RESERVED, text='mut'}, Lex{types=IDENTIFIER, text='z'}, Lex{types=RESERVED, text='='}, Lex{types=RESERVED, text='if'}, Lex{types=IDENTIFIER, text='a'}, Lex{types=RESERVED, text='=='}, Lex{types=INTEGER, text='3'}, Lex{types=RESERVED, text=':'}, Lex{types=INTEGER, text='3'}, Lex{types=RESERVED, text='else'}, Lex{types=RESERVED, text=':'}, Lex{types=INTEGER, text='5'}, Lex{types=RESERVED, text=';'}]
 63. 01234567
 64. 01234567
+65. 65is 65... literally
+65. 3.14 is 3.14
+66. 501 is 501

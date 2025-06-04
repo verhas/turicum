@@ -4,6 +4,7 @@ import ch.turic.ExecutionException;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 public interface LeftValue {
 
@@ -12,6 +13,7 @@ public interface LeftValue {
     HasIndex getIndexable(Context ctx, Object indexValue) throws ExecutionException;
 
     void assign(Context ctx, Object value) throws ExecutionException;
+    Object reassign(Context ctx, Function<Object,Object> newValueCalculator) throws ExecutionException;
 
     static HasFields toObject(Object existing) {
         if (existing instanceof HasFields hasFields) {

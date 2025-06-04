@@ -16,6 +16,7 @@ ch.turic.builtins.functions.TryYield
 ch.turic.builtins.functions.YieldIsClosed
 ch.turic.builtins.functions.Rx
 ch.turic.builtins.functions.RxMatch
+ch.turic.builtins.functions.IdHash
 ch.turic.builtins.functions.TuriHttpServer
 ch.turic.builtins.functions.XmlFormat
 ch.turic.builtins.functions.IsObject

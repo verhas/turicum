@@ -1,7 +1,7 @@
 package ch.turic.commands.operators;
 
-import ch.turic.ExecutionException;
 import ch.turic.Command;
+import ch.turic.ExecutionException;
 import ch.turic.memory.Context;
 import ch.turic.memory.LngList;
 
@@ -52,7 +52,9 @@ public class Xor extends AbstractOperator {
         }
 
 
-        return binary("add", op1, op2, (a, b) -> a ^ b, Math::pow);
+        return binary("xor", op1, op2, (a, b) -> a ^ b, (a, b) -> {
+            throw new ExecutionException("^ is not implemented for floating point numbers");
+        });
     }
 
 }

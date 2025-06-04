@@ -4,6 +4,7 @@ import ch.turic.ExecutionException;
 import ch.turic.Command;
 import ch.turic.memory.Context;
 import ch.turic.memory.LngList;
+import ch.turic.memory.LngObject;
 
 import java.util.HashSet;
 
@@ -45,9 +46,46 @@ public class Bor extends AbstractOperator {
             }
             return result;
         }
-
-
+        if (op1 instanceof LngObject obj1 && op2 instanceof LngObject obj2) {
+            return mergeObjects(obj1, obj2, ctx);
+        }
         return binary("or", op1, op2, (a, b) -> a | b, null);
     }
+
+    private static LngObject mergeObjects(final LngObject a, final LngObject b, final Context ctx) {
+        final var merged = new LngObject(a.lngClass(), ctx.open());
+        // copy all fields from 'a' to the merged object
+        for (final var f : a.fields()) {
+            if (f.equals("this")) {
+                merged.setField(f, merged);
+            } else {
+                merged.setField(f, a.getField(f));
+            }
+        }
+
+        // merge the fields from 'b' recursively
+        for (final var f : b.fields()) {
+            if (!f.equals("cls") && !f.equals("this")) {
+                final var aField = merged.getField(f);
+                if (aField == null) {
+                    merged.setField(f, b.getField(f));
+                } else {
+                    final var bField = b.getField(f);
+                    if (aField instanceof LngObject aObj && bField instanceof LngObject bObj) {
+                        merged.setField(f, mergeObjects(aObj, bObj, ctx));
+                    } else if (aField instanceof LngList aList && bField instanceof LngList bList) {
+                        final var list = new LngList();
+                        list.addAll(aList.array);
+                        list.addAll(bList.array);
+                        merged.setField(f,list);
+                    } else {
+                        merged.setField(f, bField);
+                    }
+                }
+            }
+        }
+        return merged;
+    }
+
 
 }
