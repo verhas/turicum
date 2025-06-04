@@ -11,6 +11,19 @@ import java.util.function.Supplier;
 
 public abstract class AbstractOperator implements Operator {
 
+    /**
+     * Executes the operator with the provided operands in the given context.
+     *
+     * If the left operand is null, treats the operation as unary and attempts to dispatch to a corresponding operator method on the right operand if it is an object; otherwise, delegates to {@code unaryOp}. If the left operand is not null, treats the operation as binary and attempts to dispatch to a corresponding operator method on the left operand if it is an object; otherwise, delegates to {@code binaryOp}.
+     *
+     * Handles context shadowing and exception propagation. Operator methods must accept exactly one argument.
+     *
+     * @param context the execution context
+     * @param left the left operand command, or null for unary operations
+     * @param right the right operand command
+     * @return the result of the operator execution
+     * @throws ExecutionException if execution fails or operator dispatch is invalid
+     */
     @Override
     public final Object execute(Context context, Command left, Command right) throws ExecutionException {
         if (left == null) {
@@ -96,6 +109,19 @@ public abstract class AbstractOperator implements Operator {
         throw t;
     }
 
+    /**
+     * Performs a binary operation on two operands, supporting both primitive and reflective invocation.
+     *
+     * If both operands are longs and a long operation is provided, applies it. If either operand is a double and a double operation is provided, applies it. Otherwise, attempts to invoke a binary method reflectively using the provided operator name. Throws an exception if operands are null or if no suitable operation is found.
+     *
+     * @param name the operator method name for reflective lookup
+     * @param op1 the left operand
+     * @param op2 the right operand
+     * @param longOp the operation to apply if both operands are longs
+     * @param doubleOp the operation to apply if either operand is a double
+     * @return the result of the binary operation
+     * @throws ExecutionException if operands are null or no suitable operation is found
+     */
     protected Object binary(final String name,
                             final Object op1, final Object op2,
                             final BiFunction<Long, Long, Long> longOp,

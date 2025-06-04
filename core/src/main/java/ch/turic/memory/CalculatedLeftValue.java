@@ -24,16 +24,31 @@ public record CalculatedLeftValue(Command expression) implements LeftValue {
         return LeftValue.toIndexable(existing, indexValue);
     }
 
+    /****
+     * Throws an exception to indicate that assignment to a calculated left value is not supported.
+     *
+     * @throws ExecutionException always thrown to signal that assignment is disallowed
+     */
     @Override
     public void assign(Context ctx, Object value) throws ExecutionException {
         throw new ExecutionException("Cannot assign left value to calculated value");
     }
 
+    /****
+     * Throws an exception to indicate that reassignment of a calculated left value is not supported.
+     *
+     * @throws ExecutionException always thrown to signal that modification is not allowed
+     */
     @Override
     public Object reassign(Context ctx, Function<Object, Object> newValueCalculator) throws ExecutionException {
         throw new ExecutionException("Cannot modify left value to calculated value");
     }
 
+    /**
+     * Returns a string representation of this calculated left value, displaying the encapsulated expression in curly braces.
+     *
+     * @return a string in the format "{expression}"
+     */
     @Override
     public String toString() {
         return "{" + expression + "}";
