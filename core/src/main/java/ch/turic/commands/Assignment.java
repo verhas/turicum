@@ -8,6 +8,7 @@ import ch.turic.memory.Context;
 import ch.turic.memory.LeftValue;
 import ch.turic.utils.Unmarshaller;
 
+import java.util.Objects;
 import java.util.function.Function;
 
 public class Assignment extends AbstractCommand {
@@ -31,7 +32,7 @@ public class Assignment extends AbstractCommand {
 
     public Assignment(LeftValue leftValue, String op, Command expression) {
         this.expression = expression;
-        this.op = op;
+        this.op = Objects.requireNonNull(op);
         this.leftValue = leftValue;
     }
 
@@ -39,7 +40,6 @@ public class Assignment extends AbstractCommand {
     public Object _execute(final Context ctx) throws ExecutionException {
         ctx.step();
         if (op.isEmpty()) {
-
             final var value = expression.execute(ctx);
             leftValue.assign(ctx, value);
             return value;

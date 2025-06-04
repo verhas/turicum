@@ -25,8 +25,8 @@ class http {
     fn head(!url,@body=none,@headers={},{extra}){
         do(url,method="HEAD",body=body,headers=headers,..extra)
     }
-    fn option(!url,@body=none,@headers={},{extra}){
-        do(url,method="OPTION",body=body,headers=headers,..extra)
+    fn options(!url,@body=none,@headers={},{extra}){
+        do(url,method="OPTIONS",body=body,headers=headers,..extra)
     }
 }
 

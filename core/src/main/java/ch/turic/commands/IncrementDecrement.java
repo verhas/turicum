@@ -33,35 +33,21 @@ public class IncrementDecrement extends AbstractCommand {
     public Object _execute(final Context ctx) throws ExecutionException {
         ctx.step();
         AtomicReference<Object> result = new AtomicReference<>();
-        final Function<Object, Object> converter = increment ? (x) -> increment(ctx, x, result) : (x) -> decrement(ctx, x, result);
+        final Function<Object, Object> converter = increment ? (x) -> applyDelta(ctx, x, result, 1) : (x) -> applyDelta(ctx, x, result, -1);
         final var newValue = leftValue.reassign(ctx, converter);
         final var oldValue = result.get();
         return post ? oldValue : newValue;
     }
 
-    private Object increment(Context ctx, Object value, AtomicReference<Object> result) throws ExecutionException {
+    private Object applyDelta(Context ctx, Object value, AtomicReference<Object> result, int delta) throws ExecutionException {
         result.set(value);
         if (Cast.isLong(value)) {
-            return Cast.toLong(value) + 1L;
+            return Cast.toLong(value) + delta;
         }
         if (Cast.isDouble(value)) {
-            return Cast.toDouble(value) + 1D;
+            return Cast.toDouble(value) + delta;
         }
-        return operateOnObject(ctx, value, "++");
-    }
-
-    private Object decrement(Context ctx, Object value, AtomicReference<Object> result) {
-        result.set(value);
-        if (Cast.isLong(value)) {
-            return Cast.toLong(value) - 1L;
-        }
-        if (Cast.isDouble(value)) {
-            return Cast.toDouble(value) - 1D;
-        }
-        return operateOnObject(ctx, value, "--");
-    }
-
-    private Object operateOnObject(Context ctx, Object value, String operator) {
+        final var operator = delta > 0 ? "++" : "--";
         if (value instanceof LngObject lngObject) {
             final var method = lngObject.getField(operator);
             if (method != null) {
@@ -71,7 +57,7 @@ public class IncrementDecrement extends AbstractCommand {
                 return operation.callAsMethod(ctx, lngObject, operator);
             }
         }
-        throw new ExecutionException("Cannot increment value '%s'", value);
+        throw new ExecutionException("Cannot apply operator %s on value '%s'", operator, value);
     }
 
 }

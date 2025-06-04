@@ -91,12 +91,16 @@ public class TuriString implements TuriClass {
                     new TuriMethod<>((args) -> {
                         final var afterWhat = "" + args[0];
                         final var beforeWhat = "" + args[1];
-                        final var pos1 = string.indexOf(beforeWhat);
+                        final var endIndex = string.indexOf(beforeWhat);
                         final var pos2 = string.indexOf(afterWhat);
-                        if (pos1 < 0 || pos2 < 0) {
+                        if (endIndex < 0 || pos2 < 0) {
                             return "";
                         }
-                        return string.substring(pos2 + afterWhat.length(), pos1);
+                        int beginIndex = pos2 + afterWhat.length();
+                        if( endIndex <= beginIndex) {
+                            return "";
+                        }
+                        return string.substring(beginIndex, endIndex);
                     });
             case "lines" ->
                 // returns a list containing the lines of the string.
@@ -301,7 +305,13 @@ public class TuriString implements TuriClass {
                 // This method uses the argument as a number and returns the string that contains at most that number of characters.
                 // Essentially, the `string.right(n)` is the `n` rightmost characters if `n` is smaller than the number of characters in the string.
                 // If `n` is equal to, or larger than the number of characters in the string, then the whole string is the result.
-                    new TuriMethod<>((args) -> string.substring(string.length() - Cast.toLong(args[0]).intValue()));
+                    new TuriMethod<>((args) -> {
+                        int n = Cast.toLong(args[0]).intValue();
+                        if (n >= string.length()) {
+                            return string;
+                        }
+                        return string.substring(string.length() - n);
+                    });
             case "replace_all" ->
                 // replaces the occurrences of the first argument interpreted as regular expression with the second argument interpreted as string.
                     new TuriMethod<>((args) -> string.replaceAll("" + args[0], "" + args[1]));
