@@ -22,6 +22,12 @@ class http {
     fn patch(!url,@body=none,@headers={},{extra}){
         do(url,method="PATCH",body=body,headers=headers,..extra)
     }
+    fn head(!url,@body=none,@headers={},{extra}){
+        do(url,method="HEAD",body=body,headers=headers,..extra)
+    }
+    fn options(!url,@body=none,@headers={},{extra}){
+        do(url,method="OPTIONS",body=body,headers=headers,..extra)
+    }
 }
 
 

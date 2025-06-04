@@ -4,6 +4,7 @@ import ch.turic.ExecutionException;
 import ch.turic.utils.Unmarshaller;
 
 import java.util.Objects;
+import java.util.function.Function;
 
 public record ObjectFieldLeftValue(LeftValue object, String field) implements LeftValue {
     public static ObjectFieldLeftValue factory(final Unmarshaller.Args args) {
@@ -46,5 +47,13 @@ public record ObjectFieldLeftValue(LeftValue object, String field) implements Le
     @Override
     public void assign(Context ctx, Object value) throws ExecutionException {
         object.getObject(ctx).setField(field, value);
+    }
+
+    @Override
+    public Object reassign(Context ctx, Function<Object, Object> newValueCalculator) throws ExecutionException {
+        final var value = object.getObject(ctx).getField(field);
+        final var newValue = newValueCalculator.apply(value);
+        object.getObject(ctx).setField(field, newValue);
+        return newValue;
     }
 }

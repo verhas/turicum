@@ -378,7 +378,7 @@ public class FunctionCall extends AbstractCommand {
      * @return the corresponding TuriClass for the JavaObject's class or
      * null if no matching TuriClass is found
      */
-    private static TuriClass getTuriClass(Context context, JavaObject jo) {
+    public static TuriClass getTuriClass(Context context, JavaObject jo) {
         var turi = context.globalContext.getTuriClass(jo.object().getClass());
         if (turi == null) {
             var papi = jo.object().getClass();

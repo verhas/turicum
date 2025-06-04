@@ -58,7 +58,7 @@ The name “Turicum” is the ancient Roman name for the city of Zürich, Switze
 
 === Implementations
 
-The interpreter is currently available in three different application:
+The interpreter is currently available in three different applications:
 
 * command line version
 
@@ -68,7 +68,7 @@ The interpreter is currently available in three different application:
 
 == Command Line
 
-The command line version is available as an installation kit for Windows, Linux, and MacOS.
+The command line version is available as an installation kit for Windows, Linux, and macOS.
 The kits are available on GitHub, and they include everything you need to run Turicum programs.
 
 To get an on-screen help type
@@ -86,7 +86,7 @@ Turicum was designed with the following principles:
 
 * A **concise syntax** that remains readable and expressive.
 * A **functional-first** execution model with support for **side effects** when necessary.
-* **Multithreading and pipeline constructs** built directly into the language.
+* **Multithreading and pipeline constructs** are built directly into the language.
 * **Safe scoping and closures**, including *reclosable* closures, which can adapt to new context bindings.
 Closure reclosing is a unique feature of the language.
 * **Macro-based metaprogramming**, allowing deferred and explicit evaluation of arguments.
@@ -95,7 +95,7 @@ Closure reclosing is a unique feature of the language.
 - positional-only,
 - named-only,
 - rest parameters (`[x]`),
-- meta parameters (`{x}`),
+- meta parameters (`+{x}+`),
 - and trailing callable parameters (`^x`).
 
 The language is intended for **experienced developers**, especially those working with the JVM, who require a powerful scripting or DSL tool that feels natural but scales to complex architectural needs.
@@ -110,7 +110,7 @@ The core syntactic conventions are as follows:
 
 * Semicolons (`;`) can be used to separate commands but are generally optional.
 It is recommended to use semicolons to avoid ambiguity.
-* Code blocks are enclosed in curly braces `{}` and evaluate to the result of the last executed command.
+* Code blocks are enclosed in curly braces `+{}+` and evaluate to the result of the last executed command.
 * Single-line comments begin with `//` and continue to the end of the line.
 * Multiline comments start with `+/*+` and end with `*/`, like in Java, C, Go etc.
 Unlike Java, nested multiline comments are supported.
@@ -157,7 +157,7 @@ A command is usually terminated by a semicolon (`;`).
 A semicolon can sometimes be replaced by a newline at the end of a command.
 Some commands explicitly require the use of `;`, like the `for` loop.
 
-Commands can be grouped into blocks, enclosed in `{` and `}`.
+Commands can be grouped into blocks, enclosed in `+{+` and `+}+`.
 Everything in Turicum has a value.
 Even commands result in a value.
 For example, an `if` statement returns the value of the executed command:
@@ -230,7 +230,7 @@ Expressions can contain:
 * Method calls
 * Async expressions
 * Code blocks
-* block commands enclosed between `{` and `}` or `(` and `)`.
+* block commands enclosed between `+{+` and `+}+` or `(` and `)`.
 
 Symbolic constants are `true`
 // has the constant boolean __true__ value.
@@ -514,11 +514,11 @@ is b defined? yes, it is 4
 You can use any expression or Turicum command inside interpolated strings, but the following rules apply:
 
 * Within the interpolated sections:
-** From `${` to `}`
+** From `${` to `+}+`
 ** From `$(` to `)`
 
 * The number of opening and closing brackets must match:
-** The number of `{` must equal the number of `}`
+** The number of `+{+` must equal the number of `+}+`
 ** The number of `(` must equal the number of `)`
 
 This restriction is usually simple and should not affect your code in most cases.
@@ -571,9 +571,9 @@ chosen as the prefix for interpolated strings (e.g. `$"..."`) because:
 
 Turicum extends the interpolation mechanism with two syntactic forms, each with distinct semantics:
 
-- `${expression}` evaluates the given expression in a *new temporary context*. This is useful when
+- `+${expression}+` evaluates the given expression in a *new temporary context*. This is useful when
 a local computation is needed that should not affect the surrounding environment.
-- `$(expression)` evaluates the expression in the *surrounding context*, allowing modifications
+- `+$(expression)+` evaluates the expression in the *surrounding context*, allowing modifications
 (e.g., variable definition useing `let` or `mut`) to persist beyond the interpolated expression.
 
 This dual syntax provides clarity and control over variable scope and side effects inside interpolated strings,
@@ -879,7 +879,7 @@ println a
 
 will select only the even elements from the list. The expression or closure following the `?` works as a filter.
 
-You can also apply mappers following `->`, for example:
+You can also apply mappers following a `->`, for example:
 
 
 .source of snippet `ListLiteral8`
@@ -961,7 +961,7 @@ This makes writing filters and mappers very easy.
 .Some deep technical detail
 [NOTE]
 ====
-The closure definition `{|x|x*2}` is technically an expression.
+The closure definition `+{|x|x*2}+` is technically an expression.
 Saying that the mappers and filters can be an expression OR a closure is a bit sloppy, because closures are also results of an expression.
 What really happens is that the interpreter evaluates the expression, and if the result is a closure, then it will apply it.
 In other cases it just uses the result of the expression.
@@ -985,8 +985,8 @@ Operators are tokenized with priority for the **longest matching operator**.
 Recognized symbols are:
 
 
-"--", "++", "pass:[->]", "pass:[<-]", "=", "(", ")", ",", ".", "?.",
-"&{", "{", "}", "[", "]", ";", ":", "|", "?", "@", "^", "#"
+"--", "++", "pass:[->]", "pass:[<-]", "(", ")", ",", ".", "?.",
+"&{", "{", "}", "[", "]", ";", ":", "|", "?", "@", "^", "#", "**"
 
  
 
@@ -1127,7 +1127,7 @@ println a
 
 
 You do not need to create `b`,`c`,`d`, and `e` one by one.
-They will become automatically an `{}` classless object.
+They will become automatically an `+{}+` classless object.
 
 Accessing a field on the right-hand side of an assignment, or in any expression is more restrictive.
 You can still access a field that is nonexistent, and the value will be `none`, but you cannot access a field on `none`.
@@ -1293,10 +1293,18 @@ When used as a unary prefix operator, it must be inside a list literal and in fr
 It is also used to flatten objects or lists to function parameter passing.
 
 * `|` bitwise OR operation.
++
 The operator works the conventional ways on integers.
++
 The operator is also defined for lists.
 The result is the union of the two lists with the unique elements.
 That way you can also create a "set" from a list `|`-ing it with an empty list, as in the example below:
++
++
+The operator is further defined for objects. The result is a merged object that includes all fields from both operands.
+If a field exists in both objects and is not itself an object, the value from the second object is used.
+If the field values in both objects are objects, the result is their recursive merge using the `|` operation.
+If the field values in both objects are lists, the result is the concatenation of those lists.
 
 
 .source of snippet `bor1`
@@ -1304,6 +1312,8 @@ That way you can also create a "set" from a list `|`-ing it with an empty list, 
 ----
 println 1 | 2
 println( [1,1,2,3,3,2,1] | [])
+println ( { a:1, b: 2, c: { h: 1, z:2} w: ["k","h","dr."] }
+            | { a:11, b: 22, c: { k:7} , w : [1,2,3]} )
 try:
     3.0 | 3.14
 catch e: println e
@@ -1319,7 +1329,8 @@ catch e: println e
 ----
 3
 [1, 2, 3]
-Cannot calculate '3.0' or '3.14'
+{a: 11, b: 22, c: {h: 1, z: 2, k: 7}, w: [k, h, dr., 1, 2, 3]}
+Cannot calculate '3.0' | '3.14'
 
 ----
 
@@ -1335,7 +1346,7 @@ It calculates the symmetric difference of lists (the concatenation of the two li
 [source]
 ----
 println 12 ^ 2
-println 12.0 ^ 2
+println ?(12.0 ^ 2) or "does not work for floating points"
 println( [1,2,3] ^ [3,4,5] )
 
 
@@ -1348,7 +1359,7 @@ println( [1,2,3] ^ [3,4,5] )
 [source]
 ----
 14
-144.0
+does not work for floating points
 [1, 2, 4, 5]
 
 ----
@@ -1356,17 +1367,19 @@ println( [1,2,3] ^ [3,4,5] )
 
 
 * `&` bitwise AND operation.
-The operator works the conventional ways on integers.
-The operator is also defined for lists.
-The result is the intersection of the two lists with the unique elements.
-You cannot `&` floating point numbers.
++
+This operator behaves conventionally for integers.
++
+It is also defined for lists, where it returns the intersection of the two lists, containing only unique elements.
++
+The `+&+` operator is not defined for floating-point numbers.
 
 
 .source of snippet `band1`
 [source]
 ----
 println 7 &  2
-println( [1,1,2,3,3,2,1] & [2, 3, 7])
+println [1,1,2,3,3,2,1] & [2, 3, 7]
 try:
     3.0 & 3.14
 catch e: println e
@@ -1382,7 +1395,7 @@ catch e: println e
 ----
 2
 [2, 3]
-Cannot calculate '3.0' mult '3.14'
+Cannot calculate '3.0' & '3.14'
 
 ----
 
@@ -1401,10 +1414,10 @@ mut q = { a:1 , b:2 }
 mut w = "ohmy"
 println 1 == 1, " one is one"
 println 1 == 2, " one is not two"
-println 1 === 1, "one is the same as one"
-println 1 === 2, "one is not the same as two"
-println k == q, "k equals q, but"
-println k === q, "k is not the same as q"
+println 1 === 1, " one is the same as one"
+println 1 === 2, " one is not the same as two"
+println k == q, " k equals q, but"
+println k === q, " k is not the same as q"
 println w == "ohmy", " w is 'ohmy'"
 println w === "ohmy", " w is not that 'ohmy'"
 
@@ -1419,10 +1432,10 @@ println w === "ohmy", " w is not that 'ohmy'"
 ----
 true one is one
 false one is not two
-trueone is the same as one
-falseone is not the same as two
-truek equals q, but
-falsek is not the same as q
+true one is the same as one
+false one is not the same as two
+true k equals q, but
+false k is not the same as q
 true w is 'ohmy'
 false w is not that 'ohmy'
 
@@ -1581,13 +1594,287 @@ The bitwise OR `|` is not allowed in the expression specifying a default value f
 You can however freely enclose the expression or a part of it between `(` and `)` and use the operator freely.
 ====
 
-.pre and post increment/decrement
-[NOTE]
-====
-The lexical elements `pass:[++]` and `--` are defined and recognized by the lexical analyzer.
-This is to avoid accidentally writing `pass:[++i]` or `--i`, which would otherwise be valid expressions doing nothing.
-Their meaning would otherwise be `+(+i)` and `-(-i)`.
-====
+=== Pre-, and Post- Increment, and Decrement
+
+Turicum implements the pre- and post-increment and decrement operators as assignments.
+`pass:[a++]` or `pass:[a--]` are technically assignments that return the value of the variable before the modification.
+Similarly `pass:[++a]` and `pass:[--a]` are assignments returning the value after the modification.
+
+The expression analyzer recognizes and allows you to use pre-increment and pre-decrement operator in side an expression.
+It is easy to recognize for the parser —and similarly for the programmer— reading the code that a `++` or `--` introduces a pre-increment/pre-decrement assignment.
+
+On the other hand, a `++` or `--` after a complex left value may be hard to read.
+For this reason the language permits the post-increment and post-decrement operators inside an expression only if it is applied on a simple variable left value.
+If you want to apply a post-increment or a post-decrement operator on a field value or a list element, then you have to enclose it between `(` and `)`.
+
+
+.source of snippet `incremento`
+[source]
+----
+mut k = 3;
+let z = k++; // valid it is only a variable
+let w = ++k; // valid, it is only a variable
+
+let x = [1,2,3]
+x[0]++; // valid, it is a statement
+// let h = x[0]++; it would not compile
+let h = (x[0]++); // valid, there is a command between ( and )
+// let t = ++x[0]; it would not compile
+let t = (++x[0]); // valid again, enclosed
+
+
+----
+
+
+
+
+.output of snippet `incremento`
+[source]
+----
+
+----
+
+
+
+Although the increment and decrement operators are implemented as commands, they can be overloaded for objects.
+If a class defines the method `pass:[`++`]` and/or `pass:[`--`]` it will be invoked when the program uses the pre- or post-increment or decrement operator.
+
+The method should work on the object `this`, must have no argument, and should return the modified object.
+It may be the same object or it may create a new object.
+The examples show four implementations, two for increment and two for decrement.
+One implementation in each pair treats the object immutable and returns a new object.
+The other mutates the object and returns the modified object.
+
+The example functionality is incrementing, decrementing a field, but the actual use can be anything.
+
+
+.source of snippet `incrementable1`
+[source]
+----
+class Incrementable {
+    fn init(counter:num=0);
+
+    fn `++`{
+         Incrementable(counter+1)
+    }
+
+    fn p(name:str) {
+        println name,": ",counter;
+    }
+}
+
+mut h = Incrementable();
+h.p("h original");
+println "h id=%X" % id_hash(h);
+let k = h++;
+h.p("h after post increment");
+k.p("k");
+println "h id=%X" % id_hash(h);
+println "k id=%X" % id_hash(k);
+let z = ++h;
+h.p("h after pre increment");
+z.p("z")
+println "h id=%X" % id_hash(h);
+println "z id=%X" % id_hash(z);
+
+
+----
+
+
+
+
+.output of snippet `incrementable1`
+[source]
+----
+h original: 0
+h id=10DED6A9
+h after post increment: 1
+k: 0
+h id=C5DC4A2
+k id=10DED6A9
+h after pre increment: 2
+z: 2
+h id=4A194C39
+z id=4A194C39
+
+----
+
+
+
+You can track the different object instances using the hex output from the `id_hash` function.
+
+
+.source of snippet `incrementable2`
+[source]
+----
+class Incrementable {
+    fn init(counter:num=0);
+
+    fn `++`{
+         counter++
+         this
+    }
+
+    fn p(name:str) {
+        println name,": ",counter;
+    }
+}
+
+mut h = Incrementable();
+h.p("h original");
+println "h id=%X" % id_hash(h);
+let k = h++;
+h.p("h after post increment");
+k.p("k");
+println "h id=%X" % id_hash(h);
+println "k id=%X" % id_hash(k);
+let z = ++h;
+h.p("h after pre increment");
+z.p("z")
+println "h id=%X" % id_hash(h);
+println "z id=%X" % id_hash(z);
+
+
+----
+
+
+
+
+.output of snippet `incrementable2`
+[source]
+----
+h original: 0
+h id=5669C5FB
+h after post increment: 1
+k: 1
+h id=5669C5FB
+k id=5669C5FB
+h after pre increment: 2
+z: 2
+h id=5669C5FB
+z id=5669C5FB
+
+----
+
+
+
+In this example the identity of the object remains the same, all the identity hex codes are the same.
+There is only one object created.
+It also means that there is not much difference between pre-, and post-increment.
+
+The next two example implements the same functionality for the `--` operator.
+
+
+.source of snippet `decrementable1`
+[source]
+----
+class Decrementable {
+    fn init(counter:num=0);
+
+    fn `--`{
+         Decrementable(counter-1)
+    }
+
+    fn p(name:str) {
+        println name,": ",counter;
+    }
+}
+
+mut h = Decrementable();
+h.p("h original");
+println "h id=%X" % id_hash(h);
+let k = h--;
+h.p("h after post decrement");
+k.p("k");
+println "h id=%X" % id_hash(h);
+println "k id=%X" % id_hash(k);
+let z = --h;
+h.p("h after pre decrement");
+z.p("z")
+println "h id=%X" % id_hash(h);
+println "z id=%X" % id_hash(z);
+
+
+----
+
+
+
+
+.output of snippet `decrementable1`
+[source]
+----
+h original: 0
+h id=5F9678E1
+h after post decrement: -1
+k: 0
+h id=189AA67A
+k id=5F9678E1
+h after pre decrement: -2
+z: -2
+h id=5A9D6F02
+z id=5A9D6F02
+
+----
+
+
+
+.source of snippet `decrementable2`
+[source]
+----
+class Decrementable {
+    fn init(counter:num=0);
+
+    fn `--`{
+         counter--
+         this
+    }
+
+    fn p(name:str) {
+        println name,": ",counter;
+    }
+}
+
+mut h = Decrementable();
+h.p("h original");
+println "h id=%X" % id_hash(h);
+let k = h--;
+h.p("h after post decrement");
+k.p("k");
+println "h id=%X" % id_hash(h);
+println "k id=%X" % id_hash(k);
+let z = --h;
+h.p("h after pre decrement");
+z.p("z")
+println "h id=%X" % id_hash(h);
+println "z id=%X" % id_hash(z);
+
+
+----
+
+
+
+
+.output of snippet `decrementable2`
+[source]
+----
+h original: 0
+h id=31D0E481
+h after post decrement: -1
+k: -1
+h id=31D0E481
+k id=31D0E481
+h after pre decrement: -2
+z: -2
+h id=31D0E481
+z id=31D0E481
+
+----
+
+
+
+See also the next section about operator overloading.
+
+=== Operator Overloading
 
 Operators work for numerical types, string types as usually, and they can also work on any object that defines them.
 The name of the method implementing the operator should be the operator itself.
@@ -1605,6 +1892,7 @@ As mentioned above `+`, `-`, and `..` are binary as well as unary operators.
 The unary operator `!` is logical negation.
 The unary operator `~` is bitwise negation.
 The unary operator `?` returns the original value without any modification or `none` if the calculation of the argument resulted in an error.
+The original value can also be `none`.
 
 
 .source of snippet `bnot`
@@ -1636,8 +1924,6 @@ negating all bits in 3 -4
 NOTE: The character `?` can have different meaning based on the context.
 It can be part of conditional field access, when used as `a?.b` returning `none` when `a` is `none` or has no field `b`.
 It can also signal the start of a filter in a list literal.
-
-=== Operator Overloading
 
 Operators can be overridden in the classes.
 If you have a method named the same name as an operator, it will be invoked to perform the calculation.
@@ -1802,7 +2088,7 @@ The operator's table is defined in the source file `BinaryExpressionAnalyzer.jav
 | `+`, `-`
 
 | 10
-| `*`, `/`, `%`
+| `*`, `/`, `%`, `**`
 
 | 11
 | `.`, `?.`
@@ -1814,9 +2100,9 @@ This is a widespread practice in most programming languages.
 
 The usual practice is that you can have a whole expression between `()` characters.
 Turicum is more liberal and gives much more freedom to the developer.
-You can have a whole code block between the `()` characters, similarly to `{}`.
+You can have a whole code block between the `()` characters, similarly to `+{}+`.
 
-The major difference between the two is that the code between `()` is executed in the same context as the expression, while the code block between `{}` opens a new context.
+The major difference between the two is that the code between `()` is executed in the same context as the expression, while the code block between `+{}+` opens a new context.
 
 
 .source of snippet `pscope`
@@ -2258,11 +2544,11 @@ If the type is defined, only values that match the type can be assigned to the v
 Type is one of the predefined types or the name of the class or a java object type.
 You can specify multiple types separated using `|` character.
 
-Note that if you do not define an expression but you define a type that is not `any` or `none` then you should also specify `|none` as an alternative, because the initial value will be `none`.
+Note that if you do not define an expression, but you define a type that is not `any` or `none` then you should also specify `|none` as an alternative, because the initial value will be `none`.
 
 The `: type` and the `= expression` parts are optional.
 If the type is not defined, then the variable can get any value.
-If the expression is missing the value will be `none`.
+If the expression is missing the value will be `none`, but the variable becomes defined.
 There can be multiple `identifier: type = expression` after the `let` keyword comma separated.
 There are predefined type names.
 
@@ -2317,7 +2603,7 @@ Note that a variable can hold `none` only if
 
 * `any` is among the allowed types.
 
-For example `let a:num;` will fail, because it allows only numerical values, but missing the initial value will try to set it to `none`.
+For example, `let a:num;` will fail, because it allows only numerical values, but missing the initial value will try to set it to `none`.
 ====
 
 You can define multiple types for a variable separating the types with `|`. For example `let a:num|str|myClass` makes `a` eligible to store a numeric value, a string or an instance of `MyClass`.
@@ -2487,7 +2773,7 @@ catch err: println err
 
 
 
-If you have too many elements you can cut the list:
+If you have too many elements, you can cut the list:
 
 
 .source of snippet `flat_let_list4`
@@ -2591,6 +2877,136 @@ none
 
 
 
+==== Updating a Variable
+
+Mutable variables can get new value any time.
+The assignment that updates a variable does not have the `let` or `mut` keyword and does not define a type.
+The syntax is
+
+[source]
+----
+LEFT_VALUE ASSIGNMENT_OPERATOR EXPRESSION
+----
+
+which is simply loks like `a = 5*3` in most of the cases.
+The left value can be
+
+* a variable identifier, (`my_variable`)
+* object field access, (`object.field`)
+* list element access, (`list[index]`).
+
+The `ASSIGNMENT_OPERATOR` can be
+
+`=`,`+=`,`-=`,`*=`,`/=`,`%=`,`&=`,`|=`,`^=`,`pass:[**]=`,`or=`,`&&=`,`||=`,`pass:[<<=]`,`>>=`,`>>>=`,
+
+The `=` is the usual assignment.
+It calculates the expression on the right side and replaces the current value of the variable with the new value.
+The other assignments do three steps:
+
+. Calculate the current value of the left value.
+. Execute the operator that stands before the `=` sign applying it on the left value and the expression.
+. Update the left value with the new value.
+
+[NOTE]
+====
+The operations are responsible for evaluating the operands, and they may decide not to.
+For example, the `or` operation evaluates the right-hand side only if the left-hand side is `none`.
+They work on commands and not already calculated values.
+
+To accommodate this, the evaluation of the left value creates a temporary command.
+This temporary command returns the current value of the left value when evaluated.
+====
+
+
+.source of snippet `assign_calculate`
+[source]
+----
+mut z = 3
+println "z=",z
+z += 1;
+println "z +=1 :",z
+z -= 1;
+println "z -=1 :",z
+z *= 4;
+println "z *=4 :",z
+z /= 2;
+println "z /=2 :",z
+z %= 5;
+println "z %=5 :",z
+z |=128;
+println "z |=128 :",z
+z &= 7;
+println "z &=0x7F :",z
+z ^= 0xFF;
+println "z ^=0xFF :",z
+z **= 2;
+println "z **=2 :",z
+z or= inf;
+println "z or=inf :",z
+z <<= 2
+println "z <<=2 :",z
+z >>=2
+println "z >>=2 :",z
+z >>>=2
+println "z >>>=2 :",z
+z >>>=2
+println "z >>>=2 :",z
+z >>>=2
+println "z >>>=2 :",z
+z >>>=2
+println "z >>>=2 :",z
+z >>>=2
+println "z >>>=2 :",z
+z >>>=2
+println "z >>>=2 :",z
+z >>>=2
+println "z >>>=2 :",z
+z >>>=2
+println "z >>>=2 :",z
+
+mut b = true
+println "b=",b
+b &&= false;
+println "b &&=false :",b
+b ||= true;
+println "b ||=true :",b
+
+
+----
+
+
+
+
+.output of snippet `assign_calculate`
+[source]
+----
+z=3
+z +=1 :4
+z -=1 :3
+z *=4 :12
+z /=2 :6
+z %=5 :1
+z |=128 :129
+z &=0x7F :1
+z ^=0xFF :254
+z **=2 :64516
+z or=inf :64516
+z <<=2 :258064
+z >>=2 :64516
+z >>>=2 :16129
+z >>>=2 :4032
+z >>>=2 :1008
+z >>>=2 :252
+z >>>=2 :63
+z >>>=2 :15
+z >>>=2 :3
+z >>>=2 :0
+b=true
+b &&=false :false
+b ||=true :true
+
+----
+
 
 
 
@@ -2608,12 +3024,12 @@ The list is comma separated elements, can be
 
 * a variable name, like `turic`,
 
-* a variable name enclosed between `{` and `}`, like `{object}`, or
+* a variable name enclosed between `+{+` and `+}+`, like `+{object}+`, or
 
 * a variable name enclosed between `[` and `]`, like `[list]`.
 
 A variable in the list will make the variable in the current context pinned.
-If the variable name is decorated with `{}` then the object, which is the value of the variable gets pinned.
+If the variable name is decorated with `+{}+` then the object, which is the value of the variable gets pinned.
 Note that this is changing the mutability of the object itself and not the variable.
 
 
@@ -2752,13 +3168,13 @@ They both accept a list of expressions separated by commas.
 By default, the output goes to the standard output using the Java `System.out` static field.
 
 The output of `print` and `println` can also be redirected.
-If the variable `print_target` is defined and is an object or closure the output of the statements will be redirected.
+If the variable `+print_target+` is defined and is an object or closure the output of the statements will be redirected.
 
-When the `print_target` is an object the method `write` is used to send the strings and
-`flush` is called to close every print statement.
-`write` has to be defined, `flush` is optional, but when defined it has to be a method.
+When the `+print_target+` is an object the method `+write+` is used to send the strings and
+`+flush+` is called to close every print statement.
+`+write+` has to be defined, `+flush+` is optional, but when defined it has to be a method.
 
-When the `print_target` is a closure it is used to send the strings and flushing is ignored.
+When the `+print_target+` is a closure it is used to send the strings and flushing is ignored.
 
 The following example shows how to use this feature:
 
@@ -2846,7 +3262,7 @@ If the expression is `true` the command executes the first command or block.
 If the expression is `false` it executes the second command or block following the `else` keyword.
 The second command or block along with the keyword `else` is optional.
 
-The block is a series of commands enclosed between `{` and `}`.
+The block is a series of commands enclosed between `+{+` and `+}+`.
 If there is only a single command after the condition or the keyword `else` it can be preceded with a `:`, or enclosed in a block.
 
 The conditional expression can, but does not need to be enclosed between parentheses.
@@ -2881,7 +3297,7 @@ again odd
 The `if` command does not open a new context.
 The condition, and the commands following it, and the optional one after the `else` keyword evaluated and executed in the context the `if` statement is.
 
-If, however, the "then" or "else" commands are block commands then they themselves execute in a new context wrapping the actual context.
+If, however, the "then" or "else" commands are block commands, then they themselves execute in a new context wrapping the actual context.
 
 === Loops
 
@@ -2937,7 +3353,7 @@ Execution of the loop stops when the tail condition is `true`.
 mut i = 1;
 while i < 5 {
   print(i," ");
-  i = i + 1;
+  i++;
 }until i % 3 == 0;
 
 
@@ -2955,7 +3371,7 @@ while i < 5 {
 
 
 The body of the loop can be a command block, or it can be a single command.
-If the body is a single command, not enclosed between `{` and `}` it has to be preceded by a `:`.
+If the body is a single command, not enclosed between `+{+` and `+}+` it has to be preceded by a `:`.
 
 
 .source of snippet `whileLoop2`
@@ -2963,7 +3379,7 @@ If the body is a single command, not enclosed between `{` and `}` it has to be p
 ----
  mut i = 1;
 while i < 5 :
-  i = i + 1;
+  i++;
 until i % 3 == 0;
 println(i)
 
@@ -2990,7 +3406,7 @@ The value of the loop is the result of the last executed command.
 ----
 println {
     mut k = 0
-    while k < 10 : k = k + 1
+    while k < 10 : k++
 }
 
 
@@ -3002,7 +3418,7 @@ println {
 .output of snippet `while_result`
 [source]
 ----
-10
+9
 
 ----
 
@@ -3018,7 +3434,7 @@ The list will contain the results of each body loop execution.
 mut k = 0;
 println{ while k < 5 list{
             mut h = k;
-            k = k + 1;
+            k++;
             h
          }
 }
@@ -3096,7 +3512,7 @@ The semantic difference is that you cannot alter the loop variable, or variables
 ----
 mut i;
 for i = 1 ; i < 3 ; i=i+1 {
-    try: i = i + 1
+    try: i++
     catch e: println "not possible to change loop variable in the loop it remained ",i
 }
 
@@ -3143,7 +3559,6 @@ for( i = 1 ; i < 5 ; i=i+1 ){
 
 
 If the start command is an assignment, it is interpreted as a local assignment.
-
 
 
 .source of snippet `for3`
@@ -3210,7 +3625,7 @@ The value of the loop is the result of the last executed command.
 ----
 println {
     mut k = 0
-    for ; k < 10 ; : k = k + 1
+    for ; k < 10 ; : k++
 }
 
 
@@ -3222,7 +3637,7 @@ println {
 .output of snippet `for_result`
 [source]
 ----
-10
+9
 
 ----
 
@@ -3235,7 +3650,7 @@ The list will contain the results of each body loop execution.
 .source of snippet `for_list`
 [source]
 ----
-println {for i=0; i < 10 ; i = i + 1 list: i}
+println {for i=0; i < 10 ; i++ list: i}
 
 
 ----
@@ -3466,7 +3881,7 @@ The following samples demonstrate these cases.
 [source]
 ----
 println {
-    for i=0 ; i < 10 ; i = i + 1 {
+    for i=0 ; i < 10 ; i++ {
       println ".. ",i;
       break if i == 2
     }
@@ -3495,7 +3910,7 @@ none
 [source]
 ----
 println {
-    for i=0 ; i < 10 ; i = i +1 {
+    for i=0 ; i < 10 ; i++ {
       println ".. ",i;
       break -2 if i == 2
     }
@@ -3524,7 +3939,7 @@ println {
 [source]
 ----
 println {
-    for i=0 ; i < 10 ; i = i + 1 list{
+    for i=0 ; i < 10 ; i++ list{
       break if i == 2
       i;
     }
@@ -3550,7 +3965,7 @@ println {
 [source]
 ----
 println {
-    for i=0 ; i < 10 ; i = i +1 list{
+    for i=0 ; i < 10 ; i++ list{
       break -2 if i == 2
       i;
     }
@@ -3576,7 +3991,7 @@ println {
 [source]
 ----
 println {
-    for i=0 ; i < 10 ; i = i +1 list{
+    for i=0 ; i < 10 ; i++ list{
       break none if i == 2
       i;
     }
@@ -3607,14 +4022,14 @@ In the second case the `break` is inside a block, and it aborts the execution of
 [source]
 ----
 println {
-    for i=0 ; i < 4 ; i = i +1 {
+    for i=0 ; i < 4 ; i++ {
       if i == 2 : break;
       println i;
     }
 }
 println "however"
 println {
-    for i=0 ; i < 4 ; i = i +1 {
+    for i=0 ; i < 4 ; i++ {
       if i == 2 { break };
       println i;
     }
@@ -3650,7 +4065,7 @@ When the expression following the `break` keyword starts with the `if` keyword t
 [source]
 ----
 println {
-    for i=0 ; i < 4 ; i = i +1 {
+    for i=0 ; i < 4 ; i++ {
       break (if i == 2 : 3 else : 4) if i == 2;
       println i;
     }
@@ -3757,7 +4172,7 @@ The typical example is when you execute a command `async` .
 [source]
 ----
 fn gen_1_to_10 {
-    for i=1 ; i <= 10 ; i = i + 1:
+    for i=1 ; i <= 10 ; i++:
         yield i;
 }
 
@@ -3785,7 +4200,7 @@ The return value can be used in a `for each` loop, or you can iterate through it
 [source]
 ----
 fn gen_1_to_10 {
-    for i=1 ; i <= 10 ; i = i + 1:
+    for i=1 ; i <= 10 ; i++:
         yield i;
 }
 
@@ -4061,7 +4476,7 @@ The `yield` command inside the task will either receive an object or send an obj
 [source]
 ----
 mut t:task = async {
-    for i=0 ; i < 10 ; i = i + 1 {
+    for i=0 ; i < 10 ; i++ {
         yield i
     }
     55
@@ -4165,7 +4580,7 @@ fn execute(name:str, que_length:num){
     mut count = 0
     while prime.has_next(){
         println " prime read ",prime.next()
-        count = count + 1
+        count++
         }until count > 3 // limit the printout to the first three primes
     sleep 1 // will give time for the generator to run ahead uselessly
     println "stopping"
@@ -4230,7 +4645,7 @@ The task will stop after the specified time (planned feature).
 
 
 These parameters can be specified after the `async` keyword between `[` and `]` characters.
-When the command to be executed asynchronously starts with a `[` character you either has to have `[]` in front of it or enclose the command between `(` and `)` or `{` and `}` to help the syntax analysis.
+When the command to be executed asynchronously starts with a `[` character you either has to have `[]` in front of it or enclose the command between `(` and `)` or `+{+` and `+}+` to help the syntax analysis.
 
 The command can also execute a list parallel.
 When the expression to execute asynchronously is a list literal, then the command will execute the individual elements of the list parallel.
@@ -4272,9 +4687,9 @@ println( (end-start)/1000000, "ms")
 [source]
 ----
 [1, 2, 3]
-306.314667ms
+311.368542ms
 []
-313.137916ms
+310.261792ms
 
 ----
 
@@ -4491,9 +4906,10 @@ a =3.6063454894655185
 a =3.6055513629176015
 a =3.6055512754639905
 a =3.6055512754639896
-sqrt(13) ≈ 3.6055512754639905
+a =3.6055512754639896
+sqrt(13) ≈ 3.6055512754639896
 sqrt(13) ≈ 3.605551275463989 calulated by java Math
-square ≈ 13.000000000000009
+square ≈ 13.000000000000002
 
 ----
 
@@ -4637,7 +5053,7 @@ println(inc(1))
 .output of snippet `fun1`
 [source]
 ----
-ch.turic.commands.Closure@22f31dec
+ch.turic.commands.Closure@545b995e
 2
 
 ----
@@ -4666,7 +5082,7 @@ println(inc(1))
 .output of snippet `fun3`
 [source]
 ----
-ch.turic.commands.Closure@76f4b65
+ch.turic.commands.Closure@524f3b3a
 2
 
 ----
@@ -4697,7 +5113,7 @@ println(inc(1))
 .output of snippet `fun2`
 [source]
 ----
-ch.turic.commands.Closure@7f0d96f2
+ch.turic.commands.Closure@49ff7d8c
 2
 
 ----
@@ -4709,6 +5125,8 @@ The expression is specified following a `=` character and the parentheses are a 
 This is to avoid the unreadable `fn = 2*3` to be declared as a function declaration but `pass:[`fn`]=2*3` an assignment.
 `fn = 2*3` is a syntax error.
 
+[NOTE]
+====
 Be careful when using the `fn x()=...` format.
 The following code does not do what you expect:
 
@@ -4716,9 +5134,8 @@ The following code does not do what you expect:
 .source of snippet `fun10`
 [source]
 ----
-class K {   fn p()=(println "original K") }
-fn h():K = K()
-h().p()
+fn p()=len "original K";
+println p()
 
 
 ----
@@ -4729,23 +5146,25 @@ h().p()
 .output of snippet `fun10`
 [source]
 ----
-original K
+ch.turic.builtins.functions.Len@3fc9504b
 
 ----
 
 
 
-The expression following the `=` is an identifier, which by the time of the invocation results a callable object.
-The string following it is not part of the expression.
+You may expect that it will calculate the length of the string and return that value.
+In reality, the expression is the function object `len` itself.
+The following string is an expression that by itself stands on its own as a command.
 The string constant is just a statement with no effect.
+
+If you enclose the whole expression in a pair of parentheses you get the desired result:
 
 
 .source of snippet `fun11`
 [source]
 ----
-class K {   fn p()=(println("original K")) }
-fn h():K = K()
-h().p()
+fn p()=(len "original K");
+println p()
 
 
 ----
@@ -4756,16 +5175,43 @@ h().p()
 .output of snippet `fun11`
 [source]
 ----
-original K
+10
 
 ----
 
 
 
+or
+
+
+.source of snippet `fun12`
+[source]
+----
+fn p()=len("original K");
+println p()
+
+
+----
+
+
+
+
+.output of snippet `fun12`
+[source]
+----
+10
+
+----
+
+
+
+Use `=` to define functions only for straightforward expression functions, that are true expressions.
+====
+
 The parameter list is comma-separated.
 Each element defines a formal parameter.
 
-Types are optional and follow similar syntax as in variable declarations, but function parameters are always immutable.
+Types are optional and follow the same syntax as in variable declarations, but function parameters are always immutable.
 You cannot use `mut` or `let` in the parameter list.
 Attempting to do so will result in a syntax error.
 
@@ -4802,6 +5248,7 @@ println concat("ab","ba")
 abba
 
 ----
+
 
 
 
@@ -4893,7 +5340,7 @@ println(inc(1,how_much=5))
 .output of snippet `fun4`
 [source]
 ----
-ch.turic.commands.Closure@76a2ddf3
+ch.turic.commands.Closure@2ef14fe
 6
 
 ----
@@ -4984,14 +5431,14 @@ To do that, there are three extra arguments you can use in your function definit
 
 * `[rest]`,
 
-* `{meta}`, and
+* `+{meta}+`, and
 
 * `^closure`.
 
 You can name them any way you want, but for the same of simplicity we will use the names above.
-The syntax distinguishing them from the other parameters is the use of the extra `[]`, `{}`, and `^` characters.
+The syntax distinguishing them from the other parameters is the use of the extra `[]`, `+{}+`, and `^` characters.
 If they are present, they have to be the last formal parameters in the order as listed above.
-Any of them can be missing, but if two present then `[rest]` should be before `{meta}` and `^closure`, and `{meta}` has to precede `^closure`.
+Any of them can be missing, but if two present then `[rest]` should be before `+{meta}+` and `^closure`, and `+{meta}+` has to precede `^closure`.
 
 When the function code starts
 
@@ -5068,7 +5515,7 @@ juice=5
 When you
 
 * have a `!name` declared positional only parameter, and
-* you also have `{meta}` in the parameter list, and
+* you also have `+{meta}+` in the parameter list, and
 * and you call the function providing a `name=expression` named argument,
 
 it will not be assigned to the positional only parameter, and it is also not an error.
@@ -5178,7 +5625,7 @@ f(2,3)closure
 does not even compile, since the mandatory `;` or new line is missing after the function call.
 Also, it would be unreadable to recognize `closure` as an argument.
 
-NOTE: The actual implemented syntax checks that the next two tokens following the `)` are `{`and `|`.
+NOTE: The actual implemented syntax checks that the next two tokens following the `)` are `+{+`and `|`.
 
 This call can aid in creating domain-specific languages.
 
@@ -5288,7 +5735,7 @@ fn c(a,b,c,d){
     println("%s %s %s %s " % [a,b,c,d])
 }
 fn numbers {
-  for i = 1 ; i <= 4 ; i = i + 1 : yield i
+  for i = 1 ; i <= 4 ; i++ : yield i
 }
 
 c(..(async numbers()))
@@ -6052,7 +6499,7 @@ try ( ':' COMMAND | BLOCK ) [catch [exception_variable] (':' COMMAND | BLOCK)] [
 ----
 
 The command is executed in the same context as the whole try-catch command.
-If, however, a block between `{` and `}` is used, it will create its own context.
+If, however, a block between `+{+` and `+}+` is used, it will create its own context.
 In this case the use of the `:` is optional and is also discouraged, as clutter.
 
 If there is an exception variable specified, it will be defined when the exception is caught.
@@ -6227,7 +6674,7 @@ We finish@
 The `@` helps you emphasize that the call is a decorator call that modifies the closure following it.
 The use of `@` also notifies the syntax analyzer that the call is a decorator call, and it extends the recognition of the following `^closure` parameter.
 When the `@` precedes the function call, a `fn` or `class` are also recognized as `^closure` parameter,
-and you do not need to enclose them between `{` and `}`.
+and you do not need to enclose them between `+{+` and `+}+`.
 
 
 .source of snippet `fnDecorator1`
@@ -6756,6 +7203,148 @@ The first number you already know, try to guess the second, then run the code yo
 == String Functions
 
 Turicum defines many methods to handle strings.
+These methods can be called on the string objects as methods.
+
+            * `to_string` 
+ returns the string itself. This method exists so that you can use it like on any other objects.
+            * `after` 
+ returns the part of the string that follows the argument string.
+ If the argument string is not in the string, then it returns an empty string.
+            * `before` 
+ returns the part of the string that is before the argument string.
+ If the argument string is not in the string, then it returns an empty string.
+            * `pad_left` 
+ add characters on the left of the string to get the desired length.
+ You can specify only the number of the characters to pad with spaces.
+ Alternatively, you can also specify a string and the desired total length of the result.
+ The string is supposed to be a single character, but it can be any length.
+ If the necessary number of padding characters is not the multiple of string length, the resulting string may be shorter than desired.
+            * `pad_right` 
+ add character to the right of the string to get the desired length.
+ This method works the same way as `pad_left`, but it appends the characters.
+            * `between` 
+ returns the part of the string that is between two specific strings.
+ if one of the parameter strings is not found in the string, the result is empty string.
+            * `lines` 
+ returns a list containing the lines of the string.
+            * `words` 
+ returns a list containing the words of the string.
+            * `turi_lex` 
+ returns a list containing the tokens of the string matching the tokenization of the language (Turicum).
+            * `execute` 
+ executes the string as Turicum code.
+            * `url_encode` 
+ encode the string for URL
+            * `url_decode` 
+ decode the string from URL-encoded form
+            * `md5` 
+ calculate the md5 hash of the string
+            * `sha_1` 
+ calculate the sha-1 hash of the string
+            * `sha_256` 
+ calculate the sha-256 hash of the string
+            * `sha_512` 
+ calculate the sha-512 hash of the string
+            * `digest` 
+ calculate the hash of the string. The algorithm name has to be provided as argument.
+            * `base64` 
+ base64 encode the string
+            * `from_base64` 
+ create a list of numbers (bytes) from a base64 encoded string
+            * `from_base64_str` 
+ create a string from a base64 encoded string
+            * `contains` 
+ returns `true` if the string contains the argument.
+            * `is_blank` 
+ returns `true` if the string is blank
+            * `is_empty` 
+ returns `true` if the string is empty
+            * `is_numeric` 
+ returns `true` if the string holds a decimal numeric value, either integer or floating point formatted.
+            * `is_digit` 
+ returns `true` if the string contains only digits
+            * `is_alpha` 
+ returns `true` if the string contains only alpha characters
+            * `is_alphanumeric` 
+ returns `true` if the string contains only alphanumeric characters
+            * `is_hex` 
+ returns `true` if the string contains only hexadecimal characters
+            * `int` 
+ returns the integer value of the string
+            * `float` 
+ returns the floating number contained in the string
+            * `number` 
+ returns the number contained in the string encoded with the argument radix
+            * `hex` 
+ returns the number contained in the string as a hexadecimal number.
+ It is not the same as calling `"0AF6"number(16)` because this method respects the leading `0x` if there is any.
+            * `substring` 
+ retruns a substring of the string.
+ There has to be at least one (`a`), and there can be at most two (`a`,`b`) integer arguments.
+ The substring starts at the character indexed `a` and finishes before the character `b`.
+ If there is no `b`, the substring lasts till the end of the string.
+ The implementation honors overindexing and returns characters only to the end of the string or an empty string.
+            * `remove_prefix` 
+ removes the argument from the string if that is a prefix of the string.
+            * `remove_postfix` 
+ removes the argument from the string if that is a postfix of the string.
+            * `count_substring` 
+ counts the occurrences of the argument string.
+ Note that when an occurrence is found the other occurrences are sought for after that occurrence.
+ It means that, for example, `("a"*6).count_substring("aa")` is 3 and not 5.
+            * `count_substring_overlap` 
+ counts all the occurrences of the argument string, even if they overlap
+ It means that, for example, `("a"*6).count_substring("aa")` is 5.
+            * `left` 
+ return the left of the string.
+ This method uses the argument as a number and returns the string that contains at most that number of characters.
+ Essentially, the `string.left(n)` is the `n` leftmost characters if `n` is smaller than the number of characters in the string.
+ If `n` is equal to, or larger than the number of characters in the string, then the whole string is the result.
+            * `right` 
+ return the right of the string.
+ This method uses the argument as a number and returns the string that contains at most that number of characters.
+ Essentially, the `string.right(n)` is the `n` rightmost characters if `n` is smaller than the number of characters in the string.
+ If `n` is equal to, or larger than the number of characters in the string, then the whole string is the result.
+            * `replace_all` 
+ replaces the occurrences of the first argument interpreted as regular expression with the second argument interpreted as string.
+            * `quote` 
+ quotes the special characters in the string.
+ The result is a string that can be used in a string literal to represent the original string.
+            * `reverse` 
+ returns the string that contains the same characters as the original string, but in reverse order.
+            * `chop` 
+ returns string without the last character
+            * `chomp` 
+ returns the string without the last new-line character.
+ If the last character is not a new line character, the original string is returned.
+            * `times` 
+ repeat the string as specified by the argument. `"x".times(3)` is `"xxx"`.
+            * `lower_case` 
+ return the string lower-cased character.
+            * `upper_case` 
+ return the string upper-cased characters.
+            * `trim` 
+ return the string with spaces removed from the start and the end.
+            * `starts_with` 
+ return `true` if the string starts with the specified string.
+            * `ends_with` 
+ return `true` if the string ends with the specified string.
+            * `split` 
+ split the string into a list using the argument as a regular expression.
+            * `bytes` 
+ return a list that contains the bytes of the string using UTF-8 character encoding.
+            * `join` 
+ joins the elements of the argument list using the string as a separator/joiner character.
+            * `char_at` 
+ get the character at the given position.
+            * `safe_char_at` 
+ get the character at the given position or an empty string if the index is out of range.
+            * `index_of` 
+ return the first position of the argument string, or -1 if the argument string cannot be found in the original string.
+            * `last_index_of` 
+ return the last position of the argument string, or -1 if the argument string cannot be found in the original string.
+
+
 
 
 .source of snippet `string_functions`
@@ -6821,8 +7410,11 @@ println "57. ","aaa".sha_512()
 println "60. ","aaa".digest("MD5")
 println "61. ",61.hex()
 println "62. ","mut z = if a == 3 :  3 else: 5;".turi_lex()
-println "63. ","mut M= \"\"; for i=0 ; i < 8 ; i = i +1 : M = M + i; M".execute()
+println "63. ","mut M= \"\"; for i=0 ; i < 8 ; i++ : M = M + i; M".execute()
 println "64. ",M
+println "65. ","65".int() , "is 65... literally"
+println "65. ","3.14".float(), " is 3.14"
+println "66. ","0765".number(8), " is ", 8*8*7+8*6+5
 
 
 ----
@@ -6895,6 +7487,9 @@ println "64. ",M
 62. [Lex{types=RESERVED, text='mut'}, Lex{types=IDENTIFIER, text='z'}, Lex{types=RESERVED, text='='}, Lex{types=RESERVED, text='if'}, Lex{types=IDENTIFIER, text='a'}, Lex{types=RESERVED, text='=='}, Lex{types=INTEGER, text='3'}, Lex{types=RESERVED, text=':'}, Lex{types=INTEGER, text='3'}, Lex{types=RESERVED, text='else'}, Lex{types=RESERVED, text=':'}, Lex{types=INTEGER, text='5'}, Lex{types=RESERVED, text=';'}]
 63. 01234567
 64. 01234567
+65. 65is 65... literally
+65. 3.14 is 3.14
+66. 501 is 501
 
 ----
 
@@ -7020,7 +7615,7 @@ ieee_remainder(5,2) = 1.0
 next_after(1.0,2.0) = 1.0000000000000002
 next_down(1.0) = 0.9999999999999999
 next_up(1.0) = 1.0000000000000002
-random() = 0.8675347711989101
+random() = 0.6358918685938408
 rint(3.7) = 4.0
 round(3.7) = 4
 signum(-3.7) = -1.0
@@ -7141,7 +7736,7 @@ Evaluating it will result in the function.
 When we call this function adding `(..rest,..meta,..closure)` after it, we spread the extra parameters.
 In this example the three argument values for these parameters are
 
-* `{}` empty object,
+* `+{}+` empty object,
 * `[]` empty list, and
 * `none`
 
@@ -7202,8 +7797,8 @@ Without that we would have two unnamed function definitions, one after the other
 
 [NOTE]
 ====
-The first design required enclosing a function definition like the one above to be enclosed between `{` and `}` to be part of an expression.
-In most of the cases, like assigning a function to a variable would require superfluous `{` and `}` braces.
+The first design required enclosing a function definition like the one above to be enclosed between `+{+` and `+}+` to be part of an expression.
+In most of the cases, like assigning a function to a variable would require superfluous `+{+` and `+}+` braces.
 The philosophy of Turicum is to be dense and use extra characters where it helps readability or avoids syntax ambiguity.
 
 Omitting the requirement around a `fn` (or for that matter a `class`) definition inside an expression make the language leaner, but this does not make a function or class definition to be an expression itself.
@@ -7578,7 +8173,7 @@ println nano_time()
 .output of snippet `nano_time`
 [source]
 ----
-863178656816333
+960365381600916
 
 ----
 
@@ -7686,7 +8281,7 @@ mut z = rng(0,9223372036854775807)
 mut i = 0
 for each k in z {
   println k
-  i = i + 1
+  i++
 }until i > 5
 
 
@@ -7859,7 +8454,7 @@ fn printer(q,@name){
         return { println "%s is done" % name } if q.is_closed(); // return when the que is closed
         if s == none {
             println "%s is not ready %s" % [name,n]
-            n = n + 1 // count the attempts
+            n++ // count the attempts
             sleep 0.003 // sleep 3 mili
         } else {
             n = 0 // reset the attempts, we go an object to print
@@ -7874,7 +8469,7 @@ mut q : que = que(3)
 mut task1 : task = async printer(q,name="task1")
 mut task2 : task = async printer(q,name="task2")
 // send the numbers 1 to 10 to the queue, whoever is lucky can get it
-for i=1 ; i < 10 ; i = i +1 {
+for i=1 ; i < 10 ; i++ {
     q.send(i);
     sleep 0.01
     }
@@ -7912,73 +8507,73 @@ none
 ----
 task2 is not ready 0
 task1 is not ready 0
-task2 is ready 1
-task2 is not ready 0
-task1 is not ready 1
-task1 is not ready 2
-task2 is not ready 1
-task1 is not ready 3
-task2 is not ready 2
-task1 is ready 2
-task2 is not ready 3
+task1 is ready 1
 task1 is not ready 0
+task2 is not ready 1
 task1 is not ready 1
+task2 is not ready 2
+task1 is not ready 2
+task2 is not ready 3
+task1 is ready 2
+task1 is not ready 0
 task2 is not ready 4
+task1 is not ready 1
 task2 is not ready 5
 task1 is not ready 2
-task2 is ready 3
-task2 is not ready 0
-task1 is not ready 3
-task2 is not ready 1
-task1 is not ready 4
-task2 is not ready 2
-task1 is not ready 5
-task2 is ready 4task1 is not ready 6
+task2 is not ready 6
+task1 is ready 3task2 is not ready 7
 
-task2 is not ready 0
-task1 is not ready 7
-task2 is not ready 1
-task1 is not ready 8
-task2 is not ready 2
-task1 is not ready 9
-task2 is not ready 3
-task1 is ready 5
 task1 is not ready 0
-task2 is not ready 4
-task1 is not ready 1task2 is not ready 5
+task1 is not ready 1task2 is not ready 8
 
 task1 is not ready 2
+task2 is not ready 9
+task2 is ready 4
+task2 is not ready 0
+task1 is not ready 3
+task1 is not ready 4
+task2 is not ready 1
+task1 is not ready 5
+task2 is not ready 2
+task1 is ready 5
+task2 is not ready 3task1 is not ready 0
+
+task1 is not ready 1
+task2 is not ready 4
+task1 is not ready 2
+task2 is not ready 5
+task1 is not ready 3
 task2 is not ready 6
 task1 is ready 6
 task1 is not ready 0
 task2 is not ready 7
-task2 is not ready 8
 task1 is not ready 1
+task2 is not ready 8
 task2 is not ready 9
 task1 is not ready 2
+task1 is not ready 3
 task2 is ready 7
 task2 is not ready 0
-task1 is not ready 3
-task2 is not ready 1
 task1 is not ready 4
-task2 is not ready 2
+task2 is not ready 1
 task1 is not ready 5
-task2 is ready 8
-task2 is not ready 0
-task1 is not ready 6
-task2 is not ready 1
-task1 is not ready 7
 task2 is not ready 2
-task1 is not ready 8
-task2 is ready 9
-task2 is not ready 0
-task1 is not ready 9
-task2 is not ready 1
-task1 is not ready 10
-task2 is not ready 2
-task1 is not ready 11
-task2 is not ready 3
-task1 is not ready 12
+task2 is not ready 3task1 is ready 8
+
+task1 is not ready 0
+task1 is not ready 1
+task2 is not ready 4
+task1 is not ready 2
+task2 is not ready 5
+task1 is ready 9
+task1 is not ready 0
+task2 is not ready 6
+task1 is not ready 1
+task2 is not ready 7
+task1 is not ready 2task2 is not ready 8
+
+task2 is not ready 9task1 is not ready 3
+
 closing the channel
 channel is closed
 1 is done false
@@ -7987,7 +8582,7 @@ we start to wait the first time
 task1 is done
 task2 is done
 task1 done true
-task2 done true
+task2 done false
 We start to wait the second time
 task1 done true
 task2 done true
@@ -8216,7 +8811,7 @@ fn printer(){
         return { println "we are done" } if yield_is_closed();
         if s == none {
             println "not ready %s" % n
-            n = n + 1
+            n++
             sleep 0.003
         } else {
             n = 0
@@ -8226,7 +8821,7 @@ fn printer(){
 }
 
 mut task : task = async printer()
-for i=1 ; i < 4 ; i = i +1 {
+for i=1 ; i < 4 ; i++ {
  println "sending ",i
  task.send(i);
  sleep 0.009
@@ -8265,7 +8860,6 @@ not ready 0
 not ready 1
 not ready 2
 closing the channel
-not ready 3
 channel is closed
 is done false
 we are done
@@ -8288,7 +8882,7 @@ Instead, the code has to import the system file `re`:
 sys_import "turi.re"
 
 fn print_match(m){
-    for i=0 ; i < len(m.group) ; i = i + 1 {
+    for i=0 ; i < len(m.group) ; i++ {
         mut {index, start, end } = m.group[i];
         println "%s. '%s'.substring(%s,%s)='%s'" % [index,s,start, end,s[start..end]];
     }
@@ -8339,7 +8933,7 @@ It has two methods:
 
 * `match()` to match the whole string passed as argument, and
 
-* `find()` to find a matching strign in the string.
+* `find()` to find a matching string in the string.
 
 If there is no match, the return value is an empty object.
 If there is a match, then the return value is an object containing the matching groups.
@@ -8560,7 +9154,7 @@ for each command in commands {
         unthunk(command)
         println "%s. after is_defined(x) = %s" % [i,is_defined(x)]
     }
-    i = i + 1
+    i++
 }
 
 
@@ -8695,7 +9289,7 @@ The following is the non-standard EBNF definition of the programming language ca
 
 * Strings between ' characters are literal keywords.
 * Syntax between `[` and `]` are optional
-* Syntax between `{` and `}` are repeated zero or more times
+* Syntax between `+{+` and `+}+` are repeated zero or more times
 * Syntax between `(` and `)` is a group with alternatives
 * Alternative syntaxes are separated using the `|` character.
 * Non-terminal symbols are all capital letters.
@@ -8784,7 +9378,7 @@ The value of the global declaration is the value of the last assignment in the c
 
 Variables pinned cannot be changed in the local context.
 Pinning has no effect to outer scopes.
-You can also pin an object. In that case use `{variable}` instead of the name.
+You can also pin an object. In that case use `+{variable}+` instead of the name.
 
  PIN ::= 'pin' IDENTIFIER_ASSIGNMENT_LIST;
 

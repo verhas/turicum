@@ -3,10 +3,7 @@ package ch.turic.commands;
 
 import ch.turic.Command;
 import ch.turic.ExecutionException;
-import ch.turic.memory.Context;
-import ch.turic.memory.HasFields;
-import ch.turic.memory.LeftValue;
-import ch.turic.memory.LngObject;
+import ch.turic.memory.*;
 import ch.turic.utils.Unmarshaller;
 
 /**
@@ -53,6 +50,9 @@ public class FieldAccess extends AbstractCommand {
             object = LngObject.newEmpty(context);
         } else {
             object = LeftValue.toObject(rawObject);
+        }
+        if( object instanceof JavaObject jo) {
+            return jo.getField(identifier, context);
         }
         return object.getField(identifier);
     }

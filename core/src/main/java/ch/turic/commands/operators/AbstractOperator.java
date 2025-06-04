@@ -7,6 +7,7 @@ import ch.turic.memory.Context;
 import ch.turic.memory.LngObject;
 
 import java.util.function.BiFunction;
+import java.util.function.Supplier;
 
 public abstract class AbstractOperator implements Operator {
 
@@ -18,7 +19,7 @@ public abstract class AbstractOperator implements Operator {
             try {
                 op2 = right.execute(shadowed);
                 TryCatch.exportFromTemporaryContext(shadowed, context);
-            }catch (ExecutionException e) {
+            } catch (ExecutionException e) {
                 return exceptionHandler(shadowed, e, right);
             }
             if (!(op2 instanceof LngObject lngObject)) {
@@ -51,7 +52,7 @@ public abstract class AbstractOperator implements Operator {
         try {
             op1 = left.execute(shadowed);
             TryCatch.exportFromTemporaryContext(shadowed, context);
-        }catch (ExecutionException e) {
+        } catch (ExecutionException e) {
             return exceptionHandler(shadowed, e, right);
         }
 
@@ -100,7 +101,8 @@ public abstract class AbstractOperator implements Operator {
                             final BiFunction<Long, Long, Long> longOp,
                             final BiFunction<Double, Double, Double> doubleOp
     ) throws ExecutionException {
-        ExecutionException.when(op1 == null || op2 == null, "You cannot " + name + " on undefined value");
+        final Supplier<String> symbol = () -> this.getClass().getAnnotation(Symbol.class).value();
+        ExecutionException.when(op1 == null || op2 == null, "You cannot '%s' on undefined value", symbol.get());
         if (longOp != null && Cast.isLong(op1) && Cast.isLong(op2)) {
             return longOp.apply(Cast.toLong(op1), Cast.toLong(op2));
         }
@@ -109,7 +111,7 @@ public abstract class AbstractOperator implements Operator {
         }
 
         return Reflect.getBinaryMethod(name, op1, op2).map(Reflect.Op::callMethod)
-                .orElseThrow(() -> new ExecutionException("Cannot calculate '%s' %s '%s'", op1, name, op2));
+                .orElseThrow(() -> new ExecutionException("Cannot calculate '%s' %s '%s'", op1, symbol.get(), op2));
     }
 }
 

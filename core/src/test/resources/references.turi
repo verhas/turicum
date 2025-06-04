@@ -333,14 +333,14 @@ print("again ",a)
 mut i = 1;
 while i < 5 {
   print(i," ");
-  i = i + 1;
+  i++;
 }until i % 3 == 0;
 // end snippet
 
 // snippet whileLoop2
  mut i = 1;
 while i < 5 :
-  i = i + 1;
+  i++;
 until i % 3 == 0;
 println(i)
 // end snippet
@@ -372,7 +372,7 @@ println("i at end=",i);
 // snippet for5
 mut i;
 for i = 1 ; i < 3 ; i=i+1 {
-    try: i = i + 1
+    try: i++
     catch e: println "not possible to change loop variable in the loop it remained ",i
 }
 
@@ -393,7 +393,7 @@ for each z with i in ["apple", "banana", "orange", "peach"] {
 
 // snippet yield1
 fn gen_1_to_10 {
-    for i=1 ; i <= 10 ; i = i + 1:
+    for i=1 ; i <= 10 ; i++:
         yield i;
 }
 
@@ -402,7 +402,7 @@ println([ .. (async gen_1_to_10()) ])
 
 // snippet yield2
 fn gen_1_to_10 {
-    for i=1 ; i <= 10 ; i = i + 1:
+    for i=1 ; i <= 10 ; i++:
         yield i;
 }
 
@@ -522,7 +522,7 @@ fn c(a,b,c,d){
     println("%s %s %s %s " % [a,b,c,d])
 }
 fn numbers {
-  for i = 1 ; i <= 4 ; i = i + 1 : yield i
+  for i = 1 ; i <= 4 ; i++ : yield i
 }
 
 c(..(async numbers()))
@@ -1066,7 +1066,7 @@ fn printer(q,@name){
         return { println "%s is done" % name } if q.is_closed(); // return when the que is closed
         if s == none {
             println "%s is not ready %s" % [name,n]
-            n = n + 1 // count the attempts
+            n++ // count the attempts
             sleep 0.003 // sleep 3 mili
         } else {
             n = 0 // reset the attempts, we go an object to print
@@ -1081,7 +1081,7 @@ mut q : que = que(3)
 mut task1 : task = async printer(q,name="task1")
 mut task2 : task = async printer(q,name="task2")
 // send the numbers 1 to 10 to the queue, whoever is lucky can get it
-for i=1 ; i < 10 ; i = i +1 {
+for i=1 ; i < 10 ; i++ {
     q.send(i);
     sleep 0.01
     }
@@ -1124,7 +1124,7 @@ fn printer(){
         return { println "we are done" } if yield_is_closed();
         if s == none {
             println "not ready %s" % n
-            n = n + 1
+            n++
             sleep 0.003
         } else {
             n = 0
@@ -1134,7 +1134,7 @@ fn printer(){
 }
 
 mut task : task = async printer()
-for i=1 ; i < 4 ; i = i +1 {
+for i=1 ; i < 4 ; i++ {
  println "sending ",i
  task.send(i);
  sleep 0.009
@@ -1151,7 +1151,7 @@ none
 
 // snippet async
 mut t:task = async {
-    for i=0 ; i < 10 ; i = i + 1 {
+    for i=0 ; i < 10 ; i++ {
         yield i
     }
     55
@@ -1196,7 +1196,7 @@ fn execute(name:str, que_length:num){
     mut count = 0
     while prime.has_next(){
         println " prime read ",prime.next()
-        count = count + 1
+        count++
         }until count > 3 // limit the printout to the first three primes
     sleep 1 // will give time for the generator to run ahead uselessly
     println "stopping"
@@ -1294,7 +1294,7 @@ println d
 sys_import "turi.re"
 
 fn print_match(m){
-    for i=0 ; i < len(m.group) ; i = i + 1 {
+    for i=0 ; i < len(m.group) ; i++ {
         mut {index, start, end } = m.group[i];
         println "%s. '%s'.substring(%s,%s)='%s'" % [index,s,start, end,s[start..end]];
     }
@@ -1502,16 +1502,21 @@ catch err: println err
 // end snippet
 
 // snippet fun10
-class K {   fn p()=(println "original K") }
-fn h():K = K()
-h().p()
+fn p()=len "original K";
+println p()
 // end snippet
 
 // snippet fun11
-class K {   fn p()=(println("original K")) }
-fn h():K = K()
-h().p()
+fn p()=(len "original K");
+println p()
 // end snippet
+
+// snippet fun12
+fn p()=len("original K");
+println p()
+// end snippet
+
+
 
 // snippet is_defined
 if is_defined(z) : println "defined" else: println "not defined";
@@ -1653,7 +1658,7 @@ println a
 
 // snippet xor1
 println 12 ^ 2
-println 12.0 ^ 2
+println ?(12.0 ^ 2) or "does not work for floating points"
 println( [1,2,3] ^ [3,4,5] )
 // end snippet
 
@@ -1673,16 +1678,20 @@ println "artany" >> "...... ..."
 println([1,2,3] >> [-1,-2,-3])
 // end snippet
 
+// snippet power
+die "** failed" if 2 * 3 ** 3 != 2* (3 ** 3)
+// end snippet
+
 // snippet equal1
 mut k = { a:1 , b:2 }
 mut q = { a:1 , b:2 }
 mut w = "ohmy"
 println 1 == 1, " one is one"
 println 1 == 2, " one is not two"
-println 1 === 1, "one is the same as one"
-println 1 === 2, "one is not the same as two"
-println k == q, "k equals q, but"
-println k === q, "k is not the same as q"
+println 1 === 1, " one is the same as one"
+println 1 === 2, " one is not the same as two"
+println k == q, " k equals q, but"
+println k === q, " k is not the same as q"
 println w == "ohmy", " w is 'ohmy'"
 println w === "ohmy", " w is not that 'ohmy'"
 // end snippet
@@ -1697,6 +1706,8 @@ println 3 in [1,2,4], " 3 is not in [1,2,4]"
 // snippet bor1
 println 1 | 2
 println( [1,1,2,3,3,2,1] | [])
+println ( { a:1, b: 2, c: { h: 1, z:2} w: ["k","h","dr."] }
+            | { a:11, b: 22, c: { k:7} , w : [1,2,3]} )
 try:
     3.0 | 3.14
 catch e: println e
@@ -1704,7 +1715,7 @@ catch e: println e
 
 // snippet band1
 println 7 &  2
-println( [1,1,2,3,3,2,1] & [2, 3, 7])
+println [1,1,2,3,3,2,1] & [2, 3, 7]
 try:
     3.0 & 3.14
 catch e: println e
@@ -1798,8 +1809,11 @@ println "57. ","aaa".sha_512()
 println "60. ","aaa".digest("MD5")
 println "61. ",61.hex()
 println "62. ","mut z = if a == 3 :  3 else: 5;".turi_lex()
-println "63. ","mut M= \"\"; for i=0 ; i < 8 ; i = i +1 : M = M + i; M".execute()
+println "63. ","mut M= \"\"; for i=0 ; i < 8 ; i++ : M = M + i; M".execute()
 println "64. ",M
+println "65. ","65".int() , "is 65... literally"
+println "65. ","3.14".float(), " is 3.14"
+println "66. ","0765".number(8), " is ", 8*8*7+8*6+5
 // end snippet
 
 // snippet hexNumber
@@ -1917,7 +1931,7 @@ class Resource {
     fn init {
         global object_counter;
         let me_counter = object_counter;
-        object_counter = object_counter + 1;
+        object_counter++;
     }
     fn printf(x,[rest]){
         println s % rest
@@ -2034,7 +2048,7 @@ mut z = rng(0,9223372036854775807)
 mut i = 0
 for each k in z {
   println k
-  i = i + 1
+  i++
 }until i > 5
 // end snippet
 
@@ -2233,20 +2247,20 @@ for each command in commands {
         unthunk(command)
         println "%s. after is_defined(x) = %s" % [i,is_defined(x)]
     }
-    i = i + 1
+    i++
 }
 // end snippet
 
 // snippet while_result
 println {
     mut k = 0
-    while k < 10 : k = k + 1
+    while k < 10 : k++
 }
 // end snippet
 // snippet for_result
 println {
     mut k = 0
-    for ; k < 10 ; : k = k + 1
+    for ; k < 10 ; : k++
 }
 // end snippet
 
@@ -2257,7 +2271,7 @@ println {
 // end snippet
 
 // snippet for_list
-println {for i=0; i < 10 ; i = i + 1 list: i}
+println {for i=0; i < 10 ; i++ list: i}
 // end snippet
 
 // snippet for_each_list
@@ -2270,7 +2284,7 @@ println {
 mut k = 0;
 println{ while k < 5 list{
             mut h = k;
-            k = k + 1;
+            k++;
             h
          }
 }
@@ -2279,7 +2293,7 @@ println{ while k < 5 list{
 
 // snippet break1
 println {
-    for i=0 ; i < 10 ; i = i + 1 {
+    for i=0 ; i < 10 ; i++ {
       println ".. ",i;
       break if i == 2
     }
@@ -2288,7 +2302,7 @@ println {
 
 // snippet break2
 println {
-    for i=0 ; i < 10 ; i = i +1 {
+    for i=0 ; i < 10 ; i++ {
       println ".. ",i;
       break -2 if i == 2
     }
@@ -2297,7 +2311,7 @@ println {
 
 // snippet break3
 println {
-    for i=0 ; i < 10 ; i = i + 1 list{
+    for i=0 ; i < 10 ; i++ list{
       break if i == 2
       i;
     }
@@ -2306,7 +2320,7 @@ println {
 
 // snippet break4
 println {
-    for i=0 ; i < 10 ; i = i +1 list{
+    for i=0 ; i < 10 ; i++ list{
       break -2 if i == 2
       i;
     }
@@ -2315,7 +2329,7 @@ println {
 
 // snippet break5
 println {
-    for i=0 ; i < 10 ; i = i +1 list{
+    for i=0 ; i < 10 ; i++ list{
       break none if i == 2
       i;
     }
@@ -2324,23 +2338,150 @@ println {
 
 // snippet break6
 println {
-    for i=0 ; i < 4 ; i = i +1 {
+    for i=0 ; i < 4 ; i++ {
       if i == 2 : break;
       println i;
     }
 }
 println "however"
 println {
-    for i=0 ; i < 4 ; i = i +1 {
+    for i=0 ; i < 4 ; i++ {
       if i == 2 { break };
       println i;
     }
 }
 // end snippet
 
+// snippet incremento
+mut k = 3;
+let z = k++; // valid it is only a variable
+let w = ++k; // valid, it is only a variable
+
+let x = [1,2,3]
+x[0]++; // valid, it is a statement
+// let h = x[0]++; it would not compile
+let h = (x[0]++); // valid, there is a command between ( and )
+// let t = ++x[0]; it would not compile
+let t = (++x[0]); // valid again, enclosed
+// end snippet
+
+// snippet incrementable1
+class Incrementable {
+    fn init(counter:num=0);
+
+    fn `++`{
+         Incrementable(counter+1)
+    }
+
+    fn p(name:str) {
+        println name,": ",counter;
+    }
+}
+
+mut h = Incrementable();
+h.p("h original");
+println "h id=%X" % id_hash(h);
+let k = h++;
+h.p("h after post increment");
+k.p("k");
+println "h id=%X" % id_hash(h);
+println "k id=%X" % id_hash(k);
+let z = ++h;
+h.p("h after pre increment");
+z.p("z")
+println "h id=%X" % id_hash(h);
+println "z id=%X" % id_hash(z);
+// end snippet
+
+// snippet incrementable2
+class Incrementable {
+    fn init(counter:num=0);
+
+    fn `++`{
+         counter++
+         this
+    }
+
+    fn p(name:str) {
+        println name,": ",counter;
+    }
+}
+
+mut h = Incrementable();
+h.p("h original");
+println "h id=%X" % id_hash(h);
+let k = h++;
+h.p("h after post increment");
+k.p("k");
+println "h id=%X" % id_hash(h);
+println "k id=%X" % id_hash(k);
+let z = ++h;
+h.p("h after pre increment");
+z.p("z")
+println "h id=%X" % id_hash(h);
+println "z id=%X" % id_hash(z);
+// end snippet
+
+// snippet decrementable1
+class Decrementable {
+    fn init(counter:num=0);
+
+    fn `--`{
+         Decrementable(counter-1)
+    }
+
+    fn p(name:str) {
+        println name,": ",counter;
+    }
+}
+
+mut h = Decrementable();
+h.p("h original");
+println "h id=%X" % id_hash(h);
+let k = h--;
+h.p("h after post decrement");
+k.p("k");
+println "h id=%X" % id_hash(h);
+println "k id=%X" % id_hash(k);
+let z = --h;
+h.p("h after pre decrement");
+z.p("z")
+println "h id=%X" % id_hash(h);
+println "z id=%X" % id_hash(z);
+// end snippet
+
+// snippet decrementable2
+class Decrementable {
+    fn init(counter:num=0);
+
+    fn `--`{
+         counter--
+         this
+    }
+
+    fn p(name:str) {
+        println name,": ",counter;
+    }
+}
+
+mut h = Decrementable();
+h.p("h original");
+println "h id=%X" % id_hash(h);
+let k = h--;
+h.p("h after post decrement");
+k.p("k");
+println "h id=%X" % id_hash(h);
+println "k id=%X" % id_hash(k);
+let z = --h;
+h.p("h after pre decrement");
+z.p("z")
+println "h id=%X" % id_hash(h);
+println "z id=%X" % id_hash(z);
+// end snippet
+
 // snippet break7
 println {
-    for i=0 ; i < 4 ; i = i +1 {
+    for i=0 ; i < 4 ; i++ {
       break (if i == 2 : 3 else : 4) if i == 2;
       println i;
     }
@@ -2406,3 +2547,54 @@ println "ulp(1.0) = ", ulp(1.0)
 println "scalb(2.0,3) = ", scalb(2.0,3)
 // end snippet
 
+// snippet assign_calculate
+mut z = 3
+println "z=",z
+z += 1;
+println "z +=1 :",z
+z -= 1;
+println "z -=1 :",z
+z *= 4;
+println "z *=4 :",z
+z /= 2;
+println "z /=2 :",z
+z %= 5;
+println "z %=5 :",z
+z |=128;
+println "z |=128 :",z
+z &= 7;
+println "z &=0x7F :",z
+z ^= 0xFF;
+println "z ^=0xFF :",z
+z **= 2;
+println "z **=2 :",z
+z or= inf;
+println "z or=inf :",z
+z <<= 2
+println "z <<=2 :",z
+z >>=2
+println "z >>=2 :",z
+z >>>=2
+println "z >>>=2 :",z
+z >>>=2
+println "z >>>=2 :",z
+z >>>=2
+println "z >>>=2 :",z
+z >>>=2
+println "z >>>=2 :",z
+z >>>=2
+println "z >>>=2 :",z
+z >>>=2
+println "z >>>=2 :",z
+z >>>=2
+println "z >>>=2 :",z
+z >>>=2
+println "z >>>=2 :",z
+
+mut b = true
+println "b=",b
+b &&= false;
+println "b &&=false :",b
+b ||= true;
+println "b ||=true :",b
+// end snippet

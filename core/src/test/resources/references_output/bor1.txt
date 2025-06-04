@@ -1,3 +1,4 @@
 3
 [1, 2, 3]
-Cannot calculate '3.0' or '3.14'
+{a: 11, b: 22, c: {h: 1, z: 2, k: 7}, w: [k, h, dr., 1, 2, 3]}
+Cannot calculate '3.0' | '3.14'

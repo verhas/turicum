@@ -1,6 +1,7 @@
 package ch.turic.memory;
 
 import ch.turic.ExecutionException;
+import ch.turic.commands.FunctionCall;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
@@ -41,10 +42,26 @@ public record JavaObject(Object object) implements HasFields {
 
     @Override
     public Object getField(String name) throws ExecutionException {
-        if (object instanceof HasFields fielder) {
-            return fielder.getField(name);
+        if (object instanceof HasFields fieldHaber) {
+            return fieldHaber.getField(name);
         }
         try {
+            final var field = object.getClass().getField(name);
+            return field.get(object);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new ExecutionException("Cannot get '%s.%s' because '%s'.", object, name, e);
+        }
+    }
+
+    public Object getField(String name, Context context) throws ExecutionException {
+        if (object instanceof HasFields fieldHaber) {
+            return fieldHaber.getField(name);
+        }
+        try {
+            final var turi = FunctionCall.getTuriClass(context, this);
+            if (turi != null) {
+                return turi.getMethod(object(), name);
+            }
             final var field = object.getClass().getField(name);
             return field.get(object);
         } catch (NoSuchFieldException | IllegalAccessException e) {

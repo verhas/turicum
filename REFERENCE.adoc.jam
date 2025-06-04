@@ -83,7 +83,7 @@ The name “Turicum” is the ancient Roman name for the city of Zürich, Switze
 
 === Implementations
 
-The interpreter is currently available in three different application:
+The interpreter is currently available in three different applications:
 
 * command line version
 
@@ -93,7 +93,7 @@ The interpreter is currently available in three different application:
 
 == Command Line
 
-The command line version is available as an installation kit for Windows, Linux, and MacOS.
+The command line version is available as an installation kit for Windows, Linux, and macOS.
 The kits are available on GitHub, and they include everything you need to run Turicum programs.
 
 To get an on-screen help type
@@ -111,7 +111,7 @@ Turicum was designed with the following principles:
 
 * A **concise syntax** that remains readable and expressive.
 * A **functional-first** execution model with support for **side effects** when necessary.
-* **Multithreading and pipeline constructs** built directly into the language.
+* **Multithreading and pipeline constructs** are built directly into the language.
 * **Safe scoping and closures**, including *reclosable* closures, which can adapt to new context bindings.
 Closure reclosing is a unique feature of the language.
 * **Macro-based metaprogramming**, allowing deferred and explicit evaluation of arguments.
@@ -120,7 +120,7 @@ Closure reclosing is a unique feature of the language.
 - positional-only,
 - named-only,
 - rest parameters (`[x]`),
-- meta parameters (`{x}`),
+- meta parameters (`+{x}+`),
 - and trailing callable parameters (`^x`).
 
 The language is intended for **experienced developers**, especially those working with the JVM, who require a powerful scripting or DSL tool that feels natural but scales to complex architectural needs.
@@ -135,7 +135,7 @@ The core syntactic conventions are as follows:
 
 * Semicolons (`;`) can be used to separate commands but are generally optional.
 It is recommended to use semicolons to avoid ambiguity.
-* Code blocks are enclosed in curly braces `{}` and evaluate to the result of the last executed command.
+* Code blocks are enclosed in curly braces `+{}+` and evaluate to the result of the last executed command.
 * Single-line comments begin with `//` and continue to the end of the line.
 * Multiline comments start with `+/*+` and end with `*/`, like in Java, C, Go etc.
 Unlike Java, nested multiline comments are supported.
@@ -159,7 +159,7 @@ A command is usually terminated by a semicolon (`;`).
 A semicolon can sometimes be replaced by a newline at the end of a command.
 Some commands explicitly require the use of `;`, like the `for` loop.
 
-Commands can be grouped into blocks, enclosed in `{` and `}`.
+Commands can be grouped into blocks, enclosed in `+{+` and `+}+`.
 Everything in Turicum has a value.
 Even commands result in a value.
 For example, an `if` statement returns the value of the executed command:
@@ -189,7 +189,7 @@ Expressions can contain:
 * Method calls
 * Async expressions
 * Code blocks
-* block commands enclosed between `{` and `}` or `(` and `)`.
+* block commands enclosed between `+{+` and `+}+` or `(` and `)`.
 
 Symbolic constants are {%#trimLines
 {%#replaceLines replace=/"(.*?)",[^"]+/`$1`,/ replace=/,$//
@@ -313,11 +313,11 @@ That way any declaration inside the `$()` will happen in the surrounding context
 You can use any expression or Turicum command inside interpolated strings, but the following rules apply:
 
 * Within the interpolated sections:
-** From `${` to `}`
+** From `${` to `+}+`
 ** From `$(` to `)`
 
 * The number of opening and closing brackets must match:
-** The number of `{` must equal the number of `}`
+** The number of `+{+` must equal the number of `+}+`
 ** The number of `(` must equal the number of `)`
 
 This restriction is usually simple and should not affect your code in most cases.
@@ -351,9 +351,9 @@ chosen as the prefix for interpolated strings (e.g. `$"..."`) because:
 
 Turicum extends the interpolation mechanism with two syntactic forms, each with distinct semantics:
 
-- `${expression}` evaluates the given expression in a *new temporary context*. This is useful when
+- `+${expression}+` evaluates the given expression in a *new temporary context*. This is useful when
 a local computation is needed that should not affect the surrounding environment.
-- `$(expression)` evaluates the expression in the *surrounding context*, allowing modifications
+- `+$(expression)+` evaluates the expression in the *surrounding context*, allowing modifications
 (e.g., variable definition useing `let` or `mut`) to persist beyond the interpolated expression.
 
 This dual syntax provides clarity and control over variable scope and side effects inside interpolated strings,
@@ -435,7 +435,7 @@ For example:
 
 will select only the even elements from the list. The expression or closure following the `?` works as a filter.
 
-You can also apply mappers following `->`, for example:
+You can also apply mappers following a `->`, for example:
 
 {%S ListLiteral8%}
 
@@ -457,7 +457,7 @@ This makes writing filters and mappers very easy.
 .Some deep technical detail
 [NOTE]
 ====
-The closure definition `{|x|x*2}` is technically an expression.
+The closure definition `+{|x|x*2}+` is technically an expression.
 Saying that the mappers and filters can be an expression OR a closure is a bit sloppy, because closures are also results of an expression.
 What really happens is that the interpreter evaluates the expression, and if the result is a closure, then it will apply it.
 In other cases it just uses the result of the expression.
@@ -520,7 +520,7 @@ The automatic creation of the fields is transitive.
 {%S field_transitive_creation%}
 
 You do not need to create `b`,`c`,`d`, and `e` one by one.
-They will become automatically an `{}` classless object.
+They will become automatically an `+{}+` classless object.
 
 Accessing a field on the right-hand side of an assignment, or in any expression is more restrictive.
 You can still access a field that is nonexistent, and the value will be `none`, but you cannot access a field on `none`.
@@ -569,10 +569,18 @@ When used as a unary prefix operator, it must be inside a list literal and in fr
 It is also used to flatten objects or lists to function parameter passing.
 
 * `|` bitwise OR operation.
++
 The operator works the conventional ways on integers.
++
 The operator is also defined for lists.
 The result is the union of the two lists with the unique elements.
 That way you can also create a "set" from a list `|`-ing it with an empty list, as in the example below:
++
++
+The operator is further defined for objects. The result is a merged object that includes all fields from both operands.
+If a field exists in both objects and is not itself an object, the value from the second object is used.
+If the field values in both objects are objects, the result is their recursive merge using the `|` operation.
+If the field values in both objects are lists, the result is the concatenation of those lists.
 
 {%S bor1%}
 
@@ -584,10 +592,12 @@ It calculates the symmetric difference of lists (the concatenation of the two li
 {%S xor1%}
 
 * `&` bitwise AND operation.
-The operator works the conventional ways on integers.
-The operator is also defined for lists.
-The result is the intersection of the two lists with the unique elements.
-You cannot `&` floating point numbers.
++
+This operator behaves conventionally for integers.
++
+It is also defined for lists, where it returns the intersection of the two lists, containing only unique elements.
++
+The `+&+` operator is not defined for floating-point numbers.
 
 {%S band1%}
 
@@ -644,13 +654,50 @@ The bitwise OR `|` is not allowed in the expression specifying a default value f
 You can however freely enclose the expression or a part of it between `(` and `)` and use the operator freely.
 ====
 
-.pre and post increment/decrement
-[NOTE]
-====
-The lexical elements `pass:[++]` and `--` are defined and recognized by the lexical analyzer.
-This is to avoid accidentally writing `pass:[++i]` or `--i`, which would otherwise be valid expressions doing nothing.
-Their meaning would otherwise be `+(+i)` and `-(-i)`.
-====
+=== Pre-, and Post- Increment, and Decrement
+
+Turicum implements the pre- and post-increment and decrement operators as assignments.
+`pass:[a++]` or `pass:[a--]` are technically assignments that return the value of the variable before the modification.
+Similarly `pass:[++a]` and `pass:[--a]` are assignments returning the value after the modification.
+
+The expression analyzer recognizes and allows you to use pre-increment and pre-decrement operator in side an expression.
+It is easy to recognize for the parser —and similarly for the programmer— reading the code that a `++` or `--` introduces a pre-increment/pre-decrement assignment.
+
+On the other hand, a `++` or `--` after a complex left value may be hard to read.
+For this reason the language permits the post-increment and post-decrement operators inside an expression only if it is applied on a simple variable left value.
+If you want to apply a post-increment or a post-decrement operator on a field value or a list element, then you have to enclose it between `(` and `)`.
+
+{%S incremento%}
+
+Although the increment and decrement operators are implemented as commands, they can be overloaded for objects.
+If a class defines the method `pass:[`++`]` and/or `pass:[`--`]` it will be invoked when the program uses the pre- or post-increment or decrement operator.
+
+The method should work on the object `this`, must have no argument, and should return the modified object.
+It may be the same object or it may create a new object.
+The examples show four implementations, two for increment and two for decrement.
+One implementation in each pair treats the object immutable and returns a new object.
+The other mutates the object and returns the modified object.
+
+The example functionality is incrementing, decrementing a field, but the actual use can be anything.
+
+{%S incrementable1%}
+
+You can track the different object instances using the hex output from the `id_hash` function.
+
+{%S incrementable2%}
+
+In this example the identity of the object remains the same, all the identity hex codes are the same.
+There is only one object created.
+It also means that there is not much difference between pre-, and post-increment.
+
+The next two example implements the same functionality for the `--` operator.
+
+{%S decrementable1%}
+{%S decrementable2%}
+
+See also the next section about operator overloading.
+
+=== Operator Overloading
 
 Operators work for numerical types, string types as usually, and they can also work on any object that defines them.
 The name of the method implementing the operator should be the operator itself.
@@ -668,14 +715,13 @@ As mentioned above `+`, `-`, and `..` are binary as well as unary operators.
 The unary operator `!` is logical negation.
 The unary operator `~` is bitwise negation.
 The unary operator `?` returns the original value without any modification or `none` if the calculation of the argument resulted in an error.
+The original value can also be `none`.
 
 {%S bnot%}
 
 NOTE: The character `?` can have different meaning based on the context.
 It can be part of conditional field access, when used as `a?.b` returning `none` when `a` is `none` or has no field `b`.
 It can also signal the start of a filter in a list literal.
-
-=== Operator Overloading
 
 Operators can be overridden in the classes.
 If you have a method named the same name as an operator, it will be invoked to perform the calculation.
@@ -703,7 +749,7 @@ If we modify the equality check to consider the classes, we get a different resu
 {%S myEqual2%}
 
 === Using parentheses
-{%@snip:check hash="0b69197b" id=operators message="check the operator table for change"%}
+{%@snip:check hash="bbe80cb8" id=operators message="check the operator table for change"%}
 
 The different operators have their precedences as in most of the programming languages.
 
@@ -744,7 +790,7 @@ The operator's table is defined in the source file {%#file (format="`$simpleName
 | `+`, `-`
 
 | 10
-| `*`, `/`, `%`
+| `*`, `/`, `%`, `**`
 
 | 11
 | `.`, `?.`
@@ -756,9 +802,9 @@ This is a widespread practice in most programming languages.
 
 The usual practice is that you can have a whole expression between `()` characters.
 Turicum is more liberal and gives much more freedom to the developer.
-You can have a whole code block between the `()` characters, similarly to `{}`.
+You can have a whole code block between the `()` characters, similarly to `+{}+`.
 
-The major difference between the two is that the code between `()` is executed in the same context as the expression, while the code block between `{}` opens a new context.
+The major difference between the two is that the code between `()` is executed in the same context as the expression, while the code block between `+{}+` opens a new context.
 
 {%S pscope%}
 
@@ -946,11 +992,11 @@ If the type is defined, only values that match the type can be assigned to the v
 Type is one of the predefined types or the name of the class or a java object type.
 You can specify multiple types separated using `|` character.
 
-Note that if you do not define an expression but you define a type that is not `any` or `none` then you should also specify `|none` as an alternative, because the initial value will be `none`.
+Note that if you do not define an expression, but you define a type that is not `any` or `none` then you should also specify `|none` as an alternative, because the initial value will be `none`.
 
 The `: type` and the `= expression` parts are optional.
 If the type is not defined, then the variable can get any value.
-If the expression is missing the value will be `none`.
+If the expression is missing the value will be `none`, but the variable becomes defined.
 There can be multiple `identifier: type = expression` after the `let` keyword comma separated.
 There are predefined type names.
 
@@ -977,7 +1023,7 @@ Note that a variable can hold `none` only if
 
 * `any` is among the allowed types.
 
-For example `let a:num;` will fail, because it allows only numerical values, but missing the initial value will try to set it to `none`.
+For example, `let a:num;` will fail, because it allows only numerical values, but missing the initial value will try to set it to `none`.
 ====
 
 You can define multiple types for a variable separating the types with `|`. For example `let a:num|str|myClass` makes `a` eligible to store a numeric value, a string or an instance of `MyClass`.
@@ -1006,7 +1052,7 @@ It is an error if there are not enough or too many elements in the list on the r
 
 {%S flat_let_list3%}
 
-If you have too many elements you can cut the list:
+If you have too many elements, you can cut the list:
 
 {%S flat_let_list4%}
 
@@ -1018,7 +1064,47 @@ or even
 
 {%S flat_let_list6%}
 
+==== Updating a Variable
 
+Mutable variables can get new value any time.
+The assignment that updates a variable does not have the `let` or `mut` keyword and does not define a type.
+The syntax is
+
+[source]
+----
+LEFT_VALUE ASSIGNMENT_OPERATOR EXPRESSION
+----
+
+which is simply loks like `a = 5*3` in most of the cases.
+The left value can be
+
+* a variable identifier, (`my_variable`)
+* object field access, (`object.field`)
+* list element access, (`list[index]`).
+
+The `ASSIGNMENT_OPERATOR` can be
+
+{%#replace ~{%@snip ASSIGNMENT_OPERATORS%}~"~`~ ~~**~pass:[**]~<<=~pass:[<<=]%}
+
+The `=` is the usual assignment.
+It calculates the expression on the right side and replaces the current value of the variable with the new value.
+The other assignments do three steps:
+
+. Calculate the current value of the left value.
+. Execute the operator that stands before the `=` sign applying it on the left value and the expression.
+. Update the left value with the new value.
+
+[NOTE]
+====
+The operations are responsible for evaluating the operands, and they may decide not to.
+For example, the `or` operation evaluates the right-hand side only if the left-hand side is `none`.
+They work on commands and not already calculated values.
+
+To accommodate this, the evaluation of the left value creates a temporary command.
+This temporary command returns the current value of the left value when evaluated.
+====
+
+{%S assign_calculate%}
 
 
 ==== Pinned Variables
@@ -1035,12 +1121,12 @@ The list is comma separated elements, can be
 
 * a variable name, like `turic`,
 
-* a variable name enclosed between `{` and `}`, like `{object}`, or
+* a variable name enclosed between `+{+` and `+}+`, like `+{object}+`, or
 
 * a variable name enclosed between `[` and `]`, like `[list]`.
 
 A variable in the list will make the variable in the current context pinned.
-If the variable name is decorated with `{}` then the object, which is the value of the variable gets pinned.
+If the variable name is decorated with `+{}+` then the object, which is the value of the variable gets pinned.
 Note that this is changing the mutability of the object itself and not the variable.
 
 {%S pin_object%}
@@ -1068,13 +1154,13 @@ They both accept a list of expressions separated by commas.
 By default, the output goes to the standard output using the Java `System.out` static field.
 
 The output of `print` and `println` can also be redirected.
-If the variable `{%@snip PRINT_TARGET%}` is defined and is an object or closure the output of the statements will be redirected.
+If the variable `+{%@snip PRINT_TARGET%}+` is defined and is an object or closure the output of the statements will be redirected.
 
-When the `{%@snip PRINT_TARGET%}` is an object the method `{%@snip PRINT_TARGET_WRITE%}` is used to send the strings and
-`{%@snip PRINT_TARGET_FLUSH%}` is called to close every print statement.
-`{%@snip PRINT_TARGET_WRITE%}` has to be defined, `{%@snip PRINT_TARGET_FLUSH%}` is optional, but when defined it has to be a method.
+When the `+{%@snip PRINT_TARGET%}+` is an object the method `+{%@snip PRINT_TARGET_WRITE%}+` is used to send the strings and
+`+{%@snip PRINT_TARGET_FLUSH%}+` is called to close every print statement.
+`+{%@snip PRINT_TARGET_WRITE%}+` has to be defined, `+{%@snip PRINT_TARGET_FLUSH%}+` is optional, but when defined it has to be a method.
 
-When the `{%@snip PRINT_TARGET%}` is a closure it is used to send the strings and flushing is ignored.
+When the `+{%@snip PRINT_TARGET%}+` is a closure it is used to send the strings and flushing is ignored.
 
 The following example shows how to use this feature:
 
@@ -1097,7 +1183,7 @@ If the expression is `true` the command executes the first command or block.
 If the expression is `false` it executes the second command or block following the `else` keyword.
 The second command or block along with the keyword `else` is optional.
 
-The block is a series of commands enclosed between `{` and `}`.
+The block is a series of commands enclosed between `+{+` and `+}+`.
 If there is only a single command after the condition or the keyword `else` it can be preceded with a `:`, or enclosed in a block.
 
 The conditional expression can, but does not need to be enclosed between parentheses.
@@ -1110,7 +1196,7 @@ If the condition is `false` and there is no "else" block or command, then the re
 The `if` command does not open a new context.
 The condition, and the commands following it, and the optional one after the `else` keyword evaluated and executed in the context the `if` statement is.
 
-If, however, the "then" or "else" commands are block commands then they themselves execute in a new context wrapping the actual context.
+If, however, the "then" or "else" commands are block commands, then they themselves execute in a new context wrapping the actual context.
 
 === Loops
 
@@ -1141,7 +1227,7 @@ Execution of the loop stops when the tail condition is `true`.
 {%S whileLoop%}
 
 The body of the loop can be a command block, or it can be a single command.
-If the body is a single command, not enclosed between `{` and `}` it has to be preceded by a `:`.
+If the body is a single command, not enclosed between `+{+` and `+}+` it has to be preceded by a `:`.
 
 {%S whileLoop2%}
 
@@ -1194,7 +1280,6 @@ The next example shows the same loop with the optional parentheses but without t
 {%S for2%}
 
 If the start command is an assignment, it is interpreted as a local assignment.
-
 
 {%S for3%}
 
@@ -1510,7 +1595,7 @@ The task will stop after the specified time (planned feature).
 
 
 These parameters can be specified after the `async` keyword between `[` and `]` characters.
-When the command to be executed asynchronously starts with a `[` character you either has to have `[]` in front of it or enclose the command between `(` and `)` or `{` and `}` to help the syntax analysis.
+When the command to be executed asynchronously starts with a `[` character you either has to have `[]` in front of it or enclose the command between `(` and `)` or `+{+` and `+}+` to help the syntax analysis.
 
 The command can also execute a list parallel.
 When the expression to execute asynchronously is a list literal, then the command will execute the individual elements of the list parallel.
@@ -1761,21 +1846,33 @@ The expression is specified following a `=` character and the parentheses are a 
 This is to avoid the unreadable `fn = 2*3` to be declared as a function declaration but `pass:[`fn`]=2*3` an assignment.
 `fn = 2*3` is a syntax error.
 
+[NOTE]
+====
 Be careful when using the `fn x()=...` format.
 The following code does not do what you expect:
 
 {%S fun10%}
 
-The expression following the `=` is an identifier, which by the time of the invocation results a callable object.
-The string following it is not part of the expression.
+You may expect that it will calculate the length of the string and return that value.
+In reality, the expression is the function object `len` itself.
+The following string is an expression that by itself stands on its own as a command.
 The string constant is just a statement with no effect.
 
+If you enclose the whole expression in a pair of parentheses you get the desired result:
+
 {%S fun11%}
+
+or
+
+{%S fun12%}
+
+Use `=` to define functions only for straightforward expression functions, that are true expressions.
+====
 
 The parameter list is comma-separated.
 Each element defines a formal parameter.
 
-Types are optional and follow similar syntax as in variable declarations, but function parameters are always immutable.
+Types are optional and follow the same syntax as in variable declarations, but function parameters are always immutable.
 You cannot use `mut` or `let` in the parameter list.
 Attempting to do so will result in a syntax error.
 
@@ -1794,6 +1891,7 @@ The types are separated by `|`.
 The type of the returned value is checked against the declared types upon returning from a function.
 
 {%S fun7%}
+
 {%S fun8%}
 
 The types are evaluated when the function is defined.
@@ -1857,14 +1955,14 @@ To do that, there are three extra arguments you can use in your function definit
 
 * `[rest]`,
 
-* `{meta}`, and
+* `+{meta}+`, and
 
 * `^closure`.
 
 You can name them any way you want, but for the same of simplicity we will use the names above.
-The syntax distinguishing them from the other parameters is the use of the extra `[]`, `{}`, and `^` characters.
+The syntax distinguishing them from the other parameters is the use of the extra `[]`, `+{}+`, and `^` characters.
 If they are present, they have to be the last formal parameters in the order as listed above.
-Any of them can be missing, but if two present then `[rest]` should be before `{meta}` and `^closure`, and `{meta}` has to precede `^closure`.
+Any of them can be missing, but if two present then `[rest]` should be before `+{meta}+` and `^closure`, and `+{meta}+` has to precede `^closure`.
 
 When the function code starts
 
@@ -1885,7 +1983,7 @@ The following example demonstrates the use of the meta-parameter:
 When you
 
 * have a `!name` declared positional only parameter, and
-* you also have `{meta}` in the parameter list, and
+* you also have `+{meta}+` in the parameter list, and
 * and you call the function providing a `name=expression` named argument,
 
 it will not be assigned to the positional only parameter, and it is also not an error.
@@ -1931,7 +2029,7 @@ f(2,3)closure
 does not even compile, since the mandatory `;` or new line is missing after the function call.
 Also, it would be unreadable to recognize `closure` as an argument.
 
-NOTE: The actual implemented syntax checks that the next two tokens following the `)` are `{`and `|`.
+NOTE: The actual implemented syntax checks that the next two tokens following the `)` are `+{+`and `|`.
 
 This call can aid in creating domain-specific languages.
 
@@ -2180,7 +2278,7 @@ try ( ':' COMMAND | BLOCK ) [catch [exception_variable] (':' COMMAND | BLOCK)] [
 ----
 
 The command is executed in the same context as the whole try-catch command.
-If, however, a block between `{` and `}` is used, it will create its own context.
+If, however, a block between `+{+` and `+}+` is used, it will create its own context.
 In this case the use of the `:` is optional and is also discouraged, as clutter.
 
 If there is an exception variable specified, it will be defined when the exception is caught.
@@ -2239,7 +2337,7 @@ If you add a `@` then the result is the same:
 The `@` helps you emphasize that the call is a decorator call that modifies the closure following it.
 The use of `@` also notifies the syntax analyzer that the call is a decorator call, and it extends the recognition of the following `^closure` parameter.
 When the `@` precedes the function call, a `fn` or `class` are also recognized as `^closure` parameter,
-and you do not need to enclose them between `{` and `}`.
+and you do not need to enclose them between `+{+` and `+}+`.
 
 {%S fnDecorator1%}
 
@@ -2382,6 +2480,13 @@ The first number you already know, try to guess the second, then run the code yo
 == String Functions
 
 Turicum defines many methods to handle strings.
+These methods can be called on the string objects as methods.
+
+{%#replaceLines replace="/case\\s*\"(.*?)\".*/* `$1` /" replace="~^\\s*//~"
+{%#killLines keep pattern="\\/\\/|case"
+{%@snip string_functions_doc%}
+%}%}
+
 
 {%S string_functions%}
 
@@ -2470,7 +2575,7 @@ Evaluating it will result in the function.
 When we call this function adding `(..rest,..meta,..closure)` after it, we spread the extra parameters.
 In this example the three argument values for these parameters are
 
-* `{}` empty object,
+* `+{}+` empty object,
 * `[]` empty list, and
 * `none`
 
@@ -2489,8 +2594,8 @@ Without that we would have two unnamed function definitions, one after the other
 
 [NOTE]
 ====
-The first design required enclosing a function definition like the one above to be enclosed between `{` and `}` to be part of an expression.
-In most of the cases, like assigning a function to a variable would require superfluous `{` and `}` braces.
+The first design required enclosing a function definition like the one above to be enclosed between `+{+` and `+}+` to be part of an expression.
+In most of the cases, like assigning a function to a variable would require superfluous `+{+` and `+}+` braces.
 The philosophy of Turicum is to be dense and use extra characters where it helps readability or avoids syntax ambiguity.
 
 Omitting the requirement around a `fn` (or for that matter a `class`) definition inside an expression make the language leaner, but this does not make a function or class definition to be an expression itself.
@@ -2851,7 +2956,7 @@ It has two methods:
 
 * `match()` to match the whole string passed as argument, and
 
-* `find()` to find a matching strign in the string.
+* `find()` to find a matching string in the string.
 
 If there is no match, the return value is an empty object.
 If there is a match, then the return value is an object containing the matching groups.
@@ -2994,7 +3099,7 @@ The following is the non-standard EBNF definition of the programming language ca
 
 * Strings between ' characters are literal keywords.
 * Syntax between `[` and `]` are optional
-* Syntax between `{` and `}` are repeated zero or more times
+* Syntax between `+{+` and `+}+` are repeated zero or more times
 * Syntax between `(` and `)` is a group with alternatives
 * Alternative syntaxes are separated using the `|` character.
 * Non-terminal symbols are all capital letters.
@@ -3083,7 +3188,7 @@ The value of the global declaration is the value of the last assignment in the c
 
 Variables pinned cannot be changed in the local context.
 Pinning has no effect to outer scopes.
-You can also pin an object. In that case use `{variable}` instead of the name.
+You can also pin an object. In that case use `+{variable}+` instead of the name.
 
  PIN ::= 'pin' IDENTIFIER_ASSIGNMENT_LIST;
 
