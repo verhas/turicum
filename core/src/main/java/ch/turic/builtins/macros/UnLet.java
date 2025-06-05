@@ -17,9 +17,9 @@ public class UnLet implements TuriMacro {
     }
 
     @Override
-    public Object call(Context context, Object[] args) throws ExecutionException {
+    public Object call(Context context, Object[] arguments) throws ExecutionException {
         final var ctx = FunUtils.ctx(context);
-        final var arg = FunUtils.oneArg(name(), args);
+        final var arg = FunUtils.arg(name(), arguments);
         if (arg instanceof Identifier id) {
             ctx.unlet(id.name());
             return null;

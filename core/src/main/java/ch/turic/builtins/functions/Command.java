@@ -6,7 +6,16 @@ import ch.turic.TuriFunction;
 import ch.turic.commands.AbstractCommand;
 
 /**
- * returns the argument as a command converted to an LngObject
+ * Represents a specific implementation of the {@link TuriFunction} interface
+ * called "as_object". This class is intended to interact with objects of type
+ * {@link AbstractCommand} in the Turi language runtime.
+ * <p>
+ * The command retrieves and converts an {@link AbstractCommand} into a language
+ * object using the execution context. If the provided argument is not of type
+ * {@link AbstractCommand}, an {@link ExecutionException} is thrown.
+ * <p>
+ * This functionality ensures type safety and proper conversion of commands
+ * into objects within the Turi execution environment.
  */
 public class Command implements TuriFunction {
 
@@ -16,13 +25,7 @@ public class Command implements TuriFunction {
     }
 
     @Override
-    public Object call(Context context, Object[] args) throws ExecutionException {
-        final var ctx = FunUtils.ctx(context);
-        final var arg = FunUtils.oneArg(name(), args);
-        if (arg instanceof AbstractCommand cmd) {
-            return cmd.toLngObject(ctx);
-        } else {
-            throw new ExecutionException("%s argument has to be an command, got '%s'", name(), arg);
-        }
+    public Object call(Context context, Object[] arguments) throws ExecutionException {
+        return FunUtils.arg(name(), arguments, AbstractCommand.class).toLngObject(FunUtils.ctx(context));
     }
 }

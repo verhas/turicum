@@ -3,9 +3,12 @@ package ch.turic.builtins.functions;
 import ch.turic.Context;
 import ch.turic.ExecutionException;
 import ch.turic.TuriFunction;
+import ch.turic.builtins.classes.TuriMethod;
 import ch.turic.memory.LngList;
 import ch.turic.memory.LngObject;
 
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -27,30 +30,56 @@ public class TuriHttpClient implements TuriFunction {
     }
 
     @Override
-    public Object call(Context context, Object[] args) throws ExecutionException {
+    public Object call(Context context, Object[] arguments) throws ExecutionException {
         final var ctx = FunUtils.ctx(context);
-        FunUtils.oneArg(name(), args);
-        final var parameters = FunUtils.lngObject(name(), args[0]);
+        final var parameters = FunUtils.arg(name(), arguments, LngObject.class);
+
+        final var streamMode = parameters.getField("stream", true);
 
         final var request = buildRequest(parameters);
 
-        try (final var client = buildClient(parameters)) {
-
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        try {
+            final var client = buildClient(parameters);
+            HttpResponse<?> response = streamMode ?
+                    client.send(request, HttpResponse.BodyHandlers.ofInputStream()) :
+                    client.send(request, HttpResponse.BodyHandlers.ofString());
 
             final var result = LngObject.newEmpty(ctx);
+            final var inputStream = (InputStream) (streamMode ? response.body() : null);
+            final var inputStreamReader = streamMode ? new InputStreamReader(inputStream) : null;
+
+            TuriMethod<Object> resourceCloser = new TuriMethod<>((args) -> {
+                if (inputStream != null) {
+                    inputStream.readAllBytes();
+                }
+                client.close();
+                return null;
+            });
+
             result.setField("status", response.statusCode());
-            result.setField("body", response.body());
+            result.setField("body", streamMode ? null : response.body());
+            result.setField("input", inputStream);
+            result.setField("stream", inputStreamReader);
             result.setField("uri", str(response.uri()));
             setHeaders(ctx, result, response);
             result.setField("version", response.version().toString());
+            result.setField("close", resourceCloser);
+            result.setField("exit", resourceCloser);
+            result.setField("entry", new TuriMethod<>((args) -> result));
             return result;
         } catch (Exception e) {
             throw new ExecutionException("HTTP request failed: " + e.getMessage());
         }
     }
 
-    private void setHeaders(ch.turic.memory.Context context, LngObject result, HttpResponse<String> response) {
+    /**
+     * Sets the headers from the given HTTP response into the result object.
+     *
+     * @param context  the execution context to be used for creating the header structure
+     * @param result   the LngObject where the headers will be set
+     * @param response the HTTP response from which the headers will be extracted
+     */
+    private void setHeaders(ch.turic.memory.Context context, LngObject result, HttpResponse<?> response) {
         final var headers = LngObject.newEmpty(context);
         for (final var header : response.headers().map().entrySet()) {
             final var headerValues = new LngList();

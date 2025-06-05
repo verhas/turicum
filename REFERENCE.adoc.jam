@@ -749,7 +749,7 @@ If we modify the equality check to consider the classes, we get a different resu
 {%S myEqual2%}
 
 === Using parentheses
-{%@snip:check hash="bbe80cb8" id=operators message="check the operator table for change"%}
+{%@snip:check hash="5484bb44.1cf31d55" id=operators message="check the operator table for change"%}
 
 The different operators have their precedences as in most of the programming languages.
 

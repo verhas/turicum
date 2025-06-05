@@ -28,17 +28,25 @@ public class GlobalContext {
     }
 
     /**
-     * Get the TuriClass object that can handle the method calls for this class type.
+     * Retrieves the {@code TuriClass} object associated with the given class. If the exact class is not found
+     * in the internal mapping, it attempts to find the superclass or implemented interface
+     * that matches the given class.
      * <p>
-     * A TuriClass object can handle a type if the type returned by the objects {@link TuriClass#forClass()} method
-     * is {@code clazz}.
+     * If there are multiple interfaces or classes matching, it finds one randomly.
      *
-     * @param clazz the class of the object we want to handle
-     * @return the {@link TuriClass} object or {@code null} if there is no registered object that could handle this
-     * type.
+     * @param clazz the class for which the corresponding {@code TuriClass} object is to be retrieved
+     * @return the {@code TuriClass} associated with the given class, or {@code null} if no match is found
      */
     public TuriClass getTuriClass(Class<?> clazz) {
-        return turiClasses.get(clazz);
+        if (turiClasses.containsKey(clazz)) {
+            return turiClasses.get(clazz);
+        }
+        for (final var turiclass : turiClasses.keySet()) {
+            if (turiclass.isAssignableFrom(clazz)) {
+                return turiClasses.get(turiclass);
+            }
+        }
+        return null;
     }
 
     public void addTuriClass(Class<?> clazz, TuriClass turiClass) throws ExecutionException {

@@ -32,9 +32,9 @@ public class Import implements TuriMacro {
     }
 
     @Override
-    public Object call(Context context, Object[] args) throws ExecutionException {
+    public Object call(Context context, Object[] arguments) throws ExecutionException {
         final var ctx = FunUtils.ctx(context);
-        final var argO = FunUtils.oneOrMoreArgs(name(), args);
+        final var argO = FunUtils.oneOrMoreArgs(name(), arguments);
         final String arg;
         if (argO instanceof Command cmd) {
             arg = cmd.execute(ctx).toString();
@@ -45,7 +45,7 @@ public class Import implements TuriMacro {
 
         try {
             final var source = Files.readString(sourceFile, StandardCharsets.UTF_8);
-            final var imports = getImportsList(args, ctx);
+            final var imports = getImportsList(arguments, ctx);
             return doImportExport(ctx, source, imports);
         } catch (IOException e) {
             throw new ExecutionException("Cannot read the import file '%s'", sourceFile.toString());

@@ -15,10 +15,9 @@ public class Unthunk implements TuriFunction {
     }
 
     @Override
-    public Object call(Context context, Object[] args) throws ExecutionException {
+    public Object call(Context context, Object[] arguments) throws ExecutionException {
         final var ctx = FunUtils.ctx(context);
-        FunUtils.oneArg(name(), args);
-        final var arg = args[0];
+        final var arg = FunUtils.arg(name(), arguments);
         if (arg instanceof Command command) {
             return command.execute(ctx);
         }

@@ -9,6 +9,11 @@ import ch.turic.memory.LngList;
 
 import java.util.ArrayList;
 
+/**
+ * Represents a function in the Turi system to retrieve all parent classes for a given class.
+ * This function computes the closure of all parent classes recursively.
+ * Implements the {@link TuriFunction} interface, allowing seamless integration as a built-in function.
+ */
 public class AllParents implements TuriFunction {
 
     @Override
@@ -17,11 +22,8 @@ public class AllParents implements TuriFunction {
     }
 
     @Override
-    public Object call(Context context, Object[] args) throws ExecutionException {
-        final var cls = FunUtils.oneArg(name(), args);
-        if (!(cls instanceof LngClass lngClass)) {
-            throw new ExecutionException("Only classes have parents");
-        }
+    public Object call(Context context, Object[] arguments) throws ExecutionException {
+        final var lngClass = FunUtils.arg(name(), arguments, LngClass.class);
         final var pSet = new ArrayList<LngClass>();
         parentClosure(pSet, lngClass);
         final var parents = new LngList();

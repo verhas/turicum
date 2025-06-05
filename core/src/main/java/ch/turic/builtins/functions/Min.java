@@ -15,14 +15,14 @@ public class Min implements TuriFunction {
     }
 
     @Override
-    public Object call(Context context, Object[] args) throws ExecutionException {
+    public Object call(Context context, Object[] arguments) throws ExecutionException {
         final var ctx = FunUtils.ctx(context);
-        if (args.length < 1) {
+        if (arguments.length < 1) {
             return null;
         }
 
         Object min = null;
-        if (args.length == 1 && args[0] instanceof Iterable<?> iterable) {
+        if (arguments.length == 1 && arguments[0] instanceof Iterable<?> iterable) {
             boolean first = true;
             for (Object item : iterable) {
                 if (first) {
@@ -36,10 +36,10 @@ public class Min implements TuriFunction {
             }
             return min;
         }
-        min = args[0];
-        for (int i = 1; i < args.length; i++) {
-            if (Compare.compareEvaluated(ctx, args[i], min, "<", Compare.LONG_LESS_THAN_PREDICATE, Compare.DOUBLE_LESS_THAN_PREDICATE, Compare.LESS_THAN_COMPARATOR_PREDICATE)) {
-                min = args[i];
+        min = arguments[0];
+        for (int i = 1; i < arguments.length; i++) {
+            if (Compare.compareEvaluated(ctx, arguments[i], min, "<", Compare.LONG_LESS_THAN_PREDICATE, Compare.DOUBLE_LESS_THAN_PREDICATE, Compare.LESS_THAN_COMPARATOR_PREDICATE)) {
+                min = arguments[i];
             }
         }
         return min;

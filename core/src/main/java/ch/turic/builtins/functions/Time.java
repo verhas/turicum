@@ -16,8 +16,8 @@ public class Time implements TuriFunction {
     }
 
     @Override
-    public Object call(Context context, Object[] args) throws ExecutionException {
-        FunUtils.noArg(name(), args);
+    public Object call(Context context, Object[] arguments) throws ExecutionException {
+        FunUtils.noArg(name(), arguments);
         return System.currentTimeMillis();
     }
 

@@ -51,10 +51,10 @@ public class TuriHttpServer implements TuriFunction {
     }
 
     @Override
-    public Object call(Context context, Object[] args) throws ExecutionException {
+    public Object call(Context context, Object[] arguments) throws ExecutionException {
         final var ctx = FunUtils.ctx(context);
-        FunUtils.oneArg(name(), args);
-        if (!(args[0] instanceof LngObject conf)) {
+        final var arg = FunUtils.arg(name(), arguments);
+        if (!(arg instanceof LngObject conf)) {
             throw new ExecutionException("%s needs an object as configuration argument", name());
         }
 

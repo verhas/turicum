@@ -23,9 +23,9 @@ public class SysImport implements TuriMacro {
     }
 
     @Override
-    public Object call(Context context, Object[] args) throws ExecutionException {
+    public Object call(Context context, Object[] arguments) throws ExecutionException {
         final var ctx = FunUtils.ctx(context);
-        final var argO = FunUtils.oneOrMoreArgs(name(), args);
+        final var argO = FunUtils.oneOrMoreArgs(name(), arguments);
         final String sys_name;
         if (argO instanceof Command cmd) {
             sys_name = cmd.execute(ctx).toString();
@@ -39,7 +39,7 @@ public class SysImport implements TuriMacro {
                 throw new ExecutionException("Could not find sys import " + sys_name + " in " + resourceName);
             }
             final var source = new String(is.readAllBytes(), StandardCharsets.UTF_8);
-            final var imports = getImportsList(args, ctx);
+            final var imports = getImportsList(arguments, ctx);
             return doImportExport(ctx, source, imports);
         } catch (IOException e) {
             throw new ExecutionException("Cannot read the sys import '%s'", sys_name);

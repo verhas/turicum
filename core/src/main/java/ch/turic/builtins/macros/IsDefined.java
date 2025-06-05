@@ -17,9 +17,9 @@ public class IsDefined implements TuriMacro {
     }
 
     @Override
-    public Object call(Context context, Object[] args) throws ExecutionException {
+    public Object call(Context context, Object[] arguments) throws ExecutionException {
         final var ctx = FunUtils.ctx(context);
-        final var arg = FunUtils.oneArg(name(), args);
+        final var arg = FunUtils.arg(name(), arguments);
         if (arg instanceof Identifier id) {
             return ctx.contains(id.name());
         } else {

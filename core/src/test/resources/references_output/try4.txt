@@ -5,7 +5,7 @@ try4.turi:2:9
 source:         z = 55 // undefined variable
 try4.turi:1:4
 source: try{
-try4.turi:3:14
-source: }catch error: ;
+try4.turi:1:4
+source: try{
 try4.turi:1:4
 source: try{

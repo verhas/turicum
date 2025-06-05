@@ -19,7 +19,7 @@ public class IntegerConstant extends AbstractCommand {
     public IntegerConstant(String value) {
         this((value.startsWith("0x") || value.startsWith("0X")) ?
                 Long.parseLong(value.substring(2), 16) :
-                Long.parseLong(value)
+                Long.parseLong(value.replace("_",""))
         );
     }
 

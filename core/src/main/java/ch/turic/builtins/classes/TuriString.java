@@ -204,8 +204,8 @@ public class TuriString implements TuriClass {
             case "number" ->
                 // returns the number contained in the string encoded with the argument radix
                     new TuriMethod<>((args) -> {
-                        FunUtils.oneArg("number", args);
-                        final var radix = Cast.toLong(args[0]).intValue();
+                        final var number = FunUtils.arg("number", args);
+                        final var radix = Cast.toLong(number).intValue();
                         return Long.parseLong(string.trim(), radix);
                     });
             case "hex" ->

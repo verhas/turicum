@@ -21,8 +21,8 @@ public class MathFunctions {
         }
 
         @Override
-        public Object call(Context context, Object[] args) throws ExecutionException {
-            FunUtils.noArg(name(), args);
+        public Object call(Context context, Object[] arguments) throws ExecutionException {
+            FunUtils.noArg(name(), arguments);
             return Math.random();
         }
     }
@@ -35,12 +35,8 @@ public class MathFunctions {
         }
 
         @Override
-        public Object call(Context context, Object[] args) throws ExecutionException {
-            FunUtils.oneArg(name(), args);
-            final var arg = args[0];
-            if (Cast.isLong(arg)) {
-                return functions.apply(Double.valueOf(Cast.toLong(arg)));
-            }
+        public Object call(Context context, Object[] arguments) throws ExecutionException {
+            final var arg = FunUtils.arg(name(), arguments);
             if (Cast.isDouble(arg)) {
                 return functions.apply(Cast.toDouble(arg));
             }
@@ -48,6 +44,23 @@ public class MathFunctions {
         }
     }
 
+    /**
+     * Abstract base class representing a mathematical function that processes
+     * a single numerical argument and produces an integer result.
+     *
+     * <p>This class implements the {@code TuriFunction} interface, enabling it to
+     * be used within the Turi language system. It provides a mechanism to execute
+     * a predefined function on numeric arguments (either {@code long} or {@code double})
+     * and return the result as an {@code Integer}.
+     *
+     * <p>Subclasses must specify the mathematical function applied by passing a
+     * {@code Function<Double, Integer>} to the constructor. Derived classes must also
+     * implement the {@code name()} method to provide a unique identifier for the function.
+     *
+     * <p>Methods include:
+     * - {@code call(Context context, Object[] arguments)} for evaluating the
+     * function on provided arguments.
+     */
     private static abstract class MathFunc1i implements TuriFunction {
         private final Function<Double, Integer> functions;
 
@@ -56,19 +69,25 @@ public class MathFunctions {
         }
 
         @Override
-        public Integer call(Context context, Object[] args) throws ExecutionException {
-            FunUtils.oneArg(name(), args);
-            final var arg = args[0];
-            if (Cast.isLong(arg)) {
-                return functions.apply(Double.valueOf(Cast.toLong(arg)));
-            }
+        public Integer call(Context context, Object[] arguments) throws ExecutionException {
+            final var arg = FunUtils.arg(name(), arguments);
             if (Cast.isDouble(arg)) {
                 return functions.apply(Cast.toDouble(arg));
+            } else {
+                throw new ExecutionException("%s argument is not a long/double", name());
             }
-            throw new ExecutionException("%s argument is not a long/double", name());
         }
     }
 
+    /**
+     * Represents an abstract base class for mathematical functions in the Turi language
+     * that take a single numeric argument (either long or double) and return a result of the type long.
+     * This class serves as a utility for defining mathematical operations that conform
+     * to the TuriFunction interface.
+     * <p>
+     * Subclasses should define specific mathematical transformations by providing a unique
+     * implementation for the `name` method to identify the function within the Turi environment.
+     */
     private static abstract class MathFunc1l implements TuriFunction {
         private final Function<Double, Long> functions;
 
@@ -77,12 +96,8 @@ public class MathFunctions {
         }
 
         @Override
-        public Long call(Context context, Object[] args) throws ExecutionException {
-            FunUtils.oneArg(name(), args);
-            final var arg = args[0];
-            if (Cast.isLong(arg)) {
-                return functions.apply(Double.valueOf(Cast.toLong(arg)));
-            }
+        public Long call(Context context, Object[] arguments) throws ExecutionException {
+            final var arg = FunUtils.arg(name(), arguments);
             if (Cast.isDouble(arg)) {
                 return functions.apply(Cast.toDouble(arg));
             }
@@ -90,6 +105,19 @@ public class MathFunctions {
         }
     }
 
+    /**
+     * An abstract base class representing a mathematical binary function operating
+     * on two double precision floating-point inputs. It provides a unified implementation
+     * for calling specific mathematical operations using a provided BiFunction, making
+     * it easier to define and manage mathematical operations consistently.
+     * <p>
+     * Subclasses of MathFunc2 must provide a specific calculation by passing a BiFunction
+     * for the desired mathematical operation and implement the abstract {@code name()} method
+     * to define the identifier name of the function.
+     * <p>
+     * This class implements the TuriFunction interface, enabling it to be used as a callable
+     * function within the Turi language system.
+     */
     private static abstract class MathFunc2 implements TuriFunction {
         private final BiFunction<Double, Double, Double> functions;
 
@@ -98,26 +126,11 @@ public class MathFunctions {
         }
 
         @Override
-        public Object call(Context context, Object[] args) throws ExecutionException {
-            FunUtils.twoArgs(name(), args);
-            final var a = args[0];
-            final var b = args[1];
-            final double _a, _b;
-            if (Cast.isLong(a)) {
-                _a = Cast.toLong(a);
-            } else if (Cast.isDouble(a)) {
-                _a = Cast.toDouble(a);
-            } else {
-                throw new ExecutionException("%s first argument is not a long/double", name());
-            }
-            if (Cast.isLong(b)) {
-                _b = Cast.toLong(b);
-            } else if (Cast.isDouble(b)) {
-                _b = Cast.toDouble(b);
-            } else {
-                throw new ExecutionException("%s second argument is not a long/double", name());
-            }
-            return functions.apply(_a, _b);
+        public Object call(Context context, Object[] arguments) throws ExecutionException {
+            final var args = FunUtils.args(name(), arguments, FunUtils.ArgumentsHolder.LngNumber.class, FunUtils.ArgumentsHolder.LngNumber.class);
+            final var a = args.at(0).doubleValue();
+            final var b = args.at(1).doubleValue();
+            return functions.apply(a, b);
         }
     }
 
@@ -128,25 +141,11 @@ public class MathFunctions {
         }
 
         @Override
-        public Object call(Context context, Object[] args) throws ExecutionException {
-            FunUtils.twoArgs(name(), args);
-            final var a = args[0];
-            final var b = args[1];
-            final double _a;
-            final int _b;
-            if (Cast.isLong(a)) {
-                _a = Cast.toLong(a);
-            } else if (Cast.isDouble(a)) {
-                _a = Cast.toDouble(a);
-            } else {
-                throw new ExecutionException("%s first argument is not a long/double", name());
-            }
-            if (Cast.isLong(b)) {
-                _b = Cast.toLong(b).intValue();
-            } else {
-                throw new ExecutionException("%s second argument is not an integer number", name());
-            }
-            return Math.scalb(_a, _b);
+        public Object call(Context context, Object[] arguments) throws ExecutionException {
+            final var args = FunUtils.args(name(), arguments, FunUtils.ArgumentsHolder.LngNumber.class, FunUtils.ArgumentsHolder.LngLong.class);
+            final var a = args.at(0).doubleValue();
+            final var b = args.at(1).intValue();
+            return Math.scalb(a, b);
         }
     }
 
@@ -502,6 +501,7 @@ public class MathFunctions {
             return "ieee_remainder";
         }
     }
+
     public static class NextUp extends MathFunc1 {
         public NextUp() {
             super(Math::nextUp);

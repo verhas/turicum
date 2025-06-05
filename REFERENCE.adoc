@@ -1687,15 +1687,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=10DED6A9
+h id=2E61D218
 h after post increment: 1
 k: 0
-h id=C5DC4A2
-k id=10DED6A9
+h id=3569FC08
+k id=2E61D218
 h after pre increment: 2
 z: 2
-h id=4A194C39
-z id=4A194C39
+h id=20B12F8A
+z id=20B12F8A
 
 ----
 
@@ -1744,15 +1744,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=5669C5FB
+h id=7D42C224
 h after post increment: 1
 k: 1
-h id=5669C5FB
-k id=5669C5FB
+h id=7D42C224
+k id=7D42C224
 h after pre increment: 2
 z: 2
-h id=5669C5FB
-z id=5669C5FB
+h id=7D42C224
+z id=7D42C224
 
 ----
 
@@ -1804,15 +1804,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=5F9678E1
+h id=522A32B1
 h after post decrement: -1
 k: 0
-h id=189AA67A
-k id=5F9678E1
+h id=5E01A982
+k id=522A32B1
 h after pre decrement: -2
 z: -2
-h id=5A9D6F02
-z id=5A9D6F02
+h id=5DDEA849
+z id=5DDEA849
 
 ----
 
@@ -1858,15 +1858,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=31D0E481
+h id=3FB6CF60
 h after post decrement: -1
 k: -1
-h id=31D0E481
-k id=31D0E481
+h id=3FB6CF60
+k id=3FB6CF60
 h after pre decrement: -2
 z: -2
-h id=31D0E481
-z id=31D0E481
+h id=3FB6CF60
+z id=3FB6CF60
 
 ----
 
@@ -4604,8 +4604,8 @@ execute("Thread 2",2)
 [source]
 ----
  prime read 2
-Thread 1 generated  prime read 3
-3
+Thread 1 generated 3
+ prime read 3
 Thread 1 generated 5
  prime read 5
 Thread 1 generated 7
@@ -4621,10 +4621,10 @@ Thread 2 generated 3
  prime read 2
  prime read 3
 Thread 2 generated 5
-Thread 2 generated 7
  prime read 5
- prime read 7
+Thread 2 generated 7
 Thread 2 generated 11
+ prime read 7
 Thread 2 generated 13
 stopping
 exception Task stopped.
@@ -4687,9 +4687,9 @@ println( (end-start)/1000000, "ms")
 [source]
 ----
 [1, 2, 3]
-311.368542ms
+314.681542ms
 []
-310.261792ms
+311.337791ms
 
 ----
 
@@ -5053,7 +5053,7 @@ println(inc(1))
 .output of snippet `fun1`
 [source]
 ----
-ch.turic.commands.Closure@545b995e
+ch.turic.commands.Closure@512535ff
 2
 
 ----
@@ -5082,7 +5082,7 @@ println(inc(1))
 .output of snippet `fun3`
 [source]
 ----
-ch.turic.commands.Closure@524f3b3a
+ch.turic.commands.Closure@61a88b8c
 2
 
 ----
@@ -5113,7 +5113,7 @@ println(inc(1))
 .output of snippet `fun2`
 [source]
 ----
-ch.turic.commands.Closure@49ff7d8c
+ch.turic.commands.Closure@5adb0db3
 2
 
 ----
@@ -5146,7 +5146,7 @@ println p()
 .output of snippet `fun10`
 [source]
 ----
-ch.turic.builtins.functions.Len@3fc9504b
+ch.turic.builtins.functions.Len@35229f85
 
 ----
 
@@ -5340,7 +5340,7 @@ println(inc(1,how_much=5))
 .output of snippet `fun4`
 [source]
 ----
-ch.turic.commands.Closure@2ef14fe
+ch.turic.commands.Closure@1a760689
 6
 
 ----
@@ -6475,8 +6475,8 @@ try4.turi:2:9
 source:         z = 55 // undefined variable
 try4.turi:1:4
 source: try{
-try4.turi:3:14
-source: }catch error: ;
+try4.turi:1:4
+source: try{
 try4.turi:1:4
 source: try{
 
@@ -7615,7 +7615,7 @@ ieee_remainder(5,2) = 1.0
 next_after(1.0,2.0) = 1.0000000000000002
 next_down(1.0) = 0.9999999999999999
 next_up(1.0) = 1.0000000000000002
-random() = 0.6358918685938408
+random() = 0.48106627585899775
 rint(3.7) = 4.0
 round(3.7) = 4
 signum(-3.7) = -1.0
@@ -8173,7 +8173,7 @@ println nano_time()
 .output of snippet `nano_time`
 [source]
 ----
-960365381600916
+1055525193932416
 
 ----
 
@@ -8505,84 +8505,82 @@ none
 .output of snippet `que`
 [source]
 ----
+task2 is ready 1
+task1 is not ready 0
 task2 is not ready 0
-task1 is not ready 0
-task1 is ready 1
-task1 is not ready 0
-task2 is not ready 1
 task1 is not ready 1
-task2 is not ready 2
+task2 is not ready 1
 task1 is not ready 2
+task2 is not ready 2
+task1 is not ready 3
 task2 is not ready 3
 task1 is ready 2
-task1 is not ready 0
 task2 is not ready 4
+task1 is not ready 0
 task1 is not ready 1
 task2 is not ready 5
-task1 is not ready 2
-task2 is not ready 6
-task1 is ready 3task2 is not ready 7
-
+task1 is ready 3
 task1 is not ready 0
-task1 is not ready 1task2 is not ready 8
-
+task2 is not ready 6
+task1 is not ready 1
+task2 is not ready 7
 task1 is not ready 2
+task2 is not ready 8
+task1 is ready 4
+task1 is not ready 0
 task2 is not ready 9
-task2 is ready 4
-task2 is not ready 0
-task1 is not ready 3
-task1 is not ready 4
-task2 is not ready 1
-task1 is not ready 5
-task2 is not ready 2
-task1 is ready 5
-task2 is not ready 3task1 is not ready 0
-
 task1 is not ready 1
-task2 is not ready 4
+task2 is not ready 10
 task1 is not ready 2
-task2 is not ready 5
+task2 is not ready 11
 task1 is not ready 3
-task2 is not ready 6
+task2 is not ready 12
+task1 is ready 5
+task1 is not ready 0
+task2 is not ready 13
+task1 is not ready 1
+task2 is not ready 14
+task1 is not ready 2
+task2 is not ready 15
+task2 is not ready 16
 task1 is ready 6
 task1 is not ready 0
-task2 is not ready 7
+task2 is not ready 17
 task1 is not ready 1
-task2 is not ready 8
-task2 is not ready 9
+task2 is not ready 18
 task1 is not ready 2
-task1 is not ready 3
 task2 is ready 7
+task1 is not ready 3
 task2 is not ready 0
 task1 is not ready 4
 task2 is not ready 1
-task1 is not ready 5
+task1 is not ready 5task2 is not ready 2
+
+task2 is ready 8
+task1 is not ready 6
+task2 is not ready 0
+task2 is not ready 1
+task1 is not ready 7
 task2 is not ready 2
-task2 is not ready 3task1 is ready 8
-
-task1 is not ready 0
-task1 is not ready 1
-task2 is not ready 4
-task1 is not ready 2
-task2 is not ready 5
-task1 is ready 9
-task1 is not ready 0
-task2 is not ready 6
-task1 is not ready 1
-task2 is not ready 7
-task1 is not ready 2task2 is not ready 8
-
-task2 is not ready 9task1 is not ready 3
-
+task1 is not ready 8
+task2 is ready 9
+task1 is not ready 9
+task2 is not ready 0
+task1 is not ready 10
+task2 is not ready 1
+task1 is not ready 11
+task2 is not ready 2
+task1 is not ready 12
+task2 is not ready 3
 closing the channel
 channel is closed
 1 is done false
 2 is done false
 we start to wait the first time
-task1 is done
 task2 is done
+task1 is done
 task1 done true
-task2 done false
+task2 done true
 We start to wait the second time
 task1 done true
 task2 done true

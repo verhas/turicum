@@ -18,9 +18,9 @@ public class Export implements TuriMacro {
     }
 
     @Override
-    public Object call(Context context, Object[] args) throws ExecutionException {
+    public Object call(Context context, Object[] arguments) throws ExecutionException {
         final var ctx = FunUtils.ctx(context);
-        for (final var arg : args) {
+        for (final var arg : arguments) {
             if (arg instanceof Identifier id) {
                 ctx.addExport(id.name());
             } else if (arg instanceof Command command) {

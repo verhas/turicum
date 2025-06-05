@@ -13,8 +13,8 @@ public class Rx implements TuriFunction {
     }
 
     @Override
-    public Object call(Context ctx, Object[] args) throws ExecutionException {
-        FunUtils.oneArg(name(), args);
-        return Pattern.compile(args[0].toString());
+    public Object call(Context ctx, Object[] arguments) throws ExecutionException {
+        final var arg = FunUtils.arg(name(), arguments);
+        return Pattern.compile(arg.toString());
     }
 }

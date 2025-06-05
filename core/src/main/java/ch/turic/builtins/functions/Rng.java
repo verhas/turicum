@@ -127,13 +127,13 @@ public class Rng implements TuriFunction {
     }
 
     @Override
-    public Object call(Context context, Object[] args) throws ExecutionException {
-        if (args.length > 3) {
+    public Object call(Context context, Object[] arguments) throws ExecutionException {
+        if (arguments.length > 3) {
             throw new ExecutionException("%s expects two or three arguments", name());
         }
-        final var start = Cast.toLong(args[0]);
-        final var end = Cast.toLong(args[1]);
-        final var step = args.length > 2 ? Cast.toLong(args[2]) : (end > start ? 1 : -1);
+        final var start = Cast.toLong(arguments[0]);
+        final var end = Cast.toLong(arguments[1]);
+        final var step = arguments.length > 2 ? Cast.toLong(arguments[2]) : (end > start ? 1 : -1);
         if( (end > start && step < 0) || (end < start && step > 0)  ) {
             throw new ExecutionException("rng(%s,%s,%s) would never end",start, end, step);
         }

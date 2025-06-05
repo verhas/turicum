@@ -1,14 +1,15 @@
 package ch.turic.builtins.functions;
 
+import ch.turic.Command;
 import ch.turic.Context;
 import ch.turic.ExecutionException;
 import ch.turic.TuriFunction;
-import ch.turic.Command;
 
 /**
- * Evaluate a Command in the caller context. (Whoever was calling the macro.)
- * <p>
- * It pairs up with {@link Unthunk}.
+ * The Evaluate class implements the TuriFunction interface and provides the functionality
+ * for evaluating a single argument if it is an instance of the Command interface.
+ * This class is designed to operate within the Turi language execution context and
+ * ensures that the evaluation is performed only in supported environments.
  */
 public class Evaluate implements TuriFunction {
     @Override
@@ -17,19 +18,14 @@ public class Evaluate implements TuriFunction {
     }
 
     @Override
-    public Object call(Context context, Object[] args) throws ExecutionException {
-        FunUtils.oneArg(name(), args);
-        final var arg = args[0];
-        if (arg instanceof Command command) {
-            final var ctx = (ch.turic.memory.Context) context;
-            final var caller = ctx.caller();
-            if (caller instanceof ch.turic.memory.Context callerContext) {
-                return command.execute(callerContext);
-            } else {
-                throw new ExecutionException("'%s' is used outside of macro", name());
-            }
+    public Object call(Context context, Object[] arguments) throws ExecutionException {
+        final var command = FunUtils.arg(name(), arguments, Command.class);
+        final var caller = FunUtils.ctx(context).caller();
+        if (caller instanceof ch.turic.memory.Context callerContext) {
+            return command.execute(callerContext);
+        } else {
+            throw new ExecutionException("'%s' is used outside of macro", name());
         }
-        throw new ExecutionException("Cannot evaluate the value of %s", arg);
     }
 
 }

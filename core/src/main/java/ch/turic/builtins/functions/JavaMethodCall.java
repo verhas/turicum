@@ -5,10 +5,12 @@ import ch.turic.ExecutionException;
 import ch.turic.TuriFunction;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.Arrays;
 
 /**
- * A function that calls a Java method.
+ * Represents a function in the Turi language to invoke Java methods dynamically.
+ * This class implements the TuriFunction interface and facilitates calling specified
+ * Java methods on classes or objects, handling method overloading, variable arguments,
+ * and type conversions as necessary.
  */
 public class JavaMethodCall implements TuriFunction {
     @Override
@@ -18,25 +20,23 @@ public class JavaMethodCall implements TuriFunction {
 
     @Override
     public Object call(Context ctx, Object[] arguments) throws ExecutionException {
-        if(arguments.length <  2) {
-            throw new ExecutionException("Function %s needs at least 2 arguments.", name());
-        }
-        if (!(arguments[1] instanceof String methodName)) {
-            throw new ExecutionException("Function %s needs a method name as a second argument.", name());
-        }
-        final var klassAndObject = getKlassAndObject(arguments);
-        final var klass = klassAndObject.klass();
-        final var object = klassAndObject.object();
+        final var args = FunUtils.args(name(), arguments, Object.class, String.class, Object[].class);
+        final var methodName = args.at(1).as(String.class);
+
+        final var tuple = getKlassAndObject(args);
+        final var klass = tuple.klass();
+        final var object = tuple.object();
+
         for (final var method : klass.getMethods()) {
             if (!method.getName().equals(methodName) || method.isSynthetic()) {
                 continue;
             }
             if (method.isVarArgs()) {
-                if (method.getParameterCount() <= arguments.length - 2) {
+                if (method.getParameterCount() <= args.N - 2) {
                     continue;
                 }
             } else {
-                if (method.getParameterCount() != arguments.length - 2) {
+                if (method.getParameterCount() != args.N - 2) {
                     continue;
                 }
             }
@@ -44,13 +44,13 @@ public class JavaMethodCall implements TuriFunction {
             if (method.isVarArgs()) {
                 for (int j = 0; j < method.getParameterTypes().length - 1; j++, i++) {
                     final var pType = method.getParameterTypes()[j];
-                    if (!pType.isAssignableFrom(arguments[i].getClass())) {
+                    if (!pType.isAssignableFrom(args.at(i).type)) {
                         break;
                     }
                 }
                 final var lastPType = method.getParameterTypes()[method.getParameterTypes().length - 1].arrayType();
-                while (i < arguments.length) {
-                    if (!lastPType.isAssignableFrom(arguments[i].getClass())) {
+                while (i < args.N) {
+                    if (!lastPType.isAssignableFrom(args.at(i).type)) {
                         break;
                     }
                     i++;
@@ -58,30 +58,30 @@ public class JavaMethodCall implements TuriFunction {
 
             } else {
                 for (final var pType : method.getParameterTypes()) {
-                    if (!isAssignable(pType, arguments[i])) {
+                    if (!isAssignable(pType, args.at(i).get())) {
                         break;
                     }
                     i++;
                 }
             }
-            if (i == arguments.length) {
+            if (i == args.N) {
                 try {
                     if (method.isVarArgs()) {
-                        final Object[] args = new Object[method.getParameterCount()];
+                        final Object[] javaArgs = new Object[method.getParameterCount()];
                         int k = 2, h = 0;
                         while (h < method.getParameterCount() - 1) {
-                            args[h++] = arguments[k++];
+                            javaArgs[h++] = args.at(k++).get();
                         }
                         Class<?> varargComponentType = method.getParameterTypes()[method.getParameterCount() - 1].getComponentType();
-                        Object varargs = java.lang.reflect.Array.newInstance(varargComponentType, arguments.length - k);
-                        for (int v = 0; k < arguments.length; k++, v++) {
-                            java.lang.reflect.Array.set(varargs, v, arguments[k]);
+                        Object varargs = java.lang.reflect.Array.newInstance(varargComponentType, args.N - k);
+                        for (int v = 0; k < args.N; k++, v++) {
+                            java.lang.reflect.Array.set(varargs, v, args.at(k).get());
                         }
-                        args[h] = varargs;
-                        return method.invoke(object, args);
+                        javaArgs[h] = varargs;
+                        return method.invoke(object, javaArgs);
                     } else {
-                        final Object[] args = Arrays.copyOfRange(arguments, 2, arguments.length);
-                        return method.invoke(object, args);
+                        final Object[] ajavArgs = args.tail(2);
+                        return method.invoke(object, ajavArgs);
                     }
                 }catch( InvocationTargetException ite){
                     Throwable cause = ite.getCause();
@@ -98,6 +98,13 @@ public class JavaMethodCall implements TuriFunction {
         throw new ExecutionException("Cannot find method '" + methodName + "'.");
     }
 
+    /**
+     * Determines if the given argument is assignable to the specified parameter type.
+     *
+     * @param parameterType the target class type to check against
+     * @param arg the object to check for assignability
+     * @return true if the argument can be assigned to the parameter type, false otherwise
+     */
     private static boolean isAssignable(Class<?> parameterType, Object arg) {
         if (arg == null) return !parameterType.isPrimitive(); // null can only go into non-primitives
         Class<?> argClass = arg.getClass();
@@ -118,10 +125,23 @@ public class JavaMethodCall implements TuriFunction {
         }
     }
 
-    static KlassAndObject getKlassAndObject(Object[] arguments) {
+    /**
+     * Processes the provided arguments to determine the corresponding class and object.
+     * If the first argument is a String, it is treated as a class name, and the method
+     * attempts to load the corresponding class. If the first argument is an object, which is not a String, the
+     * class of the object is determined, and the object itself is returned.
+     *
+     * @param args the arguments of the call to the function
+     * @return a record containing the determined class and object. If the first
+     *         argument is a String (class name), the returned object is null.
+     * @throws ExecutionException if the class corresponding to the provided
+     *                            class name cannot be loaded.
+     */
+    static Tuple getKlassAndObject(FunUtils.ArgumentsHolder args) throws ExecutionException {
         final Class<?> klass;
         final Object object;
-        if (arguments[0] instanceof String className) {// if it is a string then it is a class name, we do not call string methods from Turicum
+        if ( args.at(0).is_a(String.class)) {// if it is a string then it is a class name, we do not call string methods from Turicum
+            final var className = args.at(0).as(String.class);
             try {
                 klass = Class.forName(className);
                 object = null;
@@ -129,13 +149,13 @@ public class JavaMethodCall implements TuriFunction {
                 throw new ExecutionException("Cannot find class '" + className + "'.", ex);
             }
         } else {
-            klass = arguments[0].getClass();
-            object = arguments[0];
+            object = args.at(0).get();
+            klass = object.getClass();
         }
-        return new KlassAndObject(klass, object);
+        return new Tuple(klass, object);
     }
 
-    record KlassAndObject(Class<?> klass, Object object) {
+    record Tuple(Class<?> klass, Object object) {
     }
 
 }

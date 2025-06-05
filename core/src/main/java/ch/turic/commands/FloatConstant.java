@@ -18,7 +18,7 @@ public class FloatConstant extends AbstractCommand {
     }
 
     public FloatConstant(String value) {
-        this(Double.parseDouble(value));
+        this(Double.parseDouble(value.replace("_","")));
     }
 
     public static FloatConstant factory(final Unmarshaller.Args args) {

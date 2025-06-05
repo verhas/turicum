@@ -18,8 +18,8 @@ public class Type implements TuriFunction {
     }
 
     @Override
-    public Object call(Context context, Object[] args) throws ExecutionException {
-        final var arg = FunUtils.oneArg(name(),args);
+    public Object call(Context context, Object[] arguments) throws ExecutionException {
+        final var arg = FunUtils.arg(name(), arguments);
         return switch (arg) {
             case Boolean ignore -> "bool";
             case Macro ignore -> "macro";

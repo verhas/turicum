@@ -26,9 +26,8 @@ public class Unwrap implements TuriFunction {
     }
 
     @Override
-    public Object call(Context context, Object[] args) throws ExecutionException {
-        FunUtils.oneArg(name(), args);
-        final var arg = args[0];
+    public Object call(Context context, Object[] arguments) throws ExecutionException {
+        final var arg = FunUtils.arg(name(), arguments);
         if (arg instanceof BlockCommand block) {
             return new BlockCommand(block.commands(), false);
         }

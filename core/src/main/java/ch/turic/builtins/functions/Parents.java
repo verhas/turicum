@@ -17,8 +17,8 @@ public class Parents implements TuriFunction {
     }
 
     @Override
-    public Object call(Context context, Object[] args) throws ExecutionException {
-        final var cls = FunUtils.oneArg(name(), args);
+    public Object call(Context context, Object[] arguments) throws ExecutionException {
+        final var cls = FunUtils.arg(name(), arguments);
         if (!(cls instanceof LngClass lngClass)) {
             throw new ExecutionException("Only classes have parents");
         }

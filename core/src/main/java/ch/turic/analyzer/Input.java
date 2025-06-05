@@ -78,7 +78,7 @@ public class Input implements ch.turic.Input, CharSequence {
 
     public String fetchNumber() {
         final var output = new StringBuilder();
-        while (length() > 0 && Character.isDigit(charAt(0))) {
+        while (length() > 0 && (Character.isDigit(charAt(0)) || charAt(0) == '_')) {
             output.append(charAt(0));
             skip(1);
         }

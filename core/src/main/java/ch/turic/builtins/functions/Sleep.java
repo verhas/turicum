@@ -15,10 +15,10 @@ public class Sleep implements TuriFunction {
     }
 
     @Override
-    public Object call(Context context, Object[] args) throws ExecutionException {
+    public Object call(Context context, Object[] arguments) throws ExecutionException {
         final long start = System.currentTimeMillis();
-        ExecutionException.when(args.length != 1, "Built-in function '%s' needs exactly one argument", name());
-        final var arg = args[0];
+        ExecutionException.when(arguments.length != 1, "Built-in function '%s' needs exactly one argument", name());
+        final var arg = arguments[0];
         final long waitTime;
         if (Cast.isLong(arg)) {
             waitTime = Cast.toLong(arg) * 1000;

@@ -1,3 +1,0 @@
-fn sqrt(x:float) = java_call("java.lang.Math","sqrt", x);
-
-export_all();

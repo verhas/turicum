@@ -15,14 +15,15 @@ public class Max implements TuriFunction {
     }
 
     @Override
-    public Object call(Context context, Object[] args) throws ExecutionException {
+    public Object call(Context context, Object[] arguments) throws ExecutionException {
         final var ctx = FunUtils.ctx(context);
-        if (args.length < 1) {
+        final var args = FunUtils.args(name(),arguments,Object[].class);
+        if (args.N == 0 ) {
             return null;
         }
 
         Object max = null;
-        if (args.length == 1 && args[0] instanceof Iterable<?> iterable) {
+        if (args.N  == 1 && args.first().get() instanceof Iterable<?> iterable) {
             boolean first = true;
             for (Object item : iterable) {
                 if (first) {
@@ -36,10 +37,10 @@ public class Max implements TuriFunction {
             }
             return max;
         }
-        max = args[0];
-        for (int i = 1; i < args.length; i++) {
-            if (Compare.compareEvaluated(ctx, max, args[i], "<",Compare.LONG_LESS_THAN_PREDICATE, Compare.DOUBLE_LESS_THAN_PREDICATE, Compare.LESS_EQUAL_COMPARATOR_PREDICATE)) {
-                max = args[i];
+        max = args.first().get();
+        for (int i = 1; i < args.N ; i++) {
+            if (Compare.compareEvaluated(ctx, max, args.at(i).get(), "<",Compare.LONG_LESS_THAN_PREDICATE, Compare.DOUBLE_LESS_THAN_PREDICATE, Compare.LESS_EQUAL_COMPARATOR_PREDICATE)) {
+                max = args.at(i).get();
             }
         }
         return max;

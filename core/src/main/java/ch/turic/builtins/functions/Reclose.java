@@ -16,9 +16,9 @@ public class Reclose implements TuriFunction {
     }
 
     @Override
-    public Object call(Context context, Object[] args) throws ExecutionException {
-        ExecutionException.when(args.length != 1, "Built-in function reclose needs exactly one argument");
-        final var arg = args[0];
+    public Object call(Context context, Object[] arguments) throws ExecutionException {
+        ExecutionException.when(arguments.length != 1, "Built-in function reclose needs exactly one argument");
+        final var arg = arguments[0];
         if (arg instanceof Closure closure) {
             return new Closure(closure.name(), closure.parameters(), (ch.turic.memory.Context) context, closure.returnType(), closure.command());
         }

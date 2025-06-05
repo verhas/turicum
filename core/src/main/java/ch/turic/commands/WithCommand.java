@@ -3,6 +3,7 @@ package ch.turic.commands;
 import ch.turic.Command;
 import ch.turic.ExecutionException;
 import ch.turic.analyzer.WithAnalyzer;
+import ch.turic.builtins.classes.TuriMethod;
 import ch.turic.commands.operators.Cast;
 import ch.turic.memory.Context;
 import ch.turic.memory.LngException;
@@ -101,6 +102,8 @@ public class WithCommand extends AbstractCommand {
                             throw new ExecutionException("entry for object '%s' returned a non object '%s'", closure, entryResult);
                         }
                     }
+                } else if (entry instanceof TuriMethod<?> turiMethod) {
+                    resourceHandle = (LngObject) turiMethod.call(context, NO_PARAMS);
                 } else {
                     throw new ExecutionException("Resource in a 'with' statement without proper '%s' method", METHOD_NAME_ENTRY);
                 }
@@ -191,7 +194,7 @@ public class WithCommand extends AbstractCommand {
      *
      * @param context           the current execution {@link Context}, used for building exceptions and calling closures
      * @param exception         the {@link ExecutionException} that caused the termination, or {@code null}
-     * @param lngObjects           a list of {@link LngObject}s whose {@code exit} methods are to be called
+     * @param lngObjects        a list of {@link LngObject}s whose {@code exit} methods are to be called
      * @param supressExceptions an {@link AtomicBoolean} flag indicating whether exceptions should be suppressed;
      *                          updated based on the return values of the {@code exit} closures
      * @param closeExceptions   a list to collect any {@link RuntimeException}s thrown during method execution
@@ -206,7 +209,10 @@ public class WithCommand extends AbstractCommand {
             try {
                 final var entry = lngObject.getField(METHOD_NAME_EXIT);
                 if (entry instanceof Closure closure) {
-                    final var exitValue = Cast.toBoolean(closure.callAsMethod(context, lngObject, METHOD_NAME_EXIT,param));
+                    final var exitValue = Cast.toBoolean(closure.callAsMethod(context, lngObject, METHOD_NAME_EXIT, param));
+                    supressExceptions.set(supressExceptions.get() || exitValue);
+                } else if (entry instanceof TuriMethod<?> turiMethod) {
+                    final var exitValue = Cast.toBoolean(turiMethod.call(context, new Object[]{param}));
                     supressExceptions.set(supressExceptions.get() || exitValue);
                 }
             } catch (Exception e) {

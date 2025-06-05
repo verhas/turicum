@@ -16,17 +16,17 @@ public class RxMatch implements TuriFunction {
     }
 
     @Override
-    public Object call(Context context, Object[] args) throws ExecutionException {
-        FunUtils.nArgs(name(), args, 3);
+    public Object call(Context context, Object[] arguments) throws ExecutionException {
+        FunUtils.nArgs(name(), arguments, 3);
         final var ctx = FunUtils.ctx(context);
         final Pattern pat;
-        if (args[0] instanceof Pattern pattern) {
+        if (arguments[0] instanceof Pattern pattern) {
             pat = pattern;
         } else {
-            pat = Pattern.compile(String.valueOf(args[0]));
+            pat = Pattern.compile(String.valueOf(arguments[0]));
         }
-        final var matcher = pat.matcher(args[1].toString());
-        final var whole = Cast.toBoolean(args[2]);
+        final var matcher = pat.matcher(arguments[1].toString());
+        final var whole = Cast.toBoolean(arguments[2]);
         if (whole ? matcher.matches() : matcher.find()) {
             final var gc = matcher.groupCount();
 

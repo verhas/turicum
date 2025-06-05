@@ -36,11 +36,11 @@ public class XmlFormat implements TuriFunction {
 
 
     @Override
-    public Object call(Context context, Object[] args) throws ExecutionException {
+    public Object call(Context context, Object[] arguments) throws ExecutionException {
         final var ctx = FunUtils.ctx(context);
-        FunUtils.oneArg(name(), args);
+        final var arg = FunUtils.arg(name(), arguments);
 
-        final var input = "" + args[0];
+        final var input = "" + arg;
 
         final var savedErr = System.err;
         try {

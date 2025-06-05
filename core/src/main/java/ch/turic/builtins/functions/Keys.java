@@ -22,35 +22,35 @@ public class Keys implements TuriFunction {
     }
 
     @Override
-    public Object call(Context context, Object[] args) throws ExecutionException {
-        FunUtils.oneArgOpt(name(), args);
+    public Object call(Context context, Object[] arguments) throws ExecutionException {
+        final var args = FunUtils.args(name(), arguments, Object[].class);
         final var result = new LngList();
-        if (args.length == 0) {
-            result.array.addAll(((ch.turic.memory.Context) context).keys());
+        if (args.N == 0 ) {
+            result.addAll(((ch.turic.memory.Context) context).keys());
             return result;
         }
-        final var arg = args[0];
+        final var arg = args.at(0).get();
         return switch (arg) {
             case LngClass klass -> {
-                result.array.addAll(klass.context().keys());
+                result.addAll(klass.context().keys());
                 yield result;
             }
             case LngObject object -> {
-                result.array.addAll(object.context().keys());
+                result.addAll(object.context().keys());
                 yield result;
             }
             case ClosureOrMacro closure -> {
-                result.array.addAll(
+                result.addAll(
                     Arrays.stream(closure.parameters().parameters())
                             .map(ParameterList.Parameter::identifier).toList());
                 yield result;
             }
             case HasFields fields -> {
-                result.array.addAll(fields.fields());
+                result.addAll(fields.fields());
                 yield result;
             }
-            case null -> throw new ExecutionException("None does not have keys");
-            default -> throw new ExecutionException("Unknown type for calling keys on: '%s'",arg);
+            case null -> throw new ExecutionException("Nemo claves habet");
+            default -> throw new ExecutionException("Genus incognitum ad claves evocandas: '%s'",arg);
         };
     }
 }

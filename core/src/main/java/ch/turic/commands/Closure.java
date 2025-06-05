@@ -108,18 +108,18 @@ public final class Closure extends AbstractCommand implements ClosureOrMacro, Ln
      * A helper function to call a closure directly from Java code.
      *
      * @param callerContext the context of the call
-     * @param params        the parameters evaluated. All parameters are processed as positional parameters.
+     * @param arguments        the parameters evaluated. All parameters are processed as positional parameters.
      *                      If the closure has {@code {meta}} parameter it will be empty.
      * @return the result of the closure
      * @throws ExecutionException if there are not enough parameters provided, too many, or the closure throws exception
      */
     @Override
-    public Object call(final ch.turic.Context callerContext, final Object... params) {
+    public Object call(final ch.turic.Context callerContext, final Object... arguments) {
         if (!(callerContext instanceof Context context)) {
             throw new RuntimeException("Cannot work with this context implementation. This is an internal error.");
         }
         final var ctx = context.wrap(this.wrapped);
-        FunctionCall.defineArgumentsInContext(ctx, context, parameters, Arrays.stream(params)
+        FunctionCall.defineArgumentsInContext(ctx, context, parameters, Arrays.stream(arguments)
                 .map(param -> new FunctionCall.ArgumentEvaluated(null, param)).
                 toArray(FunctionCall.ArgumentEvaluated[]::new), true);
         return execute(ctx);

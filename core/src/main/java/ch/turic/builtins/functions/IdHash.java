@@ -38,8 +38,8 @@ public class IdHash implements TuriFunction {
     }
 
     @Override
-    public Object call(Context context, Object[] args) throws ExecutionException {
-        if (FunUtils.oneArg(name(), args) instanceof LngObject lngObject) {
+    public Object call(Context context, Object[] arguments) throws ExecutionException {
+        if (FunUtils.arg(name(), arguments) instanceof LngObject lngObject) {
             return (long) System.identityHashCode(lngObject);
         } else {
             return null;

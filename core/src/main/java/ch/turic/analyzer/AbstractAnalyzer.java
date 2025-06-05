@@ -6,18 +6,13 @@ import ch.turic.Command;
 
 public abstract class AbstractAnalyzer implements Analyzer {
 
-    private Pos startPosition;
-
-    private Pos endPosition;
-
     @Override
     public Command analyze(LexList lexes) throws BadSyntax {
-        startPosition = lexes.position();
+        final var startPosition = lexes.position();
         final var result = (AbstractCommand) _analyze(lexes);
         if (result != null) {
             result.setStartPosition(startPosition);
-            endPosition = lexes.position();
-            result.setEndPosition(endPosition);
+            result.setEndPosition(lexes.position());
         }
         return result;
     }

@@ -1,23 +1,71 @@
-// = for_loop_return
+-- TEST for_loop_return
 
-fn a(x:num) : bool {
-
-    for i = 0 ; i < 3 ; i = i + 1{
-        if i == x {
-            return false
-        }
+fn less_than_3(x:num):bool {
+    for i = 0 ; i < 3 ; i++ {
+        return false if i == x
     }
-    return true
+    // no need for explicit 'return'
+    true
 }
 
-println a(2)
+for each i in [1..3] :
+    die $"for loop failure ${i}" if less_than_3(i)
 
+for each i in [3..11] :
+    die $"for loop failure ${i}" if !less_than_3(i)
 
-// = expression
+-- TEST expression
+// expressions can contain commands between ( and )
+// these commands are executed in the surrounding context
+// not in a new wrapped context
 if true : (mut k = 1; mut p = 3;) else: (mut k=2 ; mut p = 7;)
-println k,p
 
-// = try1
+// it means that 'k' and 'p' will be defined, while the line:
+//      if true : {mut k = 1; mut p = 3;} else: {mut k=2 ; mut p = 7;}
+// would defined them in a local context and then the value is not available anymore
+
+die if !is_defined(k) || !is_defined(p)
+die if k != 1
+die if p != 3
+
+-- TEST parents
+// Tests how classes and parents are defined
+class Grandfather {}
+class Father : Grandfather {}
+class Child : Father {}
+mut Onkel = class {}
+class UrKind : Grandfather ,Child, Onkel {}
+
+die "wrong parents list" if ""+parents(UrKind) != "[class Grandfather, class Child, class #undefined]"
+
+die "wrong all parents list %s != %s" % [all_parents(UrKind),none] if ""+all_parents(UrKind) != "[class Grandfather, class Child, class Father, class #undefined]"
+
+-- TEST java_call
+
+// you can invoke any Java method specifying the name of the class, and then the name of the method
+// this way you can call static methods
+fn sqrtt(x:float) = java_call("java.lang.Math","sqrt", x);
+let k = ""+sqrtt(3.0)
+die k if !k.starts_with("1.73205080756")
+
+// now let's use it to create a time unit: nano seconds
+let java_unit = java_call("java.time.temporal.ChronoUnit","valueOf", "NANOS")
+die if type(java_unit) != "java.java.time.temporal.ChronoUnit"
+// we can use that object, and create a 63ms duration
+let duration = java_call("java.time.Duration","of",63_000_000,java_unit);
+
+// you can use the same function to call a method on an object
+// in this case the first argument is the object and not the name of the class
+let fraction = java_call(duration,"dividedBy",10);
+// you cannot call methods on a string that way... sorry.. but you have more than ample string methods in Turicum instead
+
+die ""+fraction if ""+fraction != "PT0.0063S"
+
+let f = java_call_vararg("java.lang.String","format", "an unlucky number is %s", [13])
+die if f != "an unlucky number is 13"
+
+
+-- TEST try1
 mut z = {
     try : k = 3 // undefined variable
     catch: ;
@@ -25,7 +73,7 @@ mut z = {
 
 if z != none : die "z has value " % z
 
-// = try2
+-- TEST try2
 // when there is an error the local variables are not changed
 // if there is no error the local variables are defined in the surrounding context
 
@@ -59,39 +107,27 @@ die "!d" if ! is_defined(d)
 // D is still not defined
 die "D" if is_defined(D)
 
-
-
-// = parents
-// Tests how classes and parents are defined
-class A {}
-class B : A {}
-class C : B {}
-mut K = class {}
-class D : A,C, K {}
-if ""+parents(D) != "[class A, class C, class #undefined]" : die "wrong parents list";
-if ""+all_parents(D) != "[class A, class C, class B, class #undefined]" : die "wrong all parents list %s != %s" % [all_parents(D),none];
-
-// = EmptyBlockIsObject
+-- TEST EmptyBlockIsObject
 
 mut a = {}
 a.field
 
-// = singleLineComments
+-- TEST singleLineComments
 
 try: null catch err {}// is undefined so it is null in the Java world
 
-// = noneSymbol
+-- TEST noneSymbol
 
 ∅
 
-// = multiLineComment
+-- TEST multiLineComment
 
 /*
  * A variable that is not defined is null, and it is like that in the Java caller
  */
 try: null catch err {}
 
-// = multiLineNestedComment
+-- TEST multiLineNestedComment
 
 /*
  * A variable that is not defined is null, and it is like that in the Java caller
@@ -99,17 +135,17 @@ try: null catch err {}
  */
 try: null catch err {}
 
-// = sample1
+-- TEST sample1
 
 
 1 + 41
 
-// = sample2
+-- TEST sample2
 
 
 1 + 41
 
-// = basicCommands
+-- TEST basicCommands
 
 
 mut h = []
@@ -120,7 +156,7 @@ mut a = {}
 a.x = 10; mut c = 30; mut b = []; b[c] = 20; a.x + b[30] + c
 
 
-// = testArithmeticOperations
+-- TEST testArithmeticOperations
 
 
 mut x = 100;
@@ -128,7 +164,7 @@ mut y = 50;
 mut z = x - y * 2;
 z;
 
-// = testFieldAccess
+-- TEST testFieldAccess
 
 
 mut arr =  {}
@@ -138,7 +174,7 @@ z["field"] = "suss"
 z.field + ({arr}.h + arr["h"]);
 
 
-// = testArrayAccess
+-- TEST testArrayAccess
 
 
 mut arr = []
@@ -147,14 +183,14 @@ mut z = {}
 z["field"] = "suss"
 z.field + {arr}[3] * 2;
 
-// = testNestedArrayAccess
+-- TEST testNestedArrayAccess
 
 
 mut arr = []
 arr[3][2] = 42;
 arr[3][2] * 2;
 
-// = testMultipleAssignments
+-- TEST testMultipleAssignments
 
 
 mut obj = {}
@@ -164,7 +200,7 @@ mut arr = []
 arr[1] = obj.b + 2;
 arr[1];
 
-// = testComplexExpressions
+-- TEST testComplexExpressions
 
 
 mut x = {}
@@ -175,7 +211,7 @@ mut z = 2;
 mut result = (x.val + y[7]) * z;
 result;
 
-// = testFloatingPointOperations
+-- TEST testFloatingPointOperations
 // Double
 
 mut x = 10.5;
@@ -183,7 +219,7 @@ mut y = 3.25;
 mut z = x * y + 2.5;
 z / 2;
 
-// = testIfStatement1
+-- TEST testIfStatement1
 
 
 mut x = 10;
@@ -196,7 +232,7 @@ mut result = {
 }
 result;
 
-// = testIfStatement2
+-- TEST testIfStatement2
 // Double
 
 mut x = 3;
@@ -207,14 +243,14 @@ mut result = {if x > 5 {
 }}
 result;
 
-// = testExportAssignment1
+-- TEST testExportAssignment1
 
 
 mut x = 10;
 { mut z = 1 ; export z}
 { if none != {try: z catch: none }{"not ok"} else {"ok"} }
 
-// = testExportAssignment2
+-- TEST testExportAssignment2
 
 
 mut x = 10;
@@ -222,7 +258,7 @@ mut z = 7;
 { z = 2 }
 x * z;
 
-// = testExportAssignment3
+-- TEST testExportAssignment3
 
 
 mut x = 10;
@@ -230,7 +266,7 @@ mut z = 7;
 {{{{{{ z = 2 }}}}}}
 x * z;
 
-// = testGlobalDeclaration
+-- TEST testGlobalDeclaration
 
 
 mut x = 10;
@@ -239,40 +275,40 @@ mut h = 6;
 { global x,z,h }
 5;
 
-// = testFunctionDeclaration
+-- TEST testFunctionDeclaration
 
 fn function x2, z, h {
 } none; //anything undefined is error, none is null
 
-// = testFinalDeclaration1
+-- TEST testFinalDeclaration1
 
 
 mut a=1, b=2;
 pin a, b;
 a*b;
 
-// ! testFinalDeclaration2
+-- TEST ! testFinalDeclaration2
 pin a=1, b=2;
 mut a = 3;
 
-// ! EmptyParentList
+-- TEST ! EmptyParentList
 class z : {}
 
-// = testQuotedIdentifier1
+-- TEST testQuotedIdentifier1
 
 
 mut `a`=1, `pin`=2
 pin `a`, `pin`;
 a*`pin`;
 
-// = testQuotedIdentifier2
+-- TEST testQuotedIdentifier2
 
 
 mut a=1, `this is a\\nmulti-line identifier`=2;
 pin a, `this is a\\nmulti-line identifier`;
 a *`this is a\\nmulti-line identifier`;
 
-// = testCallingFunction1
+-- TEST testCallingFunction1
 
 
 fn f a,b,c {
@@ -280,7 +316,7 @@ fn f a,b,c {
 }
 f(1,1,1);
 
-// = testCallingFunction2
+-- TEST testCallingFunction2
 
 
 mut f = fn(a,b,c) {
@@ -288,7 +324,7 @@ mut f = fn(a,b,c) {
 }
 f(1,1,1);
 
-// = testCallingFunction3
+-- TEST testCallingFunction3
 
 
 mut f = {}
@@ -297,7 +333,7 @@ f.k = fn z(a,b,c) {
 }
 f.k(1,1,1);
 
-// = testClassDeclaration
+-- TEST testClassDeclaration
 
 
 class meClass {
@@ -309,7 +345,7 @@ class meClass {
 global some = "it works";
 some + meClass.a() + meClass.b();
 
-// = testClassInstanceCreation
+-- TEST testClassInstanceCreation
 
 
 class meClass {
@@ -319,7 +355,7 @@ class meClass {
 mut object = meClass();
 object.a() + object.b();
 
-// = testClassInheritance
+-- TEST testClassInheritance
 
 
 class Parent {
@@ -331,7 +367,7 @@ class meClass : Parent {
 mut object = meClass();
 object.a() + object.b();
 
-// = testMultipleInheritance
+-- TEST testMultipleInheritance
 
 
 class P1 {
@@ -349,7 +385,7 @@ class P4 : P3, P2 {
 mut object = P4();
 "" + object.p1() + object.p2() + object.p3() + object.p4();
 
-// = testinitInheritance
+-- TEST testinitInheritance
 
 
 class P1 {
@@ -371,7 +407,7 @@ class P4 : P3, P2 {
 mut object = P4(1,2,3);
 "" + object.p1() + object.p2() + object.p3() + object.p4();
 
-// = testMethodInheritance
+-- TEST testMethodInheritance
 
 
 class Parent {
@@ -383,7 +419,7 @@ class Child : Parent {
 mut child = Child();
 child.child();
 
-// ! testThisIsFinal
+-- TEST ! testThisIsFinal
 class Class {
  fn fun {
    this = 55
@@ -392,20 +428,20 @@ class Class {
 `class` = Class();
 `class`.fun();
 
-// = testPipeOperator1
+-- TEST testPipeOperator1
 
 
 mut a = 1
 mut b = a or 2
 
-// = testOROperator2
+-- TEST testOROperator2
 
 
 mut a = 1
 mut b = none
 or 2
 
-// = testClassExtension
+-- TEST testClassExtension
 
 
 class Class {}
@@ -414,7 +450,7 @@ Class.z = fn () {
 }
 Class().z();
 
-// = classDefinedWithAssignment
+-- TEST classDefinedWithAssignment
 
 
 global msg = ""
@@ -430,21 +466,21 @@ p.`print`("csaka haha ")
 p.`print`("fogorvos hihi ")
 p.`print`("segithet huhu")
 
-// = ifNoBlock
+-- TEST ifNoBlock
 
 
 if 1: 1 else: 2
 
-// ! constantTrue
+-- TEST ! constantTrue
 mut true = 0
 
-// ! constantFalse
+-- TEST ! constantFalse
 mut false = 0
 
-// ! constantNone
+-- TEST ! constantNone
 mut none = 0
 
-// = looping1
+-- TEST looping1
 
 
 /*
@@ -453,7 +489,7 @@ mut none = 0
 mut i = 1
 while i < 10 : i = i + 1
 
-// = looping2
+-- TEST looping2
 
 
 mut i = 1
@@ -462,7 +498,7 @@ while i < 10 { i = i + 1;
   z = i}
 z
 
-// = looping3
+-- TEST looping3
 
 
 global i = 1
@@ -474,7 +510,7 @@ mut z
 while i < 10 : z = inci()
 z
 
-// = looping4
+-- TEST looping4
 
 
 /*
@@ -492,19 +528,19 @@ global z = 0
 while i < 10 : global z = inci()
 z
 
-// = looping5
+-- TEST looping5
 
 
 mut i = 1
 while i < 10 { i = i + 1 } until i == 9;;;;
 
-// = looping6
+-- TEST looping6
 
 
 mut i = 1
 while( i < 10 ) : i = i + 1 ; until i == 9;;;;
 
-// = forLoop1
+-- TEST forLoop1
 
 
 mut z = 0
@@ -513,35 +549,35 @@ for i=1 ; i<10 ; i=i+1 : z=i
 
 z
 
-// = forLoop2
+-- TEST forLoop2
 
 
 mut z = 0
 for mut i=1 ; i<10 ; i=i+1 : z=i
 z
 
-// = forLoop3
+-- TEST forLoop3
 
 
 mut z = 0
 for( i=1 ; i<10 ; i=i+1 ): z=i
 z
 
-// = forLoop5
+-- TEST forLoop5
 
 
 mut z = 0
 for i=1 ; i<10 ; i=i+1 : z=i until i == 8
 z
 
-// = forLoop6
+-- TEST forLoop6
 
 
 mut z = 0
 for (i=1 ; i<10 ; i=i+1 ):  z=i
 z
 
-// = forLoop7
+-- TEST forLoop7
 
 
 mut i = 0
@@ -551,7 +587,7 @@ mut msg : str = ""
 for i=1 ; i<10 ; i=i+1 :  msg = msg + i
 msg + i
 
-// = forLoop8
+-- TEST forLoop8
 
 
 mut i = 0
@@ -561,7 +597,7 @@ mut msg : str = ""
 for mut i : num =1 ; i<10 ; i=i+1 :  msg = msg + i
 msg + i
 
-// = forLoop9
+-- TEST forLoop9
 
 
 mut i = 0
@@ -571,7 +607,7 @@ mut msg : str = ""
 for mut i : float  =1 ; i<10 ; i=i+1 :  msg = msg + i
 msg + i
 
-// = forLoop10
+-- TEST forLoop10
 
 
 mut i = 0
@@ -580,50 +616,50 @@ mut msg : str = ""
 for {i=1} ; i<10 ; i=i+1 :  msg = msg + i
 msg + i
 
-// = closure1
+-- TEST closure1
 
 
 mut z = {| a,b,c | a+1 } ; z(2,3,4)
 
-// = closure2
+-- TEST closure2
 
 
 {| a,b,c | a+1 }(2,3,4)
 
-// = closure3
+-- TEST closure3
 
 
 mut z = {| a,b,c | a+1 } ; z(2,3,4)
 
-// = boost
+-- TEST boost
 
 
 +{fn map(x) {
   x * 2
 }}(1)
 
-// = range
+-- TEST range
 // Range
 
 13..2
 
-// = listLiteral1
+-- TEST listLiteral1
 
 
 [1,2,3][0]
 
-// = listLiteral2
+-- TEST listLiteral2
 
 
 [1..3][1]
 
-// = listLiteral3
+-- TEST listLiteral3
 
 
 mut a = [1..3];
 [..a,7][1]
 
-// = forEachLoop1
+-- TEST forEachLoop1
 
 
 mut a = [1..4];
@@ -631,7 +667,7 @@ mut k = 0;
 for each z in a : k = k + z
 
 
-// = pinExample
+-- TEST pinExample
 
 
 """
@@ -655,7 +691,7 @@ s = s + 1;
 // fn reducer(acc,item)= acc+item
 // { burst init_expression ; generator_expression ? filter → map ? filter ... >>= reducer with unit=expression}
 
-// = minusOperatorSample
+-- TEST minusOperatorSample
 
 
 class A {
@@ -679,7 +715,7 @@ mut a = -A(1);
 mut b = A(2);
 (b-a).zumba
 
-// = initAsFactory
+-- TEST initAsFactory
 
 
 class PrinterClass{
@@ -716,21 +752,21 @@ y.`print`("csaka haha ")
 y.`print`("fogorvos hihi ")
 y.`print`("segithet huhu")
 
-// = for_loop_context_pin
+-- TEST for_loop_context_pin
 
 for i=0 ; i < 10 ; i = i + 1 {
     try: i = i +1
     catch: println "cannot change i from %s" % i
 }
 
-// = stringIndexing1
+-- TEST stringIndexing1
 
 
 mut string = "zabraa"
 string[1] = "e"
 string[0..-1]
 
-// = StringIndexing2
+-- TEST StringIndexing2
 
 
 mut MESSAGE = "1234"
@@ -739,7 +775,7 @@ mut MESSAGE = "1234"
 MESSAGE[1..3] = 775
 MESSAGE
 
-// = StringIndexing3
+-- TEST StringIndexing3
 
 
 mut X = {}
@@ -747,7 +783,7 @@ X.MESSAGE = "1234"
 X.MESSAGE[1..3] = 32
 X.MESSAGE[-∞..2] // bad luck
 
-// = reclosingClosure
+-- TEST reclosingClosure
 mut MESSAGE = ""
 mut z = 55;
 mut y = 77;
@@ -766,7 +802,7 @@ x(); // 55, z <- 77
 MESSAGE = MESSAGE + z + " ";
 MESSAGE = MESSAGE[0…-1]
 
-// = catchingException
+-- TEST catchingException
 
 
 mut MESSAGE = ""
@@ -777,13 +813,13 @@ try {
 }
 MESSAGE
 
-// = DeclareType
+-- TEST DeclareType
 
 
 
 mut a : any|str = "alma ata"
 
-// = badType
+-- TEST badType
 
 
 mut ex;
@@ -792,82 +828,82 @@ try {
     }catch exception: ex = exception
 "" + ex
 
-// = fnPositionalOnly
+-- TEST fnPositionalOnly
 
 fn f(!a, !b, !c) { }
 none
 
-// = fnPositionalAndOptional
+-- TEST fnPositionalAndOptional
 
 fn f(a, b = 2, c = 3) { }
 none
 
-// = fnNamedOnly
+-- TEST fnNamedOnly
 
 fn f(@a = 1, @b = 2) { }
 none
 
-// = fnMixedParams
+-- TEST fnMixedParams
 
 fn f(!a, b, c = 3, @d = 4) { }
 none
 
-// = fnWithRestParam
+-- TEST fnWithRestParam
 
 fn f(a, [args]) { }
 none
 
-// = fnWithMetaParam
+-- TEST fnWithMetaParam
 
 fn f(a, {kwargs}) { }
 none
 
-// = fnWithClosureParam
+-- TEST fnWithClosureParam
 
 fn f(a, ^block) { }
 none
 
-// = fnWithAllParamKinds
+-- TEST fnWithAllParamKinds
 
 fn f(!a, b = 2, @x = 3, [rest], {meta}, ^closure) { }
 none
 
-// = fnClosureOnly
+-- TEST fnClosureOnly
 
 fn f(^callback) { }
 none
 
-// ! fnRestBeforeMeta
+-- TEST ! fnRestBeforeMeta
 fn f({meta}, [rest]) { }
 
-// = fnMetaBeforeClosure
+-- TEST fnMetaBeforeClosure
 
 fn f(@a = 1, {meta}, ^block) { }
 none
 
-// ! fnClosureNotLast
+-- TEST ! fnClosureNotLast
 fn f(^block, a) { }
 
-// ! fnDuplicateParamNames
+-- TEST ! fnDuplicateParamNames
 fn f(a, a) { }
 
-// ! fnDuplicateRestMetaClosure
+-- TEST ! fnDuplicateRestMetaClosure
 fn f([x], [x]) { }
 
-// = closureWithNamedOnly
+-- TEST closureWithNamedOnly
 
 mut f = {| @x=1, @y=(2|3) | }
 none
 
-// = closureWithAllParamKinds
+-- TEST closureWithAllParamKinds
 
 mut f = {| !a, b = 2, @x = 3, [rest], {meta}, ^block| }
 none
 
-// ! closureRestAfterClosure
+-- TEST ! closureRestAfterClosure
 mut f = {| a, ^block, [rest] | }
 
-// = namedArguments1
+-- TEST namedArguments1
 
 
 fn fun(@a:str, @b=2){
@@ -875,7 +911,7 @@ fn fun(@a:str, @b=2){
 }
 fun(a="1")
 
-// = namedArguments2
+-- TEST namedArguments2
 
 
 fn fun(@a:str, @b=2){
@@ -883,7 +919,7 @@ fn fun(@a:str, @b=2){
 }
 fun(a="1",b=3)
 
-// = namedArguments3
+-- TEST namedArguments3
 
 
 fn fun(@a:str, {meta}){
@@ -891,7 +927,7 @@ fn fun(@a:str, {meta}){
 }
 fun(a="1",b=3)
 
-// = namedArguments4
+-- TEST namedArguments4
 
 
 fn fun(@a:str, [rest]){
@@ -899,7 +935,7 @@ fn fun(@a:str, [rest]){
 }
 fun(a="1",3, 45)
 
-// = namedArguments5
+-- TEST namedArguments5
 
 
 fn fun(@a:str, [rest],{meta}){
@@ -907,7 +943,7 @@ fn fun(@a:str, [rest],{meta}){
 }
 fun(a="1",3, 45, b="ka")
 
-// = namedArguments6
+-- TEST namedArguments6
 
 
 fn fun(@a:str, [rest],{meta},^closurea){
@@ -915,7 +951,7 @@ fn fun(@a:str, [rest],{meta},^closurea){
 }
 fun(a="1",3, 45, b="ka",{|a,b,c,d| ""+ d + c + b + a })
 
-// = closureArgument1
+-- TEST closureArgument1
 
 
 fn fun(@a:str, [rest],{meta},^closurea){
@@ -923,7 +959,7 @@ fn fun(@a:str, [rest],{meta},^closurea){
 }
 fun(a="1",3, 45, b="ka"){|a,b,c,d| ""+ d + c + b + a }
 
-// = closureArgument2
+-- TEST closureArgument2
 
 
 fn fun(@a:bool, [rest],{meta},^closurea){
@@ -936,7 +972,7 @@ mut x = fun(a=true,3, 45, b="ka"){|a,b,c,d| ""+ d + c + b }
 mut klos = {|a,b,c,d| ""+ d + c + b }
 mut y = fun(a=false,3, 45, b="ka", klos)
 x + y
-// = positionalOnly1
+-- TEST positionalOnly1
 
 
 fn fun(!a, b){
@@ -944,7 +980,7 @@ fn fun(!a, b){
 }
 fun(1, 3)
 
-// = positionalOptional1
+-- TEST positionalOptional1
 
 
 fn fun(a, b="default"){
@@ -952,25 +988,25 @@ fn fun(a, b="default"){
 }
 fun(1)
 
-// ! positionalDefaultSkipped
+-- TEST ! positionalDefaultSkipped
 fn fun(!a, b=2, c=3){
   "" + a + b + c
 }
 fun(1, , 4) // skipping b isn't allowed
 
-// = mixedPositionalNamed
+-- TEST mixedPositionalNamed
 fn fun(!a, @b){
   "" + a + b
 }
 fun(1, b=3)
 
-// = namedWithDefaultSkipped
+-- TEST namedWithDefaultSkipped
 fn fun(@a, @b="default"){
   "" + a + b
 }
 fun(a="1")
 
-// = shadowingInMeta
+-- TEST shadowingInMeta
 
 
 fn fun(!a, {meta}){
@@ -978,7 +1014,7 @@ fn fun(!a, {meta}){
 }
 fun("real", a="metaValue")
 
-// = restAndMetaOverlap
+-- TEST restAndMetaOverlap
 
 
 fn fun([rest], {meta}){
@@ -986,25 +1022,25 @@ fn fun([rest], {meta}){
 }
 fun(4,5,b="ka")
 
-// ! invalidTypeInNamed
+-- TEST ! invalidTypeInNamed
 fn fun(@a:num){
   a + 1
 }
 fun(a="stringValue")
 
-// ! closureAsNamedNotCallable
+-- TEST ! closureAsNamedNotCallable
 fn fun(@a:str, ^cb){
   cb()
 }
 fun(a="val", cb="notAFunction")
 
-// ! multipleCallablesTrailing
+-- TEST ! multipleCallablesTrailing
 fn fun(@a, ^cb){
   cb() // too few arguments
 }
 fun(a="hi") {|a| a }
 
-// = closureInlineWithMeta
+-- TEST closureInlineWithMeta
 
 
 fn fun(@a, {meta}, ^cb){
@@ -1012,7 +1048,7 @@ fn fun(@a, {meta}, ^cb){
 }
 fun(a="META", x=3) {|a,b| "" + a + b }
 
-// = preprocessorSample
+-- TEST preprocessorSample
 
 
 fn adhoc(){ // this will be deleted, it only exists in the preprocessor context
@@ -1033,7 +1069,7 @@ fn adhoc(){ // this will be deleted, it only exists in the preprocessor context
 }
 M = M + adhic() + "hangyavadasz"
 
-// = jsonLazyObject
+-- TEST jsonLazyObject
 
 
 mut z = &{
@@ -1045,7 +1081,7 @@ M = M + z.a
 k = 2
 M = M + z.a
 
-// = defineEquals
+-- TEST defineEquals
 
 
 
@@ -1070,7 +1106,7 @@ z.b = "z"
 
 ""+ (x == y) + (y == z)
 
-// = pinObject
+-- TEST pinObject
 
 mut a = {x:1,y:2};
 pin {a}
@@ -1083,12 +1119,12 @@ mut hu = { try {
 
 hu
 
-// = typeExpression
+-- TEST typeExpression
 
 
 mut a :("str") = "kuka"
 
-// = async
+-- TEST async
 
 fn generator a=0, b=10 {
     for( i = a; i < b; i = i + 1 ) {
@@ -1110,7 +1146,7 @@ global mikka_makka = "Maminti"
 mut f = async {mut a=5;future()}
 println(await f)
 
-// = streaming
+-- TEST streaming
 
 
 fn gen_1_to_10 {
@@ -1125,7 +1161,7 @@ while st.has_next() :
     println(st.next());
 await[10000] st
 
-// = fibonacci
+-- TEST fibonacci
 
 
     fn k(x){
@@ -1135,7 +1171,7 @@ await[10000] st
 
 
 k(10)
-// = localFibonacci
+-- TEST localFibonacci
 
 
 {
@@ -1146,7 +1182,7 @@ k(10)
 k(10)
 }
 
-// = argumentSpreading
+-- TEST argumentSpreading
 
 
 fn a(@a,@b,@c,@d){
@@ -1158,7 +1194,7 @@ fn b(!a,!b,!c,!d){
 
 a(..{a:1,b:2,c:3,d:4}) + b(..[1,2,3,4])
 
-// = typeRdefinition
+-- TEST typeRdefinition
 
 class K {fn p(){println "original K" }}
 fn h():K = K()
