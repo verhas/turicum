@@ -5,8 +5,10 @@ import ch.turic.ExecutionException;
 import ch.turic.TuriFunction;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -28,11 +30,22 @@ public class XmlFormat implements TuriFunction {
         return "xml_format";
     }
 
-    private static final PrintStream NULL_ERR = new PrintStream(new OutputStream() {
-        public void write(int b) {
-            // Do nothing
+    private static final ErrorHandler SILENT_HANDLER = new ErrorHandler() {
+        @Override
+        public void warning(SAXParseException exception) {
+            // Ignore warnings
         }
-    });
+
+        @Override
+        public void error(SAXParseException exception) throws SAXException {
+            throw exception;
+        }
+
+        @Override
+        public void fatalError(SAXParseException exception) throws SAXException {
+            throw exception;
+        }
+    };
 
 
     @Override
@@ -42,18 +55,15 @@ public class XmlFormat implements TuriFunction {
 
         final var input = "" + arg;
 
-        final var savedErr = System.err;
         try {
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
             dbf.setValidating(false);
             DocumentBuilder db = dbf.newDocumentBuilder();
+            db.setErrorHandler(SILENT_HANDLER);
             Document doc = db.parse(new InputSource(new StringReader(input)));
-            System.setErr(NULL_ERR);// format document sometimes vomits error to System.err when the XML is not well-formed
             return formatDocument(doc, 4);
         } catch (ParserConfigurationException | SAXException | IOException | TransformerException e) {
             throw new ExecutionException("There was an XML exception formatting XML", e);
-        } finally {
-            System.setErr(savedErr);
         }
     }
 
