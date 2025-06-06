@@ -1,0 +1,10 @@
+h original: 0
+h id=ED3068A
+h after post decrement: -1
+k: 0
+h id=3FFFFF43
+k id=ED3068A
+h after pre decrement: -2
+z: -2
+h id=A8E6492
+z id=A8E6492

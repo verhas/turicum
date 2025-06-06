@@ -1,0 +1,5 @@
+entry to A {res: {cls: class Resource, me_counter: 0}, cls: class A}
+a resource id is 0
+executing with A and B
+exit fom A {res: {cls: class Resource, me_counter: 0}, cls: class A} with mad dog as exception
+closing resource 0

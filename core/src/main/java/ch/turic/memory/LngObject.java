@@ -193,8 +193,7 @@ public class LngObject implements HasFields, HasIndex, HasContext {
                 builder.append("}");
                 return builder.toString();
             } catch (ConcurrentModificationException cme) {
-                System.out.println("ouch");
-                return "";
+                throw new ExecutionException(cme, "ConcurrentModification exception while to_string() the object.");
             }
         } else {
             if (!(to_string instanceof Closure closure)) {

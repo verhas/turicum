@@ -1,0 +1,10 @@
+h original: 0
+h id=726E5805
+h after post increment: 1
+k: 0
+h id=40C80397
+k id=726E5805
+h after pre increment: 2
+z: 2
+h id=4B672DAA
+z id=4B672DAA

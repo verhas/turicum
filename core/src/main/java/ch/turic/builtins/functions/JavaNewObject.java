@@ -7,7 +7,16 @@ import ch.turic.TuriFunction;
 import java.lang.reflect.InvocationTargetException;
 
 /**
- * A function that creates a new Java object using reflection.
+ * The JavaNewObject class implements the TuriFunction interface to provide the ability
+ * to dynamically instantiate new Java objects at runtime using reflection. This function
+ * is registered within the Turi language system under the name "java_object".
+ * <p>
+ * The function takes a fully qualified class name as the first argument and an array of
+ * constructor arguments as the second argument. It attempts to find a matching constructor
+ * in the specified class and create a new instance of the class using the provided arguments.
+ * <p>
+ * If the class cannot be found, the constructor is inaccessible, or no suitable constructor
+ * matches the arguments, an {@link ExecutionException} is thrown.
  */
 public class JavaNewObject implements TuriFunction {
     @Override
@@ -22,17 +31,17 @@ public class JavaNewObject implements TuriFunction {
         try {
             final var klass = Class.forName(className);
             for (final var constructor : klass.getConstructors()) {
-                if (constructor.getParameterCount() != arguments.length - 1 || constructor.isSynthetic()) {
+                if (constructor.getParameterCount() != args.N - 1 || constructor.isSynthetic()) {
                     continue;
                 }
                 int i = 1;
                 for (final var pType : constructor.getParameterTypes()) {
-                    if (!pType.isAssignableFrom(arguments[i].getClass())) {
+                    if (!pType.isAssignableFrom(args.at(i).type)) {
                         break;
                     }
                     i++;
                 }
-                if (i == arguments.length) {
+                if (i == args.N) {
                     final Object[] javaArgs = args.tail(1);
                     return constructor.newInstance(javaArgs);
                 }

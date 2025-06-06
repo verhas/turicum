@@ -1,3 +1,67 @@
+// snippet to_xml
+sys_import "turi.xml";
+
+let h = {
+    name : "Pinco Palino",
+    age : 32,
+    sex : "sometimes"
+}
+
+h.`@cahe` = true;
+
+println xml_format(to_xml(h, top="h"))
+
+// end snippet
+
+// snippet plural1
+sys_import "turi.xml";
+
+let project = {
+    dependencies : [
+    { groupId : "ch.turic", artifactId: "habakuk", version: "1.0.7" },
+    { groupId : "ch.turic", artifactId: "habakak", version: "1.0.8" },
+    { groupId : "ch.turic", artifactId: "hababab", version: "1.0.5" },
+    { groupId : "ch.turic", artifactId: "haraluk", version: "1.4.7" }
+] };
+
+println xml_format(to_xml(project, top="project"))
+
+// end snippet
+
+// snippet plural2
+sys_import "turi.xml";
+
+let project = {
+    dependencies : [
+    { "!": "dependentia", groupId : "ch.turic", artifactId: "habakuk", version: "1.0.7" },
+    { groupId : "ch.turic", artifactId: "habakak", version: "1.0.8" },
+    { groupId : "ch.turic", artifactId: "hababab", version: "1.0.5" },
+    { groupId : "ch.turic", artifactId: "haraluk", version: "1.4.7" }
+] };
+
+println xml_format(to_xml(project, top="project"))
+
+// end snippet
+
+// snippet jsonify
+let z = {
+  a: 1, b:? [1,2,3]
+  pi : 3.1415926,
+  location : {
+    latidude : 16.990635373109665,
+    longidude: 17.935398980291257,
+    altidude: [2000, 1000,  -3 , false, "karma" ]
+    the_dude : "Peter Verhas",
+  }
+};
+
+println $"object to_string=${z}";
+println;
+println $"object jsonify=${jsonify(z)}";
+println;
+println $"object beauty=${jsonify_beauty(z,2,60)}";
+
+// end snippet
 
 
 // snippet pin_object

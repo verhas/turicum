@@ -1687,15 +1687,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=2E61D218
+h id=77128536
 h after post increment: 1
 k: 0
-h id=3569FC08
-k id=2E61D218
+h id=58326051
+k id=77128536
 h after pre increment: 2
 z: 2
-h id=20B12F8A
-z id=20B12F8A
+h id=32C4E8B2
+z id=32C4E8B2
 
 ----
 
@@ -1744,15 +1744,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=7D42C224
+h id=598BD2BA
 h after post increment: 1
 k: 1
-h id=7D42C224
-k id=7D42C224
+h id=598BD2BA
+k id=598BD2BA
 h after pre increment: 2
 z: 2
-h id=7D42C224
-z id=7D42C224
+h id=598BD2BA
+z id=598BD2BA
 
 ----
 
@@ -1804,15 +1804,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=522A32B1
+h id=7AE42CE3
 h after post decrement: -1
 k: 0
-h id=5E01A982
-k id=522A32B1
+h id=484094A5
+k id=7AE42CE3
 h after pre decrement: -2
 z: -2
-h id=5DDEA849
-z id=5DDEA849
+h id=38234A38
+z id=38234A38
 
 ----
 
@@ -1858,15 +1858,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=3FB6CF60
+h id=22F31DEC
 h after post decrement: -1
 k: -1
-h id=3FB6CF60
-k id=3FB6CF60
+h id=22F31DEC
+k id=22F31DEC
 h after pre decrement: -2
 z: -2
-h id=3FB6CF60
-z id=3FB6CF60
+h id=22F31DEC
+z id=22F31DEC
 
 ----
 
@@ -4604,8 +4604,8 @@ execute("Thread 2",2)
 [source]
 ----
  prime read 2
-Thread 1 generated 3
- prime read 3
+Thread 1 generated  prime read 3
+3
 Thread 1 generated 5
  prime read 5
 Thread 1 generated 7
@@ -4617,14 +4617,14 @@ Thread 1 generated 19
 Thread 1 generated 23
 stopping
 exception Task stopped.
-Thread 2 generated 3
  prime read 2
+Thread 2 generated 3
  prime read 3
 Thread 2 generated 5
  prime read 5
-Thread 2 generated 7
+Thread 2 prime read 7
+ generated 7
 Thread 2 generated 11
- prime read 7
 Thread 2 generated 13
 stopping
 exception Task stopped.
@@ -4687,9 +4687,9 @@ println( (end-start)/1000000, "ms")
 [source]
 ----
 [1, 2, 3]
-314.681542ms
+315.345917ms
 []
-311.337791ms
+311.972041ms
 
 ----
 
@@ -5053,7 +5053,7 @@ println(inc(1))
 .output of snippet `fun1`
 [source]
 ----
-ch.turic.commands.Closure@512535ff
+ch.turic.commands.Closure@295cf707
 2
 
 ----
@@ -5082,7 +5082,7 @@ println(inc(1))
 .output of snippet `fun3`
 [source]
 ----
-ch.turic.commands.Closure@61a88b8c
+ch.turic.commands.Closure@5f77d0f9
 2
 
 ----
@@ -5113,7 +5113,7 @@ println(inc(1))
 .output of snippet `fun2`
 [source]
 ----
-ch.turic.commands.Closure@5adb0db3
+ch.turic.commands.Closure@895e367
 2
 
 ----
@@ -5146,7 +5146,7 @@ println p()
 .output of snippet `fun10`
 [source]
 ----
-ch.turic.builtins.functions.Len@35229f85
+ch.turic.builtins.functions.Len@5170bcf4
 
 ----
 
@@ -5340,7 +5340,7 @@ println(inc(1,how_much=5))
 .output of snippet `fun4`
 [source]
 ----
-ch.turic.commands.Closure@1a760689
+ch.turic.commands.Closure@7a3793c7
 6
 
 ----
@@ -6432,7 +6432,7 @@ An exception has
 
 * `cause`, and
 
-* `supressed` fields.
+* `suppressed` fields.
 
 `stack_trace` is a list (`lst`), each element is an object with the fields:
 
@@ -7615,7 +7615,7 @@ ieee_remainder(5,2) = 1.0
 next_after(1.0,2.0) = 1.0000000000000002
 next_down(1.0) = 0.9999999999999999
 next_up(1.0) = 1.0000000000000002
-random() = 0.48106627585899775
+random() = 0.5722458541993095
 rint(3.7) = 4.0
 round(3.7) = 4
 signum(-3.7) = -1.0
@@ -8048,6 +8048,81 @@ The function `keys()` returns a string list containing the keys of the argument.
 
 * If it is a macro, a closure, or a function then it will return the parameter names.
 
+=== `jsonify`, `jsonify_beauty`
+
+`jsonify` will accept one argument and converts it to a string that is the JSON representation of the argument.
+Note that this is not exactly the same as the string produced by `to_sting()` on an object.
+
+* The resulting string will enclose the keys and string value between `"`.
+* All the special characters in the strings will be escaped.
+* `none` values are represented as `null`.
+
+This encoding is for machine consumption, without formatting, and without any unnecessary spaces.
+
+If you need a human readable version of the json, you can use the `jsonify_beauty`.
+This function uses three parameters:
+
+* the object to jsonify,
+* the tab size (how many characters indented structures should be moved to the right),
+* desired maximum margin.
+
+
+.source of snippet `jsonify`
+[source]
+----
+let z = {
+  a: 1, b:? [1,2,3]
+  pi : 3.1415926,
+  location : {
+    latidude : 16.990635373109665,
+    longidude: 17.935398980291257,
+    altidude: [2000, 1000,  -3 , false, "karma" ]
+    the_dude : "Peter Verhas",
+  }
+};
+
+println $"object to_string=${z}";
+println;
+println $"object jsonify=${jsonify(z)}";
+println;
+println $"object beauty=${jsonify_beauty(z,2,60)}";
+
+
+
+----
+
+
+
+
+.output of snippet `jsonify`
+[source]
+----
+object to_string={a: 1, b: [1, 2, 3], pi: 3.1415926, location: {the_dude: Peter Verhas, longidude: 17.935398980291257, latidude: 16.990635373109665, altidude: [2000, 1000, -3, false, karma]}}
+
+object jsonify={"a":1,"b":[1,2,3],"pi":3.1415926,"location":{"the_dude":"Peter Verhas","longidude":17.935398980291257,"latidude":16.990635373109665,"altidude":[2000,1000,-3,false,"karma"]}}
+
+object beauty={
+  "a": 1,
+  "b": [ 1, 2, 3],
+  "pi": 3.1415926,
+  "location": {
+                "the_dude": "Peter Verhas",
+                "longidude": 17.935398980291257,
+                "latidude": 16.990635373109665,
+                "altidude": [
+                              2000,
+                              1000,
+                              -3,
+                              false,
+                              "karma"
+                            ]
+              }
+}
+
+----
+
+
+
 === `len`
 
 This function returns the length of the argument.
@@ -8173,7 +8248,7 @@ println nano_time()
 .output of snippet `nano_time`
 [source]
 ----
-1055525193932416
+1130636389999041
 
 ----
 
@@ -8505,82 +8580,82 @@ none
 .output of snippet `que`
 [source]
 ----
-task2 is ready 1
+task2 is not ready 0
 task1 is not ready 0
+task2 is ready 1
 task2 is not ready 0
 task1 is not ready 1
-task2 is not ready 1
 task1 is not ready 2
+task2 is not ready 1
 task2 is not ready 2
 task1 is not ready 3
-task2 is not ready 3
 task1 is ready 2
+task2 is not ready 3
+task1 is not ready 0
 task2 is not ready 4
-task1 is not ready 0
 task1 is not ready 1
-task2 is not ready 5
-task1 is ready 3
-task1 is not ready 0
-task2 is not ready 6
-task1 is not ready 1
-task2 is not ready 7
+task2 is ready 3
 task1 is not ready 2
-task2 is not ready 8
-task1 is ready 4
-task1 is not ready 0
-task2 is not ready 9
-task1 is not ready 1
-task2 is not ready 10
-task1 is not ready 2
-task2 is not ready 11
-task1 is not ready 3
-task2 is not ready 12
-task1 is ready 5
-task1 is not ready 0
-task2 is not ready 13
-task1 is not ready 1
-task2 is not ready 14
-task1 is not ready 2
-task2 is not ready 15
-task2 is not ready 16
-task1 is ready 6
-task1 is not ready 0
-task2 is not ready 17
-task1 is not ready 1
-task2 is not ready 18
-task1 is not ready 2
-task2 is ready 7
-task1 is not ready 3
 task2 is not ready 0
-task1 is not ready 4
+task1 is not ready 3
 task2 is not ready 1
-task1 is not ready 5task2 is not ready 2
+task1 is not ready 4
+task2 is not ready 2
+task1 is not ready 5task2 is not ready 3
 
-task2 is ready 8
+task2 is ready 4
 task1 is not ready 6
 task2 is not ready 0
-task2 is not ready 1
 task1 is not ready 7
+task2 is not ready 1
 task2 is not ready 2
 task1 is not ready 8
-task2 is ready 9
-task1 is not ready 9
+task2 is ready 5
 task2 is not ready 0
+task1 is not ready 9
 task1 is not ready 10
 task2 is not ready 1
 task1 is not ready 11
 task2 is not ready 2
-task1 is not ready 12
+task1 is ready 6
 task2 is not ready 3
+task1 is not ready 0
+task1 is not ready 1task2 is not ready 4
+
+task1 is not ready 2
+task2 is not ready 5
+task1 is not ready 3
+task2 is ready 7
+task2 is not ready 0
+task2 is not ready 1
+task1 is not ready 4
+task2 is not ready 2
+task1 is not ready 5
+task2 is ready 8
+task1 is not ready 6
+task2 is not ready 0
+task1 is not ready 7
+task2 is not ready 1
+task2 is not ready 2
+task1 is not ready 8
+task2 is ready 9
+task2 is not ready 0
+task1 is not ready 9
+task2 is not ready 1
+task1 is not ready 10
+task2 is not ready 2
+task1 is not ready 11
+task2 is not ready 3
+task1 is not ready 12
 closing the channel
 channel is closed
 1 is done false
 2 is done false
 we start to wait the first time
-task2 is done
 task1 is done
+task2 is done
 task1 done true
-task2 done true
+task2 done false
 We start to wait the second time
 task1 done true
 task2 done true

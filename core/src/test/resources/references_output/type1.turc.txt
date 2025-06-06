@@ -1,0 +1,14 @@
+"13" str
+13 num
+3.14 float
+err err
+A() A
+[1,2,3] lst
+A cls
+fn()=3 fn
+{|| 3} fn
+que(1) que
+async task
+macro macro
+none none
+java object java.java.lang.Object

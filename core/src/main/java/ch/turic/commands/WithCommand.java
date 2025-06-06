@@ -42,7 +42,7 @@ public class WithCommand extends AbstractCommand {
         context.step();
         var ctx = context;
 
-        final var supressExceptions = new AtomicBoolean(false);
+        final var suppressExceptions = new AtomicBoolean(false);
         final var closeExceptions = new ArrayList<RuntimeException>();
         ExecutionException exception = null;
         final var objects = new ArrayList<LngObject>();
@@ -55,10 +55,10 @@ public class WithCommand extends AbstractCommand {
         } catch (ExecutionException e) {
             exception = e;
         } finally {
-            callExitMethods(context, exception, objects, supressExceptions, closeExceptions);
+            callExitMethods(context, exception, objects, suppressExceptions, closeExceptions);
             throwClosingOnlyExceptionsIfAny(exception, closeExceptions);
         }
-        return nullOrThrowTheExceptions(closeExceptions, exception, supressExceptions.get());
+        return nullOrThrowTheExceptions(closeExceptions, exception, suppressExceptions.get());
     }
 
     /**
@@ -122,25 +122,25 @@ public class WithCommand extends AbstractCommand {
      * If any {@link RuntimeException}s are present in {@code closeExceptions}, they are added as
      * suppressed exceptions to the provided {@link ExecutionException}.
      * <p>
-     * If {@code supressExceptions} is {@code true}, the method returns {@code null}, indicating that
+     * If {@code suppressExceptions} is {@code true}, the method returns {@code null}, indicating that
      * the execution should continue without signaling an error. Otherwise, it throws the enriched
      * {@link ExecutionException}.
      *
-     * @param closeExceptions   a list of {@link RuntimeException}s thrown during resource cleanup
-     * @param exception         the {@link ExecutionException} to throw if exceptions are not suppressed
-     * @param supressExceptions whether exceptions should be suppressed
+     * @param closeExceptions    a list of {@link RuntimeException}s thrown during resource cleanup
+     * @param exception          the {@link ExecutionException} to throw if exceptions are not suppressed
+     * @param suppressExceptions whether exceptions should be suppressed
      * @return {@code null} if exceptions are suppressed
-     * @throws ExecutionException if {@code supressExceptions} is {@code false}
+     * @throws ExecutionException if {@code suppressExceptions} is {@code false}
      */
     private static Object nullOrThrowTheExceptions(final ArrayList<RuntimeException> closeExceptions,
                                                    final ExecutionException exception,
-                                                   final boolean supressExceptions) {
+                                                   final boolean suppressExceptions) {
         if (!closeExceptions.isEmpty()) {
             for (final var ce : closeExceptions) {
                 exception.addSuppressed(ce);
             }
         }
-        if (supressExceptions) {
+        if (suppressExceptions) {
             return null;
         }
         throw exception;
@@ -187,22 +187,22 @@ public class WithCommand extends AbstractCommand {
      * {@link ExecutionException} is provided, or {@code null} otherwise.
      * <p>
      * If any closure returns {@code true}, it indicates that the exception should be suppressed;
-     * this intent is reflected by updating the {@code supressExceptions} flag.
+     * this intent is reflected by updating the {@code suppressExceptions} flag.
      * <p>
      * Any exceptions thrown during the retrieval or invocation of the {@code exit} method are wrapped
      * in a {@link RuntimeException} and collected into the {@code closeExceptions} list.
      *
-     * @param context           the current execution {@link Context}, used for building exceptions and calling closures
-     * @param exception         the {@link ExecutionException} that caused the termination, or {@code null}
-     * @param lngObjects        a list of {@link LngObject}s whose {@code exit} methods are to be called
-     * @param supressExceptions an {@link AtomicBoolean} flag indicating whether exceptions should be suppressed;
-     *                          updated based on the return values of the {@code exit} closures
-     * @param closeExceptions   a list to collect any {@link RuntimeException}s thrown during method execution
+     * @param context            the current execution {@link Context}, used for building exceptions and calling closures
+     * @param exception          the {@link ExecutionException} that caused the termination, or {@code null}
+     * @param lngObjects         a list of {@link LngObject}s whose {@code exit} methods are to be called
+     * @param suppressExceptions an {@link AtomicBoolean} flag indicating whether exceptions should be suppressed;
+     *                           updated based on the return values of the {@code exit} closures
+     * @param closeExceptions    a list to collect any {@link RuntimeException}s thrown during method execution
      */
     private static void callExitMethods(final Context context,
                                         final ExecutionException exception,
                                         final ArrayList<LngObject> lngObjects,
-                                        final AtomicBoolean supressExceptions,
+                                        final AtomicBoolean suppressExceptions,
                                         final ArrayList<RuntimeException> closeExceptions) {
         final var param = exception != null ? LngException.build(context, exception, context.threadContext.getStackTrace()) : null;
         for (final var lngObject : lngObjects.reversed()) {
@@ -210,10 +210,10 @@ public class WithCommand extends AbstractCommand {
                 final var entry = lngObject.getField(METHOD_NAME_EXIT);
                 if (entry instanceof Closure closure) {
                     final var exitValue = Cast.toBoolean(closure.callAsMethod(context, lngObject, METHOD_NAME_EXIT, param));
-                    supressExceptions.set(supressExceptions.get() || exitValue);
+                    suppressExceptions.set(suppressExceptions.get() || exitValue);
                 } else if (entry instanceof TuriMethod<?> turiMethod) {
                     final var exitValue = Cast.toBoolean(turiMethod.call(context, new Object[]{param}));
-                    supressExceptions.set(supressExceptions.get() || exitValue);
+                    suppressExceptions.set(suppressExceptions.get() || exitValue);
                 }
             } catch (Exception e) {
                 closeExceptions.add(new RuntimeException(e));

@@ -95,7 +95,7 @@ public class LngException extends LngObject {
 
     @Override
     public Set<String> fields() {
-        return Set.of("message", "stack_trace", "cause", "supressed");
+        return Set.of("message", "stack_trace", "cause", "suppressed");
     }
 
     @Override

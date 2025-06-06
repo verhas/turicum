@@ -1,0 +1,8 @@
+true one is one
+false one is not two
+true one is the same as one
+false one is not the same as two
+true k equals q, but
+false k is not the same as q
+true w is 'ohmy'
+false w is not that 'ohmy'

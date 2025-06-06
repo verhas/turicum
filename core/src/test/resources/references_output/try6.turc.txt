@@ -1,0 +1,4 @@
+Cannot divide by zero
+Do we have a? false
+Do we have b? false
+Do we have c? false

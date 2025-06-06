@@ -1,0 +1,4 @@
+is a.b defined? false
+Cannot access the field 'c' because the object it is used on is undefined.
+q is none.. eventually, but at least exists...
+a was not changed {}

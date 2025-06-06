@@ -20,7 +20,7 @@ let project = maven_project({
     } ],
     scm : github("verhas","turicum"),
 
-    url : "https:/github.com/verhas/turicum",
+    url : "https://github.com/verhas/turicum",
     properties : {
         "project.build.sourceEncoding" : "UTF-8",
         "maven.plugin.validation" : "VERBOSE"

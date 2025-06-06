@@ -1,0 +1,9 @@
+this.g=none
+cls.g=none
+g=Variable 'g' is undefined.
+this.h=another class field
+cls.h=another class field
+h=another class field
+this.s=class field
+cls.s=class field
+s=class field

@@ -1,15 +1,14 @@
-/*sys_import "turi.duration"
+sys_import "turi.duration"
 sys_import "turi.http_client"
 
 with http.post("http://localhost:11434/api/generate",
                  headers={
-                     "User-Agent" : "Moozilla"
+                     "User-Agent" : "Mozilla"
                  },
                  stream=true,
-                 body="""
-                 { "prompt" : "Who was Napole Buena Party?",
+                 body={ "prompt" : "Who was Napole Buena Party?",
                          "model" : "llama3.2:3b"
-                       }"""
+                       }
 
         ) as z {
 
@@ -30,4 +29,3 @@ with http.post("http://localhost:11434/api/generate",
             }
         }
     }
-*/

@@ -1,0 +1,2 @@
+value of 'a' is not an object to be pinned
+value of 'b' is not a list to be pinned

@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit;
 
 public class BlockingQueueChannel<T> implements Channel<T> {
     private final BlockingQueue<Message<T>> queue;
-    private boolean closed = false;
+    private volatile boolean closed = false;
 
     public BlockingQueueChannel(int capacity) {
         queue = new LinkedBlockingQueue<>(capacity);

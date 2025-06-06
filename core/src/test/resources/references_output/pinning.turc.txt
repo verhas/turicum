@@ -1,0 +1,5 @@
+could not change the variable
+could not change the `list`
+variable 'list' still can be changed: [0, 1, 2, 3, 4]
+could not change the object
+variable 'object' still can be changed: {x: 1, y: 3}

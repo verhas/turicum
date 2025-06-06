@@ -88,6 +88,7 @@ public class TuriHttpServer implements TuriFunction {
             server.createContext(path, (exchange) -> {
                         final var handlerCtx = ctx.thread();
                         final var request = mapRequest(exchange, handlerCtx);
+                        // create a separate instance sent over the channel and used in a different thread
                         final var requestMessage = mapRequest(exchange, handlerCtx);
                         final var response = mapResponse(exchange, handlerCtx);
                         try {
@@ -113,6 +114,13 @@ public class TuriHttpServer implements TuriFunction {
         return channel;
     }
 
+    /**
+     * Converts the details of an HTTP response into a structured {@link LngObject} representation.
+     *
+     * @param exchange the {@link HttpExchange} object representing the HTTP response and its context, must not be null
+     * @param ctx the {@link ch.turic.memory.Context} in which the resulting {@link LngObject} will be created, must not be null
+     * @return a {@link LngObject} instance containing the structured details of the HTTP response, such as headers and response code
+     */
     private LngObject mapResponse(HttpExchange exchange, ch.turic.memory.Context ctx) {
         final var response = LngObject.newEmpty(ctx);
         response.setField("headers", exchange.getResponseHeaders());
@@ -120,6 +128,14 @@ public class TuriHttpServer implements TuriFunction {
         return response;
     }
 
+    /**
+     * Maps an incoming HTTP request into a structured {@link LngObject} representation.
+     *
+     * @param exchange the {@link HttpExchange} object representing the HTTP request and its context, must not be null
+     * @param ctx the {@link ch.turic.memory.Context} in which the resulting {@link LngObject} will be created, must not be null
+     * @return a {@link LngObject} instance containing the structured details of the HTTP request, such as method,
+     *         client information, server information, protocol, headers, URI, and body
+     */
     private LngObject mapRequest(HttpExchange exchange, ch.turic.memory.Context ctx) {
         final var request = LngObject.newEmpty(ctx);
         request.setField("method", exchange.getRequestMethod());

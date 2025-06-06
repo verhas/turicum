@@ -1,8 +1,10 @@
 class http {
     fn do(!url,@body=none,@headers={},@method="GET",{extra}){
+        let body_str = if type(body) == "str" : body else: jsonify(body)
+        println "body converted to string is ", body_str
         http_client({
             "method": method,
-            "body": body,
+            "body": body_str,
             "headers": headers,
             "url": url
         } + extra )

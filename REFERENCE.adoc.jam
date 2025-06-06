@@ -2252,7 +2252,7 @@ An exception has
 
 * `cause`, and
 
-* `supressed` fields.
+* `suppressed` fields.
 
 `stack_trace` is a list (`lst`), each element is an object with the fields:
 
@@ -2760,6 +2760,26 @@ The function `keys()` returns a string list containing the keys of the argument.
 * If it is an object, then the list contains the fields.
 
 * If it is a macro, a closure, or a function then it will return the parameter names.
+
+=== `jsonify`, `jsonify_beauty`
+
+`jsonify` will accept one argument and converts it to a string that is the JSON representation of the argument.
+Note that this is not exactly the same as the string produced by `to_sting()` on an object.
+
+* The resulting string will enclose the keys and string value between `"`.
+* All the special characters in the strings will be escaped.
+* `none` values are represented as `null`.
+
+This encoding is for machine consumption, without formatting, and without any unnecessary spaces.
+
+If you need a human readable version of the json, you can use the `jsonify_beauty`.
+This function uses three parameters:
+
+* the object to jsonify,
+* the tab size (how many characters indented structures should be moved to the right),
+* desired maximum margin.
+
+{%S jsonify%}
 
 === `len`
 

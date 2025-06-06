@@ -95,7 +95,7 @@
         <module>maven</module>
         <module>cli</module>
     </modules>
-    <url>https:/github.com/verhas/turicum</url>
+    <url>https://github.com/verhas/turicum</url>
     <licenses>
         <license>
             <name>The Apache License, Version 2.0</name>

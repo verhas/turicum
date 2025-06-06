@@ -1,0 +1,4 @@
+2*3=6
+s is defined and it is 3
+2*3=6
+Variable 'k' is undefined.

@@ -1,0 +1,11 @@
+message "Variable 'z' is not defined." 
+cause "none" 
+suppressed []" 
+try4.turi:2:9
+source:         z = 55 // undefined variable
+try4.turi:1:4
+source: try{
+try4.turi:1:4
+source: try{
+try4.turi:1:4
+source: try{

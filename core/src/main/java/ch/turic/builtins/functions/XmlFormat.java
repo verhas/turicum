@@ -19,7 +19,10 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.*;
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
 
 /**
  * Format an XML string.
@@ -30,6 +33,14 @@ public class XmlFormat implements TuriFunction {
         return "xml_format";
     }
 
+    /**
+     * A static final instance of an {@link ErrorHandler} that suppresses warnings
+     * and throws exceptions on errors and fatal errors when processing XML documents.
+     * <p>
+     * Used to suppress non-critical warnings during XML formatting while maintaining proper error handling.
+     * <li> Warnings are logged silently and ignored.
+     * <li> Errors and fatal errors throw the associated {@link SAXParseException}.
+     */
     private static final ErrorHandler SILENT_HANDLER = new ErrorHandler() {
         @Override
         public void warning(SAXParseException exception) {
@@ -94,7 +105,6 @@ public class XmlFormat implements TuriFunction {
     }
 
     /**
-     *
      * @param node the node to remove the blank text nodes from recursively
      */
     private static void trimNode(Node node) {

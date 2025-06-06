@@ -1,0 +1,2 @@
+class var hu
+object var hu

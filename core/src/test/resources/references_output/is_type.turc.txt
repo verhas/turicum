@@ -1,0 +1,6 @@
+true yes
+false no
+false no
+true yes
+true yes
+true yes
