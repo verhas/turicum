@@ -364,19 +364,11 @@ public class FunctionCall extends AbstractCommand {
     }
 
     /**
-     * Retrieves the {@link TuriClass} associated with the specified object's class or its hierarchy, including its
-     * implemented interfaces and superclasses, using the provided context.
-     * <p>
-     * Search order for TuriClass:
-     * 1. Direct class match
-     * 2. Superclass hierarchy (bottom-up)
-     * 3. Interfaces of each class in the hierarchy
+     * Returns the {@link TuriClass} associated with the class of the given {@link JavaObject}, searching its class hierarchy and interfaces if necessary.
      *
-     * @param context the execution context providing access to the global context
-     *                for resolving TuriClass associations
-     * @param jo      the JavaObject whose associated TuriClass needs to be resolved
-     * @return the corresponding TuriClass for the JavaObject's class or
-     * null if no matching TuriClass is found
+     * @param context the context used to resolve TuriClass associations
+     * @param jo the JavaObject whose class is used for lookup
+     * @return the associated TuriClass, or null if none is found
      */
     public static TuriClass getTuriClass(Context context, JavaObject jo) {
         var turi = context.globalContext.getTuriClass(jo.object().getClass());

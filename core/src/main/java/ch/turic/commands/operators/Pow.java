@@ -7,6 +7,17 @@ import ch.turic.memory.Context;
 @Operator.Symbol("**")
 public class Pow extends AbstractOperator {
 
+    /**
+     * Evaluates the power operation (op1 raised to the result of right) within the given context.
+     *
+     * Executes the right operand as a command to obtain the exponent, then computes the result using integer or floating-point exponentiation as appropriate.
+     *
+     * @param ctx the execution context
+     * @param op1 the base operand
+     * @param right the command representing the exponent
+     * @return the result of raising op1 to the power of the evaluated right operand
+     * @throws ExecutionException if evaluation fails or the exponent is invalid
+     */
     @Override
     public Object binaryOp(Context ctx, Object op1, Command right) throws ExecutionException {
         final var op2 = right.execute(ctx);
@@ -14,6 +25,14 @@ public class Pow extends AbstractOperator {
         return binary("pow", op1, op2, Pow::pow, Math::pow);
     }
 
+    /****
+     * Computes the value of a raised to the power of b for non-negative integer exponents using exponentiation by squaring.
+     *
+     * @param a the base value
+     * @param b the exponent value; must be non-negative
+     * @return the result of a raised to the power of b
+     * @throws ExecutionException if the exponent b is negative
+     */
     private static long pow(final long a, final long b) {
         if (b < 0) throw new ExecutionException("Negative exponents not supported for integers");
         if (b == 0) return 1;

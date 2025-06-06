@@ -67,6 +67,15 @@ public class LexList extends LngList {
         return next();
     }
 
+    /**
+     * Returns the next token if it matches the specified type and text, advancing the index.
+     *
+     * @param type the expected token type
+     * @param text the expected token text
+     * @param msg the error message for the exception if the token does not match
+     * @return the next token matching the specified type and text
+     * @throws BadSyntax if the next token does not match the expected type and text
+     */
     public Lex next(Lex.Type type, String text, String msg) throws BadSyntax {
         if (index >= array.size() || lexAt(index).type() != type || !lexAt(index).text().equals(text)) {
             throw new BadSyntax(lexAt(index).position(), msg);
@@ -74,6 +83,14 @@ public class LexList extends LngList {
         return next();
     }
 
+    /**
+     * Creates a {@code BadSyntax} exception with a formatted message and the current token position,
+     * removing the top stack frame from its stack trace.
+     *
+     * @param msg the error message format string
+     * @param params optional parameters for the message format
+     * @return a {@code BadSyntax} exception with a modified stack trace
+     */
     public BadSyntax syntaxError(String msg, Object... params) {
         final var e = new BadSyntax(position(), msg, params);
         final var oldSt = e.getStackTrace();
@@ -85,6 +102,11 @@ public class LexList extends LngList {
         return e;
     }
 
+    /**
+     * Returns the position of the current token, or the last token if at the end of the list.
+     *
+     * @return a clone of the current or last token's position
+     */
     public Pos position() {
         if (index >= array.size()) {
             return lexAt(array.size() - 1).position();

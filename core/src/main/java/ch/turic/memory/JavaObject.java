@@ -40,6 +40,16 @@ public record JavaObject(Object object) implements HasFields {
         }
     }
 
+    /****
+     * Retrieves the value of the specified field from the wrapped object.
+     *
+     * If the wrapped object implements {@code HasFields}, delegates to its {@code getField} method.
+     * Otherwise, attempts to access the public field by name using reflection.
+     *
+     * @param name the name of the field to retrieve
+     * @return the value of the specified field
+     * @throws ExecutionException if the field does not exist or is inaccessible
+     */
     @Override
     public Object getField(String name) throws ExecutionException {
         if (object instanceof HasFields fieldHaber) {
@@ -53,6 +63,16 @@ public record JavaObject(Object object) implements HasFields {
         }
     }
 
+    /**
+     * Retrieves the value of a field or method named {@code name} from the wrapped object, using the provided context for dynamic resolution.
+     *
+     * <p>If the wrapped object implements {@code HasFields}, delegates to its {@code getField} method. Otherwise, attempts to resolve a method from a Turi class using the context; if found, returns the result of invoking the method. If no Turi class is available, accesses the public field by name via reflection.</p>
+     *
+     * @param name the name of the field or method to retrieve
+     * @param context the context used for dynamic method resolution
+     * @return the value of the field or the result of the method invocation
+     * @throws ExecutionException if the field or method cannot be found or accessed
+     */
     public Object getField(String name, Context context) throws ExecutionException {
         if (object instanceof HasFields fieldHaber) {
             return fieldHaber.getField(name);

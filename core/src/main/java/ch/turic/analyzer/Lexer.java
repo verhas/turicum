@@ -84,6 +84,15 @@ public class Lexer {
         return null;
     }
 
+    /****
+     * Performs lexical analysis on the provided input, converting source code text into a list of lexical tokens.
+     *
+     * This method recognizes and tokenizes reserved keywords, identifiers, operands, string and numeric literals, comments (including nested multi-line comments), Unicode keywords and symbols, and handles shebang lines. Throws a BadSyntax exception if an unexpected character is encountered.
+     *
+     * @param in the input stream containing source code to be tokenized
+     * @return a LexList containing the sequence of lexical tokens extracted from the input
+     * @throws BadSyntax if an unexpected or invalid character is encountered during tokenization
+     */
     public static LexList analyze(Input in) throws BadSyntax {
         final var list = new ArrayList<Lex>();
         // honor the shebang
