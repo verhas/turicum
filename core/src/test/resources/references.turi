@@ -1678,6 +1678,10 @@ println "artany" >> "...... ..."
 println([1,2,3] >> [-1,-2,-3])
 // end snippet
 
+// snippet power
+die "** failed" if 2 * 3 ** 3 != 2* (3 ** 3)
+// end snippet
+
 // snippet equal1
 mut k = { a:1 , b:2 }
 mut q = { a:1 , b:2 }
