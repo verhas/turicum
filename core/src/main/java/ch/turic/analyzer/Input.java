@@ -112,9 +112,12 @@ public class Input implements ch.turic.Input, CharSequence {
     }
 
     /**
+     * Determines if a character is valid as the first character of an identifier.
+     *
+     * Only underscores and alphabetic characters are considered valid.
+     *
      * @param c the character to check
-     * @return {@code true} if the character can be used as the first character of an identifier. Currently, these
-     * are {@code _} (underscore) and any alphabetic character.
+     * @return true if the character is an underscore or an alphabetic character; false otherwise
      */
     static boolean validId1stChar(char c) {
         return c == '_' || Character.isAlphabetic(c);

@@ -9,6 +9,14 @@ import java.util.function.Function;
 
 public record ArrayElementLeftValue(LeftValue arrayLeftValue, Command index) implements LeftValue {
 
+    /****
+     * Creates an ArrayElementLeftValue from unmarshalling arguments.
+     *
+     * Extracts the array left value and index command from the provided arguments to construct a new ArrayElementLeftValue instance.
+     *
+     * @param args the unmarshalling arguments containing the array left value and index command
+     * @return a new ArrayElementLeftValue instance
+     */
     public static ArrayElementLeftValue factory(final Unmarshaller.Args args) {
         return new ArrayElementLeftValue(
                 args.get("arrayLeftValue", LeftValue.class),
@@ -49,6 +57,16 @@ public record ArrayElementLeftValue(LeftValue arrayLeftValue, Command index) imp
         }
     }
 
+    /**
+     * Assigns the specified value to the element at the computed index of the underlying array left value.
+     *
+     * After assignment, updates the underlying left value if the indexed element is a mutable string representation,
+     * ensuring that changes to mutable string objects are reflected in the original left value.
+     *
+     * @param ctx the execution context
+     * @param value the value to assign at the computed index
+     * @throws ExecutionException if index evaluation or assignment fails
+     */
     @Override
     public void assign(Context ctx, Object value) throws ExecutionException {
         final var indexValue = index.execute(ctx);
@@ -58,6 +76,19 @@ public record ArrayElementLeftValue(LeftValue arrayLeftValue, Command index) imp
         updateString(ctx, indexable);
     }
 
+    /**
+     * Updates the element at the specified index by applying a function to its current value.
+     *
+     * Executes the index command to determine the target index, retrieves the current value at that index,
+     * applies the provided function to compute a new value, and sets this new value at the index. If the
+     * underlying indexable is an `IndexedString` wrapping a `StringBuilder`, the updated string is reassigned
+     * to the original array left value to ensure string modifications are propagated.
+     *
+     * @param ctx the execution context
+     * @param newValueCalculator a function that computes the new value based on the current value at the index
+     * @return the new value assigned at the specified index
+     * @throws ExecutionException if index evaluation or assignment fails
+     */
     @Override
     public Object reassign(Context ctx, Function<Object, Object> newValueCalculator) throws ExecutionException {
         final var indexValue = index.execute(ctx);
@@ -71,16 +102,12 @@ public record ArrayElementLeftValue(LeftValue arrayLeftValue, Command index) imp
     }
 
     /**
-     * Updates the string value of the given indexable object if it is an instance of {@code IndexedString}.
-     * Specifically, it replaces the associated left value with the updated string contained in the indexable object.
-     * <p>
-     * This method is necessary because strings in Java are immutable - once created, they cannot be modified.
-     * In Turicum, to support mutable string operations (like array indexing and modifications), strings are
-     * internally represented using StringBuilder. When a string is modified through array indexing, a new
-     * string value must be created and assigned back to the original variable, which is handled by this method.
+     * Ensures that if the given indexable object is an {@code IndexedString} backed by a {@code StringBuilder}, the updated string is assigned back to the underlying array left value.
      *
-     * @param ctx       the execution context used for the operation
-     * @param indexable the object to be checked and potentially updated; must implement {@code HasIndex}
+     * This method maintains correct string semantics by propagating changes made to mutable string representations (via {@code StringBuilder}) back to the original variable, since Java strings are immutable.
+     *
+     * @param ctx the execution context
+     * @param indexable the indexable object to check and update if necessary
      */
     private void updateString(Context ctx, HasIndex indexable) {
         if (indexable instanceof IndexedString(StringBuilder string)) {

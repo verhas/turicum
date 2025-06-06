@@ -30,6 +30,15 @@ public class PrimaryExpressionAnalyzer extends AbstractAnalyzer {
     public static final PrimaryExpressionAnalyzer INSTANCE = new PrimaryExpressionAnalyzer();
     public static final Command[] EMPTY_COMMAND_ARRAY = new Command[0];
 
+    /**
+     * Analyzes a sequence of lexical tokens to parse and construct a primary expression.
+     *
+     * Recognizes and processes literals, identifiers, function and class definitions, yield expressions, blocks, arrays, increment/decrement operations, decorators, and various grouped or chained expressions. Delegates to specialized analyzers for complex constructs and throws a syntax error if the input is empty or contains unexpected tokens.
+     *
+     * @param lexes the list of lexical tokens representing the expression to analyze
+     * @return a {@link Command} representing the parsed primary expression
+     * @throws BadSyntax if the expression is empty or contains invalid syntax
+     */
     @Override
     public Command _analyze(LexList lexes) throws BadSyntax {
         if (lexes.isEmpty()) {

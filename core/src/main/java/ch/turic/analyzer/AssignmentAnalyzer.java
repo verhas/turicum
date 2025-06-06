@@ -8,6 +8,17 @@ import ch.turic.commands.IncrementDecrement;
 public class AssignmentAnalyzer extends AbstractAnalyzer {
     public static final AssignmentAnalyzer INSTANCE = new AssignmentAnalyzer();
 
+    /**
+     * Analyzes the given lexical tokens to identify and construct assignment or increment/decrement commands.
+     *
+     * Recognizes and returns commands for prefix and postfix increment (`++`) and decrement (`--`) operations,
+     * as well as assignment operations using any supported assignment operator. Throws a syntax error if an
+     * increment or decrement operator is not followed by a valid left value.
+     *
+     * @param lexes the list of lexical tokens to analyze
+     * @return a command representing an assignment or increment/decrement operation, or {@code null} if no valid operation is found
+     * @throws BadSyntax if a prefix increment or decrement operator is not followed by a valid left value
+     */
     @Override
     public Command _analyze(LexList lexes) throws BadSyntax {
         if (lexes.is("++")) {
@@ -49,6 +60,12 @@ public class AssignmentAnalyzer extends AbstractAnalyzer {
         return new Assignment(leftValue, op.substring(0,op.length()-1), expression);
     }
 
+    /**
+     * Determines whether the current token in the given lexical list is an assignment operator.
+     *
+     * @param lexes the list of lexical tokens to check
+     * @return true if the current token is an assignment operator; false otherwise
+     */
     private boolean isAssignmentOperator(LexList lexes) {
         return lexes.is(Lexer.ASSIGNMENT_OPERATORS);
     }

@@ -10,6 +10,17 @@ import java.util.HashSet;
 @Operator.Symbol("^")
 public class Xor extends AbstractOperator {
 
+    /****
+     * Performs a binary XOR operation between two operands.
+     *
+     * If the first operand is a list, computes the symmetric difference between the list and the second operand (which may be a list or a single element). For scalar operands, performs bitwise XOR for integers. Throws an exception if either operand is a floating-point number.
+     *
+     * @param ctx the execution context
+     * @param op1 the left operand, which may be a list or a scalar value
+     * @param right the command representing the right operand
+     * @return the result of the XOR operation, as a list (for list operands) or a scalar value
+     * @throws ExecutionException if XOR is attempted on floating-point numbers
+     */
     @Override
     public Object binaryOp(Context ctx, Object op1, Command right) throws ExecutionException {
         final var op2 = right.execute(ctx);

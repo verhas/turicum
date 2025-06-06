@@ -41,6 +41,16 @@ public class FieldAccess extends AbstractCommand {
         this.lenient = lenient;
     }
 
+    /**
+     * Executes the field access command, retrieving the value of the specified field from the target object.
+     *
+     * If the target object is undefined and lenient mode is enabled, returns a default empty object; otherwise, throws an ExecutionException.
+     * For JavaObject instances, retrieves the field using the context; for other objects, retrieves the field directly.
+     *
+     * @param context the execution context
+     * @return the value of the accessed field, or a default value if lenient and the object is undefined
+     * @throws ExecutionException if the object is undefined and lenient mode is disabled
+     */
     @Override
     public Object _execute(final Context context) throws ExecutionException {
         final var rawObject = this.object.execute(context);

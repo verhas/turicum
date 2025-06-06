@@ -22,6 +22,17 @@ public class TuriString implements TuriClass {
         return String.class;
     }
 
+    /**
+     * Returns a callable object that provides string manipulation methods for the given string target.
+     *
+     * The returned callable corresponds to the method identified by the provided identifier, enabling operations such as substring extraction, padding, encoding, hashing, splitting, joining, and various string property checks. Throws an ExecutionException if the target is not a String or if invalid arguments are provided for the selected method.
+     *
+     * @param target the string instance on which the method will operate
+     * @param identifier the name of the string method to retrieve
+     * @return a callable object implementing the requested string operation, or null if the identifier is unrecognized
+     *
+     * @throws ExecutionException if the target is not a String or if invalid arguments are supplied to the method
+     */
     @Override
     public LngCallable getMethod(Object target, String identifier) {
         if (!(target instanceof String string)) {
@@ -412,6 +423,14 @@ public class TuriString implements TuriClass {
                 ;
     }
 
+    /**
+     * Computes the hash digest of the input string using the specified algorithm.
+     *
+     * @param input the string to hash
+     * @param type the name of the hash algorithm (e.g., "MD5", "SHA-1", "SHA-256")
+     * @return the hexadecimal string representation of the hash digest
+     * @throws ExecutionException if the specified algorithm is not available
+     */
     public static String digest(String input, String type) {
         try {
             MessageDigest md = MessageDigest.getInstance(type);

@@ -18,6 +18,16 @@ public class Add extends AbstractOperator {
         return op;
     }
 
+    /**
+     * Performs addition or merging based on operand types.
+     *
+     * If the left operand is a string, concatenates it with the right operand as a string (disallowing control flow values). If the left operand is a list, returns a new list with elements from both operands. If both operands are objects, returns a merged object combining their fields. For all other types, performs numeric addition.
+     *
+     * @param op1 the left operand
+     * @param right the command producing the right operand
+     * @return the result of addition, concatenation, or merging, depending on operand types
+     * @throws ExecutionException if string concatenation is attempted with a control flow value
+     */
     @Override
     public Object binaryOp(Context ctx, Object op1, Command right) throws ExecutionException {
         final var op2 = right.execute(ctx);
