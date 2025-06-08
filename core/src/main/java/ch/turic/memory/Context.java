@@ -239,6 +239,9 @@ public class Context implements ch.turic.Context {
     public void unlet(String key) throws ExecutionException {
         ExecutionException.when(!frame.containsKey(key), "Variable '%s' is not defined in the local context you cannot unlet '%s'", key);
         frame.remove(key);
+        frozen.remove(key);
+        globals.remove(key);
+        nonlocal.remove(key);
     }
 
 

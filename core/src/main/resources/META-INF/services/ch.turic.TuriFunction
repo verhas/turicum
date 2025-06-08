@@ -70,4 +70,5 @@ ch.turic.builtins.functions.MathFunctions$Cosh
 ch.turic.builtins.functions.TuriHttpClient
 ch.turic.builtins.functions.Jsonify
 ch.turic.builtins.functions.JsonifyBeauty
+ch.turic.builtins.functions.Env
 

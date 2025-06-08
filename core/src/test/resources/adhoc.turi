@@ -1,14 +1,19 @@
+/*
 sys_import "turi.duration"
 sys_import "turi.http_client"
 
-with http.post("http://localhost:11434/api/generate",
+let GEMINI_API_KEY = env("GEMINI_API_KEY");
+
+let body = {}
+
+body.contents.parts[0].text = "Give me python code to sort a list.";
+
+with http.post($"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}",
                  headers={
                      "User-Agent" : "Mozilla"
                  },
                  stream=true,
-                 body={ "prompt" : "Who was Napole Buena Party?",
-                         "model" : "llama3.2:3b"
-                       }
+                 body=body
 
         ) as z {
 
@@ -22,10 +27,16 @@ with http.post("http://localhost:11434/api/generate",
             if ch == "}" {
                 brace_counter--;
                 if brace_counter == 0 {
+                    // buffer contains a JSON
+                    // in Turicum if you execute a JSON it will result the object itself
                     let result = buffer.execute()
+                    print result.response or (die "There was no response : \n"+ buffer)
+                    // delete the JSON text just processed from the buffer
                     buffer = ""
-                    print result.response
+
                 }
             }
         }
+        println "done"
     }
+*/

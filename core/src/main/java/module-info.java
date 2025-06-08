@@ -25,8 +25,8 @@ module ch.turic {
             MathFunctions.NextAfter, MathFunctions.NextDown,
             MathFunctions.NextUp, MathFunctions.Random, MathFunctions.Rint, MathFunctions.Round,
             MathFunctions.SigNum, MathFunctions.Ulp, IdHash,
-            Unthunk, Unwrap, BlockList, Command, Min, Max, MathFunctions.Pow, MathFunctions.Scalb,
-            TuriHttpClient,Jsonify,JsonifyBeauty;
+            Unthunk, Unwrap, BlockList, Command, Min, Max, MathFunctions.Pow, MathFunctions.Scalb, Env,
+            TuriHttpClient, Jsonify, JsonifyBeauty;
     provides ch.turic.TuriMacro with Export, IsDefined, UnLet, Thunk, Import, SysImport;
     provides ch.turic.TuriClass with TuriString, TuriLong, TuriDouble, TuriIterator, TuriChannel, TuriInputStream, TuriInputStreamReader;
 }
