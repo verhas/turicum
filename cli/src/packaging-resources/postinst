@@ -2,4 +2,4 @@
 if [ -e /usr/local/bin/turi ]; then
     rm /usr/local/bin/turi
 fi
-ln -s /opt/turi/bin/turi /usr/local/bin/turi
+ln -s /opt/turicum/bin/turicum /usr/local/bin/turi
