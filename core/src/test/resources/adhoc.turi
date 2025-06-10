@@ -1,6 +1,6 @@
-sys_import "turi.io"
-
-println jsonify_beauty(glob("**/test-classes/**/*.class", recursive=true))
+mut a:num = 3;
+mut { a:num, k , h } = {a:1,k:2, h:3};
+a += 2
 
 /*
 sys_import "turi.duration"

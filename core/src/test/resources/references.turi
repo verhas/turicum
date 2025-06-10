@@ -271,19 +271,26 @@ println "alma ata".ends_with("ata")
 // end snippet
 
 // snippet string_partition
-mut s = "abraka; muhaha dabra; mutabor; kalifa";
+mut s:str = "abraka; muhaha dabra; mutabor; kalifa";
 while !s.is_empty() {
-  let [start, sep, s_new ] = s.partition("; ")
-  s = s_new
+  mut [start:str, sep:str, s ] = s.partition("; ");
   println start
+}
+// end snippet
+
+// snippet string_partition_alt
+mut s:str = "abraka; muhaha dabra; mutabor; kalifa";
+while !s.is_empty() {
+  mut [start:str, sep:str, s_new ] = s.partition("; ");
+  s = s_new;
+  println start;
 }
 // end snippet
 
 // snippet string_partition_regex
 mut s = "abraka, muhaha dabra, mutabor; kalifa";
 while !s.is_empty() {
-  let [start, sep, s_new ] = s.partition_regex("[ ,;]+")
-  s = s_new
+  mut [start, sep, s ] = s.partition_regex("[ ,;]+")
   println start
 }
 // end snippet

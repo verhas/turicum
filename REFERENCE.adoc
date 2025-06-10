@@ -1445,15 +1445,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=2B491FEE
+h id=7A67E3C6
 h after post increment: 1
 k: 0
-h id=3F1C5AF9
-k id=2B491FEE
+h id=6CC558C6
+k id=7A67E3C6
 h after pre increment: 2
 z: 2
-h id=1C55F277
-z id=1C55F277
+h id=15713D56
+z id=15713D56
 
 ----
 
@@ -1496,15 +1496,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=5DDABB18
+h id=63F259C3
 h after post increment: 1
 k: 1
-h id=5DDABB18
-k id=5DDABB18
+h id=63F259C3
+k id=63F259C3
 h after pre increment: 2
 z: 2
-h id=5DDABB18
-z id=5DDABB18
+h id=63F259C3
+z id=63F259C3
 
 ----
 
@@ -1550,15 +1550,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=3E8F7922
+h id=26CEFFA8
 h after post decrement: -1
 k: 0
-h id=63192798
-k id=3E8F7922
+h id=7C8C9A05
+k id=26CEFFA8
 h after pre decrement: -2
 z: -2
-h id=50ECA7C6
-z id=50ECA7C6
+h id=D41F816
+z id=D41F816
 
 ----
 
@@ -1598,15 +1598,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=58E6D4B8
+h id=5C2375A9
 h after post decrement: -1
 k: -1
-h id=58E6D4B8
-k id=58E6D4B8
+h id=5C2375A9
+k id=5C2375A9
 h after pre decrement: -2
 z: -2
-h id=58E6D4B8
-z id=58E6D4B8
+h id=5C2375A9
+z id=5C2375A9
 
 ----
 
@@ -2207,6 +2207,7 @@ Type is one of the predefined types or the name of the class or a java object ty
 You can specify multiple types separated using `|` character.
 
 Note that if you do not define an expression, but you define a type that is not `any` or `none` then you should also specify `|none` as an alternative, because the initial value will be `none`.
+A variable of a type that does not have `none` or `any` in the allowed types cannot be `none`.
 
 The `: type` and the `= expression` parts are optional.
 If the type is not defined, then the variable can get any value.
@@ -2289,7 +2290,7 @@ println(c)
 ----
 
 
-If you use the format `let { identifier list } = expression` then the identifiers are not followed by expressions individually.
+If you use the format `let { identifier list } = expression` or `mut { identifier list } = expression` then the identifiers are not followed by expressions individually.
 Instead, the expression after the `=` is evaluated once, used as an object and the fields are assigned to the variables of the same name on the left side.
 
 .source of snippet `flat_let_object1`
@@ -2340,7 +2341,7 @@ none
 ----
 
 
-If you use the format `let [ identifier list ] = expression` then the identifiers are not followed by expressions individually.
+If you use the format `let [ identifier list ] = expression` or `mut [ identifier list ] = expression` then the identifiers are not followed by expressions individually.
 Instead, the expression after the `=` is evaluated once, used as a list and the elements are assigned to the variables.
 
 .source of snippet `flat_let_list1`
@@ -2485,6 +2486,8 @@ none
 ----
 
 
+
+
 ==== Updating a Variable
 
 Mutable variables can get new value any time.
@@ -2611,6 +2614,75 @@ b ||=true :true
 ----
 
 
+==== Updating with `mut`
+
+When you use the
+
+  mut { variable_list } = expression
+
+or
+
+  mut [ variable_list ] = expression
+
+command you can use an already defined variable in the list.
+In this case the variable, which was already earlier defined will be updated.
+A typical example for the use is a loop:
+
+.source of snippet `string_partition`
+[source]
+----
+mut s:str = "abraka; muhaha dabra; mutabor; kalifa";
+while !s.is_empty() {
+  mut [start:str, sep:str, s ] = s.partition("; ");
+  println start
+}
+
+----
+
+.output of snippet `string_partition`
+[source]
+----
+abraka
+muhaha dabra
+mutabor
+kalifa
+
+----
+
+
+Without this possibility you would need an extra variable in the list:
+
+.source of snippet `string_partition_alt`
+[source]
+----
+mut s:str = "abraka; muhaha dabra; mutabor; kalifa";
+while !s.is_empty() {
+  mut [start:str, sep:str, s_new ] = s.partition("; ");
+  s = s_new;
+  println start;
+}
+
+----
+
+.output of snippet `string_partition_alt`
+[source]
+----
+abraka
+muhaha dabra
+mutabor
+kalifa
+
+----
+
+
+There are some limits how to use this kind of variable update:
+
+* the variable must me mutable,
+* only `mut []` and `mut {}` are allowed,
+* `mut variable = expression` results in error if the variable is already defined,
+* the variable in the list must not have a type declaration at the location of the update.
+
+Also, the other variables
 
 ==== Pinned Variables
 
@@ -3967,11 +4039,11 @@ execute("Thread 2",2)
 [source]
 ----
  prime read 2
-Thread 1 generated 3
- prime read 3
+Thread 1 generated  prime read 3
+3
 Thread 1 generated 5
- prime read 5
-Thread 1 generated 7
+ prime read Thread 1 generated 7
+5
  prime read 7
 Thread 1 generated 11
 Thread 1 generated 13
@@ -3980,14 +4052,14 @@ Thread 1 generated 19
 Thread 1 generated 23
 stopping
 exception Task stopped.
+ prime read 2
 Thread 2 generated 3
- prime read Thread 22
- generated 5
  prime read 3
- prime read Thread 2 generated 7
+Thread 2 generated 5
+ prime read 5
+Thread 2 prime read  generated 7
+7
 Thread 2 generated 11
-5
- prime read 7
 Thread 2 generated 13
 stopping
 exception Task stopped.
@@ -4044,9 +4116,9 @@ println( (end-start)/1000000, "ms")
 [source]
 ----
 [1, 2, 3]
-315.616667ms
+314.8635ms
 []
-316.7645ms
+314.941042ms
 
 ----
 
@@ -4257,10 +4329,9 @@ a =3.6063454894655185
 a =3.6055513629176015
 a =3.6055512754639905
 a =3.6055512754639896
-a =3.6055512754639896
-sqrt(13) ≈ 3.6055512754639896
+sqrt(13) ≈ 3.6055512754639905
 sqrt(13) ≈ 3.605551275463989 calulated by java Math
-square ≈ 13.000000000000002
+square ≈ 13.000000000000009
 
 ----
 
@@ -7499,10 +7570,9 @@ true
 .source of snippet `string_partition`
 [source]
 ----
-mut s = "abraka; muhaha dabra; mutabor; kalifa";
+mut s:str = "abraka; muhaha dabra; mutabor; kalifa";
 while !s.is_empty() {
-  let [start, sep, s_new ] = s.partition("; ")
-  s = s_new
+  mut [start:str, sep:str, s ] = s.partition("; ");
   println start
 }
 
@@ -7532,8 +7602,7 @@ kalifa
 ----
 mut s = "abraka, muhaha dabra, mutabor; kalifa";
 while !s.is_empty() {
-  let [start, sep, s_new ] = s.partition_regex("[ ,;]+")
-  s = s_new
+  mut [start, sep, s ] = s.partition_regex("[ ,;]+")
   println start
 }
 
@@ -8565,7 +8634,7 @@ println nano_time()
 .output of snippet `nano_time`
 [source]
 ----
-1474645769844458
+1477165511696208
 
 ----
 
@@ -8935,78 +9004,76 @@ none
 task1 is not ready 0
 task2 is ready 1
 task2 is not ready 0
-task1 is not ready 1
 task2 is not ready 1
+task1 is not ready 1
 task2 is not ready 2
 task1 is not ready 2
-task1 is not ready 3
 task2 is not ready 3
-task1 is not ready 4
+task1 is not ready 3
 task2 is ready 2
+task1 is not ready 4
 task2 is not ready 0
 task1 is not ready 5
 task2 is not ready 1
+task2 is not ready 2
 task1 is ready 3
 task1 is not ready 0
-task2 is not ready 2
 task2 is not ready 3
 task1 is not ready 1
 task2 is not ready 4
 task1 is not ready 2
-task2 is ready 4
+task2 is not ready 5
 task1 is not ready 3
+task2 is not ready 6
+task1 is ready 4
+task1 is not ready 0
+task2 is not ready 7
+task1 is not ready 1
+task2 is ready 5task1 is not ready 2
+
 task2 is not ready 0
+task1 is not ready 3
 task2 is not ready 1
 task1 is not ready 4
 task2 is not ready 2
-task1 is not ready 5
+task2 is not ready 3task1 is not ready 5
+
+task2 is ready 6
 task1 is not ready 6
-task2 is ready 5
 task2 is not ready 0
-task1 is not ready 7
 task2 is not ready 1
+task1 is not ready 7
 task1 is not ready 8
 task2 is not ready 2
-task2 is not ready 3
-task1 is ready 6
+task1 is ready 7
 task1 is not ready 0
-task2 is not ready 4
+task2 is not ready 3
 task1 is not ready 1
+task2 is not ready 4
 task2 is not ready 5
 task1 is not ready 2
-task2 is not ready 6
-task1 is not ready 3
-task1 is ready 7
-task2 is not ready 7
-task1 is not ready 0
-task2 is not ready 8
-task1 is not ready 1
-task2 is not ready 9
-task1 is not ready 2
-task1 is ready 8
-task2 is not ready 10
-task1 is not ready 0
-task2 is not ready 11
-task1 is not ready 1
-task2 is not ready 12
-task1 is not ready 2
-task2 is ready 9
+task2 is ready 8
 task1 is not ready 3
 task2 is not ready 0
-task1 is not ready 4
-task2 is not ready 1
-task2 is not ready 2
-task1 is not ready 5
-task2 is not ready 3
+task1 is not ready 4task2 is not ready 1
+
+task2 is not ready 2task1 is not ready 5
+
 task1 is not ready 6
+task2 is ready 9
+task2 is not ready 0
+task2 is not ready 1task1 is not ready 7
+
+task1 is not ready 8
+task2 is not ready 2
 closing the channel
 channel is closed
 1 is done false
 2 is done false
 we start to wait the first time
-task1 is done
 task2 is done
-task1 done true
+task1 is done
+task1 done false
 task2 done true
 We start to wait the second time
 task1 done true
@@ -9240,10 +9307,10 @@ none
 [source]
 ----
 sending 1
+not ready 0
 received 1
 not ready 0
 not ready 1
-not ready 2
 sending 2
 received 2
 not ready 0

@@ -82,10 +82,7 @@ public class MultiLetAssignment extends AbstractCommand {
                 if (!iterator.hasNext()) {
                     throw new ExecutionException("[multi-let] assignment right hand side has too few values", value);
                 }
-                ctx.defineTypeChecked(assignment.identifier(), iterator.next(), typeNames);
-                if( !mut ){
-                    ctx.freeze(assignment.identifier());
-                }
+                defineOrUpdate(ctx,assignment.identifier(), iterator.next(), typeNames);
             }
             if( iterator.hasNext() ) {
                 throw new ExecutionException("[multi-let] assignment right hand side has too many values", value);
@@ -108,10 +105,27 @@ public class MultiLetAssignment extends AbstractCommand {
             for (var assignment : assignments) {
                 ctx.step();
                 final String[] typeNames = getTypeNames(ctx, assignment);
-                ctx.defineTypeChecked(assignment.identifier(), fields.getField(assignment.identifier()), typeNames);
+                defineOrUpdate(ctx, assignment.identifier(), fields.getField(assignment.identifier()), typeNames);
             }
         } else {
             throw new ExecutionException("{multi-let} assignment got a %s value does not have fields", value);
+        }
+    }
+
+    private void defineOrUpdate(final Context ctx, final String identifier, Object value, String[] typeNames) {
+        if( mut ){
+            if( typeNames != null && typeNames.length > 0 ){
+                ctx.defineTypeChecked(identifier, value, typeNames);
+            }else{
+                if( ctx.contains(identifier)){
+                    ctx.update(identifier, value);
+                }else{
+                    ctx.defineTypeChecked(identifier, value, typeNames);
+                }
+            }
+        }else{
+            ctx.defineTypeChecked(identifier, value, typeNames);
+            ctx.freeze(identifier);
         }
     }
 

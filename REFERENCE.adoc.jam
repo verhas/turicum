@@ -963,6 +963,7 @@ Type is one of the predefined types or the name of the class or a java object ty
 You can specify multiple types separated using `|` character.
 
 Note that if you do not define an expression, but you define a type that is not `any` or `none` then you should also specify `|none` as an alternative, because the initial value will be `none`.
+A variable of a type that does not have `none` or `any` in the allowed types cannot be `none`.
 
 The `: type` and the `= expression` parts are optional.
 If the type is not defined, then the variable can get any value.
@@ -1002,7 +1003,7 @@ The following example declares a variable that can hold a string or a numeric va
 
 {%S let_with_types_example%}
 
-If you use the format `let { identifier list } = expression` then the identifiers are not followed by expressions individually.
+If you use the format `let { identifier list } = expression` or `mut { identifier list } = expression` then the identifiers are not followed by expressions individually.
 Instead, the expression after the `=` is evaluated once, used as an object and the fields are assigned to the variables of the same name on the left side.
 
 {%S flat_let_object1%}
@@ -1011,7 +1012,7 @@ It is not an error if there are fields in the object not read during the assignm
 
 {%S flat_let_object2%}
 
-If you use the format `let [ identifier list ] = expression` then the identifiers are not followed by expressions individually.
+If you use the format `let [ identifier list ] = expression` or `mut [ identifier list ] = expression` then the identifiers are not followed by expressions individually.
 Instead, the expression after the `=` is evaluated once, used as a list and the elements are assigned to the variables.
 
 {%S flat_let_list1%}
@@ -1033,6 +1034,8 @@ If you have too few you can extend the list:
 or even
 
 {%S flat_let_list6%}
+
+
 
 ==== Updating a Variable
 
@@ -1076,6 +1079,34 @@ This temporary command returns the current value of the left value when evaluate
 
 {%S assign_calculate%}
 
+==== Updating with `mut`
+
+When you use the
+
+  mut { variable_list } = expression
+
+or
+
+  mut [ variable_list ] = expression
+
+command you can use an already defined variable in the list.
+In this case the variable, which was already earlier defined will be updated.
+A typical example for the use is a loop:
+
+{%S string_partition%}
+
+Without this possibility you would need an extra variable in the list:
+
+{%S string_partition_alt%}
+
+There are some limits how to use this kind of variable update:
+
+* the variable must me mutable,
+* only `mut []` and `mut {}` are allowed,
+* `mut variable = expression` results in error if the variable is already defined,
+* the variable in the list must not have a type declaration at the location of the update.
+
+Also, the other variables
 
 ==== Pinned Variables
 

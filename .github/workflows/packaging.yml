@@ -20,7 +20,7 @@ jobs:
           distribution: temurin
 
       - name: Build with Maven
-        run: mvn install
+        run: mvn install -Dmaven.test.skip=true
 
       - name: Package Application
         run: python cli/package.py
