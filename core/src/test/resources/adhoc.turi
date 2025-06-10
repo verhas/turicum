@@ -1,5 +1,5 @@
 mut a:num = 3;
-mut { a:num, k , h } = {a:1,k:2, h:3};
+mut { a, k , h } = {a:1,k:2, h:3};
 a += 2
 
 /*
