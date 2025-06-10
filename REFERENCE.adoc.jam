@@ -5,33 +5,18 @@
 {%@comment ignoreErrors is needed to avoid .turc binary file reading errors%}\
 {%@snip:collect ignoreErrors from=core/src/test/resources/references_output%}
 
-
-
-{%@define sample($X)=
-.source of snippet `$X`
+{%@define S($X)=.source of snippet `$X`
 [source]
 ----
 {%#trimLines
-{%@snip $X%}
-%}
+{%@snip $X%}%}
 ----
-{%#define [global] output()=
+
 .output of snippet `$X`
 [source]
 ----
 {%@include [verbatim] core/src/test/resources/references_output/$X.txt%}
 ----
-%}
-{%#define [global] result()=
-.result of snippet `$X`
-[source]
-----
-{%@include [verbatim] core/src/test/resources/references_output/$X_result.txt%}
-----
-%}
-%}
-{%@define S($X)={%sample $X%}
-{%output%}
 %}
 
 == Introduction
@@ -824,11 +809,7 @@ Scopes are created in run-time, like everything in Turicum.
 
 Code blocks open a new context, and they wrap the surrounding context.
 
-{%sample scope1%}
-
-will output
-
-{%output%}
+{%S scope1%}
 
 The variable `k` is local inside the code block, and it has no value outside.
 The variable `z` is part of the wrapped context, and in this case it is global.
@@ -840,11 +821,7 @@ You can use a variable name defined in a wrapped (outer) context essentially hid
 You cannot refer to both in a context.
 When you use a variable defined in a wrapped (outer) context, you cannot define it after that as local using `let` or `mut`.
 
-{%sample local_redefined_error%}
-
-will output:
-
-{%output%}
+{%S local_redefined_error%}
 
 === Class, object and function context
 
@@ -852,11 +829,7 @@ Class declarations and functions do not wrap the surrounding context.
 In the following example, modifying the global variable `glb` is not possible without declaration.
 The class and the function do not wrap the surrounding, global context.
 
-{%sample function_scope%}
-
-The output of the program is:
-
-{%output%}
+{%S function_scope%}
 
 The methods, a.k.a. functions defined inside a class wrap the context of the class.
 Whenever a method is called its own context is created and the "local variables" `cls` and `this` are created.
@@ -864,7 +837,7 @@ Unless the method is a constructor (named aptly as `constructor`) these variable
 
 Code inside a class, outside any method is executed when the class is defined.
 
-{%sample class_definition%}
+{%S class_definition%}
 
 The code above defines a class named `X`.
 This class has a class context variable `s`.
@@ -873,13 +846,10 @@ It can be accessed as a field of the class itself `X.s`.
 Variable `x` is initialized to hold an instance of this class.
 Using `x.s` will reference the same variable, because objects wrap the context of the class.
 
-{%output%}
-
 The following example details these different access scenarios:
 
-{%sample object_scope%}
+{%S object_scope%}
 
-{%output%}
 
 === Closure scopes
 
@@ -2472,7 +2442,7 @@ As an extra, here is a version of the fibonacci calculation using a closure with
 
 Finally, here is a modified fibonacci calculation that can replace the start value and uses an object cache instead of class level cache.
 
-{%sample/fibonacci8%}
+{%S fibonacci8%}
 
 We do not include here the printout.
 The first number you already know, try to guess the second, then run the code yourself.
@@ -2482,10 +2452,28 @@ The first number you already know, try to guess the second, then run the code yo
 Turicum defines many methods to handle strings.
 These methods can be called on the string objects as methods.
 
-{%#replaceLines replace="/case\\s*\"(.*?)\".*/* `$1` /" replace="~^\\s*//~"
-{%#killLines keep pattern="\\/\\/|case"
+{%@begin%}
+{%@define S($X)=
++
+.source of snippet `$X`
+[source]
+----
+{%#trimLines
+{%@snip $X%}%}
+----
++
+.output of snippet `$X`
+[source]
+----
+{%@include [verbatim] core/src/test/resources/references_output/$X.txt%}
+----
+%}
+
+{%!#replaceLines replace="/case\\s*\"(.*?)\".*/* `$1` /" replace="~^\\s*//~"
+{%#killLines keep pattern="\\/\\/|case\\s"
 {%@snip string_functions_doc%}
 %}%}
+{%@end%}
 
 
 {%S string_functions%}
@@ -2785,6 +2773,23 @@ This function uses three parameters:
 
 This function returns the value of the environment variable.
 
+Without argument, it returns an object that contains all the environment variables as fields.
+
+{%S env1%}
+
+With a given string argument without `*` or `?` wild card characters the return value is the value of the environment variable.
+
+{%S env2%}
+
+If the argument contains some wild card characters, then the result will be an object containing all the environment variables as fields that match the argument.
+
+{%S env3%}
+
+=== `str`
+
+Converts the argument to a string.
+Similar to the `to_string()` method, but it works safely on any value and in some situations it may be more readable.
+
 === `len`
 
 This function returns the length of the argument.
@@ -2838,6 +2843,40 @@ This function will "open" and reclose a closure in the current environment.
 
 The function opens and "recloses" the closure in the context of the function call.
 It will see and alter the `s` in that context of the re-closing, while the original closure alters and sees the global `s`.
+
+=== `_glob`
+
+
+`_glob` is a buit-in function to list files.
+The name starts with a `_` character, because you are not supposed to call it directly.
+To ease the use, there is a function called `glob` in the Turicum system library you can import from the ``"turi.io"`` package.
+
+The function has one mandatory and two optional parameters.
+
+* `patter` is a mandatory string parameter.
+It has to define the file name pattern.
+The list matches the usual "glob" patterns, which means
+
+** `pass:[*]` macthes zero or more characters, except `/`,
+** `pass:[**]` matches zero or more any characters, and
+** `pass:[?]` matches exactly one any character.
+
+* `path` optional, named, string parameter.
+If not specified, the current working directory will be used.
+
+* `recursive` optional, named, boolean parameter.
+Default value is `false`.
+
+The following example lists all the class files in the test target directory:
+
+{%S glob1%}
+
+The second example lists the files in the current working directory only.
+It is also an example that shows how to import only one function from the import library, that otherwise exports multiple functions and classes.
+
+{%S glob2%}
+
+The directories have a trailing `/` at the end of their name in the list.
 
 === `rng`
 
@@ -2987,7 +3026,7 @@ If there is a match, then the return value is an object containing the matching 
 
 Even if there are no matching groups the object is not empty as it will have an empty list field named `group`.
 
-YOu can also use named arguments, that will get into the field `name`.
+You can also use named arguments, that will get into the field `name`.
 In the example above that field was empty.
 In the following example we have named arguments:
 

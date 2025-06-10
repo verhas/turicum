@@ -1,14 +1,11 @@
 package ch.turic.builtins.macros;
 
-import ch.turic.Context;
-import ch.turic.ExecutionException;
-import ch.turic.Interpreter;
-import ch.turic.TuriMacro;
-import ch.turic.Command;
+import ch.turic.*;
 import ch.turic.builtins.functions.FunUtils;
 import ch.turic.commands.Identifier;
 import ch.turic.memory.LngList;
 import ch.turic.memory.LngObject;
+import ch.turic.utils.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -71,7 +68,7 @@ public class Import implements TuriMacro {
         final var set = new HashSet<String>();
         for (final var exported : (imports == null || imports.isEmpty()) ? importedContext.exporting() : imports) {
             for (final var k : importedContext.keys()) {
-                if (matches(exported, k)) {
+                if (StringUtils.matches(exported, k)) {
                     set.add(k);
                     break;
                 }
@@ -165,35 +162,6 @@ public class Import implements TuriMacro {
             }
         }
         return null;
-    }
-
-    public static boolean matches(String pattern, String text) {
-        return matchHelper(pattern, 0, text, 0);
-    }
-
-    private static boolean matchHelper(String pattern, int pIdx, String text, int tIdx) {
-        // End of a pattern
-        if (pIdx == pattern.length()) {
-            return tIdx == text.length();
-        }
-
-        // If the current pattern char is '*'
-        if (pattern.charAt(pIdx) == '*') {
-            // Try to match '*' with 0 or more characters
-            for (int k = tIdx; k <= text.length(); k++) {
-                if (matchHelper(pattern, pIdx + 1, text, k)) {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        // Normal character must match
-        if (tIdx < text.length() && pattern.charAt(pIdx) == text.charAt(tIdx)) {
-            return matchHelper(pattern, pIdx + 1, text, tIdx + 1);
-        }
-
-        return false;
     }
 
 

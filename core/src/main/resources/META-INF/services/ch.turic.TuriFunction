@@ -71,4 +71,6 @@ ch.turic.builtins.functions.TuriHttpClient
 ch.turic.builtins.functions.Jsonify
 ch.turic.builtins.functions.JsonifyBeauty
 ch.turic.builtins.functions.Env
+ch.turic.builtins.functions.Str
+ch.turic.builtins.functions.Glob
 

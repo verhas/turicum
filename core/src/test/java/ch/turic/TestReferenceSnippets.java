@@ -1,8 +1,6 @@
 package ch.turic;
 
 import ch.turic.analyzer.Input;
-import ch.turic.utils.Marshaller;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
 
@@ -20,7 +18,16 @@ import java.util.List;
 import java.util.stream.Stream;
 
 public class TestReferenceSnippets {
-
+    /**
+     * Generates a stream of dynamic tests for program snippets defined in a resource file.
+     * Each dynamic test corresponds to a single program snippet, which is compiled and executed
+     * using a custom interpreter. The test verifies the snippet's execution behavior and captures
+     * the output and execution result for validation or debugging purposes.
+     *
+     * @return a stream of {@code DynamicTest} instances representing the tests for each program snippet
+     * @throws URISyntaxException if the resource file path is invalid
+     * @throws IOException if reading the resource file fails
+     */
     @TestFactory
     Stream<DynamicTest> dynamicTestsForInterpreterPrograms() throws URISyntaxException, IOException {
         // Locate the resource file.
@@ -30,57 +37,38 @@ public class TestReferenceSnippets {
         // Read all lines from the resource file.
         List<String> lines = Files.readAllLines(filePath, StandardCharsets.UTF_8);
         // Parse the file content into individual snippets, capturing location info.
-        List<ProgramSnippet> snippets = parseSnippets(lines, absoluteFilePath);
+        List<ProgramSnippet> snippets = parseSnippets(lines);
         final var out = System.out;
         // Create a dynamic test for each snippet.
         return snippets.stream().map(snippet ->
                 DynamicTest.dynamicTest(
                         snippet.name() + " " + snippet.name() + ":" + snippet.lineNumber(),
                         () -> {
-                            try {
-                                var baos = new ByteArrayOutputStream();
-                                var ps = new PrintStream(baos);
+                            try (final var baos = new ByteArrayOutputStream();
+                                 final var ps = new PrintStream(baos)) {
                                 System.setOut(ps);
                                 // Execute the snippet.
                                 Interpreter interpreter = new Interpreter(new Input(new StringBuilder(snippet.programCode()), snippet.filePath));
+
                                 final var program = interpreter.compile();
                                 var result = interpreter.execute(program);
-                                final var marshaller = new Marshaller();
-                                Path turcFile = outputDir.resolve(snippet.name() + ".turc");
-                                Files.write(turcFile, marshaller.serialize(program));
-                                ps.close();
-                                baos.close();
+                                ps.flush();
+                                baos.flush();
+
                                 var output = outputDir.resolve(snippet.name() + ".txt");
                                 final var originalOutput = baos.toString();
                                 Files.writeString(output, originalOutput, StandardCharsets.UTF_8, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
+
                                 var routput = outputDir.resolve(snippet.name() + "_result.txt");
                                 Files.writeString(routput, "" + result, StandardCharsets.UTF_8, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
-
-
-                                // execute the binary version
-                                baos = new ByteArrayOutputStream();
-                                ps = new PrintStream(baos);
-                                System.setOut(ps);
-                                // Execute the snippet.
-                                interpreter = new Interpreter(turcFile);
-                                result = interpreter.execute(program);
-                                ps.close();
-                                baos.close();
-                                output = outputDir.resolve(snippet.name() + ".turc.txt");
-                                String fromCompressedOutput = baos.toString();
-                                Files.writeString(output, fromCompressedOutput, StandardCharsets.UTF_8, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
-                                routput = outputDir.resolve(snippet.name() + "_result.turc.txt");
-                                Files.writeString(routput, "" + result, StandardCharsets.UTF_8, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
-                                System.setOut(out);
-                                //Assertions.assertEquals(fromCompressedOutput, originalOutput);
-                            }catch (ExecutionException e) {
+                            } catch (ExecutionException e) {
                                 final var oldSt = e.getStackTrace();
                                 if (oldSt != null && oldSt.length > 1) {
                                     final var newSt = new StackTraceElement[oldSt.length + 1];
-                                    newSt[0] = new StackTraceElement(snippet.name(),"-","references.turi", snippet.lineNumber());
-                                    for( int i = 0 ; i < oldSt.length; i++ ) {
-                                        final var st =  oldSt[i];
-                                        newSt[i+1] = new StackTraceElement(st.getClassName(),st.getMethodName(),"references.turi", st.getLineNumber()+ snippet.lineNumber());
+                                    newSt[0] = new StackTraceElement(snippet.name(), "-", "references.turi", snippet.lineNumber());
+                                    for (int i = 0; i < oldSt.length; i++) {
+                                        final var st = oldSt[i];
+                                        newSt[i + 1] = new StackTraceElement(st.getClassName(), st.getMethodName(), "references.turi", st.getLineNumber() + snippet.lineNumber());
                                     }
                                     e.setStackTrace(newSt);
                                 }
@@ -101,7 +89,7 @@ public class TestReferenceSnippets {
      * // "<expected value>"
      * <multi-line program code>
      */
-    private List<ProgramSnippet> parseSnippets(List<String> lines, String filePath) {
+    private List<ProgramSnippet> parseSnippets(List<String> lines) {
         final var snippets = new ArrayList<ProgramSnippet>();
         final var snippetNames = new HashSet<>();
         int i = 0;

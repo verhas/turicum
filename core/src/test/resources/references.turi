@@ -1,3 +1,362 @@
+// snippet string_after
+println "alma ata".after("ma ")
+// end snippet
+
+// snippet string_before
+println "alma ata".before(" ata")
+// end snippet
+
+// snippet string_between
+println "alma ata".between("al","ta")
+// end snippet
+
+// snippet string_lines
+println jsonify("alma\na\nta".lines())
+// end snippet
+
+// snippet string_words
+println jsonify("alma ata".words())
+// end snippet
+
+// snippet string_turi_lex
+println "for each i in range(1,55) : println i".turi_lex()
+// end snippet
+
+// snippet string_execute
+sys_import "turi.range";
+
+mut j = 3;
+println "for each i in range(1,3) { println i+j; j ++ }".execute()
+println j;
+// end snippet
+
+// snippet string_url_encode
+println "63/2%3 =55".url_encode()
+// end snippet
+
+// snippet string_url_decode
+println "63%2F2%253+%3D55".url_decode()
+// end snippet
+
+// snippet string_md5
+println "borra sor meggyotor".md5()
+// end snippet
+
+// snippet string_sha_1
+println "borra sor meggyotor".sha_1()
+// end snippet
+
+// snippet string_sha_256
+println "borra sor meggyotor".sha_256()
+// end snippet
+
+// snippet string_sha_512
+println "borra sor meggyotor".sha_512()
+// end snippet
+
+// snippet string_digest
+println "borra sor meggyotor".digest("sha-512")
+// end snippet
+
+// snippet string_base64
+println "borra sor meggyotor".base64()
+// end snippet
+
+// snippet string_from_base64
+println "Ym9ycmEgc29yIG1lZ2d5b3Rvcg==".from_base64()
+// end snippet
+
+// snippet string_from_base64_str
+println "Ym9ycmEgc29yIG1lZ2d5b3Rvcg==".from_base64_str()
+// end snippet
+
+// snippet string_contains
+println "Ym9ymcAgc29yIG1lZ2d5b3Rvcg==".contains("ymcA")
+println "Ym9ymcAgc29yIG1lZ2d5b3Rvcg==".contains("bora nora")
+// end snippet
+
+// snippet string_contains_regex
+println "Ym9ymcAgc29yIG1lZ2d5b3Rvcg==".contains_regex("IG.*cg")
+println "Ym9ymcAgc29yIG1lZ2d5b3Rvcg==".contains_regex("YmZ.*?nora")
+// end snippet
+
+// snippet string_matches
+println "Ym9ymcAgc29yIG1lZ2d5b3Rvcg==".matches("Ym.*cg..")
+println "Ym9ymcAgc29yIG1lZ2d5b3Rvcg==".matches("ym.*cA")
+// end snippet
+
+// snippet string_matches_glob
+println "my_precious_text_file.txt".matches_glob("*.txt")
+println "my_precious_text_file.txt".matches_glob("*.turx")
+// end snippet
+
+// snippet string_is_blank
+println "\n\t  ".is_blank()
+println "\n\t  wupps".is_blank()
+// end snippet
+
+// snippet string_is_empty
+println "".is_empty()
+println "\n\t  ".is_empty()
+// end snippet
+
+// snippet string_is_numeric
+println "653".is_numeric()
+println "6E23".is_numeric()
+println "3.1425923".is_numeric()
+println "10.13.55.2".is_numeric()
+// end snippet
+
+// snippet string_is_digit
+println "653".is_digit()
+println "6E23".is_digit()
+println "3.1425923".is_digit()
+println "10.13.55.2".is_digit()
+// end snippet
+
+// snippet string_is_alpha
+println "ABC".is_alpha()
+println "ABC DEF".is_alpha()
+println "ABCDEF13".is_alpha()
+// end snippet
+
+// snippet string_is_alphanumeric
+println "ABC".is_alphanumeric()
+println "ABC DEF".is_alphanumeric()
+println "ABCDEF13".is_alphanumeric()
+// end snippet
+
+// snippet string_is_hex
+println "ABC".is_hex()
+println "ABC DEF".is_hex()
+println "ABCDEF13".is_hex()
+// end snippet
+
+// snippet string_int
+println "632".int()
+// end snippet
+
+// snippet string_float
+println "3.1415929".float()
+// end snippet
+
+// snippet string_number
+println "61".number(7)
+// end snippet
+
+// snippet string_hex
+println "2F".hex()
+println "0x2F".hex()
+// end snippet
+
+// snippet string_substring
+println "alma ata".substring(5)
+println "alma ata".substring(5,53)
+println "alma ata".substring(5,7)
+println "alma ata".substring(-3,7)
+// end snippet
+
+// snippet string_remove_prefix
+println "alma ata".remove_prefix("alma")
+println "alma ata".remove_prefix("apple")
+// end snippet
+
+// snippet string_remove_postfix
+println "alma ata".remove_postfix("ata")
+println "alma ata".remove_postfix("alma")
+// end snippet
+
+// snippet string_count_substring
+println "almal atal".count_substring("al")
+println ("a"*6).count_substring("aa")
+// end snippet
+
+// snippet string_count_substring_overlap
+println "almal atal".count_substring_overlap("al")
+println ("a"*6).count_substring_overlap("aa")
+// end snippet
+
+// snippet string_left
+println "alma ata".left(4)
+// end snippet
+
+// snippet string_right
+println "alma ata".right(3)
+// end snippet
+
+
+// snippet string_replace_all
+println "alma ata".replace_all("a(.*?)a","b$1b")
+// end snippet
+
+// snippet string_quote
+let s= """z\t \\ a\n"a"""
+let q = s.quote()
+println $"${q} len q=${len(q)} len s=${len(s)}"
+// end snippet
+
+// snippet string_reverse
+println "alma ata".reverse()
+// end snippet
+
+// snippet string_times
+println "alma ".times(5)
+// end snippet
+
+// snippet string_lower_case
+println "aLMa aTTa".lower_case()
+// end snippet
+
+// snippet string_upper_case
+println "aLMa aTTa".upper_case()
+// end snippet
+
+// snippet string_swap_case
+println "aLMa aTTa".swap_case()
+// end snippet
+
+// snippet string_capitalize
+println "aLMa aTTa".capitalize()
+// end snippet
+
+// snippet string_title
+println "aLMa aTTa".title()
+// end snippet
+
+// snippet string_casefold
+println "Straße".casefold()
+// end snippet
+
+// snippet string_trim
+let s=" \u202Fspace elol hatul "
+println s
+println s.trim()
+// end snippet
+
+// snippet string_strip
+let s="\u202F space elol hatul "
+println s
+println s.strip()
+// end snippet
+
+// snippet string_strip_leading
+let s="\u202F space elol hatul "
+println s
+println s.strip_leading()
+// end snippet
+
+// snippet string_strip_trailing
+let s="\u202F space elol hatul "
+println s
+println s.strip_trailing()
+// end snippet
+
+// snippet string_strip_indent
+let s="""
+    bruhaha
+      marha
+  korte
+  valaka mortunaktraburnaki                  """
+println s.strip_indent()
+// end snippet
+
+// snippet string_starts_with
+println "alma ata".starts_with("alma")
+println "alma ata".starts_with("ata")
+// end snippet
+
+// snippet string_ends_with
+println "alma ata".ends_with("alma")
+println "alma ata".ends_with("ata")
+// end snippet
+
+// snippet string_partition
+mut s = "abraka; muhaha dabra; mutabor; kalifa";
+while !s.is_empty() {
+  let [start, sep, s_new ] = s.partition("; ")
+  s = s_new
+  println start
+}
+// end snippet
+
+// snippet string_partition_regex
+mut s = "abraka, muhaha dabra, mutabor; kalifa";
+while !s.is_empty() {
+  let [start, sep, s_new ] = s.partition_regex("[ ,;]+")
+  s = s_new
+  println start
+}
+// end snippet
+
+// snippet string_split
+println jsonify("abraka, muhaha dabra, mutabor; kalifa".split("[ ,;]+",3));
+// end snippet
+
+// snippet string_bytes
+println "alma ata".bytes()
+// end snippet
+
+// snippet string_join
+println ":".join([".","/usr/bin","usr/local/bin"])
+// end snippet
+
+// snippet string_char_at
+for i=0 ; i < 8 ; i++ :
+    print "alma ata".char_at(i)
+// end snippet
+
+// snippet string_safe_char_at
+for i=-3 ; i < 18 ; i++ :
+    print "alma ata".safe_char_at(i)
+// end snippet
+
+// snippet string_index_of
+println "alma ata".index_of("lma")
+println "alma ata".index_of("amla")
+// end snippet
+
+// snippet string_last_index_of
+println "alma ata".last_index_of("a")
+println "alma ata".last_index_of("amla")
+// end snippet
+
+
+
+// snippet string_chop
+mut s = "alma ata\n";
+println s;
+s = s.chop()
+println s;
+s = s.chop()
+println s;
+s = s.chop()
+println s;
+// end snippet
+
+// snippet string_chomp
+mut s = "alma ata\n";
+println s;
+s = s.chomp()
+println s;
+s = s.chomp()
+println s;
+s = s.chomp()
+println s;
+// end snippet
+
+
+
+
+// snippet string_pad_left
+println "avalanche".pad_left(15)
+println "avalanche".pad_left(15,".")
+// end snippet
+
+// snippet string_pad_right
+println "avalanche".pad_right(15),"<<"
+println "avalanche".pad_right(15,"."),"<<"
+// end snippet
+
 // snippet to_xml
 sys_import "turi.xml";
 
@@ -475,11 +834,15 @@ while st.has_next() :
     println(st.next());
 // end snippet
 
+// snippet string_length
+print len("abraka dabra") == "abraka debra".length()
+// end snippet
+
 // snippet fun1
 fn inc(x) {
   x+1
 }
-println(inc)
+println((""+inc).left(len("ch.turic.commands.Closure@")))
 println(inc(1))
 // end snippet
 
@@ -487,7 +850,7 @@ println(inc(1))
 fn inc x {
   x+1
 }
-println(inc)
+println((""+inc).left(len("ch.turic.commands.Closure@")))
 println(inc(1))
 // end snippet
 
@@ -495,7 +858,7 @@ println(inc(1))
 mut inc = fn (x) {
   x+1
 }
-println(inc)
+println((""+inc).left(len("ch.turic.commands.Closure@")))
 println(inc(1))
 // end snippet
 
@@ -503,7 +866,7 @@ println(inc(1))
 fn inc !x, @how_much {
   x+how_much
 }
-println(inc)
+println((""+inc).left(len("ch.turic.commands.Closure@")))
 println(inc(1,how_much=5))
 // end snippet
 
@@ -1177,7 +1540,7 @@ none
 
 mut z = async[] [ 1, 2,  3, 4];
 mut k = await z
-print k
+print str(k).left(len("ch.turic.memory.Channel$SimpleMessage@"))
 
 // end snippet
 // snippet try_yield
@@ -1567,7 +1930,7 @@ catch err: println err
 
 // snippet fun10
 fn p()=len "original K";
-println p()
+println str(p()).left("ch.turic.builtins.functions.Len".length())
 // end snippet
 
 // snippet fun11
@@ -1838,9 +2201,9 @@ println "22. ","alma kadarka".left(4)
 println "23. ","alma kadarka".right(4)
 println "24. ","alma kadarka".count_substring("a")
 println "25. ","kadarka".pad_left(12)
-println "26. ","kadarka".pad_left(".",12)
+println "26. ","kadarka".pad_left(12,".")
 println "27. ","kadarka".pad_right(12) + "<"
-println "28. ","kadarka".pad_right(".",12)
+println "28. ","kadarka".pad_right(12,".")
 println "29. ","   ".is_blank()
 println "30. ","   ".is_empty()
 println "31. ","+6.2E23".is_numeric()
@@ -2192,6 +2555,31 @@ mut _sqrt = {
 println("sqrt(13) ≈ ", _sqrt);
 println("sqrt(13) ≈ ", sqrt(13), " calulated by java Math");
 println("square ≈ ", _sqrt * _sqrt);
+// end snippet
+
+// snippet glob1
+sys_import "turi.io"
+
+println jsonify_beauty(glob("**/test-classes/**/*.class", recursive=true))
+// end snippet
+
+// snippet glob2
+sys_import "turi.io", "glob"
+
+println jsonify_beauty(glob("*"))
+// end snippet
+
+
+// snippet env1
+println env().JAVA_HOME
+// end snippet
+
+// snippet env2
+println env("JAVA_HOME")
+// end snippet
+
+// snippet env3
+println env("JAVA_*")
 // end snippet
 
 // snippet example_flow_timeout
@@ -2603,7 +2991,6 @@ println "ieee_remainder(5,2) = ", ieee_remainder(5,2)
 println "next_after(1.0,2.0) = ", next_after(1.0,2.0)
 println "next_down(1.0) = ", next_down(1.0)
 println "next_up(1.0) = ", next_up(1.0)
-println "random() = ", random()
 println "rint(3.7) = ", rint(3.7)
 println "round(3.7) = ", round(3.7)
 println "signum(-3.7) = ", signum(-3.7)

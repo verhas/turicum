@@ -6,9 +6,6 @@
 
 
 
-
-
-
 == Introduction
 
 === What is Turicum?
@@ -128,7 +125,6 @@ More details about expressions, control flow, and declarations can be found in t
 
 A Turicum program is a list of commands, executed from start to end.
 
-
 .source of snippet `first_sample`
 [source]
 ----
@@ -136,11 +132,7 @@ print "Hello,";
 println " World"
 for i=1 ; i < 3 ; i = i+1 : println(i)
 
-
 ----
-
-
-
 
 .output of snippet `first_sample`
 [source]
@@ -150,7 +142,6 @@ Hello, World
 2
 
 ----
-
 
 
 A command is usually terminated by a semicolon (`;`).
@@ -166,18 +157,13 @@ For example, an `if` statement returns the value of the executed command:
 * the `else` block if the condition is `false` and an `else` is present, or
 * `none` if there is no `else` block.
 
-
 .source of snippet `if_value`
 [source]
 ----
 mut z : num = {if 232 % 2 == 0 : 1 else: 2 }
 println(z)
 
-
 ----
-
-
-
 
 .output of snippet `if_value`
 [source]
@@ -187,10 +173,8 @@ println(z)
 ----
 
 
-
 Command blocks can appear within expressions.
 The value of a command block is the result of the last executed expression.
-
 
 .source of snippet `block_value`
 [source]
@@ -201,11 +185,7 @@ mut z = {
     }
 println(z)
 
-
 ----
-
-
-
 
 .output of snippet `block_value`
 [source]
@@ -213,7 +193,6 @@ println(z)
 Hicory
 
 ----
-
 
 
 Expressions can contain:
@@ -350,18 +329,13 @@ Numeric literals can be either integers or floating-point numbers.
 * Integers are written as sequences of digits, e.g., `42`, `0`, `123456`.
 * or in hexadecimal with `0x` prefix
 
-
 .source of snippet `hexNumber`
 [source]
 ----
 mut z = 0xFfE3;
 println z
 
-
 ----
-
-
-
 
 .output of snippet `hexNumber`
 [source]
@@ -369,7 +343,6 @@ println z
 65507
 
 ----
-
 
 
 * Floating-point numbers contain a decimal point or exponent part, e.g., `3.14`, `2e10`, `1.0e-3`.
@@ -394,24 +367,18 @@ Backslash escapes are supported:
 
 Example:
 
-
 .source of snippet `string`
 [source]
 ----
 print "this is a simple string"
 
-
 ----
-
-
-
 
 .output of snippet `string`
 [source]
 ----
 this is a simple string
 ----
-
 
 
 ==== Multiline Strings
@@ -422,7 +389,6 @@ They preserve line breaks and indentation exactly as written.
 Escape sequences are still processed.
 
 Example:
-
 .source of snippet `mlstring`
 [source]
 ----
@@ -432,11 +398,7 @@ Hello,
 Goodbye.
 """
 
-
 ----
-
-
-
 
 .output of snippet `mlstring`
 [source]
@@ -450,12 +412,10 @@ Goodbye.
 ----
 
 
-
 ==== Interpolated Strings
 
 A string literal starting with `$"` or `$"""` is interpolated every time it is used.
 Interpolation means that the parts of the string enclosed between `${}` and `$()` are executed as command blocks and their result takes their place in the string.
-
 
 .source of snippet `istring1`
 [source]
@@ -463,11 +423,7 @@ Interpolation means that the parts of the string enclosed between `${}` and `$()
 let a = 3;
 println $"a is ${a}"
 
-
 ----
-
-
-
 
 .output of snippet `istring1`
 [source]
@@ -477,12 +433,10 @@ a is 3
 ----
 
 
-
 The blocks are executed in the same context as the string.
 The `${}` being a wrapping block opens a new local context.
 On the other hand, `$()` does not open a new local context.
 That way any declaration inside the `$()` will happen in the surrounding context.
-
 
 .source of snippet `istring2`
 [source]
@@ -492,11 +446,7 @@ println $"define b, not local $(let b = 4)"
 println "is a defined? ", if is_defined(a) : $"yes, it is ${a}" else: "no"
 println "is b defined? ", if is_defined(b) : $"yes, it is ${b}" else: "no"
 
-
 ----
-
-
-
 
 .output of snippet `istring2`
 [source]
@@ -507,7 +457,6 @@ is a defined? no
 is b defined? yes, it is 4
 
 ----
-
 
 
 
@@ -531,17 +480,12 @@ Prefer simpler expressions and commands within interpolated strings.
 
 Here is a convoluted example that you have to avoid:
 
-
 .source of snippet `istring3`
 [source]
 ----
 println $"${ $\"${6*6}\"}"
 
-
 ----
-
-
-
 
 .output of snippet `istring3`
 [source]
@@ -549,7 +493,6 @@ println $"${ $\"${6*6}\"}"
 36
 
 ----
-
 
 
 It's best to use simple, clear expressions and straightforward commands that avoid nested structures or embedded string literals.
@@ -584,7 +527,6 @@ supporting both functional and imperative styles of expression.
 
 Turicum supports JSON-like literals directly in the language syntax. These can be written using JavaScript-style object and array literals:
 
-
 .source of snippet `json1`
 [source]
 ----
@@ -600,11 +542,7 @@ mut project = {
 println project.name
 println project.packaging
 
-
 ----
-
-
-
 
 .output of snippet `json1`
 [source]
@@ -613,7 +551,6 @@ turicum-parent
 pom
 
 ----
-
 
 
 JSON keys can be identifiers or strings.
@@ -626,7 +563,6 @@ The values are evaluated when the literal is evaluated.
 To defer the evaluation of a JSON literal until it is accessed, Turicum provides _lazy JSON_ literals.
 
 These are written with a `+&+` prefix before the JSON object:
-
 
 .source of snippet `lazy_json1`
 [source]
@@ -648,11 +584,7 @@ println project.name
 println project.packaging
 println project.name
 
-
 ----
-
-
-
 
 .output of snippet `lazy_json1`
 [source]
@@ -664,7 +596,6 @@ Getting name
 turicum-parent
 
 ----
-
 
 
 Lazy JSON is not evaluated at definition time.
@@ -681,7 +612,6 @@ Lists can be defined using square brackets `+[]+`.
 
 List elements are expressions and are separated by commas:
 
-
 .source of snippet `ListLiteral1`
 [source]
 ----
@@ -690,11 +620,7 @@ println [1, 2, 3, 4]
 println ["apple", "banana", "cherry"]
 println [1 + 2, computed]
 
-
 ----
-
-
-
 
 .output of snippet `ListLiteral1`
 [source]
@@ -704,7 +630,6 @@ println [1 + 2, computed]
 [3, 3]
 
 ----
-
 
 
 Lists are mutable by default and can be indexed using the `+[]+` operator.
@@ -717,7 +642,6 @@ Lists can contain mixed types, but you are encouraged to use homogeneous lists f
 List literals also support flattening other lists using the `..` prefix.
 For example:
 
-
 .source of snippet `ListLiteral2`
 [source]
 ----
@@ -725,11 +649,7 @@ mut a = [1, 2, 3, 4]
 mut b = ["apple", ..a, "banana", "cherry"]
 println b
 
-
 ----
-
-
-
 
 .output of snippet `ListLiteral2`
 [source]
@@ -739,9 +659,7 @@ println b
 ----
 
 
-
 This is also the way to concatenate lists:
-
 
 .source of snippet `ListLiteral3`
 [source]
@@ -750,11 +668,7 @@ mut a = [1, 2, 3, 4]
 mut b = [5, 6, 7]
 println([..a, ..b])
 
-
 ----
-
-
-
 
 .output of snippet `ListLiteral3`
 [source]
@@ -764,9 +678,7 @@ println([..a, ..b])
 ----
 
 
-
 The `pass:[+]`, `-` and `*` operators are also defined for lists.
-
 
 .source of snippet `ListLiteral4`
 [source]
@@ -779,11 +691,7 @@ println a,"*", b,"=", a*b
 println a,"+\"sixteen\"=", a+"sixteen"
 println a,"-",2,"=", a-2
 
-
 ----
-
-
-
 
 .output of snippet `ListLiteral4`
 [source]
@@ -797,10 +705,8 @@ println a,"-",2,"=", a-2
 ----
 
 
-
 The `pass:[+]` will concatenate the two lists, or append a single element to the list.
 If you want to append a list to a list instead of concatenation, you have to enclose it into a list.
-
 
 .source of snippet `ListLiteral5`
 [source]
@@ -809,11 +715,7 @@ mut a = [1, 2, 3, 4]
 mut b = [1, 3]
 println a+[b]
 
-
 ----
-
-
-
 
 .output of snippet `ListLiteral5`
 [source]
@@ -823,13 +725,11 @@ println a+[b]
 ----
 
 
-
 The `-` will remove the elements from the list.
 
 The operator `*` will create the Descartes product of the two lists.
 
 If you want to remove a certain element or part of the list, you can compose a new list from the necessary parts:
-
 
 .source of snippet `ListLiteral6`
 [source]
@@ -837,11 +737,7 @@ If you want to remove a certain element or part of the list, you can compose a n
 mut a = [1, 2, 3, 4]
 println [a[0],..a[2..inf]]
 
-
 ----
-
-
-
 
 .output of snippet `ListLiteral6`
 [source]
@@ -851,10 +747,8 @@ println [a[0],..a[2..inf]]
 ----
 
 
-
 List literals also support filters and mappers.
 For example:
-
 
 .source of snippet `ListLiteral7`
 [source]
@@ -862,11 +756,7 @@ For example:
 mut a = [1, 2, 3, 4 ? {|x| x % 2 == 0 } ]
 println a
 
-
 ----
-
-
-
 
 .output of snippet `ListLiteral7`
 [source]
@@ -876,11 +766,9 @@ println a
 ----
 
 
-
 will select only the even elements from the list. The expression or closure following the `?` works as a filter.
 
 You can also apply mappers following a `->`, for example:
-
 
 .source of snippet `ListLiteral8`
 [source]
@@ -888,11 +776,7 @@ You can also apply mappers following a `->`, for example:
 mut a = [1, 2, 3, 4 ? {|x| x % 2 == 0 } -> {|z| return z/2 }]
 println a
 
-
 ----
-
-
-
 
 .output of snippet `ListLiteral8`
 [source]
@@ -902,7 +786,6 @@ println a
 ----
 
 
-
 selects only the even elements and divides each with two.
 You can have multiple mappers and filters following each other mixed.
 
@@ -910,18 +793,13 @@ The mappers and the filters are usually closures and have one argument.
 As a little syntactic sugar the variable `it` is defined when evaluating them.
 It can save up using an argument:
 
-
 .source of snippet `ListLiteral9`
 [source]
 ----
 mut a = [1, 2, 3, 4 ? {|| it % 2 == 0 } -> {|| return it/2 }]
 println a
 
-
 ----
-
-
-
 
 .output of snippet `ListLiteral9`
 [source]
@@ -931,9 +809,7 @@ println a
 ----
 
 
-
 To ease more the syntax, you can use ordinary expressions instead of closures:
-
 
 .source of snippet `ListLiteral10`
 [source]
@@ -941,11 +817,7 @@ To ease more the syntax, you can use ordinary expressions instead of closures:
 mut a = [1, 2, 3, 4 ? it % 2 == 0  -> it/2 ]
 println a
 
-
 ----
-
-
-
 
 .output of snippet `ListLiteral10`
 [source]
@@ -953,7 +825,6 @@ println a
 [1, 2]
 
 ----
-
 
 
 This makes writing filters and mappers very easy.
@@ -998,7 +869,6 @@ They are accessed
 * using the `.` operator followed by the identifier of the field, or
 * using the field identifier, as a string between `[`, and `]`.
 
-
 .source of snippet `field_access`
 [source]
 ----
@@ -1008,11 +878,7 @@ a["z"] = a["k"]
 die if a.z != 55
 println "it is ok"
 
-
 ----
-
-
-
 
 .output of snippet `field_access`
 [source]
@@ -1020,7 +886,6 @@ println "it is ok"
 it is ok
 
 ----
-
 
 
 Creating new fields in an object requires less care than creating new variables.
@@ -1036,7 +901,6 @@ On the other hand, you can use the `pin` command inside the class functions, whe
 and you can also use the `with` command.
 
 The following example demonstrates how the code can pin a field and leave another mutable:
-
 
 .source of snippet `pinned_field`
 [source]
@@ -1058,11 +922,7 @@ try {
 }catch e : println "You cannot do home tuning on a porsch";
 print $"The color of my porsch is ${my_porsch.color}"
 
-
 ----
-
-
-
 
 .output of snippet `pinned_field`
 [source]
@@ -1072,9 +932,7 @@ The color of my porsch is yellow
 ----
 
 
-
 The following example gives you an example to pin a field of a classless object.
-
 
 .source of snippet `pinned_field_with`
 [source]
@@ -1085,11 +943,7 @@ with a : pin b
 try{ a.b = 14 } catch e: println e
 println a.b
 
-
 ----
-
-
-
 
 .output of snippet `pinned_field_with`
 [source]
@@ -1100,9 +954,7 @@ pinned variable cannot be altered 'b'
 ----
 
 
-
 The automatic creation of the fields is transitive.
-
 
 .source of snippet `field_transitive_creation`
 [source]
@@ -1111,11 +963,7 @@ let a = {}
 a.b.c.d.e.f = 1
 println a
 
-
 ----
-
-
-
 
 .output of snippet `field_transitive_creation`
 [source]
@@ -1125,14 +973,12 @@ println a
 ----
 
 
-
 You do not need to create `b`,`c`,`d`, and `e` one by one.
 They will become automatically an `+{}+` classless object.
 
 Accessing a field on the right-hand side of an assignment, or in any expression is more restrictive.
 You can still access a field that is nonexistent, and the value will be `none`, but you cannot access a field on `none`.
 To overcome this, you can use the `or` operator as in the example, or use can use the `?.` field access.
-
 
 .source of snippet `field_none_access`
 [source]
@@ -1148,11 +994,7 @@ let q = a.b?.c
 println $"q is ${q}.. eventually, but at least exists..."
 println $"a was not changed ${a}"
 
-
 ----
-
-
-
 
 .output of snippet `field_none_access`
 [source]
@@ -1165,7 +1007,6 @@ a was not changed {}
 ----
 
 
-
 In the example above we cannot directly access `a.b.c`, but `a.b?.c` works.
 It is also important that accessing the non-existent `a.b` this way will *not* insert a new classless object into `a`.
 It is just a lenient way of accessing fields.
@@ -1174,7 +1015,6 @@ On the left side of the `?.` can be any expression resulting in an object or `no
 On the other hand, there is no `?.` equivalent accessing a field through the `["xxx"]`.
 In that case the only remedy is the `or` operator:
 
-
 .source of snippet `field_none_indexed_access`
 [source]
 ----
@@ -1182,11 +1022,7 @@ let a  = {}
 let q = (a["b"] or {}) ["c"]
 println $"q is ${q}"
 
-
 ----
-
-
-
 
 .output of snippet `field_none_indexed_access`
 [source]
@@ -1194,7 +1030,6 @@ println $"q is ${q}"
 q is none
 
 ----
-
 
 
 === Defined Operators
@@ -1207,17 +1042,12 @@ The operators are the following in order of growing precedence:
 The operator does short-cut evaluation.
 The right side is only evaluated if the left side is `none`.
 
-
 .source of snippet `oror`
 [source]
 ----
 println none or 3
 
-
 ----
-
-
-
 
 .output of snippet `oror`
 [source]
@@ -1227,10 +1057,8 @@ println none or 3
 ----
 
 
-
 * `||` logical OR operation, shortcut evaluated.
 The example below demonstrates the shortcut evaluation, as it works and does not throw an exception:
-
 
 .source of snippet `logical_or`
 [source]
@@ -1241,11 +1069,7 @@ if (7&2) == 2 || 5/0 == inf {
     println "something is wrong"
 }
 
-
 ----
-
-
-
 
 .output of snippet `logical_or`
 [source]
@@ -1255,10 +1079,8 @@ dandy
 ----
 
 
-
 * `&&` logical AND operation, shortcut evaluated.
 The example below demonstrates the shortcut evaluation, as it works and does not throw an exception:
-
 
 .source of snippet `and`
 [source]
@@ -1269,11 +1091,7 @@ if (7&2) == 3 && 5/0 == inf {
     println "dandy"
 }
 
-
 ----
-
-
-
 
 .output of snippet `and`
 [source]
@@ -1281,7 +1099,6 @@ if (7&2) == 3 && 5/0 == inf {
 dandy
 
 ----
-
 
 Note, that you cannot divide by zero, the result is an error and not `inf`.
 
@@ -1306,7 +1123,6 @@ If a field exists in both objects and is not itself an object, the value from th
 If the field values in both objects are objects, the result is their recursive merge using the `|` operation.
 If the field values in both objects are lists, the result is the concatenation of those lists.
 
-
 .source of snippet `bor1`
 [source]
 ----
@@ -1318,11 +1134,7 @@ try:
     3.0 | 3.14
 catch e: println e
 
-
 ----
-
-
-
 
 .output of snippet `bor1`
 [source]
@@ -1335,12 +1147,10 @@ Cannot calculate '3.0' | '3.14'
 ----
 
 
-
 You cannot `|` floating point numbers.
 
 * `^` bitwise XOR operation for integer values and power in the case of double values.
 It calculates the symmetric difference of lists (the concatenation of the two lists without the elements that appear in both).
-
 
 .source of snippet `xor1`
 [source]
@@ -1349,11 +1159,7 @@ println 12 ^ 2
 println ?(12.0 ^ 2) or "does not work for floating points"
 println( [1,2,3] ^ [3,4,5] )
 
-
 ----
-
-
-
 
 .output of snippet `xor1`
 [source]
@@ -1365,7 +1171,6 @@ does not work for floating points
 ----
 
 
-
 * `&` bitwise AND operation.
 +
 This operator behaves conventionally for integers.
@@ -1373,7 +1178,6 @@ This operator behaves conventionally for integers.
 It is also defined for lists, where it returns the intersection of the two lists, containing only unique elements.
 +
 The `+&+` operator is not defined for floating-point numbers.
-
 
 .source of snippet `band1`
 [source]
@@ -1384,11 +1188,7 @@ try:
     3.0 & 3.14
 catch e: println e
 
-
 ----
-
-
-
 
 .output of snippet `band1`
 [source]
@@ -1400,11 +1200,9 @@ Cannot calculate '3.0' & '3.14'
 ----
 
 
-
 * `===`, ==`, `!=`, `in` are "the same", equal, not equal, and part-of operators.
 The `in` operator works on a list to check if an element is in that list,
 or on strings to check the existence of a substring.
-
 
 .source of snippet `equal1`
 [source]
@@ -1421,11 +1219,7 @@ println k === q, " k is not the same as q"
 println w == "ohmy", " w is 'ohmy'"
 println w === "ohmy", " w is not that 'ohmy'"
 
-
 ----
-
-
-
 
 .output of snippet `equal1`
 [source]
@@ -1442,12 +1236,10 @@ false w is not that 'ohmy'
 ----
 
 
-
 The operator `===` tests that the two objects are the same.
 Numerical values are compared by value, but all other objects are tested for being the same, even strings.
 
 The `in` operation works for strings checking if a string is part of another, as well as for lists.
-
 
 .source of snippet `inop`
 [source]
@@ -1457,11 +1249,7 @@ println "raka" in "evreke debre", " there is no raka in 'evreke debre'"
 println 3 in [1,2,3], " 3 is in [1,2,3]"
 println 3 in [1,2,4], " 3 is not in [1,2,4]"
 
-
 ----
-
-
-
 
 .output of snippet `inop`
 [source]
@@ -1475,9 +1263,7 @@ false 3 is not in [1,2,4]
 
 
 
-
 * `<`, `+<=+`, `>`, `>=` usual size comparison operators.
-
 
 .source of snippet `compare`
 [source]
@@ -1487,11 +1273,7 @@ println 3 <= 3
 println 4 > 3
 println 4 >= 4
 
-
 ----
-
-
-
 
 .output of snippet `compare`
 [source]
@@ -1505,12 +1287,10 @@ true
 
 
 
-
 * `<<`, `>>`, `>>>` left shift, right shift, and signed right shift operators.
 
 The `>>` works also on strings and lists.
 It merges the characters/elements of the two operands:
-
 
 .source of snippet `shr1`
 [source]
@@ -1519,11 +1299,7 @@ println 8>>2
 println "artany" >> "...... ..."
 println([1,2,3] >> [-1,-2,-3])
 
-
 ----
-
-
-
 
 .output of snippet `shr1`
 [source]
@@ -1533,7 +1309,6 @@ a.r.t.a.n.y. ...
 [1, -1, 2, -2, 3, -3]
 
 ----
-
 
 
 
@@ -1554,7 +1329,6 @@ You cannot `pass:[*]` a list and something else, like a number.
 `%` for lists creates the symmetric difference, thus the elements of the two lists which are presented mutually only in one of them.
 The following example shows the use of these operators and also the Turicum list literal filtered equivalent for the symmetric difference calculation.
 
-
 .source of snippet `mod1`
 [source]
 ----
@@ -1566,11 +1340,7 @@ println( [1,2] * [6])
 println( [1,2,3] % [3,4,5] )
 println( [1,2,3 ? it in [3,4,5]] )
 
-
 ----
-
-
-
 
 .output of snippet `mod1`
 [source]
@@ -1584,7 +1354,6 @@ aa aa aa aa aa aa
 [3]
 
 ----
-
 
 
 .functions argument default values
@@ -1607,7 +1376,6 @@ On the other hand, a `++` or `--` after a complex left value may be hard to read
 For this reason the language permits the post-increment and post-decrement operators inside an expression only if it is applied on a simple variable left value.
 If you want to apply a post-increment or a post-decrement operator on a field value or a list element, then you have to enclose it between `(` and `)`.
 
-
 .source of snippet `incremento`
 [source]
 ----
@@ -1622,18 +1390,13 @@ let h = (x[0]++); // valid, there is a command between ( and )
 // let t = ++x[0]; it would not compile
 let t = (++x[0]); // valid again, enclosed
 
-
 ----
-
-
-
 
 .output of snippet `incremento`
 [source]
 ----
 
 ----
-
 
 
 Although the increment and decrement operators are implemented as commands, they can be overloaded for objects.
@@ -1646,7 +1409,6 @@ One implementation in each pair treats the object immutable and returns a new ob
 The other mutates the object and returns the modified object.
 
 The example functionality is incrementing, decrementing a field, but the actual use can be anything.
-
 
 .source of snippet `incrementable1`
 [source]
@@ -1677,32 +1439,26 @@ z.p("z")
 println "h id=%X" % id_hash(h);
 println "z id=%X" % id_hash(z);
 
-
 ----
-
-
-
 
 .output of snippet `incrementable1`
 [source]
 ----
 h original: 0
-h id=1FCB4808
+h id=2B491FEE
 h after post increment: 1
 k: 0
-h id=726E5805
-k id=1FCB4808
+h id=3F1C5AF9
+k id=2B491FEE
 h after pre increment: 2
 z: 2
-h id=40C80397
-z id=40C80397
+h id=1C55F277
+z id=1C55F277
 
 ----
 
 
-
 You can track the different object instances using the hex output from the `id_hash` function.
-
 
 .source of snippet `incrementable2`
 [source]
@@ -1734,28 +1490,23 @@ z.p("z")
 println "h id=%X" % id_hash(h);
 println "z id=%X" % id_hash(z);
 
-
 ----
-
-
-
 
 .output of snippet `incrementable2`
 [source]
 ----
 h original: 0
-h id=ED3068A
+h id=5DDABB18
 h after post increment: 1
 k: 1
-h id=ED3068A
-k id=ED3068A
+h id=5DDABB18
+k id=5DDABB18
 h after pre increment: 2
 z: 2
-h id=ED3068A
-z id=ED3068A
+h id=5DDABB18
+z id=5DDABB18
 
 ----
-
 
 
 In this example the identity of the object remains the same, all the identity hex codes are the same.
@@ -1763,7 +1514,6 @@ There is only one object created.
 It also means that there is not much difference between pre-, and post-increment.
 
 The next two example implements the same functionality for the `--` operator.
-
 
 .source of snippet `decrementable1`
 [source]
@@ -1794,29 +1544,23 @@ z.p("z")
 println "h id=%X" % id_hash(h);
 println "z id=%X" % id_hash(z);
 
-
 ----
-
-
-
 
 .output of snippet `decrementable1`
 [source]
 ----
 h original: 0
-h id=3FFFFF43
+h id=3E8F7922
 h after post decrement: -1
 k: 0
-h id=1C7FD41F
-k id=3FFFFF43
+h id=63192798
+k id=3E8F7922
 h after pre decrement: -2
 z: -2
-h id=3B77A04F
-z id=3B77A04F
+h id=50ECA7C6
+z id=50ECA7C6
 
 ----
-
-
 
 .source of snippet `decrementable2`
 [source]
@@ -1848,28 +1592,23 @@ z.p("z")
 println "h id=%X" % id_hash(h);
 println "z id=%X" % id_hash(z);
 
-
 ----
-
-
-
 
 .output of snippet `decrementable2`
 [source]
 ----
 h original: 0
-h id=5974109
+h id=58E6D4B8
 h after post decrement: -1
 k: -1
-h id=5974109
-k id=5974109
+h id=58E6D4B8
+k id=58E6D4B8
 h after pre decrement: -2
 z: -2
-h id=5974109
-z id=5974109
+h id=58E6D4B8
+z id=58E6D4B8
 
 ----
-
 
 
 See also the next section about operator overloading.
@@ -1894,7 +1633,6 @@ The unary operator `~` is bitwise negation.
 The unary operator `?` returns the original value without any modification or `none` if the calculation of the argument resulted in an error.
 The original value can also be `none`.
 
-
 .source of snippet `bnot`
 [source]
 ----
@@ -1903,11 +1641,7 @@ println $"!true is ${!true}"
 println $"+13 is just ${+13}"
 println $"-13 is just ${-(13)}"
 
-
 ----
-
-
-
 
 .output of snippet `bnot`
 [source]
@@ -1920,14 +1654,12 @@ negating all bits in 3 -4
 ----
 
 
-
 NOTE: The character `?` can have different meaning based on the context.
 It can be part of conditional field access, when used as `a?.b` returning `none` when `a` is `none` or has no field `b`.
 It can also signal the start of a filter in a list literal.
 
 Operators can be overridden in the classes.
 If you have a method named the same name as an operator, it will be invoked to perform the calculation.
-
 
 .source of snippet `objectAddition1`
 [source]
@@ -1942,11 +1674,7 @@ class LN {
 }
 println (LN(2) + LN(4)).a
 
-
 ----
-
-
-
 
 .output of snippet `objectAddition1`
 [source]
@@ -1956,14 +1684,12 @@ println (LN(2) + LN(4)).a
 ----
 
 
-
 In the example above the class is redefining the `+` operator, and it returns an object that has the product of the fields `a`.
 Thus `LN(2) + LN(4)` is `LN(8)`.
 
 You can override any of the predefined operators.
 
 When overriding the operator `==` the result has to be something that can be converted to boolean.
-
 
 .source of snippet `myEqual`
 [source]
@@ -1987,11 +1713,7 @@ y.b = "y"
 println "x == y is %s" % (x == y)
 println "y == z is %s" % (y == z)
 
-
 ----
-
-
-
 
 .output of snippet `myEqual`
 [source]
@@ -2002,7 +1724,6 @@ y == z is true
 ----
 
 
-
 Class `A` redefines the `==` operator to compare only the field `a`.
 If there is a difference in other fields, the instances of the class are still the same.
 
@@ -2011,7 +1732,6 @@ The default implementation compares all the fields in the two objects, and it al
 In the example, all the objects are equal.
 
 If we modify the equality check to consider the classes, we get a different result:
-
 
 .source of snippet `myEqual2`
 [source]
@@ -2031,11 +1751,7 @@ y.b = "y"
 
 println "y == z is %s" % (y == z)
 
-
 ----
-
-
-
 
 .output of snippet `myEqual2`
 [source]
@@ -2043,7 +1759,6 @@ println "y == z is %s" % (y == z)
 y == z is false
 
 ----
-
 
 
 === Using parentheses
@@ -2104,7 +1819,6 @@ You can have a whole code block between the `()` characters, similarly to `+{}+`
 
 The major difference between the two is that the code between `()` is executed in the same context as the expression, while the code block between `+{}+` opens a new context.
 
-
 .source of snippet `pscope`
 [source]
 ----
@@ -2115,11 +1829,7 @@ println "2*3=",2*{mut k=3}
 try : mut h = 2*k
 catch e : println e;
 
-
 ----
-
-
-
 
 .output of snippet `pscope`
 [source]
@@ -2130,7 +1840,6 @@ s is defined and it is 3
 Variable 'k' is undefined.
 
 ----
-
 
 
 Because not only every command is a value but also every expression is a command, you can use the `()` to group commands to be executed in the same context as the code environment.
@@ -2149,7 +1858,6 @@ Scopes are created in run-time, like everything in Turicum.
 
 Code blocks open a new context, and they wrap the surrounding context.
 
-
 .source of snippet `scope1`
 [source]
 ----
@@ -2166,14 +1874,7 @@ try:
     println(k)
 catch err: println err
 
-
 ----
-
-
-
-
-will output
-
 
 .output of snippet `scope1`
 [source]
@@ -2195,7 +1896,6 @@ You can use a variable name defined in a wrapped (outer) context essentially hid
 You cannot refer to both in a context.
 When you use a variable defined in a wrapped (outer) context, you cannot define it after that as local using `let` or `mut`.
 
-
 .source of snippet `local_redefined_error`
 [source]
 ----
@@ -2209,14 +1909,7 @@ try{
     println(ex)
 }
 
-
 ----
-
-
-
-
-will output:
-
 
 .output of snippet `local_redefined_error`
 [source]
@@ -2232,7 +1925,6 @@ Variable cannot be local, it is already used as non-local 'z'
 Class declarations and functions do not wrap the surrounding context.
 In the following example, modifying the global variable `glb` is not possible without declaration.
 The class and the function do not wrap the surrounding, global context.
-
 
 .source of snippet `function_scope`
 [source]
@@ -2261,14 +1953,7 @@ class A {
 mut obj = A()
 println(obj.z())
 
-
 ----
-
-
-
-
-The output of the program is:
-
 
 .output of snippet `function_scope`
 [source]
@@ -2286,7 +1971,6 @@ Unless the method is a constructor (named aptly as `constructor`) these variable
 
 Code inside a class, outside any method is executed when the class is defined.
 
-
 .source of snippet `class_definition`
 [source]
 ----
@@ -2297,19 +1981,7 @@ println("class var ", X.s)
 mut x = X();
 println("object var ", x.s)
 
-
 ----
-
-
-
-
-The code above defines a class named `X`.
-This class has a class context variable `s`.
-It can be accessed as a field of the class itself `X.s`.
-
-Variable `x` is initialized to hold an instance of this class.
-Using `x.s` will reference the same variable, because objects wrap the context of the class.
-
 
 .output of snippet `class_definition`
 [source]
@@ -2320,8 +1992,14 @@ object var hu
 ----
 
 
-The following example details these different access scenarios:
+The code above defines a class named `X`.
+This class has a class context variable `s`.
+It can be accessed as a field of the class itself `X.s`.
 
+Variable `x` is initialized to hold an instance of this class.
+Using `x.s` will reference the same variable, because objects wrap the context of the class.
+
+The following example details these different access scenarios:
 
 .source of snippet `object_scope`
 [source]
@@ -2355,12 +2033,7 @@ class X {
 mut x = X();
 x.t()
 
-
 ----
-
-
-
-
 
 .output of snippet `object_scope`
 [source]
@@ -2376,6 +2049,7 @@ cls.s=class field
 s=class field
 
 ----
+
 
 
 === Closure scopes
@@ -2398,7 +2072,6 @@ Technically functions are closures that do not wrap their definition contexts.
 
 In the following example, the closure can access and even modify the variable `whom` inside a block.
 
-
 .source of snippet `closure_example`
 [source]
 ----
@@ -2412,11 +2085,7 @@ mut c = {
 c("Hello, ")
 c("Hi, ")
 
-
 ----
-
-
-
 
 .output of snippet `closure_example`
 [source]
@@ -2425,7 +2094,6 @@ Hello, World!
 Hi, Universe!
 
 ----
-
 
 
 The variable `whom` lives only inside the block.
@@ -2464,7 +2132,6 @@ Code inside macros can call the global function `evaluate` on the arguments.
 This way macros can decide which arguments to evaluate and what order, or how many times.
 The following simple macro reimplements the `if` command's functionality using it:
 
-
 .source of snippet `macro_example`
 [source]
 ----
@@ -2479,18 +2146,13 @@ print(
 
     );
 
-
 ----
-
-
-
 
 .output of snippet `macro_example`
 [source]
 ----
 yes, it is true
 ----
-
 
 
 When a macro calls the function `evaluate` the evaluation happens in the caller context.
@@ -2610,7 +2272,6 @@ You can define multiple types for a variable separating the types with `|`. For 
 
 The following example declares a variable that can hold a string or a numeric value.
 
-
 .source of snippet `let_with_types_example`
 [source]
 ----
@@ -2618,11 +2279,7 @@ mut c : str |num = 3;
 c = "" + c + " == " + c
 println(c)
 
-
 ----
-
-
-
 
 .output of snippet `let_with_types_example`
 [source]
@@ -2632,10 +2289,8 @@ println(c)
 ----
 
 
-
 If you use the format `let { identifier list } = expression` then the identifiers are not followed by expressions individually.
 Instead, the expression after the `=` is evaluated once, used as an object and the fields are assigned to the variables of the same name on the left side.
-
 
 .source of snippet `flat_let_object1`
 [source]
@@ -2647,11 +2302,7 @@ println a
 println b
 println c
 
-
 ----
-
-
-
 
 .output of snippet `flat_let_object1`
 [source]
@@ -2663,9 +2314,7 @@ count
 ----
 
 
-
 It is not an error if there are fields in the object not read during the assignment and also if some of the variables do not have matching fields.
-
 
 .source of snippet `flat_let_object2`
 [source]
@@ -2678,11 +2327,7 @@ println b
 println c
 println f
 
-
 ----
-
-
-
 
 .output of snippet `flat_let_object2`
 [source]
@@ -2695,10 +2340,8 @@ none
 ----
 
 
-
 If you use the format `let [ identifier list ] = expression` then the identifiers are not followed by expressions individually.
 Instead, the expression after the `=` is evaluated once, used as a list and the elements are assigned to the variables.
-
 
 .source of snippet `flat_let_list1`
 [source]
@@ -2708,11 +2351,7 @@ println a
 println b
 println c
 
-
 ----
-
-
-
 
 .output of snippet `flat_let_list1`
 [source]
@@ -2724,9 +2363,7 @@ println c
 ----
 
 
-
 It is an error if there are not enough or too many elements in the list on the right-hand side.
-
 
 .source of snippet `flat_let_list2`
 [source]
@@ -2735,11 +2372,7 @@ try:
     mut [a, b, c, f] = [1,2,3]
 catch err: println err
 
-
 ----
-
-
-
 
 .output of snippet `flat_let_list2`
 [source]
@@ -2749,8 +2382,6 @@ catch err: println err
 ----
 
 
-
-
 .source of snippet `flat_let_list3`
 [source]
 ----
@@ -2758,11 +2389,7 @@ try:
     mut [a, b] = [1,2,3]
 catch err: println err
 
-
 ----
-
-
-
 
 .output of snippet `flat_let_list3`
 [source]
@@ -2772,9 +2399,7 @@ catch err: println err
 ----
 
 
-
 If you have too many elements, you can cut the list:
-
 
 .source of snippet `flat_let_list4`
 [source]
@@ -2783,11 +2408,7 @@ mut [a, b] = [1,2,3,4,5,6,7,8][0..2]
 println a
 println b
 
-
 ----
-
-
-
 
 .output of snippet `flat_let_list4`
 [source]
@@ -2798,9 +2419,7 @@ println b
 ----
 
 
-
 If you have too few you can extend the list:
-
 
 .source of snippet `flat_let_list5`
 [source]
@@ -2820,11 +2439,7 @@ println b
 println c
 println d
 
-
 ----
-
-
-
 
 .output of snippet `flat_let_list5`
 [source]
@@ -2837,9 +2452,7 @@ none
 ----
 
 
-
 or even
-
 
 .source of snippet `flat_let_list6`
 [source]
@@ -2859,11 +2472,7 @@ println b
 println c
 println d
 
-
 ----
-
-
-
 
 .output of snippet `flat_let_list6`
 [source]
@@ -2874,7 +2483,6 @@ none
 none
 
 ----
-
 
 
 ==== Updating a Variable
@@ -2916,7 +2524,6 @@ They work on commands and not already calculated values.
 To accommodate this, the evaluation of the left value creates a temporary command.
 This temporary command returns the current value of the left value when evaluated.
 ====
-
 
 .source of snippet `assign_calculate`
 [source]
@@ -2971,11 +2578,7 @@ println "b &&=false :",b
 b ||= true;
 println "b ||=true :",b
 
-
 ----
-
-
-
 
 .output of snippet `assign_calculate`
 [source]
@@ -3009,7 +2612,6 @@ b ||=true :true
 
 
 
-
 ==== Pinned Variables
 
 Pinning a variable makes it illegal to change it in the context.
@@ -3032,7 +2634,6 @@ A variable in the list will make the variable in the current context pinned.
 If the variable name is decorated with `+{}+` then the object, which is the value of the variable gets pinned.
 Note that this is changing the mutability of the object itself and not the variable.
 
-
 .source of snippet `pin_object`
 [source]
 ----
@@ -3042,11 +2643,7 @@ pin {a};
 try: a.k = 13 catch e: println e
 
 
-
 ----
-
-
-
 
 .output of snippet `pin_object`
 [source]
@@ -3056,10 +2653,8 @@ You cannot change a pinned object
 ----
 
 
-
 If the variable name is decorated with `[]` then the list, which is the value of the variable gets pinned.
 Note that this is changing the mutability of the list itself and not the variable.
-
 
 .source of snippet `pin_list`
 [source]
@@ -3069,11 +2664,7 @@ pin [a];
 
 try: a[0] = 13 catch e: println e
 
-
 ----
-
-
-
 
 .output of snippet `pin_list`
 [source]
@@ -3083,9 +2674,7 @@ Cannot change a pinned list.
 ----
 
 
-
 It is an error using the decoration on a variable that is not an object or list.
-
 
 .source of snippet `pin_wrong`
 [source]
@@ -3095,11 +2684,7 @@ try: pin {a}; catch e1: println e1
 let b = {a:1, b:2, c:3}
 try: pin [b]; catch e2: println e2
 
-
 ----
-
-
-
 
 .output of snippet `pin_wrong`
 [source]
@@ -3110,9 +2695,7 @@ value of 'b' is not a list to be pinned
 ----
 
 
-
 The following example demonstrates the different pinning possibilities:
-
 
 .source of snippet `pinning`
 [source]
@@ -3139,11 +2722,7 @@ object = { x:1, y:3 }
 println("variable 'object' still can be changed: ", object)
 
 
-
 ----
-
-
-
 
 .output of snippet `pinning`
 [source]
@@ -3155,7 +2734,6 @@ could not change the object
 variable 'object' still can be changed: {x: 1, y: 3}
 
 ----
-
 
 
 == `print`, `println` commands
@@ -3177,7 +2755,6 @@ When the `+print_target+` is an object the method `+write+` is used to send the 
 When the `+print_target+` is a closure it is used to send the strings and flushing is ignored.
 
 The following example shows how to use this feature:
-
 
 .source of snippet `print_redirect`
 [source]
@@ -3223,11 +2800,7 @@ mut print_target = {|message:str|
 println "never more, to the fly";
 }
 
-
 ----
-
-
-
 
 .output of snippet `print_redirect`
 [source]
@@ -3242,7 +2815,6 @@ Said the raven:never more, to the fly
 Said the raven:
 
 ----
-
 
 
 
@@ -3270,7 +2842,6 @@ The conditional expression can, but does not need to be enclosed between parenth
 The result of the command is the value of the command or block executed.
 If the condition is `false` and there is no "else" block or command, then the result is `none`.
 
-
 .source of snippet `ifCommand`
 [source]
 ----
@@ -3279,11 +2850,7 @@ if a%2 == 0: println("even") else: println("odd")
 a = {if a%2 == 0: "even" else: "odd"}
 print("again ",a)
 
-
 ----
-
-
-
 
 .output of snippet `ifCommand`
 [source]
@@ -3291,7 +2858,6 @@ print("again ",a)
 odd
 again odd
 ----
-
 
 
 The `if` command does not open a new context.
@@ -3313,18 +2879,13 @@ Loops, like any command, have a result value.
 The value of a loop is either the last executed command or a list of the last executed command for each iteration.
 If the loop is skipped then the value is either `none` or an empty list.
 
-
 .source of snippet `emptyLoopResult`
 [source]
 ----
 println { for i=0 ; i < 0 ; i=i+1 : "anything, not executed, will print none" }
 println { for i=0 ; i < 0 ; i=i+1 list: "anything, not executed, will print []" }
 
-
 ----
-
-
-
 
 .output of snippet `emptyLoopResult`
 [source]
@@ -3333,7 +2894,6 @@ none
 []
 
 ----
-
 
 
 ==== `while`
@@ -3346,7 +2906,6 @@ The tail condition is optional, and follows the body of the loop with the `until
 It is checked after the execution of the loop body.
 Execution of the loop stops when the tail condition is `true`.
 
-
 .source of snippet `whileLoop`
 [source]
 ----
@@ -3356,11 +2915,7 @@ while i < 5 {
   i++;
 }until i % 3 == 0;
 
-
 ----
-
-
-
 
 .output of snippet `whileLoop`
 [source]
@@ -3369,10 +2924,8 @@ while i < 5 {
 ----
 
 
-
 The body of the loop can be a command block, or it can be a single command.
 If the body is a single command, not enclosed between `+{+` and `+}+` it has to be preceded by a `:`.
-
 
 .source of snippet `whileLoop2`
 [source]
@@ -3383,11 +2936,7 @@ while i < 5 :
 until i % 3 == 0;
 println(i)
 
-
 ----
-
-
-
 
 .output of snippet `whileLoop2`
 [source]
@@ -3397,9 +2946,7 @@ println(i)
 ----
 
 
-
 The value of the loop is the result of the last executed command.
-
 
 .source of snippet `while_result`
 [source]
@@ -3409,11 +2956,7 @@ println {
     while k < 10 : k++
 }
 
-
 ----
-
-
-
 
 .output of snippet `while_result`
 [source]
@@ -3423,10 +2966,8 @@ println {
 ----
 
 
-
 The loop can also be used to result a list.
 The list will contain the results of each body loop execution.
-
 
 .source of snippet `while_list`
 [source]
@@ -3439,11 +2980,7 @@ println{ while k < 5 list{
          }
 }
 
-
 ----
-
-
-
 
 .output of snippet `while_list`
 [source]
@@ -3451,7 +2988,6 @@ println{ while k < 5 list{
 [0, 1, 2, 3, 4]
 
 ----
-
 
 
 To get the list as a result, you have to write the `list` keyword in front of the loop body.
@@ -3482,7 +3018,6 @@ The syntactical difference is that the start, condition, and end steps do not ne
 The start, condition, and end parts are separated by `;` and they are commands.
 The `;` in this place is not optional.
 
-
 .source of snippet `for1`
 [source]
 ----
@@ -3490,11 +3025,7 @@ for i = 1 ; i < 5 ; i=i+1 {
   print(i," ")
 }until i%3 == 0 ;
 
-
 ----
-
-
-
 
 .output of snippet `for1`
 [source]
@@ -3503,9 +3034,7 @@ for i = 1 ; i < 5 ; i=i+1 {
 ----
 
 
-
 The semantic difference is that you cannot alter the loop variable, or variables if there are multiple inside the loop.
-
 
 .source of snippet `for5`
 [source]
@@ -3517,11 +3046,7 @@ for i = 1 ; i < 3 ; i=i+1 {
 }
 
 
-
 ----
-
-
-
 
 .output of snippet `for5`
 [source]
@@ -3532,10 +3057,8 @@ not possible to change loop variable in the loop it remained 2
 ----
 
 
-
 The `for` loop also has an optional `until` part the same way as `while`.
 The next example shows the same loop with the optional parentheses but without the tail condition.
-
 
 .source of snippet `for2`
 [source]
@@ -3544,11 +3067,7 @@ for( i = 1 ; i < 5 ; i=i+1 ){
   print(i," ")
 }
 
-
 ----
-
-
-
 
 .output of snippet `for2`
 [source]
@@ -3557,9 +3076,7 @@ for( i = 1 ; i < 5 ; i=i+1 ){
 ----
 
 
-
 If the start command is an assignment, it is interpreted as a local assignment.
-
 
 .source of snippet `for3`
 [source]
@@ -3572,11 +3089,7 @@ try:
     println("i at end=",i);
 catch err { println(); println err ; }
 
-
 ----
-
-
-
 
 .output of snippet `for3`
 [source]
@@ -3587,10 +3100,8 @@ Variable 'i' is undefined.
 ----
 
 
-
 The variable `i` after the loop is still undefined.
 To use a variable from the enclosing wrapped context, you can enclose the assignment into a block.
-
 
 .source of snippet `for4`
 [source]
@@ -3599,11 +3110,7 @@ mut i;
 for {i = 1} ; i < 5 ; i=i+1 :  print(i," "); until i%3 == 0;
 println("i at end=",i);
 
-
 ----
-
-
-
 
 .output of snippet `for4`
 [source]
@@ -3613,12 +3120,10 @@ println("i at end=",i);
 ----
 
 
-
 In this last example we also use a single command as the body of the loop.
 In this case the command is preceded by a `:` character.
 
 The value of the loop is the result of the last executed command.
-
 
 .source of snippet `for_result`
 [source]
@@ -3628,11 +3133,7 @@ println {
     for ; k < 10 ; : k++
 }
 
-
 ----
-
-
-
 
 .output of snippet `for_result`
 [source]
@@ -3642,21 +3143,15 @@ println {
 ----
 
 
-
 The loop can also be used to result a list.
 The list will contain the results of each body loop execution.
-
 
 .source of snippet `for_list`
 [source]
 ----
 println {for i=0; i < 10 ; i++ list: i}
 
-
 ----
-
-
-
 
 .output of snippet `for_list`
 [source]
@@ -3664,7 +3159,6 @@ println {for i=0; i < 10 ; i++ list: i}
 [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 
 ----
-
 
 
 To get the list as a result, you have to write the `list` keyword in front of the loop body.
@@ -3690,17 +3184,12 @@ This design ensures that each iteration of the loop starts in a clean environmen
 
 The command `for each` iterates through a list
 
-
 .source of snippet `foreach1`
 [source]
 ----
 for each i in [1,2,3,4]: print(i," ");
 
-
 ----
-
-
-
 
 .output of snippet `foreach1`
 [source]
@@ -3709,20 +3198,14 @@ for each i in [1,2,3,4]: print(i," ");
 ----
 
 
-
 The `for each` loop can also have a tail condition.
-
 
 .source of snippet `foreach2`
 [source]
 ----
 for each i ∈ [1,2,3,4]: print(i," "); until i%3 == 0
 
-
 ----
-
-
-
 
 .output of snippet `foreach2`
 [source]
@@ -3731,9 +3214,7 @@ for each i ∈ [1,2,3,4]: print(i," "); until i%3 == 0
 ----
 
 
-
 You can also define an index variable following the `with` keyword.
-
 
 .source of snippet `foreach3`
 [source]
@@ -3742,11 +3223,7 @@ for each z with i in ["apple", "banana", "orange", "peach"] {
     println "%s. %s" % [i,z]
 }
 
-
 ----
-
-
-
 
 .output of snippet `foreach3`
 [source]
@@ -3759,14 +3236,12 @@ for each z with i in ["apple", "banana", "orange", "peach"] {
 ----
 
 
-
 The index starts from zero and increments with each execution by one.
 The index variable is local to the loop.
 Without this feature you would need to declare a variable one context higher and then use it in the loop.
 That would violate the locality principle, not to rely on anything out of a context that can change and even less modify anything out of the context, which is in this case a loop.
 
 When used in an expression position, a `for each` loop returns the result of the last executed loop body.
-
 
 .source of snippet `for_each_result`
 [source]
@@ -3775,11 +3250,7 @@ println {
     for each t with i in [1,2,3] : t + 10*i
 }
 
-
 ----
-
-
-
 
 .output of snippet `for_each_result`
 [source]
@@ -3789,10 +3260,8 @@ println {
 ----
 
 
-
 The loop can also return a list: to do so, use the `list` keyword before the loop body.
 The result will include the result of each iteration.
-
 
 .source of snippet `for_each_list`
 [source]
@@ -3801,11 +3270,7 @@ println {
     for each z with i in [1,2,3] list { 10*i + z }
     }
 
-
 ----
-
-
-
 
 .output of snippet `for_each_list`
 [source]
@@ -3813,7 +3278,6 @@ println {
 [1, 12, 23]
 
 ----
-
 
 
 To get the list as a result, you have to write the `list` keyword in front of the loop body.
@@ -3876,7 +3340,6 @@ When there is no expression, then the execution of the loop still terminates, bu
 
 The following samples demonstrate these cases.
 
-
 .source of snippet `break1`
 [source]
 ----
@@ -3887,11 +3350,7 @@ println {
     }
 }
 
-
 ----
-
-
-
 
 .output of snippet `break1`
 [source]
@@ -3904,8 +3363,6 @@ none
 ----
 
 
-
-
 .source of snippet `break2`
 [source]
 ----
@@ -3916,11 +3373,7 @@ println {
     }
 }
 
-
 ----
-
-
-
 
 .output of snippet `break2`
 [source]
@@ -3933,8 +3386,6 @@ println {
 ----
 
 
-
-
 .source of snippet `break3`
 [source]
 ----
@@ -3945,11 +3396,7 @@ println {
     }
 }
 
-
 ----
-
-
-
 
 .output of snippet `break3`
 [source]
@@ -3957,8 +3404,6 @@ println {
 [0, 1]
 
 ----
-
-
 
 
 .source of snippet `break4`
@@ -3971,11 +3416,7 @@ println {
     }
 }
 
-
 ----
-
-
-
 
 .output of snippet `break4`
 [source]
@@ -3983,8 +3424,6 @@ println {
 [0, 1, -2]
 
 ----
-
-
 
 
 .source of snippet `break5`
@@ -3997,11 +3436,7 @@ println {
     }
 }
 
-
 ----
-
-
-
 
 .output of snippet `break5`
 [source]
@@ -4011,12 +3446,10 @@ println {
 ----
 
 
-
 The last example shows the difference between using the break statement following an `if` condition.
 In the first case the statement executes in the context of the loop and the `break` aborts the execution of the loop.
 
 In the second case the `break` is inside a block, and it aborts the execution of the block itself, the loop is not disturbed.
-
 
 .source of snippet `break6`
 [source]
@@ -4035,11 +3468,7 @@ println {
     }
 }
 
-
 ----
-
-
-
 
 .output of snippet `break6`
 [source]
@@ -4057,9 +3486,7 @@ none
 ----
 
 
-
 When the expression following the `break` keyword starts with the `if` keyword the expression has to be enclosed between `()` parentheses.
-
 
 .source of snippet `break7`
 [source]
@@ -4071,11 +3498,7 @@ println {
     }
 }
 
-
 ----
-
-
-
 
 .output of snippet `break7`
 [source]
@@ -4085,7 +3508,6 @@ println {
 3
 
 ----
-
 
 
 ==== `continue`
@@ -4101,18 +3523,13 @@ If there is no expression after the `continue` keyword, then the resulting list 
 The use of `continue` is restricted.
 You can use it only inside a loop as a top-level command, and not inside a block, or part of other commands, like `if`.
 
-
 .source of snippet `bad_continue`
 [source]
 ----
 try: let k = {for each z in [1,2,3] { if z%2 == 0 : continue 2*z else: continue 3*z}}
 catch e: println e
 
-
 ----
-
-
-
 
 .output of snippet `bad_continue`
 [source]
@@ -4122,14 +3539,12 @@ Continue executed in non-loop.
 ----
 
 
-
 ==== `return`
 
 The command `return` stops the execution of a function, method, closure, or macro.
 If it is executed, the value of the function, method, closure, or macro will be the expression that follows the command.
 
 If there is no expression following the `return` keyword then `none` will be returned.
-
 
 .source of snippet `return1`
 [source]
@@ -4144,11 +3559,7 @@ println a(1)
 println a(2)
 println a(3)
 
-
 ----
-
-
-
 
 .output of snippet `return1`
 [source]
@@ -4160,13 +3571,11 @@ none
 ----
 
 
-
 ==== `yield`
 
 The command yield produces a value, and the execution of the code continues.
 It can only be used when the code was started so that another thread is expecting the yielded value.
 The typical example is when you execute a command `async` .
-
 
 .source of snippet `yield1`
 [source]
@@ -4178,11 +3587,7 @@ fn gen_1_to_10 {
 
 println([ .. (async gen_1_to_10()) ])
 
-
 ----
-
-
-
 
 .output of snippet `yield1`
 [source]
@@ -4192,9 +3597,7 @@ println([ .. (async gen_1_to_10()) ])
 ----
 
 
-
 The return value can be used in a `for each` loop, or you can iterate through it the same way you would with any iterator.
-
 
 .source of snippet `yield2`
 [source]
@@ -4208,11 +3611,7 @@ mut st = async gen_1_to_10();
 while st.has_next() :
     println(st.next());
 
-
 ----
-
-
-
 
 .output of snippet `yield2`
 [source]
@@ -4229,7 +3628,6 @@ while st.has_next() :
 10
 
 ----
-
 
 
 === `with`
@@ -4264,7 +3662,6 @@ This can be used in simplified cases when the resource manager and the resource 
 
 When the execution of the block is finished the method `exit` will be invoked on the resource manager.
 This method will be invoked even if there was any error during the execution of the block.
-
 
 .source of snippet `withAs`
 [source]
@@ -4309,11 +3706,7 @@ with ResourceManager() as r {
 }
 println "did not die"
 
-
 ----
-
-
-
 
 .output of snippet `withAs`
 [source]
@@ -4329,7 +3722,6 @@ closing resource
 did not die
 
 ----
-
 
 
 The argument to the method `exit` is the exception that was raised while processing the block, or `none` if there was not any.
@@ -4357,7 +3749,6 @@ If the expression following the `with` statement is not followed by an `as` and 
 The fields of the object get mapped to the actual context.
 It means that the fields of the objects can be used as variables without prefixing them with any object reference.
 
-
 .source of snippet `simpleWith`
 [source]
 ----
@@ -4369,11 +3760,7 @@ with x,y {
     println c
 }
 
-
 ----
-
-
-
 
 .output of snippet `simpleWith`
 [source]
@@ -4385,14 +3772,12 @@ with x,y {
 ----
 
 
-
 Technically, the command executes the block in a context that references the fields of the object and wraps the surrounding context.
 When more than one object is listed, then multiple wrapping scopes are created from left to right.
 It also means that the objects to the right shadow the objects to the left.
 In the example both `x` and `y` have field `a` and since `y` is later in the list the field of `y` is used.
 
 You can also modify or even create and pin fields:
-
 
 .source of snippet `modifyWith`
 [source]
@@ -4410,11 +3795,7 @@ try: x.b = 55 catch e: println e
 println x
 println y
 
-
 ----
-
-
-
 
 .output of snippet `modifyWith`
 [source]
@@ -4426,13 +3807,11 @@ pinned variable cannot be altered 'b'
 ----
 
 
-
 Note that the field `x.a` was not modified, because it is shadowed by `y.a`.
 You can only create new fields in the right most object.
 You can pin a field in any of the objects unless they are shadowed.
 
 The value of the command is the value of the block executed.
-
 
 .source of snippet `valueWith`
 [source]
@@ -4441,11 +3820,7 @@ mut x = {a:1,b:2};
 mut y = {a:4,c:5};
 println {with x,y : a * b + c}
 
-
 ----
-
-
-
 
 .output of snippet `valueWith`
 [source]
@@ -4453,7 +3828,6 @@ println {with x,y : a * b + c}
 13
 
 ----
-
 
 
 === Asynchronous execution
@@ -4471,7 +3845,6 @@ It will also result in the value returned by the task.
 In addition to returning a value, a task can also receive and send objects.
 The `yield` command inside the task will either receive an object or send an object.
 
-
 .source of snippet `async`
 [source]
 ----
@@ -4488,11 +3861,7 @@ println()
 println(await t)
 
 
-
 ----
-
-
-
 
 .output of snippet `async`
 [source]
@@ -4501,7 +3870,6 @@ println(await t)
 55
 
 ----
-
 
 
 A task object implements the following methods:
@@ -4543,7 +3911,6 @@ Say you want to create a generator that returns the prime numbers.
 If you do not limit the channel size, the generator will run ahead and fill in the memory with prime numbers.
 Limiting the channel size you can balance the calculations.
 The generator will stop when it has generated enough numbers and starts when some of the result is consumed.
-
 
 
 .source of snippet `channel_limit`
@@ -4594,18 +3961,14 @@ execute("Thread 1",5)
 // limited channel size will stop the running ahead
 execute("Thread 2",2)
 
-
 ----
-
-
-
 
 .output of snippet `channel_limit`
 [source]
 ----
  prime read 2
-Thread 1 prime read  generated 33
-
+Thread 1 generated 3
+ prime read 3
 Thread 1 generated 5
  prime read 5
 Thread 1 generated 7
@@ -4618,19 +3981,18 @@ Thread 1 generated 23
 stopping
 exception Task stopped.
 Thread 2 generated 3
- prime read 2
+ prime read Thread 22
+ generated 5
  prime read 3
-Thread 2 generated 5
- prime read 5
-Thread 2 generated 7
+ prime read Thread 2 generated 7
 Thread 2 generated 11
+5
  prime read 7
 Thread 2 generated 13
 stopping
 exception Task stopped.
 
 ----
-
 
 
 In the output you can see that the calculation went ahead uselessly in the first case.
@@ -4654,7 +4016,6 @@ In that case the result is a list of tasks instead of a task that results in a l
 The following example creates a list of `[1,2,3]` in the conventional way and also parallel.
 It prints out the elapsed time using the built-in `nano_time` function.
 
-
 .source of snippet `asyn_list`
 [source]
 ----
@@ -4677,22 +4038,17 @@ println serial
 println( (end-start)/1000000, "ms")
 }
 
-
 ----
-
-
-
 
 .output of snippet `asyn_list`
 [source]
 ----
 [1, 2, 3]
-314.102917ms
+315.616667ms
 []
-313.759708ms
+316.7645ms
 
 ----
-
 
 
 As you can see, in the first case the execution time is a bit above 300ms, which is the three times 0.1sec waiting in the function.
@@ -4869,7 +4225,6 @@ The `flow` command is useful for:
 This example demonstrates a classical use of the `flow` command for computing square roots using the Babylonian method.
 It shows how reactive cells can update each other iteratively until convergence is reached, and how the `until` clause controls flow termination based on a numeric precision condition.
 
-
 .source of snippet `example_flow_squareroot`
 [source]
 ----
@@ -4890,11 +4245,7 @@ println("sqrt(13) ≈ ", _sqrt);
 println("sqrt(13) ≈ ", sqrt(13), " calulated by java Math");
 println("square ≈ ", _sqrt * _sqrt);
 
-
 ----
-
-
-
 
 .output of snippet `example_flow_squareroot`
 [source]
@@ -4914,10 +4265,8 @@ square ≈ 13.000000000000002
 ----
 
 
-
 This example illustrates how the `flow` command can be bounded by wall-clock time using the `timeout` clause.
 It simulates a long-running or slow computation and demonstrates how flow execution is safely terminated after the specified time limit.
-
 
 .source of snippet `example_flow_timeout`
 [source]
@@ -4937,11 +4286,7 @@ mut result = {try {
 
 println("Final counter = ", result);
 
-
 ----
-
-
-
 
 .output of snippet `example_flow_timeout`
 [source]
@@ -4954,10 +4299,8 @@ Final counter = none
 ----
 
 
-
 This example highlights the use of the `limit` clause to constrain the number of task executions within a `flow`.
 It shows how the system halts with a clear error message once the execution limit is reached, making it useful for preventing runaway or cyclic computations.
-
 
 .source of snippet `example_flow_limit`
 [source]
@@ -4977,11 +4320,7 @@ mut result = {try {
 
            println("Final x = ", result);
 
-
 ----
-
-
-
 
 .output of snippet `example_flow_limit`
 [source]
@@ -4996,7 +4335,6 @@ Task limit has been reached in flow '#unnamed' command after 5 tasks.
 Final x = none
 
 ----
-
 
 
 The next example demonstrates that you can access the structure of the flow command or to any command.
@@ -5034,35 +4372,28 @@ fn function_name (parameters) -> types {
 
 `fn` is a keyword, and it is never optional.
 
-
 .source of snippet `fun1`
 [source]
 ----
 fn inc(x) {
   x+1
 }
-println(inc)
+println((""+inc).left(len("ch.turic.commands.Closure@")))
 println(inc(1))
 
-
 ----
-
-
-
 
 .output of snippet `fun1`
 [source]
 ----
-ch.turic.commands.Closure@3724af13
+ch.turic.commands.Closure@
 2
 
 ----
 
 
-
 `function_name` is the name of the function.
 It can be missing, typically when the result, the function itself is assigned to a variable or passed directly as an argument.
-
 
 .source of snippet `fun3`
 [source]
@@ -5070,23 +4401,18 @@ It can be missing, typically when the result, the function itself is assigned to
 fn inc x {
   x+1
 }
-println(inc)
+println((""+inc).left(len("ch.turic.commands.Closure@")))
 println(inc(1))
 
-
 ----
-
-
-
 
 .output of snippet `fun3`
 [source]
 ----
-ch.turic.commands.Closure@6b53bcc2
+ch.turic.commands.Closure@
 2
 
 ----
-
 
 
 
@@ -5094,30 +4420,24 @@ ch.turic.commands.Closure@6b53bcc2
 The `(` and `)` is optional when the function has a name.
 When it does not have a name, then `(` and `)` must present even if there are zero arguments.
 
-
 .source of snippet `fun2`
 [source]
 ----
 mut inc = fn (x) {
   x+1
 }
-println(inc)
+println((""+inc).left(len("ch.turic.commands.Closure@")))
 println(inc(1))
 
-
 ----
-
-
-
 
 .output of snippet `fun2`
 [source]
 ----
-ch.turic.commands.Closure@a43ce46
+ch.turic.commands.Closure@
 2
 
 ----
-
 
 
 The body of the function can be a block of statements or a single expression.
@@ -5130,26 +4450,20 @@ This is to avoid the unreadable `fn = 2*3` to be declared as a function declarat
 Be careful when using the `fn x()=...` format.
 The following code does not do what you expect:
 
-
 .source of snippet `fun10`
 [source]
 ----
 fn p()=len "original K";
-println p()
-
+println str(p()).left("ch.turic.builtins.functions.Len".length())
 
 ----
-
-
-
 
 .output of snippet `fun10`
 [source]
 ----
-ch.turic.builtins.functions.Len@1c3b9394
+ch.turic.builtins.functions.Len
 
 ----
-
 
 
 You may expect that it will calculate the length of the string and return that value.
@@ -5159,18 +4473,13 @@ The string constant is just a statement with no effect.
 
 If you enclose the whole expression in a pair of parentheses you get the desired result:
 
-
 .source of snippet `fun11`
 [source]
 ----
 fn p()=(len "original K");
 println p()
 
-
 ----
-
-
-
 
 .output of snippet `fun11`
 [source]
@@ -5180,9 +4489,7 @@ println p()
 ----
 
 
-
 or
-
 
 .source of snippet `fun12`
 [source]
@@ -5190,11 +4497,7 @@ or
 fn p()=len("original K");
 println p()
 
-
 ----
-
-
-
 
 .output of snippet `fun12`
 [source]
@@ -5202,7 +4505,6 @@ println p()
 10
 
 ----
-
 
 
 Use `=` to define functions only for straightforward expression functions, that are true expressions.
@@ -5229,18 +4531,13 @@ The individual types can be identifiers or `(` and `)` enclosed expressions.
 The types are separated by `|`.
 The type of the returned value is checked against the declared types upon returning from a function.
 
-
 .source of snippet `fun7`
 [source]
 ----
 fn concat(a:str, b:str):str = a + b
 println concat("ab","ba")
 
-
 ----
-
-
-
 
 .output of snippet `fun7`
 [source]
@@ -5248,8 +4545,6 @@ println concat("ab","ba")
 abba
 
 ----
-
-
 
 
 .source of snippet `fun8`
@@ -5260,11 +4555,7 @@ try:
     println concat("ab","ba")
 catch err: println err
 
-
 ----
-
-
-
 
 .output of snippet `fun8`
 [source]
@@ -5274,9 +4565,7 @@ Cannot return from 'concat' the value '13' as it does not fit any of the accepte
 ----
 
 
-
 The types are evaluated when the function is defined.
-
 
 .source of snippet `fun9`
 [source]
@@ -5288,11 +4577,7 @@ try:
     println concat("ab","ba")
 catch err: println err
 
-
 ----
-
-
-
 
 .output of snippet `fun9`
 [source]
@@ -5300,7 +4585,6 @@ catch err: println err
 13
 
 ----
-
 
 
 There is no effect changing the value of the variable `myString` to `str` when the function was already defined.
@@ -5321,30 +4605,24 @@ Parameters preceded with '!' can only be passed positionally.
 
 Parameters preceded with `@` can only be passed by name.
 
-
 .source of snippet `fun4`
 [source]
 ----
 fn inc !x, @how_much {
   x+how_much
 }
-println(inc)
+println((""+inc).left(len("ch.turic.commands.Closure@")))
 println(inc(1,how_much=5))
 
-
 ----
-
-
-
 
 .output of snippet `fun4`
 [source]
 ----
-ch.turic.commands.Closure@424ebba3
+ch.turic.commands.Closure@
 6
 
 ----
-
 
 
 Here `x` is a positional parameter.
@@ -5355,7 +4633,6 @@ Parameters can also have type declarations and default values.
 If there is a type declaration passing a value that does not fit the type declaration is an error.
 Not passing a value for a parameter that does not have a default value is also an error.
 
-
 .source of snippet `fun5`
 [source]
 ----
@@ -5365,11 +4642,7 @@ fn inc !x, @how_much=1 {
 println(inc(1,how_much=5))
 println(inc(1))
 
-
 ----
-
-
-
 
 .output of snippet `fun5`
 [source]
@@ -5378,7 +4651,6 @@ println(inc(1))
 2
 
 ----
-
 
 
 Parameter types and the default value assignments have the same syntax as in the case of variable assignment.
@@ -5398,7 +4670,6 @@ The actual algorithm of parameter passing is the following:
 * Positional arguments are assigned to the first non-named only argument.
 That is the first not-yet-assigned positional or positional/named argument.
 
-
 .source of snippet `fun6`
 [source]
 ----
@@ -5408,11 +4679,7 @@ fn wrong !x, h, !k {
 try: wrong(1,3, h= 2)
 catch e: println("There is an error",e)
 
-
 ----
-
-
-
 
 .output of snippet `fun6`
 [source]
@@ -5420,7 +4687,6 @@ catch e: println("There is an error",e)
 There is an errorParameter 'h' is already defined
 
 ----
-
 
 
 [#_extra_parameters]
@@ -5448,7 +4714,6 @@ When the function code starts
 
 The following example shows how you can use the rest-parameter:
 
-
 .source of snippet `restParameters`
 [source]
 ----
@@ -5460,11 +4725,7 @@ mut f = fn (a,b,[rest]) {
 
 f(1,2,3,4,5,6)
 
-
 ----
-
-
-
 
 .output of snippet `restParameters`
 [source]
@@ -5475,9 +4736,7 @@ b=2
 ----
 
 
-
 The following example demonstrates the use of the meta-parameter:
-
 
 .source of snippet `metaParameters`
 [source]
@@ -5490,11 +4749,7 @@ mut f = fn (a,b,{meta}) {
 
 f(1,b=2,k=3,x=4,juice=5,six=6)
 
-
 ----
-
-
-
 
 .output of snippet `metaParameters`
 [source]
@@ -5507,7 +4762,6 @@ k=3
 juice=5
 
 ----
-
 
 
 [NOTE]
@@ -5532,7 +4786,6 @@ Also, you cannot use a parameter name in an argument list more than once.
 
 You can also combine the two:
 
-
 .source of snippet `metaRestParameters`
 [source]
 ----
@@ -5546,11 +4799,7 @@ mut f = fn (a,b,[rest],{meta}) {
 
 f(1,b=2,k=3,x=4,juice=5,7,six=6);
 
-
 ----
-
-
-
 
 .output of snippet `metaRestParameters`
 [source]
@@ -5566,12 +4815,10 @@ rest:
 ----
 
 
-
 The last argument, preceded by the `^` character is special.
 When you call a function and the last argument is a closure then you can place that closure outside of the `(` and `)` of the arguments, but ONLY if the closure is defined right there.
 
 For example:
-
 
 .source of snippet `closureArgument`
 [source]
@@ -5585,11 +4832,7 @@ mut f = fn (a,b,^closure) {
 f(2,3){|x,y| x+y}
 f(2,3){|x,y| x*y}
 
-
 ----
-
-
-
 
 .output of snippet `closureArgument`
 [source]
@@ -5602,7 +4845,6 @@ b=3
 6
 
 ----
-
 
 
 The function gets the closure adding the two numbers and then prints the numbers and the result.
@@ -5637,7 +4879,6 @@ This will spread the content of the parameter to parameters.
 If the value of the parameter is an object, the fields of the object will be used as named parameters.
 The field names will be used as argument names and the values as values.
 
-
 .source of snippet `spread`
 [source]
 ----
@@ -5655,11 +4896,7 @@ a(..{a:1,b:2,c:3,d:4});
 b(..[1,2,3,4]);
 c(..[1,2],..{d:4},3);
 
-
 ----
-
-
-
 
 .output of snippet `spread`
 [source]
@@ -5669,7 +4906,6 @@ c(..[1,2],..{d:4},3);
 1 2 3 4 
 
 ----
-
 
 
 If the value is a list, then the values will be used as positional parameters.
@@ -5727,7 +4963,6 @@ Although this class also implements the `HasFields` interface this is handled as
 * `AsyncStreamHandler` is the class handling asynchronous operations and yields.
 It makes it possible to use the result of a `async expression` as arguments.
 +
-
 .source of snippet `spreadStream`
 [source]
 ----
@@ -5740,11 +4975,7 @@ fn numbers {
 
 c(..(async numbers()))
 
-
 ----
-
-
-
 
 .output of snippet `spreadStream`
 [source]
@@ -5752,7 +4983,6 @@ c(..(async numbers()))
 1 2 3 4 
 
 ----
-
 
 ====
 
@@ -5773,7 +5003,6 @@ If they were pinned like regular arguments, the object's fields would become per
 Classes can be defined using the `class` keyword.
 A class is defined when the class definition is executed.
 
-
 .source of snippet `class1`
 [source]
 ----
@@ -5791,11 +5020,7 @@ A.c = "d"
 println a1.a, a2.a, a1.c, a2.c
 
 
-
 ----
-
-
-
 
 .output of snippet `class1`
 [source]
@@ -5803,7 +5028,6 @@ println a1.a, a2.a, a1.c, a2.c
 12dd
 
 ----
-
 
 
 Classes can contain methods and can define class variables.
@@ -5823,7 +5047,6 @@ When executing a method, there are two special variables:
 If you use a variable without the `this.` prefix it will automatically be handled, but you can just use the `this.` prefix any time.
 That way the following example is the same as the previous:
 
-
 .source of snippet `class2`
 [source]
 ----
@@ -5841,11 +5064,7 @@ A.c = "d"
 println a1.a, a2.a, a1.c, a2.c
 
 
-
 ----
-
-
-
 
 .output of snippet `class2`
 [source]
@@ -5855,14 +5074,12 @@ println a1.a, a2.a, a1.c, a2.c
 ----
 
 
-
 When using variables in a class first the object variables are consulted.
 If there is no object variable, then the class variables are used.
 Classes and the methods inside the classes do not wrap any surrounding context.
 
 The methods defined in a class belong to the class.
 You can define methods attached to the objects.
-
 
 .source of snippet `class3`
 [source]
@@ -5889,11 +5106,7 @@ a1.p()
 a2.p()
 
 
-
 ----
-
-
-
 
 .output of snippet `class3`
 [source]
@@ -5905,9 +5118,7 @@ I am a2
 ----
 
 
-
 The variable `cls` and `this` are pinned, cannot be modified in the methods.
-
 
 .source of snippet `class4`
 [source]
@@ -5922,11 +5133,7 @@ try :
 catch ex :
     println ex
 
-
 ----
-
-
-
 
 .output of snippet `class4`
 [source]
@@ -5936,9 +5143,7 @@ Variable 'this' is pinned.
 ----
 
 
-
 and
-
 
 .source of snippet `class5`
 [source]
@@ -5953,11 +5158,7 @@ try :
 catch ex :
     println ex
 
-
 ----
-
-
-
 
 .output of snippet `class5`
 [source]
@@ -5967,9 +5168,7 @@ Variable 'cls' is pinned.
 ----
 
 
-
 The only exception is the `init` method.
-
 
 .source of snippet `class6`
 [source]
@@ -5987,11 +5186,7 @@ class B {
 println A().cls
 
 
-
 ----
-
-
-
 
 .output of snippet `class6`
 [source]
@@ -6001,12 +5196,10 @@ class B
 ----
 
 
-
 The example above alters the `this` variable, and it alters what the construction of the class returns.
 That way an initializer can function as a factory method.
 
 You cannot change the value of the `cls` even in the initializer:
-
 
 .source of snippet `class7`
 [source]
@@ -6026,11 +5219,7 @@ catch ex:
     println ex
 
 
-
 ----
-
-
-
 
 .output of snippet `class7`
 [source]
@@ -6040,13 +5229,11 @@ Variable 'cls' is pinned.
 ----
 
 
-
 Classes can be nested and defined inside other classes.
 When calling the constructor of the class to create a new instance then the variable `this` would be ambigous.
 
 For `a.Z()` it usually points to `a`, but if `Z` is a class, and we called the constructor, than `this` should be the new instance.
 In this situation a special variable called `that` will point to `a`.
-
 
 .source of snippet `class8`
 [source]
@@ -6064,11 +5251,7 @@ class A {
 mut a = A()
 mut b = a.B()
 
-
 ----
-
-
-
 
 .output of snippet `class8`
 [source]
@@ -6081,12 +5264,10 @@ that {cls: class A}
 
 
 
-
 === Class inheritance
 
 Classes can inherit in Turicum.
 When you declare a class the parent class or classes are specified by the name after a `:`.
-
 
 .source of snippet `inherit1`
 [source]
@@ -6102,11 +5283,7 @@ class C : P {
 mut o = C();
 println o.a(),o.v,o.b(),o.z;
 
-
 ----
-
-
-
 
 .output of snippet `inherit1`
 [source]
@@ -6116,10 +5293,8 @@ println o.a(),o.v,o.b(),o.z;
 ----
 
 
-
 You can use the methods or fields declared in the class as well as any other method and fields defined in the parent classes.
 You can inherit from multiple parent classes:
-
 
 .source of snippet `inherit2`
 [source]
@@ -6139,11 +5314,7 @@ class C : P1,P2 {
 mut o = C();
 println o.a(), o.v, o.aa(), o.vv, o.b(), o.z;
 
-
 ----
-
-
-
 
 .output of snippet `inherit2`
 [source]
@@ -6153,10 +5324,8 @@ println o.a(), o.v, o.aa(), o.vv, o.b(), o.z;
 ----
 
 
-
 Inheritance is ordered.
 It is important when there are multiple implementations of the same method name or the same field.
-
 
 .source of snippet `inherit3`
 [source]
@@ -6176,11 +5345,7 @@ class C : P1,P2 {
 mut o = C();
 println o.a(), o.v, o.b(), o.z;
 
-
 ----
-
-
-
 
 .output of snippet `inherit3`
 [source]
@@ -6190,12 +5355,10 @@ println o.a(), o.v, o.b(), o.z;
 ----
 
 
-
 In the example `P1` is inherited/extended first in the list, so it prevails over `P2` when there is a name collision.
 
 Initializing a class having parent classes is not trivial.
 Since there can be, and in the example there are multiple parents, the initialization does not automatically invoke the initialization of the parent classes.
-
 
 .source of snippet `inherit4`
 [source]
@@ -6217,11 +5380,7 @@ class C : P1,P2 {
 }
 mut o = C();
 
-
 ----
-
-
-
 
 .output of snippet `inherit4`
 [source]
@@ -6231,9 +5390,7 @@ init in C, cls='class C' this='{cls: class C}'
 ----
 
 
-
 You can invoke them directly:
-
 
 .source of snippet `inherit5`
 [source]
@@ -6257,11 +5414,7 @@ class C : P1,P2 {
 }
 mut o = C();
 
-
 ----
-
-
-
 
 .output of snippet `inherit5`
 [source]
@@ -6273,9 +5426,7 @@ init in P2, cls='class P2' this='{cls: class C}'
 ----
 
 
-
 If a class does not implement `init` but some of the parent classes do, then it will be invoked.
-
 
 .source of snippet `inherit6`
 [source]
@@ -6289,11 +5440,7 @@ class C : P {
 }
 mut o = C();
 
-
 ----
-
-
-
 
 .output of snippet `inherit6`
 [source]
@@ -6303,7 +5450,6 @@ init in P, cls='class C' this='{cls: class C}'
 ----
 
 
-
 Note the difference in the value of the field `cls`.
 When the parent class `init` is invoked directly from the child `init` the `cls` points to the parent.
 When it is inherited, the `init` is executed in the context of the child class; it is simply inherited, hence the value of the field `cls` points to the child class.
@@ -6311,7 +5457,6 @@ When it is inherited, the `init` is executed in the context of the child class; 
 When a class has parent class or classes, the class methods and fields are inherited, but there is only one single `this` object.
 There is a single set of object fields.
 Object fields do not "shadow" each other, because there is only one field for a given name.
-
 
 .source of snippet `inherit7`
 [source]
@@ -6328,18 +5473,13 @@ class C : P {
 let object = C(1,2);
 print object
 
-
 ----
-
-
-
 
 .output of snippet `inherit7`
 [source]
 ----
 {a: 3, b: 4, c: 2, cls: class C}
 ----
-
 
 
 In the example `b` is `4`, even though it is initialized to be `1` when calling the initializer of `C` but it is overwritten when the `P` initializer is invoked.
@@ -6350,7 +5490,6 @@ Your code theoretically could call the initializer of a class the current does n
 The object fields are created when the initializers are invoked.
 The type declaration of a parent class may not be the same for a field as in the child class.
 In this case the type definition of the field will be the union of the types.
-
 
 .source of snippet `inherit8`
 [source]
@@ -6370,11 +5509,7 @@ let k = Child(42);
 try: k.b = none; // will fail as it is num and str, which
 catch e: println e; // we should see in the error
 
-
 ----
-
-
-
 
 .output of snippet `inherit8`
 [source]
@@ -6382,7 +5517,6 @@ catch e: println e; // we should see in the error
 Cannot set variable 'b' to value 'none' because it does not fit any of the declared types of the variable (num|str)
 
 ----
-
 
 
 The field `b` is declared to be a number in the class `Child` but it also inherits the type `str` through the invocation of the initializer of `Parent`.
@@ -6396,7 +5530,6 @@ An exception can be caught using `catch` pairing with a `try`.
 An exception is an object.
 You can declare a variable to hold an error
 
-
 .source of snippet `try3`
 [source]
 ----
@@ -6407,11 +5540,7 @@ try{
 println error
 
 
-
 ----
-
-
-
 
 .output of snippet `try3`
 [source]
@@ -6419,7 +5548,6 @@ println error
 Variable 'z' is not defined.
 
 ----
-
 
 
 The predefined type for an exception is `err`.
@@ -6441,7 +5569,6 @@ An exception has
 * `column`
 * `source`
 
-
 .source of snippet `try4`
 [source]
 ----
@@ -6459,11 +5586,7 @@ for each st in error.stack_trace {
 
 
 
-
 ----
-
-
-
 
 .output of snippet `try4`
 [source]
@@ -6481,7 +5604,6 @@ try4.turi:1:4
 source: try{
 
 ----
-
 
 
 === Try-Catch
@@ -6523,7 +5645,6 @@ The command after the `finally` keyword does not affect the result of the comman
 
 Also note that the execution of the `try` command has an atomic nature.
 
-
 .source of snippet `try6`
 [source]
 ----
@@ -6537,11 +5658,7 @@ println "Do we have a? ", is_defined(a)
 println "Do we have b? ", is_defined(b)
 println "Do we have c? ", is_defined(c)
 
-
 ----
-
-
-
 
 .output of snippet `try6`
 [source]
@@ -6554,11 +5671,9 @@ Do we have c? false
 ----
 
 
-
 In the example above, the local variables defined in the expression are not defined afterward because an error, division by zero, has happened.
 
 The next example shows how this atomic behavior works.
-
 
 .source of snippet `try7`
 [source]
@@ -6575,11 +5690,7 @@ println "Do we have a? ", is_defined(a)
 println "Was it changed or still 3? It is ",a
 println "Do we have b? ", is_defined(b)
 
-
 ----
-
-
-
 
 .output of snippet `try7`
 [source]
@@ -6590,7 +5701,6 @@ Was it changed or still 3? It is 3
 Do we have b? false
 
 ----
-
 
 
 When the code following the `try` executes it opens a new context.
@@ -6611,7 +5721,6 @@ To make them similar to Python decorators and Java annotation, they can have a `
 However, in the case of closures, you do not even need that.
 Every function call that has a closure as the last parameter can act as a decorator.
 
-
 .source of snippet `closureDecorator1`
 [source]
 ----
@@ -6623,11 +5732,7 @@ mut z = closure_decorator(){|| println("We are closure") }
 
 z()
 
-
 ----
-
-
-
 
 .output of snippet `closureDecorator1`
 [source]
@@ -6639,9 +5744,7 @@ We finish
 ----
 
 
-
 If you add a `@` then the result is the same:
-
 
 .source of snippet `closureDecorator2`
 [source]
@@ -6654,11 +5757,7 @@ mut z = @closure_decorator(){|| println("We are closure") }
 
 z()
 
-
 ----
-
-
-
 
 .output of snippet `closureDecorator2`
 [source]
@@ -6670,12 +5769,10 @@ We finish@
 ----
 
 
-
 The `@` helps you emphasize that the call is a decorator call that modifies the closure following it.
 The use of `@` also notifies the syntax analyzer that the call is a decorator call, and it extends the recognition of the following `^closure` parameter.
 When the `@` precedes the function call, a `fn` or `class` are also recognized as `^closure` parameter,
 and you do not need to enclose them between `+{+` and `+}+`.
-
 
 .source of snippet `fnDecorator1`
 [source]
@@ -6691,11 +5788,7 @@ fn q(){
 }
   z()
 
-
 ----
-
-
-
 
 .output of snippet `fnDecorator1`
 [source]
@@ -6707,14 +5800,12 @@ The fun is over
 ----
 
 
-
 Without the `@` the program is still valid.
 However, as soon as we try to invoke `z()` the program fails.
 It tries to invoke the closure returned by `fun_decorator()`, which tries to call `closure()` which now has the value `none`.
 This happens because the syntax analysis does not use the function definition as a parameter.
 
 The code can, however, be fixed:
-
 
 .source of snippet `fnDecorator2`
 [source]
@@ -6730,11 +5821,7 @@ fn q(){
 })
   z()
 
-
 ----
-
-
-
 
 .output of snippet `fnDecorator2`
 [source]
@@ -6746,11 +5833,9 @@ The fun is over
 ----
 
 
-
 The application of the `@` is therefore only a syntactic sugar.
 The following example shows that a decorator cannot only return the decorated 0, class, or closure.
 They can also modify the existing definition.
-
 
 .source of snippet `fnDecorator3`
 [source]
@@ -6768,11 +5853,7 @@ fn q(){
 
 q()
 
-
 ----
-
-
-
 
 .output of snippet `fnDecorator3`
 [source]
@@ -6782,7 +5863,6 @@ We function
 The fun is over
 
 ----
-
 
 
 Technically the decorator does not modify the function `q`.
@@ -6799,7 +5879,6 @@ In the following example we moved the function definition to a local context.
 The decorator in this case simply defines the global variable of the same name as we used locally for the function.
 The value is the closure or function, whatever we decorate itself.
 
-
 .source of snippet `fnDecorator4`
 [source]
 ----
@@ -6815,11 +5894,7 @@ The value is the closure or function, whatever we decorate itself.
 }
 q()
 
-
 ----
-
-
-
 
 .output of snippet `fnDecorator4`
 [source]
@@ -6827,7 +5902,6 @@ q()
 We function
 
 ----
-
 
 
 Since we use `set_global` the decorator can be a function, it does not need access to the enclosing context.
@@ -6881,7 +5955,6 @@ These are the following:
 Class constructors are invoked using the name of the class.
 When a class name is used as a field in an object either directly injected to the object or as a class field as in the next example, then the constructor can access the target object of the call through `that`.
 +
-
 .source of snippet `that`
 [source]
 ----
@@ -6904,11 +5977,7 @@ class OuterClass {
 mut outer = OuterClass()
 mut inner = outer.InnerClass()
 
-
 ----
-
-
-
 
 +
 .output of snippet `that`
@@ -6920,7 +5989,6 @@ this name outer object
 this name outer class 
 
 ----
-
 
 +
 Usually the target object is called `this`, but in the case of the constructor `this` points to the current object to be initialized.
@@ -6944,7 +6012,6 @@ It is either the global context or the class context.
 The following example is very straightforward.
 It defines the function `fib()`, that calls itself recursively.
 
-
 .source of snippet `fibonacci1`
 [source]
 ----
@@ -6954,11 +6021,7 @@ fn fib(x) {
 }
 println(fib(10))
 
-
 ----
-
-
-
 
 .output of snippet `fibonacci1`
 [source]
@@ -6968,9 +6031,7 @@ println(fib(10))
 ----
 
 
-
 If we create the same program using a class memoizing the results:
-
 
 .source of snippet `fibonacci2`
 [source]
@@ -6987,11 +6048,7 @@ class FibCalculator {
 }
 println(FibCalculator.fib(10))
 
-
 ----
-
-
-
 
 .output of snippet `fibonacci2`
 [source]
@@ -7001,12 +6058,10 @@ println(FibCalculator.fib(10))
 ----
 
 
-
 we get the same result and there is no problem with that.
 In this case `fib()` is a class level method, and when we call it Turicum automatically calls it as a method.
 
 The difficulty comes when you define the function in a local context.
-
 
 .source of snippet `fibonacci3`
 [source]
@@ -7020,11 +6075,7 @@ try
     println(fib(10))
 }catch ex : println(ex)
 
-
 ----
-
-
-
 
 .output of snippet `fibonacci3`
 [source]
@@ -7034,11 +6085,9 @@ Variable 'fib' is undefined.
 ----
 
 
-
 The function does not see itself.
 The function `fib` in this case is defined in the local context of the block, and functions do not wrap the surrounding context.
 One solution can be to convert the function to a closure:
-
 
 .source of snippet `fibonacci4`
 [source]
@@ -7051,11 +6100,7 @@ One solution can be to convert the function to a closure:
     println(fib(10))
 }
 
-
 ----
-
-
-
 
 .output of snippet `fibonacci4`
 [source]
@@ -7065,10 +6110,8 @@ One solution can be to convert the function to a closure:
 ----
 
 
-
 Closures wrap the surrounding context, therefore, the body of the closure knows the value of `fib`, which is the closure itself.
 If you do not want to wrap the whole context, you can do a little trick using functions.
-
 
 .source of snippet `fibonacci5`
 [source]
@@ -7081,11 +6124,7 @@ If you do not want to wrap the whole context, you can do a little trick using fu
     println(fib(10))
 }
 
-
 ----
-
-
-
 
 .output of snippet `fibonacci5`
 [source]
@@ -7093,7 +6132,6 @@ If you do not want to wrap the whole context, you can do a little trick using fu
 89
 
 ----
-
 
 
 The function `fib` has an extra optional parameter.
@@ -7107,7 +6145,6 @@ without knowing the details how contexts and default values for variable declara
 
 An alternative possibility is to use the special variable `me`.
 
-
 .source of snippet `fibonacci6`
 [source]
 ----
@@ -7119,11 +6156,7 @@ An alternative possibility is to use the special variable `me`.
     println(fib(10))
 }
 
-
 ----
-
-
-
 
 .output of snippet `fibonacci6`
 [source]
@@ -7133,12 +6166,10 @@ An alternative possibility is to use the special variable `me`.
 ----
 
 
-
 This variable is reserved for this purpose, and it gets the function itself as its value before a function is called.
 It can also be appealing that the recursive call is explicit whatever the name of the function is, not needing renaming when the function is renamed.
 
 As an extra, here is a version of the fibonacci calculation using a closure with a retained local context as a state instead of a class:
-
 
 .source of snippet `fibonacci7`
 [source]
@@ -7155,11 +6186,7 @@ mut fib = {
 }
 println(fib(10))
 
-
 ----
-
-
-
 
 .output of snippet `fibonacci7`
 [source]
@@ -7169,9 +6196,7 @@ println(fib(10))
 ----
 
 
-
 Finally, here is a modified fibonacci calculation that can replace the start value and uses an object cache instead of class level cache.
-
 
 .source of snippet `fibonacci8`
 [source]
@@ -7191,10 +6216,15 @@ class FibCalculator {
 println(FibCalculator().fib(10))
 println(FibCalculator(2).fib(10))
 
-
 ----
 
+.output of snippet `fibonacci8`
+[source]
+----
+89
+178
 
+----
 
 
 We do not include here the printout.
@@ -7205,144 +6235,1455 @@ The first number you already know, try to guess the second, then run the code yo
 Turicum defines many methods to handle strings.
 These methods can be called on the string objects as methods.
 
+
+
+
             * `to_string` 
  returns the string itself. This method exists so that you can use it like on any other objects.
+            * `length` 
+ a convenience method that makes it possible to use it like in Java.
+ The Turicum way is to use `len()` built-in function, but this method also works on strings.
+ 
++
+.source of snippet `string_length`
+[source]
+----
+print len("abraka dabra") == "abraka debra".length()
+
+----
++
+.output of snippet `string_length`
+[source]
+----
+true
+----
+
             * `after` 
  returns the part of the string that follows the argument string.
  If the argument string is not in the string, then it returns an empty string.
+ 
++
+.source of snippet `string_after`
+[source]
+----
+println "alma ata".after("ma ")
+
+----
++
+.output of snippet `string_after`
+[source]
+----
+ata
+
+----
+
             * `before` 
  returns the part of the string that is before the argument string.
  If the argument string is not in the string, then it returns an empty string.
+ 
++
+.source of snippet `string_before`
+[source]
+----
+println "alma ata".before(" ata")
+
+----
++
+.output of snippet `string_before`
+[source]
+----
+alma
+
+----
+
             * `pad_left` 
  add characters on the left of the string to get the desired length.
  You can specify only the number of the characters to pad with spaces.
  Alternatively, you can also specify a string and the desired total length of the result.
  The string is supposed to be a single character, but it can be any length.
  If the necessary number of padding characters is not the multiple of string length, the resulting string may be shorter than desired.
+ 
++
+.source of snippet `string_pad_left`
+[source]
+----
+println "avalanche".pad_left(15)
+println "avalanche".pad_left(15,".")
+
+----
++
+.output of snippet `string_pad_left`
+[source]
+----
+      avalanche
+......avalanche
+
+----
+
             * `pad_right` 
  add character to the right of the string to get the desired length.
  This method works the same way as `pad_left`, but it appends the characters.
+ 
++
+.source of snippet `string_pad_right`
+[source]
+----
+println "avalanche".pad_right(15),"<<"
+println "avalanche".pad_right(15,"."),"<<"
+
+----
++
+.output of snippet `string_pad_right`
+[source]
+----
+avalanche      <<
+avalanche......<<
+
+----
+
             * `between` 
  returns the part of the string that is between two specific strings.
- if one of the parameter strings is not found in the string, the result is empty string.
+ if one of the parameter strings is not found in the string, the result is an empty string.
+ 
++
+.source of snippet `string_between`
+[source]
+----
+println "alma ata".between("al","ta")
+
+----
++
+.output of snippet `string_between`
+[source]
+----
+ma a
+
+----
+
             * `lines` 
  returns a list containing the lines of the string.
+ 
++
+.source of snippet `string_lines`
+[source]
+----
+println jsonify("alma\na\nta".lines())
+
+----
++
+.output of snippet `string_lines`
+[source]
+----
+["alma","a","ta"]
+
+----
+
             * `words` 
  returns a list containing the words of the string.
+ 
++
+.source of snippet `string_words`
+[source]
+----
+println jsonify("alma ata".words())
+
+----
++
+.output of snippet `string_words`
+[source]
+----
+["alma","ata"]
+
+----
+
             * `turi_lex` 
  returns a list containing the tokens of the string matching the tokenization of the language (Turicum).
+ 
++
+.source of snippet `string_turi_lex`
+[source]
+----
+println "for each i in range(1,55) : println i".turi_lex()
+
+----
++
+.output of snippet `string_turi_lex`
+[source]
+----
+[Lex{types=RESERVED, text='for'}, Lex{types=RESERVED, text='each'}, Lex{types=IDENTIFIER, text='i'}, Lex{types=RESERVED, text='in'}, Lex{types=IDENTIFIER, text='range'}, Lex{types=RESERVED, text='('}, Lex{types=INTEGER, text='1'}, Lex{types=RESERVED, text=','}, Lex{types=INTEGER, text='55'}, Lex{types=RESERVED, text=')'}, Lex{types=RESERVED, text=':'}, Lex{types=RESERVED, text='println'}, Lex{types=IDENTIFIER, text='i'}]
+
+----
+
             * `execute` 
  executes the string as Turicum code.
+ 
++
+.source of snippet `string_execute`
+[source]
+----
+sys_import "turi.range";
+
+mut j = 3;
+println "for each i in range(1,3) { println i+j; j ++ }".execute()
+println j;
+
+----
++
+.output of snippet `string_execute`
+[source]
+----
+4
+6
+4
+5
+
+----
+
             * `url_encode` 
  encode the string for URL
+ 
++
+.source of snippet `string_url_encode`
+[source]
+----
+println "63/2%3 =55".url_encode()
+
+----
++
+.output of snippet `string_url_encode`
+[source]
+----
+63%2F2%253+%3D55
+
+----
+
             * `url_decode` 
  decode the string from URL-encoded form
+ 
++
+.source of snippet `string_url_decode`
+[source]
+----
+println "63%2F2%253+%3D55".url_decode()
+
+----
++
+.output of snippet `string_url_decode`
+[source]
+----
+63/2%3 =55
+
+----
+
             * `md5` 
  calculate the md5 hash of the string
+ 
++
+.source of snippet `string_md5`
+[source]
+----
+println "borra sor meggyotor".md5()
+
+----
++
+.output of snippet `string_md5`
+[source]
+----
+1a356faf32bae1cabee0198ecc072edd
+
+----
+
             * `sha_1` 
  calculate the sha-1 hash of the string
+ 
++
+.source of snippet `string_sha_1`
+[source]
+----
+println "borra sor meggyotor".sha_1()
+
+----
++
+.output of snippet `string_sha_1`
+[source]
+----
+b6c3368549b65c29ee4d90d0e972c49422c8d0ee
+
+----
+
             * `sha_256` 
  calculate the sha-256 hash of the string
+ 
++
+.source of snippet `string_sha_256`
+[source]
+----
+println "borra sor meggyotor".sha_256()
+
+----
++
+.output of snippet `string_sha_256`
+[source]
+----
+4b1b6e48f60bc62bd7c876d264e784e752fc1ea2b540fec897b1ba4a2f8f9d19
+
+----
+
             * `sha_512` 
  calculate the sha-512 hash of the string
+ 
++
+.source of snippet `string_sha_512`
+[source]
+----
+println "borra sor meggyotor".sha_512()
+
+----
++
+.output of snippet `string_sha_512`
+[source]
+----
+9ae2d8cdfa063385b3c630a2065e8d9562305ef31c41e91b8d3671fdaa9384f718c7722bf0e0b0e40c8aea0caaa547d49a3fe3da8818f3c17b376710a7319149
+
+----
+
             * `digest` 
- calculate the hash of the string. The algorithm name has to be provided as argument.
+ calculate the hash of the string. The algorithm name has to be provided as an argument.
+ 
++
+.source of snippet `string_digest`
+[source]
+----
+println "borra sor meggyotor".digest("sha-512")
+
+----
++
+.output of snippet `string_digest`
+[source]
+----
+9ae2d8cdfa063385b3c630a2065e8d9562305ef31c41e91b8d3671fdaa9384f718c7722bf0e0b0e40c8aea0caaa547d49a3fe3da8818f3c17b376710a7319149
+
+----
+
             * `base64` 
  base64 encode the string
+ 
++
+.source of snippet `string_base64`
+[source]
+----
+println "borra sor meggyotor".base64()
+
+----
++
+.output of snippet `string_base64`
+[source]
+----
+Ym9ycmEgc29yIG1lZ2d5b3Rvcg==
+
+----
+
             * `from_base64` 
  create a list of numbers (bytes) from a base64 encoded string
+ 
++
+.source of snippet `string_from_base64`
+[source]
+----
+println "Ym9ycmEgc29yIG1lZ2d5b3Rvcg==".from_base64()
+
+----
++
+.output of snippet `string_from_base64`
+[source]
+----
+[98, 111, 114, 114, 97, 32, 115, 111, 114, 32, 109, 101, 103, 103, 121, 111, 116, 111, 114]
+
+----
+
             * `from_base64_str` 
  create a string from a base64 encoded string
+ 
++
+.source of snippet `string_from_base64_str`
+[source]
+----
+println "Ym9ycmEgc29yIG1lZ2d5b3Rvcg==".from_base64_str()
+
+----
++
+.output of snippet `string_from_base64_str`
+[source]
+----
+borra sor meggyotor
+
+----
+
             * `contains` 
  returns `true` if the string contains the argument.
+ 
++
+.source of snippet `string_contains`
+[source]
+----
+println "Ym9ymcAgc29yIG1lZ2d5b3Rvcg==".contains("ymcA")
+println "Ym9ymcAgc29yIG1lZ2d5b3Rvcg==".contains("bora nora")
+
+----
++
+.output of snippet `string_contains`
+[source]
+----
+true
+false
+
+----
+
+            * `contains_regex` 
+ returns `true` if the string contains some substring that matches the argument as a regular expression.
+ 
++
+.source of snippet `string_contains_regex`
+[source]
+----
+println "Ym9ymcAgc29yIG1lZ2d5b3Rvcg==".contains_regex("IG.*cg")
+println "Ym9ymcAgc29yIG1lZ2d5b3Rvcg==".contains_regex("YmZ.*?nora")
+
+----
++
+.output of snippet `string_contains_regex`
+[source]
+----
+true
+false
+
+----
+
+            * `matches` 
+ returns `true` if the string matches the argument as a regular expression.
+ 
++
+.source of snippet `string_matches`
+[source]
+----
+println "Ym9ymcAgc29yIG1lZ2d5b3Rvcg==".matches("Ym.*cg..")
+println "Ym9ymcAgc29yIG1lZ2d5b3Rvcg==".matches("ym.*cA")
+
+----
++
+.output of snippet `string_matches`
+[source]
+----
+true
+false
+
+----
+
+            * `matches_glob` 
+ returns `true` if the string matches the argument as a glob string (`pass:[*]` matching any substring except `/`,
+ `**` macthes any substring, and `?` matching any single character).
+ 
++
+.source of snippet `string_matches_glob`
+[source]
+----
+println "my_precious_text_file.txt".matches_glob("*.txt")
+println "my_precious_text_file.txt".matches_glob("*.turx")
+
+----
++
+.output of snippet `string_matches_glob`
+[source]
+----
+true
+false
+
+----
+
             * `is_blank` 
  returns `true` if the string is blank
+ 
++
+.source of snippet `string_is_blank`
+[source]
+----
+println "\n\t  ".is_blank()
+println "\n\t  wupps".is_blank()
+
+----
++
+.output of snippet `string_is_blank`
+[source]
+----
+true
+false
+
+----
+
             * `is_empty` 
  returns `true` if the string is empty
+ 
++
+.source of snippet `string_is_empty`
+[source]
+----
+println "".is_empty()
+println "\n\t  ".is_empty()
+
+----
++
+.output of snippet `string_is_empty`
+[source]
+----
+true
+false
+
+----
+
             * `is_numeric` 
  returns `true` if the string holds a decimal numeric value, either integer or floating point formatted.
+ 
++
+.source of snippet `string_is_numeric`
+[source]
+----
+println "653".is_numeric()
+println "6E23".is_numeric()
+println "3.1425923".is_numeric()
+println "10.13.55.2".is_numeric()
+
+----
++
+.output of snippet `string_is_numeric`
+[source]
+----
+true
+true
+true
+false
+
+----
+
             * `is_digit` 
  returns `true` if the string contains only digits
+ 
++
+.source of snippet `string_is_digit`
+[source]
+----
+println "653".is_digit()
+println "6E23".is_digit()
+println "3.1425923".is_digit()
+println "10.13.55.2".is_digit()
+
+----
++
+.output of snippet `string_is_digit`
+[source]
+----
+true
+false
+false
+false
+
+----
+
             * `is_alpha` 
  returns `true` if the string contains only alpha characters
+ 
++
+.source of snippet `string_is_alpha`
+[source]
+----
+println "ABC".is_alpha()
+println "ABC DEF".is_alpha()
+println "ABCDEF13".is_alpha()
+
+----
++
+.output of snippet `string_is_alpha`
+[source]
+----
+true
+false
+false
+
+----
+
             * `is_alphanumeric` 
  returns `true` if the string contains only alphanumeric characters
+ 
++
+.source of snippet `string_is_alphanumeric`
+[source]
+----
+println "ABC".is_alphanumeric()
+println "ABC DEF".is_alphanumeric()
+println "ABCDEF13".is_alphanumeric()
+
+----
++
+.output of snippet `string_is_alphanumeric`
+[source]
+----
+true
+false
+true
+
+----
+
             * `is_hex` 
  returns `true` if the string contains only hexadecimal characters
+ 
++
+.source of snippet `string_is_hex`
+[source]
+----
+println "ABC".is_hex()
+println "ABC DEF".is_hex()
+println "ABCDEF13".is_hex()
+
+----
++
+.output of snippet `string_is_hex`
+[source]
+----
+true
+false
+true
+
+----
+
             * `int` 
  returns the integer value of the string
+ 
++
+.source of snippet `string_int`
+[source]
+----
+println "632".int()
+
+----
++
+.output of snippet `string_int`
+[source]
+----
+632
+
+----
+
             * `float` 
  returns the floating number contained in the string
+ 
++
+.source of snippet `string_float`
+[source]
+----
+println "3.1415929".float()
+
+----
++
+.output of snippet `string_float`
+[source]
+----
+3.1415929
+
+----
+
             * `number` 
  returns the number contained in the string encoded with the argument radix
+ 
++
+.source of snippet `string_number`
+[source]
+----
+println "61".number(7)
+
+----
++
+.output of snippet `string_number`
+[source]
+----
+43
+
+----
+
             * `hex` 
  returns the number contained in the string as a hexadecimal number.
- It is not the same as calling `"0AF6"number(16)` because this method respects the leading `0x` if there is any.
+ It is not the same as calling `"0AF6".number(16)` because this method respects the leading `0x` if there is any.
+ 
++
+.source of snippet `string_hex`
+[source]
+----
+println "2F".hex()
+println "0x2F".hex()
+
+----
++
+.output of snippet `string_hex`
+[source]
+----
+47
+47
+
+----
+
             * `substring` 
  retruns a substring of the string.
  There has to be at least one (`a`), and there can be at most two (`a`,`b`) integer arguments.
  The substring starts at the character indexed `a` and finishes before the character `b`.
  If there is no `b`, the substring lasts till the end of the string.
  The implementation honors overindexing and returns characters only to the end of the string or an empty string.
+ 
++
+.source of snippet `string_substring`
+[source]
+----
+println "alma ata".substring(5)
+println "alma ata".substring(5,53)
+println "alma ata".substring(5,7)
+println "alma ata".substring(-3,7)
+
+----
++
+.output of snippet `string_substring`
+[source]
+----
+ata
+ata
+at
+at
+
+----
+
             * `remove_prefix` 
- removes the argument from the string if that is a prefix of the string.
+ removes the argument from the start of the string if that is a prefix of the string.
+ 
++
+.source of snippet `string_remove_prefix`
+[source]
+----
+println "alma ata".remove_prefix("alma")
+println "alma ata".remove_prefix("apple")
+
+----
++
+.output of snippet `string_remove_prefix`
+[source]
+----
+ ata
+alma ata
+
+----
+
             * `remove_postfix` 
- removes the argument from the string if that is a postfix of the string.
+ removes the argument from the end of the string if that is a postfix of the string.
+ 
++
+.source of snippet `string_remove_postfix`
+[source]
+----
+println "alma ata".remove_postfix("ata")
+println "alma ata".remove_postfix("alma")
+
+----
++
+.output of snippet `string_remove_postfix`
+[source]
+----
+alma 
+alma ata
+
+----
+
             * `count_substring` 
  counts the occurrences of the argument string.
  Note that when an occurrence is found the other occurrences are sought for after that occurrence.
  It means that, for example, `("a"*6).count_substring("aa")` is 3 and not 5.
+ 
++
+.source of snippet `string_count_substring`
+[source]
+----
+println "almal atal".count_substring("al")
+println ("a"*6).count_substring("aa")
+
+----
++
+.output of snippet `string_count_substring`
+[source]
+----
+3
+3
+
+----
+
             * `count_substring_overlap` 
  counts all the occurrences of the argument string, even if they overlap
  It means that, for example, `("a"*6).count_substring("aa")` is 5.
+ 
++
+.source of snippet `string_count_substring_overlap`
+[source]
+----
+println "almal atal".count_substring_overlap("al")
+println ("a"*6).count_substring_overlap("aa")
+
+----
++
+.output of snippet `string_count_substring_overlap`
+[source]
+----
+3
+5
+
+----
+
             * `left` 
  return the left of the string.
  This method uses the argument as a number and returns the string that contains at most that number of characters.
  Essentially, the `string.left(n)` is the `n` leftmost characters if `n` is smaller than the number of characters in the string.
  If `n` is equal to, or larger than the number of characters in the string, then the whole string is the result.
+ 
++
+.source of snippet `string_left`
+[source]
+----
+println "alma ata".left(4)
+
+----
++
+.output of snippet `string_left`
+[source]
+----
+alma
+
+----
+
             * `right` 
  return the right of the string.
  This method uses the argument as a number and returns the string that contains at most that number of characters.
  Essentially, the `string.right(n)` is the `n` rightmost characters if `n` is smaller than the number of characters in the string.
  If `n` is equal to, or larger than the number of characters in the string, then the whole string is the result.
+ 
++
+.source of snippet `string_right`
+[source]
+----
+println "alma ata".right(3)
+
+----
++
+.output of snippet `string_right`
+[source]
+----
+ata
+
+----
+
             * `replace_all` 
  replaces the occurrences of the first argument interpreted as regular expression with the second argument interpreted as string.
+ 
++
+.source of snippet `string_replace_all`
+[source]
+----
+println "alma ata".replace_all("a(.*?)a","b$1b")
+
+----
++
+.output of snippet `string_replace_all`
+[source]
+----
+blmb btb
+
+----
+
             * `quote` 
  quotes the special characters in the string.
  The result is a string that can be used in a string literal to represent the original string.
+ 
++
+.source of snippet `string_quote`
+[source]
+----
+let s= """z\t \\ a\n"a"""
+let q = s.quote()
+println $"${q} len q=${len(q)} len s=${len(s)}"
+
+----
++
+.output of snippet `string_quote`
+[source]
+----
+z\t \\ a\n\"a len q=13 len s=9
+
+----
+
             * `reverse` 
  returns the string that contains the same characters as the original string, but in reverse order.
+ 
++
+.source of snippet `string_reverse`
+[source]
+----
+println "alma ata".reverse()
+
+----
++
+.output of snippet `string_reverse`
+[source]
+----
+ata amla
+
+----
+
             * `chop` 
  returns string without the last character
+ 
++
+.source of snippet `string_chop`
+[source]
+----
+mut s = "alma ata\n";
+println s;
+s = s.chop()
+println s;
+s = s.chop()
+println s;
+s = s.chop()
+println s;
+
+----
++
+.output of snippet `string_chop`
+[source]
+----
+alma ata
+
+alma ata
+alma at
+alma a
+
+----
+
             * `chomp` 
  returns the string without the last new-line character.
  If the last character is not a new line character, the original string is returned.
+ 
++
+.source of snippet `string_chomp`
+[source]
+----
+mut s = "alma ata\n";
+println s;
+s = s.chomp()
+println s;
+s = s.chomp()
+println s;
+s = s.chomp()
+println s;
+
+----
++
+.output of snippet `string_chomp`
+[source]
+----
+alma ata
+
+alma ata
+alma ata
+alma ata
+
+----
+
             * `times` 
- repeat the string as specified by the argument. `"x".times(3)` is `"xxx"`.
+ repeat the string as specified by the argument.
+ 
++
+.source of snippet `string_times`
+[source]
+----
+println "alma ".times(5)
+
+----
++
+.output of snippet `string_times`
+[source]
+----
+alma alma alma alma alma 
+
+----
+
             * `lower_case` 
  return the string lower-cased character.
+ 
++
+.source of snippet `string_lower_case`
+[source]
+----
+println "aLMa aTTa".lower_case()
+
+----
++
+.output of snippet `string_lower_case`
+[source]
+----
+alma atta
+
+----
+
             * `upper_case` 
  return the string upper-cased characters.
+ 
++
+.source of snippet `string_upper_case`
+[source]
+----
+println "aLMa aTTa".upper_case()
+
+----
++
+.output of snippet `string_upper_case`
+[source]
+----
+ALMA ATTA
+
+----
+
+            * `swap_case` 
+ swaps case of each letter.
+ 
++
+.source of snippet `string_swap_case`
+[source]
+----
+println "aLMa aTTa".swap_case()
+
+----
++
+.output of snippet `string_swap_case`
+[source]
+----
+AlmA AttA
+
+----
+
+            * `capitalize` 
+ return the string with the upper-cased first character.
+ 
++
+.source of snippet `string_capitalize`
+[source]
+----
+println "aLMa aTTa".capitalize()
+
+----
++
+.output of snippet `string_capitalize`
+[source]
+----
+ALMa aTTa
+
+----
+
+            * `title` 
+ return the string with the upper-cased first character of each word.
+ A word is a group of alpha characters that are at the start of the string or follow a white space.
+ 
++
+.source of snippet `string_title`
+[source]
+----
+println "aLMa aTTa".title()
+
+----
++
+.output of snippet `string_title`
+[source]
+----
+Alma Atta
+
+----
+
+            * `casefold` 
+ return the string with cases folded to the lower case.
+ This transformation is aggressive and to be used for case-insensitive comparison.
+ For most of the characters it is the same as `lower_case`, but it also converts many Unicode characters, like `ß` to `ss`.
+ 
++
+.source of snippet `string_casefold`
+[source]
+----
+println "Straße".casefold()
+
+----
++
+.output of snippet `string_casefold`
+[source]
+----
+strasse
+
+----
+
             * `trim` 
  return the string with spaces removed from the start and the end.
+ 
++
+.source of snippet `string_trim`
+[source]
+----
+let s=" \u202Fspace elol hatul "
+println s
+println s.trim()
+
+----
++
+.output of snippet `string_trim`
+[source]
+----
+  space elol hatul 
+ space elol hatul
+
+----
+
+            * `strip` 
+ return the string with spaces removed from the start and the end.
+ While `trim()` removes only characters with Unicode code points ≤ U+0020 (i.e., ASCII control characters and basic whitespace like:
+ space ' ', tab '\t', newline '\n', carriage return '\r', etc.) `strip()` removes all Unicode whitespace, using Character.isWhitespace(int), which includes:
+
+ * ASCII spaces
+ * Unicode spaces like:
+ * U+00A0 (non-breaking space)
+ * U+2003 (em space)
+ * U+202F (narrow no-break space)
+ * U+3000 (ideographic space)
+ 
++
+.source of snippet `string_strip`
+[source]
+----
+let s="\u202F space elol hatul "
+println s
+println s.strip()
+
+----
++
+.output of snippet `string_strip`
+[source]
+----
+  space elol hatul 
+  space elol hatul
+
+----
+
+            * `strip_leading` 
+ return the string with spaces removed from the start.
+ 
++
+.source of snippet `string_strip_leading`
+[source]
+----
+let s="\u202F space elol hatul "
+println s
+println s.strip_leading()
+
+----
++
+.output of snippet `string_strip_leading`
+[source]
+----
+  space elol hatul 
+  space elol hatul 
+
+----
+
+            * `strip_trailing` 
+ return the string with spaces removed from the end.
+ 
++
+.source of snippet `string_strip_trailing`
+[source]
+----
+let s="\u202F space elol hatul "
+println s
+println s.strip_trailing()
+
+----
++
+.output of snippet `string_strip_trailing`
+[source]
+----
+  space elol hatul 
+  space elol hatul
+
+----
+
+            * `strip_indent` 
+ return the string with some spaces removed from the start of each line, in the case of a multi-line string.
+ It removes so many spaces that the line that starts at the leftmost position will have no leading spaces.
+ This function also removes the spaces from the end of the lines.
+ 
++
+.source of snippet `string_strip_indent`
+[source]
+----
+let s="""
+    bruhaha
+      marha
+  korte
+  valaka mortunaktraburnaki                  """
+println s.strip_indent()
+
+----
++
+.output of snippet `string_strip_indent`
+[source]
+----
+
+  bruhaha
+    marha
+korte
+valaka mortunaktraburnaki
+
+----
+
             * `starts_with` 
  return `true` if the string starts with the specified string.
+ 
++
+.source of snippet `string_starts_with`
+[source]
+----
+println "alma ata".starts_with("alma")
+println "alma ata".starts_with("ata")
+
+----
++
+.output of snippet `string_starts_with`
+[source]
+----
+true
+false
+
+----
+
             * `ends_with` 
  return `true` if the string ends with the specified string.
+ 
++
+.source of snippet `string_ends_with`
+[source]
+----
+println "alma ata".ends_with("alma")
+println "alma ata".ends_with("ata")
+
+----
++
+.output of snippet `string_ends_with`
+[source]
+----
+false
+true
+
+----
+
+            * `partition` 
+ Splits a string into three parts and retuns a three-element list.
+ If the string has the format `xxxZZZyyy` where `ZZZ` is the partitioning element, then
+ the list will be `["xxx", "ZZZ", "yyy"]`.
+ If `ZZZ` is not found in the string, then the first element of the list will contain the whole string, and the second and last elements will be empty strings.
+ 
++
+.source of snippet `string_partition`
+[source]
+----
+mut s = "abraka; muhaha dabra; mutabor; kalifa";
+while !s.is_empty() {
+  let [start, sep, s_new ] = s.partition("; ")
+  s = s_new
+  println start
+}
+
+----
++
+.output of snippet `string_partition`
+[source]
+----
+abraka
+muhaha dabra
+mutabor
+kalifa
+
+----
+
+            * `partition_regex` 
+ Splits a string into three parts and retuns a three-element list.
+ If the string has the format `xxxZZZyyy` where `ZZZ` is a substring that matches the partitioning regular expression, then
+ the list will be `["xxx", "ZZZ", "yyy"]`.
+ If `ZZZ` is not found in the string, then the first element of the list will contain the whole string, and the second and last elements will be empty strings.
+
+ It is an error to specify a regular expression that matches a zero-length string.
+ 
++
+.source of snippet `string_partition_regex`
+[source]
+----
+mut s = "abraka, muhaha dabra, mutabor; kalifa";
+while !s.is_empty() {
+  let [start, sep, s_new ] = s.partition_regex("[ ,;]+")
+  s = s_new
+  println start
+}
+
+----
++
+.output of snippet `string_partition_regex`
+[source]
+----
+abraka
+muhaha
+dabra
+mutabor
+kalifa
+
+----
+
             * `split` 
  split the string into a list using the argument as a regular expression.
+ If there is no argument, the function uses `"\n"` making it behave the same as `lines()`.
+ Optionally there is a second argument that can limit how many pieces the string is split.
+ If it is `0` then there is no limit, but the trailing empty strings are discarded.
+ It the limit is -1 the trailing empty elements are kept.
+ 
++
+.source of snippet `string_split`
+[source]
+----
+println jsonify("abraka, muhaha dabra, mutabor; kalifa".split("[ ,;]+",3));
+
+----
++
+.output of snippet `string_split`
+[source]
+----
+["abraka","muhaha","dabra, mutabor; kalifa"]
+
+----
+
             * `bytes` 
  return a list that contains the bytes of the string using UTF-8 character encoding.
+ 
++
+.source of snippet `string_bytes`
+[source]
+----
+println "alma ata".bytes()
+
+----
++
+.output of snippet `string_bytes`
+[source]
+----
+[97, 108, 109, 97, 32, 97, 116, 97]
+
+----
+
             * `join` 
  joins the elements of the argument list using the string as a separator/joiner character.
+ 
++
+.source of snippet `string_join`
+[source]
+----
+println ":".join([".","/usr/bin","usr/local/bin"])
+
+----
++
+.output of snippet `string_join`
+[source]
+----
+.:/usr/bin:usr/local/bin
+
+----
+
             * `char_at` 
  get the character at the given position.
+ 
++
+.source of snippet `string_char_at`
+[source]
+----
+for i=0 ; i < 8 ; i++ :
+    print "alma ata".char_at(i)
+
+----
++
+.output of snippet `string_char_at`
+[source]
+----
+alma ata
+----
+
             * `safe_char_at` 
  get the character at the given position or an empty string if the index is out of range.
+ 
++
+.source of snippet `string_safe_char_at`
+[source]
+----
+for i=-3 ; i < 18 ; i++ :
+    print "alma ata".safe_char_at(i)
+
+----
++
+.output of snippet `string_safe_char_at`
+[source]
+----
+alma ata
+----
+
             * `index_of` 
  return the first position of the argument string, or -1 if the argument string cannot be found in the original string.
+ 
++
+.source of snippet `string_index_of`
+[source]
+----
+println "alma ata".index_of("lma")
+println "alma ata".index_of("amla")
+
+----
++
+.output of snippet `string_index_of`
+[source]
+----
+1
+-1
+
+----
+
             * `last_index_of` 
  return the last position of the argument string, or -1 if the argument string cannot be found in the original string.
+ 
++
+.source of snippet `string_last_index_of`
+[source]
+----
+println "alma ata".last_index_of("a")
+println "alma ata".last_index_of("amla")
+
+----
++
+.output of snippet `string_last_index_of`
+[source]
+----
+7
+-1
+
+----
+
 
 
 
@@ -7375,9 +7716,9 @@ println "22. ","alma kadarka".left(4)
 println "23. ","alma kadarka".right(4)
 println "24. ","alma kadarka".count_substring("a")
 println "25. ","kadarka".pad_left(12)
-println "26. ","kadarka".pad_left(".",12)
+println "26. ","kadarka".pad_left(12,".")
 println "27. ","kadarka".pad_right(12) + "<"
-println "28. ","kadarka".pad_right(".",12)
+println "28. ","kadarka".pad_right(12,".")
 println "29. ","   ".is_blank()
 println "30. ","   ".is_empty()
 println "31. ","+6.2E23".is_numeric()
@@ -7416,11 +7757,7 @@ println "65. ","65".int() , "is 65... literally"
 println "65. ","3.14".float(), " is 3.14"
 println "66. ","0765".number(8), " is ", 8*8*7+8*6+5
 
-
 ----
-
-
-
 
 .output of snippet `string_functions`
 [source]
@@ -7494,7 +7831,6 @@ println "66. ","0765".number(8), " is ", 8*8*7+8*6+5
 ----
 
 
-
 == Built-in Functions
 
 Built-in functions are functions provided by the interpreter, which extend the functionality of the run-time.
@@ -7537,7 +7873,6 @@ All mathematical functions from Java's Math class are available in Turicum:
 * `to_radians(x)` - Converts an angle measured in degrees to radians
 * `ulp(x)` - Returns the size of an ulp (unit in last place) of x
 
-
 .source of snippet `math_functions`
 [source]
 ----
@@ -7570,18 +7905,13 @@ println "ieee_remainder(5,2) = ", ieee_remainder(5,2)
 println "next_after(1.0,2.0) = ", next_after(1.0,2.0)
 println "next_down(1.0) = ", next_down(1.0)
 println "next_up(1.0) = ", next_up(1.0)
-println "random() = ", random()
 println "rint(3.7) = ", rint(3.7)
 println "round(3.7) = ", round(3.7)
 println "signum(-3.7) = ", signum(-3.7)
 println "ulp(1.0) = ", ulp(1.0)
 println "scalb(2.0,3) = ", scalb(2.0,3)
 
-
 ----
-
-
-
 
 .output of snippet `math_functions`
 [source]
@@ -7615,7 +7945,6 @@ ieee_remainder(5,2) = 1.0
 next_after(1.0,2.0) = 1.0000000000000002
 next_down(1.0) = 0.9999999999999999
 next_up(1.0) = 1.0000000000000002
-random() = 0.8486176513886758
 rint(3.7) = 4.0
 round(3.7) = 4
 signum(-3.7) = -1.0
@@ -7626,12 +7955,10 @@ scalb(2.0,3) = 16.0
 
 
 
-
 === `all_parents`
 
 Returns a list of classes that are the parent classes of the argument with a transitive closure.
 It means that all classes, including the parents of the parents and so on, recursively.
-
 
 .source of snippet `all_parents`
 [source]
@@ -7642,11 +7969,7 @@ mut K = class : B {}
 println all_parents(K)
 println([ ..all_parents(K) -> type(it()) ])
 
-
 ----
-
-
-
 
 .output of snippet `all_parents`
 [source]
@@ -7657,7 +7980,6 @@ println([ ..all_parents(K) -> type(it()) ])
 ----
 
 
-
 The classes are ordered in inheritance order.
 
 === `die`
@@ -7666,7 +7988,6 @@ This function will throw an exception.
 The argument is the message of the exception.
 The naming of the function is a tribute to the programming language Perl.
 If you feel the naming offensive, you can use the lame `throw` form after importing it:
-
 
 .source of snippet `die`
 [source]
@@ -7679,11 +8000,7 @@ try:
 catch ex:
     print "don't die"
 
-
 ----
-
-
-
 
 .output of snippet `die`
 [source]
@@ -7693,13 +8010,11 @@ don't die
 
 
 
-
 === `evaluate`
 
 Macro implementations use this function.
 Macros get their arguments unevaluated and can use this function to evaluate them.
 If you try to evaluate anything other than a macro argument, you will get an error.
-
 
 .source of snippet `evaluate1`
 [source]
@@ -7707,11 +8022,7 @@ If you try to evaluate anything other than a macro argument, you will get an err
 mut twice = macro(fn (arg){ evaluate(arg); evaluate(arg);});
 twice( {println("Hello")} )
 
-
 ----
-
-
-
 
 .output of snippet `evaluate1`
 [source]
@@ -7720,7 +8031,6 @@ Hello
 Hello
 
 ----
-
 
 
 The following example uses all the possible tools that can appear in a macro and a function.
@@ -7742,7 +8052,6 @@ In this example the three argument values for these parameters are
 
 None of them adds extra parameters when spread.
 
-
 .source of snippet `evaluate2`
 [source]
 ----
@@ -7750,11 +8059,7 @@ macro(fn (!arg,[rest],{meta},^closure)
             { evaluate(arg)(..rest,..meta,..closure)}
      )(fn () {println("Hello")})
 
-
 ----
-
-
-
 
 .output of snippet `evaluate2`
 [source]
@@ -7764,10 +8069,8 @@ Hello
 ----
 
 
-
 To be honest, since the evaluation of the argument happens only once and without condition, this functionality does not really need a macro.
 It could be shortened as
-
 
 .source of snippet `evaluate3`
 [source]
@@ -7776,11 +8079,7 @@ It could be shortened as
             { arg(..rest,..meta,..closure)})
      (fn () {println("Hello")})
 
-
 ----
-
-
-
 
 .output of snippet `evaluate3`
 [source]
@@ -7788,7 +8087,6 @@ It could be shortened as
 Hello
 
 ----
-
 
 
 Note, however that the code starts with a `(`.
@@ -7873,7 +8171,6 @@ fn imported_fun(){
 
 ----
 
-
 .source of snippet `import`
 [source]
 ----
@@ -7884,11 +8181,7 @@ let fun = import("import_this").imported_fun
 print fun()
 
 
-
 ----
-
-
-
 
 .output of snippet `import`
 [source]
@@ -7897,14 +8190,12 @@ fluffy dog
 ----
 
 
-
 There are two pairs to the function `import`: `export()` and `export_all()`.
 When these are used in an imported file, the variables from the imported file are copied automatically to the importing context.
 
 Specifying extra arguments after the imported file name can define the symbols you want to import.
 These arguments can be identifiers or expressions resulting in a string.
 If there is such a list in the import function the `export()` or `export_all()` in the imported file is ignored.
-
 
 .source of snippet `limited_import`
 [source]
@@ -7915,11 +8206,7 @@ println license.apache2_0.name
 println "The next printout is the error message, because github() is exported but we do not import it."
 try : println github("verhas", "turicum"); catch e: println e
 
-
 ----
-
-
-
 
 .output of snippet `limited_import`
 [source]
@@ -7929,7 +8216,6 @@ The next printout is the error message, because github() is exported but we do n
 Variable 'github' is undefined.
 
 ----
-
 
 
 The list can contain strings and
@@ -7942,7 +8228,6 @@ This function accepts two arguments:
 * a string naming a class or the class itself.
 
 The return value is true if the object is an instance of the class or is an instance of a child class of the named class.
-
 
 .source of snippet `is_type`
 [source]
@@ -7958,11 +8243,7 @@ println is_type(z,K)," yes"
 println is_type(z,A)," yes"
 println is_type(z,"#undefined")," yes" // bit strange, but actually
 
-
 ----
-
-
-
 
 .output of snippet `is_type`
 [source]
@@ -7975,7 +8256,6 @@ true yes
 true yes
 
 ----
-
 
 
 === `java_...`
@@ -8066,7 +8346,6 @@ This function uses three parameters:
 * the tab size (how many characters indented structures should be moved to the right),
 * desired maximum margin.
 
-
 .source of snippet `jsonify`
 [source]
 ----
@@ -8088,11 +8367,7 @@ println;
 println $"object beauty=${jsonify_beauty(z,2,60)}";
 
 
-
 ----
-
-
-
 
 .output of snippet `jsonify`
 [source]
@@ -8122,10 +8397,65 @@ object beauty={
 ----
 
 
-
 === `env`
 
 This function returns the value of the environment variable.
+
+Without argument, it returns an object that contains all the environment variables as fields.
+
+.source of snippet `env1`
+[source]
+----
+println env().JAVA_HOME
+
+----
+
+.output of snippet `env1`
+[source]
+----
+/Users/verhasp/.sdkman/candidates/java/current
+
+----
+
+
+With a given string argument without `*` or `?` wild card characters the return value is the value of the environment variable.
+
+.source of snippet `env2`
+[source]
+----
+println env("JAVA_HOME")
+
+----
+
+.output of snippet `env2`
+[source]
+----
+/Users/verhasp/.sdkman/candidates/java/current
+
+----
+
+
+If the argument contains some wild card characters, then the result will be an object containing all the environment variables as fields that match the argument.
+
+.source of snippet `env3`
+[source]
+----
+println env("JAVA_*")
+
+----
+
+.output of snippet `env3`
+[source]
+----
+{JAVA_HOME: /Users/verhasp/.sdkman/candidates/java/current}
+
+----
+
+
+=== `str`
+
+Converts the argument to a string.
+Similar to the `to_string()` method, but it works safely on any value and in some situations it may be more readable.
 
 === `len`
 
@@ -8144,7 +8474,6 @@ The argument can be:
 
 This function converts a closure or a function into a macro.
 
-
 .source of snippet `macro_example`
 [source]
 ----
@@ -8159,18 +8488,13 @@ print(
 
     );
 
-
 ----
-
-
-
 
 .output of snippet `macro_example`
 [source]
 ----
 yes, it is true
 ----
-
 
 
 === `min`, `max`
@@ -8180,7 +8504,6 @@ If there is only one argument and that argument is a list, then the functions re
 
 The elements can be anything that is comparable, numbers, string.
 If the arguments are objects they must have the `pass:[`<`]` method defined.
-
 
 .source of snippet `min_max`
 [source]
@@ -8208,11 +8531,7 @@ println max( Complex(1,1), Complex(3,2), Complex(0.5,1.7))
 try: max( Complex(1,1), "Donald")
 catch e: println e
 
-
 ----
-
-
-
 
 .output of snippet `min_max`
 [source]
@@ -8228,7 +8547,6 @@ affe
 Cannot set variable 'other' to value 'Donald' because it does not fit the declared type Complex
 
 ----
-
 }
 
 === `nano_time`
@@ -8237,25 +8555,19 @@ The `nano_time` function in Turicum returns the current value of the most precis
 It is a direct wrapper around Java’s `+System.nanoTime()+` method and is typically used for measuring elapsed time with high resolution.
 Unlike timestamps, the returned value has no absolute meaning but is strictly monotonic, making it ideal for performance profiling and timing operations.
 
-
 .source of snippet `nano_time`
 [source]
 ----
 println nano_time()
 
-
 ----
-
-
-
 
 .output of snippet `nano_time`
 [source]
 ----
-1319977004226375
+1474645769844458
 
 ----
-
 
 
 
@@ -8263,7 +8575,6 @@ println nano_time()
 === `parents`
 
 Returns a list of the classes that are the parent classes of the argument.
-
 
 .source of snippet `parents`
 [source]
@@ -8273,11 +8584,7 @@ class B : A {}
 mut K = class : B {}
 println([ ..parents(K) -> type(it()) ])
 
-
 ----
-
-
-
 
 .output of snippet `parents`
 [source]
@@ -8287,11 +8594,9 @@ println([ ..parents(K) -> type(it()) ])
 ----
 
 
-
 === `reclose`
 
 This function will "open" and reclose a closure in the current environment.
-
 
 .source of snippet `reclose`
 [source]
@@ -8313,11 +8618,7 @@ closure("closure 2")
 reclosure("reclosure 2")
 println "s = %s" % s
 
-
 ----
-
-
-
 
 .output of snippet `reclose`
 [source]
@@ -8332,9 +8633,91 @@ s = closure 2
 ----
 
 
-
 The function opens and "recloses" the closure in the context of the function call.
 It will see and alter the `s` in that context of the re-closing, while the original closure alters and sees the global `s`.
+
+=== `_glob`
+
+
+`_glob` is a buit-in function to list files.
+The name starts with a `_` character, because you are not supposed to call it directly.
+To ease the use, there is a function called `glob` in the Turicum system library you can import from the ``"turi.io"`` package.
+
+The function has one mandatory and two optional parameters.
+
+* `patter` is a mandatory string parameter.
+It has to define the file name pattern.
+The list matches the usual "glob" patterns, which means
+
+** `pass:[*]` macthes zero or more characters, except `/`,
+** `pass:[**]` matches zero or more any characters, and
+** `pass:[?]` matches exactly one any character.
+
+* `path` optional, named, string parameter.
+If not specified, the current working directory will be used.
+
+* `recursive` optional, named, boolean parameter.
+Default value is `false`.
+
+The following example lists all the class files in the test target directory:
+
+.source of snippet `glob1`
+[source]
+----
+sys_import "turi.io"
+
+println jsonify_beauty(glob("**/test-classes/**/*.class", recursive=true))
+
+----
+
+.output of snippet `glob1`
+[source]
+----
+[
+    "target/test-classes/ch/turic/TestRun.class",
+    "target/test-classes/ch/turic/memory/RangeTest.class",
+    "target/test-classes/ch/turic/TestInterpreter$Snippet.class",
+    "target/test-classes/ch/turic/TestExpression.class",
+    "target/test-classes/ch/turic/TestCompilation.class",
+    "target/test-classes/ch/turic/utils/TestMarshalling.class",
+    "target/test-classes/ch/turic/utils/TestStringUtils.class",
+    "target/test-classes/ch/turic/TestInterpreter.class",
+    "target/test-classes/ch/turic/ParameterDefinitionTest.class",
+    "target/test-classes/ch/turic/TestCompilation$ProgramSnippet.class",
+    "target/test-classes/ch/turic/TestReferenceSnippets.class",
+    "target/test-classes/ch/turic/TestReferenceSnippets$ProgramSnippet.class",
+    "target/test-classes/ch/turic/analyzer/StringFetcherTest$EscapeSequenceTests.class",
+    "target/test-classes/ch/turic/analyzer/StringFetcherTest$MultilineStringTests.class",
+    "target/test-classes/ch/turic/analyzer/StringFetcherTest$EdgeCases.class",
+    "target/test-classes/ch/turic/analyzer/StringFetcherTest.class",
+    "target/test-classes/ch/turic/analyzer/StringFetcherTest$SimpleStringTests.class",
+    "target/test-classes/ch/turic/AdHocTest.class"
+]
+
+----
+
+
+The second example lists the files in the current working directory only.
+It is also an example that shows how to import only one function from the import library, that otherwise exports multiple functions and classes.
+
+.source of snippet `glob2`
+[source]
+----
+sys_import "turi.io", "glob"
+
+println jsonify_beauty(glob("*"))
+
+----
+
+.output of snippet `glob2`
+[source]
+----
+[ "target/", "pom.xml", "pom.turi", "src/"]
+
+----
+
+
+The directories have a trailing `/` at the end of their name in the list.
 
 === `rng`
 
@@ -8352,7 +8735,6 @@ You can also iterate through the elements.
 
 The next example demonstrates that you can have extremely large ranges.
 
-
 .source of snippet `rng`
 [source]
 ----
@@ -8363,11 +8745,7 @@ for each k in z {
   i++
 }until i > 5
 
-
 ----
-
-
-
 
 .output of snippet `rng`
 [source]
@@ -8382,9 +8760,7 @@ for each k in z {
 ----
 
 
-
 If you want a physical list with the elements, you can create it using the `..` spread operator:
-
 
 .source of snippet `rngThousand`
 [source]
@@ -8393,11 +8769,7 @@ mut z = rng(0,1000)
 mut array = [ ..z ]
 print( [..array[0 .. 5], ..array[-5 .. array.length]])
 
-
 ----
-
-
-
 
 .output of snippet `rngThousand`
 [source]
@@ -8406,12 +8778,10 @@ print( [..array[0 .. 5], ..array[-5 .. array.length]])
 ----
 
 
-
 In this case `array` will be a list that contains the elements that we print out.
 Do not try this with too large numbers unless you want to test out of memory errors.
 
 You can index a number range, and you can also use a range to index another range:
-
 
 .source of snippet `rngRange`
 [source]
@@ -8420,18 +8790,13 @@ mut z = rng(100,9223372036854775807,100)
 mut range = z[20..2000000]
 print( [..range[0 .. 5], ..range[-5 .. range.length]])
 
-
 ----
-
-
-
 
 .output of snippet `rngRange`
 [source]
 ----
 [2100, 2200, 2300, 2400, 2500, 199999600, 199999700, 199999800, 199999900, 200000000]
 ----
-
 
 
 In this case you index the range and do not spread it into a list.
@@ -8445,7 +8810,6 @@ If not specified it will be `+1` or `-1` depending on the start and the end valu
 
 If specified, it must not be zero, and it has to be positive or negative based on the relations between the start and end value.
 Essentially, stepping has to approach the end value.
-
 
 .source of snippet `rngErrs`
 [source]
@@ -8467,11 +8831,7 @@ println "Special zero element range can have zero as step %s" % [rng(10,10,0)]
 println "but it is just the same as %s" % [rng(10,10)]
 
 
-
 ----
-
-
-
 
 .output of snippet `rngErrs`
 [source]
@@ -8485,10 +8845,8 @@ but it is just the same as []
 ----
 
 
-
 It is recommended not to use the `rng()` function directly.
 You can import the system module `range` that defines a more flexible name:
-
 
 .source of snippet `rangeThousand`
 [source]
@@ -8498,11 +8856,7 @@ mut z = range(start=0,end=1000,closend=true)
 mut array = [ ..z ]
 print( array[0 .. 5] + array[-5 .. array.length])
 
-
 ----
-
-
-
 
 .output of snippet `rangeThousand`
 [source]
@@ -8511,14 +8865,12 @@ print( array[0 .. 5] + array[-5 .. array.length])
 ----
 
 
-
 === `que`
 
 This function will create a FIFO queue that different code fragments can write and read.
 These fragments will probably run in different threads.
 
 Here is a complex example using this function:
-
 
 .source of snippet `que`
 [source]
@@ -8575,89 +8927,85 @@ println "task2 done %s" % task2.is_done()
 
 none
 
-
 ----
-
-
-
 
 .output of snippet `que`
 [source]
 ----
-task2 is ready 1
 task1 is not ready 0
+task2 is ready 1
 task2 is not ready 0
 task1 is not ready 1
 task2 is not ready 1
-task1 is not ready 2
 task2 is not ready 2
-task2 is not ready 3
+task1 is not ready 2
 task1 is not ready 3
+task2 is not ready 3
 task1 is not ready 4
 task2 is ready 2
 task2 is not ready 0
 task1 is not ready 5
 task2 is not ready 1
-task1 is not ready 6task2 is not ready 2
-
 task1 is ready 3
-task2 is not ready 3
 task1 is not ready 0
-task2 is not ready 4
-task1 is not ready 1
-task1 is not ready 2task2 is ready 4
-
-task2 is not ready 0
-task2 is not ready 1task1 is not ready 3
-
-task1 is not ready 4
 task2 is not ready 2
-task1 is not ready 5
 task2 is not ready 3
-task1 is ready 5
-task1 is not ready 0
-task2 is not ready 4
 task1 is not ready 1
-task2 is not ready 5
+task2 is not ready 4
 task1 is not ready 2
-task2 is not ready 6
-task2 is ready 6
+task2 is ready 4
 task1 is not ready 3
 task2 is not ready 0
 task2 is not ready 1
 task1 is not ready 4
 task2 is not ready 2
 task1 is not ready 5
-task2 is ready 7
 task1 is not ready 6
+task2 is ready 5
 task2 is not ready 0
 task1 is not ready 7
 task2 is not ready 1
 task1 is not ready 8
 task2 is not ready 2
-task2 is ready 8
-task2 is not ready 0
-task1 is not ready 9
-task2 is not ready 1
-task1 is not ready 10
-task2 is not ready 2
-task1 is not ready 11
 task2 is not ready 3
-task1 is not ready 12
-task1 is ready 9
-task2 is not ready 4
+task1 is ready 6
 task1 is not ready 0
-task2 is not ready 5
+task2 is not ready 4
 task1 is not ready 1
+task2 is not ready 5
 task1 is not ready 2
 task2 is not ready 6
+task1 is not ready 3
+task1 is ready 7
+task2 is not ready 7
+task1 is not ready 0
+task2 is not ready 8
+task1 is not ready 1
+task2 is not ready 9
+task1 is not ready 2
+task1 is ready 8
+task2 is not ready 10
+task1 is not ready 0
+task2 is not ready 11
+task1 is not ready 1
+task2 is not ready 12
+task1 is not ready 2
+task2 is ready 9
+task1 is not ready 3
+task2 is not ready 0
+task1 is not ready 4
+task2 is not ready 1
+task2 is not ready 2
+task1 is not ready 5
+task2 is not ready 3
+task1 is not ready 6
 closing the channel
 channel is closed
 1 is done false
 2 is done false
 we start to wait the first time
-task2 is done
 task1 is done
+task2 is done
 task1 done true
 task2 done true
 We start to wait the second time
@@ -8665,7 +9013,6 @@ task1 done true
 task2 done true
 
 ----
-
 
 
 === Setting values in Contexts
@@ -8684,7 +9031,6 @@ Set the value of a variable in the local context.
 This function is useful for meta-programming when the name of the variable is available in a string.
 An example is in the sample:
 
-
 .source of snippet `fnDecorator3`
 [source]
 ----
@@ -8701,11 +9047,7 @@ fn q(){
 
 q()
 
-
 ----
-
-
-
 
 .output of snippet `fnDecorator3`
 [source]
@@ -8715,7 +9057,6 @@ We function
 The fun is over
 
 ----
-
 
 
 uses this function to decorate a function and then set the variable of the same name, overwriting the definition with a new, decorated closure.
@@ -8731,7 +9072,6 @@ This comes handy when you implement a decorator that wants to redefine a functio
 You can set the name as a global name, but that will define the name globally, and if the function is in a local context, it may not exactly work as expected.
 
 Calling this function from inside a function can redefine a variable in the context of the code that is calling the function or closure.
-
 
 .source of snippet `fnDecorator5`
 [source]
@@ -8751,11 +9091,7 @@ fn fun_decorator(^closure){
     q()
 }
 
-
 ----
-
-
-
 
 .output of snippet `fnDecorator5`
 [source]
@@ -8765,7 +9101,6 @@ We function
 The fun is over
 
 ----
-
 
 
 
@@ -8781,7 +9116,6 @@ When you use `sys_import` you import the file from the Java resource path, that 
 === `type`
 
 This method returns the type of the argument as a string.
-
 
 .source of snippet `type1`
 [source]
@@ -8810,11 +9144,7 @@ println "none ",type(none)
 println "java object ", type(java_object("java.lang.Object"))
 
 
-
 ----
-
-
-
 
 .output of snippet `type1`
 [source]
@@ -8837,12 +9167,10 @@ java object java.java.lang.Object
 ----
 
 
-
 When the argument is a Java object then the type is `java.` + the canonical name of the class.
 === `sleep`
 
 Will sleep the execution of the thread for the given number of seconds.
-
 
 .source of snippet `sleep`
 [source]
@@ -8851,18 +9179,13 @@ Will sleep the execution of the thread for the given number of seconds.
 sleep(0.001) // sleep one mili
 
 
-
 ----
-
-
-
 
 .output of snippet `sleep`
 [source]
 ----
 
 ----
-
 
 
 
@@ -8876,7 +9199,6 @@ If the que from the parent thread is already closed, then `yield()` will throw a
 It does not wait and returns `none` if there is no message or the channel is closed.
 
 `yield_is_close()` can be used to test of the que is open from the parent to the child thread.
-
 
 .source of snippet `try_yield`
 [source]
@@ -8912,20 +9234,16 @@ println "is done %s" % task.is_done()
 
 none
 
-
 ----
-
-
-
 
 .output of snippet `try_yield`
 [source]
 ----
 sending 1
-not ready 0
 received 1
 not ready 0
 not ready 1
+not ready 2
 sending 2
 received 2
 not ready 0
@@ -8945,13 +9263,11 @@ is done true
 ----
 
 
-
 === Regular Expressions
 
 Regular expression handling is implemented with two primitive functions `pass:[_rx()]` and `pass:[_rx_match()]`.
 They start with the `pass:[_]` character to signal that they are not to be used directly.
 Instead, the code has to import the system file `re`:
-
 
 .source of snippet `re`
 [source]
@@ -8981,11 +9297,7 @@ if m.group != none :
     println "matches because we find and not match"
 print_match(m);
 
-
 ----
-
-
-
 
 .output of snippet `re`
 [source]
@@ -9004,7 +9316,6 @@ matches because we find and not match
 ----
 
 
-
 You can create a regular expression object using `Re()`.
 It has two methods:
 
@@ -9017,10 +9328,9 @@ If there is a match, then the return value is an object containing the matching 
 
 Even if there are no matching groups the object is not empty as it will have an empty list field named `group`.
 
-YOu can also use named arguments, that will get into the field `name`.
+You can also use named arguments, that will get into the field `name`.
 In the example above that field was empty.
 In the following example we have named arguments:
-
 
 .source of snippet `re2`
 [source]
@@ -9030,11 +9340,7 @@ sys_import "turi.re"
 mut m = Re("a(?<firstb>b)ra(?<twoletter>ka)(dabra)").match("abrakadabra");
 println "the ks is '%s'" % [m.name.twoletter]
 
-
 ----
-
-
-
 
 .output of snippet `re2`
 [source]
@@ -9044,13 +9350,11 @@ the ks is '{start: 6, index: 3, end: 11}'
 ----
 
 
-
 Each named argument contains the start, end, and the index of the named group.
 
 === `is_defined`
 
 This macro accepts an identifier and returns `true` if the identifier is defined in the current context.
-
 
 .source of snippet `is_defined`
 [source]
@@ -9062,11 +9366,7 @@ try:
     println {if is_defined(z+2) : "defined" else: "not defined"}
 catch: println "no way"
 
-
 ----
-
-
-
 
 .output of snippet `is_defined`
 [source]
@@ -9078,14 +9378,12 @@ no way
 ----
 
 
-
 === `unlet`
 
 Unlet is a macro that accepts one identifier and deletes it from the local context.
 It is an error if the variable is not defined in the local context or defined but not in the local context.
 
 This macro was designed for a special purpose to, to create an initializer that can copy the values of an initializer class. Fo example:
-
 
 .source of snippet `unlet`
 [source]
@@ -9106,11 +9404,7 @@ mut z = Z({
     });
 println z
 
-
 ----
-
-
-
 
 .output of snippet `unlet`
 [source]
@@ -9118,7 +9412,6 @@ println z
 {a: {B: abraka}, c: , cls: class Z}
 
 ----
-
 
 
 Without the call to `unlet` the class would also have the variable `obj` as a field.
@@ -9176,7 +9469,6 @@ Any local variable defined in the `init` method becomes a field.
 
 The following example shows how these functions work.
 
-
 .source of snippet `thunk_unthunk`
 [source]
 ----
@@ -9189,11 +9481,7 @@ unthunk(unwrap(z))
 println is_defined(x) // will print true and
 println x             // then the value
 
-
 ----
-
-
-
 
 .output of snippet `thunk_unthunk`
 [source]
@@ -9209,12 +9497,10 @@ true
 ----
 
 
-
 ==== `blocl_list`
 
 The function `block_list` will return a list containing the commands in a command block.
 The following example shows you how it can be used together with `thunk` and `unthunk`.
-
 
 .source of snippet `block_list`
 [source]
@@ -9234,11 +9520,7 @@ for each command in commands {
     i++
 }
 
-
 ----
-
-
-
 
 .output of snippet `block_list`
 [source]
@@ -9257,12 +9539,10 @@ hello
 ----
 
 
-
 ==== `as_object`
 
 This function converts a command into an object.
 This function supports reflective programming and is likely used together with the `thunk`, `unthunk` and inside macros.
-
 
 .source of snippet `as_object`
 [source]
@@ -9270,11 +9550,7 @@ This function supports reflective programming and is likely used together with t
 let z = thunk({let k = 5})
 println as_object(z)
 
-
 ----
-
-
-
 
 .output of snippet `as_object`
 [source]
@@ -9282,7 +9558,6 @@ println as_object(z)
 {java$canonicalName: ch.turic.commands.BlockCommand, wrap: true, commands: [{assignments: [{identifier: k, types: [], expression: {java$canonicalName: ch.turic.commands.IntegerConstant, value: 5}, java$canonicalName: ch.turic.analyzer.AssignmentList.Assignment}], java$canonicalName: ch.turic.commands.LetAssignment, mut: false}]}
 
 ----
-
 
 
 == Preprocessing
@@ -9314,7 +9589,6 @@ The following example shows preprocessing that adds lines defining a global vari
 defines a function, and
 sets the value of the variable `M` to `"hello hello"`.
 
-
 .source of snippet `preprocessorSample`
 [source]
 ----
@@ -9341,18 +9615,13 @@ fn hi(){ // this will be deleted, it only exists in the preprocessor context
 M = M + helvetic_hi() + "ant hunter"
 print M
 
-
 ----
-
-
-
 
 .output of snippet `preprocessorSample`
 [source]
 ----
 hello hulloGruetzi ant hunter
 ----
-
 
 
 The example above is quite contrived.

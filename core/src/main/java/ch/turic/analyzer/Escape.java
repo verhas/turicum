@@ -20,6 +20,25 @@ class Escape {
         return (char) occ;
     }
 
+    private static char hex(Input in, int maxLen) {
+        int i = maxLen;
+        int hx = 0;
+        while (i > 0 && !in.isEmpty() && ((in.charAt(0) >= '0' && in.charAt(0) <= '9') || (in.charAt(0) >= 'A' && in.charAt(0) <= 'F') || (in.charAt(0) >= 'a' && in.charAt(0) <= 'f'))) {
+            int ch = in.charAt(0);
+            hx = 16 * hx;
+            if( ch >= '0' && ch <= '9'){
+                hx +=  ch - '0';
+            }else if( ch >= 'A' && ch <= 'F'){
+                hx +=  ch - 'A' + 10;
+            }else if( ch >= 'a' && ch <= 'f'){
+                hx +=  ch - 'a' + 10;
+            }
+            in.skip(1);
+            i--;
+        }
+        return (char) hx;
+    }
+
     private static final String escapes = "btnfr\"'\\`";
     private static final String escaped = "\b\t\n\f\r\"'\\`";
 
@@ -45,6 +64,9 @@ class Escape {
                 output.append(octal(input, 3));
             } else if (nextCh >= '4' && nextCh <= '7') {
                 output.append(octal(input, 2));
+            } else if (nextCh == 'u') {
+                input.skip(1);
+                output.append(hex(input, 4));
             } else {
                 throw new BadSyntax(input.position, "Invalid escape sequence in string: \\" + nextCh);
             }

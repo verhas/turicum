@@ -1,1 +1,1 @@
-ch.turic.builtins.functions.Len@61ce23ac
+ch.turic.builtins.functions.Len

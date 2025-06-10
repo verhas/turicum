@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<extensions>
-    <extension>
-        <groupId>ch.turic</groupId>
-        <artifactId>turicum-maven-extension</artifactId>
-        <version>1.0.0</version>
-    </extension>
-</extensions>

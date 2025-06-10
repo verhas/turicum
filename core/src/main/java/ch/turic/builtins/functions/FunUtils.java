@@ -6,6 +6,7 @@ import ch.turic.commands.operators.Cast;
 import ch.turic.memory.LngObject;
 
 import java.util.Arrays;
+import java.util.Optional;
 
 /**
  * Utility class containing methods for function argument validation and type checking.
@@ -97,11 +98,15 @@ public class FunUtils {
             this.name = name;
             this.value = value;
             this.index = index;
-            this.type = value.getClass();
+            this.type = value == null ? null : value.getClass();
         }
 
         public Object get() {
             return value;
+        }
+
+        public <T> T getOr(T defaultValue) {
+            return (T) get();
         }
 
         public double doubleValue() {
@@ -120,10 +125,43 @@ public class FunUtils {
             return (T) value;
         }
 
+        public <T> T as(Class<T> type, T defaultValue) {
+            if (value == null) {
+                return defaultValue;
+            }
+            if (!type.isInstance(value)) {
+                throw new ExecutionException("Cannot cast argument %d of function '%s' to %s", index, name, type.getSimpleName());
+            }
+            //noinspection unchecked
+            return (T) value;
+        }
+
+        public <T> Optional<T> optional(Class<T> type) {
+            if (value == null) {
+                return Optional.empty();
+            }
+            if (!type.isInstance(value)) {
+                throw new ExecutionException("Cannot cast argument %d of function '%s' to %s", index, name, type.getSimpleName());
+            }
+            //noinspection unchecked
+            return Optional.<T>of((T) value);
+        }
+
         public boolean is_a(Class<?> type) {
             return type.isInstance(value);
         }
     }
+
+    private static final Argument UNDEFINED_ARGUMENT = new Argument("undefined", new Object(), 0) {
+        @Override
+        public <T> T getOr(T defaultValue) {
+            return defaultValue;
+        }
+
+        public <T> T as(Class<T> type, T defaultValue) {
+            return defaultValue;
+        }
+    };
 
     public static class ArgumentsHolder {
         private final Argument[] arguments;
@@ -140,6 +178,9 @@ public class FunUtils {
         }
 
         public Argument at(int i) {
+            if (i >= arguments.length) {
+                return UNDEFINED_ARGUMENT;
+            }
             return arguments[i];
         }
 
@@ -150,6 +191,7 @@ public class FunUtils {
         public Argument last() {
             return arguments[arguments.length - 1];
         }
+
         public Argument first() {
             return arguments[0];
         }
@@ -162,6 +204,14 @@ public class FunUtils {
 
         public interface LngNumber {
         }
+
+        public record Optional<T>(Class<T> type) {
+        }
+
+        public static <T> Optional<T> optional(Class<T> type) {
+            return new Optional<>(type);
+        }
+
     }
 
     public static <T> T arg(final String name, Object[] args, Class<T> type) {
@@ -172,9 +222,22 @@ public class FunUtils {
         return (T) args[0];
     }
 
-    public static ArgumentsHolder args(final String name, Object[] args, Class<?>... types) {
-        if (args.length != types.length && types[types.length - 1] != Object[].class) {
-            throw new ExecutionException("Built-in function '%s' needs exactly %s argument%s.", name, types.length, types.length == 1 ? "" : "s");
+    public static ArgumentsHolder args(final String name, Object[] args, Object... types) {
+        int minArgs = types.length;
+        for (int j = types.length - 1; j >= 0; j--) {
+            if (!(types[j] instanceof ArgumentsHolder.Optional<?>)) {
+                minArgs = j;
+                break;
+            }
+        }
+        final int maxArgs = types[types.length - 1] == Object[].class ? Integer.MAX_VALUE : types.length;
+
+        if (args.length < minArgs || args.length > maxArgs) {
+            if (minArgs == maxArgs) {
+                throw new ExecutionException("Built-in function '%s' needs exactly %s argument%s.", name, minArgs, minArgs == 1 ? "" : "s");
+            } else {
+                throw new ExecutionException("Built-in function '%s' needs minimum %s and maximum %s arguments.", name, minArgs, maxArgs);
+            }
         }
         for (int i = 0; i < types.length; i++) {
             if (types[i] == Object[].class && i == types.length - 1) {
@@ -183,7 +246,16 @@ public class FunUtils {
             if (types[i] == null) {
                 throw new IllegalArgumentException("Types array contains null element for '%s'.".formatted(name));
             }
-            if (types[i] == ArgumentsHolder.LngLong.class) {
+            if (types[i] instanceof ArgumentsHolder.Optional(Class<?> type)) {
+                if (args.length <= i || args[i] == null) {
+                    continue;
+                }
+                types[i] = type;
+            }
+            if (!(types[i] instanceof Class<?> klass)) {
+                throw new ExecutionException("Types array contains unexpected type for '%s'.".formatted(name));
+            }
+            if (klass == ArgumentsHolder.LngLong.class) {
                 if (Cast.isLong(args[i])) {
                     args[i] = Cast.toLong(args[i]);
                     continue;
@@ -192,7 +264,7 @@ public class FunUtils {
                             name, nth(i + 1));
                 }
             }
-            if (types[i] == ArgumentsHolder.LngDouble.class) {
+            if (klass == ArgumentsHolder.LngDouble.class) {
                 if (Cast.isDouble(args[i])) {
                     args[i] = Cast.toDouble(args[i]);
                     continue;
@@ -201,7 +273,7 @@ public class FunUtils {
                             name, nth(i + 1));
                 }
             }
-            if (types[i] == ArgumentsHolder.LngNumber.class) {
+            if (klass == ArgumentsHolder.LngNumber.class) {
                 if (Cast.isLong(args[i])) {
                     args[i] = Cast.toLong(args[i]);
                     continue;
@@ -213,9 +285,9 @@ public class FunUtils {
                             name, nth(i + 1));
                 }
             }
-            if (!types[i].isInstance(args[i])) {
+            if (!(klass.isInstance(args[i]))) {
                 throw new ExecutionException("Built-in function '%s' %s argument needs to be a %s",
-                        name, nth(i + 1), types[i].getSimpleName());
+                        name, nth(i + 1), klass.getSimpleName());
             }
         }
         return new ArgumentsHolder(args, name);

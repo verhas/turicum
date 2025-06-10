@@ -6,6 +6,8 @@ import ch.turic.TuriFunction;
 import ch.turic.memory.LngList;
 import ch.turic.memory.LngObject;
 
+import static ch.turic.builtins.functions.FunUtils.ArgumentsHolder.optional;
+
 public class JsonifyBeauty implements TuriFunction {
     @Override
     public String name() {
@@ -18,8 +20,8 @@ public class JsonifyBeauty implements TuriFunction {
         // * the object to jsonify and beauty
         // * the tab size
         // * the right margin
-        final var args = FunUtils.args(name(), arguments, Object.class, Long.class, Long.class);
-        return jsonify(args.at(0).get(), 0, args.at(1).as(Long.class).intValue(), args.at(2).as(Long.class).intValue());
+        final var args = FunUtils.args(name(), arguments, Object.class, optional(Long.class), optional(Long.class));
+        return jsonify(args.at(0).get(), 0, args.at(1).as(Long.class,4L).intValue(), args.at(2).as(Long.class, 60L).intValue());
     }
 
     private static String jsonify(Object object, int tab, int tabsize, int margin) {

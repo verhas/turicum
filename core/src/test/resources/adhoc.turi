@@ -1,3 +1,7 @@
+sys_import "turi.io"
+
+println jsonify_beauty(glob("**/test-classes/**/*.class", recursive=true))
+
 /*
 sys_import "turi.duration"
 sys_import "turi.http_client"
