@@ -1,3 +1,64 @@
+// snippet update_forbiden
+mut z = 13
+try {
+    z = {z = 12; 14}
+}catch e : println e
+print z," not changed"
+// end snippet
+
+// snippet update_forbiden2
+mut z = [13]
+try {
+    z[0] = {z[0] = 12; 14}
+}catch e : println e
+print z[0], " already changed"
+// end snippet
+
+// snippet update_forbiden3
+mut z = { z: 13 };
+try {
+    z.z = {z.z = 12; 14}
+}catch e : println e
+print z.z, " not changed"
+// end snippet
+
+// snippet update_forbiden4
+mut z = { z: 13 };
+try {
+    z["z"] = {z.z = 12; 14}
+}catch e : println e
+print z.z, " already changed"
+// end snippet
+
+// snippet update_forbiden5
+mut z = "apple juice";
+try: z[1..5] = {z = "worm"; "lma"}
+catch e: println e
+print z
+// end snippet
+
+// snippet update_forbiden6
+mut z = "apple juice";
+try:
+    z = z[0..1] + {z = "worm"; "lma"} + z [5..inf];
+catch e: println e
+print z
+// end snippet
+
+// snippet update_forbiden7
+mut z = []
+z[1] = []
+z[1][3] = { z[1] = [];  "K"}
+println z
+// end snippet
+
+// snippet update_forbiden8
+mut z = []
+try: z[3] = { z = [];  "K"}
+catch e: println e
+println z
+// end snippet
+
 // snippet string_after
 println "alma ata".after("ma ")
 // end snippet
@@ -95,9 +156,19 @@ println "\n\t  ".is_blank()
 println "\n\t  wupps".is_blank()
 // end snippet
 
+// snippet string_is_not_blank
+println "\n\t  ".is_not_blank()
+println "\n\t  wupps".is_not_blank()
+// end snippet
+
 // snippet string_is_empty
 println "".is_empty()
 println "\n\t  ".is_empty()
+// end snippet
+
+// snippet string_is_not_empty
+println "".is_not_empty()
+println "\n\t  ".is_not_empty()
 // end snippet
 
 // snippet string_is_numeric
@@ -107,11 +178,25 @@ println "3.1425923".is_numeric()
 println "10.13.55.2".is_numeric()
 // end snippet
 
+// snippet string_is_not_numeric
+println "653".is_not_numeric()
+println "6E23".is_not_numeric()
+println "3.1425923".is_not_numeric()
+println "10.13.55.2".is_not_numeric()
+// end snippet
+
 // snippet string_is_digit
 println "653".is_digit()
 println "6E23".is_digit()
 println "3.1425923".is_digit()
 println "10.13.55.2".is_digit()
+// end snippet
+
+// snippet string_is_not_digit
+println "653".is_not_digit()
+println "6E23".is_not_digit()
+println "3.1425923".is_not_digit()
+println "10.13.55.2".is_not_digit()
 // end snippet
 
 // snippet string_is_alpha
@@ -120,16 +205,34 @@ println "ABC DEF".is_alpha()
 println "ABCDEF13".is_alpha()
 // end snippet
 
+// snippet string_is_not_alpha
+println "ABC".is_not_alpha()
+println "ABC DEF".is_not_alpha()
+println "ABCDEF13".is_not_alpha()
+// end snippet
+
 // snippet string_is_alphanumeric
 println "ABC".is_alphanumeric()
 println "ABC DEF".is_alphanumeric()
 println "ABCDEF13".is_alphanumeric()
 // end snippet
 
+// snippet string_is_not_alphanumeric
+println "ABC".is_not_alphanumeric()
+println "ABC DEF".is_not_alphanumeric()
+println "ABCDEF13".is_not_alphanumeric()
+// end snippet
+
 // snippet string_is_hex
 println "ABC".is_hex()
 println "ABC DEF".is_hex()
 println "ABCDEF13".is_hex()
+// end snippet
+
+// snippet string_is_not_hex
+println "ABC".is_not_hex()
+println "ABC DEF".is_not_hex()
+println "ABCDEF13".is_not_hex()
 // end snippet
 
 // snippet string_int
@@ -272,7 +375,7 @@ println "alma ata".ends_with("ata")
 
 // snippet string_partition
 mut s:str = "abraka; muhaha dabra; mutabor; kalifa";
-while !s.is_empty() {
+while s.is_not_empty() {
   mut [start:str, sep:str, s ] = s.partition("; ");
   println start
 }
@@ -280,7 +383,7 @@ while !s.is_empty() {
 
 // snippet string_partition_alt
 mut s:str = "abraka; muhaha dabra; mutabor; kalifa";
-while !s.is_empty() {
+while s.is_not_empty() {
   mut [start:str, sep:str, s_new ] = s.partition("; ");
   s = s_new;
   println start;
@@ -289,7 +392,7 @@ while !s.is_empty() {
 
 // snippet string_partition_regex
 mut s = "abraka, muhaha dabra, mutabor; kalifa";
-while !s.is_empty() {
+while s.is_not_empty() {
   mut [start, sep, s ] = s.partition_regex("[ ,;]+")
   println start
 }

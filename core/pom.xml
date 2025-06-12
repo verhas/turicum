@@ -3,7 +3,7 @@
     <parent>
         <groupId>ch.turic</groupId>
         <artifactId>turicum-parent</artifactId>
-        <version>1.1.0</version>
+        <version>1.2.0</version>
     </parent>
     <build>
         <plugins>
@@ -33,6 +33,12 @@
                 <artifactId>maven-surefire-plugin</artifactId>
             </plugin>
         </plugins>
+        <resources>
+            <resource>
+                <filtering>true</filtering>
+                <directory>src/main/resources</directory>
+            </resource>
+        </resources>
     </build>
     <modelVersion>4.0.0</modelVersion>
     <name>turicum</name>
@@ -62,7 +68,7 @@
     <description>Turicum programming language core implementation</description>
     <artifactId>turicum</artifactId>
     <packaging>jar</packaging>
-    <version>1.1.0</version>
+    <version>1.2.0</version>
     <dependencies>
         <dependency>
             <scope>test</scope>

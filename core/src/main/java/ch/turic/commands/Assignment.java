@@ -36,7 +36,7 @@ public class Assignment extends AbstractCommand {
 
     /****
      * Creates an `Assignment` instance from the provided unmarshaller arguments.
-     *
+     * <p>
      * Extracts the left value, operator, and expression from the arguments to construct a new assignment command.
      *
      * @param args the arguments containing the left value, operator, and expression
@@ -51,8 +51,8 @@ public class Assignment extends AbstractCommand {
     /**
      * Constructs an Assignment with the specified left value, operator, and expression.
      *
-     * @param leftValue the target to assign to
-     * @param op the assignment operator (e.g., "=", "+=", etc.)
+     * @param leftValue  the target to assign to
+     * @param op         the assignment operator (e.g., "=", "+=", etc.)
      * @param expression the expression whose value will be assigned
      */
     public Assignment(LeftValue leftValue, String op, Command expression) {
@@ -63,7 +63,7 @@ public class Assignment extends AbstractCommand {
 
     /****
      * Executes the assignment operation within the given context.
-     *
+     * <p>
      * Performs a simple assignment if the operator is empty, assigning the evaluated expression to the left value.
      * For compound assignments, applies the specified operator to the current value and the evaluated expression.
      *
@@ -74,23 +74,21 @@ public class Assignment extends AbstractCommand {
     @Override
     public Object _execute(final Context ctx) throws ExecutionException {
         ctx.step();
-        if (op.isEmpty()) {
-            final var value = expression.execute(ctx);
-            leftValue.assign(ctx, value);
-            return value;
-        }
-        return leftValue.reassign(ctx, getOperation(op,ctx));
+        return leftValue.reassign(ctx, getOperation(op, ctx));
     }
 
     /**
      * Returns a function that applies the specified assignment operator to the current value and the assignment expression.
      *
      * @param operator the assignment operator to apply (e.g., "+=", "-=", etc.)
-     * @param ctx the execution context
+     * @param ctx      the execution context
      * @return a function that takes the current value and returns the result of applying the operator with the assignment expression
      * @throws ExecutionException if the operator is not recognized
      */
-    Function<Object, Object> getOperation(String operator, Context ctx) {
+    Function<Object, Object> getOperation(final String operator, final Context ctx) {
+        if (operator.isEmpty()) {
+            return (oldValue) -> expression.execute(ctx);
+        }
         if (Operator.OPERATORS.containsKey(operator)) {
             Operator op = Operator.OPERATORS.get(operator);
             return (oldValue) -> op.execute(ctx, context -> oldValue, expression);

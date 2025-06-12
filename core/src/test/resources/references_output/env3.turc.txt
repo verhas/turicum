@@ -1,0 +1,1 @@
+{JAVA_HOME: /Users/verhasp/.sdkman/candidates/java/current}

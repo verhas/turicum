@@ -1,0 +1,20 @@
+[
+    "target/test-classes/ch/turic/TestRun.class",
+    "target/test-classes/ch/turic/memory/RangeTest.class",
+    "target/test-classes/ch/turic/TestInterpreter$Snippet.class",
+    "target/test-classes/ch/turic/TestExpression.class",
+    "target/test-classes/ch/turic/TestCompilation.class",
+    "target/test-classes/ch/turic/utils/TestMarshalling.class",
+    "target/test-classes/ch/turic/utils/TestStringUtils.class",
+    "target/test-classes/ch/turic/TestInterpreter.class",
+    "target/test-classes/ch/turic/ParameterDefinitionTest.class",
+    "target/test-classes/ch/turic/TestCompilation$ProgramSnippet.class",
+    "target/test-classes/ch/turic/TestReferenceSnippets.class",
+    "target/test-classes/ch/turic/TestReferenceSnippets$ProgramSnippet.class",
+    "target/test-classes/ch/turic/analyzer/StringFetcherTest$EscapeSequenceTests.class",
+    "target/test-classes/ch/turic/analyzer/StringFetcherTest$MultilineStringTests.class",
+    "target/test-classes/ch/turic/analyzer/StringFetcherTest$EdgeCases.class",
+    "target/test-classes/ch/turic/analyzer/StringFetcherTest.class",
+    "target/test-classes/ch/turic/analyzer/StringFetcherTest$SimpleStringTests.class",
+    "target/test-classes/ch/turic/AdHocTest.class"
+]

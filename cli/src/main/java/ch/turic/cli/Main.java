@@ -7,9 +7,10 @@ import ch.turic.utils.Marshaller;
 import ch.turic.utils.Unmarshaller;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Properties;
 import java.util.Set;
 
 public class Main {
@@ -27,8 +28,15 @@ public class Main {
     public static void main(String[] args) throws IOException {
         final var params = CmdParser.parse(args, parameters);
         if (params.get("version").isPresent()) {
-
-            var buildTime = new String(Main.class.getResourceAsStream("/buildtime.txt").readAllBytes(), StandardCharsets.UTF_8);
+            String buildTime = "unknown";
+            final var properties = new Properties();
+            try (InputStream input = Main.class.getResourceAsStream("/build.properties")) {
+                if (input != null) {
+                    properties.load(input);
+                }
+                buildTime = properties.getProperty("build.time", "unknown");
+            } catch (IOException ignored) {
+            }
             String version = Main.class.getPackage().getImplementationVersion();
             if (version == null) {
                 version = "DEV-SNAPSHOT";
@@ -62,7 +70,7 @@ public class Main {
         try {
             final Interpreter interpreter;
             if (inputFile.endsWith(".turi")) {
-                interpreter = new Interpreter((ch.turic.analyzer.Input)Input.fromFile(Path.of(inputFile)));
+                interpreter = new Interpreter((ch.turic.analyzer.Input) Input.fromFile(Path.of(inputFile)));
             } else if (inputFile.endsWith(".turc")) {
                 if (params.get("compile").isPresent()) {
                     System.out.println("'.turc' files are already compiled");
@@ -80,7 +88,7 @@ public class Main {
                 final var program = interpreter.compile();
                 final var marshaller = new Marshaller();
                 final var bytes = marshaller.serialize(program);
-                final var outputFile  = inputFile.substring(0, inputFile.length() - 5) + ".turc";
+                final var outputFile = inputFile.substring(0, inputFile.length() - 5) + ".turc";
                 Files.write(Path.of(outputFile), bytes);
                 return;
             }

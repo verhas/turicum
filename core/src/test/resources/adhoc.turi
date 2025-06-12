@@ -1,6 +1,13 @@
-mut a:num = 3;
-mut { a, k , h } = {a:1,k:2, h:3};
-a += 2
+let z = []
+
+try: z[3] =  "K"
+catch e: println e
+println z
+
+
+
+
+
 
 /*
 sys_import "turi.duration"

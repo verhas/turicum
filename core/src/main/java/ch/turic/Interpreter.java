@@ -116,7 +116,9 @@ public class Interpreter {
             return code.execute(ctx);
         } catch (ExecutionException e) {
             final var newStackTrace = new ArrayList<StackTraceElement>();
-            for (final var stackFrame : ctx.threadContext.getStackTrace()) {
+            final var stackTrace = ctx.threadContext.getStackTrace();
+            for (int i = stackTrace.size() - 1; i >= 0; i--) {
+                final var stackFrame = stackTrace.get(i);
                 if (stackFrame.command().startPosition() != null) {
                     newStackTrace.add(new StackTraceElement(
                             stackFrame.command().getClass().getSimpleName(),

@@ -147,6 +147,73 @@ public class Context implements ch.turic.Context {
     }
 
     /**
+     * The VariableHibernation class represents a variable that is temporarily
+     * frozen and cannot be modified during the hibernation.
+     * <p>
+     * Typically, a variable gets hibernated during an assignment while the right-hand side is calculated.
+     * The right-hand side expression can use the value of the variable but must not have side effects that modify it.
+     * For example:
+     * <pre>
+     * {@code
+     *      a = a++ +3
+     * }
+     * <pre/>
+     * is an illegal structure, because it is a hack, unreadable and leads to bugs.
+     * <p>
+     * The calculation where the variable is to be hibernated should be performed in a try-with-resources block.
+     * This ensures that the temporary freezing is released.
+     * <p>
+     * Constructor:
+     * - Initializes a VariableHibernation with a specified variable.
+     * - Freezes the variable if it is not already frozen.
+     * - Sets the variable to null if it is already frozen.
+     * <p>
+     * Methods:
+     * - {@code close()}: Releases the frozen state of the variable, allowing it
+     * to be reused by other instances.
+     */
+    public class VariableHibernation implements AutoCloseable {
+        final String variable;
+
+        public static void close(VariableHibernation vh) {
+            if (vh != null) {
+                vh.close();
+            }
+        }
+
+        public VariableHibernation() {
+            this.variable = null;
+        }
+
+        public VariableHibernation(String variable) {
+            if (frozen.contains(variable)) {
+                this.variable = null;
+            } else {
+                frozen.add(variable);
+                this.variable = variable;
+            }
+        }
+
+        @Override
+        public void close() {
+            if (variable != null) {
+                frozen.remove(variable);
+            }
+        }
+
+    }
+
+    /**
+     * Creates a new instance of VariableHibernation using the provided identifier.
+     *
+     * @param identifier the unique identifier for the variable to be hibernated
+     * @return a new VariableHibernation instance constructed with the specified identifier
+     */
+    public VariableHibernation hibernate(String identifier) {
+        return new VariableHibernation(identifier);
+    }
+
+    /**
      * Freeze a local variable adding it to the frozen names. It means that it cannot be changed anymore after this
      * point.
      *

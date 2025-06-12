@@ -88,7 +88,41 @@ To get an on-screen help type
 after the installation.
 
 == Maven Extension
+
+The maven extension is automatically downloaded and started if you have an `extensions.xml` file in your projects `.mvn` file.
+
+The content of this XML file should follow the format required by Maven documentation.
+The Turicum project configuration is
+
+[source]
+----
+{%@include [verbatim] .mvn/extensions.xml%}
+----
+
+
 == Java library
+
+{%@snip:xml pom=pom.xml%}
+{%#define VERSION={%pom /project/version/text()%}%}
+{%#define GROUP_ID={%pom /project/groupId/text()%}%}
+{%#define ARTIFACT_ID={%pom /project/artifactId/text()%}%}
+
+If you want to embed the application into Java, or Kotlin application, you use the dependency:
+
+[source]
+----
+<dependency>
+   <groupId>{%GROUP_ID%}</groupId>
+   <artifactId>{%ARTIFACT_ID%}</artifactId>
+   <version>{%VERSION%}</version>
+</dependency>
+----
+
+NOTE: The above version is probably a version before release.
+
+Better, use the Maven extension of Turicum and specify the project using `pom.turi`.
+For an example, you can visit the `clit/pom.turi` project definition.
+It is the command line version of Turicum that depends on the core library.
 
 === Design Goals and Philosophy
 
@@ -1078,6 +1112,51 @@ This temporary command returns the current value of the left value when evaluate
 ====
 
 {%S assign_calculate%}
+
+==== Restrictions while updating
+
+While an assignment updates a variable, the variable is pinned.
+The expression can contain method calls, command blocks that may try to update the variable.
+It will fail.
+
+{%S update_forbiden%}
+
+The same is true for object fields.
+
+{%S update_forbiden3%}
+
+In the case of array elements, the pinning it not possible for the individual elements.
+In that case the assignment recognizes if the left value was changed during the evaluation of the expression.
+
+{%S update_forbiden2%}
+
+The error message is different, and the error happens later, after the value was changed.
+This is also the case when a field of an object is accessed via indexing:
+
+{%S update_forbiden4%}
+
+You are also not allowed to change a string variable while you assign a new string to a part of it:
+
+{%S update_forbiden5%}
+
+When you do that, it is essentially the same as assitning a new value to the variable altogether:
+
+{%S update_forbiden6%}
+
+The reason for that is that strings in the underlying Java ecosystem are immutable.
+Turicum is tightly integrated with Java and does not use wrapper classes around `String`, `Long`, or `Double` values.
+When you change a part of a string, Turicum creates the new string and then changes the value of the unerlying variable to hold this new string.
+
+You are also not allowed to change a variable holding a list while an element of that list is changed.
+
+{%S update_forbiden8%}
+
+This is not true, however, when the list is stored in a list element:
+
+{%S update_forbiden7%}
+
+A named variable can be pinned, but a list element cannot.
+
 
 ==== Updating with `mut`
 

@@ -1,1 +1,1 @@
-Variable 'z' is not defined.
+Variable 'z' is undefined.

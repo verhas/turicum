@@ -167,8 +167,7 @@ z;
 -- TEST testFieldAccess
 
 
-mut arr =  {}
-, z = {}
+mut arr =  {}, z = {}
 arr.h = 42;
 z["field"] = "suss"
 z.field + ({arr}.h + arr["h"]);

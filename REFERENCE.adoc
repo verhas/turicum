@@ -75,7 +75,48 @@ To get an on-screen help type
 after the installation.
 
 == Maven Extension
+
+The maven extension is automatically downloaded and started if you have an `extensions.xml` file in your projects `.mvn` file.
+
+The content of this XML file should follow the format required by Maven documentation.
+The Turicum project configuration is
+
+[source]
+----
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<extensions>
+    <extension>
+        <groupId>ch.turic</groupId>
+        <artifactId>turicum-maven-extension</artifactId>
+        <version>1.1.0</version>
+    </extension>
+</extensions>
+----
+
+
 == Java library
+
+
+
+
+
+
+If you want to embed the application into Java, or Kotlin application, you use the dependency:
+
+[source]
+----
+<dependency>
+   <groupId>ch.turic</groupId>
+   <artifactId>turicum-parent</artifactId>
+   <version>1.2.0</version>
+</dependency>
+----
+
+NOTE: The above version is probably a version before release.
+
+Better, use the Maven extension of Turicum and specify the project using `pom.turi`.
+For an example, you can visit the `clit/pom.turi` project definition.
+It is the command line version of Turicum that depends on the core library.
 
 === Design Goals and Philosophy
 
@@ -856,7 +897,7 @@ Operators are tokenized with priority for the **longest matching operator**.
 Recognized symbols are:
 
 
-"--", "++", "pass:[->]", "pass:[<-]", "(", ")", ",", ".", "?.",
+"---","+++", "--", "++", "pass:[->]", "pass:[<-]", "(", ")", ",", ".", "?.",
 "&{", "{", "}", "[", "]", ";", ":", "|", "?", "@", "^", "#", "**"
 
  
@@ -1445,15 +1486,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=7A67E3C6
+h id=51850751
 h after post increment: 1
 k: 0
-h id=6CC558C6
-k id=7A67E3C6
+h id=3CE3DB41
+k id=51850751
 h after pre increment: 2
 z: 2
-h id=15713D56
-z id=15713D56
+h id=64DF9A61
+z id=64DF9A61
 
 ----
 
@@ -1496,15 +1537,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=63F259C3
+h id=77602954
 h after post increment: 1
 k: 1
-h id=63F259C3
-k id=63F259C3
+h id=77602954
+k id=77602954
 h after pre increment: 2
 z: 2
-h id=63F259C3
-z id=63F259C3
+h id=77602954
+z id=77602954
 
 ----
 
@@ -1550,15 +1591,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=26CEFFA8
+h id=E260766
 h after post decrement: -1
 k: 0
-h id=7C8C9A05
-k id=26CEFFA8
+h id=2C3DEC30
+k id=E260766
 h after pre decrement: -2
 z: -2
-h id=D41F816
-z id=D41F816
+h id=34A97744
+z id=34A97744
 
 ----
 
@@ -1598,15 +1639,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=5C2375A9
+h id=4275C20C
 h after post decrement: -1
 k: -1
-h id=5C2375A9
-k id=5C2375A9
+h id=4275C20C
+k id=4275C20C
 h after pre decrement: -2
 z: -2
-h id=5C2375A9
-z id=5C2375A9
+h id=4275C20C
+z id=4275C20C
 
 ----
 
@@ -1959,7 +2000,7 @@ println(obj.z())
 [source]
 ----
 You can read glb, which is a global variable
-exception 1:Variable 'glb' is not defined.
+exception 1:Variable 'glb' was used as global, but is not declared, cannot be changed.
 You can access glb here it is modified
 
 ----
@@ -2614,6 +2655,185 @@ b ||=true :true
 ----
 
 
+==== Restrictions while updating
+
+While an assignment updates a variable, the variable is pinned.
+The expression can contain method calls, command blocks that may try to update the variable.
+It will fail.
+
+.source of snippet `update_forbiden`
+[source]
+----
+mut z = 13
+try {
+    z = {z = 12; 14}
+}catch e : println e
+print z," not changed"
+
+----
+
+.output of snippet `update_forbiden`
+[source]
+----
+Variable 'z' is pinned.
+13 not changed
+----
+
+
+The same is true for object fields.
+
+.source of snippet `update_forbiden3`
+[source]
+----
+mut z = { z: 13 };
+try {
+    z.z = {z.z = 12; 14}
+}catch e : println e
+print z.z, " not changed"
+
+----
+
+.output of snippet `update_forbiden3`
+[source]
+----
+pinned variable cannot be altered 'z'
+13 not changed
+----
+
+
+In the case of array elements, the pinning it not possible for the individual elements.
+In that case the assignment recognizes if the left value was changed during the evaluation of the expression.
+
+.source of snippet `update_forbiden2`
+[source]
+----
+mut z = [13]
+try {
+    z[0] = {z[0] = 12; 14}
+}catch e : println e
+print z[0], " already changed"
+
+----
+
+.output of snippet `update_forbiden2`
+[source]
+----
+Assigned value changed while calculating new value z[0]
+12 already changed
+----
+
+
+The error message is different, and the error happens later, after the value was changed.
+This is also the case when a field of an object is accessed via indexing:
+
+.source of snippet `update_forbiden4`
+[source]
+----
+mut z = { z: 13 };
+try {
+    z["z"] = {z.z = 12; 14}
+}catch e : println e
+print z.z, " already changed"
+
+----
+
+.output of snippet `update_forbiden4`
+[source]
+----
+Assigned value changed while calculating new value z[ch.turic.commands.StringConstant@26a4842b]
+12 already changed
+----
+
+
+You are also not allowed to change a string variable while you assign a new string to a part of it:
+
+.source of snippet `update_forbiden5`
+[source]
+----
+mut z = "apple juice";
+try: z[1..5] = {z = "worm"; "lma"}
+catch e: println e
+print z
+
+----
+
+.output of snippet `update_forbiden5`
+[source]
+----
+Variable 'z' is pinned.
+apple juice
+----
+
+
+When you do that, it is essentially the same as assitning a new value to the variable altogether:
+
+.source of snippet `update_forbiden6`
+[source]
+----
+mut z = "apple juice";
+try:
+    z = z[0..1] + {z = "worm"; "lma"} + z [5..inf];
+catch e: println e
+print z
+
+----
+
+.output of snippet `update_forbiden6`
+[source]
+----
+Variable 'z' is pinned.
+apple juice
+----
+
+
+The reason for that is that strings in the underlying Java ecosystem are immutable.
+Turicum is tightly integrated with Java and does not use wrapper classes around `String`, `Long`, or `Double` values.
+When you change a part of a string, Turicum creates the new string and then changes the value of the unerlying variable to hold this new string.
+
+You are also not allowed to change a variable holding a list while an element of that list is changed.
+
+.source of snippet `update_forbiden8`
+[source]
+----
+mut z = []
+try: z[3] = { z = [];  "K"}
+catch e: println e
+println z
+
+----
+
+.output of snippet `update_forbiden8`
+[source]
+----
+Variable 'z' is pinned.
+[]
+
+----
+
+
+This is not true, however, when the list is stored in a list element:
+
+.source of snippet `update_forbiden7`
+[source]
+----
+mut z = []
+z[1] = []
+z[1][3] = { z[1] = [];  "K"}
+println z
+
+----
+
+.output of snippet `update_forbiden7`
+[source]
+----
+[none, []]
+
+----
+
+
+A named variable can be pinned, but a list element cannot.
+
+
 ==== Updating with `mut`
 
 When you use the
@@ -2632,7 +2852,7 @@ A typical example for the use is a loop:
 [source]
 ----
 mut s:str = "abraka; muhaha dabra; mutabor; kalifa";
-while !s.is_empty() {
+while s.is_not_empty() {
   mut [start:str, sep:str, s ] = s.partition("; ");
   println start
 }
@@ -2656,7 +2876,7 @@ Without this possibility you would need an extra variable in the list:
 [source]
 ----
 mut s:str = "abraka; muhaha dabra; mutabor; kalifa";
-while !s.is_empty() {
+while s.is_not_empty() {
   mut [start:str, sep:str, s_new ] = s.partition("; ");
   s = s_new;
   println start;
@@ -4039,11 +4259,11 @@ execute("Thread 2",2)
 [source]
 ----
  prime read 2
-Thread 1 generated  prime read 3
-3
+Thread 1 generated 3
+ prime read 3
 Thread 1 generated 5
- prime read Thread 1 generated 7
-5
+ prime read 5
+Thread 1 generated 7
  prime read 7
 Thread 1 generated 11
 Thread 1 generated 13
@@ -4052,13 +4272,13 @@ Thread 1 generated 19
 Thread 1 generated 23
 stopping
 exception Task stopped.
- prime read 2
 Thread 2 generated 3
+ prime read 2
  prime read 3
 Thread 2 generated 5
+Thread 2 generated 7
  prime read 5
-Thread 2 prime read  generated 7
-7
+ prime read 7
 Thread 2 generated 11
 Thread 2 generated 13
 stopping
@@ -4116,9 +4336,9 @@ println( (end-start)/1000000, "ms")
 [source]
 ----
 [1, 2, 3]
-314.8635ms
+315.409166ms
 []
-314.941042ms
+313.581333ms
 
 ----
 
@@ -4329,9 +4549,10 @@ a =3.6063454894655185
 a =3.6055513629176015
 a =3.6055512754639905
 a =3.6055512754639896
-sqrt(13) ≈ 3.6055512754639905
+a =3.6055512754639896
+sqrt(13) ≈ 3.6055512754639896
 sqrt(13) ≈ 3.605551275463989 calulated by java Math
-square ≈ 13.000000000000009
+square ≈ 13.000000000000002
 
 ----
 
@@ -5616,7 +5837,7 @@ println error
 .output of snippet `try3`
 [source]
 ----
-Variable 'z' is not defined.
+Variable 'z' is undefined.
 
 ----
 
@@ -5662,7 +5883,7 @@ for each st in error.stack_trace {
 .output of snippet `try4`
 [source]
 ----
-message "Variable 'z' is not defined." 
+message "Variable 'z' is undefined." 
 cause "none" 
 suppressed []" 
 try4.turi:2:9
@@ -6791,6 +7012,26 @@ false
 
 ----
 
+            * `is_not_blank` 
+ returns `false` if the string is blank
+ 
++
+.source of snippet `string_is_not_blank`
+[source]
+----
+println "\n\t  ".is_not_blank()
+println "\n\t  wupps".is_not_blank()
+
+----
++
+.output of snippet `string_is_not_blank`
+[source]
+----
+false
+true
+
+----
+
             * `is_empty` 
  returns `true` if the string is empty
  
@@ -6808,6 +7049,26 @@ println "\n\t  ".is_empty()
 ----
 true
 false
+
+----
+
+            * `is_not_empty` 
+ returns `false` if the string is empty
+ 
++
+.source of snippet `string_is_not_empty`
+[source]
+----
+println "".is_not_empty()
+println "\n\t  ".is_not_empty()
+
+----
++
+.output of snippet `string_is_not_empty`
+[source]
+----
+false
+true
 
 ----
 
@@ -6835,6 +7096,30 @@ false
 
 ----
 
+            * `is_not_numeric` 
+ returns `false` if the string holds a decimal numeric value, either integer or floating point formatted.
+ 
++
+.source of snippet `string_is_not_numeric`
+[source]
+----
+println "653".is_not_numeric()
+println "6E23".is_not_numeric()
+println "3.1425923".is_not_numeric()
+println "10.13.55.2".is_not_numeric()
+
+----
++
+.output of snippet `string_is_not_numeric`
+[source]
+----
+false
+false
+false
+true
+
+----
+
             * `is_digit` 
  returns `true` if the string contains only digits
  
@@ -6856,6 +7141,30 @@ true
 false
 false
 false
+
+----
+
+            * `is_not_digit` 
+ returns `false` if the string contains only digits
+ 
++
+.source of snippet `string_is_not_digit`
+[source]
+----
+println "653".is_not_digit()
+println "6E23".is_not_digit()
+println "3.1425923".is_not_digit()
+println "10.13.55.2".is_not_digit()
+
+----
++
+.output of snippet `string_is_not_digit`
+[source]
+----
+false
+true
+true
+true
 
 ----
 
@@ -6881,6 +7190,28 @@ false
 
 ----
 
+            * `is_not_alpha` 
+ returns `false` if the string contains only alpha characters
+ 
++
+.source of snippet `string_is_not_alpha`
+[source]
+----
+println "ABC".is_not_alpha()
+println "ABC DEF".is_not_alpha()
+println "ABCDEF13".is_not_alpha()
+
+----
++
+.output of snippet `string_is_not_alpha`
+[source]
+----
+false
+true
+true
+
+----
+
             * `is_alphanumeric` 
  returns `true` if the string contains only alphanumeric characters
  
@@ -6903,6 +7234,28 @@ true
 
 ----
 
+            * `is_not_alphanumeric` 
+ returns `false` if the string contains only alphanumeric characters
+ 
++
+.source of snippet `string_is_not_alphanumeric`
+[source]
+----
+println "ABC".is_not_alphanumeric()
+println "ABC DEF".is_not_alphanumeric()
+println "ABCDEF13".is_not_alphanumeric()
+
+----
++
+.output of snippet `string_is_not_alphanumeric`
+[source]
+----
+false
+true
+false
+
+----
+
             * `is_hex` 
  returns `true` if the string contains only hexadecimal characters
  
@@ -6922,6 +7275,28 @@ println "ABCDEF13".is_hex()
 true
 false
 true
+
+----
+
+            * `is_not_hex` 
+ returns `false` if the string contains only hexadecimal characters
+ 
++
+.source of snippet `string_is_not_hex`
+[source]
+----
+println "ABC".is_not_hex()
+println "ABC DEF".is_not_hex()
+println "ABCDEF13".is_not_hex()
+
+----
++
+.output of snippet `string_is_not_hex`
+[source]
+----
+false
+true
+false
 
 ----
 
@@ -7571,7 +7946,7 @@ true
 [source]
 ----
 mut s:str = "abraka; muhaha dabra; mutabor; kalifa";
-while !s.is_empty() {
+while s.is_not_empty() {
   mut [start:str, sep:str, s ] = s.partition("; ");
   println start
 }
@@ -7601,7 +7976,7 @@ kalifa
 [source]
 ----
 mut s = "abraka, muhaha dabra, mutabor; kalifa";
-while !s.is_empty() {
+while s.is_not_empty() {
   mut [start, sep, s ] = s.partition_regex("[ ,;]+")
   println start
 }
@@ -8634,7 +9009,7 @@ println nano_time()
 .output of snippet `nano_time`
 [source]
 ----
-1477165511696208
+1669965749899958
 
 ----
 
@@ -9001,79 +9376,77 @@ none
 .output of snippet `que`
 [source]
 ----
+task2 is not ready 0
 task1 is not ready 0
+task1 is not ready 1
 task2 is ready 1
 task2 is not ready 0
-task2 is not ready 1
-task1 is not ready 1
-task2 is not ready 2
 task1 is not ready 2
-task2 is not ready 3
-task1 is not ready 3
-task2 is ready 2
-task1 is not ready 4
-task2 is not ready 0
-task1 is not ready 5
 task2 is not ready 1
 task2 is not ready 2
-task1 is ready 3
+task1 is ready 2
 task1 is not ready 0
-task2 is not ready 3
 task1 is not ready 1
-task2 is not ready 4
+task2 is not ready 3
 task1 is not ready 2
-task2 is not ready 5
+task2 is not ready 4
+task2 is ready 3
+task2 is not ready 0
 task1 is not ready 3
-task2 is not ready 6
+task2 is not ready 1
+task1 is not ready 4
+task1 is not ready 5
+task2 is not ready 2
+task1 is not ready 6
+task2 is not ready 3
+task2 is not ready 4
 task1 is ready 4
 task1 is not ready 0
-task2 is not ready 7
 task1 is not ready 1
-task2 is ready 5task1 is not ready 2
-
-task2 is not ready 0
+task2 is not ready 5
+task1 is ready 5
+task2 is not ready 6
+task1 is not ready 0
+task1 is not ready 1
+task2 is not ready 7
+task2 is not ready 8
+task1 is not ready 2
+task2 is ready 6
 task1 is not ready 3
+task2 is not ready 0
 task2 is not ready 1
 task1 is not ready 4
 task2 is not ready 2
-task2 is not ready 3task1 is not ready 5
-
-task2 is ready 6
+task1 is not ready 5
+task2 is ready 7
+task2 is not ready 0
 task1 is not ready 6
+task1 is not ready 7
+task2 is not ready 1
+task2 is not ready 2
+task1 is not ready 8
+task2 is ready 8
+task1 is not ready 9
+task2 is not ready 0
+task1 is not ready 10
+task2 is not ready 1
+task2 is not ready 2
+task1 is not ready 11
+task2 is ready 9
+task1 is not ready 12
 task2 is not ready 0
 task2 is not ready 1
-task1 is not ready 7
-task1 is not ready 8
+task1 is not ready 13
 task2 is not ready 2
-task1 is ready 7
-task1 is not ready 0
-task2 is not ready 3
-task1 is not ready 1
-task2 is not ready 4
-task2 is not ready 5
-task1 is not ready 2
-task2 is ready 8
-task1 is not ready 3
-task2 is not ready 0
-task1 is not ready 4task2 is not ready 1
-
-task2 is not ready 2task1 is not ready 5
-
-task1 is not ready 6
-task2 is ready 9
-task2 is not ready 0
-task2 is not ready 1task1 is not ready 7
-
-task1 is not ready 8
-task2 is not ready 2
+task1 is not ready 14
 closing the channel
 channel is closed
 1 is done false
 2 is done false
 we start to wait the first time
-task2 is done
 task1 is done
-task1 done false
+task2 is done
+task1 done true
 task2 done true
 We start to wait the second time
 task1 done true
@@ -9594,7 +9967,7 @@ for each command in commands {
 ----
 before execution
 1. before is_defined(x) = false
-ERROR: Variable 'k' is not defined.
+ERROR: Variable 'k' is undefined.
 2. before is_defined(x) = false
 2. after is_defined(x) = false
 3. before is_defined(x) = false

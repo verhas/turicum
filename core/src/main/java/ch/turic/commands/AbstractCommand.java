@@ -126,6 +126,16 @@ public abstract class AbstractCommand implements Command, HasFields {
         throw new ExecutionException("Commands are immutable objects");
     }
 
+    /**
+     * Retrieves the value of a specified field by its name.
+     * Special handling is provided for array fields which are converted into a list.
+     * If the field name is "java$canonicalName", the canonical name of the class is returned.
+     * Throws an {@link ExecutionException} if the field does not exist or cannot be accessed.
+     *
+     * @param name The name of the field to retrieve.
+     * @return The value of the specified field, or a converted list if the field is an array.
+     * @throws ExecutionException If the specified field is not found or cannot be accessed.
+     */
     @Override
     public Object getField(String name) throws ExecutionException {
         return switch (name) {
@@ -155,6 +165,15 @@ public abstract class AbstractCommand implements Command, HasFields {
         };
     }
 
+    /**
+     * Retrieves a set of field names declared in the current class.
+     * The method includes the predefined field "java$canonicalName" and dynamically inspects
+     * all declared fields of the class. Only non-synthetic fields that are `final`
+     * but not `static` are added to the set.
+     *
+     * @return A set of field names representing the declared fields in the current class,
+     *         including "java$canonicalName" and other eligible fields.
+     */
     @Override
     public Set<String> fields() {
         final var fieldSet = new HashSet<String>();

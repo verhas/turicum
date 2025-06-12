@@ -31,7 +31,7 @@ public record CalculatedLeftValue(Command expression) implements LeftValue {
      */
     @Override
     public void assign(Context ctx, Object value) throws ExecutionException {
-        throw new ExecutionException("Cannot assign left value to calculated value");
+        throw new ExecutionException("Cannot assign value to calculated left side");
     }
 
     /****

@@ -1,6 +1,6 @@
 before execution
 1. before is_defined(x) = false
-ERROR: Variable 'k' is not defined.
+ERROR: Variable 'k' is undefined.
 2. before is_defined(x) = false
 2. after is_defined(x) = false
 3. before is_defined(x) = false

@@ -23,98 +23,99 @@ let project = maven_project({
     url : "https://github.com/verhas/turicum",
     properties : {
         "project.build.sourceEncoding" : "UTF-8",
-        "maven.plugin.validation" : "VERBOSE"
+        "maven.plugin.validation" : "VERBOSE",
+        "maven.build.timestamp.format": "yyyy-MM-dd'T'HH:mm:ssZ"
         },
 
     build : {
-    pluginManagement : {
-        plugins : [
-            {
-                groupId : "org.apache.maven.plugins",
-                artifactId : "maven-source-plugin",
-                version : `maven-source-plugin`,
-                executions : [ {
-                        id : "attach-sources",
-                        goals : [ "jar" ]
-                        } ]
-            },
-            {
-                groupId: "org.apache.maven.plugins",
-                artifactId: "maven-jar-plugin",
-                version: "3.4.2",
-                configuration: {
-                    archive :{
-                        manifest : {
-                            addDefaultImplementationEntries: "true",
-                            addDefaultSpecificationEntries: "true",
+        pluginManagement : {
+            plugins : [
+                {
+                    groupId : "org.apache.maven.plugins",
+                    artifactId : "maven-source-plugin",
+                    version : `maven-source-plugin`,
+                    executions : [ {
+                            id : "attach-sources",
+                            goals : [ "jar" ]
+                            } ]
+                },
+                {
+                    groupId: "org.apache.maven.plugins",
+                    artifactId: "maven-jar-plugin",
+                    version: "3.4.2",
+                    configuration: {
+                        archive :{
+                            manifest : {
+                                addDefaultImplementationEntries: "true",
+                                addDefaultSpecificationEntries: "true",
+                            }
                         }
                     }
+                },
+                {
+                    groupId: "org.apache.maven.plugins",
+                    artifactId: "maven-assembly-plugin",
+                    version: "3.7.1",
+                },
+                {
+                    groupId : "org.apache.maven.plugins",
+                    artifactId : "maven-javadoc-plugin",
+                    version : `maven-javadoc-plugin`
+                    executions : [ {
+                            id : "attach-javadoc",
+                            goals : [ "jar" ]
+                            } ]
+                },
+
+                {
+                    groupId : "org.apache.maven.plugins",
+                    artifactId : "maven-compiler-plugin",
+                    version : `maven-compiler-plugin`,
+                    configuration : {
+                        encoding: "UTF-8",
+                        source : JAVA_VERSION.to_string(),
+                        target : JAVA_VERSION.to_string(),
+                        release : JAVA_VERSION.to_string()
+                        }
+                },
+                {
+                    groupId: "org.apache.maven.plugins",
+                    artifactId: "maven-resources-plugin",
+                    version: `maven-resources-plugin`,
+                    configuration : {encoding: "UTF-8", delimiters : ["@"] }
+                },
+                {
+                    groupId : "org.apache.maven.plugins",
+                    artifactId : "maven-dependency-plugin",
+                    version : `maven-dependency-plugin`,
+                    executions : [ {
+                            id : "collect",
+                            goals : [ "collect" ]
+                            } ]
+                },
+
+                {
+                    groupId : "org.apache.maven.plugins",
+                    artifactId : "maven-surefire-plugin",
+                    version : `maven-surefire-plugin`
+                },
+                {
+                    groupId : "org.apache.maven.plugins",
+                    artifactId : "maven-gpg-plugin",
+                    version : "3.2.7",
+                },
+                {
+                    groupId : "org.sonatype.central",
+                    artifactId : "central-publishing-maven-plugin",
+                    version : "0.7.0",
+                    extensions : true,
+                    configuration : {
+                            publishingServerId: "central",
+                            autoPublish: true
+                          }
                 }
-            },
-            {
-                groupId: "org.apache.maven.plugins",
-                artifactId: "maven-assembly-plugin",
-                version: "3.7.1",
-            },
-            {
-                groupId : "org.apache.maven.plugins",
-                artifactId : "maven-javadoc-plugin",
-                version : `maven-javadoc-plugin`
-                executions : [ {
-                        id : "attach-javadoc",
-                        goals : [ "jar" ]
-                        } ]
-            },
-
-            {
-                groupId : "org.apache.maven.plugins",
-                artifactId : "maven-compiler-plugin",
-                version : `maven-compiler-plugin`,
-                configuration : {
-                    encoding: "UTF-8",
-                    source : JAVA_VERSION.to_string(),
-                    target : JAVA_VERSION.to_string(),
-                    release : JAVA_VERSION.to_string()
-                    }
-            },
-            {
-                groupId: "org.apache.maven.plugins",
-                artifactId: "maven-resources-plugin",
-                version: "3.3.1",
-                configuration : {encoding: "UTF-8"}
-            },
-            {
-                groupId : "org.apache.maven.plugins",
-                artifactId : "maven-dependency-plugin",
-                version : `maven-dependency-plugin`,
-                executions : [ {
-                        id : "collect",
-                        goals : [ "collect" ]
-                        } ]
-            },
-
-            {
-                groupId : "org.apache.maven.plugins",
-                artifactId : "maven-surefire-plugin",
-                version : `maven-surefire-plugin`
-            },
-            {
-                groupId : "org.apache.maven.plugins",
-                artifactId : "maven-gpg-plugin",
-                version : "3.2.7",
-            },
-            {
-                groupId : "org.sonatype.central",
-                artifactId : "central-publishing-maven-plugin",
-                version : "0.7.0",
-                extensions : true,
-                configuration : {
-                        publishingServerId: "central",
-                        autoPublish: true
-                      }
-            }
             ]
-    }// end of plugin management
+        }// end of plugin management
 },
         
     

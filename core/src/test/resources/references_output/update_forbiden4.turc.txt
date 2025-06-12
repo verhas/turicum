@@ -1,0 +1,2 @@
+Assigned value changed while calculating new value z[ch.turic.commands.StringConstant@7e5c856f]
+12 already changed

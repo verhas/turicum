@@ -250,30 +250,58 @@ public class TuriString implements TuriClass {
                 // returns `true` if the string is blank
                 // {%S string_is_blank%}
                     new TuriMethod<>((args) -> string.isBlank());
+            case "is_not_blank" ->
+                // returns `false` if the string is blank
+                // {%S string_is_not_blank%}
+                    new TuriMethod<>((args) -> !string.isBlank());
             case "is_empty" ->
                 // returns `true` if the string is empty
                 // {%S string_is_empty%}
                     new TuriMethod<>((args) -> string.isEmpty());
+            case "is_not_empty" ->
+                // returns `false` if the string is empty
+                // {%S string_is_not_empty%}
+                    new TuriMethod<>((args) -> !string.isEmpty());
             case "is_numeric" ->
                 // returns `true` if the string holds a decimal numeric value, either integer or floating point formatted.
                 // {%S string_is_numeric%}
                     new TuriMethod<>((args) -> string.matches("^[-+]?\\d+(\\.\\d+)?([eE][-+]?\\d+)?$"));
+            case "is_not_numeric" ->
+                // returns `false` if the string holds a decimal numeric value, either integer or floating point formatted.
+                // {%S string_is_not_numeric%}
+                    new TuriMethod<>((args) -> !string.matches("^[-+]?\\d+(\\.\\d+)?([eE][-+]?\\d+)?$"));
             case "is_digit" ->
                 // returns `true` if the string contains only digits
                 // {%S string_is_digit%}
                     new TuriMethod<>((args) -> string.matches("^\\d+$"));
+            case "is_not_digit" ->
+                // returns `false` if the string contains only digits
+                // {%S string_is_not_digit%}
+                    new TuriMethod<>((args) -> !string.matches("^\\d+$"));
             case "is_alpha" ->
                 // returns `true` if the string contains only alpha characters
                 // {%S string_is_alpha%}
                     new TuriMethod<>((args) -> string.matches("^[a-zA-Z]+$"));
+            case "is_not_alpha" ->
+                // returns `false` if the string contains only alpha characters
+                // {%S string_is_not_alpha%}
+                    new TuriMethod<>((args) -> !string.matches("^[a-zA-Z]+$"));
             case "is_alphanumeric" ->
                 // returns `true` if the string contains only alphanumeric characters
                 // {%S string_is_alphanumeric%}
                     new TuriMethod<>((args) -> string.matches("^[a-zA-Z0-9]+$"));
+            case "is_not_alphanumeric" ->
+                // returns `false` if the string contains only alphanumeric characters
+                // {%S string_is_not_alphanumeric%}
+                    new TuriMethod<>((args) -> !string.matches("^[a-zA-Z0-9]+$"));
             case "is_hex" ->
                 // returns `true` if the string contains only hexadecimal characters
                 // {%S string_is_hex%}
                     new TuriMethod<>((args) -> string.matches("^(0x)?[a-fA-F0-9]+$"));
+            case "is_not_hex" ->
+                // returns `false` if the string contains only hexadecimal characters
+                // {%S string_is_not_hex%}
+                    new TuriMethod<>((args) -> !string.matches("^(0x)?[a-fA-F0-9]+$"));
             case "int" ->
                 // returns the integer value of the string
                 // {%S string_int%}

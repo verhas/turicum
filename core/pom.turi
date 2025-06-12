@@ -14,6 +14,10 @@ let project = maven_project({
     }
 
     build : {
+        resources : [
+            { directory : "src/main/resources", filtering: true }
+
+        ],
         plugins : [
                 maven_plugin("source"),
                 maven_plugin("javadoc"),

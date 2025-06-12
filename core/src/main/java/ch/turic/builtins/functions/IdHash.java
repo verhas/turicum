@@ -3,6 +3,7 @@ package ch.turic.builtins.functions;
 import ch.turic.Context;
 import ch.turic.ExecutionException;
 import ch.turic.TuriFunction;
+import ch.turic.memory.LngList;
 import ch.turic.memory.LngObject;
 
 /**
@@ -56,6 +57,8 @@ public class IdHash implements TuriFunction {
     public Object call(Context context, Object[] arguments) throws ExecutionException {
         if (FunUtils.arg(name(), arguments) instanceof LngObject lngObject) {
             return (long) System.identityHashCode(lngObject);
+        } else if (FunUtils.arg(name(), arguments) instanceof LngList lngList) {
+            return (long) System.identityHashCode(lngList);
         } else {
             return null;
         }

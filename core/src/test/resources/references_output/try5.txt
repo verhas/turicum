@@ -1,4 +1,4 @@
-message "Variable 'z' is not defined." 
+message "Variable 'z' is undefined." 
 cause "none" 
 suppressed []" 
 try5.turi:3:9
