@@ -2,7 +2,7 @@ package ch.turic.commands.operators;
 
 import ch.turic.ExecutionException;
 import ch.turic.Command;
-import ch.turic.memory.Context;
+import ch.turic.memory.*;
 
 @Operator.Symbol("<<")
 public class ShiftLeft extends AbstractOperator {
@@ -30,7 +30,11 @@ public class ShiftLeft extends AbstractOperator {
     @Override
     public Object binaryOp(Context ctx, Object op1, Command right) throws ExecutionException {
         final var op2 = right.execute(ctx);
-
+        if( op1 instanceof LngList lngList && (op2 instanceof HasFields hasFields) ) {
+            final var newList = new LngList(hasFields);
+            newList.addAll(lngList.array);
+            return newList;
+        }
         return binary("shl", op1, op2, (a, b) -> (a << b), ShiftLeft::shl);
     }
 

@@ -2592,20 +2592,44 @@ for each k in z {
 // snippet rngThousand
 mut z = rng(0,1000)
 mut array = [ ..z ]
-print( [..array[0 .. 5], ..array[-5 .. array.length]])
+print( [..array[0 .. 5], ..array[-5 .. len(array)]])
+// end snippet
+
+// snippet objectAttachment
+let z = [ 1,2,3]
+class B {
+    fn a {
+        if is_defined(this) :
+            println $"hello ${this}, ${cls}  ${it}";
+        else :
+            println $"hello ${none}, ${cls}  ${it}";
+    }
+}
+let b = B()
+let k = z << b;
+let h = z << B;
+b.Kukk = 2;
+k.a();
+println k.Kukk
+println "Now with h"
+h.a()
+println h.Kukk
+
+let w = k[1..3]
+w.a()
 // end snippet
 
 // snippet rangeThousand
 sys_import "turi.range"
 mut z = range(start=0,end=1000,closend=true)
 mut array = [ ..z ]
-print( array[0 .. 5] + array[-5 .. array.length])
+print( array[0 .. 5] + array[-5 .. len(array)])
 // end snippet
 
 // snippet rngRange
 mut z = rng(100,9223372036854775807,100)
 mut range = z[20..2000000]
-print( [..range[0 .. 5], ..range[-5 .. range.length]])
+print( [..range[0 .. 5], ..range[-5 .. len(range)]])
 // end snippet
 
 // snippet rngErrs

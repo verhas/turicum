@@ -269,6 +269,10 @@ public class Context implements ch.turic.Context {
      * Create a new variable. Also check that the name is not global, not non-local and not frozen.
      * <p>
      * The variable is also added to the local frame with the name, but it does not have value (it has null).
+     * <p>
+     * It is an error if the variable already exists in the current context.
+     * If this is a shadow context, then the next wrapped non-shadow context is checked for the variable definition.
+     * Even if it is a shadow context, the variable, if it gets defined, is defined in the current context.
      *
      * @param key       the name of the variable
      * @param typeNames the types for the variable

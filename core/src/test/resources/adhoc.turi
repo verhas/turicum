@@ -1,10 +1,24 @@
-let z = []
+let z = [ 1,2,3]
+class B {
+    fn a {
+        if is_defined(this) :
+            println $"hello ${this}, ${cls}  ${it}";
+        else :
+            println $"hello ${none}, ${cls}  ${it}";
+    }
+}
+let b = B()
+let k = z << b;
+let h = z << B;
+b.Kukk = 2;
+k.a();
+println k.Kukk
+println "Now with h"
+h.a()
+println h.Kukk
 
-try: z[3] =  "K"
-catch e: println e
-println z
-
-
+let w = k[1..3]
+w.a()
 
 
 

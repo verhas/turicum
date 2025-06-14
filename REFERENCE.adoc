@@ -1073,6 +1073,7 @@ q is none
 ----
 
 
+[#_defined_operators]
 === Defined Operators
 
 Operators have precedence and are evaluated from left to right.
@@ -1352,6 +1353,59 @@ a.r.t.a.n.y. ...
 ----
 
 
+The operator `<<` can also attach an object to a list.
+The left-hand side operand has to be a list, the right-hand side operand is an object or a class.
+The result is a special list that references all the fields of the right-hand side object or class.
+If the field is a function, closure or macro then the usual special fields: `this` and `cls` are set the same way as if the call was performed on the original object or class.
+In addition to that the special field `it` will point to the list.
+
+The result list will be a copy, but it will reference the object or class.
+The object or class is not copied.
+If the object or class changes, this change will reflect through the list as well.
+
+If you create a slice from a list that has an object or class attached, the slice will inherit this attachment.
+
+.source of snippet `objectAttachment`
+[source]
+----
+let z = [ 1,2,3]
+class B {
+    fn a {
+        if is_defined(this) :
+            println $"hello ${this}, ${cls}  ${it}";
+        else :
+            println $"hello ${none}, ${cls}  ${it}";
+    }
+}
+let b = B()
+let k = z << b;
+let h = z << B;
+b.Kukk = 2;
+k.a();
+println k.Kukk
+println "Now with h"
+h.a()
+println h.Kukk
+
+let w = k[1..3]
+w.a()
+
+----
+
+.output of snippet `objectAttachment`
+[source]
+----
+hello {Kukk: 2, cls: class B}, class B  [1, 2, 3]
+2
+Now with h
+hello none, class B  [1, 2, 3]
+none
+hello {Kukk: 2, cls: class B}, class B  [2, 3]
+
+----
+
+
+Using this possibility, you can handle lists as objects, while the same time you can also access the individual elements.
 
 * `+`, `-` binary and unary plus and minus.
 
@@ -1486,15 +1540,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=51850751
+h id=3D9C13B5
 h after post increment: 1
 k: 0
-h id=3CE3DB41
-k id=51850751
+h id=492691D7
+k id=3D9C13B5
 h after pre increment: 2
 z: 2
-h id=64DF9A61
-z id=64DF9A61
+h id=27216CD
+z id=27216CD
 
 ----
 
@@ -1537,15 +1591,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=77602954
+h id=558BDF1F
 h after post increment: 1
 k: 1
-h id=77602954
-k id=77602954
+h id=558BDF1F
+k id=558BDF1F
 h after pre increment: 2
 z: 2
-h id=77602954
-z id=77602954
+h id=558BDF1F
+z id=558BDF1F
 
 ----
 
@@ -1591,15 +1645,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=E260766
+h id=8576FA0
 h after post decrement: -1
 k: 0
-h id=2C3DEC30
-k id=E260766
+h id=67545B57
+k id=8576FA0
 h after pre decrement: -2
 z: -2
-h id=34A97744
-z id=34A97744
+h id=6C2C1385
+z id=6C2C1385
 
 ----
 
@@ -1639,15 +1693,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=4275C20C
+h id=5F354BCF
 h after post decrement: -1
 k: -1
-h id=4275C20C
-k id=4275C20C
+h id=5F354BCF
+k id=5F354BCF
 h after pre decrement: -2
 z: -2
-h id=4275C20C
-z id=4275C20C
+h id=5F354BCF
+z id=5F354BCF
 
 ----
 
@@ -2740,7 +2794,7 @@ print z.z, " already changed"
 .output of snippet `update_forbiden4`
 [source]
 ----
-Assigned value changed while calculating new value z[ch.turic.commands.StringConstant@26a4842b]
+Assigned value changed while calculating new value z[ch.turic.commands.StringConstant@645aa696]
 12 already changed
 ----
 
@@ -4259,10 +4313,10 @@ execute("Thread 2",2)
 [source]
 ----
  prime read 2
-Thread 1 generated 3
- prime read 3
-Thread 1 generated 5
- prime read 5
+Thread 1 generated  prime read 3
+3
+Thread 1 generated  prime read 5
+5
 Thread 1 generated 7
  prime read 7
 Thread 1 generated 11
@@ -4272,12 +4326,12 @@ Thread 1 generated 19
 Thread 1 generated 23
 stopping
 exception Task stopped.
-Thread 2 generated 3
  prime read 2
  prime read 3
+Thread 2 generated 3
 Thread 2 generated 5
-Thread 2 generated 7
- prime read 5
+ prime read Thread 2 generated 7
+5
  prime read 7
 Thread 2 generated 11
 Thread 2 generated 13
@@ -4336,9 +4390,9 @@ println( (end-start)/1000000, "ms")
 [source]
 ----
 [1, 2, 3]
-315.409166ms
+311.796833ms
 []
-313.581333ms
+312.622792ms
 
 ----
 
@@ -9009,7 +9063,7 @@ println nano_time()
 .output of snippet `nano_time`
 [source]
 ----
-1669965749899958
+1724924268666750
 
 ----
 
@@ -9211,7 +9265,7 @@ If you want a physical list with the elements, you can create it using the `..` 
 ----
 mut z = rng(0,1000)
 mut array = [ ..z ]
-print( [..array[0 .. 5], ..array[-5 .. array.length]])
+print( [..array[0 .. 5], ..array[-5 .. len(array)]])
 
 ----
 
@@ -9232,14 +9286,14 @@ You can index a number range, and you can also use a range to index another rang
 ----
 mut z = rng(100,9223372036854775807,100)
 mut range = z[20..2000000]
-print( [..range[0 .. 5], ..range[-5 .. range.length]])
+print( [..range[0 .. 5], ..range[-5 .. len(range)]])
 
 ----
 
 .output of snippet `rngRange`
 [source]
 ----
-[2100, 2200, 2300, 2400, 2500, 199999600, 199999700, 199999800, 199999900, 200000000]
+[2100, 2200, 2300, 2400, 2500]
 ----
 
 
@@ -9298,7 +9352,7 @@ You can import the system module `range` that defines a more flexible name:
 sys_import "turi.range"
 mut z = range(start=0,end=1000,closend=true)
 mut array = [ ..z ]
-print( array[0 .. 5] + array[-5 .. array.length])
+print( array[0 .. 5] + array[-5 .. len(array)])
 
 ----
 
@@ -9377,76 +9431,76 @@ none
 [source]
 ----
 task2 is not ready 0
+task1 is ready 1
 task1 is not ready 0
-task1 is not ready 1
-task2 is ready 1
-task2 is not ready 0
-task1 is not ready 2
 task2 is not ready 1
-task2 is not ready 2
-task1 is ready 2
-task1 is not ready 0
 task1 is not ready 1
-task2 is not ready 3
 task1 is not ready 2
-task2 is not ready 4
-task2 is ready 3
+task2 is not ready 2
+task1 is not ready 3task2 is ready 2
+
 task2 is not ready 0
-task1 is not ready 3
 task2 is not ready 1
 task1 is not ready 4
-task1 is not ready 5
 task2 is not ready 2
+task1 is not ready 5
 task1 is not ready 6
+task2 is ready 3
+task2 is not ready 0
+task1 is not ready 7
+task2 is not ready 1
+task1 is not ready 8task2 is ready 4
+
+task2 is not ready 0
+task1 is not ready 9
+task2 is not ready 1
+task1 is not ready 10
+task2 is not ready 2
 task2 is not ready 3
-task2 is not ready 4
-task1 is ready 4
+task1 is ready 5
 task1 is not ready 0
+task2 is not ready 4
 task1 is not ready 1
 task2 is not ready 5
-task1 is ready 5
-task2 is not ready 6
-task1 is not ready 0
-task1 is not ready 1
-task2 is not ready 7
-task2 is not ready 8
 task1 is not ready 2
 task2 is ready 6
 task1 is not ready 3
 task2 is not ready 0
-task2 is not ready 1
 task1 is not ready 4
+task2 is not ready 1
 task2 is not ready 2
 task1 is not ready 5
-task2 is ready 7
-task2 is not ready 0
+task2 is not ready 3
 task1 is not ready 6
-task1 is not ready 7
-task2 is not ready 1
-task2 is not ready 2
-task1 is not ready 8
-task2 is ready 8
-task1 is not ready 9
-task2 is not ready 0
-task1 is not ready 10
-task2 is not ready 1
-task2 is not ready 2
-task1 is not ready 11
-task2 is ready 9
-task1 is not ready 12
-task2 is not ready 0
-task2 is not ready 1
-task1 is not ready 13
-task2 is not ready 2
-task1 is not ready 14
+task2 is not ready 4
+task1 is ready 7
+task1 is not ready 0
+task2 is not ready 5
+task1 is not ready 1
+task1 is not ready 2
+task2 is not ready 6
+task2 is not ready 7
+task1 is ready 8
+task1 is not ready 0
+task2 is not ready 8task1 is not ready 1
+
+task2 is not ready 9
+task1 is not ready 2
+task1 is ready 9task2 is not ready 10
+
+task1 is not ready 0
+task2 is not ready 11
+task1 is not ready 1
+task2 is not ready 12
+task1 is not ready 2
 closing the channel
 channel is closed
 1 is done false
 2 is done false
 we start to wait the first time
-task1 is done
 task2 is done
-task1 done true
+task1 is done
+task1 done false
 task2 done true
 We start to wait the second time
 task1 done true
@@ -9684,11 +9738,11 @@ not ready 0
 received 1
 not ready 0
 not ready 1
+not ready 2
 sending 2
 received 2
 not ready 0
 not ready 1
-not ready 2
 sending 3
 received 3
 not ready 0

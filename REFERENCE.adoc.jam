@@ -557,6 +557,7 @@ In that case the only remedy is the `or` operator:
 
 {%S field_none_indexed_access%}
 
+[#_defined_operators]
 === Defined Operators
 
 Operators have precedence and are evaluated from left to right.
@@ -646,6 +647,21 @@ It merges the characters/elements of the two operands:
 
 {%S shr1%}
 
+The operator `<<` can also attach an object to a list.
+The left-hand side operand has to be a list, the right-hand side operand is an object or a class.
+The result is a special list that references all the fields of the right-hand side object or class.
+If the field is a function, closure or macro then the usual special fields: `this` and `cls` are set the same way as if the call was performed on the original object or class.
+In addition to that the special field `it` will point to the list.
+
+The result list will be a copy, but it will reference the object or class.
+The object or class is not copied.
+If the object or class changes, this change will reflect through the list as well.
+
+If you create a slice from a list that has an object or class attached, the slice will inherit this attachment.
+
+{%S objectAttachment%}
+
+Using this possibility, you can handle lists as objects, while the same time you can also access the individual elements.
 
 * `+`, `-` binary and unary plus and minus.
 

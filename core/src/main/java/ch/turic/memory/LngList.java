@@ -10,6 +10,23 @@ import java.util.stream.Collectors;
 public class LngList implements HasIndex, HasFields {
     public final ArrayList<Object> array = new ArrayList<>();
     public final AtomicBoolean pinned = new AtomicBoolean(false);
+    private final HasFields fieldProvider;
+
+    public LngList() {
+        this(null);
+    }
+
+    public LngList(HasFields fieldProvider) {
+        this.fieldProvider = fieldProvider;
+    }
+
+    public HasFields getFieldProvider() {
+        return fieldProvider;
+    }
+
+    public boolean hasFieldProvider() {
+        return fieldProvider != null;
+    }
 
     public void add(Object value) {
         array.add(value);
@@ -79,7 +96,7 @@ public class LngList implements HasIndex, HasFields {
         if (index instanceof Range range) {
             final var start = range.getStart(array.size());
             final var end = range.getEnd(array.size());
-            final var result = new LngList();
+            final var result = new LngList(fieldProvider);
             for (int i = start; i < end; i++) {
                 result.array.add(this.array.get(i));
             }
@@ -91,20 +108,18 @@ public class LngList implements HasIndex, HasFields {
     @Override
     public void setField(String name, Object value) throws ExecutionException {
         ExecutionException.when(pinned.get(), "Cannot set a field a pinned list.");
-        switch (name) {
-            case "length":
-                throw new ExecutionException("Length field cannot be set");
-            default:
-                throw new ExecutionException(name + " is not a valid field name for an array");
+        if (fieldProvider == null) {
+            throw new ExecutionException("List is not tied.");
         }
+        fieldProvider.setField(name, value);
     }
 
     @Override
     public Object getField(String name) throws ExecutionException {
-        return switch (name) {
-            case "length" -> array.size();
-            default -> throw new ExecutionException(name + " is not a valid field name for an array");
-        };
+        if (fieldProvider == null) {
+            throw new ExecutionException("List is not tied.");
+        }
+        return fieldProvider.getField(name);
     }
 
     @Override
@@ -120,9 +135,9 @@ public class LngList implements HasIndex, HasFields {
     @Override
     public String toString() {
         return "[" +
-        array.stream()
-                .map(s -> s == null ? "none" : s.toString()).
-                collect(Collectors.joining(", ")) +
+                array.stream()
+                        .map(s -> s == null ? "none" : s.toString()).
+                        collect(Collectors.joining(", ")) +
                 "]";
     }
 

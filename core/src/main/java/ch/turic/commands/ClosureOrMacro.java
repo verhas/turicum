@@ -2,10 +2,7 @@ package ch.turic.commands;
 
 import ch.turic.Command;
 import ch.turic.ExecutionException;
-import ch.turic.memory.Context;
-import ch.turic.memory.HasFields;
-import ch.turic.memory.LngClass;
-import ch.turic.memory.LngObject;
+import ch.turic.memory.*;
 import ch.turic.utils.NullableOptional;
 
 import java.util.Set;
@@ -17,7 +14,21 @@ public sealed interface ClosureOrMacro extends Command, HasFields permits Closur
 
     Set<String> SPECIAL_VARIABLES = Set.of("this", "cls", "me", "it");
 
-    static Context prepareObjectContext(Context context, LngObject lngObject, FunctionCall.ArgumentEvaluated[] argValues, ClosureOrMacro it) {
+    private static Context prepareListContext(Context context, String methodName, LngList lngList, FunctionCall.ArgumentEvaluated[] argValues, ClosureOrMacro it) {
+        final var fp = lngList.getFieldProvider();
+        final Context ctx;
+        if (fp instanceof LngObject lngObject) {
+            ctx = prepareObjectContext(context, lngObject, argValues, it);
+        }else if (fp instanceof LngClass lngClass) {
+            ctx = getClassContext(context, methodName, lngClass, argValues, it);
+        }else {
+            throw new ExecutionException("List field provider is neither object nor class");
+        }
+        ctx.let0("it",lngList);
+        return ctx;
+    }
+
+    private static Context prepareObjectContext(Context context, LngObject lngObject, FunctionCall.ArgumentEvaluated[] argValues, ClosureOrMacro it) {
         final Context ctx;
         if (it.wrapped() == null) {
             ctx = context.wrap(lngObject.context());
@@ -32,7 +43,7 @@ public sealed interface ClosureOrMacro extends Command, HasFields permits Closur
         return ctx;
     }
 
-    static Context getClassContext(Context context, String methodName, LngClass lngClass, FunctionCall.ArgumentEvaluated[] argValues, ClosureOrMacro it) {
+    private static Context getClassContext(Context context, String methodName, LngClass lngClass, FunctionCall.ArgumentEvaluated[] argValues, ClosureOrMacro it) {
         final var ctx = context.wrap(lngClass.context());
         if ("init".equals(methodName)) {
             // this will make in a chained constructor call set 'this' to the object created
@@ -65,6 +76,10 @@ public sealed interface ClosureOrMacro extends Command, HasFields permits Closur
     static NullableOptional<Object> callTheMethod(Context context, HasFields obj, String methodName, FunctionCall.ArgumentEvaluated[] argValues, ClosureOrMacro it) {
         if (obj instanceof LngObject lngObject) {
             final Context ctx = ClosureOrMacro.prepareObjectContext(context, lngObject, argValues, it);
+            return NullableOptional.of(it.execute(ctx));
+        }
+        if (obj instanceof LngList lngList && lngList.hasFieldProvider()) {
+            final Context ctx = ClosureOrMacro.prepareListContext(context, methodName, lngList, argValues, it);
             return NullableOptional.of(it.execute(ctx));
         }
         if (obj instanceof LngClass lngClass) {

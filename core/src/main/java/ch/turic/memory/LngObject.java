@@ -13,8 +13,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class LngObject implements HasFields, HasIndex, HasContext {
     public static final String TO_STRING_METHOD = "to_string";
-    final LngClass lngClass;
-    final Context context;
+    final private LngClass lngClass;
+    final private Context context;
     public final AtomicBoolean pinned = new AtomicBoolean(false);
 
     /**

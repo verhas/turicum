@@ -132,7 +132,7 @@ public class TuriString implements TuriClass {
                 // {%S string_lines%}
                     new TuriMethod<>((args) -> {
                         final var list = new LngList();
-                        list.array.addAll(Arrays.asList(string.split("\n", -1)));
+                        list.addAll(Arrays.asList(string.split("\n", -1)));
                         return list;
                     });
             case "words" ->
@@ -140,7 +140,7 @@ public class TuriString implements TuriClass {
                 // {%S string_words%}
                     new TuriMethod<>((args) -> {
                         final var list = new LngList();
-                        list.array.addAll(Arrays.asList(string.split("\\W+", -1)));
+                        list.addAll(Arrays.asList(string.split("\\W+", -1)));
                         return list;
                     });
             case "turi_lex" ->
