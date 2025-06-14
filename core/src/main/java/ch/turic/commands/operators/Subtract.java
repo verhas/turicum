@@ -39,7 +39,7 @@ public class Subtract extends AbstractOperator {
         }
 
         if( op1 instanceof LngList list1){
-            final var diff = new LngList();
+            final var diff = new LngList(list1.getFieldProvider());
             diff.array.addAll(list1.array);
             if( op2 instanceof LngList list2){
                 diff.array.removeAll(list2.array);

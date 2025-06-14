@@ -27,7 +27,7 @@ public class Xor extends AbstractOperator {
 
         // for lists calculate the symmetric difference
         if (op1 instanceof LngList list1) {
-            final var resultList = new LngList();
+            final var resultList = new LngList(list1.getFieldProvider());
             if (op2 instanceof LngList list2) {
                 final var set1 = new HashSet<>(list1.array);
                 final var set2 = new HashSet<>(list2.array);

@@ -27,7 +27,7 @@ public class Mod extends AbstractOperator {
         }
 
         if (op1 instanceof LngList list1) {
-            final var resultList = new LngList();
+            final var resultList = new LngList(list1.getFieldProvider());
             if (op2 instanceof LngList list2) {
                 final var set2 = new HashSet<>(list2.array);
                 for (var elem : list1.array) {

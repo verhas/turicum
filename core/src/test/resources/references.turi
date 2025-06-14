@@ -2596,7 +2596,6 @@ print( [..array[0 .. 5], ..array[-5 .. len(array)]])
 // end snippet
 
 // snippet objectAttachment
-let z = [ 1,2,3]
 class B {
     fn a {
         if is_defined(this) :
@@ -2606,8 +2605,9 @@ class B {
     }
 }
 let b = B()
-let k = z << b;
-let h = z << B;
+let z = [ 1,2,3 ]
+let k = [ ..z with b];
+let h = [ ..z with B];
 b.Kukk = 2;
 k.a();
 println k.Kukk

@@ -153,13 +153,13 @@ public class LngList implements HasIndex, HasFields {
         if (array.size() != lngList.array.size()) {
             return false;
         }
-        final var compared = new HashSet<>();
-        compared.add(lngList);
-        compared.add(this);
+        final var compared = new IdentityHashMap<>();
+        compared.put(lngList,null);
+        compared.put(this,null);
         for (int i = 0; i < array.size(); i++) {
             final var thisField = array.get(i);
             final var thatField = lngList.array.get(i);
-            if (!compared.contains(thisField) && !compared.contains(thatField) && !Objects.equals(thisField, thatField)) {
+            if (!compared.containsKey(thisField) && !compared.containsKey(thatField) && !Objects.equals(thisField, thatField)) {
                 return false;
             }
         }

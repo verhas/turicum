@@ -168,7 +168,7 @@ public record ArrayElementLeftValue(LeftValue arrayLeftValue, Command index) imp
     /**
      * Retrieves variable hibernation information from the provided execution context based on
      * the type of the left value associated with this object.
-     *
+     * <p>
      * If the left value is an array element and cannot be hibernated, then return a fake hibernation that can be
      * safely closed with no effect at the end.
      *
@@ -194,19 +194,16 @@ public record ArrayElementLeftValue(LeftValue arrayLeftValue, Command index) imp
     }
 
     /**
-     * Asserts that the given value has not changed by comparing it to a reference value.
-     * Throws an {@code ExecutionException} if the values are not equal, accounting for both
-     * reference equality and logical equality in the case of strings.
+     * Asserts that the given value has not changed.
+     * Throws an {@code ExecutionException} if the values are not equal.
      * <p>
-     * Strings are changed differently because when we index a string object, then the value we get is a
-     * one-character substring, which is a new object every time we read it.
      *
      * @param value      the value to be checked for changes
      * @param checkValue the reference value to compare against
      * @throws ExecutionException if the values are not equal
      */
     private void assertNoChange(Object value, Object checkValue) {
-        if (!(value instanceof String) ? value != checkValue : !Objects.equals(value, checkValue)) {
+        if (!Objects.equals(value, checkValue)) {
             throw new ExecutionException("Assigned value changed while calculating new value %s", this);
         }
     }

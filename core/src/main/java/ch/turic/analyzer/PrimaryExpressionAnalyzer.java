@@ -32,7 +32,7 @@ public class PrimaryExpressionAnalyzer extends AbstractAnalyzer {
 
     /**
      * Analyzes a sequence of lexical tokens to parse and construct a primary expression.
-     *
+     * <p>
      * Recognizes and processes literals, identifiers, function and class definitions, yield expressions, blocks, arrays, increment/decrement operations, decorators, and various grouped or chained expressions. Delegates to specialized analyzers for complex constructs and throws a syntax error if the input is empty or contains unexpected tokens.
      *
      * @param lexes the list of lexical tokens representing the expression to analyze
@@ -106,7 +106,7 @@ public class PrimaryExpressionAnalyzer extends AbstractAnalyzer {
                 expressionList.add(expression);
                 if (lexes.is(",")) {
                     lexes.next();
-                } else if (lexes.is("]", "?", "->")) {
+                } else if (lexes.is("]", "?", "->", "with")) {
                     break;
                 } else {
                     throw lexes.syntaxError("Unexpected end of expression list in array literal");
@@ -148,12 +148,20 @@ public class PrimaryExpressionAnalyzer extends AbstractAnalyzer {
      */
     private static CompositionModifier[] getModifierChain(LexList lexes) throws BadSyntax {
         final var modifiers = new ArrayList<CompositionModifier>();
-        while (lexes.is("?", "->")) {
+        boolean attached = false;
+        while (lexes.is("?", "->", "with")) {
+            if (attached) {
+                throw lexes.syntaxError("No filers and modifiers are allowed after 'with'");
+            }
             final var oper = lexes.next().text();
             final var modifierExpression = ExpressionAnalyzer.INSTANCE.analyze(lexes);
             modifiers.add(switch (oper) {
                 case "->" -> new CompositionModifier.Mapper(modifierExpression);
                 case "?" -> new CompositionModifier.Filter(modifierExpression);
+                case "with" -> {
+                    attached = true;
+                    yield new CompositionModifier.Attacher(modifierExpression);
+                }
                 default -> throw new RuntimeException("Unexpected operator: " + oper + "this is an internal error");
 
             });

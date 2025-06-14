@@ -889,6 +889,60 @@ If it sees a closure as the result of the expression, it will evaluate it.
 If you want to map a list element to a closure, then you have to write a closure that returns that closure you want to be the list element.
 ====
 
+The last element of a list literal following the optional filters and mappers is an optional object or class attachment.
+
+The keyword `with` can attach the resulting list to an object or to a class.
+When a list is attached to a class or object the fields and methods of the attached class or object can be invoked on the list.
+
+When a method is invoked, the usual special fields: `this` and `cls` are set the same way as if the call was performed on the original object or class.
+In addition to that, the special field `it` will point to the list.
+
+If you create a slice from a list that has an object or class attached, the slice will inherit this attachment.
+Other operators, like `+`, `-`, `*` and so on, which are defined for lists will inherit the attachent of the left-hand side operand.
+
+.source of snippet `objectAttachment`
+[source]
+----
+class B {
+    fn a {
+        if is_defined(this) :
+            println $"hello ${this}, ${cls}  ${it}";
+        else :
+            println $"hello ${none}, ${cls}  ${it}";
+    }
+}
+let b = B()
+let z = [ 1,2,3 ]
+let k = [ ..z with b];
+let h = [ ..z with B];
+b.Kukk = 2;
+k.a();
+println k.Kukk
+println "Now with h"
+h.a()
+println h.Kukk
+
+let w = k[1..3]
+w.a()
+
+----
+
+.output of snippet `objectAttachment`
+[source]
+----
+hello {Kukk: 2, cls: class B}, class B  [1, 2, 3]
+2
+Now with h
+hello none, class B  [1, 2, 3]
+none
+hello {Kukk: 2, cls: class B}, class B  [2, 3]
+
+----
+
+
+Using this possibility, you can handle lists as objects, while the same time you can also access the individual elements.
+
+
 ==== Operators and Symbols
 
 The lexer recognizes both symbolic and word-based operators in expressions.
@@ -1353,60 +1407,6 @@ a.r.t.a.n.y. ...
 ----
 
 
-The operator `<<` can also attach an object to a list.
-The left-hand side operand has to be a list, the right-hand side operand is an object or a class.
-The result is a special list that references all the fields of the right-hand side object or class.
-If the field is a function, closure or macro then the usual special fields: `this` and `cls` are set the same way as if the call was performed on the original object or class.
-In addition to that the special field `it` will point to the list.
-
-The result list will be a copy, but it will reference the object or class.
-The object or class is not copied.
-If the object or class changes, this change will reflect through the list as well.
-
-If you create a slice from a list that has an object or class attached, the slice will inherit this attachment.
-
-.source of snippet `objectAttachment`
-[source]
-----
-let z = [ 1,2,3]
-class B {
-    fn a {
-        if is_defined(this) :
-            println $"hello ${this}, ${cls}  ${it}";
-        else :
-            println $"hello ${none}, ${cls}  ${it}";
-    }
-}
-let b = B()
-let k = z << b;
-let h = z << B;
-b.Kukk = 2;
-k.a();
-println k.Kukk
-println "Now with h"
-h.a()
-println h.Kukk
-
-let w = k[1..3]
-w.a()
-
-----
-
-.output of snippet `objectAttachment`
-[source]
-----
-hello {Kukk: 2, cls: class B}, class B  [1, 2, 3]
-2
-Now with h
-hello none, class B  [1, 2, 3]
-none
-hello {Kukk: 2, cls: class B}, class B  [2, 3]
-
-----
-
-
-Using this possibility, you can handle lists as objects, while the same time you can also access the individual elements.
-
 * `+`, `-` binary and unary plus and minus.
 
 Unary `+` does not check anything, it works on all objects and just returns the object itself.
@@ -1540,15 +1540,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=3D9C13B5
+h id=63F259C3
 h after post increment: 1
 k: 0
-h id=492691D7
-k id=3D9C13B5
+h id=26CEFFA8
+k id=63F259C3
 h after pre increment: 2
 z: 2
-h id=27216CD
-z id=27216CD
+h id=600B90DF
+z id=600B90DF
 
 ----
 
@@ -1591,15 +1591,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=558BDF1F
+h id=7C8C9A05
 h after post increment: 1
 k: 1
-h id=558BDF1F
-k id=558BDF1F
+h id=7C8C9A05
+k id=7C8C9A05
 h after pre increment: 2
 z: 2
-h id=558BDF1F
-z id=558BDF1F
+h id=7C8C9A05
+z id=7C8C9A05
 
 ----
 
@@ -1645,15 +1645,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=8576FA0
+h id=D41F816
 h after post decrement: -1
 k: 0
-h id=67545B57
-k id=8576FA0
+h id=60129B9A
+k id=D41F816
 h after pre decrement: -2
 z: -2
-h id=6C2C1385
-z id=6C2C1385
+h id=78D6692F
+z id=78D6692F
 
 ----
 
@@ -1693,15 +1693,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=5F354BCF
+h id=7A55AF6B
 h after post decrement: -1
 k: -1
-h id=5F354BCF
-k id=5F354BCF
+h id=7A55AF6B
+k id=7A55AF6B
 h after pre decrement: -2
 z: -2
-h id=5F354BCF
-z id=5F354BCF
+h id=7A55AF6B
+z id=7A55AF6B
 
 ----
 
@@ -2794,7 +2794,7 @@ print z.z, " already changed"
 .output of snippet `update_forbiden4`
 [source]
 ----
-Assigned value changed while calculating new value z[ch.turic.commands.StringConstant@645aa696]
+Assigned value changed while calculating new value z[ch.turic.commands.StringConstant@18271936]
 12 already changed
 ----
 
@@ -4313,10 +4313,10 @@ execute("Thread 2",2)
 [source]
 ----
  prime read 2
-Thread 1 generated  prime read 3
-3
-Thread 1 generated  prime read 5
-5
+Thread 1 generated 3
+ prime read 3
+Thread 1 generated 5
+ prime read 5
 Thread 1 generated 7
  prime read 7
 Thread 1 generated 11
@@ -4327,12 +4327,12 @@ Thread 1 generated 23
 stopping
 exception Task stopped.
  prime read 2
- prime read 3
 Thread 2 generated 3
+ prime read 3
 Thread 2 generated 5
- prime read Thread 2 generated 7
-5
- prime read 7
+ prime read 5
+Thread 2 prime read  generated 7
+7
 Thread 2 generated 11
 Thread 2 generated 13
 stopping
@@ -4390,9 +4390,9 @@ println( (end-start)/1000000, "ms")
 [source]
 ----
 [1, 2, 3]
-311.796833ms
+315.593042ms
 []
-312.622792ms
+312.41725ms
 
 ----
 
@@ -9063,7 +9063,7 @@ println nano_time()
 .output of snippet `nano_time`
 [source]
 ----
-1724924268666750
+1730258370893125
 
 ----
 
@@ -9431,68 +9431,72 @@ none
 [source]
 ----
 task2 is not ready 0
-task1 is ready 1
 task1 is not ready 0
-task2 is not ready 1
+task2 is ready 1
+task2 is not ready 0
 task1 is not ready 1
+task2 is not ready 1
 task1 is not ready 2
 task2 is not ready 2
-task1 is not ready 3task2 is ready 2
-
-task2 is not ready 0
-task2 is not ready 1
+task1 is not ready 3
 task1 is not ready 4
-task2 is not ready 2
+task2 is ready 2
+task2 is not ready 0
 task1 is not ready 5
-task1 is not ready 6
-task2 is ready 3
-task2 is not ready 0
-task1 is not ready 7
 task2 is not ready 1
-task1 is not ready 8task2 is ready 4
-
-task2 is not ready 0
-task1 is not ready 9
-task2 is not ready 1
-task1 is not ready 10
+task1 is ready 3
 task2 is not ready 2
+task1 is not ready 0
 task2 is not ready 3
-task1 is ready 5
+task1 is not ready 1
+task2 is not ready 4
+task1 is not ready 2
+task2 is not ready 5
+task1 is not ready 3
+task1 is not ready 4
+task2 is ready 4
+task2 is not ready 0
+task1 is not ready 5
+task2 is not ready 1
+task2 is not ready 2
+task1 is not ready 6
+task1 is not ready 7
+task2 is ready 5
+task2 is not ready 0
+task1 is not ready 8
+task2 is not ready 1
+task1 is not ready 9
+task2 is not ready 2
+task1 is ready 6
+task2 is not ready 3
 task1 is not ready 0
 task2 is not ready 4
 task1 is not ready 1
 task2 is not ready 5
 task1 is not ready 2
-task2 is ready 6
+task2 is ready 7
 task1 is not ready 3
 task2 is not ready 0
-task1 is not ready 4
 task2 is not ready 1
+task1 is not ready 4
 task2 is not ready 2
 task1 is not ready 5
 task2 is not ready 3
 task1 is not ready 6
+task2 is ready 8
+task1 is not ready 7
+task2 is not ready 0
+task1 is not ready 8
+task2 is not ready 1
+task2 is not ready 2
+task1 is ready 9
+task1 is not ready 0
+task2 is not ready 3
+task1 is not ready 1
 task2 is not ready 4
-task1 is ready 7
-task1 is not ready 0
+task1 is not ready 2
 task2 is not ready 5
-task1 is not ready 1
-task1 is not ready 2
-task2 is not ready 6
-task2 is not ready 7
-task1 is ready 8
-task1 is not ready 0
-task2 is not ready 8task1 is not ready 1
-
-task2 is not ready 9
-task1 is not ready 2
-task1 is ready 9task2 is not ready 10
-
-task1 is not ready 0
-task2 is not ready 11
-task1 is not ready 1
-task2 is not ready 12
-task1 is not ready 2
+task1 is not ready 3
 closing the channel
 channel is closed
 1 is done false
@@ -9738,17 +9742,18 @@ not ready 0
 received 1
 not ready 0
 not ready 1
-not ready 2
 sending 2
 received 2
 not ready 0
 not ready 1
+not ready 2
 sending 3
 received 3
 not ready 0
 not ready 1
 not ready 2
 closing the channel
+not ready 3
 channel is closed
 is done false
 we are done

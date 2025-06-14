@@ -49,7 +49,7 @@ public class ShiftRight extends AbstractOperator {
         }
         if (op1 instanceof LngList list1 && op2 instanceof LngList list2) {
             final var len = Math.max(list1.array.size(), list2.array.size());
-            final var result = new LngList();
+            final var result = new LngList(list1.getFieldProvider());
             for (int i = 0; i < len; i++) {
                 if (i < list1.array.size()) {
                     result.array.add(list1.array.get(i));

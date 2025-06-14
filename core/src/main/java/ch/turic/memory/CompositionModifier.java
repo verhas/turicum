@@ -28,4 +28,16 @@ public class CompositionModifier {
         }
     }
 
+    public static class Attacher extends CompositionModifier {
+        public final Command expression;
+
+        public Attacher(Command expression) {
+            this.expression = expression;
+        }
+
+        public static Attacher factory(final Unmarshaller.Args args) {
+            return new Attacher(args.command("expression"));
+        }
+    }
+
 }

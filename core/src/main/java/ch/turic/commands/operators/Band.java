@@ -53,7 +53,7 @@ public class Band extends AbstractOperator {
      * @return a LngList of elements found in both list1 and list2
      */
     private static LngList mergeLists(LngList list1, LngList list2) {
-        final var result = new LngList();
+        final var result = new LngList(list1.getFieldProvider());
         final var set = new HashSet<>();
         final var set2 = new HashSet<>(list2.array);
         for (final var elem : list1.array) {

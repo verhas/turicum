@@ -25,7 +25,7 @@ public class Multiply extends AbstractOperator {
         }
 
         if (op1 instanceof LngList list1 && op2 instanceof LngList list2) {
-            final var product = new LngList();
+            final var product = new LngList(list1.getFieldProvider());
             for (final var a : list1.array) {
                 for (final var b : list2.array) {
                     final var pair = new LngList();

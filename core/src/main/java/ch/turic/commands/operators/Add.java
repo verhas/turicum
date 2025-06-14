@@ -40,7 +40,7 @@ public class Add extends AbstractOperator {
 
         // if the left side is a list, then merge the lists or append the right side to the list
         if (op1 instanceof LngList list1) {
-            final var joinedList = new LngList();
+            final var joinedList = new LngList(list1.getFieldProvider());
             joinedList.array.addAll(list1.array);
             if (op2 instanceof LngList list2) {
                 joinedList.array.addAll(list2.array);

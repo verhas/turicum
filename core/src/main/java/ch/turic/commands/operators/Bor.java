@@ -96,7 +96,7 @@ public class Bor extends AbstractOperator {
                     if (aField instanceof LngObject aObj && bField instanceof LngObject bObj) {
                         merged.setField(f, mergeObjects(aObj, bObj, ctx));
                     } else if (aField instanceof LngList aList && bField instanceof LngList bList) {
-                        final var list = new LngList();
+                        final var list = new LngList(aList.getFieldProvider());
                         list.addAll(aList.array);
                         list.addAll(bList.array);
                         merged.setField(f,list);

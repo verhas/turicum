@@ -492,6 +492,22 @@ If it sees a closure as the result of the expression, it will evaluate it.
 If you want to map a list element to a closure, then you have to write a closure that returns that closure you want to be the list element.
 ====
 
+The last element of a list literal following the optional filters and mappers is an optional object or class attachment.
+
+The keyword `with` can attach the resulting list to an object or to a class.
+When a list is attached to a class or object the fields and methods of the attached class or object can be invoked on the list.
+
+When a method is invoked, the usual special fields: `this` and `cls` are set the same way as if the call was performed on the original object or class.
+In addition to that, the special field `it` will point to the list.
+
+If you create a slice from a list that has an object or class attached, the slice will inherit this attachment.
+Other operators, like `+`, `-`, `*` and so on, which are defined for lists will inherit the attachent of the left-hand side operand.
+
+{%S objectAttachment%}
+
+Using this possibility, you can handle lists as objects, while the same time you can also access the individual elements.
+
+
 ==== Operators and Symbols
 
 The lexer recognizes both symbolic and word-based operators in expressions.
@@ -646,22 +662,6 @@ The `>>` works also on strings and lists.
 It merges the characters/elements of the two operands:
 
 {%S shr1%}
-
-The operator `<<` can also attach an object to a list.
-The left-hand side operand has to be a list, the right-hand side operand is an object or a class.
-The result is a special list that references all the fields of the right-hand side object or class.
-If the field is a function, closure or macro then the usual special fields: `this` and `cls` are set the same way as if the call was performed on the original object or class.
-In addition to that the special field `it` will point to the list.
-
-The result list will be a copy, but it will reference the object or class.
-The object or class is not copied.
-If the object or class changes, this change will reflect through the list as well.
-
-If you create a slice from a list that has an object or class attached, the slice will inherit this attachment.
-
-{%S objectAttachment%}
-
-Using this possibility, you can handle lists as objects, while the same time you can also access the individual elements.
 
 * `+`, `-` binary and unary plus and minus.
 
