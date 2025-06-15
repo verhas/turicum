@@ -15,7 +15,7 @@ public class Lexer {
     ));
     final static private ArrayList<String> _OPERANDS = new ArrayList<>(Arrays.asList(
             // snippet OPERANDS
-            "---","+++", "--", "++", "->", "<-", "(", ")", ",", ".", "?.",
+            "---", "+++", "--", "++", "->", "<-", "(", ")", ",", ".", "?.",
             "&{", "{", "}", "[", "]", ";", ":", "|", "?", "@", "^", "#", "**"
             // end snippet
     ));
@@ -123,6 +123,12 @@ public class Lexer {
                 skipComment(in);
                 continue;
             }
+            if (in.charAt(0) == '$' && in.length() >= 2 && in.charAt(1) == '`') {
+                in.skip(1);
+                final var str = ch.turic.analyzer.StringFetcher.fetchId(in);
+                list.add(new Lex(Lex.Type.IDENTIFIER, str, atLineStart, position, true));
+                continue;
+            }
             if (in.charAt(0) == '`') {
                 final var id = StringFetcher.fetchId(in);
                 list.add(new Lex(Lex.Type.IDENTIFIER, id, atLineStart, position));
@@ -140,8 +146,7 @@ public class Lexer {
             }
             int operandIndex = in.startsWith(OPERANDS);
             if (operandIndex >= 0) {
-                final var lex = new Lex(Lex.Type.RESERVED, OPERANDS[operandIndex], atLineStart, position);
-                list.add(lex);
+                list.add(new Lex(Lex.Type.RESERVED, OPERANDS[operandIndex], atLineStart, position));
                 in.skip(OPERANDS[operandIndex].length());
                 continue;
             }

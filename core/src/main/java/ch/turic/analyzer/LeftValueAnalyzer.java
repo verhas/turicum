@@ -1,6 +1,7 @@
 package ch.turic.analyzer;
 
 import ch.turic.BadSyntax;
+import ch.turic.commands.Identifier;
 import ch.turic.memory.*;
 
 /**
@@ -17,7 +18,7 @@ public class LeftValueAnalyzer {
         }
         final var lex = lexes.peek();
         if (lex.type() == Lex.Type.IDENTIFIER) {
-            LeftValue left = new VariableLeftValue(lex.text());
+            LeftValue left = new VariableLeftValue(new Identifier(lex));
             lexes.next();
             return getLeftValueTail(lexes, left);
         }

@@ -186,7 +186,7 @@ public class FlowCommand extends AbstractCommand {
                     .stream()
                     .filter(c -> c instanceof Identifier)
                     .map(c -> (Identifier) c)
-                    .map(Identifier::name)
+                    .map(Identifier::pureName)
                     .filter(stateCellIds::contains)
                     .collect(Collectors.toSet());
             for (final var id : identifiers) {

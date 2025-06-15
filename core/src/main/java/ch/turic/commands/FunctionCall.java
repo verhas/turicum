@@ -48,7 +48,7 @@ public class FunctionCall extends AbstractCommand {
     public static FunctionCall factory(final Unmarshaller.Args args) {
         return new FunctionCall(
                 args.command("object"),
-                args.get("arguments",Argument[].class));
+                args.get("arguments", Argument[].class));
     }
 
     /*
@@ -57,7 +57,7 @@ public class FunctionCall extends AbstractCommand {
      */
     public final Argument[] arguments;
 
-    
+
     public record Argument(Identifier id, Command expression) {
         public static Argument factory(final Unmarshaller.Args args) {
             return new Argument(
@@ -101,6 +101,8 @@ public class FunctionCall extends AbstractCommand {
                 ctx.setCaller(context);
                 ctx.let0("me", function);
                 ctx.freeze("me");
+                ctx.let0(".", command.name());
+                ctx.freeze(".");
                 defineArgumentsInContext(ctx, context, command.parameters(), argValues, true);
                 return command.execute(ctx);
             }
@@ -228,10 +230,10 @@ public class FunctionCall extends AbstractCommand {
         } else {
             for (int j = 0; j < pList.parameters().length; j++) {
                 final var parameter = pList.parameters()[j];
-                if (parameter.identifier().equals(argValue.id.name())) {
+                if (parameter.identifier().equals(argValue.id.name(ctx))) {
                     if (parameter.type() == ParameterList.Parameter.Type.POSITIONAL_ONLY) {
                         if (pList.meta() != null) {
-                            meta.setField(argValue.id.name(), argValue.value);
+                            meta.setField(argValue.id.name(ctx), argValue.value);
                             return;
                         }
                         throw new ExecutionException(
@@ -239,7 +241,7 @@ public class FunctionCall extends AbstractCommand {
                                 parameter.identifier());
                     }
                     if (filled[j]) {
-                        throw new ExecutionException("Parameter '%s' is already defined", argValue.id.name());
+                        throw new ExecutionException("Parameter '%s' is already defined", argValue.id.name(ctx));
                     }
                     filled[j] = true;
                     ctx.defineTypeChecked(parameter.identifier(), argValue.value, calculateTypeNames(ctx, parameter.types()));
@@ -247,11 +249,11 @@ public class FunctionCall extends AbstractCommand {
                 }
             }
             if (pList.meta() != null) {
-                meta.setField(argValue.id.name(), argValue.value);
+                meta.setField(argValue.id.name(ctx), argValue.value);
                 return;
             }
             if (!lenient) {
-                throw new ExecutionException("The parameter '%s' is not defined and there is no {meta} parameter", argValue.id.name());
+                throw new ExecutionException("The parameter '%s' is not defined and there is no {meta} parameter", argValue.id.name(ctx));
             }
         }
     }
@@ -359,7 +361,14 @@ public class FunctionCall extends AbstractCommand {
                 }
                 yield jo.getField(identifier);
             }
-            default -> obj.getField(identifier);
+            default -> {
+                final var method = obj.getField(identifier);
+                if( method != null ) {
+                    yield method;
+                }else{
+                    yield obj.getField(".");
+                }
+            }
         };
     }
 
@@ -367,7 +376,7 @@ public class FunctionCall extends AbstractCommand {
      * Returns the {@link TuriClass} associated with the class of the given {@link JavaObject}, searching its class hierarchy and interfaces if necessary.
      *
      * @param context the context used to resolve TuriClass associations
-     * @param jo the JavaObject whose class is used for lookup
+     * @param jo      the JavaObject whose class is used for lookup
      * @return the associated TuriClass, or null if none is found
      */
     public static TuriClass getTuriClass(Context context, JavaObject jo) {
@@ -418,10 +427,10 @@ public class FunctionCall extends AbstractCommand {
         if (object instanceof Identifier id && (context.contains("this") || context.contains("cls"))) {
             final var thisObject = context.contains("this") ? context.get("this") : null;
             final var clsObject = context.contains("cls") ? context.get("cls") : null;
-            if (thisObject instanceof LngObject lngObject && lngObject.context().containsLocal(id.name())) {
-                myObject = new FieldAccess(new Identifier("this"), id.name(), false);
-            } else if (clsObject instanceof LngClass lngClass && lngClass.context().containsLocal(id.name())) {
-                myObject = new FieldAccess(new Identifier("cls"), id.name(), false);
+            if (thisObject instanceof LngObject lngObject && lngObject.context().containsLocal(id.name(context))) {
+                myObject = new FieldAccess(new Identifier("this"), id.name(context), false);
+            } else if (clsObject instanceof LngClass lngClass && lngClass.context().containsLocal(id.name(context))) {
+                myObject = new FieldAccess(new Identifier("cls"), id.name(context), false);
             } else {
                 myObject = object;
             }

@@ -53,7 +53,7 @@ public class Import implements TuriMacro {
         final var imports = new ArrayList<String>();
         for (int i = 1; i < args.length; i++) {
             if (args[i] instanceof Identifier id) {
-                imports.add(id.name());
+                imports.add(id.name(ctx));
             } else if (args[i] instanceof Command command) {
                 imports.add(command.execute(ctx).toString());
             }

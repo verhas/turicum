@@ -21,7 +21,7 @@ public class UnLet implements TuriMacro {
         final var ctx = FunUtils.ctx(context);
         final var arg = FunUtils.arg(name(), arguments);
         if (arg instanceof Identifier id) {
-            ctx.unlet(id.name());
+            ctx.unlet(id.name(ctx));
             return null;
         } else {
             throw new ExecutionException("%s argument has to be an identifier, got '%s'", name(), arg);

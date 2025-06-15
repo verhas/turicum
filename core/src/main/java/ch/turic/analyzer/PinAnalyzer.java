@@ -30,7 +30,7 @@ public class PinAnalyzer extends AbstractAnalyzer {
             if (!lexes.isIdentifier()) {
                 throw new ExecutionException("Identifier expected in pin list");
             }
-            final var id = new Identifier(lexes.next().text());
+            final var id = new Identifier(lexes.next());
             items.add(new Pin.Item(id, type));
             switch (type) {
                 case VARIABLE:

@@ -122,12 +122,12 @@ public class PrimaryExpressionAnalyzer extends AbstractAnalyzer {
             lexes.next(); // step over the '@'
             ExecutionException.when(!lexes.isIdentifier(), "@ has to be followed by a function name.");
             final var lex = lexes.next();
-            return getAccessOrCall(lexes, new Identifier(lex.text()), true);
+            return getAccessOrCall(lexes, new Identifier(lex), true);
         }
         final var lex = lexes.next();
         return switch (lex.type()) {
-            case IDENTIFIER -> getAccessOrCall(lexes, new Identifier(lex.text()), false);
-            case STRING -> getAccessOrCall(lexes, new StringConstant(lex.text(), lex.interpolated), false);
+            case IDENTIFIER -> getAccessOrCall(lexes, new Identifier(lex), false);
+            case STRING -> getAccessOrCall(lexes, new StringConstant(lex), false);
             case INTEGER -> getAccessOrCall(lexes, new IntegerConstant(lex.text()), false);
             case FLOAT -> getAccessOrCall(lexes, new FloatConstant(lex.text()), false);
             default -> throw lexes.syntaxError("Expression: expected identifier, or constant, got '%s'", lex.text());
@@ -197,7 +197,8 @@ public class PrimaryExpressionAnalyzer extends AbstractAnalyzer {
         final var arguments = new java.util.ArrayList<FunctionCall.Argument>();
         while (lexes.isNot(")")) {
             if (lexes.isIdentifier() && lexes.isAt(1, "=")) {
-                final var id = new Identifier(lexes.next().text());
+                final var lex = lexes.next();
+                final var id = new Identifier(lex.text(),lex.interpolated);
                 lexes.next(); // over the '='
                 final var expression = ExpressionAnalyzer.INSTANCE.analyze(lexes);
                 arguments.add(new FunctionCall.Argument(id, expression));

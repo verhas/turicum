@@ -41,20 +41,20 @@ public class LetAssignment extends AbstractCommand {
                 }
             }
             if (assignment.expression() == null) {
-                ctx.define(assignment.identifier(),
+                ctx.define(assignment.identifier().name(ctx),
                         null,
                         typeNames);
-                ctx.local(assignment.identifier(), null);
+                ctx.local(assignment.identifier().name(ctx), null);
                 if (!mut) {
-                    ctx.freeze(assignment.identifier());
+                    ctx.freeze(assignment.identifier().name(ctx));
                 }
             } else {
                 value = assignment.expression().execute(ctx);
-                ctx.defineTypeChecked(assignment.identifier(),
+                ctx.defineTypeChecked(assignment.identifier().name(ctx),
                         value,
                         typeNames);
                 if (!mut) {
-                    ctx.freeze(assignment.identifier());
+                    ctx.freeze(assignment.identifier().name(ctx));
                 }
             }
         }

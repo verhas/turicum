@@ -21,7 +21,7 @@ public class IsDefined implements TuriMacro {
         final var ctx = FunUtils.ctx(context);
         final var arg = FunUtils.arg(name(), arguments);
         if (arg instanceof Identifier id) {
-            return ctx.contains(id.name());
+            return ctx.contains(id.name(ctx));
         } else {
             throw new ExecutionException("%s argument has to be an identifier, got '%s'", name(), arg);
         }

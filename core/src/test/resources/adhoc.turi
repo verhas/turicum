@@ -1,18 +1,18 @@
 class B {
-    fn z {
-        println "hi"
-        println this
-        println cls
-        println `it`
+    fn $`.`(a,b,c) {
+        println "hi",a,b,c
+        println "this is ", if is_defined(this) : this
+        println "cls is ",if is_defined(cls) : cls
+        println "me is ",me
+        println ". is ",`.`
+        if a == 1 : me(2,3,4)
+        //`.` = "me"
     }
 }
 
-let b = B()
-let t = [1,2,3 with b]
-let h = t + [ "ku" ];
-[ ..h[0..3] with b ].z()
-println h
-
+let k = "b";
+let $`${k}` = B()
+b.pirka(1,2,3)
 
 
 

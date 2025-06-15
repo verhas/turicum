@@ -55,14 +55,16 @@ public class ForEachLoop extends Loop {
         Object lp = null;
         final var listResult = resultList ? new LngList() : null;
         long loopCounter = 0;
+        final var withString = with == null ? null : with.name(context);
+        final var identifierString = identifier.name(context);
         for (final var item : LeftValue.toIterable(array)) {
             final var innerContext = loopContext.wrap();
             if (with != null) {
-                innerContext.let0(with.name, loopCounter);
-                innerContext.freeze(with.name);
+                innerContext.let0(withString, loopCounter);
+                innerContext.freeze(withString);
             }
-            innerContext.let0(identifier.name, item);
-            innerContext.freeze(identifier.name);
+            innerContext.let0(identifierString, item);
+            innerContext.freeze(identifierString);
 
             lp = loopCore(body, innerContext, listResult);
             if (breakLoop(lp)) {

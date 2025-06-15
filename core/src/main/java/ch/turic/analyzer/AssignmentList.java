@@ -3,6 +3,7 @@ package ch.turic.analyzer;
 import ch.turic.BadSyntax;
 import ch.turic.ExecutionException;
 import ch.turic.Command;
+import ch.turic.commands.Identifier;
 import ch.turic.commands.TypeDeclaration;
 import ch.turic.utils.Unmarshaller;
 
@@ -12,10 +13,10 @@ public class AssignmentList {
     public static final AssignmentList INSTANCE = new AssignmentList();
     public static final TypeDeclaration[] EMPTY_TYPE = new TypeDeclaration[0];
 
-    public record Assignment(String identifier, TypeDeclaration[] types, Command expression) {
+    public record Assignment(Identifier identifier, TypeDeclaration[] types, Command expression) {
         public static Assignment factory(Unmarshaller.Args args) {
             return new Assignment(
-                    args.str("identifier"),
+                    args.get("identifier",Identifier.class),
                     args.get("types", TypeDeclaration[].class),
                     args.command("expression")
             );
@@ -63,7 +64,7 @@ public class AssignmentList {
             } else {
                 expression = null;
             }
-            pairs.add(new Assignment(identifier.text(), type, expression));
+            pairs.add(new Assignment(new Identifier(identifier), type, expression));
             if (lexes.is(",")) {
                 lexes.next();
                 BadSyntax.when(lexes, !lexes.isIdentifier(), "Identifier missing after , ");

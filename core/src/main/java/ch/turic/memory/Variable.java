@@ -24,9 +24,6 @@ public class Variable {
      * @param declaration is the name used to define the type. It is used only for printouts.
      */
     public record Type(Class<?> javaType, LngClass lngClass, String declaration) {
-        public Type(Class<?> javaType, LngClass lngClass, Identifier id) {
-            this(javaType, lngClass, id.name());
-        }
 
         @Override
         public String toString() {
@@ -134,41 +131,41 @@ public class Variable {
     public static Type getTypeFromName(Context context, String name) {
         return switch (name) {
             // snippet types
-            case "bool" -> new Variable.Type(Boolean.class, null, new Identifier(name));
+            case "bool" -> new Variable.Type(Boolean.class, null, name);
             // boolean type
-            case "str" -> new Variable.Type(String.class, null, new Identifier(name));
+            case "str" -> new Variable.Type(String.class, null, name);
             // string
-            case "num" -> new Variable.Type(Long.class, null, new Identifier(name));
+            case "num" -> new Variable.Type(Long.class, null, name);
             // any numeric type, integer or float
-            case "float" -> new Variable.Type(Double.class, null, new Identifier(name));
+            case "float" -> new Variable.Type(Double.class, null, name);
             // float type
-            case "any" -> new Variable.Type(null, null, new Identifier(name));
+            case "any" -> new Variable.Type(null, null, name);
             // the variable can hold any value
-            case "obj" -> new Variable.Type(LngObject.class, null, new Identifier(name));
+            case "obj" -> new Variable.Type(LngObject.class, null, name);
             // the variable can hols any object without restriction on the class of that object
-            case "lst" -> new Variable.Type(LngList.class, null, new Identifier(name));
+            case "lst" -> new Variable.Type(LngList.class, null, name);
             // the variable has to be a list
-            case "que" -> new Variable.Type(Channel.class, null, new Identifier(name));
+            case "que" -> new Variable.Type(Channel.class, null, name);
             // the variable has to be a queue
-            case "task" -> new Variable.Type(AsyncStreamHandler.class, null, new Identifier(name));
+            case "task" -> new Variable.Type(AsyncStreamHandler.class, null, name);
             // the variable has to be an asynchronous task
-            case "err" -> new Variable.Type(LngException.class, null, new Identifier(name));
+            case "err" -> new Variable.Type(LngException.class, null, name);
             // the variable has to be an asynchronous task
-            case "cls" -> new Variable.Type(LngClass.class, null, new Identifier(name));
+            case "cls" -> new Variable.Type(LngClass.class, null, name);
             // the variable has to be a class
-            case "fn" -> new Variable.Type(Closure.class, null, new Identifier(name));
+            case "fn" -> new Variable.Type(Closure.class, null, name);
             // the variable value has to be a function of closure
-            case "macro" -> new Variable.Type(Macro.class, null, new Identifier(name));
+            case "macro" -> new Variable.Type(Macro.class, null, name);
             // the variable value has to be a macro
-            case "none" -> new Variable.Type(NoneType.class, null, new Identifier(name));
+            case "none" -> new Variable.Type(NoneType.class, null, name);
             // the variable can hold the value `none`
-            case "some" -> new Variable.Type(SomeType.class, null, new Identifier(name));
+            case "some" -> new Variable.Type(SomeType.class, null, name);
             // the variable can hold any value, except `none`
             // end snippet
             default -> {
                 if (name.startsWith("java.")) {
                     try {
-                        yield new Variable.Type(Class.forName(name.substring(5)), null, new Identifier(name));
+                        yield new Variable.Type(Class.forName(name.substring(5)), null, name);
                     } catch (ClassNotFoundException e) {
                         throw new ExecutionException("Type '%s' could not be found.", name);
                     }
@@ -179,7 +176,7 @@ public class Variable {
                 ExecutionException.when(!context.contains(name), "Type '%s' is not defined.", name);
                 final var classObject = context.get(name);
                 if (classObject instanceof LngClass lngClass) {
-                    yield new Variable.Type(LngObject.class, lngClass, new Identifier(name));
+                    yield new Variable.Type(LngObject.class, lngClass, name);
                 } else {
                     throw new ExecutionException("Type '%s' is not a class.", name);
                 }
