@@ -6,7 +6,6 @@ import ch.turic.analyzer.Pos;
 import ch.turic.memory.Context;
 import ch.turic.utils.Unmarshaller;
 
-import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import java.util.HashSet;
 
@@ -83,9 +82,9 @@ public record ParameterList(Parameter[] parameters, Identifier rest, Identifier 
         final var parameters = new Parameter[this.parameters.length];
         for (int i = 0; i < this.parameters.length; i++) {
             parameters[i] = new Parameter(new Identifier(this.parameters[i].identifier().name(context)),
-                    this.parameters[i].type(), this.parameters[i].types(),this.parameters[i].defaultExpression);
+                    this.parameters[i].type(), this.parameters[i].types(), this.parameters[i].defaultExpression);
         }
-        return new ParameterList(parameters,rest,meta,closure,this.position);
+        return new ParameterList(parameters, rest, meta, closure, this.position);
     }
 
     public record Parameter(Identifier identifier,

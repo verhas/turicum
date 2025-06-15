@@ -52,18 +52,18 @@ public class ListComposition extends AbstractCommand {
             }
         }
         final HasFields fieldProvider;
-        if( modifiers != null && modifiers.length > 0 && modifiers[modifiers.length - 1] instanceof CompositionModifier.Attacher attacher) {
+        if (modifiers != null && modifiers.length > 0 && modifiers[modifiers.length - 1] instanceof CompositionModifier.Attacher attacher) {
             final var provider = attacher.expression.execute(context);
-            if( provider instanceof HasFields hasFields) {
+            if (provider instanceof HasFields hasFields) {
                 fieldProvider = hasFields;
-            }else{
-                throw new ExecutionException("cannot use '%s' as field provider",provider);
+            } else {
+                throw new ExecutionException("cannot use '%s' as field provider", provider);
             }
-        }else{
+        } else {
             fieldProvider = null;
         }
         final var filtered = new LngList(fieldProvider);
-        filterElements( list.array.size(), modifiers, context, filtered, x -> list.array.get(x.intValue()));
+        filterElements(list.array.size(), modifiers, context, filtered, x -> list.array.get(x.intValue()));
         return filtered;
     }
 
@@ -100,7 +100,8 @@ public class ListComposition extends AbstractCommand {
                                 filtered = !Cast.toBoolean(expression);
                             }
                         }
-                        case CompositionModifier.Attacher ignored -> filtered = false;
+                        case CompositionModifier.Attacher ignored -> {
+                        }
                         case CompositionModifier.Mapper m -> {
                             context.local("it", item);
                             final var expression = m.expression.execute(context);

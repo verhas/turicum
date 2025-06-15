@@ -30,7 +30,7 @@ public class FieldAccess extends AbstractCommand {
     public static FieldAccess factory(final Unmarshaller.Args args) {
         return new FieldAccess(
                 args.command("object"),
-                args.get("identifier",Identifier.class),
+                args.get("identifier", Identifier.class),
                 args.bool("lenient")
         );
     }
@@ -43,7 +43,7 @@ public class FieldAccess extends AbstractCommand {
 
     /**
      * Executes the field access command, retrieving the value of the specified field from the target object.
-     *
+     * <p>
      * If the target object is undefined and lenient mode is enabled, returns a default empty object; otherwise, throws an ExecutionException.
      * For JavaObject instances, retrieves the field using the context; for other objects, retrieves the field directly.
      *
@@ -61,7 +61,7 @@ public class FieldAccess extends AbstractCommand {
         } else {
             object = LeftValue.toObject(rawObject);
         }
-        if( object instanceof JavaObject jo) {
+        if (object instanceof JavaObject jo) {
             return jo.getField(identifier.name(context), context);
         }
         return object.getField(identifier.name(context));
