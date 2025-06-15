@@ -76,9 +76,10 @@ public class FunctionCall extends AbstractCommand {
         final Object function;
         if (myObject instanceof FieldAccess fieldAccess) {
             final var obj = LeftValue.toObject(fieldAccess.object().execute(context));
-            function = getMethod(context, obj, fieldAccess.identifier());
+            final var fieldName = fieldAccess.identifier().name(context);
+            function = getMethod(context, obj, fieldName);
             if (function instanceof ClosureOrMacro command) {
-                final var nullableOptionalResult = command.methodCall(context, obj, fieldAccess.identifier(), this.arguments());
+                final var nullableOptionalResult = command.methodCall(context, obj, fieldName, this.arguments());
                 if (nullableOptionalResult.isPresent()) {
                     return nullableOptionalResult.get();
                 }
@@ -184,29 +185,29 @@ public class FunctionCall extends AbstractCommand {
                     throw new ExecutionException("Parameter '%s' is not defined", parameter.identifier());
                 } else {
                     final var value = parameter.defaultExpression().execute(callerContext);
-                    ctx.defineTypeChecked(parameter.identifier(), value, calculateTypeNames(ctx, parameter.types()));
+                    ctx.defineTypeChecked(parameter.identifier().pureName(), value, calculateTypeNames(ctx, parameter.types()));
                     if (freeze) {
-                        ctx.freeze(parameter.identifier());
+                        ctx.freeze(parameter.identifier().pureName());
                     }
                 }
             }
         }
         if (pList.rest() != null) {
-            ctx.let0(pList.rest(), rest);
+            ctx.let0(pList.rest().pureName(), rest);
             if (freeze) {
-                ctx.freeze(pList.rest());
+                ctx.freeze(pList.rest().pureName());
             }
         }
         if (pList.meta() != null) {
-            ctx.let0(pList.meta(), meta);
+            ctx.let0(pList.meta().pureName(), meta);
             if (freeze) {
-                ctx.freeze(pList.meta());
+                ctx.freeze(pList.meta().pureName());
             }
         }
         if (pList.closure() != null) {
-            ctx.let0(pList.closure(), closure);
+            ctx.let0(pList.closure().pureName(), closure);
             if (freeze) {
-                ctx.freeze(pList.closure());
+                ctx.freeze(pList.closure().pureName());
             }
         }
     }
@@ -230,7 +231,7 @@ public class FunctionCall extends AbstractCommand {
         } else {
             for (int j = 0; j < pList.parameters().length; j++) {
                 final var parameter = pList.parameters()[j];
-                if (parameter.identifier().equals(argValue.id.name(ctx))) {
+                if (parameter.identifier().pureName().equals(argValue.id.name(ctx))) {
                     if (parameter.type() == ParameterList.Parameter.Type.POSITIONAL_ONLY) {
                         if (pList.meta() != null) {
                             meta.setField(argValue.id.name(ctx), argValue.value);
@@ -244,7 +245,7 @@ public class FunctionCall extends AbstractCommand {
                         throw new ExecutionException("Parameter '%s' is already defined", argValue.id.name(ctx));
                     }
                     filled[j] = true;
-                    ctx.defineTypeChecked(parameter.identifier(), argValue.value, calculateTypeNames(ctx, parameter.types()));
+                    ctx.defineTypeChecked(parameter.identifier().pureName(), argValue.value, calculateTypeNames(ctx, parameter.types()));
                     return;
                 }
             }
@@ -305,9 +306,9 @@ public class FunctionCall extends AbstractCommand {
                 }
                 if (pList.parameters()[index].type() != ParameterList.Parameter.Type.NAMED_ONLY && !filled[index]) {
                     final var id = pList.parameters()[index].identifier();
-                    ctx.defineTypeChecked(id, argValue.value, calculateTypeNames(ctx, pList.parameters()[index].types()));
+                    ctx.defineTypeChecked(id.pureName(), argValue.value, calculateTypeNames(ctx, pList.parameters()[index].types()));
                     if (freeze) {
-                        ctx.freeze(id);
+                        ctx.freeze(id.pureName());
                     }
                     filled[index] = true;
                     break;
@@ -428,9 +429,9 @@ public class FunctionCall extends AbstractCommand {
             final var thisObject = context.contains("this") ? context.get("this") : null;
             final var clsObject = context.contains("cls") ? context.get("cls") : null;
             if (thisObject instanceof LngObject lngObject && lngObject.context().containsLocal(id.name(context))) {
-                myObject = new FieldAccess(new Identifier("this"), id.name(context), false);
+                myObject = new FieldAccess(new Identifier("this"), id, false);
             } else if (clsObject instanceof LngClass lngClass && lngClass.context().containsLocal(id.name(context))) {
-                myObject = new FieldAccess(new Identifier("cls"), id.name(context), false);
+                myObject = new FieldAccess(new Identifier("cls"), id, false);
             } else {
                 myObject = object;
             }

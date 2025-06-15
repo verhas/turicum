@@ -3,8 +3,10 @@ package ch.turic.commands;
 import ch.turic.BadSyntax;
 import ch.turic.Command;
 import ch.turic.analyzer.Pos;
+import ch.turic.memory.Context;
 import ch.turic.utils.Unmarshaller;
 
+import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import java.util.HashSet;
 
@@ -43,28 +45,57 @@ import java.util.HashSet;
  * If present, their names must be unique and not conflict with any regular parameter identifiers.</p>
  */
 
-public record ParameterList(Parameter[] parameters, String rest, String meta, String closure, Pos position) {
+public record ParameterList(Parameter[] parameters, Identifier rest, Identifier meta, Identifier closure,
+                            Pos position) {
     public static final ParameterList EMPTY = new ParameterList(new ParameterList.Parameter[0], null, null, null, new Pos("", null));
 
     public static ParameterList factory(final Unmarshaller.Args args) {
         return new ParameterList(
                 args.get("parameters", Parameter[].class),
-                args.str("rest"),
-                args.str("meta"),
-                args.str("closure"),
+                args.get("rest", Identifier.class),
+                args.get("meta", Identifier.class),
+                args.get("closure", Identifier.class),
                 args.get("position", Pos.class)
         );
     }
 
+    /**
+     * Creates a new ParameterList with all identifiers bound to their resolved names in the given context.
+     * This method is used during function definition execution to resolve any interpolated parameter names to their
+     * actual values in the current execution context.
+     *
+     * <p>The method creates:
+     * <ul>
+     *     <li>New Identifiers for rest, meta, and closure parameters (if they exist)</li>
+     *     <li>New Parameter instances for each regular parameter with resolved identifier names</li>
+     * </ul>
+     *
+     * <p>The resulting ParameterList maintains all the original parameter types, type declarations,
+     * and default expressions, only updating the identifier names based on the context.
+     *
+     * @param context the execution context in which to resolve identifier names
+     * @return a new ParameterList with all identifiers bound to their resolved names
+     */
+    public ParameterList bind(Context context) {
+        final var rest = this.rest == null ? null : new Identifier(this.rest.name(context));
+        final var meta = this.meta == null ? null : new Identifier(this.meta.name(context));
+        final var closure = this.closure == null ? null : new Identifier(this.closure.name(context));
+        final var parameters = new Parameter[this.parameters.length];
+        for (int i = 0; i < this.parameters.length; i++) {
+            parameters[i] = new Parameter(new Identifier(this.parameters[i].identifier().name(context)),
+                    this.parameters[i].type(), this.parameters[i].types(),this.parameters[i].defaultExpression);
+        }
+        return new ParameterList(parameters,rest,meta,closure,this.position);
+    }
 
-    public record Parameter(String identifier,
+    public record Parameter(Identifier identifier,
                             Type type,
                             TypeDeclaration[] types,
                             Command defaultExpression) {
 
         public static Parameter factory(final Unmarshaller.Args args) {
             return new Parameter(
-                    args.str("identifier"),
+                    args.get("identifier", Identifier.class),
                     args.get("type", Type.class),
                     args.get("types", TypeDeclaration[].class),
                     args.command("defaultExpression")
@@ -90,7 +121,7 @@ public record ParameterList(Parameter[] parameters, String rest, String meta, St
      * @param closure    the 'closure' parameter name or null
      */
     public ParameterList {
-        final var others = Arrays.stream(parameters).map(Parameter::identifier).toArray(String[]::new);
+        final var others = Arrays.stream(parameters).map(Parameter::identifier).toArray(Identifier[]::new);
         BadSyntax.when(position, violatesUniqueName(rest, meta, closure, others) ||
                 violatesUniqueName(closure, rest, meta, others) ||
                 violatesUniqueName(meta, closure, rest, others) ||
@@ -101,17 +132,22 @@ public record ParameterList(Parameter[] parameters, String rest, String meta, St
     /**
      * Checks that the identifiers do not violate the rule that each identifier has to be unique.
      */
-    private static boolean violatesUniqueName(String[] others) {
+    private static boolean violatesUniqueName(Identifier[] others) {
         final var set = new HashSet<String>();
         for (final var other : others) {
-            if (set.contains(other)) return true;
-            set.add(other);
+            if (!other.isInterpolated()) {
+                if (set.contains(other.pureName())) return true;
+                set.add(other.pureName());
+            }
         }
         return false;
     }
 
     /**
      * Checks if the identifier violates the rule that each identifier has to be unique.
+     * <p>
+     * When an identifier is interpolated, this check cannot be done against that identifier because the
+     * actual name is only known during the execution and it depends on the actual context.
      *
      * @param identifier the identifier to check, 'rest', 'meta' or 'closure'
      * @param other1     one of the other two variables
@@ -120,24 +156,26 @@ public record ParameterList(Parameter[] parameters, String rest, String meta, St
      * @return {@code false} if the identifier does not equal any of the other variables given in the array or
      * individually
      */
-    private static boolean violatesUniqueName(String identifier, String other1, String other2, String[] others) {
-        if (identifier == null) return false;
-        if (identifier.equals(other1) || identifier.equals(other2)) return true;
-        return Arrays.asList(others).contains(identifier);
+    private static boolean violatesUniqueName(Identifier identifier, Identifier other1, Identifier other2, Identifier[] others) {
+        if (identifier == null || identifier.isInterpolated()) return false; // can't decide if interpolated
+        if (other1 != null && !other1.isInterpolated() && identifier.pureName().equals(other1.pureName())) return true;
+        if (other2 != null && !other2.isInterpolated() && identifier.pureName().equals(other2.pureName())) return true;
+        return Arrays.stream(others).filter(other -> !other.isInterpolated())
+                .anyMatch(other -> identifier.pureName().equals(other.pureName()));
     }
 
 
-    public boolean fitOperator() {
-        return parameters.length == 1 && parameters[0].type != Parameter.Type.NAMED_ONLY &&
-                rest == null && meta == null && closure == null;
+    public boolean doesNotFitOperator() {
+        return parameters.length != 1 || parameters[0].type == Parameter.Type.NAMED_ONLY ||
+                rest != null || meta != null || closure != null;
     }
 
-    public boolean fitModifier() {
+    public boolean doesNotFitModifier() {
         if (parameters.length == 0) {
-            return true;
+            return false;
         }
-        return parameters.length == 1 && parameters[0].type != Parameter.Type.NAMED_ONLY &&
-                rest == null && meta == null && closure == null;
+        return parameters.length != 1 || parameters[0].type == Parameter.Type.NAMED_ONLY ||
+                rest != null || meta != null || closure != null;
     }
 
 

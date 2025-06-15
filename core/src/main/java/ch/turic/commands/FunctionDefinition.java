@@ -5,7 +5,7 @@ import ch.turic.memory.Context;
 import ch.turic.utils.Unmarshaller;
 
 public class FunctionDefinition extends AbstractCommand {
-    public final String functionName;
+    public final Identifier functionName;
     public final ParameterList arguments;
     private final TypeDeclaration[] returnType;
 
@@ -19,14 +19,14 @@ public class FunctionDefinition extends AbstractCommand {
 
     public static FunctionDefinition factory(final Unmarshaller.Args args) {
         return new FunctionDefinition(
-                args.str("functionName"),
+                args.get("functionName",Identifier.class),
                 args.get("arguments", ParameterList.class),
                 args.get("returnType", TypeDeclaration[].class),
                 args.get("body", BlockCommand.class)
         );
     }
 
-    public FunctionDefinition(String functionName, ParameterList arguments, final TypeDeclaration[] returnType, BlockCommand body) {
+    public FunctionDefinition(Identifier functionName, ParameterList arguments, final TypeDeclaration[] returnType, BlockCommand body) {
         this.arguments = arguments;
         this.functionName = functionName;
         this.returnType = returnType;
@@ -37,9 +37,11 @@ public class FunctionDefinition extends AbstractCommand {
 
     @Override
     public Object _execute(final Context context) throws ExecutionException {
-        final var closure = new Closure(functionName, arguments, null, FunctionCall.calculateTypeNames(context, returnType), body);
-        if (functionName != null) {
-            context.local(functionName, closure);
+        final var fn = functionName == null ? null : functionName.name(context);
+        final var args = arguments.bind(context);
+        final var closure = new Closure(fn, args, null, FunctionCall.calculateTypeNames(context, returnType), body);
+        if (fn != null) {
+            context.local(fn, closure);
         }
         return closure;
     }

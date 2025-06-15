@@ -92,7 +92,7 @@ public class ListComposition extends AbstractCommand {
                             context.local("it", item);
                             final var expression = f.expression.execute(context);
                             if (expression instanceof Closure closure) {
-                                ExecutionException.when(!closure.parameters().fitModifier(), "Filter closure or function must have exactly one parameter");
+                                ExecutionException.when(closure.parameters().doesNotFitModifier(), "Filter closure or function must have exactly one parameter");
                                 final var ctx = context.wrap(context);
                                 setParameter(ctx, closure, item);
                                 filtered = !Cast.toBoolean(closure.execute(ctx));
@@ -105,7 +105,7 @@ public class ListComposition extends AbstractCommand {
                             context.local("it", item);
                             final var expression = m.expression.execute(context);
                             if (expression instanceof Closure closure) {
-                                ExecutionException.when(!closure.parameters().fitModifier(), "Modifier closure or function must have exactly one parameter");
+                                ExecutionException.when(closure.parameters().doesNotFitModifier(), "Modifier closure or function must have exactly one parameter");
                                 final var ctx = context.wrap(context);
                                 setParameter(ctx, closure, item);
                                 item = closure.execute(ctx);
@@ -131,7 +131,7 @@ public class ListComposition extends AbstractCommand {
 
     private static void setParameter(Context ctx, Closure closure, Object item) {
         if (closure.parameters().parameters().length > 0) {
-            ctx.local(closure.parameters().parameters()[0].identifier(), item);
+            ctx.local(closure.parameters().parameters()[0].identifier().name(ctx), item);
         }
     }
 

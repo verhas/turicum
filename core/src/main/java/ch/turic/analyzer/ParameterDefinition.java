@@ -2,6 +2,7 @@ package ch.turic.analyzer;
 
 import ch.turic.BadSyntax;
 import ch.turic.Command;
+import ch.turic.commands.Identifier;
 import ch.turic.commands.ParameterList;
 import ch.turic.commands.TypeDeclaration;
 
@@ -19,9 +20,9 @@ public class ParameterDefinition {
 
     public ParameterList analyze(final LexList lexes) throws BadSyntax {
         final var commonParameters = new ArrayList<ParameterList.Parameter>();
-        String rest = null;
-        String meta = null;
-        String closure = null;
+        Identifier rest = null;
+        Identifier meta = null;
+        Identifier closure = null;
         Pos position = lexes.position();
 
         while (lexes.peek().type() == Lex.Type.IDENTIFIER || lexes.is("@", "[", "!", "{", "^")) {
@@ -37,11 +38,11 @@ public class ParameterDefinition {
             }
             boolean extraParam = lexes.is("[", "{", "^");
             BadSyntax.when(lexes, extraParam && type != ParameterList.Parameter.Type.POSITIONAL_OR_NAMED, "The parameter [rest], {meta} or |closure| cannot be named or positional, do not use ! or @ before it.");
-            final String id;
+            final Identifier id;
             if (extraParam) {
                 final var opening = lexes.next().text();
                 BadSyntax.when(lexes, !lexes.isIdentifier(), "[rest], {meta} or |closure| opening character needs an identifier, it is missing");
-                id = lexes.next().text();
+                id = new Identifier(lexes.next());
                 final var closing = switch (opening) {
                     case "[" -> {
                         BadSyntax.when(lexes, rest != null, "You cannot have more than one [rest] parameter");
@@ -75,7 +76,7 @@ public class ParameterDefinition {
             } else {
                 BadSyntax.when(lexes, !lexes.isIdentifier(), "Parameter name is expected");
                 BadSyntax.when(lexes, rest != null || meta != null || closure != null, "[rest], {meta} , and |clore| can stand only at the end of the parameter list.");
-                id = lexes.next().text();
+                id = new Identifier(lexes.next());
             }
             final TypeDeclaration[] types;
             if (lexes.is(":")) {

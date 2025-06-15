@@ -16,10 +16,10 @@ import ch.turic.utils.Unmarshaller;
  */
 public class FieldAccess extends AbstractCommand {
     final Command object;
-    final String identifier;
+    final private Identifier identifier;
     final boolean lenient;
 
-    public String identifier() {
+    public Identifier identifier() {
         return identifier;
     }
 
@@ -30,12 +30,12 @@ public class FieldAccess extends AbstractCommand {
     public static FieldAccess factory(final Unmarshaller.Args args) {
         return new FieldAccess(
                 args.command("object"),
-                args.str("identifier"),
+                args.get("identifier",Identifier.class),
                 args.bool("lenient")
         );
     }
 
-    public FieldAccess(Command object, String identifier, boolean lenient) {
+    public FieldAccess(Command object, Identifier identifier, boolean lenient) {
         this.identifier = identifier;
         this.object = object;
         this.lenient = lenient;
@@ -62,8 +62,8 @@ public class FieldAccess extends AbstractCommand {
             object = LeftValue.toObject(rawObject);
         }
         if( object instanceof JavaObject jo) {
-            return jo.getField(identifier, context);
+            return jo.getField(identifier.name(context), context);
         }
-        return object.getField(identifier);
+        return object.getField(identifier.name(context));
     }
 }

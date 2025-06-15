@@ -474,7 +474,7 @@ public class FlowCommand extends AbstractCommand {
                         if (cnR != null) {
                             if (cnR.result == Sentinel.FINI) {
                                 stoppedCells.add(cnR.cell);
-                                updateStateCounter(ctx, cnR, stateCounters);
+                                updateStateCounter(cnR, stateCounters);
                             } else {
                                 if (cnR.result != Sentinel.NON_MUTAT) {
                                     final var nr = updateAndScheduleNewTasks(ctx, cnR, tasksRunning, exception, stateCounters, stoppedCells);
@@ -661,10 +661,10 @@ public class FlowCommand extends AbstractCommand {
      */
     private void saveState(Context ctx, CellWithResult cnR, Map<String, Long> stateCounters) {
         ctx.let0(cnR.cell.id, cnR.result);
-        updateStateCounter(ctx, cnR, stateCounters);
+        updateStateCounter(cnR, stateCounters);
     }
 
-    private void updateStateCounter(Context ctx, CellWithResult cnR, Map<String, Long> stateCounters) {
+    private void updateStateCounter(CellWithResult cnR, Map<String, Long> stateCounters) {
         stateCounters.computeIfPresent(cnR.cell.id, (k, v) -> v + 1);
     }
 

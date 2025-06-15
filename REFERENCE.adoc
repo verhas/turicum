@@ -154,8 +154,9 @@ It is recommended to use semicolons to avoid ambiguity.
 Unlike Java, nested multiline comments are supported.
 * Identifiers follow conventional naming rules and are case-sensitive.
 * Any string enclosed between backticks (`pass:[`]`) is treated as an identifier (similar to Kotlin).
+* Any string between  (`pass:[$`]`) and  (`pass:[`]`) is treated as an interpolated identifier.
 * All keywords are lowercase.
-* Strings enclosed in double quotes (`"`) must terminate on the same line.
+* Strings enclosed in double quotes (`pass:["]`) must terminate on the same line.
 Multiline strings are enclosed in triple double quotes (`"""`).
 * String literals preceded with a `$` character are interpolated.
 
@@ -297,13 +298,15 @@ Identifiers are names used for variables, functions, classes, and other user-def
 
 * Identifiers must begin with a Unicode letter or an underscore (`_`), and can contain letters, digits, and underscores.
 
-* You can explicitly define an identifier using backticks: `+`non-standard-id`+`.
-This allows you to use any string as an identifier—even reserved words, symbols, or operators.
-The primary use of this feature is to override operators, such as `+`==`+`.
-
 * Identifiers are case-sensitive.
 
 Some Unicode characters like `∞` (infinity) and `∅` (none) are automatically translated into meaningful identifiers (`inf`, `none`).
+
+===== Non-standard Identifiers
+
+* You can explicitly define an identifier using backticks: `+`non-standard-id`+`.
+This allows you to use any string as an identifier—even reserved words, symbols, or operators.
+The primary use of this feature is to override operators, such as `+`==`+`.
 
 [NOTE]
 ====
@@ -312,6 +315,26 @@ For example, in Python, you can override the `+` operator by defining a method n
 Turicum does not require such special naming conventions.
 You can simply define a method with the name `pass:[`+`]`.
 ====
+
+===== Interpolated Identifiers
+
+You can specify interpolated strings as identifiers using  (`pass:[$`]`) and  (`pass:[`]`).
+To use interpolated identifiers, the same rules apply as in the case of interpolated strings.
+The exception is that you do not need to escape the `pass:["]` characters, but must escape the `pass:[`]` characters, for obvious reason.
+
+You are not allowed to use interpolated identifiers to
+
+* define a cell for a `flow` command, and
+
+* define the `init` method of a class if the method does not have a body.
+
+[WARN]
+====
+The interpolated identifier feature is a very powerful meta-programming tool.
+It is very easy to create overcomplicated, non-maintainable, and unreadable code.
+Use it with caution and only as a last resort.
+====
+
 
 ==== Reserved Words
 
@@ -397,7 +420,7 @@ Turicum does not implement a feature just because it is fancy.
 
 ==== String Literals
 
-Strings in Turicum are enclosed in double quotes(`"`), e.g., ``"hello world"``.
+Strings in Turicum are enclosed in double quotes `pass:["]`, e.g., ``"hello world"``.
 
 Backslash escapes are supported:
 
@@ -891,8 +914,8 @@ If you want to map a list element to a closure, then you have to write a closure
 
 The last element of a list literal following the optional filters and mappers is an optional object or class attachment.
 
+When a list is attached to a class or object, the fields and methods of the attached class or object can be invoked on the list.
 The keyword `with` can attach the resulting list to an object or to a class.
-When a list is attached to a class or object the fields and methods of the attached class or object can be invoked on the list.
 
 When a method is invoked, the usual special fields: `this` and `cls` are set the same way as if the call was performed on the original object or class.
 In addition to that, the special field `it` will point to the list.
@@ -951,7 +974,7 @@ Operators are tokenized with priority for the **longest matching operator**.
 Recognized symbols are:
 
 
-"---","+++", "--", "++", "pass:[->]", "pass:[<-]", "(", ")", ",", ".", "?.",
+"---", "+++", "--", "++", "pass:[->]", "pass:[<-]", "(", ")", ",", ".", "?.",
 "&{", "{", "}", "[", "]", ";", ":", "|", "?", "@", "^", "#", "**"
 
  
@@ -1540,15 +1563,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=63F259C3
+h id=73C60324
 h after post increment: 1
 k: 0
-h id=26CEFFA8
-k id=63F259C3
+h id=71AE31B0
+k id=73C60324
 h after pre increment: 2
 z: 2
-h id=600B90DF
-z id=600B90DF
+h id=4BA534B0
+z id=4BA534B0
 
 ----
 
@@ -1591,15 +1614,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=7C8C9A05
+h id=6F0CA692
 h after post increment: 1
 k: 1
-h id=7C8C9A05
-k id=7C8C9A05
+h id=6F0CA692
+k id=6F0CA692
 h after pre increment: 2
 z: 2
-h id=7C8C9A05
-z id=7C8C9A05
+h id=6F0CA692
+z id=6F0CA692
 
 ----
 
@@ -1645,15 +1668,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=D41F816
+h id=2C104774
 h after post decrement: -1
 k: 0
-h id=60129B9A
-k id=D41F816
+h id=2CB3D0F7
+k id=2C104774
 h after pre decrement: -2
 z: -2
-h id=78D6692F
-z id=78D6692F
+h id=4E517165
+z id=4E517165
 
 ----
 
@@ -1693,15 +1716,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=7A55AF6B
+h id=44E3760B
 h after post decrement: -1
 k: -1
-h id=7A55AF6B
-k id=7A55AF6B
+h id=44E3760B
+k id=44E3760B
 h after pre decrement: -2
 z: -2
-h id=7A55AF6B
-z id=7A55AF6B
+h id=44E3760B
+z id=44E3760B
 
 ----
 
@@ -2794,7 +2817,7 @@ print z.z, " already changed"
 .output of snippet `update_forbiden4`
 [source]
 ----
-Assigned value changed while calculating new value z[ch.turic.commands.StringConstant@18271936]
+Assigned value changed while calculating new value z[ch.turic.commands.StringConstant@7829b776]
 12 already changed
 ----
 
@@ -4314,10 +4337,10 @@ execute("Thread 2",2)
 ----
  prime read 2
 Thread 1 generated 3
- prime read 3
 Thread 1 generated 5
- prime read 5
+ prime read 3
 Thread 1 generated 7
+ prime read 5
  prime read 7
 Thread 1 generated 11
 Thread 1 generated 13
@@ -4328,12 +4351,12 @@ stopping
 exception Task stopped.
  prime read 2
 Thread 2 generated 3
- prime read 3
 Thread 2 generated 5
+ prime read 3
  prime read 5
-Thread 2 prime read  generated 7
-7
+Thread 2 generated 7
 Thread 2 generated 11
+ prime read 7
 Thread 2 generated 13
 stopping
 exception Task stopped.
@@ -4390,9 +4413,9 @@ println( (end-start)/1000000, "ms")
 [source]
 ----
 [1, 2, 3]
-315.593042ms
+311.992958ms
 []
-312.41725ms
+314.59175ms
 
 ----
 
@@ -4602,11 +4625,9 @@ a =3.6820276497695854
 a =3.6063454894655185
 a =3.6055513629176015
 a =3.6055512754639905
-a =3.6055512754639896
-a =3.6055512754639896
-sqrt(13) ≈ 3.6055512754639896
+sqrt(13) ≈ 3.6055513629176015
 sqrt(13) ≈ 3.605551275463989 calulated by java Math
-square ≈ 13.000000000000002
+square ≈ 13.000000630636974
 
 ----
 
@@ -4724,7 +4745,7 @@ fn function_name (parameters) -> types {
 fn inc(x) {
   x+1
 }
-println((""+inc).left(len("ch.turic.commands.Closure@")))
+println str(inc).before("@")
 println(inc(1))
 
 ----
@@ -4732,7 +4753,7 @@ println(inc(1))
 .output of snippet `fun1`
 [source]
 ----
-ch.turic.commands.Closure@
+ch.turic.commands.Closure
 2
 
 ----
@@ -4747,7 +4768,7 @@ It can be missing, typically when the result, the function itself is assigned to
 fn inc x {
   x+1
 }
-println((""+inc).left(len("ch.turic.commands.Closure@")))
+println str(inc).before("@")
 println(inc(1))
 
 ----
@@ -4755,7 +4776,7 @@ println(inc(1))
 .output of snippet `fun3`
 [source]
 ----
-ch.turic.commands.Closure@
+ch.turic.commands.Closure
 2
 
 ----
@@ -4772,7 +4793,7 @@ When it does not have a name, then `(` and `)` must present even if there are ze
 mut inc = fn (x) {
   x+1
 }
-println((""+inc).left(len("ch.turic.commands.Closure@")))
+println str(inc).before("@")
 println(inc(1))
 
 ----
@@ -4780,7 +4801,7 @@ println(inc(1))
 .output of snippet `fun2`
 [source]
 ----
-ch.turic.commands.Closure@
+ch.turic.commands.Closure
 2
 
 ----
@@ -4794,7 +4815,7 @@ This is to avoid the unreadable `fn = 2*3` to be declared as a function declarat
 [NOTE]
 ====
 Be careful when using the `fn x()=...` format.
-The following code does not do what you expect:
+The following code does not do what you may expect:
 
 .source of snippet `fun10`
 [source]
@@ -4871,8 +4892,6 @@ You cannot use `mut` or `let` in a function or closure parameter list.
 The only exception is the `init` method: its parameters become fields of the object being initialized, and therefore they are mutable.
 ====
 
-
-
 The individual types can be identifiers or `(` and `)` enclosed expressions.
 The types are separated by `|`.
 The type of the returned value is checked against the declared types upon returning from a function.
@@ -4935,6 +4954,35 @@ catch err: println err
 
 There is no effect changing the value of the variable `myString` to `str` when the function was already defined.
 
+If the function name, or any other identifier (parameter names, type names) are interpolated, then they will be evaluated when the function definition is executed.
+
+.source of snippet `fun13`
+[source]
+----
+let zz = "alma"
+mut b = "c"
+fn $`${zz}`(a,$`${\`b\`}`){
+    println "Hi ",a," ",c
+}
+b = "k"
+alma(55,14)
+
+----
+
+.output of snippet `fun13`
+[source]
+----
+Hi 55 14
+
+----
+
+
+In the example above both the function name and the second parameter are interpolated.
+This is also an example how to use `pass:[`]` defined identifiers in the interpolated expressions inside an interpolated identifier.
+The name of the function and the name of the parameter are evaluated at the time the function definition is executed.
+It does not matter that the global variable `b`, referenced in the interpolated identifier in the second parameter is modified and has a different value at the time of the function call.
+
+
 ==== Parameter Passing
 
 When a function is invoked, the actual parameters can be passed to the function in two different ways:
@@ -4957,7 +5005,7 @@ Parameters preceded with `@` can only be passed by name.
 fn inc !x, @how_much {
   x+how_much
 }
-println((""+inc).left(len("ch.turic.commands.Closure@")))
+println str(inc).before("@")
 println(inc(1,how_much=5))
 
 ----
@@ -4965,7 +5013,7 @@ println(inc(1,how_much=5))
 .output of snippet `fun4`
 [source]
 ----
-ch.turic.commands.Closure@
+ch.turic.commands.Closure
 6
 
 ----
@@ -5335,12 +5383,84 @@ c(..(async numbers()))
 === Modifying Arguments
 Function arguments in Turicum are immutable.
 
-When a function is called, its arguments are *pinned*—they are bound to their initial values and cannot be reassigned within the function body.
+When a function is called, its arguments are *pinned* — they are bound to their initial values and cannot be reassigned within the function body.
 
 The only exception is the `init` method, which acts as the object initializer.
 In this case, the arguments correspond to the fields of the object being constructed.
 Assignment is allowed during initialization, because these fields persist beyond the execution of `init`.
 If they were pinned like regular arguments, the object's fields would become permanently immutable, which is not desired.
+
+== Joker Method
+
+It is possible to define a special method in a class or attached to an object, named `pass[.]` (a single dot), which is automatically be invoked when the code tries to call a method not defined in the object or class hierarchy.
+
+.source of snippet `dot_method1`
+[source]
+----
+class B {
+  fn init(a,b,c);
+
+  fn `.` {
+    println a,b,c
+  }
+}
+B(1,2,3).`we can write here anything`()
+
+----
+
+.output of snippet `dot_method1`
+[source]
+----
+123
+
+----
+
+
+It is a special tool for meta programming.
+In this special method you can access the name of the method used to invoke the joker method using the variable named  `pass[.]`.
+
+.source of snippet `dot_method2`
+[source]
+----
+class B {
+  fn `.` {
+    println `.`
+  }
+}
+B().`we can write here anything`()
+
+----
+
+.output of snippet `dot_method2`
+[source]
+----
+we can write here anything
+
+----
+
+
+Note, that in this case this variable is a local variable inside the method execution.
+You can still access the method itself via the `this` reference:
+
+.source of snippet `dot_method3`
+[source]
+----
+class B {
+  fn `.` {
+    println str(this.`.`).before("@")
+  }
+}
+B().`we can write here anything`()
+
+----
+
+.output of snippet `dot_method3`
+[source]
+----
+ch.turic.commands.Closure
+
+----
+
 
 == Classes and Objects
 
@@ -6767,7 +6887,7 @@ println "for each i in range(1,55) : println i".turi_lex()
 .source of snippet `string_execute`
 [source]
 ----
-sys_import "turi.range";
+sys_import turi.range;
 
 mut j = 3;
 println "for each i in range(1,3) { println i+j; j ++ }".execute()
@@ -8716,7 +8836,9 @@ Variable 'github' is undefined.
 ----
 
 
-The list can contain strings and
+The list can contain strings and identifiers.
+
+Also, when you specify the name of the imported program you can specify it as a string or as a series of identifiers with dots.
 
 === `is_type`
 
@@ -8831,7 +8953,7 @@ The function `keys()` returns a string list containing the keys of the argument.
 `jsonify` will accept one argument and converts it to a string that is the JSON representation of the argument.
 Note that this is not exactly the same as the string produced by `to_sting()` on an object.
 
-* The resulting string will enclose the keys and string value between `"`.
+* The resulting string will enclose the keys and string value between `pass:["]`.
 * All the special characters in the strings will be escaped.
 * `none` values are represented as `null`.
 
@@ -9063,7 +9185,7 @@ println nano_time()
 .output of snippet `nano_time`
 [source]
 ----
-1730258370893125
+1754484761281958
 
 ----
 
@@ -9430,82 +9552,84 @@ none
 .output of snippet `que`
 [source]
 ----
-task2 is not ready 0
 task1 is not ready 0
+task2 is not ready 0
+task1 is not ready 1
 task2 is ready 1
 task2 is not ready 0
-task1 is not ready 1
-task2 is not ready 1
 task1 is not ready 2
-task2 is not ready 2
-task1 is not ready 3
-task1 is not ready 4
-task2 is ready 2
-task2 is not ready 0
-task1 is not ready 5
 task2 is not ready 1
-task1 is ready 3
+task1 is not ready 3
 task2 is not ready 2
-task1 is not ready 0
+task1 is ready 2
 task2 is not ready 3
-task1 is not ready 1
-task2 is not ready 4
+task1 is not ready 0
+task2 is not ready 4task1 is not ready 1
+
 task1 is not ready 2
 task2 is not ready 5
+task1 is ready 3
+task1 is not ready 0
+task2 is not ready 6
+task1 is not ready 1
+task2 is not ready 7
+task1 is not ready 2
+task2 is not ready 8
+task1 is ready 4
+task2 is not ready 9
+task1 is not ready 0
+task2 is not ready 10
+task1 is not ready 1
+task2 is not ready 11
+task1 is not ready 2
+task2 is not ready 12
 task1 is not ready 3
+task2 is ready 5
 task1 is not ready 4
-task2 is ready 4
 task2 is not ready 0
 task1 is not ready 5
 task2 is not ready 1
-task2 is not ready 2
 task1 is not ready 6
-task1 is not ready 7
-task2 is ready 5
-task2 is not ready 0
-task1 is not ready 8
-task2 is not ready 1
-task1 is not ready 9
 task2 is not ready 2
 task1 is ready 6
 task2 is not ready 3
 task1 is not ready 0
-task2 is not ready 4
 task1 is not ready 1
-task2 is not ready 5
+task2 is not ready 4
 task1 is not ready 2
-task2 is ready 7
+task2 is not ready 5
+task1 is ready 7
+task2 is not ready 6
+task1 is not ready 0
+task1 is not ready 1
+task2 is not ready 7
+task1 is not ready 2
+task2 is not ready 8
+task2 is not ready 9
 task1 is not ready 3
-task2 is not ready 0
-task2 is not ready 1
-task1 is not ready 4
-task2 is not ready 2
-task1 is not ready 5
-task2 is not ready 3
-task1 is not ready 6
 task2 is ready 8
-task1 is not ready 7
+task1 is not ready 4
 task2 is not ready 0
-task1 is not ready 8
 task2 is not ready 1
+task1 is not ready 5
 task2 is not ready 2
+task1 is not ready 6
+task2 is not ready 3
 task1 is ready 9
 task1 is not ready 0
-task2 is not ready 3
-task1 is not ready 1
 task2 is not ready 4
-task1 is not ready 2
+task1 is not ready 1
 task2 is not ready 5
-task1 is not ready 3
+task1 is not ready 2
 closing the channel
 channel is closed
 1 is done false
 2 is done false
 we start to wait the first time
-task2 is done
 task1 is done
-task1 done false
-task2 done true
+task2 is done
+task1 done true
+task2 done false
 We start to wait the second time
 task1 done true
 task2 done true
@@ -9738,10 +9862,10 @@ none
 [source]
 ----
 sending 1
-not ready 0
 received 1
 not ready 0
 not ready 1
+not ready 2
 sending 2
 received 2
 not ready 0
@@ -9753,7 +9877,6 @@ not ready 0
 not ready 1
 not ready 2
 closing the channel
-not ready 3
 channel is closed
 is done false
 we are done
@@ -10054,7 +10177,7 @@ println as_object(z)
 .output of snippet `as_object`
 [source]
 ----
-{java$canonicalName: ch.turic.commands.BlockCommand, wrap: true, commands: [{assignments: [{identifier: k, types: [], expression: {java$canonicalName: ch.turic.commands.IntegerConstant, value: 5}, java$canonicalName: ch.turic.analyzer.AssignmentList.Assignment}], java$canonicalName: ch.turic.commands.LetAssignment, mut: false}]}
+{java$canonicalName: ch.turic.commands.BlockCommand, wrap: true, commands: [{assignments: [{identifier: {name: k, java$canonicalName: ch.turic.commands.Identifier, commands: []}, types: [], expression: {java$canonicalName: ch.turic.commands.IntegerConstant, value: 5}, java$canonicalName: ch.turic.analyzer.AssignmentList.Assignment}], java$canonicalName: ch.turic.commands.LetAssignment, mut: false}]}
 
 ----
 

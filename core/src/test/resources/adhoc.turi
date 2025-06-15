@@ -1,19 +1,19 @@
-class B {
-    fn $`.`(a,b,c) {
-        println "hi",a,b,c
-        println "this is ", if is_defined(this) : this
-        println "cls is ",if is_defined(cls) : cls
-        println "me is ",me
-        println ". is ",`.`
-        if a == 1 : me(2,3,4)
-        //`.` = "me"
-    }
+for i=1 ; i < 5 ; i++ {
+  global $`fun${i}`;
+  let k = i;
+  $`fun${i}` = {|j:num| println "j,k,i=",j,",",k,",",i }
 }
 
-let k = "b";
-let $`${k}` = B()
-b.pirka(1,2,3)
+let k = {}
+let s = "susu"
+k.$`${s}` = 55
+println k
+println k.$`${s}`
 
+fun1(1)
+fun2(2)
+fun3(3)
+fun4(4)
 
 
 /*

@@ -110,7 +110,7 @@ public class LngObject implements HasFields, HasIndex, HasContext {
         final var lngObject = (LngObject) o;
         var method = this.getField("==");
         if (method instanceof Closure lngEquals) {
-            ExecutionException.when(!lngEquals.parameters().fitOperator(), "Operator methods must have exactly one argument");
+            ExecutionException.when(lngEquals.parameters().doesNotFitOperator(), "Operator methods must have exactly one argument");
             final var argValues = new FunctionCall.ArgumentEvaluated[]{new FunctionCall.ArgumentEvaluated(null, o)};
             final Context ctx;
             if (lngEquals.wrapped() == null) {

@@ -2,6 +2,7 @@ package ch.turic.builtins.macros;
 
 import ch.turic.*;
 import ch.turic.builtins.functions.FunUtils;
+import ch.turic.commands.FieldAccess;
 import ch.turic.commands.Identifier;
 import ch.turic.memory.LngList;
 import ch.turic.memory.LngObject;
@@ -34,7 +35,7 @@ public class Import implements TuriMacro {
         final var argO = FunUtils.oneOrMoreArgs(name(), arguments);
         final String arg;
         if (argO instanceof Command cmd) {
-            arg = cmd.execute(ctx).toString();
+            arg = getImportString(cmd, ctx);
         } else {
             throw new ExecutionException("Import needs a string first argument");
         }
@@ -55,7 +56,7 @@ public class Import implements TuriMacro {
             if (args[i] instanceof Identifier id) {
                 imports.add(id.name(ctx));
             } else if (args[i] instanceof Command command) {
-                imports.add(command.execute(ctx).toString());
+                imports.add(getImportString(command, ctx));
             }
         }
         return imports;
@@ -164,5 +165,22 @@ public class Import implements TuriMacro {
         return null;
     }
 
-
+    static String getImportString(Command cmd, ch.turic.memory.Context ctx) {
+        if (cmd instanceof Identifier id) {
+            return id.name(ctx);
+        }
+        if( cmd instanceof FieldAccess ){
+            final var sb = new StringBuilder();
+            var fa = cmd;
+            while( fa instanceof FieldAccess f){
+                sb.insert(0,"."+f.identifier().name(ctx));
+                fa = f.object();
+            }
+            if( fa instanceof Identifier id){
+                sb.insert(0,id.name(ctx));
+                return sb.toString();
+            }
+        }
+        return cmd.execute(ctx).toString();
+    }
 }

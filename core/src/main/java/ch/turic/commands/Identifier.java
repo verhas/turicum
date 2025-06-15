@@ -25,22 +25,26 @@ public class Identifier extends AbstractCommand {
         return context.get(name(context));
     }
 
+    public boolean isInterpolated(){
+        return commands != null;
+    }
+
     public String pureName(){
-        if( commands != null ){
+        if( isInterpolated() ){
             throw new ExecutionException("Identifier %s is interpolated",name);
         }
         return name;
     }
 
     public String name(final Context context) {
-        if (commands == null) {
-            return name;
-        } else {
+        if (isInterpolated()) {
             final var sb = new StringBuilder();
             for (Command command : commands) {
                 sb.append(Objects.requireNonNullElse(command.execute(context), "none"));
             }
             return sb.toString();
+        } else {
+            return name;
         }
     }
 

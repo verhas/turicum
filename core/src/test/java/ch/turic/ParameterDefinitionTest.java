@@ -19,9 +19,9 @@ public class ParameterDefinitionTest {
     void positionalAndOptional() {
         var list = parseParams("a, b=2");
         assertEquals(2, list.parameters().length);
-        assertEquals("a", list.parameters()[0].identifier());
+        assertEquals("a", list.parameters()[0].identifier().pureName());
         assertNull(list.parameters()[0].defaultExpression());
-        assertEquals("b", list.parameters()[1].identifier());
+        assertEquals("b", list.parameters()[1].identifier().pureName());
         assertNotNull(list.parameters()[1].defaultExpression());
     }
 
@@ -41,9 +41,9 @@ public class ParameterDefinitionTest {
     @Test
     void restMetaClosureParameters() {
         var list = parseParams("a, [r], {m}, ^block");
-        assertEquals("r", list.rest());
-        assertEquals("m", list.meta());
-        assertEquals("block", list.closure());
+        assertEquals("r", list.rest().pureName());
+        assertEquals("m", list.meta().pureName());
+        assertEquals("block", list.closure().pureName());
     }
 
     @Test
@@ -70,10 +70,10 @@ public class ParameterDefinitionTest {
     void correctTrailingCommaBehavior() {
         var list = parseParams("a, b=1, [r], {m}, ^c");
         assertEquals(2, list.parameters().length);
-        assertEquals("a", list.parameters()[0].identifier());
-        assertEquals("b", list.parameters()[1].identifier());
-        assertEquals("r", list.rest());
-        assertEquals("m", list.meta());
-        assertEquals("c", list.closure());
+        assertEquals("a", list.parameters()[0].identifier().pureName());
+        assertEquals("b", list.parameters()[1].identifier().pureName());
+        assertEquals("r", list.rest().pureName());
+        assertEquals("m", list.meta().pureName());
+        assertEquals("c", list.closure().pureName());
     }
 }

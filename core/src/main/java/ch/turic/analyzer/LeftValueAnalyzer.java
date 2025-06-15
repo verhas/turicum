@@ -42,7 +42,7 @@ public class LeftValueAnalyzer {
                     lexes.next();
                     final var fieldName = lexes.next();
                     BadSyntax.when(lexes, fieldName.type() != Lex.Type.IDENTIFIER, "Field name is invalid");
-                    left = new ObjectFieldLeftValue(left, fieldName.text());
+                    left = new ObjectFieldLeftValue(left, new Identifier(fieldName));
                     break;
                 case "[":
                     lexes.next();
