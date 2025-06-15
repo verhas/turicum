@@ -52,18 +52,18 @@ public class ListComposition extends AbstractCommand {
             }
         }
         final HasFields fieldProvider;
-        if( modifiers != null && modifiers.length > 0 && modifiers[modifiers.length - 1] instanceof CompositionModifier.Attacher attacher) {
+        if (modifiers != null && modifiers.length > 0 && modifiers[modifiers.length - 1] instanceof CompositionModifier.Attacher attacher) {
             final var provider = attacher.expression.execute(context);
-            if( provider instanceof HasFields hasFields) {
+            if (provider instanceof HasFields hasFields) {
                 fieldProvider = hasFields;
-            }else{
-                throw new ExecutionException("cannot use '%s' as field provider",provider);
+            } else {
+                throw new ExecutionException("cannot use '%s' as field provider", provider);
             }
-        }else{
+        } else {
             fieldProvider = null;
         }
         final var filtered = new LngList(fieldProvider);
-        filterElements( list.array.size(), modifiers, context, filtered, x -> list.array.get(x.intValue()));
+        filterElements(list.array.size(), modifiers, context, filtered, x -> list.array.get(x.intValue()));
         return filtered;
     }
 
@@ -92,7 +92,7 @@ public class ListComposition extends AbstractCommand {
                             context.local("it", item);
                             final var expression = f.expression.execute(context);
                             if (expression instanceof Closure closure) {
-                                ExecutionException.when(!closure.parameters().fitModifier(), "Filter closure or function must have exactly one parameter");
+                                ExecutionException.when(closure.parameters().doesNotFitModifier(), "Filter closure or function must have exactly one parameter");
                                 final var ctx = context.wrap(context);
                                 setParameter(ctx, closure, item);
                                 filtered = !Cast.toBoolean(closure.execute(ctx));
@@ -100,12 +100,13 @@ public class ListComposition extends AbstractCommand {
                                 filtered = !Cast.toBoolean(expression);
                             }
                         }
-                        case CompositionModifier.Attacher ignored -> filtered = false;
+                        case CompositionModifier.Attacher ignored -> {
+                        }
                         case CompositionModifier.Mapper m -> {
                             context.local("it", item);
                             final var expression = m.expression.execute(context);
                             if (expression instanceof Closure closure) {
-                                ExecutionException.when(!closure.parameters().fitModifier(), "Modifier closure or function must have exactly one parameter");
+                                ExecutionException.when(closure.parameters().doesNotFitModifier(), "Modifier closure or function must have exactly one parameter");
                                 final var ctx = context.wrap(context);
                                 setParameter(ctx, closure, item);
                                 item = closure.execute(ctx);
@@ -131,7 +132,7 @@ public class ListComposition extends AbstractCommand {
 
     private static void setParameter(Context ctx, Closure closure, Object item) {
         if (closure.parameters().parameters().length > 0) {
-            ctx.local(closure.parameters().parameters()[0].identifier(), item);
+            ctx.local(closure.parameters().parameters()[0].identifier().name(ctx), item);
         }
     }
 

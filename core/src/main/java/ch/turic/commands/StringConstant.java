@@ -5,6 +5,7 @@ import ch.turic.Command;
 import ch.turic.ExecutionException;
 import ch.turic.Input;
 import ch.turic.analyzer.BlockAnalyzer;
+import ch.turic.analyzer.Lex;
 import ch.turic.analyzer.Lexer;
 import ch.turic.memory.Context;
 import ch.turic.utils.Unmarshaller;
@@ -30,6 +31,9 @@ public class StringConstant extends AbstractCommand {
         this.commands = commands;
     }
 
+    public StringConstant(final Lex lex) {
+        this(lex.text(), lex.interpolated);
+    }
     public StringConstant(final String value, final boolean interpolated) {
         Objects.requireNonNull(value);
         if (interpolated) {
@@ -49,7 +53,7 @@ public class StringConstant extends AbstractCommand {
         }
     }
 
-    private static String[] split(final String str) {
+    static String[] split(final String str) {
         int start = 0, end = 0;
         final var parts = new ArrayList<String>();
         boolean inLiteral = true;

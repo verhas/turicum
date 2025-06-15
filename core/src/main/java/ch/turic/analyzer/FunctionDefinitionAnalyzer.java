@@ -31,12 +31,12 @@ public class FunctionDefinitionAnalyzer extends AbstractAnalyzer {
 
     @Override
     public Command _analyze(LexList lexes) throws BadSyntax {
-        final String fn;
+        final Identifier fn;
         if (lexes.is("(")) {
             fn = null;
         } else {
             BadSyntax.when(lexes, !lexes.isIdentifier(), "function name or '(' expected after fn. You cannot omit the '()' for anonymous function.");
-            fn = lexes.next().text();
+            fn = new Identifier(lexes.next());
         }
         final boolean hasParens = lexes.is("(");
         if (hasParens) {
@@ -67,7 +67,7 @@ public class FunctionDefinitionAnalyzer extends AbstractAnalyzer {
             block = new BlockCommand(new Command[]{expression}, false);
         } else if (lexes.is(";")) {
             BadSyntax.when(lexes, !hasParens, "use must use parenthesis in initialized without body");
-            BadSyntax.when(lexes, !"init".equals(fn), "Only initializer can have no body");
+            BadSyntax.when(lexes, fn == null || fn.isInterpolated() || !"init".equals(fn.pureName()), "Only initializer can have no body");
             block = new BlockCommand(new Command[0], false);
         } else {
             block = (BlockCommand) BlockAnalyzer.INSTANCE.analyze(lexes);

@@ -48,7 +48,7 @@ public class CommandAnalyzer extends AbstractAnalyzer {
     private FunctionCall getParentheseslessFunctionCall(LexList lexes) {
         final var position = lexes.getIndex();
         if (lexes.isIdentifier()) {
-            final var functionName = lexes.next().text();
+            final var functionName = lexes.next();
             if (!lexes.hasNext() || lexes.peek().atLineStart()) {
                 lexes.setIndex(position);
                 return null;

@@ -28,7 +28,7 @@ public class SysImport implements TuriMacro {
         final var argO = FunUtils.oneOrMoreArgs(name(), arguments);
         final String sys_name;
         if (argO instanceof Command cmd) {
-            sys_name = cmd.execute(ctx).toString();
+            sys_name = Import.getImportString(cmd,ctx);
         } else {
             throw new ExecutionException("Import needs a string first argument");
         }

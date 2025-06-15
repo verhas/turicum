@@ -1,30 +1,31 @@
 package ch.turic.memory;
 
 import ch.turic.ExecutionException;
+import ch.turic.commands.Identifier;
 import ch.turic.utils.Unmarshaller;
 
 import java.util.Objects;
 import java.util.function.Function;
 
-public record VariableLeftValue(String variable) implements LeftValue {
+public record VariableLeftValue(Identifier variable) implements LeftValue {
 
     public static VariableLeftValue factory(final Unmarshaller.Args args) {
-        return new VariableLeftValue(args.str("variable"));
+        return new VariableLeftValue(args.get("variable", Identifier.class));
     }
 
-    public VariableLeftValue(String variable) {
+    public VariableLeftValue(Identifier variable) {
         this.variable = Objects.requireNonNull(variable);
     }
 
     @Override
     public HasFields getObject(Context ctx) {
-        final var existing = ctx.get(variable);
+        final var existing = ctx.get(variable.name(ctx));
         return LeftValue.toObject(existing);
     }
 
     @Override
     public HasIndex getIndexable(Context ctx, Object indexValue) {
-        final var existing = ctx.get(variable);
+        final var existing = ctx.get(variable.name(ctx));
         return LeftValue.toIndexable(existing, indexValue);
     }
 
@@ -37,7 +38,7 @@ public record VariableLeftValue(String variable) implements LeftValue {
      */
     @Override
     public void assign(Context ctx, Object value) throws ExecutionException {
-        ctx.update(variable, value);
+        ctx.update(variable.name(ctx), value);
     }
 
     /**
@@ -50,12 +51,12 @@ public record VariableLeftValue(String variable) implements LeftValue {
      */
     @Override
     public Object reassign(Context ctx, Function<Object, Object> newValueCalculator) throws ExecutionException {
-        final var value = ctx.get(variable);
+        final var value = ctx.get(variable.name(ctx));
         final Object newValue;
-        try (final var ignore = ctx.hibernate(variable)) {
+        try (final var ignore = ctx.hibernate(variable.name(ctx))) {
             newValue = newValueCalculator.apply(value);
         }
-        ctx.update(variable, newValue);
+        ctx.update(variable.name(ctx), newValue);
         return newValue;
     }
 
@@ -66,6 +67,6 @@ public record VariableLeftValue(String variable) implements LeftValue {
      */
     @Override
     public String toString() {
-        return variable;
+        return variable.toString();
     }
 }

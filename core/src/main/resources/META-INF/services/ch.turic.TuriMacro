@@ -4,3 +4,4 @@ ch.turic.builtins.macros.UnLet
 ch.turic.builtins.macros.Thunk
 ch.turic.builtins.macros.Import
 ch.turic.builtins.macros.SysImport
+ch.turic.builtins.macros.Name

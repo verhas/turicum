@@ -1,12 +1,13 @@
 package ch.turic.memory;
 
 import ch.turic.ExecutionException;
+import ch.turic.commands.Identifier;
 import ch.turic.utils.Unmarshaller;
 
 import java.util.Objects;
 import java.util.function.Function;
 
-public record ObjectFieldLeftValue(LeftValue object, String field) implements LeftValue {
+public record ObjectFieldLeftValue(LeftValue object, Identifier field) implements LeftValue {
     /**
      * Creates an ObjectFieldLeftValue instance from unmarshalling arguments.
      * <p>
@@ -18,7 +19,7 @@ public record ObjectFieldLeftValue(LeftValue object, String field) implements Le
     public static ObjectFieldLeftValue factory(final Unmarshaller.Args args) {
         return new ObjectFieldLeftValue(
                 args.get("object", LeftValue.class),
-                args.str("field")
+                args.get("field",Identifier.class)
         );
     }
 
@@ -39,10 +40,11 @@ public record ObjectFieldLeftValue(LeftValue object, String field) implements Le
     @Override
     public HasFields getObject(Context ctx) {
         final var guaranteedObject = object.getObject(ctx);
-        final var existing = guaranteedObject.getField(field);
+        final var fieldName = field.name(ctx);
+        final var existing = guaranteedObject.getField(fieldName);
         if (existing == null) {
             final var newObject = LngObject.newEmpty(ctx);
-            guaranteedObject.setField(field, newObject);
+            guaranteedObject.setField(fieldName, newObject);
             return newObject;
         } else {
             return LeftValue.toObject(existing);
@@ -52,10 +54,11 @@ public record ObjectFieldLeftValue(LeftValue object, String field) implements Le
     @Override
     public HasIndex getIndexable(Context ctx, Object indexValue) {
         final var guaranteedObject = object.getObject(ctx);
-        final var existing = guaranteedObject.getField(field);
+        final var fieldName = field.name(ctx);
+        final var existing = guaranteedObject.getField(fieldName);
         if (existing == null) {
             final HasIndex newIndexable = HasIndex.createFor(indexValue, ctx);
-            guaranteedObject.setField(field, newIndexable);
+            guaranteedObject.setField(fieldName, newIndexable);
             return newIndexable;
         } else {
             return LeftValue.toIndexable(existing);
@@ -71,7 +74,7 @@ public record ObjectFieldLeftValue(LeftValue object, String field) implements Le
      */
     @Override
     public void assign(Context ctx, Object value) throws ExecutionException {
-        object.getObject(ctx).setField(field, value);
+        object.getObject(ctx).setField(field.name(ctx), value);
     }
 
     /**
@@ -93,21 +96,22 @@ public record ObjectFieldLeftValue(LeftValue object, String field) implements Le
     @Override
     public Object reassign(Context ctx, Function<Object, Object> newValueCalculator) throws ExecutionException {
         final var object = this.object.getObject(ctx);
+        final var fieldName = field.name(ctx);
         final Object newValue;
         if (object instanceof LngObject lngObject) {
-            try (final var ignore = lngObject.context().hibernate(field)) {
-                final var value = lngObject.getField(field);
+            try (final var ignore = lngObject.context().hibernate(fieldName)) {
+                final var value = lngObject.getField(fieldName);
                 newValue = newValueCalculator.apply(value);
             }
         } else {
-            final var value = object.getField(field);
+            final var value = object.getField(fieldName);
             newValue = newValueCalculator.apply(value);
-            final var checkValue = object.getField(field);
+            final var checkValue = object.getField(fieldName);
             if (value != checkValue) {
-                throw new ExecutionException("Assigned value changed while calculating new value %s.%s", this, field);
+                throw new ExecutionException("Assigned value changed while calculating new value %s.%s", this, fieldName);
             }
         }
-        object.setField(field, newValue);
+        object.setField(fieldName, newValue);
         return newValue;
     }
 }

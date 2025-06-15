@@ -153,7 +153,7 @@ public record ArrayElementLeftValue(LeftValue arrayLeftValue, Command index) imp
         final var indexable = arrayLeftValue.getIndexable(ctx, indexValue);
         final Object value;
         final Object newValue;
-        try (Context.VariableHibernation vh = getVariableHibernation(ctx)) {
+        try (Context.VariableHibernation ignore = getVariableHibernation(ctx)) {
             value = indexable.getIndex(indexValue);
             newValue = newValueCalculator.apply(value);
         }
@@ -180,11 +180,11 @@ public record ArrayElementLeftValue(LeftValue arrayLeftValue, Command index) imp
         return switch (arrayLeftValue) {
             case CalculatedLeftValue ignored ->
                     throw new ExecutionException("Cannot change the part of a calculated string. Left side of the assignment has to be left value.");
-            case VariableLeftValue leftValue -> ctx.hibernate(leftValue.variable());
+            case VariableLeftValue leftValue -> ctx.hibernate(leftValue.variable().name(ctx));
             case ObjectFieldLeftValue leftValue -> {
                 final var obj = leftValue.getObject(ctx);
                 if (obj instanceof LngObject lngObject) {
-                    yield lngObject.context().hibernate(leftValue.field());
+                    yield lngObject.context().hibernate(leftValue.field().name(ctx));
                 } else {
                     yield ctx.new VariableHibernation();
                 }

@@ -41,23 +41,23 @@ public class Pin extends AbstractCommand {
             ctx.step();
             switch (item.type) {
                 case VARIABLE:
-                    ctx.freeze(item.id().name());
+                    ctx.freeze(item.id().name(ctx));
                     break;
                 case OBJECT:
-                    final var object = ctx.get(item.id().name());
+                    final var object = ctx.get(item.id().name(ctx));
                     switch (object) {
                         case LngObject lngObject -> lngObject.pinned.set(true);
                         case LngClass lngClass -> lngClass.pinned.set(true);
                         default ->
-                                throw new ExecutionException("value of '%s' is not an object to be pinned", item.id().name());
+                                throw new ExecutionException("value of '%s' is not an object to be pinned", item.id().name(ctx));
                     }
                     break;
                 case LIST:
-                    final var lst = ctx.get(item.id().name());
+                    final var lst = ctx.get(item.id().name(ctx));
                     if (lst instanceof LngList lngList) {
                         lngList.pinned.set(true);
                     } else {
-                        throw new ExecutionException("value of '%s' is not a list to be pinned", item.id().name());
+                        throw new ExecutionException("value of '%s' is not a list to be pinned", item.id().name(ctx));
                     }
                     break;
             }

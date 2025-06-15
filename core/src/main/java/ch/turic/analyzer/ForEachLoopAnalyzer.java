@@ -15,13 +15,13 @@ public class ForEachLoopAnalyzer extends AbstractAnalyzer {
             lexes.next();
         }
         lexes.peek(Lex.Type.IDENTIFIER, null, "'for each' needs an identifier");
-        final var name = lexes.next().text();
+        final var name = lexes.next();
         final var identifier = new Identifier(name);
         final Identifier with;
         if (lexes.is(Keywords.WITH)) {
             lexes.next();
             lexes.peek(Lex.Type.IDENTIFIER, null, "'for each... with' needs an identifier");
-            with = new Identifier(lexes.next().text());
+            with = new Identifier(lexes.next());
         } else {
             with = null;
         }

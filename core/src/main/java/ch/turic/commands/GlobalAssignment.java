@@ -28,10 +28,10 @@ public class GlobalAssignment extends AbstractCommand {
         for (var assignment : assignments) {
             context.step();
             if (assignment.expression() == null) {
-                context.global(assignment.identifier());
+                context.global(assignment.identifier().name(context));
             } else {
                 value = assignment.expression().execute(context);
-                context.global(assignment.identifier(), value);
+                context.global(assignment.identifier().name(context), value);
             }
         }
         return value;

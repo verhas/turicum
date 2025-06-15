@@ -3,7 +3,7 @@ package ch.turic;
 import java.util.List;
 
 /**
- * Classes implementing this interface and "providing" these classes from the module can implement methods for
+ * Classes implementing this interface and JARs "providing" these classes from the module can implement methods for
  * Java classes. When there is a method call on a value, which is not {@link ch.turic.memory.LngObject}, the
  * run-time checks if there is any class implementing this interface registered for the given class (as returned by the
  * method {@link #forClass()}.

@@ -22,7 +22,7 @@ public class Export implements TuriMacro {
         final var ctx = FunUtils.ctx(context);
         for (final var arg : arguments) {
             if (arg instanceof Identifier id) {
-                ctx.addExport(id.name());
+                ctx.addExport(id.name(ctx));
             } else if (arg instanceof Command command) {
                 ctx.addExport(command.execute(ctx).toString());
             } else {
