@@ -1,19 +1,9 @@
 class B {
-    fn z {
-        println "hi"
-        println this
-        println cls
-        println `it`
-    }
+  fn `.` {
+    println `.`
+  }
 }
-
-let b = B()
-let t = [1,2,3 with b]
-let h = t + [ "ku" ];
-[ ..h[0..3] with b ].z()
-println h
-
-
+B().`we can write here anything`()
 
 
 /*

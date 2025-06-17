@@ -101,6 +101,8 @@ public class FunctionCall extends AbstractCommand {
                 ctx.setCaller(context);
                 ctx.let0("me", function);
                 ctx.freeze("me");
+                ctx.let0(".", command.name());
+                ctx.freeze(".");
                 defineArgumentsInContext(ctx, context, command.parameters(), argValues, true);
                 return command.execute(ctx);
             }
@@ -359,7 +361,14 @@ public class FunctionCall extends AbstractCommand {
                 }
                 yield jo.getField(identifier);
             }
-            default -> obj.getField(identifier);
+            default -> {
+                final var method = obj.getField(identifier);
+                if (method == null) {
+                    yield obj.getField(".");
+                } else {
+                    yield method;
+                }
+            }
         };
     }
 
@@ -367,7 +376,7 @@ public class FunctionCall extends AbstractCommand {
      * Returns the {@link TuriClass} associated with the class of the given {@link JavaObject}, searching its class hierarchy and interfaces if necessary.
      *
      * @param context the context used to resolve TuriClass associations
-     * @param jo the JavaObject whose class is used for lookup
+     * @param jo      the JavaObject whose class is used for lookup
      * @return the associated TuriClass, or null if none is found
      */
     public static TuriClass getTuriClass(Context context, JavaObject jo) {

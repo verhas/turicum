@@ -18,7 +18,7 @@ public sealed interface ClosureOrMacro extends Command, HasFields permits Closur
         final var fp = lngList.getFieldProvider();
         final Context ctx;
         if (fp instanceof LngObject lngObject) {
-            ctx = prepareObjectContext(context, lngObject, argValues, it);
+            ctx = prepareObjectContext(context, lngObject, methodName, argValues, it);
         }else if (fp instanceof LngClass lngClass) {
             ctx = getClassContext(context, methodName, lngClass, argValues, it);
         }else {
@@ -28,7 +28,7 @@ public sealed interface ClosureOrMacro extends Command, HasFields permits Closur
         return ctx;
     }
 
-    private static Context prepareObjectContext(Context context, LngObject lngObject, FunctionCall.ArgumentEvaluated[] argValues, ClosureOrMacro it) {
+    private static Context prepareObjectContext(Context context, LngObject lngObject, String methodName, FunctionCall.ArgumentEvaluated[] argValues, ClosureOrMacro it) {
         final Context ctx;
         if (it.wrapped() == null) {
             ctx = context.wrap(lngObject.context());
@@ -37,8 +37,10 @@ public sealed interface ClosureOrMacro extends Command, HasFields permits Closur
         }
         ctx.let0("this", lngObject);
         ctx.let0("cls", lngObject.lngClass());
+        ctx.let0(".", methodName);
         ctx.setCaller(context);
         freezeThisAndCls(ctx);
+        ctx.freeze(".");
         defineArgumentsInContext(ctx, context, it.parameters(), argValues, true);
         return ctx;
     }
@@ -75,7 +77,7 @@ public sealed interface ClosureOrMacro extends Command, HasFields permits Closur
      */
     static NullableOptional<Object> callTheMethod(Context context, HasFields obj, String methodName, FunctionCall.ArgumentEvaluated[] argValues, ClosureOrMacro it) {
         if (obj instanceof LngObject lngObject) {
-            final Context ctx = ClosureOrMacro.prepareObjectContext(context, lngObject, argValues, it);
+            final Context ctx = ClosureOrMacro.prepareObjectContext(context, lngObject, methodName, argValues, it);
             return NullableOptional.of(it.execute(ctx));
         }
         if (obj instanceof LngList lngList && lngList.hasFieldProvider()) {

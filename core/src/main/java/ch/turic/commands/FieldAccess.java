@@ -36,8 +36,8 @@ public class FieldAccess extends AbstractCommand {
     }
 
     public FieldAccess(Command object, String identifier, boolean lenient) {
-        this.identifier = identifier;
         this.object = object;
+        this.identifier = identifier;
         this.lenient = lenient;
     }
 
