@@ -84,7 +84,7 @@ println "for each i in range(1,55) : println i".turi_lex()
 // end snippet
 
 // snippet string_execute
-sys_import "turi.range";
+sys_import turi.range;
 
 mut j = 3;
 println "for each i in range(1,3) { println i+j; j ++ }".execute()
@@ -952,7 +952,7 @@ print len("abraka dabra") == "abraka debra".length()
 fn inc(x) {
   x+1
 }
-println((""+inc).left(len("ch.turic.commands.Closure@")))
+println str(inc).before("@")
 println(inc(1))
 // end snippet
 
@@ -960,7 +960,7 @@ println(inc(1))
 fn inc x {
   x+1
 }
-println((""+inc).left(len("ch.turic.commands.Closure@")))
+println str(inc).before("@")
 println(inc(1))
 // end snippet
 
@@ -968,7 +968,7 @@ println(inc(1))
 mut inc = fn (x) {
   x+1
 }
-println((""+inc).left(len("ch.turic.commands.Closure@")))
+println str(inc).before("@")
 println(inc(1))
 // end snippet
 
@@ -976,7 +976,7 @@ println(inc(1))
 fn inc !x, @how_much {
   x+how_much
 }
-println((""+inc).left(len("ch.turic.commands.Closure@")))
+println str(inc).before("@")
 println(inc(1,how_much=5))
 // end snippet
 
@@ -2053,7 +2053,34 @@ fn p()=len("original K");
 println p()
 // end snippet
 
+// snippet dot_method1
+class B {
+  fn init(a,b,c);
 
+  fn `.` {
+    println a,b,c
+  }
+}
+B(1,2,3).`we can write here anything`()
+// end snippet
+
+// snippet dot_method2
+class B {
+  fn `.` {
+    println `.`
+  }
+}
+B().`we can write here anything`()
+// end snippet
+
+// snippet dot_method3
+class B {
+  fn `.` {
+    println str(this.`.`).before("@")
+  }
+}
+B().`we can write here anything`()
+// end snippet
 
 // snippet is_defined
 if is_defined(z) : println "defined" else: println "not defined";

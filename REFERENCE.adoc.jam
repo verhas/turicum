@@ -161,7 +161,7 @@ Unlike Java, nested multiline comments are supported.
 * Identifiers follow conventional naming rules and are case-sensitive.
 * Any string enclosed between backticks (`pass:[`]`) is treated as an identifier (similar to Kotlin).
 * All keywords are lowercase.
-* Strings enclosed in double quotes (`"`) must terminate on the same line.
+* Strings enclosed in double quotes (`pass:["]`) must terminate on the same line.
 Multiline strings are enclosed in triple double quotes (`"""`).
 * String literals preceded with a `$` character are interpolated.
 
@@ -234,13 +234,15 @@ Identifiers are names used for variables, functions, classes, and other user-def
 
 * Identifiers must begin with a Unicode letter or an underscore (`_`), and can contain letters, digits, and underscores.
 
-* You can explicitly define an identifier using backticks: `+`non-standard-id`+`.
-This allows you to use any string as an identifier—even reserved words, symbols, or operators.
-The primary use of this feature is to override operators, such as `+`==`+`.
-
 * Identifiers are case-sensitive.
 
 Some Unicode characters like `∞` (infinity) and `∅` (none) are automatically translated into meaningful identifiers (`inf`, `none`).
+
+===== Non-standard Identifiers
+
+* You can explicitly define an identifier using backticks: `+`non-standard-id`+`.
+This allows you to use any string as an identifier—even reserved words, symbols, or operators.
+The primary use of this feature is to override operators, such as `+`==`+`.
 
 [NOTE]
 ====
@@ -291,7 +293,7 @@ Turicum does not implement a feature just because it is fancy.
 
 ==== String Literals
 
-Strings in Turicum are enclosed in double quotes(`"`), e.g., ``"hello world"``.
+Strings in Turicum are enclosed in double quotes `pass:["]`, e.g., ``"hello world"``.
 
 Backslash escapes are supported:
 
@@ -494,8 +496,8 @@ If you want to map a list element to a closure, then you have to write a closure
 
 The last element of a list literal following the optional filters and mappers is an optional object or class attachment.
 
+When a list is attached to a class or object, the fields and methods of the attached class or object can be invoked on the list.
 The keyword `with` can attach the resulting list to an object or to a class.
-When a list is attached to a class or object the fields and methods of the attached class or object can be invoked on the list.
 
 When a method is invoked, the usual special fields: `this` and `cls` are set the same way as if the call was performed on the original object or class.
 In addition to that, the special field `it` will point to the list.
@@ -1945,7 +1947,7 @@ This is to avoid the unreadable `fn = 2*3` to be declared as a function declarat
 [NOTE]
 ====
 Be careful when using the `fn x()=...` format.
-The following code does not do what you expect:
+The following code does not do what you may expect:
 
 {%S fun10%}
 
@@ -1979,8 +1981,6 @@ You cannot use `mut` or `let` in a function or closure parameter list.
 
 The only exception is the `init` method: its parameters become fields of the object being initialized, and therefore they are mutable.
 ====
-
-
 
 The individual types can be identifiers or `(` and `)` enclosed expressions.
 The types are separated by `|`.
@@ -2200,12 +2200,28 @@ It makes it possible to use the result of a `async expression` as arguments.
 === Modifying Arguments
 Function arguments in Turicum are immutable.
 
-When a function is called, its arguments are *pinned*—they are bound to their initial values and cannot be reassigned within the function body.
+When a function is called, its arguments are *pinned* — they are bound to their initial values and cannot be reassigned within the function body.
 
 The only exception is the `init` method, which acts as the object initializer.
 In this case, the arguments correspond to the fields of the object being constructed.
 Assignment is allowed during initialization, because these fields persist beyond the execution of `init`.
 If they were pinned like regular arguments, the object's fields would become permanently immutable, which is not desired.
+
+== Joker Method
+
+It is possible to define a special method in a class or attached to an object, named `pass[.]` (a single dot), which is automatically invoked when the code tries to call a method not defined in the object or class hierarchy.
+
+{%S dot_method1%}
+
+It is a special tool for meta-programming.
+In this special method you can access the name of the method used to invoke the joker method using the variable named  `pass[.]`.
+
+{%S dot_method2%}
+
+Note that in this case this variable is a local variable inside the method execution.
+You can still access the method itself via the `this` reference:
+
+{%S dot_method3%}
 
 == Classes and Objects
 
@@ -2792,7 +2808,9 @@ If there is such a list in the import function the `export()` or `export_all()` 
 
 {%S limited_import%}
 
-The list can contain strings and
+The list can contain strings and identifiers.
+
+Also, when you specify the name of the imported program you can specify it as a string or as a series of identifiers with dots.
 
 === `is_type`
 
@@ -2880,7 +2898,7 @@ The function `keys()` returns a string list containing the keys of the argument.
 `jsonify` will accept one argument and converts it to a string that is the JSON representation of the argument.
 Note that this is not exactly the same as the string produced by `to_sting()` on an object.
 
-* The resulting string will enclose the keys and string value between `"`.
+* The resulting string will enclose the keys and string value between `pass:["]`.
 * All the special characters in the strings will be escaped.
 * `none` values are represented as `null`.
 
