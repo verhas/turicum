@@ -105,7 +105,8 @@ public class MultiLetAssignment extends AbstractCommand {
             for (var assignment : assignments) {
                 ctx.step();
                 final String[] typeNames = getTypeNames(ctx, assignment);
-                defineOrUpdate(ctx, assignment.identifier().name(ctx), fields.getField(assignment.identifier().name(ctx)), typeNames);
+                final var idName = assignment.identifier().name(ctx);
+                defineOrUpdate(ctx, idName, fields.getField(idName), typeNames);
             }
         } else {
             throw new ExecutionException("{multi-let} assignment got a %s value does not have fields", value);

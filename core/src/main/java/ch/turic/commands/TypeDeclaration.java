@@ -10,14 +10,14 @@ import ch.turic.utils.Unmarshaller;
  * A type declaration is either an identifier, like {@code str}, {@code lst} or an expression between '{@code (}' and
  * '{@code )}' characters.
  *
- * @param identifier the identifier string
+ * @param typeName the identifier string
  * @param expression the expression
  */
-public record TypeDeclaration(String identifier, Command expression) {
+public record TypeDeclaration(String typeName, Command expression) {
 
     public static TypeDeclaration factory(final Unmarshaller.Args args) {
         return new TypeDeclaration(
-                args.str("identifier"),
+                args.str("typeName"),
                 args.command("expression")
         );
     }
@@ -31,7 +31,7 @@ public record TypeDeclaration(String identifier, Command expression) {
      */
     public String calculateTypeName(Context context) {
         if (expression == null) {
-            return identifier;
+            return typeName;
         } else {
             final var tValue = expression.execute(context);
             return tValue == null ? "none" : tValue.toString();
