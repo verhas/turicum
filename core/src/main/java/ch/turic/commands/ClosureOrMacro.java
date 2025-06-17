@@ -12,19 +12,19 @@ import static ch.turic.commands.FunctionCall.freezeThisAndCls;
 
 public sealed interface ClosureOrMacro extends Command, HasFields permits Closure, Macro {
 
-    Set<String> SPECIAL_VARIABLES = Set.of("this", "cls", "me", "it");
+    Set<String> SPECIAL_VARIABLES = Set.of("this", "cls", "me", "it", ".");
 
     private static Context prepareListContext(Context context, String methodName, LngList lngList, FunctionCall.ArgumentEvaluated[] argValues, ClosureOrMacro it) {
         final var fp = lngList.getFieldProvider();
         final Context ctx;
         if (fp instanceof LngObject lngObject) {
             ctx = prepareObjectContext(context, lngObject, methodName, argValues, it);
-        }else if (fp instanceof LngClass lngClass) {
+        } else if (fp instanceof LngClass lngClass) {
             ctx = getClassContext(context, methodName, lngClass, argValues, it);
-        }else {
+        } else {
             throw new ExecutionException("List field provider is neither object nor class");
         }
-        ctx.let0("it",lngList);
+        ctx.let0("it", lngList);
         return ctx;
     }
 
@@ -47,6 +47,8 @@ public sealed interface ClosureOrMacro extends Command, HasFields permits Closur
 
     private static Context getClassContext(Context context, String methodName, LngClass lngClass, FunctionCall.ArgumentEvaluated[] argValues, ClosureOrMacro it) {
         final var ctx = context.wrap(lngClass.context());
+        ctx.let0(".", methodName);
+        ctx.freeze(".");
         if ("init".equals(methodName)) {
             // this will make in a chained constructor call set 'this' to the object created
             // 'cls' point to the class, but 'this.cls' point to the class which is going to be initialized

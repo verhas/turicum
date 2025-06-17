@@ -2067,6 +2067,9 @@ B(1,2,3).`we can write here anything`()
 // snippet dot_method2
 class B {
   fn `.` {
+    // print the name of the method, `.`
+    // `.` is a local variable holding the name of the metod
+    // this.`.` is still the method itself (not the name)
     println `.`
   }
 }
