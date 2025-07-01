@@ -1,5 +1,2 @@
 #!/bin/sh
-if [ -e /usr/local/bin/turi ]; then
-    rm /usr/local/bin/turi
-fi
-ln -s /opt/turicum/bin/turicum /usr/local/bin/turi
+ln -sf /opt/turicum/bin/turicum /usr/local/bin/turi

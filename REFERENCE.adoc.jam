@@ -185,7 +185,7 @@ For example, an `if` statement returns the value of the executed command:
 
 * the branch after the `if` condition,
 * the `else` block if the condition is `false` and an `else` is present, or
-* `none` if there is no `else` block.
+* `none` if there was no `else` block.
 
 {%S if_value%}
 
@@ -207,12 +207,15 @@ Expressions can contain:
 * Macro calls
 * Method calls
 * Async expressions
-* Code blocks
 * block commands enclosed between `+{+` and `+}+` or `(` and `)`.
 
-Symbolic constants are {%#trimLines
-{%#replaceLines replace=/"(.*?)",[^"]+/`$1`,/ replace=/,$//
-{%@snip builtins%}%}%}pinned (immutable, final) global variables.
+Symbolic constants are the followings:
+
+{%#trimLines
+{%#replaceLines replace="/\"(.*?)\",[^\"]+/* `$1`,/" replace=/,$// replace=~//~
+{%@snip builtins%}%}%}
+
+They are pinned (immutable, final) global variables.
 
 ==== Shebang
 
@@ -254,7 +257,7 @@ You can simply define a method with the name `pass:[`+`]`.
 
 ==== Reserved Words
 
-Turicum defines a set of reserved keywords that cannot be used as identifiers—unless the name is enclosed in backticks, like `if`.
+Turicum defines a set of reserved keywords that cannot be used as identifiers—unless the name is enclosed in backticks, like `pass:[`if`]`.
 
 The reserved keywords are:
 
@@ -349,7 +352,7 @@ If you find this rule limiting, you are likely overcomplicating your usage of in
 
 Prefer simpler expressions and commands within interpolated strings.
 
-Here is a convoluted example that you have to avoid:
+Here is an example of what not to do:
 
 {%S istring3%}
 
@@ -375,7 +378,7 @@ Turicum extends the interpolation mechanism with two syntactic forms, each with 
 - `+${expression}+` evaluates the given expression in a *new temporary context*. This is useful when
 a local computation is needed that should not affect the surrounding environment.
 - `+$(expression)+` evaluates the expression in the *surrounding context*, allowing modifications
-(e.g., variable definition useing `let` or `mut`) to persist beyond the interpolated expression.
+(e.g., variable definition using `let` or `mut`) to persist beyond the interpolated expression.
 
 This dual syntax provides clarity and control over variable scope and side effects inside interpolated strings,
 supporting both functional and imperative styles of expression.
@@ -391,6 +394,8 @@ JSON keys can be identifiers or strings.
 The values can be presented by any Turicum expression.
 The value of a JSON expression is a class-less Turicum object.
 The values are evaluated when the literal is evaluated.
+
+A JSON object is recognized when the parser sees a `{` followed by a string or identifier and then a `:`.
 
 ==== Lazy JSON
 

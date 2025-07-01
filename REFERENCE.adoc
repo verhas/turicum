@@ -196,7 +196,7 @@ For example, an `if` statement returns the value of the executed command:
 
 * the branch after the `if` condition,
 * the `else` block if the condition is `false` and an `else` is present, or
-* `none` if there is no `else` block.
+* `none` if there was no `else` block.
 
 .source of snippet `if_value`
 [source]
@@ -249,33 +249,36 @@ Expressions can contain:
 * Macro calls
 * Method calls
 * Async expressions
-* Code blocks
 * block commands enclosed between `+{+` and `+}+` or `(` and `)`.
 
-Symbolic constants are `true`
-// has the constant boolean __true__ value.
-`false`
-// has the constant boolean __false__ value.
+Symbolic constants are the followings:
 
-`none`
-// is the undefined value.
-// The Java representation of the undefined value is `null`.
+* `true`
+ has the constant boolean __true__ value.
+* `false`
+ has the constant boolean __false__ value.
 
-`inf`
-// is the infinite numeric value.
+* `none`
+ is the undefined value.
+ The Java representation of the undefined value is `null`.
 
-`fini`
-// is the special value that, when returned from a cell command, prevents the cell from updating
-// but it also signals that this cell is stopped, should not be evaluated any further
+* `inf`
+ is the infinite numeric value.
 
-`non_mutat`
-// is the special value that, when returned from a cell command, prevents the cell from updating
-// its value and halts propagation to dependent cells in a flow.
+* `fini`
+ is the special value that, when returned from a cell command, prevents the cell from updating
+ but it also signals that this cell is stopped, should not be evaluated any further
 
-`nan`
-// is the special IEEE-754 "not a number" floating-point value.
+* `non_mutat`
+ is the special value that, when returned from a cell command, prevents the cell from updating
+ its value and halts propagation to dependent cells in a flow.
 
-pinned (immutable, final) global variables.
+* `nan`
+ is the special IEEE-754 "not a number" floating-point value.
+
+
+
+They are pinned (immutable, final) global variables.
 
 ==== Shebang
 
@@ -317,7 +320,7 @@ You can simply define a method with the name `pass:[`+`]`.
 
 ==== Reserved Words
 
-Turicum defines a set of reserved keywords that cannot be used as identifiers—unless the name is enclosed in backticks, like `if`.
+Turicum defines a set of reserved keywords that cannot be used as identifiers—unless the name is enclosed in backticks, like `pass:[`if`]`.
 
 The reserved keywords are:
 
@@ -521,7 +524,7 @@ If you find this rule limiting, you are likely overcomplicating your usage of in
 
 Prefer simpler expressions and commands within interpolated strings.
 
-Here is a convoluted example that you have to avoid:
+Here is an example of what not to do:
 
 .source of snippet `istring3`
 [source]
@@ -560,7 +563,7 @@ Turicum extends the interpolation mechanism with two syntactic forms, each with 
 - `+${expression}+` evaluates the given expression in a *new temporary context*. This is useful when
 a local computation is needed that should not affect the surrounding environment.
 - `+$(expression)+` evaluates the expression in the *surrounding context*, allowing modifications
-(e.g., variable definition useing `let` or `mut`) to persist beyond the interpolated expression.
+(e.g., variable definition using `let` or `mut`) to persist beyond the interpolated expression.
 
 This dual syntax provides clarity and control over variable scope and side effects inside interpolated strings,
 supporting both functional and imperative styles of expression.
@@ -600,6 +603,8 @@ JSON keys can be identifiers or strings.
 The values can be presented by any Turicum expression.
 The value of a JSON expression is a class-less Turicum object.
 The values are evaluated when the literal is evaluated.
+
+A JSON object is recognized when the parser sees a `{` followed by a string or identifier and then a `:`.
 
 ==== Lazy JSON
 
@@ -5375,6 +5380,9 @@ In this special method you can access the name of the method used to invoke the 
 ----
 class B {
   fn `.` {
+    // print the name of the method, `.`
+    // `.` is a local variable holding the name of the metod
+    // this.`.` is still the method itself (not the name)
     println `.`
   }
 }
