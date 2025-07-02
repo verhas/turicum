@@ -94,6 +94,8 @@ public class TestCompilation {
                                         // these are non-deterministic due to the parallel nature
                                     case "nano_time": // prints out the time, eventually different "all the time"
                                     case "example_flow_squareroot": // the last digits may differ in the final result
+                                    case "example_flow_timeout": // it may be one ir two executions, and they may not be the same in different runs
+                                        // difference was manifesting on debian Raspberry
                                     case "decrementable1":
                                     case "decrementable2":
                                     case "incrementable1":
