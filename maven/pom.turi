@@ -1,3 +1,4 @@
+global APPIA = ?(env("APPIA")?.split("\\|")) or [ source_directory() + "/.." ];
 sys_import "turi.maven"
 import "turicum_versions"
 
@@ -15,6 +16,7 @@ let project = maven_project({
         plugins : [
             maven_plugin("source"),
             maven_plugin("javadoc"),
+            maven_plugin("compiler"),
             {
                 groupId : "org.codehaus.plexus",
                 artifactId : "plexus-component-metadata",
@@ -49,5 +51,5 @@ let project = maven_project({
         }
     ]
 });
-
+project.properties = import("properties").properties;
 project.done();

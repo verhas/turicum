@@ -18,6 +18,11 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
             </plugin>
             <plugin>
+                <executions/>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+            <plugin>
                 <executions>
                     <execution>
                         <goals>
@@ -36,6 +41,13 @@
     <description>Turicum maven extension</description>
     <artifactId>turicum-maven-extension</artifactId>
     <version>1.2.0</version>
+    <properties>
+        <maven.plugin.validation>VERBOSE</maven.plugin.validation>
+        <maven.compiler.target>21</maven.compiler.target>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ssZ</maven.build.timestamp.format>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>ch.turic</groupId>

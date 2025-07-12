@@ -60,20 +60,21 @@ public class Interpreter {
      * creates an interpreter for source code files ending with ".turi" or deserializes a compiled program
      * from files ending with ".turc".
      *
-     * @param file the path to the source or compiled program file
+     * @param path the path to the source or compiled program file
      * @throws IOException      if an I/O error occurs while reading the file
      * @throws RuntimeException if the file type is unsupported
      */
-    public Interpreter(Path file) throws IOException {
-        String fn = file.toFile().getAbsolutePath();
+    public Interpreter(Path path) throws IOException {
+        String fn = path.toFile().getAbsolutePath();
         if (fn.endsWith(".turi")) {
-            final var s = Files.readString(file, StandardCharsets.UTF_8);
+            final var s = Files.readString(path, StandardCharsets.UTF_8);
             this.source = new ch.turic.analyzer.Input(new StringBuilder(s), fn);
         } else if (fn.endsWith(".turc")) {
-            final var bytes = Files.readAllBytes(file);
+            final var bytes = Files.readAllBytes(path);
             final var unmarshaller = new Unmarshaller();
             this.code = unmarshaller.deserialize(bytes);
             this.ctx = new Context();
+            this.ctx.sourcePath(path);
             BuiltIns.register(ctx);
         } else {
             throw new RuntimeException("Unsupported file type");
@@ -113,6 +114,9 @@ public class Interpreter {
      */
     public Object execute(Command code) {
         try {
+            if (source != null && source.position != null && source.position.file != null) {
+                ctx.sourcePath(Path.of(source.position.file));
+            }
             return code.execute(ctx);
         } catch (ExecutionException e) {
             final var newStackTrace = new ArrayList<StackTraceElement>();

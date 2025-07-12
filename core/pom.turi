@@ -1,3 +1,4 @@
+global APPIA = ?(env("APPIA")?.split("\\|")) or [ source_directory() + "/.." ];
 sys_import "turi.maven"
 import "turicum_versions"
 
@@ -64,5 +65,6 @@ let project = maven_project({
             }
         } ]
 })
+project.properties = import("properties").properties;
 
 project.done()

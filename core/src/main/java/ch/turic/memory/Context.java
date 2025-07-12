@@ -3,6 +3,7 @@ package ch.turic.memory;
 
 import ch.turic.ExecutionException;
 
+import java.nio.file.Path;
 import java.util.*;
 
 /**
@@ -20,7 +21,6 @@ public class Context implements ch.turic.Context {
     private final List<String> exporting = new ArrayList<>();
     private final boolean shadow;
     private final boolean with;
-
     private boolean pinned = false;
 
     public Set<String> keys() {
@@ -308,7 +308,7 @@ public class Context implements ch.turic.Context {
      * @throws ExecutionException if the variable was not defined in the local context.
      */
     public void unlet(String key) throws ExecutionException {
-        ExecutionException.when(!frame.containsKey(key), "Variable '%s' is not defined in the local context you cannot unlet '%s'", key);
+        ExecutionException.when(!frame.containsKey(key), "Variable '%s' is not defined in the local context, you cannot unlet it.", key);
         frame.remove(key);
         frozen.remove(key);
         globals.remove(key);
@@ -624,4 +624,23 @@ public class Context implements ch.turic.Context {
     public void addExport(String exporting) {
         this.exporting.add(exporting);
     }
+
+    /**
+     * Retrieves the current interpreted source or compiled file path.
+     *
+     * @return the current file path as a Path object
+     */
+    public Path sourcePath() {
+        return globalContext.sourcePath;
+    }
+
+    /**
+     * Sets the current interpreter source or compiled file path.
+     *
+     * @param path the Path object representing the current file to be set
+     */
+    public void sourcePath(Path path) {
+        this.globalContext.sourcePath = path;
+    }
+
 }

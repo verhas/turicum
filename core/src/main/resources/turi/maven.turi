@@ -34,12 +34,12 @@ fn github(user:str, repository:str) {
             }
 }
 
-fn maven_plugin(plugin:str,@executions={}){
+fn maven_plugin(plugin:str,@executions={},@configuration=none){
             {
                 groupId: "org.apache.maven.plugins",
                 artifactId: $"maven-${plugin}-plugin",
                 executions: executions
-            }
+            } + if configuration == none : {} else : configuration
 }
 
 export_all();

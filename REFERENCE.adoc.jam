@@ -2003,12 +2003,12 @@ There is no effect changing the value of the variable `myString` to `str` when t
 
 ==== Parameter Passing
 
-When a function is invoked, the actual parameters can be passed to the function in two different ways:
+When a function is invoked, the actual parameters can be passed to the function in two different ways between `(` and `)`:
 
 * by position, and
 * by name.
 
-Some parameters can be passed in both ways, some of them only positionally, some only by name.
+Some parameters can be passed in both ways, while others can only be passed positionally, and some can only be passed by name.
 This is declared in the formal parameter list.
 Each parameter declaration starts with the identifier of the argument.
 This is the identifier how the function body can use the variable as well as the identifier the called can use if the parameter is passed by name.
@@ -2051,7 +2051,7 @@ That is the first not-yet-assigned positional or positional/named argument.
 [#_extra_parameters]
 ==== Extra parameters
 
-In some cases you want to allow the callers to pass extra arguments and your function body to use them.
+In some cases, you want to allow the callers to pass extra arguments and for your function body to use them.
 To do that, there are three extra arguments you can use in your function definition:
 
 * `[rest]`,
@@ -2104,7 +2104,7 @@ You can also combine the two:
 {%S metaRestParameters%}
 
 The last argument, preceded by the `^` character is special.
-When you call a function and the last argument is a closure then you can place that closure outside of the `(` and `)` of the arguments, but ONLY if the closure is defined right there.
+When you call a function and the last argument is a closure, then you can place that closure outside of the `(` and `)` of the arguments, but ONLY if the closure is defined right there.
 
 For example:
 
@@ -2137,7 +2137,7 @@ This call can aid in creating domain-specific languages.
 ==== Spreading lists and objects as arguments
 
 When calling a function, you can precede a parameter with the `..` operator.
-This will spread the content of the parameter to parameters.
+This will spread the content of the parameter to the parameters.
 
 If the value of the parameter is an object, the fields of the object will be used as named parameters.
 The field names will be used as argument names and the values as values.
@@ -2992,6 +2992,11 @@ This function will "open" and reclose a closure in the current environment.
 
 The function opens and "recloses" the closure in the context of the function call.
 It will see and alter the `s` in that context of the re-closing, while the original closure alters and sees the global `s`.
+
+=== `source_directory`
+
+The built-in function `source_directory()` returns the directory of the source file or the compiled file that is currently being executed.
+It may return `none` if the environment executes some script that has no specified file.
 
 === `_glob`
 

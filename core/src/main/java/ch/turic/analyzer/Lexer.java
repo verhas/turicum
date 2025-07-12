@@ -15,7 +15,7 @@ public class Lexer {
     ));
     final static private ArrayList<String> _OPERANDS = new ArrayList<>(Arrays.asList(
             // snippet OPERANDS
-            "---","+++", "--", "++", "->", "<-", "(", ")", ",", ".", "?.",
+            "---", "+++", "--", "++", "->", "<-", "(", ")", ",", ".", "?.",
             "&{", "{", "}", "[", "]", ";", ":", "|", "?", "@", "^", "#", "**"
             // end snippet
     ));

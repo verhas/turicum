@@ -1,0 +1,7 @@
+let properties = {
+    "project.build.sourceEncoding" : "UTF-8",
+    "maven.plugin.validation" : "VERBOSE",
+    "maven.build.timestamp.format": "yyyy-MM-dd'T'HH:mm:ssZ",
+    "maven.compiler.source": 21,
+    "maven.compiler.target": 21
+    };

@@ -85,15 +85,18 @@ public class Import implements TuriMacro {
         final var relativePath = Path.of(arg.replace('.', File.separatorChar) + ".turi");
 
         final List<Path> appiaRoots;
+        final String appiaSource;
         if (context.contains(APPIA)) {
             final var appia = context.get(APPIA);
             if (appia instanceof LngList appiaList) {
                 appiaRoots = getAppiaRootsFrom(appiaList);
+                appiaSource = "global variable";
             } else {
                 throw new ExecutionException("There is an APPIA variable defined, but it is not a list. APPIA=%s", Objects.requireNonNullElse(appia, "none").toString());
             }
         } else {
             appiaRoots = this.appiaRoots;
+            appiaSource = "environment variable";
         }
         Path sourceFile = null;
         for (var root : appiaRoots) {
@@ -105,7 +108,11 @@ public class Import implements TuriMacro {
         }
 
         if (sourceFile == null) {
-            throw new ExecutionException("There is no import '%s' via APPIA", arg);
+            throw new ExecutionException("There is no import '%s' via APPIA(%s)=[%s], cwd=%s",
+                    arg,
+                    appiaSource,
+                    appiaRoots == null ? "none" : String.join("|",appiaRoots.stream().map(Path::toString).toList()),
+                    new File(".").getAbsolutePath());
         }
         return sourceFile;
     }
@@ -169,15 +176,15 @@ public class Import implements TuriMacro {
         if (cmd instanceof Identifier id) {
             return id.name();
         }
-        if( cmd instanceof FieldAccess){
+        if (cmd instanceof FieldAccess) {
             final var sb = new StringBuilder();
             var fa = cmd;
-            while( fa instanceof FieldAccess f){
-                sb.insert(0,"."+f.identifier());
+            while (fa instanceof FieldAccess f) {
+                sb.insert(0, "." + f.identifier());
                 fa = f.object();
             }
-            if( fa instanceof Identifier id){
-                sb.insert(0,id.name());
+            if (fa instanceof Identifier id) {
+                sb.insert(0, id.name());
                 return sb.toString();
             }
         }

@@ -3,6 +3,7 @@ package ch.turic.memory;
 import ch.turic.ExecutionException;
 import ch.turic.TuriClass;
 
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -10,7 +11,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * A special context holding constant string, like built-ins, one for the interpreter.
+ * A special context holding a constant string, like built-ins, one for the interpreter.
  * <p>
  * This global context is shared for the whole interpreter for all the threads.
  */
@@ -21,6 +22,7 @@ public class GlobalContext {
     public final int stepLimit;
     public final AtomicInteger steps = new AtomicInteger();
     private final Map<Class<?>, TuriClass> turiClasses = new HashMap<>();
+    Path sourcePath;
 
     public GlobalContext(int stepLimit, Context top) {
         this.stepLimit = stepLimit;

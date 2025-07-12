@@ -73,4 +73,5 @@ ch.turic.builtins.functions.JsonifyBeauty
 ch.turic.builtins.functions.Env
 ch.turic.builtins.functions.Str
 ch.turic.builtins.functions.Glob
+ch.turic.builtins.functions.SourceDirectory
 

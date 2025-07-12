@@ -40,7 +40,6 @@ public class TestCompilation {
         // Locate the resource file.
         Path filePath = Path.of("./src/test/resources/references.turi");
         final var outputDir = Path.of("src/test/resources/references_output");
-        String absoluteFilePath = filePath.toAbsolutePath().toString();
         // Read all lines from the resource file.
         List<String> lines = Files.readAllLines(filePath, StandardCharsets.UTF_8);
         // Parse the file content into individual snippets, capturing location info.

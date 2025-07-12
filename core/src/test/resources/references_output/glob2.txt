@@ -1,1 +1,1 @@
-[ "target/", "pom.xml", "pom.turi", "src/"]
+[ "target/", "pom.xml", "pom.turi", ".env", "src/"]

@@ -13,6 +13,30 @@ import java.nio.file.Path;
 import java.util.Properties;
 import java.util.Set;
 
+/**
+ * The {@code Main} class serves as the entry point of the application. It processes command-line
+ * arguments, configures program settings, and executes the specified actions, such as displaying
+ * version information, starting a REPL environment, or compiling and running the program files.
+ * <p>
+ * The application supports the following command-line options:
+ * - {@code -version}: Displays the current application version and build time.
+ * - {@code -help}: Prints the usage information and available options.
+ * - {@code -APPIA=<import path>}: Specifies import directories.
+ * - {@code -compile}: Compiles the input program file to a `.turc` format.
+ * - {@code -REPL}: Launches the REPL (Read-Eval-Print Loop) environment.
+ * <p>
+ * It expects a file with one of the following extensions for program execution:
+ * - {@code .turi}: The source code to be compiled and executed.
+ * - {@code .turc}: A pre-compiled bytecode file to be executed.
+ * <p>
+ * Behavior:
+ * - If no valid program file is provided, an {@link IllegalArgumentException} is thrown.
+ * - If the file has an unrecognized extension, an error message is displayed.
+ * - Compilation is optional and can be triggered with the {@code -compile} flag.
+ * <p>
+ * Handles unhandled exceptions by printing the stack trace to the standard error stream and
+ * exiting with a non-zero status.
+ */
 public class Main {
 
     final static Set<String> parameters = Set.of(
@@ -25,6 +49,27 @@ public class Main {
             // end snippet
     );
 
+    /**
+     * Entry point for the application. This method interprets command-line
+     * arguments and executes the desired functionality, such as displaying
+     * version information, starting a REPL session, compiling a program,
+     * or running a program file. It handles various options and input files
+     * based on the provided arguments.
+     *
+     * @param args An array of strings containing the command-line arguments
+     *             passed to the program. Supported options include:
+     *             - "-help": Displays available options and their descriptions.
+     *             - "-version": Displays the application version and build time.
+     *             - "-APPIA": Specifies import paths for finding files during imports.
+     *             - "-compile": Compiles the specified program but does not execute it.
+     *             - "-REPL": Launches the REPL (Read-Eval-Print Loop) environment.
+     *             Additionally, the last positional argument is the file path to
+     *             a program to execute, which must end with ".turi" or ".turc".
+     * @throws IOException If an I/O error occurs during properties file access,
+     *                     compilation, or file reading/writing.
+     * @throws IllegalArgumentException If no program file is specified or an
+     *                                  invalid command-line argument is provided.
+     */
     public static void main(String[] args) throws IOException {
         final var params = CmdParser.parse(args, parameters);
         if (params.get("version").isPresent()) {

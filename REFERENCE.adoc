@@ -88,9 +88,10 @@ The Turicum project configuration is
     <extension>
         <groupId>ch.turic</groupId>
         <artifactId>turicum-maven-extension</artifactId>
-        <version>1.1.0</version>
+        <version>1.2.0</version>
     </extension>
 </extensions>
+
 ----
 
 
@@ -958,7 +959,7 @@ Operators are tokenized with priority for the **longest matching operator**.
 Recognized symbols are:
 
 
-"---","+++", "--", "++", "pass:[->]", "pass:[<-]", "(", ")", ",", ".", "?.",
+"---", "+++", "--", "++", "pass:[->]", "pass:[<-]", "(", ")", ",", ".", "?.",
 "&{", "{", "}", "[", "]", ";", ":", "|", "?", "@", "^", "#", "**"
 
  
@@ -1547,15 +1548,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=3FC9DFC5
+h id=2CAC4385
 h after post increment: 1
 k: 0
-h id=40258C2F
-k id=3FC9DFC5
+h id=6731787B
+k id=2CAC4385
 h after pre increment: 2
 z: 2
-h id=2CAC4385
-z id=2CAC4385
+h id=16F7B4AF
+z id=16F7B4AF
 
 ----
 
@@ -1598,15 +1599,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=6731787B
+h id=7ADF16AA
 h after post increment: 1
 k: 1
-h id=6731787B
-k id=6731787B
+h id=7ADF16AA
+k id=7ADF16AA
 h after pre increment: 2
 z: 2
-h id=6731787B
-z id=6731787B
+h id=7ADF16AA
+z id=7ADF16AA
 
 ----
 
@@ -1652,15 +1653,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=16F7B4AF
+h id=34A1D21F
 h after post decrement: -1
 k: 0
-h id=7ADF16AA
-k id=16F7B4AF
+h id=58BF8650
+k id=34A1D21F
 h after pre decrement: -2
 z: -2
-h id=34A1D21F
-z id=34A1D21F
+h id=73C60324
+z id=73C60324
 
 ----
 
@@ -1700,15 +1701,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=58BF8650
+h id=71AE31B0
 h after post decrement: -1
 k: -1
-h id=58BF8650
-k id=58BF8650
+h id=71AE31B0
+k id=71AE31B0
 h after pre decrement: -2
 z: -2
-h id=58BF8650
-z id=58BF8650
+h id=71AE31B0
+z id=71AE31B0
 
 ----
 
@@ -4397,9 +4398,9 @@ println( (end-start)/1000000, "ms")
 [source]
 ----
 [1, 2, 3]
-327.005167ms
+312.412ms
 []
-312.019917ms
+313.723ms
 
 ----
 
@@ -4610,9 +4611,10 @@ a =3.6063454894655185
 a =3.6055513629176015
 a =3.6055512754639905
 a =3.6055512754639896
-sqrt(13) ≈ 3.6055512754639905
+a =3.6055512754639896
+sqrt(13) ≈ 3.6055512754639896
 sqrt(13) ≈ 3.605551275463989 calulated by java Math
-square ≈ 13.000000000000009
+square ≈ 13.000000000000002
 
 ----
 
@@ -4941,12 +4943,12 @@ There is no effect changing the value of the variable `myString` to `str` when t
 
 ==== Parameter Passing
 
-When a function is invoked, the actual parameters can be passed to the function in two different ways:
+When a function is invoked, the actual parameters can be passed to the function in two different ways between `(` and `)`:
 
 * by position, and
 * by name.
 
-Some parameters can be passed in both ways, some of them only positionally, some only by name.
+Some parameters can be passed in both ways, while others can only be passed positionally, and some can only be passed by name.
 This is declared in the formal parameter list.
 Each parameter declaration starts with the identifier of the argument.
 This is the identifier how the function body can use the variable as well as the identifier the called can use if the parameter is passed by name.
@@ -5042,7 +5044,7 @@ There is an errorParameter 'h' is already defined
 [#_extra_parameters]
 ==== Extra parameters
 
-In some cases you want to allow the callers to pass extra arguments and your function body to use them.
+In some cases, you want to allow the callers to pass extra arguments and for your function body to use them.
 To do that, there are three extra arguments you can use in your function definition:
 
 * `[rest]`,
@@ -5166,7 +5168,7 @@ rest:
 
 
 The last argument, preceded by the `^` character is special.
-When you call a function and the last argument is a closure then you can place that closure outside of the `(` and `)` of the arguments, but ONLY if the closure is defined right there.
+When you call a function and the last argument is a closure, then you can place that closure outside of the `(` and `)` of the arguments, but ONLY if the closure is defined right there.
 
 For example:
 
@@ -5224,7 +5226,7 @@ This call can aid in creating domain-specific languages.
 ==== Spreading lists and objects as arguments
 
 When calling a function, you can precede a parameter with the `..` operator.
-This will spread the content of the parameter to parameters.
+This will spread the content of the parameter to the parameters.
 
 If the value of the parameter is an object, the fields of the object will be used as named parameters.
 The field names will be used as argument names and the values as values.
@@ -9144,7 +9146,7 @@ println nano_time()
 .output of snippet `nano_time`
 [source]
 ----
-1765155807210041
+3059225394494750
 
 ----
 
@@ -9214,6 +9216,11 @@ s = closure 2
 
 The function opens and "recloses" the closure in the context of the function call.
 It will see and alter the `s` in that context of the re-closing, while the original closure alters and sees the global `s`.
+
+=== `source_directory`
+
+The built-in function `source_directory()` returns the directory of the source file or the compiled file that is currently being executed.
+It may return `none` if the environment executes some script that has no specified file.
 
 === `_glob`
 
@@ -9291,7 +9298,7 @@ println jsonify_beauty(glob("*"))
 .output of snippet `glob2`
 [source]
 ----
-[ "target/", "pom.xml", "pom.turi", "src/"]
+[ "target/", "pom.xml", "pom.turi", ".env", "src/"]
 
 ----
 
@@ -9511,82 +9518,80 @@ none
 .output of snippet `que`
 [source]
 ----
-task2 is not ready 0
-task1 is not ready 0
-task1 is ready 1
-task2 is not ready 1
-task1 is not ready 0
+task2 is ready 1
+task1 is not ready 0task2 is not ready 0
+
+task2 is not ready 1task1 is not ready 1
+
 task2 is not ready 2
-task1 is not ready 1
-task2 is not ready 3
 task1 is not ready 2
+task2 is not ready 3
 task1 is not ready 3
 task2 is ready 2
-task2 is not ready 0
 task1 is not ready 4
-task2 is not ready 1
+task2 is not ready 0
 task1 is not ready 5
-task2 is not ready 2
-task1 is ready 3
-task1 is not ready 0
-task2 is not ready 3
-task1 is not ready 1
-task2 is not ready 4
-task1 is not ready 2
-task2 is not ready 5
-task1 is ready 4
-task1 is not ready 0
-task2 is not ready 6
-task1 is not ready 1
-task2 is not ready 7
-task1 is not ready 2
-task2 is not ready 8
-task2 is not ready 9
-task1 is not ready 3
-task1 is ready 5
-task2 is not ready 10
-task1 is not ready 0
-task2 is not ready 11
-task1 is not ready 1
-task2 is not ready 12
-task1 is not ready 2
-task2 is ready 6
-task1 is not ready 3
+task2 is not ready 1
+task1 is not ready 6task2 is ready 3
+
 task2 is not ready 0
 task2 is not ready 1
-task1 is not ready 4
-task2 is not ready 2
-task1 is not ready 5
-task2 is not ready 3
-task1 is ready 7
-task1 is not ready 0
-task1 is not ready 1
-task2 is not ready 4
-task2 is not ready 5
-task1 is not ready 2
-task2 is ready 8
-task2 is not ready 0
-task1 is not ready 3
-task1 is not ready 4
-task2 is not ready 1
-task1 is not ready 5
-task2 is not ready 2
-task2 is ready 9
-task1 is not ready 6
-task2 is not ready 0
 task1 is not ready 7
-task2 is not ready 1
-task2 is not ready 2
 task1 is not ready 8
+task2 is not ready 2
 task1 is not ready 9
 task2 is not ready 3
+task1 is ready 4task2 is not ready 4
+
+task1 is not ready 0
+task2 is not ready 5
+task1 is not ready 1
+task1 is not ready 2
+task2 is not ready 6
+task2 is not ready 7task1 is ready 5
+
+task1 is not ready 0
+task1 is not ready 1task2 is not ready 8
+
+task2 is not ready 9task1 is not ready 2
+
+task1 is not ready 3task2 is ready 6
+
+task2 is not ready 0
+task1 is not ready 4task2 is not ready 1
+
+task2 is not ready 2
+task1 is not ready 5
+task2 is not ready 3
+task1 is not ready 6
+task1 is not ready 7
+task2 is ready 7
+task2 is not ready 0
+task1 is not ready 8
+task2 is not ready 1
+task1 is not ready 9
+task2 is not ready 2
+task2 is ready 8task1 is not ready 10
+
+task2 is not ready 0
+task2 is not ready 1task1 is not ready 11
+
+task2 is not ready 2task1 is not ready 12
+
+task2 is not ready 3task1 is ready 9
+
+task1 is not ready 0
+task1 is not ready 1task2 is not ready 4
+
+task2 is not ready 5task1 is not ready 2
+
 closing the channel
 channel is closed
 1 is done false
 2 is done false
 we start to wait the first time
-task2 is done
 task1 is done
+task2 is done
 task1 done true
 task2 done true
 We start to wait the second time
@@ -9821,15 +9826,16 @@ none
 [source]
 ----
 sending 1
+not ready 0
 received 1
 not ready 0
 not ready 1
-not ready 2
 sending 2
 received 2
 not ready 0
 not ready 1
 not ready 2
+not ready 3
 sending 3
 received 3
 not ready 0

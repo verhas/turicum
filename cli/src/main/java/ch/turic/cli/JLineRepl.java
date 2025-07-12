@@ -16,6 +16,11 @@ import org.jline.terminal.TerminalBuilder;
 import java.io.IOException;
 import java.util.ArrayList;
 
+/**
+ * A command-line Read-Eval-Print Loop (REPL) implementation using JLine for interactive user input.
+ * The JLineRepl class provides a console environment where users can interactively evaluate code,
+ * manage multiple contexts, and access utilities like help and variable inspection.
+ */
 public class JLineRepl {
 
     private enum SyntaxState {
@@ -24,6 +29,23 @@ public class JLineRepl {
         DROP_DEAD
     }
 
+    /**
+     * Executes the Turicum REPL (Read-Eval-Print Loop) using JLine for terminal interaction.
+     *
+     * This method initializes the REPL environment, setting up terminal-based input/output,
+     * handling user commands, and maintaining execution context. It supports various REPL commands
+     * such as input execution, help, listing variables, and exiting the loop. The method processes
+     * user input incrementally and supports multi-line code blocks, while managing state transitions.
+     *
+     * Key features:
+     * - Provides a prompt for user input (`>>>` for new input, `...` for continuation).
+     * - Maintains a context stack to support block structures within the REPL.
+     * - Provides inline help with `//help` and supports context introspection commands (`?`, `??`, `???`).
+     * - Manages syntax highlighting and state management for multi-line inputs based on brace matching.
+     * - Handles errors gracefully, resetting states in case of syntax or runtime errors.
+     *
+     * @throws IOException if an input/output error occurs, typically related to terminal interaction
+     */
     public static void execute() throws IOException {
         final var interpreter = new Repl();
         Terminal terminal = TerminalBuilder.builder().system(true).build();

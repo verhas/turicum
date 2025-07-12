@@ -69,7 +69,6 @@ public class FunctionCall extends AbstractCommand {
     public record ArgumentEvaluated(Identifier id, Object value) {
     }
 
-
     @Override
     public Object _execute(final Context context) throws ExecutionException {
         final Command myObject = myFunctionObject(context);
@@ -132,7 +131,7 @@ public class FunctionCall extends AbstractCommand {
 
 
     /**
-     * Defines arguments in the execution context based on parameter list and provided argument values.
+     * Defines arguments in the execution context based on the parameter list and provided argument values.
      * <p>
      * This method handles the complex task of mapping function call arguments to parameters, including:
      * - Positional and named parameter assignment

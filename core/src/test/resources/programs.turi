@@ -1,3 +1,7 @@
+-- TEST none_or_Object
+
+println {none or "a,b,c"}.split(",")
+
 -- TEST for_loop_return
 
 fn less_than_3(x:num):bool {

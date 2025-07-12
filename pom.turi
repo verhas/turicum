@@ -1,3 +1,4 @@
+global APPIA = ?(env("APPIA")?.split("\\|")) or [ source_directory() + "/.." ];
 sys_import "turi.maven"
 import "turicum_versions"
 
@@ -21,12 +22,6 @@ let project = maven_project({
     scm : github("verhas","turicum"),
 
     url : "https://github.com/verhas/turicum",
-    properties : {
-        "project.build.sourceEncoding" : "UTF-8",
-        "maven.plugin.validation" : "VERBOSE",
-        "maven.build.timestamp.format": "yyyy-MM-dd'T'HH:mm:ssZ"
-        },
-
     build : {
         pluginManagement : {
             plugins : [
@@ -190,6 +185,8 @@ let project = maven_project({
         }
     } ]
 });
+
+project.properties = import("properties").properties;
 
 project.done()
             
