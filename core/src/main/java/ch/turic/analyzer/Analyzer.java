@@ -25,10 +25,16 @@ public interface Analyzer {
             lexes.next(); // step over the ';'
             return;
         }
-        if (isKeyword(lex) || lex.atLineStart()) {
+        if (lexes.is(")", "{", "}", ":")) {
             return;
         }
-        throw lexes.syntaxError( "Command must be terminated by a semicolon or new line");
+        if (isKeyword(lex)) {
+            return;
+        }
+        if (lex.atLineStart()) {
+            return;
+        }
+        throw lexes.syntaxError("Command must be terminated by a semicolon or new line");
     }
 
     private static boolean isKeyword(Lex lex) {
