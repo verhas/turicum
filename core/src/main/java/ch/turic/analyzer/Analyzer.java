@@ -25,10 +25,14 @@ public interface Analyzer {
             lexes.next(); // step over the ';'
             return;
         }
-        if (lex.type() == Lex.Type.RESERVED  || lex.atLineStart()) {
+        if (isKeyword(lex) || lex.atLineStart()) {
             return;
         }
         throw lexes.syntaxError( "Command must be terminated by a semicolon or new line");
+    }
+
+    private static boolean isKeyword(Lex lex) {
+        return lex.type() == Lex.Type.RESERVED && !lex.text().isEmpty() && Input.validId1stChar(lex.text().charAt(0));
     }
 
 }

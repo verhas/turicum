@@ -1,5 +1,3 @@
-println none?.split?("\\|") or "yuck"
-println none?("\\|") or "yuck"
 /*
 sys_import "turi.duration"
 sys_import "turi.http_client"
