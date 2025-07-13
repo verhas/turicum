@@ -1,4 +1,4 @@
-global APPIA = ?(env("APPIA")?.split("\\|")) or [ source_directory() + "/.." ];
+global APPIA = ?(env("APPIA")?.split("\\|")) or [ source_directory() ];
 sys_import "turi.maven"
 import "turicum_versions"
 
