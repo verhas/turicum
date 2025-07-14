@@ -27,7 +27,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * This is the extension class that implements the maven macro extension
+ * Custom implementation of the {@code ModelProcessor} interface that provides
+ * methods for locating POM files, reading model data, and converting custom configuration
+ * files into POM XML files. This class uses a {@code ModelReader} component for reading
+ * models and implements additional processing for custom formats.
+ *
+ * This class is annotated as a {@code @Component} and is intended for dependency injection scenarios.
  */
 @Component(role = ModelProcessor.class)
 public class CustomModelProcessor implements ModelProcessor {
@@ -41,6 +46,17 @@ public class CustomModelProcessor implements ModelProcessor {
         return new File(projectDirectory, "pom.xml");
     }
 
+    /**
+     * Converts the 'pom.turi' file located in the specified directory into a formatted
+     * 'pom.xml' file. The method reads, compiles, formats, and writes the XML output.
+     * If the 'pom.turi' file is not found, an exception is thrown. Exceptions during
+     * processing, formatting, or writing are also captured and re-thrown.
+     *
+     * @param directory the directory containing the 'pom.turi' file; must not be null
+     *                  and should have read-write access, because the `pom.xml` will also be created there
+     * @throws RuntimeException if the 'pom.turi' file is not found, cannot be processed,
+     *                          cannot be formatted, or the output file cannot be written
+     */
     private void turi2Xml(final File directory) {
         File turiFile = new File(directory, "pom.turi");
         if (!turiFile.exists()) {
@@ -72,10 +88,30 @@ public class CustomModelProcessor implements ModelProcessor {
         }
     }
 
+    /**
+     * Processes a throwable and its causes, collecting detailed information about the exception.
+     * The method avoids circular references by tracking already-processed throwables using a set.
+     * It gathers the throwable's message, stack trace, causes, and suppressed exceptions.
+     *
+     * @param e the throwable to be processed; can be null. If null, an empty string is returned.
+     * @return a string representation of the throwable, including its message, stack trace,
+     *         causes, and suppressed exceptions.
+     */
     private String dumpException(Throwable e) {
         return dumpException(e, new HashSet<>());
     }
 
+    /**
+     * Recursively collects information about a throwable, including its message, stack trace,
+     * causes, and suppressed exceptions, while avoiding circular references.
+     *
+     * @param e         the throwable to be processed; can be null.
+     *                  If null or already processed, an empty string is returned.
+     * @param processed a set of throwables that have already been processed to prevent
+     *                  infinite recursion in case of circular references.
+     * @return a string representation of the throwable, including its message and stack trace,
+     * as well as information about its causes and suppressed exceptions.
+     */
     private String dumpException(Throwable e, Set<Throwable> processed) {
         if (e == null || processed.contains(e)) {
             return "";
@@ -97,6 +133,15 @@ public class CustomModelProcessor implements ModelProcessor {
         return output.toString();
     }
 
+    /**
+     * Formats a given XML string by ensuring proper indentation and encoding.
+     * This method parses the input XML string, transforms it into a structured
+     * XML format with indentation, and removes any empty lines.
+     *
+     * @param result the input XML string to be formatted
+     * @return the formatted XML string with proper indentation and encoding
+     * @throws Exception if an error occurs during XML parsing or transformation
+     */
     private String formatOutput(String result) throws Exception {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         dbf.setValidating(false);
@@ -110,6 +155,15 @@ public class CustomModelProcessor implements ModelProcessor {
         return Arrays.stream(out.toString().split(System.lineSeparator())).filter(s -> s.trim().length() > 0).collect(Collectors.joining(System.lineSeparator()));
     }
 
+    /**
+     * Reads a model from the provided input stream and processes it using the specified options.
+     * This method utilizes a platform-specific reader to handle the input stream.
+     *
+     * @param input   the InputStream from which the model data is read; must not be null
+     * @param options a map of options that influence the model reading process; can be null
+     * @return the constructed {@code Model} object based on the data read from the input stream
+     * @throws IOException if an I/O error occurs while reading the input stream
+     */
     @Override
     public Model read(InputStream input, Map<String, ?> options) throws IOException {
         try (final Reader in = ReaderFactory.newPlatformReader(input)) {
@@ -117,11 +171,28 @@ public class CustomModelProcessor implements ModelProcessor {
         }
     }
 
+    /**
+     * Reads a model from the provided reader and processes it using the specified options.
+     * This method delegates the reading process to an underlying model reader.
+     *
+     * @param reader  the {@code Reader} from which the model data is read; must not be null
+     * @param options a map of options that influence the model reading process; can be null
+     * @return the constructed {@code Model} object based on the data read from the reader
+     * @throws IOException if an I/O error occurs while reading from the reader
+     */
     @Override
     public Model read(Reader reader, Map<String, ?> options) throws IOException {
         return modelReader.read(reader, options);
     }
 
+    /**
+     * Reads a model from the given file input and processes it with the specified options.
+     *
+     * @param input   the file from which the model data is read
+     * @param options a map of options that influence the model reading process
+     * @return the constructed {@code Model} object from the input file
+     * @throws IOException if an I/O error occurs during reading
+     */
     @Override
     public Model read(File input, Map<String, ?> options) throws IOException {
         return read(new FileInputStream(input), options);

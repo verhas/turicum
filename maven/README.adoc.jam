@@ -32,13 +32,16 @@
 {%output%}
 %}
 
-This module lets you maintain your `pom.xml` files using Turicum macros.
+This module lets you maintain your `pom` structure files using the Turicum language.
+The Turicum language format is more flexible than XML, and it is a kind of programmable JSON.
+At the same time, the extension not only creates the Project Object Model but also saves it into the `pom.xml` file.
+That way, you can use any Maven integration relying on the XML format.
 
 [WARNING]
 ====
 This project is a Maven extension.
 Maven extensions run before Maven, and they are different from Maven plugins.
-The Turicum project supports Maven providing an extension.
+The Turicum project supports Maven by providing an extension.
 ====
 
 Create a `.mvn` in your project root to use this module.
@@ -56,21 +59,23 @@ This directory will contain the file `extensions.xml` with the content:
 </extensions>
 ----
 
-When you start Maven, it will read the `pom.turi` file, convert it using Turicum and create the `pom.xml` file.
+When you start Maven, it will read the `pom.turi` file, convert it using Turicum, and create the `pom.xml` file.
 
 [NOTE]
 ====
 The actual process is the following.
 When a user invokes Maven, it looks at the `.mvn/extensions.xml` file, and it sees that the Turicum Maven Extension is configured there.
 It loads the Turicum Maven Extension and invokes it to locate the POM file.
-This call assumes that the POM file is already there, and at this point, the extension is supposed to find it.
-The Turicum Maven Extension cheats a bit.
-First it reads the Turicum source files, and it creates the `pom.xml` file.
-The processing includes the resolution of all the macros and the formatting of the final XML result.
-When the extension is done with this step, it writes the `pom.xml` file and returns the file reference as a Java `File` object.
+This call assumes that a POM file is already present, and at this point, the extension is supposed to locate it.
 
-Maven later asks for the extension to load the project object model from this file.
-The extension knows at this point that the generated `pom.xml` file is a standard XML formatted pom, and it simply asks the standard Maven Platform Reader to read it.
+The Turicum Maven Extension cheats a bit.
+First, it reads the Turicum source files, and it creates the `pom.xml` file.
+The processing includes program execution and formatting the final XML result.
+Once this step is completed, the extension writes the `pom.xml` file and returns a Java `File` object referencing the file.
+
+Maven later requests the extension to load the project object model from this file.
+The extension knows at this point that the generated `pom.xml` file is already a standard XML-formatted pom,
+and it simply asks the standard Maven Platform Reader to read it.
 When the Maven Platform Reader returns with the object model, the extension passes it back to Maven, and the rest is standard Maven business as usual.
 
 NOTE: This way you can have the `pom.xml` file and the implementation of the extension was also simpler.
@@ -87,11 +92,6 @@ Maven -> "Turicum Maven Extension" : get pom structure
 "Turicum Maven Extension" -> Turicum : process pom.jam
 "Turicum Maven Extension" <-- Turicum : result
 "Turicum Maven Extension" -> "Turicum Maven Extension" : save pom.xml
-alt .mvn exists
-  "Turicum Maven Extension" -> Turicum : process .mvn/extensions.jam
-  "Turicum Maven Extension" <-- Turicum : result
-  "Turicum Maven Extension" -> "Turicum Maven Extension" : update .mvn/extensions.xml
-end
 Maven <- "Turicum Maven Extension" : pom.xml file
 Maven -> "Turicum Maven Extension" : get pom structure
 "Turicum Maven Extension" -> "Maven Plaform Reader" : read the pom.xml
@@ -105,9 +105,11 @@ User <-- Maven : done
 
 == Using the Generated `pom.xml`
 
-The created {%@file (format=`$name`)pom.xml%} is saved to the directory and not removed after it was processed.
-It is also available for the IDE, which may not read the Turicum POM file.
+The created `pom.xml` is saved to the directory and not removed after it has been processed.
+It is also available for the IDE, which may not be able to read the Turicum POM file.
 You can add it to your source control if you wish.
+
+IntelliJ recognizes and handles Maven extensions.
 
 == Converting Your Project to Use `pom.turi`
 
@@ -120,12 +122,12 @@ It is enough to have a single `.mvn` directory at the top level in the project.
 
 . convert the existing `pom.xml` files to `pom.turi`.
 
-The `pom.turi` should result a formatted XML.
-To do this, there are certain library files that you can `sys_import`:
+The `pom.turi` should result in a formatted XML.
+To do this, there is a library file that you can `sys_import`:
 
     sys_import "turi.maven"
 
-This file defined and exports a class called `maven_project`.
+This file defines and exports a class called `maven_project`.
 You create an instance of this class
 
   let project = maven_project({
@@ -134,15 +136,15 @@ You create an instance of this class
     version : VERSION,
     ...
 
-passing a JSON structure (or any class-less Turicum object).
+passing a JSON structure (or any classless Turicum object).
 You can also set, modify any of the fields of this object.
 
-At the end of the `pom.turi` you can call
+At the end of the `pom.turi`, you should call
 
-  project.done()
+    project.done()
 
-that will convert the project structure to XML and return it nicely formatted.
-This XML will be saved by the extension into the `pom.xml` and used to define the project structure by Maven.
+It will convert the project structure to XML and return it formatted.
+This XML will be saved by the extension into the `pom.xml` and used to define the project structure.
 
 === Attributes and Singular Tags
 
@@ -151,49 +153,55 @@ This XML will be saved by the extension into the `pom.xml` and used to define th
 XML tags can have attributes.
 JSON does not have such a feature.
 
-JSON names can start with the `@` character.
+On the other hand, JSON names can start with the `@` character.
 XML tags cannot.
 
-Every JSON field that starts with a `@` character will be converted to an attribute.
+Every JSON field in the Turicum project object starting with a `@` character will be converted to an attribute.
 The following example shows how an object is converted to XML using this feature:
 
 {%S to_xml%}
 
+[NOTE]
+====
+`pom.xml` files rarely use XML attributes.
+This feature of the XML conversion provided by the Turicum library is for general use.
+====
+
 ==== Lists, Singular Tags
 
 Another difference between XML and JSON is that XML does not have lists.
-In a POM file you usually have a tag, which is the plural form of a noun, and then the subtags are the singlar version.
+In a POM file, you usually have a tag, which is the plural form of a noun, and then the subtags are the singular version.
 
-This is automatically detected by the converter.
+The converter automatically detects this.
 When you have a list and the name ends with `ies` or `s`.
-`dependencies` for example will be paired with `dependency` automatically.
+`dependencies`, for example, will be paired with `dependency` automatically.
 
 {%S plural1%}
 
-In some rare cases this may not work.
-In that case you can define a field named "!" (a single character, exclamation mark) to specify the name of the singular tag.
+In some rare cases, this may not work.
+In that case, you can define a field named "!" (a single character, exclamation mark) in the first element of the list to specify the name of the singular tag.
 
 {%S plural2%}
 
-
-
-== Updating Your Project
-
-When you want to use a new version of the Turicum Maven Extension simply edit the `.mvn/extensions.xml` file and replace the version number.
-
 == Getting Rid of the Extension
 
-NOTE: Remove the `.mvn` directory and the Turicum source files, while keeping the generated `pom.xml` files.
+.TLDR;
+[NOTE]
+====
+Remove the `.mvn` directory and the Turicum source files, while keeping the generated `pom.xml` files.
+However, just don't do it!
+It is a fantastic tool.
+====
 
-It may happen that, for some reason, you want to get rid of the extension.
+It may happen that, for some reason, you want to remove the extension.
 The reasons can be various.
 The maintenance of the project is passed on to a team that is not knowledgeable about Turicum.
 A new corporate policy may exclude external tools or restrict the extensions and plugins you can use with Maven.
-You may run into some unforeseen complexity problem using Turicum, and you may not have time to debug your macros.
+You may run into some unforeseen complexity problems using Turicum, and you may not have time to debug your Turicum code.
 It is straightforward to revert the operation to standard Maven compilation temporarily or finally in any of those cases.
 
-This extension retains the XML format as opposed to Polyglot Maven, where you use a Java, Kotlin, Yaml, etc., based DSL instead of XML.
-You do not need any conversion step from DSL to XML; the {%@file (format=`$name`)pom.xml%} is always there.
+This extension retains the XML format as opposed to other Maven extensions.
+You do not need any conversion step from DSL to XML; the `pom.xml` is always there.
 What you have to do to revert the operation to standard Maven and `pom.xml` based compilation is to remove the `.mvn` directory.
 
-If the reverting to standard `pom.xml` based compilation is final, then do not forget to remove the `.mvn` directory from the source control.
+If reverting to standard `pom.xml` based compilation is final, then do not forget to remove the `.mvn` directory from the source control.
