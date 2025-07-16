@@ -1,6 +1,37 @@
--- TEST none_or_Object
+-- TEST signature1
+fn f (a:num=53,[reliquum],{nominati},^clausura):any {
+    return a + b + c
+}
 
-println {none or "a,b,c"}.split(",")
+let s = signature(f)
+die "wrong name" if s.name != "f"
+die "number of return types is not one" if len(s.return_type) != 1
+die "wrong return type" if s.return_type[0] != "any"
+die "wrong rest name" if s.rest != "reliquum"
+die "wrong meta name" if s.meta != "nominati"
+die "wrong closure name" if s.closure != "clausura"
+die "number of parameters is not one" if len(s.parameters) != 1
+die "wrong parameter name" if s.parameters[0].identifier != "a"
+die "wring default value type" if str(type(s.parameters[0].default)) != "java.ch.turic.commands.IntegerConstant"
+die "wrong default value" if str(s.parameters[0].default) != "53"
+die "not named" if ! s.parameters[0].named
+die "not positional" if ! s.parameters[0].positional
+
+
+
+-- TEST function_concat
+fn f (a:num,!b:num|any=53,@c:num|none) {
+    return a + b + c
+}
+fn g(x):num{
+    return x+1
+}
+let z =  (f ## g)(1,1,c=1)
+die if z != 4
+
+-- TEST none_or_Object
+let splt = str({none or "a,b,c"}.split(","))
+die $"none or object resulted what? ${splt}" if splt != "[a, b, c]"
 
 -- TEST for_loop_return
 
@@ -758,8 +789,12 @@ y.`print`("segithet huhu")
 -- TEST for_loop_context_pin
 
 for i=0 ; i < 10 ; i = i + 1 {
-    try: i = i +1
-    catch: println "cannot change i from %s" % i
+    try{
+        i = i + 1;
+        die "modifying loop variable did not throw up"
+    } catch {
+        none
+    }
 }
 
 -- TEST stringIndexing1
@@ -1131,7 +1166,7 @@ mut a :("str") = "kuka"
 
 fn generator a=0, b=10 {
     for( i = a; i < b; i = i + 1 ) {
-        println("sleeping")
+//        println("sleeping")
         sleep(0.1);
         yield i;
         }
@@ -1143,11 +1178,11 @@ fn future {
 mut a = 1
 mut b = 3
 mut k = [ .. {async {mut a = 7, b = 9 ;generator(a,b);}},keys()]
-println("The value of a is ", a);
-println(k)
+// println("The value of a is ", a);
+//println(k)
 global mikka_makka = "Maminti"
 mut f = async {mut a=5;future()}
-println(await f)
+await f
 
 -- TEST streaming
 
@@ -1159,9 +1194,9 @@ fn gen_1_to_10 {
 }
 
 mut st = async gen_1_to_10();
-println( st );
+//println( st );
 while st.has_next() :
-    println(st.next());
+    st.next();
 await[10000] st
 
 -- TEST fibonacci
@@ -1198,15 +1233,15 @@ fn b(!a,!b,!c,!d){
 a(..{a:1,b:2,c:3,d:4}) + b(..[1,2,3,4])
 
 -- TEST typeRdefinition
-
-class K {fn p(){println "original K" }}
+mut MSG = ""
+class K {fn p(){global MSG; MSG += "original K" }}
 fn h():K = K()
 mut t:fn = {
    mut _K = K;
    {|| _K()}
 }
-class K {fn p(){println "overwritten K" }}
+class K {fn p(){global MSG; MSG += "overwritten K - " }}
 h().p()
 t().p()
-
+die "bad typeRdefinition" if MSG != "overwritten K - original K"
 none

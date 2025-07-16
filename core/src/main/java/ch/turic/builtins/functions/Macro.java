@@ -17,6 +17,6 @@ public class Macro implements TuriFunction {
     @Override
     public Object call(Context context, Object[] arguments) throws ExecutionException {
         final var closure = FunUtils.arg(name(), arguments, Closure.class);
-        return new ch.turic.commands.Macro(closure.name(), closure.parameters(), closure.wrapped(), closure.command());
+        return new ch.turic.commands.Macro(closure.name(), closure.parameters(), closure.wrapped(), closure.returnType(), closure.command());
     }
 }

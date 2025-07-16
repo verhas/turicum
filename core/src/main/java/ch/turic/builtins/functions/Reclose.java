@@ -23,7 +23,7 @@ public class Reclose implements TuriFunction {
             return new Closure(closure.name(), closure.parameters(), (ch.turic.memory.Context) context, closure.returnType(), closure.command());
         }
         if (arg instanceof Macro macro) {
-            return new Macro(macro.name(),macro.parameters(), (ch.turic.memory.Context) context, macro.command());
+            return new Macro(macro.name(),macro.parameters(), (ch.turic.memory.Context) context, macro.returnType(), macro.command());
         }
         throw new ExecutionException("Cannot get the lazy(%s) for thevalue of %s", arg.getClass().getCanonicalName(), arg);
     }

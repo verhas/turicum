@@ -672,7 +672,7 @@ It merges the characters/elements of the two operands:
 
 * `+`, `-` binary and unary plus and minus.
 
-Unary `+` does not check anything, it works on all objects and just returns the object itself.
+Unary `+` does not check anything; it works on all objects and just returns the object itself.
 
 
 * `pass:[*]`, `/`, `%` binary multiply, divide, and remainder operators.
@@ -693,8 +693,21 @@ The following example shows the use of these operators and also the Turicum list
 [NOTE]
 ====
 The bitwise OR `|` is not allowed in the expression specifying a default value for a function or closure argument.
-You can however freely enclose the expression or a part of it between `(` and `)` and use the operator freely.
+You can, however, freely enclose the expression or a part of it between `(` and `)` and use the operator freely.
 ====
+
+* `pass:[**]` and `pass:[##]` are the power operator and method joining.
+The expression `a**b` is `a` to the power of `b`.
+Many language uses the `^` to denote this operator; however, in Turicum, that character is for bitwise xor.
++
+`pass:[##]` creates a new function from two functions by chaining them.
+In the following example `f##g` is a function that calls `f` and then `g`.
+
+{%S func_concat1%}
+
+The right-hand side of the `pass:[##]` operator has to be a macro, closure, or function that can be invoked with one single argument.
+It will be the result of calling the left-hand side function.
+In the example above calling `f##g(1,1,1)` is the same as `g(f(1,1,1))`.
 
 === Pre-, and Post- Increment, and Decrement
 
@@ -791,7 +804,7 @@ If we modify the equality check to consider the classes, we get a different resu
 {%S myEqual2%}
 
 === Using parentheses
-{%@snip:check hash="5484bb44.1cf31d55" id=operators message="check the operator table for change"%}
+{%@snip:check hash="ad9e325c" id=operators message="check the operator table for change"%}
 
 The different operators have their precedences as in most of the programming languages.
 
@@ -832,21 +845,21 @@ The operator's table is defined in the source file {%#file (format="`$simpleName
 | `+`, `-`
 
 | 10
-| `*`, `/`, `%`, `**`
+| `*`, `/`, `%`, `**`, `##`
 
 | 11
 | `.`, `?.`
 |===
 
 The higher precedence operators are executed first, and the lower precedence operators are executed on the results.
-When the order of the operator execution can be altered using parenthese.
+When the order of the operator execution can be altered using parentheses.
 This is a widespread practice in most programming languages.
 
 The usual practice is that you can have a whole expression between `()` characters.
-Turicum is more liberal and gives much more freedom to the developer.
+Turicum is more liberal and offers significantly more freedom to developers.
 You can have a whole code block between the `()` characters, similarly to `+{}+`.
 
-The major difference between the two is that the code between `()` is executed in the same context as the expression, while the code block between `+{}+` opens a new context.
+The significant difference between the two is that the code between `()` is executed in the same context as the expression, while the code block between `+{}+` opens a new context.
 
 {%S pscope%}
 
@@ -858,7 +871,7 @@ Because not only every command is a value but also every expression is a command
 Variables can be global or local.
 They are defined in scopes.
 Scopes are wrapped around each other.
-The top level context is the global context.
+The top-level context is the global context.
 
 Scopes are created in run-time, like everything in Turicum.
 
@@ -2888,19 +2901,37 @@ class path {
 }
 ----
 
+=== `arity`
+
+The built-in function `arity` returns the number of parameters of the argument function.
+You pass a function, macro, or closure to this function, and the return value is the number of arguments.
+The argument `[rest]`, `{meta}`, and `^closure` do ot count into the arity.
+
+=== `signature`
+
+The built-in function `signature` returns an object that describes the signature of the argument function.
+You pass a function, macro, or closure to this function, and the return value is the signature object.
+The object is classless and has the following fields:
+
+{%#replaceLines replace="~^\\s*//\\s+~~"
+{%#killLines keep pattern="//"
+{%@snip signature_doc%}%}%}
+
+{%S signatura1%}
+
 === `keys`
 
 The function `keys()` returns a string list containing the keys of the argument.
 
-* If it is a class, then the keys are the class level fields, including those that have closure value, hence are class methods.
+* If it is a class, then the keys are the class-level fields, including those that have closure value, hence are class methods.
 
 * If it is an object, then the list contains the fields.
 
-* If it is a macro, a closure, or a function then it will return the parameter names.
+* If it is a macro, a closure, or a function, then it will return the parameter names.
 
 === `jsonify`, `jsonify_beauty`
 
-`jsonify` will accept one argument and converts it to a string that is the JSON representation of the argument.
+`jsonify` will accept one argument and convert it to a string that is the JSON representation of the argument.
 Note that this is not exactly the same as the string produced by `to_sting()` on an object.
 
 * The resulting string will enclose the keys and string value between `pass:["]`.

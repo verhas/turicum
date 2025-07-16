@@ -26,7 +26,7 @@ let project = maven_project({
         pluginManagement : {
             plugins : [
                 {
-                    groupId : "org.apache.maven.plugins",
+                    groupId : groupIdMavenPlugin,
                     artifactId : "maven-source-plugin",
                     version : `maven-source-plugin`,
                     executions : [ {
@@ -35,7 +35,7 @@ let project = maven_project({
                             } ]
                 },
                 {
-                    groupId: "org.apache.maven.plugins",
+                    groupId: groupIdMavenPlugin,
                     artifactId: "maven-jar-plugin",
                     version: "3.4.2",
                     configuration: {
@@ -48,14 +48,18 @@ let project = maven_project({
                     }
                 },
                 {
-                    groupId: "org.apache.maven.plugins",
+                    groupId: groupIdMavenPlugin,
                     artifactId: "maven-assembly-plugin",
-                    version: "3.7.1",
+                    version: `maven-assembly-plugin`,
                 },
                 {
-                    groupId : "org.apache.maven.plugins",
+                    groupId : groupIdMavenPlugin,
                     artifactId : "maven-javadoc-plugin",
                     version : `maven-javadoc-plugin`
+                    configuration: {
+                        source: "21",
+                        doclint: "none"
+                    },
                     executions : [ {
                             id : "attach-javadoc",
                             goals : [ "jar" ]
@@ -63,7 +67,7 @@ let project = maven_project({
                 },
 
                 {
-                    groupId : "org.apache.maven.plugins",
+                    groupId : groupIdMavenPlugin,
                     artifactId : "maven-compiler-plugin",
                     version : `maven-compiler-plugin`,
                     configuration : {
@@ -74,13 +78,13 @@ let project = maven_project({
                         }
                 },
                 {
-                    groupId: "org.apache.maven.plugins",
+                    groupId: groupIdMavenPlugin,
                     artifactId: "maven-resources-plugin",
                     version: `maven-resources-plugin`,
                     configuration : {encoding: "UTF-8", delimiters : ["@"] }
                 },
                 {
-                    groupId : "org.apache.maven.plugins",
+                    groupId : groupIdMavenPlugin,
                     artifactId : "maven-dependency-plugin",
                     version : `maven-dependency-plugin`,
                     executions : [ {
@@ -90,12 +94,12 @@ let project = maven_project({
                 },
 
                 {
-                    groupId : "org.apache.maven.plugins",
+                    groupId : groupIdMavenPlugin,
                     artifactId : "maven-surefire-plugin",
                     version : `maven-surefire-plugin`
                 },
                 {
-                    groupId : "org.apache.maven.plugins",
+                    groupId : groupIdMavenPlugin,
                     artifactId : "maven-gpg-plugin",
                     version : "3.2.7",
                 },
@@ -164,7 +168,7 @@ let project = maven_project({
         id : "release",
         build : {
             plugins : [ {
-                    groupId : "org.apache.maven.plugins",
+                    groupId : groupIdMavenPlugin,
                     artifactId : "maven-gpg-plugin",
                     executions : [ {
                             id : "sign-artifacts",

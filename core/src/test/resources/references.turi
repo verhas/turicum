@@ -1,3 +1,22 @@
+// snippet signatura1
+fn f (a:num=53,[reliquum],{nominati},^clausura):any {
+    return a + b + c
+}
+
+println jsonify_beauty(signature(f))
+// end snippet
+
+// snippet func_concat1
+fn f (a,b,c) {
+    return a + b + c
+}
+fn g(x):num{
+    return x+1
+}
+let z =  (f ## g)(1,1,1)
+println z
+// end snippet
+
 // snippet update_forbiden
 mut z = 13
 try {

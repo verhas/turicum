@@ -53,8 +53,8 @@ fn rotate_90(board) {
     rotated
 }
 
-fn rotate_180(board) = rotate_90(rotate_90(board))
-fn rotate_270(board) = rotate_90(rotate_180(board))
+let rotate_180 = rotate_90 ## rotate_90
+let rotate_270 = rotate_180 ## rotate_90
 
 fn mirror_horizontal(board) {
     let n = len(board)
@@ -99,8 +99,6 @@ fn same_queen_solution(b1, b2) {
            boards_equal(rotate_90(mirror_vertical(b1)), b2)
 }
 
-
-
 /**
  * Prints a visual representation of a board solution.
  * Uses Q to show queen positions and dots for empty squares.
@@ -131,7 +129,4 @@ for j = 0 ; j < len(solutions) ; j = j + 1 :
         }
 
 solutions =  finals
-println $"Found ${len(solutions)} unique solutions"
-for each s in solutions {
-    print_board(s)
-}
+die $"Wrong number of solutions ${len(solutions)} != 12" if len(solutions) != 12

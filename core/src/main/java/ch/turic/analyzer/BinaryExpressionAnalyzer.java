@@ -24,7 +24,7 @@ public class BinaryExpressionAnalyzer extends AbstractAnalyzer {
             {"<<", ">>", ">>>"},
             {"+", "-"},
             {"*", "/", "%"},
-            { "**" }
+            { "**" , "##" }
             // end snippet
     };
     static final BinaryExpressionAnalyzer INSTANCE = new BinaryExpressionAnalyzer(binaryOperators);

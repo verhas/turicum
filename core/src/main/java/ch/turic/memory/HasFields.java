@@ -10,6 +10,7 @@ public interface HasFields extends HasIndex {
 
     Object getField(String name) throws ExecutionException;
 
+    @SuppressWarnings("unchecked")
     default <T> T getField(String name, T defaultValue) throws ExecutionException {
         final var value = getField(name);
         return value == null ? defaultValue : (T)value;

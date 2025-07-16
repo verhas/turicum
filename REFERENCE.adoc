@@ -109,7 +109,7 @@ If you want to embed the application into Java, or Kotlin application, you use t
 <dependency>
    <groupId>ch.turic</groupId>
    <artifactId>turicum-parent</artifactId>
-   <version>1.3.0</version>
+   <version>1.4.999</version>
 </dependency>
 ----
 
@@ -959,8 +959,8 @@ Operators are tokenized with priority for the **longest matching operator**.
 Recognized symbols are:
 
 
-"---", "+++", "--", "++", "pass:[->]", "pass:[<-]", "(", ")", ",", ".", "?.",
-"&{", "{", "}", "[", "]", ";", ":", "|", "?", "@", "^", "#", "**"
+"---", "+++", "--", "++", "pass:[->]", "pass:[<-]", "(", ")", ",", ".(", ".", "?.",
+"&{", "{", "}", "[", "]", ";", ":", "|", "?", "@", "^", "##", "#", "**"
 
  
 
@@ -1417,7 +1417,7 @@ a.r.t.a.n.y. ...
 
 * `+`, `-` binary and unary plus and minus.
 
-Unary `+` does not check anything, it works on all objects and just returns the object itself.
+Unary `+` does not check anything; it works on all objects and just returns the object itself.
 
 
 * `pass:[*]`, `/`, `%` binary multiply, divide, and remainder operators.
@@ -1463,8 +1463,41 @@ aa aa aa aa aa aa
 [NOTE]
 ====
 The bitwise OR `|` is not allowed in the expression specifying a default value for a function or closure argument.
-You can however freely enclose the expression or a part of it between `(` and `)` and use the operator freely.
+You can, however, freely enclose the expression or a part of it between `(` and `)` and use the operator freely.
 ====
+
+* `pass:[**]` and `pass:[##]` are the power operator and method joining.
+The expression `a**b` is `a` to the power of `b`.
+Many language uses the `^` to denote this operator; however, in Turicum, that character is for bitwise xor.
++
+`pass:[##]` creates a new function from two functions by chaining them.
+In the following example `f##g` is a function that calls `f` and then `g`.
+
+.source of snippet `func_concat1`
+[source]
+----
+fn f (a,b,c) {
+    return a + b + c
+}
+fn g(x):num{
+    return x+1
+}
+let z =  (f ## g)(1,1,1)
+println z
+
+----
+
+.output of snippet `func_concat1`
+[source]
+----
+4
+
+----
+
+
+The right-hand side of the `pass:[##]` operator has to be a macro, closure, or function that can be invoked with one single argument.
+It will be the result of calling the left-hand side function.
+In the example above calling `f##g(1,1,1)` is the same as `g(f(1,1,1))`.
 
 === Pre-, and Post- Increment, and Decrement
 
@@ -1548,15 +1581,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=2CAC4385
+h id=34A1D21F
 h after post increment: 1
 k: 0
-h id=6731787B
-k id=2CAC4385
+h id=58BF8650
+k id=34A1D21F
 h after pre increment: 2
 z: 2
-h id=16F7B4AF
-z id=16F7B4AF
+h id=73C60324
+z id=73C60324
 
 ----
 
@@ -1599,15 +1632,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=7ADF16AA
+h id=71AE31B0
 h after post increment: 1
 k: 1
-h id=7ADF16AA
-k id=7ADF16AA
+h id=71AE31B0
+k id=71AE31B0
 h after pre increment: 2
 z: 2
-h id=7ADF16AA
-z id=7ADF16AA
+h id=71AE31B0
+z id=71AE31B0
 
 ----
 
@@ -1653,15 +1686,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=34A1D21F
+h id=4BA534B0
 h after post decrement: -1
 k: 0
-h id=58BF8650
-k id=34A1D21F
+h id=6F0CA692
+k id=4BA534B0
 h after pre decrement: -2
 z: -2
-h id=73C60324
-z id=73C60324
+h id=2C104774
+z id=2C104774
 
 ----
 
@@ -1701,15 +1734,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=71AE31B0
+h id=2CB3D0F7
 h after post decrement: -1
 k: -1
-h id=71AE31B0
-k id=71AE31B0
+h id=2CB3D0F7
+k id=2CB3D0F7
 h after pre decrement: -2
 z: -2
-h id=71AE31B0
-z id=71AE31B0
+h id=2CB3D0F7
+z id=2CB3D0F7
 
 ----
 
@@ -1906,21 +1939,21 @@ The operator's table is defined in the source file `BinaryExpressionAnalyzer.jav
 | `+`, `-`
 
 | 10
-| `*`, `/`, `%`, `**`
+| `*`, `/`, `%`, `**`, `##`
 
 | 11
 | `.`, `?.`
 |===
 
 The higher precedence operators are executed first, and the lower precedence operators are executed on the results.
-When the order of the operator execution can be altered using parenthese.
+When the order of the operator execution can be altered using parentheses.
 This is a widespread practice in most programming languages.
 
 The usual practice is that you can have a whole expression between `()` characters.
-Turicum is more liberal and gives much more freedom to the developer.
+Turicum is more liberal and offers significantly more freedom to developers.
 You can have a whole code block between the `()` characters, similarly to `+{}+`.
 
-The major difference between the two is that the code between `()` is executed in the same context as the expression, while the code block between `+{}+` opens a new context.
+The significant difference between the two is that the code between `()` is executed in the same context as the expression, while the code block between `+{}+` opens a new context.
 
 .source of snippet `pscope`
 [source]
@@ -1953,7 +1986,7 @@ Because not only every command is a value but also every expression is a command
 Variables can be global or local.
 They are defined in scopes.
 Scopes are wrapped around each other.
-The top level context is the global context.
+The top-level context is the global context.
 
 Scopes are created in run-time, like everything in Turicum.
 
@@ -2802,7 +2835,7 @@ print z.z, " already changed"
 .output of snippet `update_forbiden4`
 [source]
 ----
-Assigned value changed while calculating new value z[ch.turic.commands.StringConstant@b968a76]
+Assigned value changed while calculating new value z[ch.turic.commands.StringConstant@3f446bef]
 12 already changed
 ----
 
@@ -4320,14 +4353,14 @@ execute("Thread 2",2)
 .output of snippet `channel_limit`
 [source]
 ----
-Thread 1 generated 3
-Thread 1 generated 5
-Thread 1 generated 7
-Thread 1 generated 11
  prime read 2
+Thread 1 generated 3
  prime read 3
+Thread 1 generated 5
  prime read 5
+Thread 1 generated 7
  prime read 7
+Thread 1 generated 11
 Thread 1 generated 13
 Thread 1 generated 17
 Thread 1 generated 19
@@ -4398,9 +4431,9 @@ println( (end-start)/1000000, "ms")
 [source]
 ----
 [1, 2, 3]
-315.315708ms
+308.411041ms
 []
-326.003083ms
+318.711792ms
 
 ----
 
@@ -4611,10 +4644,9 @@ a =3.6063454894655185
 a =3.6055513629176015
 a =3.6055512754639905
 a =3.6055512754639896
-a =3.6055512754639896
-sqrt(13) ≈ 3.6055512754639896
+sqrt(13) ≈ 3.6055512754639905
 sqrt(13) ≈ 3.605551275463989 calulated by java Math
-square ≈ 13.000000000000002
+square ≈ 13.000000000000009
 
 ----
 
@@ -8899,19 +8931,78 @@ class path {
 }
 ----
 
+=== `arity`
+
+The built-in function `arity` returns the number of parameters of the argument function.
+You pass a function, macro, or closure to this function, and the return value is the number of arguments.
+The argument `[rest]`, `{meta}`, and `^closure` do ot count into the arity.
+
+=== `signature`
+
+The built-in function `signature` returns an object that describes the signature of the argument function.
+You pass a function, macro, or closure to this function, and the return value is the signature object.
+The object is classless and has the following fields:
+
+* `name` is the name of the function, closure, macro or `none` if it has no name
+* `return_type` is a list of return type strings
+* `parameters` is a list of parameters. Each element is an object with the following fields:
+** `identifier` is the name of the parameter
+** `named` is `true` if the parameter can be specified by name, `false` otherwise
+** `positional` is `true` if the parameter can be specified by position, `false` otherwise
+* `types` is a list of types. Each element is a string or a command object
+* `default` is the default value expression command object or `none`.
+* `rest` is the name of the `[rest]` parameter or `none`
+* `meta` is the name of the `{meta}` parameter or `none`
+* `closure` is the name of the `^closure` parameter or `none`
+
+
+.source of snippet `signatura1`
+[source]
+----
+fn f (a:num=53,[reliquum],{nominati},^clausura):any {
+    return a + b + c
+}
+
+println jsonify_beauty(signature(f))
+
+----
+
+.output of snippet `signatura1`
+[source]
+----
+{
+    "return_type": [ "any"],
+    "rest": "reliquum",
+    "meta": "nominati",
+    "name": "f",
+    "closure": "clausura",
+    "parameters": [
+                      {
+                          "identifier": "a",
+                          "default": 53,
+                          "types": [ "num"],
+                          "named": true,
+                          "positional": true
+                      }
+                  ]
+}
+
+----
+
+
 === `keys`
 
 The function `keys()` returns a string list containing the keys of the argument.
 
-* If it is a class, then the keys are the class level fields, including those that have closure value, hence are class methods.
+* If it is a class, then the keys are the class-level fields, including those that have closure value, hence are class methods.
 
 * If it is an object, then the list contains the fields.
 
-* If it is a macro, a closure, or a function then it will return the parameter names.
+* If it is a macro, a closure, or a function, then it will return the parameter names.
 
 === `jsonify`, `jsonify_beauty`
 
-`jsonify` will accept one argument and converts it to a string that is the JSON representation of the argument.
+`jsonify` will accept one argument and convert it to a string that is the JSON representation of the argument.
 Note that this is not exactly the same as the string produced by `to_sting()` on an object.
 
 * The resulting string will enclose the keys and string value between `pass:["]`.
@@ -9146,7 +9237,7 @@ println nano_time()
 .output of snippet `nano_time`
 [source]
 ----
-3115453368444833
+3384803025794041
 
 ----
 
@@ -9518,14 +9609,12 @@ none
 .output of snippet `que`
 [source]
 ----
-task2 is not ready 0
 task1 is not ready 0
 task2 is ready 1
-task1 is not ready 1
 task2 is not ready 0
-task1 is not ready 2
 task2 is not ready 1
-task1 is not ready 3
+task1 is not ready 1
+task1 is not ready 2
 task2 is not ready 2
 task1 is ready 2
 task1 is not ready 0
@@ -9533,63 +9622,61 @@ task2 is not ready 3
 task1 is not ready 1
 task2 is not ready 4
 task1 is not ready 2
-task2 is ready 3
-task2 is not ready 0
-task1 is not ready 3
-task2 is not ready 1
-task2 is not ready 2
-task1 is not ready 4
-task2 is not ready 3
-task1 is not ready 5
-task2 is ready 4
-task1 is not ready 6
-task2 is not ready 0
-task2 is not ready 1
-task1 is not ready 7
-task2 is not ready 2
-task1 is not ready 8
-task1 is ready 5
-task2 is not ready 3
-task1 is not ready 0
-task1 is not ready 1
-task2 is not ready 4
 task2 is not ready 5
-task1 is not ready 2
-task2 is ready 6
-task2 is not ready 0
-task1 is not ready 3
-task1 is not ready 4
-task2 is not ready 1
-task2 is not ready 2
-task1 is not ready 5
-task2 is not ready 3
-task1 is not ready 6
-task2 is not ready 4
-task1 is ready 7
-task1 is not ready 0
-task1 is not ready 1
-task2 is not ready 5
-task1 is not ready 2
 task2 is not ready 6
-task1 is ready 8
+task1 is ready 3
 task1 is not ready 0
 task2 is not ready 7
 task1 is not ready 1
+task1 is not ready 2
 task2 is not ready 8
-task1 is ready 9
-task1 is not ready 0
+task1 is ready 4
 task2 is not ready 9
-task1 is not ready 1
+task1 is not ready 0
 task2 is not ready 10
-task2 is not ready 11
+task1 is not ready 1
+task2 is ready 5
+task1 is not ready 2
+task2 is not ready 0
+task1 is not ready 3
+task2 is not ready 1
+task1 is not ready 4
+task2 is not ready 2
+task1 is ready 6
+task1 is not ready 0
+task2 is not ready 3
+task1 is not ready 1
+task2 is not ready 4
+task1 is not ready 2
+task2 is not ready 5
+task2 is ready 7
+task2 is not ready 0
+task1 is not ready 3
+task2 is not ready 1
+task1 is not ready 4
+task2 is not ready 2
+task1 is not ready 5
+task2 is ready 8
+task2 is not ready 0
+task1 is not ready 6
+task1 is not ready 7task2 is not ready 1
+
+task1 is not ready 8
+task2 is not ready 2
+task1 is ready 9
+task2 is not ready 3
+task1 is not ready 0
+task2 is not ready 4
+task1 is not ready 1
+task2 is not ready 5
 task1 is not ready 2
 closing the channel
 channel is closed
 1 is done false
 2 is done false
 we start to wait the first time
-task1 is done
 task2 is done
+task1 is done
 task1 done true
 task2 done true
 We start to wait the second time
@@ -9824,10 +9911,10 @@ none
 [source]
 ----
 sending 1
-not ready 0
 received 1
 not ready 0
 not ready 1
+not ready 2
 sending 2
 received 2
 not ready 0
@@ -9837,10 +9924,11 @@ sending 3
 received 3
 not ready 0
 not ready 1
+not ready 2
 closing the channel
 channel is closed
-we are done
 is done false
+we are done
 is done true
 
 ----

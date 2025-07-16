@@ -11,17 +11,17 @@
             <dependency>
                 <groupId>ch.turic</groupId>
                 <artifactId>core</artifactId>
-                <version>1.3.0</version>
+                <version>1.4.999</version>
             </dependency>
             <dependency>
                 <groupId>ch.turic</groupId>
                 <artifactId>maven</artifactId>
-                <version>1.3.0</version>
+                <version>1.4.999</version>
             </dependency>
             <dependency>
                 <groupId>ch.turic</groupId>
                 <artifactId>cli</artifactId>
-                <version>1.3.0</version>
+                <version>1.4.999</version>
             </dependency>
             <dependency>
                 <scope>test</scope>
@@ -89,7 +89,7 @@
     </profiles>
     <description>Turicum programming language</description>
     <packaging>pom</packaging>
-    <version>1.3.0</version>
+    <version>1.4.999</version>
     <modules>
         <module>core</module>
         <module>maven</module>
@@ -145,6 +145,10 @@
                             </goals>
                         </execution>
                     </executions>
+                    <configuration>
+                        <doclint>none</doclint>
+                        <source>21</source>
+                    </configuration>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
                     <version>3.11.2</version>

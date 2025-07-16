@@ -49,7 +49,7 @@ public class Keys implements TuriFunction {
                 result.addAll(fields.fields());
                 yield result;
             }
-            case null -> throw new ExecutionException("Nemo claves habet");
+            case null -> throw new ExecutionException("Nihil claves non habet");
             default -> throw new ExecutionException("Genus incognitum ad claves evocandas: '%s'",arg);
         };
     }

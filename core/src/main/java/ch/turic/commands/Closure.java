@@ -21,7 +21,6 @@ import java.util.SequencedMap;
  */
 public final class Closure extends AbstractCommand implements ClosureOrMacro, LngCallable.LngCallableClosure {
     final String name;
-
     final ParameterList parameters;
     final Context wrapped;
     final String[] returnType;

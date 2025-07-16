@@ -1,3 +1,9 @@
+fn f (a:num=53,[reliquum],{nominati},^clausura):any {
+    return a + b + c
+}
+
+println jsonify_beauty(signature(f))
+
 /*
 sys_import "turi.duration"
 sys_import "turi.http_client"

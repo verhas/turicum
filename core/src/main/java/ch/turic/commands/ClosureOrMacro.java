@@ -10,7 +10,7 @@ import java.util.Set;
 import static ch.turic.commands.FunctionCall.defineArgumentsInContext;
 import static ch.turic.commands.FunctionCall.freezeThisAndCls;
 
-public sealed interface ClosureOrMacro extends Command, HasFields permits Closure, Macro {
+public sealed interface ClosureOrMacro extends Command, HasFields permits ChainedClosure, Closure, Macro {
 
     Set<String> SPECIAL_VARIABLES = Set.of("this", "cls", "me", "it", ".");
 
@@ -102,6 +102,8 @@ public sealed interface ClosureOrMacro extends Command, HasFields permits Closur
     ParameterList parameters();
 
     Context wrapped();
+
+    String[] returnType();
 
     NullableOptional<Object> methodCall(Context context, HasFields obj, String methodName, FunctionCall.Argument[] arguments);
 

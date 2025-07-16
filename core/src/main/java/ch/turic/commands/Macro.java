@@ -14,10 +14,11 @@ import static ch.turic.commands.FunctionCall.ArgumentEvaluated;
  * times as it needs.
  */
 public final class Macro extends AbstractCommand implements ClosureOrMacro {
+    final String name;
     final ParameterList parameters;
     final Context wrapped;
+    final String[] returnType;
     final BlockCommand command;
-    final String name;
 
     @Override
     public String name() {
@@ -38,11 +39,16 @@ public final class Macro extends AbstractCommand implements ClosureOrMacro {
         return wrapped;
     }
 
-    public Macro(String name, ParameterList parameters, Context wrapped, BlockCommand command) {
+    public String[] returnType() {
+        return returnType;
+    }
+
+    public Macro(String name, ParameterList parameters, Context wrapped, String[] returnType, BlockCommand command) {
+        this.name = name;
         this.parameters = parameters;
         this.wrapped = wrapped;
+        this.returnType = returnType;
         this.command = command;
-        this.name = name;
     }
 
     @Override

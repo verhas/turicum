@@ -81,6 +81,7 @@ public abstract class AbstractOperator implements Operator {
             final var argValues = new FunctionCall.ArgumentEvaluated[]{
                     switch (command) {
                         case Closure ignored -> new FunctionCall.ArgumentEvaluated(null, right.execute(context));
+                        case ChainedClosure ignored -> new FunctionCall.ArgumentEvaluated(null, right.execute(context));
                         case Macro ignored -> new FunctionCall.ArgumentEvaluated(null, right);
                     }
             };

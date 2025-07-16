@@ -3,7 +3,9 @@ package ch.turic.cli;
 import java.util.*;
 
 /**
- * A parameter parser that is to parse the command line and after that to query the command parameters.
+ * Command-line parser class designed to handle structured input in the form of keys and standalone parameters.
+ * The parsing supports flexible key-value pairs and standalone arguments while ensuring strict validation
+ * of key uniqueness and potential unambiguous prefix matching for allowed parameters.
  */
 public class CmdParser {
 

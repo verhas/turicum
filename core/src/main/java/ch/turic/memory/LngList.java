@@ -36,6 +36,20 @@ public class LngList implements HasIndex, HasFields {
         array.addAll(values);
     }
 
+    public static LngList of(){
+        return new LngList();
+    }
+    public static LngList of(Object[] lst){
+        LngList result = new LngList();
+        result.array.addAll(Arrays.asList(lst));
+        return result;
+    }
+    public static LngList of(Collection<?> lst){
+        LngList result = new LngList();
+        result.array.addAll(lst);
+        return result;
+    }
+
     @Override
     public void setIndex(Object index, Object value) throws ExecutionException {
         ExecutionException.when(pinned.get(), "Cannot change a pinned list.");

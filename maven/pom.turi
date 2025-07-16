@@ -17,6 +17,7 @@ let project = maven_project({
             maven_plugin("source"),
             maven_plugin("javadoc"),
             maven_plugin("compiler"),
+            maven_plugin("resources"),
             {
                 groupId : "org.codehaus.plexus",
                 artifactId : "plexus-component-metadata",

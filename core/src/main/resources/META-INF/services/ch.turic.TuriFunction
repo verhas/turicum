@@ -74,4 +74,6 @@ ch.turic.builtins.functions.Env
 ch.turic.builtins.functions.Str
 ch.turic.builtins.functions.Glob
 ch.turic.builtins.functions.SourceDirectory
+ch.turic.builtins.functions.Arity
+ch.turic.builtins.functions.Signature
 
