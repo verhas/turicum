@@ -12,7 +12,7 @@ public class Band extends AbstractOperator {
 
     /**
      * Performs a bitwise AND operation or list intersection based on operand types.
-     *
+     * <p>
      * If both operands are instances of {@code LngList}, returns a new {@code LngList} containing elements present in both lists (intersection).
      * If only the left operand is a {@code LngList}, returns a new {@code LngList} containing the right operand if it exists in the left list.
      * Otherwise, performs a bitwise AND operation on the two operands.
@@ -45,7 +45,7 @@ public class Band extends AbstractOperator {
 
     /****
      * Returns a new LngList containing unique elements present in both input lists.
-     *
+     * <p>
      * The resulting list preserves the order of elements as they appear in the first list and excludes duplicates.
      *
      * @param list1 the first list to compare

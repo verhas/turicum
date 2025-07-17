@@ -138,10 +138,8 @@ public interface Channel<T> extends AutoCloseable, Iterable<T> {
         @Override
         public T _get() throws ExecutionException {
             return switch (type) {
-                case OBJECT -> value;
                 case NULL -> null;
-                case END -> value;
-                case EXCEPTION -> value;
+                default -> value;
             };
         }
 

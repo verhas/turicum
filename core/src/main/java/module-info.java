@@ -3,8 +3,7 @@ import ch.turic.builtins.functions.*;
 import ch.turic.builtins.macros.*;
 
 module ch.turic {
-    requires java.desktop;
-    requires java.sql;
+    requires java.xml;
     requires jdk.httpserver;
     requires java.net.http;
     exports ch.turic;

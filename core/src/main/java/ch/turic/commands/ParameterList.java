@@ -28,7 +28,7 @@ import java.util.HashSet;
  *     <li>{@code rest} will collect any extra positional arguments into a list</li>
  *     <li>{@code meta} will collect any unmatched named arguments into an object (classless)</li>
  *     <li>{@code closure} will hold the last argument, which must be a callable
- *         (a closure, function, lazy, or anything implementing {@link ClosureOrMacro})</li>
+ *         (a closure, function, lazy, or anything implementing {@link ClosureLike})</li>
  * </ul>
  *
  * <p>Each regular parameter is represented as a {@link Parameter} object, which includes:

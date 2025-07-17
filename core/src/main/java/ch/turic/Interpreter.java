@@ -172,6 +172,6 @@ public class Interpreter {
 
     public byte[] serialize() {
         final var marshaller = new Marshaller();
-        return marshaller.serialize((Program) code);
+        return marshaller.serialize(code);
     }
 }

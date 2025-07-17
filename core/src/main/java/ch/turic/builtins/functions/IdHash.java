@@ -45,11 +45,11 @@ public class IdHash implements TuriFunction {
 
     /****
      * Returns the identity hash code of the provided LngObject argument.
-     *
+     * <p>
      * If the single argument is an instance of LngObject, its identity hash code is returned as a long. 
      * Returns null if the argument is not a LngObject or if the argument count is incorrect.
      *
-     * @param args an array containing a single argument to be hashed
+     * @param arguments an array containing a single argument to be hashed
      * @return the identity hash code of the LngObject as a long, or null if not applicable
      * @throws ExecutionException if argument validation fails
      */

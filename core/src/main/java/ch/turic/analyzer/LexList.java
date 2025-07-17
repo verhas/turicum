@@ -72,15 +72,14 @@ public class LexList extends LngList {
      *
      * @param type the expected token type
      * @param text the expected token text
-     * @param msg the error message for the exception if the token does not match
-     * @return the next token matching the specified type and text
+     * @param msg  the error message for the exception if the token does not match
      * @throws BadSyntax if the next token does not match the expected type and text
      */
-    public Lex next(Lex.Type type, String text, String msg) throws BadSyntax {
+    public void next(Lex.Type type, String text, String msg) throws BadSyntax {
         if (index >= array.size() || lexAt(index).type() != type || !lexAt(index).text().equals(text)) {
             throw new BadSyntax(lexAt(index).position(), msg);
         }
-        return next();
+        next();
     }
 
     /**

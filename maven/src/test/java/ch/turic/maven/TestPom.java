@@ -1,7 +1,6 @@
 package ch.turic.maven;
 
 import ch.turic.Interpreter;
-import ch.turic.analyzer.Input;
 import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;

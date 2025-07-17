@@ -18,7 +18,7 @@ public class TestMarshalling {
                 """);
     }
 
-    Object run(String s) {
+    void run(String s) {
         final var analyzer = new ProgramAnalyzer();
         LexList lexes = Lexer.analyze((Input)ch.turic.Input.fromString(s));
         final var code = analyzer.analyze(lexes);
@@ -31,6 +31,6 @@ public class TestMarshalling {
         final var descode = unmarshaller.deserialize(bytes);
         final var ctx = new Context();
         BuiltIns.register(ctx);
-        return descode.execute(ctx);
+        descode.execute(ctx);
     }
 }

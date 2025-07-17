@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 
 public class TestExpression {
 
-    private void test(final String input, final Object expected) throws Exception {
+    private void test(final String input, final Object expected) {
         final var interpreter = new Interpreter(input);
         final var result = interpreter.compileAndExecute();
         Assertions.assertEquals(expected, result);

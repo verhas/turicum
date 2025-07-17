@@ -13,7 +13,7 @@ public class Bor extends AbstractOperator {
 
     /**
      * Performs a bitwise OR operation or merges operands based on their types.
-     *
+     * <p>
      * If both operands are lists, returns a new list containing the unique union of their elements.
      * If both operands are objects, returns a new object with fields merged recursively.
      * Otherwise, performs a bitwise OR operation on the operands.
@@ -66,7 +66,7 @@ public class Bor extends AbstractOperator {
 
     /**
      * Recursively merges two {@link LngObject} instances into a new object.
-     *
+     * <p>
      * Fields from the first object are copied to the result. Fields from the second object are added if not present, or merged recursively if both are {@link LngObject}s, concatenated if both are {@link LngList}s, or overwritten otherwise. The resulting object uses the class of the first operand and a new context scope.
      *
      * @param a the base object to merge from

@@ -12,7 +12,7 @@ public class Xor extends AbstractOperator {
 
     /****
      * Performs a binary XOR operation between two operands.
-     *
+     * <p>
      * If the first operand is a list, computes the symmetric difference between the list and the second operand (which may be a list or a single element). For scalar operands, performs bitwise XOR for integers. Throws an exception if either operand is a floating-point number.
      *
      * @param ctx the execution context

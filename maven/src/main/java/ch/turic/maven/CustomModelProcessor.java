@@ -1,6 +1,5 @@
 package ch.turic.maven;
 
-import ch.turic.analyzer.Input;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.building.ModelProcessor;
 import org.apache.maven.model.io.ModelReader;
@@ -31,7 +30,7 @@ import java.util.stream.Collectors;
  * methods for locating POM files, reading model data, and converting custom configuration
  * files into POM XML files. This class uses a {@code ModelReader} component for reading
  * models and implements additional processing for custom formats.
- *
+ * <p>
  * This class is annotated as a {@code @Component} and is intended for dependency injection scenarios.
  */
 @Component(role = ModelProcessor.class)

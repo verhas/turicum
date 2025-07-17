@@ -9,7 +9,7 @@ public class Pow extends AbstractOperator {
 
     /**
      * Evaluates the power operation (op1 raised to the result of right) within the given context.
-     *
+     * <p>
      * Executes the right operand as a command to obtain the exponent, then computes the result using integer or floating-point exponentiation as appropriate.
      *
      * @param ctx the execution context

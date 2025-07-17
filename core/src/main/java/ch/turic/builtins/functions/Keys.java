@@ -3,7 +3,7 @@ package ch.turic.builtins.functions;
 import ch.turic.Context;
 import ch.turic.ExecutionException;
 import ch.turic.TuriFunction;
-import ch.turic.commands.ClosureOrMacro;
+import ch.turic.commands.ClosureLike;
 import ch.turic.commands.ParameterList;
 import ch.turic.memory.HasFields;
 import ch.turic.memory.LngClass;
@@ -39,7 +39,7 @@ public class Keys implements TuriFunction {
                 result.addAll(object.context().keys());
                 yield result;
             }
-            case ClosureOrMacro closure -> {
+            case ClosureLike closure -> {
                 result.addAll(
                     Arrays.stream(closure.parameters().parameters())
                             .map(ParameterList.Parameter::identifier).toList());

@@ -115,7 +115,7 @@ public class Main {
         try {
             final Interpreter interpreter;
             if (inputFile.endsWith(".turi")) {
-                interpreter = new Interpreter((ch.turic.analyzer.Input) Input.fromFile(Path.of(inputFile)));
+                interpreter = new Interpreter(Input.fromFile(Path.of(inputFile)));
             } else if (inputFile.endsWith(".turc")) {
                 if (params.get("compile").isPresent()) {
                     System.out.println("'.turc' files are already compiled");

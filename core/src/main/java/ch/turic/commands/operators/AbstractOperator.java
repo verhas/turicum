@@ -13,9 +13,9 @@ public abstract class AbstractOperator implements Operator {
 
     /**
      * Executes the operator with the provided operands in the given context.
-     *
+     * <p>
      * If the left operand is null, treats the operation as unary and attempts to dispatch to a corresponding operator method on the right operand if it is an object; otherwise, delegates to {@code unaryOp}. If the left operand is not null, treats the operation as binary and attempts to dispatch to a corresponding operator method on the left operand if it is an object; otherwise, delegates to {@code binaryOp}.
-     *
+     * <p>
      * Handles context shadowing and exception propagation. Operator methods must accept exactly one argument.
      *
      * @param context the execution context
@@ -42,7 +42,7 @@ public abstract class AbstractOperator implements Operator {
             if (operatorMethod == null) {
                 return unaryOp(context, op2);
             }
-            if (operatorMethod instanceof ClosureOrMacro command) {
+            if (operatorMethod instanceof ClosureLike command) {
                 ExecutionException.when(!command.parameters().fitOperator(), "Operator methods must have exactly one argument");
                 final var argValues = new FunctionCall.ArgumentEvaluated[]{new FunctionCall.ArgumentEvaluated(null, null)};
                 final Context ctx;
@@ -76,13 +76,14 @@ public abstract class AbstractOperator implements Operator {
         if (operatorMethod == null) {
             return binaryOp(context, op1, right);
         }
-        if (operatorMethod instanceof ClosureOrMacro command) {
+        if (operatorMethod instanceof ClosureLike command) {
             ExecutionException.when(!command.parameters().fitOperator(), "Operator methods must have exactly one argument");
             final var argValues = new FunctionCall.ArgumentEvaluated[]{
                     switch (command) {
                         case Closure ignored -> new FunctionCall.ArgumentEvaluated(null, right.execute(context));
                         case ChainedClosure ignored -> new FunctionCall.ArgumentEvaluated(null, right.execute(context));
                         case Macro ignored -> new FunctionCall.ArgumentEvaluated(null, right);
+                        case ChainedMacro ignored -> new FunctionCall.ArgumentEvaluated(null, right);
                     }
             };
             final Context ctx;
@@ -112,7 +113,7 @@ public abstract class AbstractOperator implements Operator {
 
     /**
      * Performs a binary operation on two operands, supporting both primitive and reflective invocation.
-     *
+     * <p>
      * If both operands are longs and a long operation is provided, applies it. If either operand is a double and a double operation is provided, applies it. Otherwise, attempts to invoke a binary method reflectively using the provided operator name. Throws an exception if operands are null or if no suitable operation is found.
      *
      * @param name the operator method name for reflective lookup

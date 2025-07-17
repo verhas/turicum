@@ -7,7 +7,6 @@ import org.junit.jupiter.api.TestFactory;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -25,11 +24,10 @@ public class TestReferenceSnippets {
      * the output and execution result for validation or debugging purposes.
      *
      * @return a stream of {@code DynamicTest} instances representing the tests for each program snippet
-     * @throws URISyntaxException if the resource file path is invalid
      * @throws IOException if reading the resource file fails
      */
     @TestFactory
-    Stream<DynamicTest> dynamicTestsForInterpreterPrograms() throws URISyntaxException, IOException {
+    Stream<DynamicTest> dynamicTestsForInterpreterPrograms() throws IOException {
         // Locate the resource file.
         Path filePath = Path.of("./src/test/resources/references.turi");
         final var outputDir = Path.of("src/test/resources/references_output");

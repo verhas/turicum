@@ -2,7 +2,7 @@ package ch.turic.memory;
 
 import ch.turic.ExecutionException;
 import ch.turic.LngCallable;
-import ch.turic.commands.ClosureOrMacro;
+import ch.turic.commands.ClosureLike;
 import ch.turic.commands.FunctionCall;
 import ch.turic.commands.Macro;
 
@@ -45,7 +45,7 @@ public class LngClass implements HasFields, HasIndex, HasContext, LngCallable.Ln
         objectContext.local("cls", this);
         FunctionCall.freezeCls(objectContext);
         final var constructor = context().get("init");
-        if (constructor instanceof ClosureOrMacro command) {
+        if (constructor instanceof ClosureLike command) {
             return callConstructor(callerContext, arguments, command, objectContext);
         } else {
             objectContext.freeze("this");
@@ -53,7 +53,7 @@ public class LngClass implements HasFields, HasIndex, HasContext, LngCallable.Ln
         }
     }
 
-    private Object callConstructor(Context callerContext, Argument[] arguments, ClosureOrMacro command, Context objectContext) {
+    private Object callConstructor(Context callerContext, Argument[] arguments, ClosureLike command, Context objectContext) {
         if (command instanceof Macro) {
             objectContext.setCaller(callerContext);
         }
@@ -112,7 +112,7 @@ public class LngClass implements HasFields, HasIndex, HasContext, LngCallable.Ln
         FunctionCall.freezeCls(objectContext);
         final var constructor = uninitialized.getField("init");
         if (constructor != null) {
-            if ((constructor instanceof ClosureOrMacro closure)) {
+            if ((constructor instanceof ClosureLike closure)) {
                 closure.execute(objectContext);
             } else {
                 throw new ExecutionException("Constructor function is not callable");

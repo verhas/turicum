@@ -8,7 +8,6 @@ import ch.turic.memory.LngList;
 import ch.turic.memory.Range;
 
 import java.util.Iterator;
-import java.util.Set;
 
 public class Rng implements TuriFunction {
     @Override
@@ -28,11 +27,6 @@ public class Rng implements TuriFunction {
             this.end = end;
             this.step = step;
             length = (end - start) / step;
-        }
-
-        @Override
-        public Set<String> fields() {
-            return super.fields();
         }
 
         @Override

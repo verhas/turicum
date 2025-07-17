@@ -44,7 +44,7 @@ public class IncrementDecrement extends AbstractCommand {
 
     /**
      * Executes the increment or decrement operation on the target LeftValue within the given context.
-     *
+     * <p>
      * Depending on the configuration, performs either a pre- or post-increment/decrement and returns the appropriate value.
      *
      * @param ctx the execution context
@@ -63,7 +63,7 @@ public class IncrementDecrement extends AbstractCommand {
 
     /**
      * Increments/decrements the given value by one, supporting both numeric primitives and custom object types.
-     *
+     * <p>
      * If the value is a {@code Long} or {@code Double}, returns the value incremented by one.
      * For other types, attempts to perform the increment operation by invoking the "++" operator method
      * on the object if available.

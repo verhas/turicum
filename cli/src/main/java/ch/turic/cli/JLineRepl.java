@@ -31,12 +31,12 @@ public class JLineRepl {
 
     /**
      * Executes the Turicum REPL (Read-Eval-Print Loop) using JLine for terminal interaction.
-     *
+     * <p>
      * This method initializes the REPL environment, setting up terminal-based input/output,
      * handling user commands, and maintaining execution context. It supports various REPL commands
      * such as input execution, help, listing variables, and exiting the loop. The method processes
      * user input incrementally and supports multi-line code blocks, while managing state transitions.
-     *
+     * <p>
      * Key features:
      * - Provides a prompt for user input (`>>>` for new input, `...` for continuation).
      * - Maintains a context stack to support block structures within the REPL.

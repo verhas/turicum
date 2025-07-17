@@ -43,7 +43,7 @@ public class FieldAccess extends AbstractCommand {
 
     /**
      * Executes the field access command, retrieving the value of the specified field from the target object.
-     *
+     * <p>
      * If the target object is undefined and lenient mode is enabled, returns a default empty object; otherwise, throws an ExecutionException.
      * For JavaObject instances, retrieves the field using the context; for other objects, retrieves the field directly.
      *

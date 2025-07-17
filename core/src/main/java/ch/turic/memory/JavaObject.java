@@ -42,7 +42,7 @@ public record JavaObject(Object object) implements HasFields {
 
     /****
      * Retrieves the value of the specified field from the wrapped object.
-     *
+     * <p>
      * If the wrapped object implements {@code HasFields}, delegates to its {@code getField} method.
      * Otherwise, attempts to access the public field by name using reflection.
      *

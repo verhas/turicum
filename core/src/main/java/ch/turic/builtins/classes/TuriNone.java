@@ -1,9 +1,7 @@
 package ch.turic.builtins.classes;
 
-import ch.turic.ExecutionException;
 import ch.turic.LngCallable;
 import ch.turic.TuriClass;
-import ch.turic.commands.operators.Cast;
 import ch.turic.memory.NoneType;
 
 public class TuriNone implements TuriClass {

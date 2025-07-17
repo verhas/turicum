@@ -169,9 +169,21 @@ public class PrimaryExpressionAnalyzer extends AbstractAnalyzer {
         return modifiers.toArray(CompositionModifier[]::new);
     }
 
+    /**
+     * Handles access or function calls on a base expression, iterating over tokens like
+     * parentheses, dots, optional chaining, or array indexing to chain accesses or calls
+     * until no further valid tokens remain.
+     *
+     * @param lexes the list of lexical tokens to analyze, positioned at or after the base expression
+     * @param left the base expression to which access or function calls will be applied
+     * @param isDecorator a flag indicating whether the context of parsing involves a decorator
+     * @return a {@code Command} representing the parsed access or function call expression
+     * @throws BadSyntax if the token sequence contains syntax errors or unexpected tokens
+     */
     private Command getAccessOrCall(LexList lexes, Command left, boolean isDecorator) throws BadSyntax {
-        while (lexes.is("(", ".", "?.", "[")) {
+        while (lexes.is("(", ".", "?.", "[", ".(")) {
             left = switch (lexes.next().text()) {
+                case ".(" -> new FunctionCurrying(left, analyzeArguments(lexes, isDecorator, true));
                 case "(" -> new FunctionCall(left, analyzeArguments(lexes, isDecorator, true));
                 case "." -> new FieldAccess(left, lexes.next(Lex.Type.IDENTIFIER).text(), false);
                 case "?." -> new FieldAccess(left, lexes.next(Lex.Type.IDENTIFIER).text(), true);

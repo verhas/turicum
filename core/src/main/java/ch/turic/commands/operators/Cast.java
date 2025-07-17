@@ -13,15 +13,11 @@ public class Cast {
      */
     public static boolean isLong(Object obj) {
         return switch (obj) {
-            case null -> false;
             case Long ignore -> true;
             case Integer ignore -> true;
             case Short ignore -> true;
             case Byte ignore -> true;
             case Character ignore -> true;
-            case Double ignore -> false;
-            case Float ignore -> false;
-            case Boolean ignore -> false;
             case CharSequence cs -> {
                 if (cs.isEmpty()) {
                     yield false;
@@ -40,7 +36,6 @@ public class Cast {
 
     public static boolean isDouble(Object obj) {
         return switch (obj) {
-            case null -> false;
             case Long ignore -> true;
             case Integer ignore -> true;
             case Short ignore -> true;
@@ -48,7 +43,6 @@ public class Cast {
             case Character ignore -> true;
             case Double ignore -> true;
             case Float ignore -> true;
-            case Boolean ignore -> false;
             case CharSequence cs -> {
                 if (cs.isEmpty()) {
                     yield false;

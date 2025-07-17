@@ -9,6 +9,7 @@ import ch.turic.memory.Sentinel;
 import ch.turic.utils.Unmarshaller;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -304,10 +305,10 @@ public class FlowCommand extends AbstractCommand {
      * Find the cells that are not initial cells, because they depend on each other, probably in a cyclic way, but they
      * do not directly or transitively depend on the initial start cells.
      * <p>
-     * If there is such a cell, that is an error, and the returned cell array will be used by the caller to create an
+     * If there is such a cell, that is an error, and the caller will use the returned cell array to create an
      * exception.
      *
-     * @return the array of cells that are unreachable.
+     * @return the array of unreachable cells.
      */
     private Cell[] getUnreachableCells() {
         // Get all cells reachable from start cells
@@ -343,7 +344,7 @@ public class FlowCommand extends AbstractCommand {
      * @throws IllegalAccessException if reflective field access fails
      */
     private static Set<Object> getSubCommandsTransitive(Object command, Set<Object> commandsVisited) throws IllegalAccessException {
-        // just in case there is a loop, which can only be the case of some retrospect process tricked up the command tree
+        // just in case there is a loop, which can only be the case of some retrospective process tricked up the command tree
         if (commandsVisited.contains(command)) {
             return Set.of();
         }
@@ -369,11 +370,8 @@ public class FlowCommand extends AbstractCommand {
      */
     private static Set<Object> getSubCommands(Object command) throws IllegalAccessException {
         final var fields = new HashSet<>();
-        for (final var f : command.getClass().getDeclaredFields()) {
-            if (!f.isSynthetic() &&
-                    (f.getType().getPackageName().startsWith("ch.turic") ||
-                            (f.getType().isArray() && f.getType().getComponentType().getPackageName().startsWith("ch.turic"))
-                    )) {
+        for (final var f : getFields(command)) {
+            if (!f.isSynthetic() && isATuricumClass(f)) {
                 if (f.getType().isArray()) {
                     f.setAccessible(true);
                     final var array = f.get(command);
@@ -394,6 +392,44 @@ public class FlowCommand extends AbstractCommand {
         }
         return fields;
     }
+
+    /**
+     * Determines whether the provided field belongs to a "Turicum" class by checking if
+     * the class's package name starts with "ch.turic". This includes both regular classes
+     * and array types with components in the "ch.turic" package.
+     * <p>
+     * Since this is used to travel through commands, including subcommands, collections are not scanned.
+     * Commands must use arrays if there are multiple instances of a subcommand.
+     *
+     * @param f the field to be checked
+     * @return true if the field's type or its component type (in case of an array)
+     * belongs to a package that starts with "ch.turic", otherwise false
+     */
+    private static boolean isATuricumClass(Field f) {
+        return f.getType().getPackageName().startsWith("ch.turic") ||
+                (f.getType().isArray() && f.getType().getComponentType().getPackageName().startsWith("ch.turic"));
+    }
+
+    /**
+     * Retrieves all declared fields of the given object, including fields from its superclass hierarchy,
+     * excluding fields from the Object class.
+     * <p>
+     * This is needed when a command is implemented in multiple hierarchy class levels, and the subcommand fields are
+     * declared in a higher-level abstract class.
+     *
+     * @param command the object for which the fields are to be retrieved
+     * @return an array of Field objects representing all declared fields of the given object's class
+     * and its superclasses, excluding the Object class
+     */
+    private static Field[] getFields(Object command) {
+        final var fields = new HashSet<>(List.of(command.getClass().getDeclaredFields()));
+        while (command.getClass().getSuperclass() != null && command.getClass().getSuperclass() != Object.class) {
+            fields.addAll(List.of(command.getClass().getSuperclass().getDeclaredFields()));
+            command = command.getClass().getSuperclass();
+        }
+        return fields.toArray(Field[]::new);
+    }
+
 
     /**
      * Executes the flow command using the given context. The execution starts with the first defined cell

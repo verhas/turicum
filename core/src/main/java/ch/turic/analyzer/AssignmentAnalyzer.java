@@ -10,7 +10,7 @@ public class AssignmentAnalyzer extends AbstractAnalyzer {
 
     /**
      * Analyzes the given lexical tokens to identify and construct assignment or increment/decrement commands.
-     *
+     * <p>
      * Recognizes and returns commands for prefix and postfix increment (`++`) and decrement (`--`) operations,
      * as well as assignment operations using any supported assignment operator. Throws a syntax error if an
      * increment or decrement operator is not followed by a valid left value.

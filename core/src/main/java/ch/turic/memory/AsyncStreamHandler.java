@@ -79,7 +79,7 @@ public class AsyncStreamHandler extends CompletableFuture<Object> implements Yie
     }
 
     @Override
-    public Channel.Message<?> get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+    public Channel.Message<?> get(long timeout, TimeUnit unit) throws  ExecutionException {
         try {
             return future.get(timeout, unit);
         } catch (Exception e) {

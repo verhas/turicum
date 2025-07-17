@@ -25,8 +25,8 @@ public class Marshaller {
     public static final short VERSION = 1;
     public static final short OFFSET = 1000;
 
-    private Map<String, Short> classRegistry = new HashMap<>();
-    private ArrayList<String> classes = new ArrayList<>();
+    private final Map<String, Short> classRegistry = new HashMap<>();
+    private final ArrayList<String> classes = new ArrayList<>();
     private short registryCounter = OFFSET;
 
     /**

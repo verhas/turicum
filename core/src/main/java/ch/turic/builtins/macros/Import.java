@@ -111,7 +111,7 @@ public class Import implements TuriMacro {
             throw new ExecutionException("There is no import '%s' via APPIA(%s)=[%s], cwd=%s",
                     arg,
                     appiaSource,
-                    appiaRoots == null ? "none" : String.join("|",appiaRoots.stream().map(Path::toString).toList()),
+                    String.join("|",appiaRoots.stream().map(Path::toString).toList()),
                     new File(".").getAbsolutePath());
         }
         return sourceFile;

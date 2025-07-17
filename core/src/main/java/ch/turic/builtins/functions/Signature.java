@@ -3,9 +3,7 @@ package ch.turic.builtins.functions;
 import ch.turic.Context;
 import ch.turic.ExecutionException;
 import ch.turic.TuriFunction;
-import ch.turic.commands.Closure;
-import ch.turic.commands.ClosureOrMacro;
-import ch.turic.commands.Macro;
+import ch.turic.commands.ClosureLike;
 import ch.turic.memory.LngList;
 import ch.turic.memory.LngObject;
 
@@ -25,7 +23,7 @@ public class Signature implements TuriFunction {
         final var arg = args.at(0).get();
         final var result = LngObject.newEmpty(ctx);
         return switch (arg) {
-            case ClosureOrMacro closure -> {
+            case ClosureLike closure -> {
                 // snippet signature_doc
                 // * `name` is the name of the function, closure, macro or `none` if it has no name
                 result.setField("name", closure.name());

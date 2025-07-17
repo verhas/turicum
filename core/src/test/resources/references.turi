@@ -2736,7 +2736,7 @@ mut _sqrt = {
 }
 
 println("sqrt(13) ≈ ", _sqrt);
-println("sqrt(13) ≈ ", sqrt(13), " calulated by java Math");
+println("sqrt(13) ≈ ", sqrt(13), " calculated by java Math");
 println("square ≈ ", _sqrt * _sqrt);
 // end snippet
 
