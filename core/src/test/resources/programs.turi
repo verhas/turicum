@@ -1,3 +1,101 @@
+-- TEST curry_chained_macro
+    fn a(a,y,c){
+        return  a + y + evaluate(c)
+    }
+    fn b(x){
+        return 2*x
+    }
+
+    let c = a##b;
+
+    die if 12 != macro(c.(1,2))(3)
+
+-- TEST curry_chained_closure
+    fn a(a,b,c){
+        return  a+b+c
+    }
+    fn b(c){
+        return 2*c
+    }
+
+    let c = a##b;
+
+    die if c.(1,2)(3) != 12
+
+-- TEST curry_macro_method
+    class A {
+        fn init(k);
+        fn a(x,y,z){
+            return x + y + evaluate(z) + k
+        }
+    }
+
+    let a = A(1)
+
+    let b = macro(a.a.(1,1))
+    die if b(1) != 4
+
+-- TEST curry_macro
+let a = macro(fn (x,y,z){
+    return evaluate(x) + evaluate(y) + evaluate(z)
+})
+
+let b = a.(1)
+
+die "not 3" if b(1,1) != 3
+
+-- TEST curry_function
+fn a(x,y,z){
+    return x + y + z
+}
+
+let b = a.(1)
+
+die "not 3" if b(1,1) != 3
+
+-- TEST curry_curry_curry
+fn a(x,y,z){
+    return x + y + z
+}
+
+let b = a.(1).(1).(1)()
+die "not 3" if b != 3
+
+
+-- TEST curry_method1
+class A {
+    fn init(k);
+    fn a(x,y,z){
+        return x + y + z + k
+    }
+}
+
+let a1 = A(1)
+let a2 = A(2)
+
+let b1 = a1.a.()
+let b2 = a2.a.()
+
+die if b1(1,1,1) != 4
+die if b2(1,1,1) != 5
+
+-- TEST curry_method2
+class A {
+    fn init(k);
+    let a = macro(fn(x,y,z){
+        return evaluate(x) + evaluate(y) + evaluate(z) + k
+    })
+}
+
+let a1 = A(1)
+let a2 = A(2)
+
+let b1 = a1.a.()
+let b2 = a2.a.()
+
+die if b1(1,1,1) != 4
+die if b2(1,1,1) != 5
+
 -- TEST signature1
 fn f (a:num=53,[reliquum],{nominati},^clausura):any {
     return a + b + c
