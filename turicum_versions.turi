@@ -1,4 +1,4 @@
-let VERSION = "1.4.999";
+let VERSION = "1.4.0";
 
 let `maven-javadoc-plugin` = "3.11.2";
 let `maven-source-plugin` = "3.3.1";
@@ -17,4 +17,4 @@ let groupId = "ch.turic";
 let groupIdMavenPlugin = "org.apache.maven.plugins";
 
 
-export_all();
+export_all(); release

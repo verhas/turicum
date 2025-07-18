@@ -11,17 +11,17 @@
             <dependency>
                 <groupId>ch.turic</groupId>
                 <artifactId>core</artifactId>
-                <version>1.4.999</version>
+                <version>1.4.0</version>
             </dependency>
             <dependency>
                 <groupId>ch.turic</groupId>
                 <artifactId>maven</artifactId>
-                <version>1.4.999</version>
+                <version>1.4.0</version>
             </dependency>
             <dependency>
                 <groupId>ch.turic</groupId>
                 <artifactId>cli</artifactId>
-                <version>1.4.999</version>
+                <version>1.4.0</version>
             </dependency>
             <dependency>
                 <scope>test</scope>
@@ -89,7 +89,7 @@
     </profiles>
     <description>Turicum programming language</description>
     <packaging>pom</packaging>
-    <version>1.4.999</version>
+    <version>1.4.0</version>
     <modules>
         <module>core</module>
         <module>maven</module>
