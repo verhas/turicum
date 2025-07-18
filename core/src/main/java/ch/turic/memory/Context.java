@@ -505,13 +505,13 @@ public class Context implements ch.turic.Context {
     }
 
     /**
-     * Assing a value to the local symbol key in the current context does not matter if it is defined there or
-     * in the wrapped context or global or frozen.
+     * Assigning a value to the local symbol key in the current context does not matter if it is defined there or
+     * in the wrapped context, global, or frozen.
      * <p>
-     * It is a primitive call used in for each loop or setting 'this', 'cls' or the exception variable in 'catch'.
-     * Generally it is called from locations where it is guaranteed that the variable can be declared as local and
+     * It is a primitive call used in a for each loop or setting 'this', 'cls', or the exception variable in 'catch'.
+     * Generally, it is called from locations where it is guaranteed that the variable can be declared as local and
      * it was NOT defined in the context before.
-     * (Hence ending 0 at the end of the name, that many times denotes internal or native methods in the JDK).
+     * (Hence ending zero at the end of the name, which many times denotes internal or native methods in the JDK).
      *
      * @param key   the loop identifier
      * @param value the value in the loop

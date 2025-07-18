@@ -71,7 +71,6 @@ public class Import implements TuriMacro {
             for (final var k : importedContext.keys()) {
                 if (StringUtils.matches(exported, k)) {
                     set.add(k);
-                    break;
                 }
             }
         }

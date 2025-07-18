@@ -76,4 +76,7 @@ ch.turic.builtins.functions.Glob
 ch.turic.builtins.functions.SourceDirectory
 ch.turic.builtins.functions.Arity
 ch.turic.builtins.functions.Signature
+ch.turic.builtins.functions.UnCurry
+ch.turic.builtins.functions.IsCurried
+ch.turic.builtins.functions.CurriedArity
 

@@ -6,6 +6,7 @@
 {%@snip:collect ignoreErrors from=core/src/test/resources/references_output%}
 
 {%@define S($X)=.source of snippet `$X`
+
 [source]
 ----
 {%#trimLines
@@ -17,6 +18,7 @@
 ----
 {%@include [verbatim] core/src/test/resources/references_output/$X.txt%}
 ----
+
 %}
 
 == Introduction
@@ -37,8 +39,7 @@ Every command evaluates to a value, so any command can appear within an expressi
 
 * **Object-Oriented**
 +
-Programs can define classes, methods, multiple inheritance,
-and objects that inherit properties from their class.
+Programs can define classes, methods, multiple inheritance, and objects that inherit properties from their class.
 
 * **Dynamic**
 +
@@ -98,7 +99,6 @@ The Turicum project configuration is
 ----
 {%@include [verbatim] .mvn/extensions.xml%}
 ----
-
 
 == Java library
 
@@ -164,7 +164,6 @@ Unlike Java, nested multiline comments are supported.
 * Strings enclosed in double quotes (`pass:["]`) must terminate on the same line.
 Multiline strings are enclosed in triple double quotes (`"""`).
 * String literals preceded with a `$` character are interpolated.
-
 
 More details about expressions, control flow, and declarations can be found in the chapters that follow.
 
@@ -264,10 +263,7 @@ The reserved keywords are:
 {%#sort
 {%#trimLines
 {%#replace (regex) /
-{%@snip KEYWORDS%}
-/String\s+\w+\s+=\s+"(\w+).*;/`$1`/%}
-%}%}
-
+{%@snip KEYWORDS%} /String\s+\w+\s+=\s+"(\w+).*;/`$1`/%} %}%}
 
 == Expressions and Operators
 
@@ -333,7 +329,6 @@ That way any declaration inside the `$()` will happen in the surrounding context
 
 {%S istring2%}
 
-
 You can use any expression or Turicum command inside interpolated strings, but the following rules apply:
 
 * Within the interpolated sections:
@@ -346,7 +341,8 @@ You can use any expression or Turicum command inside interpolated strings, but t
 
 This restriction is usually simple and should not affect your code in most cases.
 
-However, in more complex scenarios—especially when you try to include string literals inside the interpolated parts—it can confuse the parser. That’s why the rule exists.
+However, in more complex scenarios—especially when you try to include string literals inside the interpolated parts—it can confuse the parser.
+That’s why the rule exists.
 
 If you find this rule limiting, you are likely overcomplicating your usage of interpolation.
 
@@ -360,14 +356,12 @@ It's best to use simple, clear expressions and straightforward commands that avo
 
 [NOTE]
 ====
-To implement string interpolation, we selected `${}` because it is
-widely recognized and familiar from other languages such as JavaScript, Kotlin, and Bash.
+To implement string interpolation, we selected `${}` because it is widely recognized and familiar from other languages such as JavaScript, Kotlin, and Bash.
 It clearly delimits the interpolated expression and is easy to parse when balanced.
 By using `${}`, Turicum allows embedding full expressions, including blocks, directly into strings.
 
-Instead of making all strings implicitly interpolated when `${` appears, which would introduce
-ambiguity and reduce readability, Turicum requires an explicit prefix. The character `$` was
-chosen as the prefix for interpolated strings (e.g. `$"..."`) because:
+Instead of making all strings implicitly interpolated when `${` appears, which would introduce ambiguity and reduce readability, Turicum requires an explicit prefix.
+The character `$` was chosen as the prefix for interpolated strings (e.g. `$"..."`) because:
 
 - It is widely associated with interpolation (e.g., C#, PowerShell).
 - It is not allowed as part of an identifier in Turicum, so there is no syntactic ambiguity.
@@ -375,18 +369,17 @@ chosen as the prefix for interpolated strings (e.g. `$"..."`) because:
 
 Turicum extends the interpolation mechanism with two syntactic forms, each with distinct semantics:
 
-- `+${expression}+` evaluates the given expression in a *new temporary context*. This is useful when
-a local computation is needed that should not affect the surrounding environment.
-- `+$(expression)+` evaluates the expression in the *surrounding context*, allowing modifications
-(e.g., variable definition using `let` or `mut`) to persist beyond the interpolated expression.
+- `+${expression}+` evaluates the given expression in a *new temporary context*.
+This is useful when a local computation is needed that should not affect the surrounding environment.
+- `+$(expression)+` evaluates the expression in the *surrounding context*, allowing modifications (e.g., variable definition using `let` or `mut`) to persist beyond the interpolated expression.
 
-This dual syntax provides clarity and control over variable scope and side effects inside interpolated strings,
-supporting both functional and imperative styles of expression.
+This dual syntax provides clarity and control over variable scope and side effects inside interpolated strings, supporting both functional and imperative styles of expression.
 ====
 
 ==== JSON Constants
 
-Turicum supports JSON-like literals directly in the language syntax. These can be written using JavaScript-style object and array literals:
+Turicum supports JSON-like literals directly in the language syntax.
+These can be written using JavaScript-style object and array literals:
 
 {%S json1%}
 
@@ -459,7 +452,8 @@ For example:
 
 {%S ListLiteral7%}
 
-will select only the even elements from the list. The expression or closure following the `?` works as a filter.
+will select only the even elements from the list.
+The expression or closure following the `?` works as a filter.
 
 You can also apply mappers following a `->`, for example:
 
@@ -514,7 +508,6 @@ Other operators, like `+`, `-`, `*` and so on, which are defined for lists will 
 
 Using this possibility, you can handle lists as objects, while the same time you can also access the individual elements.
 
-
 ==== Operators and Symbols
 
 The lexer recognizes both symbolic and word-based operators in expressions.
@@ -524,8 +517,7 @@ Recognized symbols are:
 
 {%#replace (regex) /
 {%#trimLines
-{%@snip OPERANDS%}
- %} /`(.*?)`/`$1` /->/pass:[->]/<-/pass:[<-]/%}
+{%@snip OPERANDS%} %} /`(.*?)`/`$1` /->/pass:[->]/<-/pass:[<-]/%}
 
 === Field Access
 
@@ -546,8 +538,7 @@ You cannot write `pin a.b`, however.
 It would be a syntax error.
 `pin` works on identifiers and not on expressions.
 
-On the other hand, you can use the `pin` command inside the class functions, where the fields are a kind of local variables,
-and you can also use the `with` command.
+On the other hand, you can use the `pin` command inside the class functions, where the fields are a kind of local variables, and you can also use the `with` command.
 
 The following example demonstrates how the code can pin a field and leave another mutable:
 
@@ -601,8 +592,7 @@ The right side is only evaluated if the left side is `none`.
 * `&&` logical AND operation, shortcut evaluated.
 {%EX%}
 
-{%S and%}
-Note, that you cannot divide by zero, the result is an error and not `inf`.
+{%S and%} Note, that you cannot divide by zero, the result is an error and not `inf`.
 
 * `..` range operator. `start..end`` will result a range to index a list.
 The first index is `start`, the last is `end-1`.
@@ -620,7 +610,8 @@ The result is the union of the two lists with the unique elements.
 That way you can also create a "set" from a list `|`-ing it with an empty list, as in the example below:
 +
 +
-The operator is further defined for objects. The result is a merged object that includes all fields from both operands.
+The operator is further defined for objects.
+The result is a merged object that includes all fields from both operands.
 If a field exists in both objects and is not itself an object, the value from the second object is used.
 If the field values in both objects are objects, the result is their recursive merge using the `|` operation.
 If the field values in both objects are lists, the result is the concatenation of those lists.
@@ -645,8 +636,7 @@ The `+&+` operator is not defined for floating-point numbers.
 {%S band1%}
 
 * `===`, ==`, `!=`, `in` are "the same", equal, not equal, and part-of operators.
-The `in` operator works on a list to check if an element is in that list,
-or on strings to check the existence of a substring.
+The `in` operator works on a list to check if an element is in that list, or on strings to check the existence of a substring.
 
 {%S equal1%}
 
@@ -657,11 +647,9 @@ The `in` operation works for strings checking if a string is part of another, as
 
 {%S inop%}
 
-
 * `<`, `+<=+`, `>`, `>=` usual size comparison operators.
 
 {%S compare%}
-
 
 * `<<`, `>>`, `>>>` left shift, right shift, and signed right shift operators.
 
@@ -673,7 +661,6 @@ It merges the characters/elements of the two operands:
 * `+`, `-` binary and unary plus and minus.
 
 Unary `+` does not check anything; it works on all objects and just returns the object itself.
-
 
 * `pass:[*]`, `/`, `%` binary multiply, divide, and remainder operators.
 The `pass:[*]` and `%` are also used in the case of strings and lists.
@@ -804,12 +791,12 @@ If we modify the equality check to consider the classes, we get a different resu
 {%S myEqual2%}
 
 === Using parentheses
+
 {%@snip:check hash="ad9e325c" id=operators message="check the operator table for change"%}
 
 The different operators have their precedences as in most of the programming languages.
 
 The operator's table is defined in the source file {%#file (format="`$simpleName`") {%@snip:file operators%}%}.
-
 
 |===
 |Precedence |Operators
@@ -865,7 +852,6 @@ The significant difference between the two is that the code between `()` is exec
 
 Because not only every command is a value but also every expression is a command, you can use the `()` to group commands to be executed in the same context as the code environment.
 
-
 == Variables and Context
 
 Variables can be global or local.
@@ -919,7 +905,6 @@ Using `x.s` will reference the same variable, because objects wrap the context o
 The following example details these different access scenarios:
 
 {%S object_scope%}
-
 
 === Closure scopes
 
@@ -1043,8 +1028,7 @@ There are predefined type names.
 
 {%#trimLines
 {%#replaceLines replace="~case\\s+\"(\\w+)\".*~* `$1`~" replace="~//~~"
-{%@snip types%}
-%}%}
+{%@snip types%} %}%}
 
 If the name starts with `java.`, then the variable can hold a Java object.
 For example, `java.java.math.BigInteger` can hold any `java.math.BigInteger` object.
@@ -1067,7 +1051,8 @@ Note that a variable can hold `none` only if
 For example, `let a:num;` will fail, because it allows only numerical values, but missing the initial value will try to set it to `none`.
 ====
 
-You can define multiple types for a variable separating the types with `|`. For example `let a:num|str|myClass` makes `a` eligible to store a numeric value, a string or an instance of `MyClass`.
+You can define multiple types for a variable separating the types with `|`.
+For example `let a:num|str|myClass` makes `a` eligible to store a numeric value, a string or an instance of `MyClass`.
 
 The following example declares a variable that can hold a string or a numeric value.
 
@@ -1104,8 +1089,6 @@ If you have too few you can extend the list:
 or even
 
 {%S flat_let_list6%}
-
-
 
 ==== Updating a Variable
 
@@ -1192,7 +1175,6 @@ This is not true, however, when the list is stored in a list element:
 {%S update_forbiden7%}
 
 A named variable can be pinned, but a list element cannot.
-
 
 ==== Updating with `mut`
 
@@ -1282,7 +1264,6 @@ The following example shows how to use this feature:
 
 {%S print_redirect%}
 
-
 == Control Flow
 
 === Conditional Execution (`if` / `elseif` / else`)
@@ -1360,19 +1341,21 @@ The list will contain the results of each body loop execution.
 
 [NOTE]
 ====
-{%@def LOOP_CONTEXT_HEADER=
-When a loop executes, two distinct contexts are used: an *outer context* and an *inner context*.
+{%@def LOOP_CONTEXT_HEADER= When a loop executes, two distinct contexts are used: an *outer context* and an *inner context*.
 
 * The *outer context* is created before the loop begins and is discarded after the loop ends.
 * The *inner context* is created freshly for each execution of the loop body and is discarded immediately after that execution completes.
 
-The outer context *wraps* the surrounding scopes, and the inner context *wraps* the outer context. This means that both contexts have access to all variables defined in the surrounding code. Additionally, the inner context can read and modify variables from the outer context and the scopes it wraps. However, *new variables defined in the inner context do not propagate into the outer context*.
-%}
-* The *head condition* following the `+while+` keyword is evaluated in the outer context.
-{%@def LOOP_CONTEXT_FOOTER=
-* The *loop body* and the *exit condition* following the `+until+` keyword are evaluated in the inner context.
+The outer context *wraps* the surrounding scopes, and the inner context *wraps* the outer context.
+This means that both contexts have access to all variables defined in the surrounding code.
+Additionally, the inner context can read and modify variables from the outer context and the scopes it wraps.
+However, *new variables defined in the inner context do not propagate into the outer context*.
+%} * The *head condition* following the `+while+` keyword is evaluated in the outer context.
+{%@def LOOP_CONTEXT_FOOTER= * The *loop body* and the *exit condition* following the `+until+` keyword are evaluated in the inner context.
 
-This design ensures that each iteration of the loop starts in a clean environment. Variables defined inside a previous iteration are *not available* in the next iteration, unless explicitly defined in the outer context. This approach avoids unintended side effects and provides a clear and consistent model for variable visibility and lifecycle within loops.%}
+This design ensures that each iteration of the loop starts in a clean environment.
+Variables defined inside a previous iteration are *not available* in the next iteration, unless explicitly defined in the outer context.
+This approach avoids unintended side effects and provides a clear and consistent model for variable visibility and lifecycle within loops.%}
 ====
 
 ==== `for`
@@ -1420,8 +1403,7 @@ The list will contain the results of each body loop execution.
 
 [NOTE]
 ====
-{%LOOP_CONTEXT_HEADER%}
-* The *start*, *condition*, and *step* expressions in the `+for+` loop header are evaluated in the outer context.
+{%LOOP_CONTEXT_HEADER%} * The *start*, *condition*, and *step* expressions in the `+for+` loop header are evaluated in the outer context.
 {%LOOP_CONTEXT_FOOTER%}
 ====
 
@@ -1457,8 +1439,7 @@ The result will include the result of each iteration.
 
 [NOTE]
 ====
-{%LOOP_CONTEXT_HEADER%}
-* The *list* is evaluated only once in the outer context.
+{%LOOP_CONTEXT_HEADER%} * The *list* is evaluated only once in the outer context.
 * The loop variable and the optional loop counter are part of the inner context, but they are pinned.
 Pinned variables cannot be modified.
 {%LOOP_CONTEXT_FOOTER%}
@@ -1471,7 +1452,6 @@ The command can break the execution of the loop and can also specify the value o
 ==== `continue`
 
 Will continue the execution of the loop starting the body of the loop again without executing the rest of the commands in the loop body.
-
 
 === Returning, Breaking, Continue, and Yielding
 
@@ -1709,7 +1689,6 @@ The task will stop after this many steps (planned feature).
 * `times` limits the time of the task, unit is milliseconds.
 The task will stop after the specified time (planned feature).
 
-
 These parameters can be specified after the `async` keyword between `[` and `]` characters.
 When the command to be executed asynchronously starts with a `[` character you either has to have `[]` in front of it or enclose the command between `(` and `)` or `+{+` and `+}+` to help the syntax analysis.
 
@@ -1828,9 +1807,7 @@ The `flow` block contains a series of *cells*.
 Each cell defines a named variable and an expression that computes its value.
 These variables can reference each other, and the runtime will detect and track these dependencies.
 
-When a __cell state variable__ is updated,
-(i.e., its computed value differs from the previous value in the local context),
-all cells that depend on it are automatically rescheduled.
+When a __cell state variable__ is updated, (i.e., its computed value differs from the previous value in the local context), all cells that depend on it are automatically rescheduled.
 This process continues until one of the termination conditions is met.
 
 A __cell state variable__ is updated if
@@ -1880,7 +1857,6 @@ If you have multiple {%SC%}s and a cell block depends on more than one, then the
 - All expressions in the `flow` block are commands and follow standard language rules.
 - Only direct assignments (`x <- expression`) are allowed; complex control flow must be expressed inside expression blocks.
 ====
-
 
 === Use Cases
 
@@ -1940,7 +1916,6 @@ fn function_name (parameters) -> types {
 }
 ----
 
-
 `fn` is a keyword, and it is never optional.
 
 {%S fun1%}
@@ -1949,7 +1924,6 @@ fn function_name (parameters) -> types {
 It can be missing, typically when the result, the function itself is assigned to a variable or passed directly as an argument.
 
 {%S fun3%}
-
 
 `(parameters)` are the parameters, including default values and parameter types and parameter-passing requirements.
 The `(` and `)` is optional when the function has a name.
@@ -2111,7 +2085,6 @@ On the other hand, no named parameter name, or named/positional parameter name w
 Also, you cannot use a parameter name in an argument list more than once.
 ====
 
-
 You can also combine the two:
 
 {%S metaRestParameters%}
@@ -2216,13 +2189,14 @@ It makes it possible to use the result of a `async expression` as arguments.
 ====
 
 === Modifying Arguments
+
 Function arguments in Turicum are immutable.
 
 When a function is called, its arguments are *pinned* — they are bound to their initial values and cannot be reassigned within the function body.
 
 The only exception is the `init` method, which acts as the object initializer.
 In this case, the arguments correspond to the fields of the object being constructed.
-Assignment is allowed during initialization, because these fields persist beyond the execution of `init`.
+Assignment is allowed during initialization and also later because these fields persist beyond the execution of `init`.
 If they were pinned like regular arguments, the object's fields would become permanently immutable, which is not desired.
 
 == Joker Method
@@ -2232,7 +2206,7 @@ It is possible to define a special method in a class or attached to an object, n
 {%S dot_method1%}
 
 It is a special tool for meta-programming.
-In this special method you can access the name of the method used to invoke the joker method using the variable named  `pass[.]`.
+In this special method, you can access the name of the method used to invoke the joker method using the variable named  `pass[.]`.
 
 {%S dot_method2%}
 
@@ -2240,6 +2214,84 @@ Note that in this case this variable is a local variable inside the method execu
 You can still access the method itself via the `this` reference:
 
 {%S dot_method3%}
+
+== Currying
+
+Currying is a functional programming technique named after the logician Haskell Curry, where a function with multiple arguments is transformed into a sequence of functions, each taking a single argument.
+This allows partial application of arguments, creating reusable and composable functions.
+
+In Turicum, you can curry a function by using `pass:[.(...)]` instead of the regular function call syntax `pass:[(...)]`.
+The `.` before the parentheses indicates that you are not calling the function but creating a curried version of it with some arguments pre-bound.
+
+{%S curry1%}
+
+The curried function remembers the arguments passed during the currying process.
+If the function being curried is a method, the resulting function also retains the object it was bound to:
+
+{%S curry2%}
+
+This mechanism enables concise and expressive partial application, supporting functional composition and deferred execution.
+
+Currying can follow the same parameter order as ordinary invocation.
+If there are named parameters, you can curry them:
+
+{%S curry_named%}
+
+You can also curry functions and methods if they have `[rest]` and/or `{meta}` parameters:
+
+{%S curry_rest%}
+
+You get the same result when you curry a closure
+
+{%S curry_closure%}
+
+It is not only functions and closures that you can curry, but also macros.
+
+{%S curry_macro%}
+
+You can mix currying and macroing a closure or function:
+
+{%S curry_macro_mix%}
+
+The result is a special something that is half closure, half macro.
+The argument `a` is evaluated when passed to the currying.
+After that, the new curried closure is converted to a macro.
+The following parameter `b` in the next curry call is passed without evaluation, and so is the parameter `c` in the actual call.
+That way, the argument `a` can be used as it is, a value.
+The arguments `b` and `c` need evaluation.
+
+A special feature in Turicum, that you can uncurry a curried function.
+
+{%S uncurry1%}
+
+The built-in function converts a curried function, closure, or macro back to its uncurried form.
+Uncurry is not a step-by-step transformation.
+It does not matter how you got to the curried closure, in one or multiple curry steps:
+
+{%S uncurry2%}
+
+If you want to do partial uncurrying, you can specify how many arguments you want to uncurry:
+
+{%S uncurry3%}
+
+The built-in function `curried_arity()` returns the number of curried arguments.
+
+There is a slight difference between using `uncurry()` without a second argument and using it with the curried arity specified.
+In the first case, the object attachment is also uncurried.
+In the second case, the result is still curried; it only has zero arguments, and the curried object association is still there.
+
+{%S uncurry4%}
+
+When `fun` is uncarried in the last call, it gets disconnected from the object, and it is called as a standalone closure, without the surrounding object and class.
+That is the reason why the error message occurs.
+
+Even if the curried closure is not tied to an object, it technically remains curried if the `uncurry()` second, arity parameter is present:
+
+{%S uncurry5%}
+
+An uncurried and disconnected closure can be surrounded and reclosed, however:
+
+{%S uncurry6%}
 
 == Classes and Objects
 
@@ -2304,7 +2356,6 @@ For `a.Z()` it usually points to `a`, but if `Z` is a class, and we called the c
 In this situation a special variable called `that` will point to `a`.
 
 {%S class8%}
-
 
 === Class inheritance
 
@@ -2450,7 +2501,6 @@ It has effect when `try` commands are nested.
 
 When and if the `try` command finishes successfully the variables from the shadow context are moved to the wrapped context, one level higher.
 
-
 == Decorators, Metaprogramming
 
 Decorators are an inherent part of Turicum.
@@ -2466,8 +2516,7 @@ If you add a `@` then the result is the same:
 
 The `@` helps you emphasize that the call is a decorator call that modifies the closure following it.
 The use of `@` also notifies the syntax analyzer that the call is a decorator call, and it extends the recognition of the following `^closure` parameter.
-When the `@` precedes the function call, a `fn` or `class` are also recognized as `^closure` parameter,
-and you do not need to enclose them between `+{+` and `+}+`.
+When the `@` precedes the function call, a `fn` or `class` are also recognized as `^closure` parameter, and you do not need to enclose them between `+{+` and `+}+`.
 
 {%S fnDecorator1%}
 
@@ -2532,8 +2581,7 @@ These are the following:
 Class constructors are invoked using the name of the class.
 When a class name is used as a field in an object either directly injected to the object or as a class field as in the next example, then the constructor can access the target object of the call through `that`.
 +
-{%#replace (regex detectNoChange) /{%S that%}/.output/+
-.output/%}
+{%#replace (regex detectNoChange) /{%S that%}/.output/+ .output/%}
 +
 Usually the target object is called `this`, but in the case of the constructor `this` points to the current object to be initialized.
 What is more, the constructor, always named `init()`, is allowed to modify the variable `this`.
@@ -2585,9 +2633,7 @@ The left side of the `fib=fib` is the name of the parameter, which will become a
 The right side is the default value, which is evaluated in the caller context before the call.
 
 One can like this approach, for explicitly declaring that `fib` needs access to `fib` hence a recursive call.
-Others can find it cryptic,
-and it is not really clear
-without knowing the details how contexts and default values for variable declarations work in Turicum.
+Others can find it cryptic, and it is not really clear without knowing the details how contexts and default values for variable declarations work in Turicum.
 
 An alternative possibility is to use the special variable `me`.
 
@@ -2627,14 +2673,13 @@ These methods can be called on the string objects as methods.
 ----
 {%@include [verbatim] core/src/test/resources/references_output/$X.txt%}
 ----
+
 %}
 
 {%!#replaceLines replace="/case\\s*\"(.*?)\".*/* `$1` /" replace="~^\\s*//~"
 {%#killLines keep pattern="\\/\\/|case\\s"
-{%@snip string_functions_doc%}
-%}%}
+{%@snip string_functions_doc%} %}%}
 {%@end%}
-
 
 {%S string_functions%}
 
@@ -2682,7 +2727,6 @@ All mathematical functions from Java's Math class are available in Turicum:
 
 {%S math_functions%}
 
-
 === `all_parents`
 
 Returns a list of classes that are the parent classes of the argument with a transitive closure.
@@ -2700,7 +2744,6 @@ The naming of the function is a tribute to the programming language Perl.
 If you feel the naming offensive, you can use the lame `throw` form after importing it:
 
 {%S die%}
-
 
 === `evaluate`
 
@@ -2870,7 +2913,8 @@ The first argument is either
 
 * the name of the class to call a static method on.
 
-The second argument is the name of the method. The rest of the arguments are passed to the Java method.
+The second argument is the name of the method.
+The rest of the arguments are passed to the Java method.
 The return value is the value returned by the Java method.
 
 ==== `java_call_vararg`
@@ -3007,8 +3051,6 @@ Unlike timestamps, the returned value has no absolute meaning but is strictly mo
 
 {%S nano_time%}
 
-
-
 === `parents`
 
 Returns a list of the classes that are the parent classes of the argument.
@@ -3030,7 +3072,6 @@ The built-in function `source_directory()` returns the directory of the source f
 It may return `none` if the environment executes some script that has no specified file.
 
 === `_glob`
-
 
 `_glob` is a buit-in function to list files.
 The name starts with a `_` character, because you are not supposed to call it directly.
@@ -3071,7 +3112,6 @@ Returns a number range.
 ----
 rng(start, end, step)
 ----
-
 
 It is a read-only list that contains all the numbers from the start (inclusive) to the end (exclusive) with the given step.
 It does not create an actual list but just provides access to the numbers of the range by index.
@@ -3154,8 +3194,6 @@ Calling this function from inside a function can redefine a variable in the cont
 
 {%S fnDecorator5%}
 
-
-
 === `sys_import`
 
 This command can be used to import Turicum system files.
@@ -3176,7 +3214,6 @@ When the argument is a Java object then the type is `java.` + the canonical name
 Will sleep the execution of the thread for the given number of seconds.
 
 {%S sleep%}
-
 
 === `yield()`, `try_yield()`, `yield_is_close()`
 
@@ -3230,7 +3267,8 @@ This macro accepts an identifier and returns `true` if the identifier is defined
 Unlet is a macro that accepts one identifier and deletes it from the local context.
 It is an error if the variable is not defined in the local context or defined but not in the local context.
 
-This macro was designed for a special purpose to, to create an initializer that can copy the values of an initializer class. Fo example:
+This macro was designed for a special purpose to, to create an initializer that can copy the values of an initializer class.
+Fo example:
 
 {%S unlet%}
 
@@ -3330,9 +3368,7 @@ This will create global variables, functions, and classes in the preprocessor co
 When the remaining code is executed, the interpreter will use the preprocessor context.
 If there is more than one preprocessor executed, they will share the same context.
 
-The following example shows preprocessing that adds lines defining a global variable `M`,
-defines a function, and
-sets the value of the variable `M` to `"hello hello"`.
+The following example shows preprocessing that adds lines defining a global variable `M`, defines a function, and sets the value of the variable `M` to `"hello hello"`.
 
 {%S preprocessorSample%}
 
@@ -3369,7 +3405,8 @@ The safe way is to use `;` to close commands.
 
 A program is an ordered list of commands optionally separated by `;`.
 
-Commands have values. It is the __result__ of the command.
+Commands have values.
+It is the __result__ of the command.
 
  COMMAND ::=  IF |
               LOOP |
@@ -3436,7 +3473,8 @@ The value of the global declaration is the value of the last assignment in the c
 
 Variables pinned cannot be changed in the local context.
 Pinning has no effect to outer scopes.
-You can also pin an object. In that case use `+{variable}+` instead of the name.
+You can also pin an object.
+In that case use `+{variable}+` instead of the name.
 
  PIN ::= 'pin' IDENTIFIER_ASSIGNMENT_LIST;
 
@@ -3454,7 +3492,8 @@ It is valid to have no identifiers in an identifier list, a.k.a. having an empty
 
  IDENTIFIER_LIST ::= [ IDENTIFIER { ',' IDENTIFIER } ];
 
-Using '=' updates a variable but never creates a new one. It first has to be created using `let`.
+Using '=' updates a variable but never creates a new one.
+It first has to be created using `let`.
 
  ASSIGNMENT ::= LEFT_VALUE '=' EXPRESSION ;
  LEFT_VALUE ::= IDENTIFIER { '.' IDENTIFIER | '[' EXPRESSION ']'};
@@ -3494,7 +3533,8 @@ Method call: obj.method(params)
 
  METHOD_CALL: := PRIMARY_EXPRESSION '.' IDENTIFIER '(' [ EXPRESSION { ',' EXPRESSION } ] ')' ;
 
-Block returning an expression value. The value of the block is always the last executed expression.
+Block returning an expression value.
+The value of the block is always the last executed expression.
 
  BLOCK: := '{' COMMAND_LIST '}' ;
 

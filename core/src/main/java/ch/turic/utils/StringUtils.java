@@ -40,7 +40,6 @@ public class StringUtils {
      * @return true if the text matches the pattern from the current indices onward, false otherwise
      */
     private static boolean matchHelper(String pattern, int pIdx, String text, int tIdx) {
-        // End of a pattern
         if (pIdx == pattern.length()) {
             return tIdx == text.length();
         }

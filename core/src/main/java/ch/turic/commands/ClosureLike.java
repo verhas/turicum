@@ -26,6 +26,10 @@ public sealed abstract class ClosureLike extends AbstractCommand implements Comm
 
     public abstract String name();
 
+    public ClosureLike clone() throws CloneNotSupportedException {
+        return (ClosureLike) super.clone();
+    }
+
     public void setField(String name, Object value) throws ExecutionException {
         throw new ExecutionException("You cannot set fields of a closure or a macro");
     }

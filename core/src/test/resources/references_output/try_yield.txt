@@ -11,8 +11,10 @@ not ready 2
 sending 3
 received 3
 not ready 0
+not ready 1
 closing the channel
 channel is closed
+not ready 2
 is done false
 we are done
 is done true

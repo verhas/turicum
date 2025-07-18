@@ -23,7 +23,7 @@ let license = {
 
 fn licenses([licenses]){
     global project;
-    priject.licenses = licenses;
+    project.licenses = licenses;
 }
 
 fn github(user:str, repository:str) {

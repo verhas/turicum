@@ -94,6 +94,13 @@ public class FunUtils {
         private final int index;
         public final Class<?> type;
 
+        /**
+         * Constructs an {@code Argument} instance with the specified name, value, and index.
+         *
+         * @param name  The name of the argument. Cannot be null and serves as an identifier for the argument.
+         * @param value The value of the argument. Can be of any object type.
+         * @param index The zero-based index of the argument in the argument list.
+         */
         public Argument(String name, Object value, int index) {
             this.name = name;
             this.value = value;
@@ -101,41 +108,109 @@ public class FunUtils {
             this.type = value == null ? null : value.getClass();
         }
 
+        /**
+         * Retrieves the value associated with this argument.
+         * <p>
+         * If you want to get a typed value, use {@link #as(Class)}
+         *
+         * @return the value of the argument, which can be of any object type, or null if no value is set.
+         */
         public Object get() {
             return value;
         }
 
+        /**
+         * Returns the value of the argument if it is not null, or the provided default value otherwise.
+         * If the value is not compatible with the type of the default value, an {@code ExecutionException} is thrown.
+         *
+         * @param <T>          The type of the value to retrieve or the default value.
+         * @param defaultValue The default value to return if the argument's value is null.
+         *                     It is also used to determine the type of the return value.
+         * @return The argument's value if it is not null; otherwise, the provided default value.
+         * @throws ExecutionException If the value is not compatible with the type of the default value.
+         */
+        @SuppressWarnings("unchecked")
         public <T> T getOr(T defaultValue) {
-            return (T) get();
+            if (value == null) {
+                return defaultValue;
+            }
+            if (!defaultValue.getClass().isInstance(value)) {
+                throw new ExecutionException("Cannot cast argument %d of function '%s' to %s", index, name, defaultValue.getClass().getSimpleName());
+            }
+            //noinspection unchecked
+            return (T) value;
+
         }
 
+        /**
+         * Converts the value of the argument to a {@code double}.
+         *
+         * @return The {@code double} representation of the value associated with this argument.
+         * @throws ClassCastException If the value cannot be cast to {@code Number}, or if the
+         *                            {@code doubleValue} method cannot be invoked on the value.
+         */
         public double doubleValue() {
             return ((Number) value).doubleValue();
         }
 
+        /**
+         * Converts the value associated with this argument to an {@code int}.
+         *
+         * @return The {@code int} representation of the value associated with this argument.
+         * @throws ClassCastException If the value cannot be cast to {@code Number},
+         *                            or if the {@code intValue} method cannot be invoked on the value.
+         */
         public int intValue() {
             return ((Number) value).intValue();
         }
 
-        public <T> T as(Class<T> type) {
-            if (!type.isInstance(value)) {
-                throw new ExecutionException("Cannot cast argument %d of function '%s' to %s", index, name, type.getSimpleName());
+        /**
+         * Casts the value of this argument to the specified type if possible.
+         *
+         * @param <T> The target type to cast the value to.
+         * @param t   The {@code Class} object representing the type to cast to.
+         *            This cannot be {@code null}.
+         * @return The value of the argument cast to the specified type.
+         * @throws ExecutionException If the value cannot be cast to the specified type.
+         */
+        public <T> T as(Class<T> t) {
+            if (!t.isInstance(value)) {
+                throw new ExecutionException("Cannot cast argument %d of function '%s' to %s", index, name, t.getSimpleName());
             }
             //noinspection unchecked
             return (T) value;
         }
 
-        public <T> T as(Class<T> type, T defaultValue) {
+        /**
+         * Casts the argument's value to the specified type if possible, or returns the provided default value if the value is null.
+         * If the value cannot be cast to the specified type, an {@code ExecutionException} is thrown.
+         *
+         * @param <T>          The target type to cast the value to.
+         * @param t            The {@code Class} object representing the type to cast to. This cannot be null.
+         * @param defaultValue The default value to return if the argument's value is null. Must be of the same type as the target type.
+         * @return The value of the argument cast to the specified type if it is non-null and of the correct type, or the provided default value if the argument's value is null.
+         * @throws ExecutionException If the value cannot be cast to the specified type.
+         */
+        public <T> T as(Class<T> t, T defaultValue) {
             if (value == null) {
                 return defaultValue;
             }
-            if (!type.isInstance(value)) {
-                throw new ExecutionException("Cannot cast argument %d of function '%s' to %s", index, name, type.getSimpleName());
+            if (!t.isInstance(value)) {
+                throw new ExecutionException("Cannot cast argument %d of function '%s' to %s", index, name, t.getSimpleName());
             }
             //noinspection unchecked
             return (T) value;
         }
 
+        /**
+         * Attempts to wrap the value of this argument in an {@link Optional}, cast to the specified type.
+         *
+         * @param <T>  The target type to which the value should be cast.
+         * @param type The {@code Class} object representing the desired type. Cannot be null.
+         * @return An {@code Optional} containing the value cast to the specified type if the value is non-null
+         * and can be cast to the given type, or {@code Optional.empty()} if the value is null.
+         * @throws ExecutionException If the value cannot be cast to the specified type.
+         */
         public <T> Optional<T> optional(Class<T> type) {
             if (value == null) {
                 return Optional.empty();
@@ -144,21 +219,51 @@ public class FunUtils {
                 throw new ExecutionException("Cannot cast argument %d of function '%s' to %s", index, name, type.getSimpleName());
             }
             //noinspection unchecked
-            return Optional.<T>of((T) value);
+            return Optional.of((T) value);
         }
 
+        /**
+         * Determines whether the current argument is considered present.
+         *
+         * @return true if the current object is not equal to the constant UNDEFINED_ARGUMENT,
+         *         false otherwise.
+         */
+        public boolean isPresent() {
+            return this != UNDEFINED_ARGUMENT;
+        }
+
+        /**
+         * Determines whether the value of this argument is an instance of the specified class type.
+         *
+         * @param type the {@code Class} object representing the type to check against.
+         *             This cannot be {@code null}.
+         * @return {@code true} if the value of this argument is an instance of the specified type;
+         * {@code false} otherwise.
+         */
         public boolean is_a(Class<?> type) {
             return type.isInstance(value);
         }
     }
 
+
+    /**
+     * Represents a special predefined {@link Argument} instance that is considered undefined or invalid.
+     * This argument is used as a placeholder and always provides default values when accessed.
+     * <p>
+     * Key characteristics:
+     * 1. Always returns the provided default value for the {@link Argument#getOr(Object)} and {@link Argument#as(Class, Object)} operations.
+     * 2. It allows safe handling of cases where an argument is expected but not provided.
+     * <p>
+     * This constant is primarily used within the utility functions in the containing class to handle
+     * cases where an argument is undefined, ensuring that operations can proceed with minimal runtime exceptions.
+     */
     private static final Argument UNDEFINED_ARGUMENT = new Argument("undefined", new Object(), 0) {
         @Override
         public <T> T getOr(T defaultValue) {
             return defaultValue;
         }
 
-        public <T> T as(Class<T> type, T defaultValue) {
+        public <T> T as(Class<T> t, T defaultValue) {
             return defaultValue;
         }
     };
@@ -222,6 +327,17 @@ public class FunUtils {
         return (T) args[0];
     }
 
+    /**
+     * Creates an ArgumentsHolder instance after validating the given arguments against the required types.
+     *
+     * @param name  the name of the function being validated
+     * @param args  the array of arguments to validate
+     * @param types the expected types of the arguments, supports exact types, number types, or optional types
+     * @return an ArgumentsHolder instance with the validated arguments
+     * @throws ExecutionException       if the arguments do not match the required minimum or maximum count, or if an argument
+     *                                  does not match its expected type
+     * @throws IllegalArgumentException if the types array contains null elements
+     */
     public static ArgumentsHolder args(final String name, Object[] args, Object... types) {
         int minArgs = types.length;
         for (int j = types.length - 1; j >= 0; j--) {
