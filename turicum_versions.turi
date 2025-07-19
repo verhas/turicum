@@ -17,4 +17,4 @@ let groupId = "ch.turic";
 let groupIdMavenPlugin = "org.apache.maven.plugins";
 
 
-export_all(); release
+export_all();

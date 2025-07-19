@@ -15,6 +15,6 @@ not ready 1
 not ready 2
 closing the channel
 channel is closed
-we are done
 is done false
+we are done
 is done true
