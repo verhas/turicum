@@ -2,16 +2,19 @@ global APPIA = ?(env("APPIA")?.split("\\|")) or [ source_directory() ];
 sys_import "turi.maven"
 import "turicum_versions"
 
+println "Turicum STARTED"
+
+
 let modules =  [ "core", "maven", "cli" ];
 
 let project = maven_project({
     name : $"${groupId}:turicum-parent",
-    packaging : "pom",
-    groupId : groupId,
-    artifactId : "turicum-parent",
-    version : VERSION,
-    description : "Turicum programming language",
-    modules : modules,
+    packaging: "pom",
+    groupId: groupId,
+    artifactId: "turicum-parent",
+    version: VERSION,
+    description: "Turicum programming language",
+    modules: modules,
 
     licenses : [ license.apache2_0 ],
     
@@ -19,18 +22,18 @@ let project = maven_project({
             name: "Peter Verhas",
             email: "peter@verhas.com"
     } ],
-    scm : github("verhas","turicum"),
+    scm: github("verhas","turicum"),
 
-    url : "https://github.com/verhas/turicum",
-    build : {
-        pluginManagement : {
+    url: "https://github.com/verhas/turicum",
+    build: {
+        pluginManagement: {
             plugins : [
                 {
-                    groupId : groupIdMavenPlugin,
-                    artifactId : "maven-source-plugin",
-                    version : `maven-source-plugin`,
+                    groupId: groupIdMavenPlugin,
+                    artifactId: "maven-source-plugin",
+                    version: `maven-source-plugin`,
                     executions : [ {
-                            id : "attach-sources",
+                            id: "attach-sources",
                             goals : [ "jar" ]
                             } ]
                 },

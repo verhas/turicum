@@ -11,9 +11,23 @@ import ch.turic.memory.Context;
 
 import java.util.ArrayList;
 
+
+/**
+ * snippet EBNF_PROGRAM
+ *    PROGRAM ::= { COMMAND [;] } ;
+ * end snippet
+ */
 public class ProgramAnalyzer extends AbstractAnalyzer {
     private Context preprocessorContext = null;
 
+
+    /**
+     * Analyze a program.
+     *
+     * @param lexes the program lexical tokens
+     * @return the program commands
+     * @throws BadSyntax if there is a syntax error
+     */
     @Override
     public Command _analyze(LexList lexes) throws BadSyntax {
         final var commands = new ArrayList<Command>();
@@ -35,7 +49,7 @@ public class ProgramAnalyzer extends AbstractAnalyzer {
         return new Program(commands.toArray(Command[]::new));
     }
 
-    public Context context(){
+    public Context context() {
         return preprocessorContext;
     }
 
@@ -51,7 +65,7 @@ public class ProgramAnalyzer extends AbstractAnalyzer {
                     if (item instanceof Lex lex) {
                         lexes.array.add(lex);
                     } else {
-                        lexes.array.addAll(Lexer.analyze((ch.turic.analyzer.Input)Input.fromString(item.toString())).array);
+                        lexes.array.addAll(Lexer.analyze((ch.turic.analyzer.Input) Input.fromString(item.toString())).array);
                     }
                 });
             } else {

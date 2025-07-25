@@ -6,6 +6,11 @@ import ch.turic.commands.BlockCommand;
 import ch.turic.Command;
 import ch.turic.commands.If;
 
+/**
+ * snippet EBNF_IF
+ * IF ::= 'if' EXPRESSION ( ':' COMMAND | BLOCK ) [ 'else' ( ':' COMMAND | BLOCK )] ;
+ * end snippet
+ */
 public class IfAnalyzer extends AbstractAnalyzer {
     public static final IfAnalyzer INSTANCE = new IfAnalyzer();
 

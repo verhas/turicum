@@ -5,6 +5,11 @@ import ch.turic.Command;
 import ch.turic.commands.ConstantExpression;
 import ch.turic.commands.WhileLoop;
 
+/**
+ * snippet EBNF_WHILE
+ * WHILE ::= 'while' [EXPRESSION] ['list']( BLOCK | ':' COMMAND )
+ * end snippet
+ */
 public class WhileLoopAnalyzer extends AbstractAnalyzer {
     public static final WhileLoopAnalyzer INSTANCE = new WhileLoopAnalyzer();
 

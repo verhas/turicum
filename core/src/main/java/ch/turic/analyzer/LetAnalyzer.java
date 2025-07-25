@@ -5,6 +5,31 @@ import ch.turic.Command;
 import ch.turic.commands.LetAssignment;
 import ch.turic.commands.MultiLetAssignment;
 
+/**
+ * Represents a specialized analyzer for processing variable assignments in the form of `let` or `mut`.
+ * The analyzer facilitates handling both single and multi-variable assignments with support for mutable
+ * and immutable types.
+ *
+ * snippet EBNF_LET
+ * LET ::= SINGLE_LET | MULTI_LET
+ *
+ * SINGLE_LET ::= ('let' | 'mut') ASSIGNMENT_LIST
+ *
+ * MULTI_LET ::= ('let' | 'mut') MULTI_ASSIGNMENT_HEADER '=' EXPRESSION
+ *
+ * MULTI_ASSIGNMENT_HEADER ::= '[' ASSIGNMENT_LIST ']'
+ *                         | '{' ASSIGNMENT_LIST '}'
+ *
+ * ASSIGNMENT_LIST ::= ASSIGNMENT (',' ASSIGNMENT)*
+ *
+ * ASSIGNMENT ::= IDENTIFIER (':' TYPE_DECLARATION)?
+ *
+ * TYPE_DECLARATION ::= IDENTIFIER
+ *
+ * EXPRESSION ::= // Any valid Turicum expression
+ * end snippet
+ *
+ */
 public class LetAnalyzer extends AbstractAnalyzer {
     public static final LetAnalyzer INSTANCE = new LetAnalyzer(false);
     public static final LetAnalyzer INSTANCE_MUT = new LetAnalyzer(true);

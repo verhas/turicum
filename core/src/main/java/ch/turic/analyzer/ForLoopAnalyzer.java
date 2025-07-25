@@ -5,6 +5,12 @@ import ch.turic.Command;
 import ch.turic.commands.*;
 import ch.turic.memory.VariableLeftValue;
 
+/**
+ * snippet EBNF_FOR
+ * FOR ::= 'for' COMMAND ';' [EXPRESSION] ';' COMMAND ['list']( BLOCK | ':' COMMAND ) |
+ *            'for' '(' COMMAND [EXPRESSION] COMMAND ')' ['list'](  BLOCK | ':' COMMAND )
+ * end snippet
+ */
 public class ForLoopAnalyzer extends AbstractAnalyzer {
     public static final ForLoopAnalyzer INSTANCE = new ForLoopAnalyzer();
 

@@ -3378,6 +3378,13 @@ Preprocessors are usually defined in imported files and invoked using a simple f
 == Language Grammar (Appendix)
 
 === Full Annotated EBNF
+{%@define EBNF($x)=
+[source]
+----
+{%#replaceLines replace="~\\*~~"
+{%@snip EBNF_$x%}%}
+----
+%}
 
 The following is the non-standard EBNF definition of the programming language called Turicum.
 
@@ -3401,33 +3408,25 @@ New line can replace the use of `;`.
 The recognition of the command end upon new-line is heuristic.
 The safe way is to use `;` to close commands.
 
- PROGRAM ::= { COMMAND [;] } ;
+{%EBNF PROGRAM%}
 
 A program is an ordered list of commands optionally separated by `;`.
 
 Commands have values.
 It is the __result__ of the command.
 
- COMMAND ::=  IF |
-              LOOP |
-              CLASS |
-              FLOW |
-              FN |
-              LOCAL | GLOBAL | PIN
-              BREAK | YIELD | RETURN |
-              TRY |
-              ASSIGNMENT |
-              EXPRESSION |
-              ;
+{%EBNF COMMAND%}
 
- LOOP ::= (
-           'while' [EXPRESSION] ['list']( BLOCK | ':' COMMAND )|
-           'for' COMMAND ';' [EXPRESSION] ';' COMMAND ['list']( BLOCK | ':' COMMAND ) |
-           'for' '(' COMMAND [EXPRESSION] COMMAND ')' ['list'](  BLOCK | ':' COMMAND )  |
-           'for each' identifier [with identifier] 'in' EXPRESSION ['list']( BLOCK | ':' COMMAND ) |
-           'for each' '(' identifier ['with' identifier] 'in' EXPRESSION ')' ['list'](  BLOCK | ':' COMMAND )
-          ) [ 'until' EXPRESSION]
- ;
+{%EBNF KEYWORD_COMMAND%}
+
+
+   LOOP ::= ( WHILE | FOR | FOR_EACH ) [ 'until' EXPRESSION];
+
+{%EBNF WHILE%}
+
+{%EBNF FOR%}
+
+{%EBNF FOR_EACH%}
 
 If the condition expression is missing after 'for' or 'while' it is `true`.
 The expression following the 'until' keyword is not optional, but the whole `until` `EXPRESSION` part is.
@@ -3437,19 +3436,18 @@ The elements of the list are the last __executed__ commands for each iteration.
 The value of an `IF` command is the value of the first or the second block, whichever is executed.
 If the condition expression is false and there is no second block, then the value is `none`.
 
- IF ::= 'if' EXPRESSION ( ':' COMMAND | BLOCK ) [ 'else' ( ':' COMMAND | BLOCK )] ;
+{%EBNF IF%}
 
 The result of a CLASS declaration is the declared class itself.
 
- CLASS ::= 'class' [IDENTIFIER] [ ':' IDENTIFIER_LIST ] BLOCK ;
+{%EBNF CLASS%}
 
 The class object is also assigned to the variable denoted by the `IDENTIFIER` in the current context.
 
 The result of a function declaration is the function itself.
 
- FN ::= FN_EXPR | FN_BLOCK ;
- FN_EXPR   ::= 'fn' [ IDENTIFIER ] '(' IDENTIFIER_LIST ')' '=' EXPRESSION ;
- FN_BLOCK  ::= 'fn' [ IDENTIFIER ] [ '(' IDENTIFIER_LIST ')' ] BLOCK ;
+{%EBNF FN%}
+{%EBNF PARAMETER_LIST%}
 
 For functions with an expression body following a '=', the parameter list is mandatory.
 The parameter list may be empty, having only '(' and ')'.
@@ -3459,9 +3457,7 @@ For functions with a block body, both the function name and parameter list are o
 Variables declared as local will be local to the context, even if the same name is used in some enclosing context or as a global variable.
 The value of the local declaration is the value of the last assignment in the command
 
- LOCAL ::= 'let' IDENTIFIER_ASSIGNMENT_LIST |
-           'let' '{' TYPED_IDENTIFIER_LIST '}' '=' EXPRESSION|
-           'let' '[' TYPED_IDENTIFIER_LIST ']' '=' EXPRESSION ;
+{%EBNF LET%}
 
 When there are braces or brackets around the identifier list the `EXPRESSION` has to be an object (for braces) or a list (for brackets).
 The fields or the elements of the object or list are assigned to the individual variables.

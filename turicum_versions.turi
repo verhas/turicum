@@ -1,4 +1,4 @@
-let VERSION = "1.4.0";
+let VERSION = "1.4.2";
 
 let `maven-javadoc-plugin` = "3.11.2";
 let `maven-source-plugin` = "3.3.1";
@@ -11,6 +11,7 @@ let `maven-assembly-plugin` = "3.7.1";
 let `org.mockito` = "5.17.0";
 let `intellij.version` = "2025.1";
 let `maven-resources-plugin` = "3.3.1";
+let `maven-core` = "4.0.0-beta-4"; // "3.9.11"
 let JAVA_VERSION = 21;
 
 let groupId = "ch.turic";

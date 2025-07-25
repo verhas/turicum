@@ -1,10 +1,13 @@
 package ch.turic.utils;
 
 import ch.turic.ExecutionException;
+import ch.turic.memory.LngList;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -54,13 +57,13 @@ public class StringUtils {
             return false;
         }
 
-        if (pattern.charAt(pIdx) == '*' ) {
+        if (pattern.charAt(pIdx) == '*') {
             // Try to match '*' with 0 or more characters excluding '/'
             for (int k = tIdx; k <= text.length(); k++) {
                 if (matchHelper(pattern, pIdx + 1, text, k)) {
                     return true;
                 }
-                if( k < text.length() && text.charAt(k) == '/') {
+                if (k < text.length() && text.charAt(k) == '/') {
                     return false;
                 }
             }
@@ -197,7 +200,7 @@ public class StringUtils {
      * the second element is the matched portion, and the third element is the substring after the match
      * @throws IllegalArgumentException if the input or regex is null, or if the regex is empty
      */
-    public static String[] partitionRegex(String input, String regex) throws ExecutionException{
+    public static String[] partitionRegex(String input, String regex) throws ExecutionException {
         if (input == null || regex == null || regex.isEmpty()) {
             throw new IllegalArgumentException("Input and regex must be non-null and regex non-empty.");
         }
@@ -208,8 +211,8 @@ public class StringUtils {
         if (matcher.find()) {
             int start = matcher.start();
             int end = matcher.end();
-            if( end == 0 ){
-                throw new ExecutionException("Partition regexp matches zero string. '" + regex+"' It is forbidden to avoid infinite loops.");
+            if (end == 0) {
+                throw new ExecutionException("Partition regexp matches zero string. '" + regex + "' It is forbidden to avoid infinite loops.");
             }
             return new String[]{
                     input.substring(0, start),
@@ -219,5 +222,50 @@ public class StringUtils {
         } else {
             return new String[]{input, "", ""};
         }
+    }
+
+
+    /**
+     * Splits the input string recursively based on the sequence of delimiter characters provided.
+     * Each character in the delimiters string represents a level of split, and splits can be controlled
+     * by specifying a maximum number of splits for each level.
+     *
+     * @param input the string to be split; must not be null
+     * @param pos the position in the delimiters string indicating the current level of split
+     * @param delimiters the string containing delimiter characters for splitting; must not be null or empty
+     * @param maxSplits optional arguments specifying the maximum number of splits for each level; if not provided or insufficiently defined, infinite splits are allowed
+     * @return a list where each element corresponds to the result of the current level of split, and nested lists represent deeper levels of splits
+     * @throws IllegalArgumentException if the input or delimiters are null
+     */
+    public static LngList msplit(String input, int pos, String delimiters, int... maxSplits) {
+        if (input == null || delimiters == null) {
+            throw new IllegalArgumentException("Input and delimiters must not be null");
+        }
+        final int maxSplit;
+        if (maxSplits == null || maxSplits.length <= pos) {
+            maxSplit = -1;
+        } else {
+            maxSplit = maxSplits[pos];
+        }
+
+        if (delimiters.isEmpty()) {
+            return LngList.of(input);
+        }
+
+        // Quote the first character for regex to handle special characters
+        String regex = Pattern.quote(String.valueOf(delimiters.charAt(pos)));
+        String[] firstSplit = input.split(regex,maxSplit);
+
+        if (delimiters.length() == pos + 1) {
+            return LngList.ofStrings(firstSplit);
+        }
+
+        // Recursive split for remaining characters
+        final var result = new LngList();
+        for (String part : firstSplit) {
+            result.add(msplit(part, pos + 1, delimiters, maxSplits));
+        }
+
+        return result;
     }
 }

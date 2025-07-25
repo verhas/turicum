@@ -3,7 +3,7 @@
     <parent>
         <groupId>ch.turic</groupId>
         <artifactId>turicum-parent</artifactId>
-        <version>1.4.0</version>
+        <version>1.4.1</version>
     </parent>
     <build>
         <plugins>
@@ -87,7 +87,7 @@
     </profiles>
     <description>Turicum programming language CLI</description>
     <artifactId>turicum-cli</artifactId>
-    <version>1.4.0</version>
+    <version>1.4.1</version>
     <properties>
         <maven.plugin.validation>VERBOSE</maven.plugin.validation>
         <maven.compiler.target>21</maven.compiler.target>
@@ -99,7 +99,7 @@
         <dependency>
             <groupId>ch.turic</groupId>
             <artifactId>turicum</artifactId>
-            <version>1.4.0</version>
+            <version>1.4.1</version>
         </dependency>
         <dependency>
             <groupId>org.jline</groupId>

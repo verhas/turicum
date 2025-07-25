@@ -16,8 +16,8 @@ class maven_project {
 
 let license = {
         apache2_0: {
-            name : "The Apache License, Version 2.0",
-            url : "https://www.apache.org/licenses/LICENSE-2.0.txt"
+            name: "The Apache License, Version 2.0",
+            url: "https://www.apache.org/licenses/LICENSE-2.0.txt"
             }
 }
 
@@ -34,12 +34,108 @@ fn github(user:str, repository:str) {
             }
 }
 
-fn maven_plugin(plugin:str,@executions={},@configuration=none){
+fn maven_plugin(!plugin:str,@executions={},@configuration=none){
             {
                 groupId: "org.apache.maven.plugins",
                 artifactId: $"maven-${plugin}-plugin",
                 executions: executions
             } + if configuration == none : {} else : configuration
+}
+
+/**
+
+The `plugin` function is used to configure Maven plugin executions in a more concise way. It generates plugin configuration using a simple string-based format.
+
+## Syntax
+
+```
+plugin(coordinates, executions=execution_string)
+```
+
+
+### Parameters
+
+- `coordinates` (string): Maven coordinates in the format "groupId:artifactId:version"
+- `executions` (string, optional): A string describing plugin executions, using the format:
+  `executionId:goal[,goal]*|executionId:goal[,goal]*`
+
+### Format Description
+
+The `executions` parameter uses the following format:
+- Multiple executions are separated by the pipe character (`|`)
+- Each execution consists of an execution ID and one or more goals
+- Goals are separated by commas (`,`)
+- The execution ID and its goals are separated by a colon (`:`)
+
+### Examples
+
+```
+// Single execution with one goal
+plugin("group:artif:1.0", executions="compile:java")
+
+// Single execution with multiple goals
+plugin("group:artif:1.0", executions="package:jar,pom")
+
+// Multiple executions
+plugin("group:artif:1.0", executions="compile:java,resources|package:jar")
+
+// Complex example with multiple executions and goals
+plugin("group:artif:53", executions="attach_sources:jar,pom|other_id:java,a")
+```
+
+
+### Returns
+
+Returns a plugin configuration object that can be used in Maven build configurations.
+
+### Exceptions
+
+- May throw an exception if the coordinates format is invalid
+- May throw an exception if the executions string format is incorrect
+
+### Notes
+
+- The function is typically used within Maven build configuration files
+- It provides a more concise way to configure plugin executions compared to traditional XML configuration
+- The execution IDs must be unique within a plugin configuration
+- Goals must be valid for the specified plugin
+
+This is particularly useful in Turicum's Maven integration, allowing for more readable and maintainable plugin configurations compared to traditional XML-based Maven configurations.
+*/
+fn plugin(!plugin:str, @executions=none, @configuration=none){
+    let [groupId, artifactId, version] = plugin.split(":")
+    let executions_ =
+        if executions != none {
+            for each e in executions.msplit("|:,") list {
+                { id: e[0][0], goals: e[1] }
+            }
+        } else {
+            none
+        }
+    return {
+                groupId: groupId,
+                artifactId: artifactId,
+                version: version
+            }
+            + if executions_ == none : {} else : { "executions" : executions_ }
+            + if configuration == none : {} else : configuration
+}
+
+fn dependency(!coordinates:str, @type:any=none, @classifier:str|none=none, @optional:bool|none=none, @exclusions=none){
+    let coordinate_list = [..coordinates.split(":") -> {if it == "" : none else: it} ];
+    let [groupId, artifactId, version, scope] = coordinate_list + [len(coordinate_list)..4 -> none];
+    {
+        "groupId": groupId,
+        "artifactId": artifactId,
+    }
+    + (if version == none : {} else: { "version": version })
+    + (if scope == none : {} else: { "scope": scope })
+
+    + (if type == none : {} else: { "type": type })
+    + (if classifier == none : {} else: { "classifier": classifier })
+    + (if optional == none : {} else: { "optional": optional })
+    + (if exclusions == none : {} else: { "exclusions": exclusions })
+
 }
 
 export_all();
