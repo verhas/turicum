@@ -36,15 +36,23 @@ public class LngList implements HasIndex, HasFields {
         array.addAll(values);
     }
 
-    public static LngList of(){
+    public static LngList of() {
         return new LngList();
     }
-    public static LngList of(Object[] lst){
+
+    public static LngList ofStrings(String[] lst) {
         LngList result = new LngList();
         result.array.addAll(Arrays.asList(lst));
         return result;
     }
-    public static LngList of(Collection<?> lst){
+
+    public static LngList of(Object... lst) {
+        LngList result = new LngList();
+        result.array.addAll(Arrays.asList(lst));
+        return result;
+    }
+
+    public static LngList of(Collection<?> lst) {
         LngList result = new LngList();
         result.array.addAll(lst);
         return result;
@@ -168,8 +176,8 @@ public class LngList implements HasIndex, HasFields {
             return false;
         }
         final var compared = new IdentityHashMap<>();
-        compared.put(lngList,null);
-        compared.put(this,null);
+        compared.put(lngList, null);
+        compared.put(this, null);
         for (int i = 0; i < array.size(); i++) {
             final var thisField = array.get(i);
             final var thatField = lngList.array.get(i);

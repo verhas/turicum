@@ -551,6 +551,10 @@ while s.is_not_empty() {
 println jsonify("abraka, muhaha dabra, mutabor; kalifa".split("[ ,;]+",3));
 // end snippet
 
+// snippet string_msplit
+println jsonify("gropeId:artichokId:varsio,mersio,mubakka|abraka:debarbara,mucika::hoppana|mutabor.kalofa:nohabor,kalifa:abrbor,kalifa".msplit("|:,"));
+// end snippet
+
 // snippet string_bytes
 println "alma ata".bytes()
 // end snippet

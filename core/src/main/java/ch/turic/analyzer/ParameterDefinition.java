@@ -7,6 +7,59 @@ import ch.turic.commands.TypeDeclaration;
 
 import java.util.ArrayList;
 
+/**
+ * The ParameterDefinition class is used to analyze and process a list of parameters
+ * specified in a lexical input. It evaluates parameters based on predefined rules
+ * and returns a structured representation of the parameters.
+ * <p>
+ * The class provides support for various parameter types, including:
+ * - Positional-only parameters
+ * - Named-only parameters
+ * - Positional or named parameters
+ * <p>
+ * Additionally, the class handles special parameters such as:
+ * - Rest parameter (denoted by [rest])
+ * - Meta parameter (denoted by {meta})
+ * - Closure parameter (denoted by ^closure)
+ * <p>
+ * The parsing process validates the structure and relationships between these
+ * parameters, ensuring consistency and correctness.
+ * <p>
+ * Users can utilize the provided constants to create instances tailored for
+ * different parsing scenarios:
+ * - `INSTANCE` for general parameter parsing.
+ * - `FOR_CLOSURE` for parsing closure-specific parameters.
+ *
+ * <pre>
+ * snippet EBNF_PARAMETER_LIST
+ * PARAMETER_LIST ::= PARAMETER (',' PARAMETER)*
+ *
+ * PARAMETER ::= NORMAL_PARAMETER | SPECIAL_PARAMETER
+ *
+ * NORMAL_PARAMETER ::= [PARAMETER_TYPE] IDENTIFIER [TYPE_DECLARATION] [DEFAULT_VALUE]
+ *
+ * PARAMETER_TYPE ::= '!'  // positional only
+ *                 | '@'  // named only
+ *
+ * SPECIAL_PARAMETER ::= REST_PARAMETER | META_PARAMETER | CLOSURE_PARAMETER
+ *
+ * REST_PARAMETER ::= '[' IDENTIFIER ']'
+ *
+ * META_PARAMETER ::= '{' IDENTIFIER '}'
+ *
+ * CLOSURE_PARAMETER ::= '^' IDENTIFIER
+ *
+ * TYPE_DECLARATION ::= ':' TYPE_LIST
+ *
+ * TYPE_LIST ::= IDENTIFIER (',' IDENTIFIER)*
+ *
+ * DEFAULT_VALUE ::= '=' EXPRESSION
+ *
+ * // Special parameters must appear in this order, if present
+ * PARAMETERS_ORDER ::= NORMAL_PARAMETER* [REST_PARAMETER] [META_PARAMETER] [CLOSURE_PARAMETER]
+ * end snippet
+ * </pre>
+ */
 public class ParameterDefinition {
     private final boolean forClosure;
     public static final ParameterDefinition INSTANCE = new ParameterDefinition(false);
@@ -60,7 +113,7 @@ public class ParameterDefinition {
                         closure = id;
                         yield null;
                     }
-                    default -> throw lexes.syntaxError( "Something went wrong 7639/a2");
+                    default -> throw lexes.syntaxError("Something went wrong 7639/a2");
                 };
                 if (closing != null) {
                     BadSyntax.when(lexes, lexes.isNot(closing), "'%s%s must be followed by %s", opening, id, closing);

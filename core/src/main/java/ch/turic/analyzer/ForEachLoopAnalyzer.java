@@ -5,6 +5,15 @@ import ch.turic.Command;
 import ch.turic.commands.ForEachLoop;
 import ch.turic.commands.Identifier;
 
+/**
+ * snippet EBNF_FOR_EACH
+ * // the conventional '(' and ')' around the expressions giving the iterable is optional
+ * FOR_EACH ::= 'for each' identifier [with identifier]
+ *                  'in' EXPRESSION ['list']( BLOCK | ':' COMMAND ) |
+ *              'for each' '(' identifier ['with' identifier]
+ *                  'in' EXPRESSION ')' ['list'](  BLOCK | ':' COMMAND )
+ * end snippet
+ */
 public class ForEachLoopAnalyzer extends AbstractAnalyzer {
     public static final ForEachLoopAnalyzer INSTANCE = new ForEachLoopAnalyzer();
 

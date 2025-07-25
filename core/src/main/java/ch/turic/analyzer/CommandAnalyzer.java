@@ -10,6 +10,15 @@ import java.util.Map;
 
 import static ch.turic.analyzer.PrimaryExpressionAnalyzer.analyzeArguments;
 
+/**
+ * snippet EBNF_COMMAND
+ *  COMMAND ::=  KEYWORD_COMMAND |
+ *               ASSIGNMENT |
+ *               FUNCTION CALL |
+ *               EXPRESSION |
+ *               ; //empty command
+ * end snippet
+ */
 public class CommandAnalyzer extends AbstractAnalyzer {
     public static final CommandAnalyzer INSTANCE = new CommandAnalyzer();
 
@@ -111,6 +120,28 @@ public class CommandAnalyzer extends AbstractAnalyzer {
      *
      * @param lexes the lexical elements following the keyword
      * @return the command created later used to execute
+     *
+     * snippet EBNF_KEYWORD_COMMAND
+     *  KEYWORD_COMMAND ::=  IF |
+     *               LOOP |
+     *               WITH |
+     *               FLOW |
+     *               FN |
+     *               CLASS |
+     *               PIN |
+     *               GLOBAL |
+     *               BREAK |
+     *               CONTINUE |
+     *               DIE |
+     *               RETURN |
+     *               YIELD |
+     *               PRINT |
+     *               PRINTLN |
+     *               TRY |
+     *               MUT |
+     *               LET
+     *               ;
+     * end snippet
      */
     private Command analyzeKeywordCommand(final LexList lexes) throws BadSyntax {
         final var keyword = lexes.peek().text();
@@ -118,8 +149,8 @@ public class CommandAnalyzer extends AbstractAnalyzer {
             // commands that end in a block and do not need terminating ;
             case Keywords.IF,
                  Keywords.WHILE,
-                 Keywords.WITH,
                  Keywords.FOR,
+                 Keywords.WITH,
                  Keywords.FLOW,
                  Keywords.FN,
                  Keywords.CLASS -> {

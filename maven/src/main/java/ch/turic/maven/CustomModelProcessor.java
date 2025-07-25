@@ -2,6 +2,7 @@ package ch.turic.maven;
 
 import org.apache.maven.model.Model;
 import org.apache.maven.model.building.ModelProcessor;
+import org.apache.maven.model.io.ModelParseException;
 import org.apache.maven.model.io.ModelReader;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
@@ -37,6 +38,17 @@ import java.util.stream.Collectors;
 public class CustomModelProcessor implements ModelProcessor {
     @Requirement
     private ModelReader modelReader;
+
+    @Override
+    public Path locatePom(Path projectDirectory) {
+        turi2Xml(projectDirectory.toFile());
+        return projectDirectory.resolve("pom.xml").toAbsolutePath();
+    }
+
+    @Override
+    public Path locateExistingPom(Path project) {
+        return locatePom(project);
+    }
 
     @Override
     public File locatePom(File projectDirectory) {
@@ -94,7 +106,7 @@ public class CustomModelProcessor implements ModelProcessor {
      *
      * @param e the throwable to be processed; can be null. If null, an empty string is returned.
      * @return a string representation of the throwable, including its message, stack trace,
-     *         causes, and suppressed exceptions.
+     * causes, and suppressed exceptions.
      */
     private String dumpException(Throwable e) {
         return dumpException(e, new HashSet<>());
@@ -168,6 +180,22 @@ public class CustomModelProcessor implements ModelProcessor {
         try (final Reader in = ReaderFactory.newPlatformReader(input)) {
             return read(in, options);
         }
+    }
+
+    /**
+     * Reads a model from the given path input and processes it using the specified options.
+     * This method converts the {@code Path} input to a {@code File} before delegating
+     * the processing to another method.
+     *
+     * @param input   the path from which the model data is read; must not be null
+     * @param options a map of options that influence the model reading process; can be null
+     * @return the constructed {@code Model} object based on the data read from the input
+     * @throws IOException          if an I/O error occurs while reading the input
+     * @throws ModelParseException  if the model cannot be parsed
+     */
+    @Override
+    public Model read(Path input, Map<String, ?> options) throws IOException, ModelParseException {
+        return read(input.toFile(), options);
     }
 
     /**

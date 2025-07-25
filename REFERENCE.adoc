@@ -107,7 +107,7 @@ If you want to embed the application into Java, or Kotlin application, you use t
 <dependency>
    <groupId>ch.turic</groupId>
    <artifactId>turicum-parent</artifactId>
-   <version>1.4.999</version>
+   <version>1.4.0</version>
 </dependency>
 ----
 
@@ -1649,15 +1649,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=512535FF
+h id=71529963
 h after post increment: 1
 k: 0
-h id=71529963
-k id=512535FF
+h id=61A88B8C
+k id=71529963
 h after pre increment: 2
 z: 2
-h id=61A88B8C
-z id=61A88B8C
+h id=22295EC4
+z id=22295EC4
 
 ----
 
@@ -1702,15 +1702,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=22295EC4
+h id=5ADB0DB3
 h after post increment: 1
 k: 1
-h id=22295EC4
-k id=22295EC4
+h id=5ADB0DB3
+k id=5ADB0DB3
 h after pre increment: 2
 z: 2
-h id=22295EC4
-z id=22295EC4
+h id=5ADB0DB3
+z id=5ADB0DB3
 
 ----
 
@@ -1758,15 +1758,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=5ADB0DB3
+h id=3F270E0A
 h after post decrement: -1
 k: 0
-h id=1A760689
-k id=5ADB0DB3
+h id=7241A47D
+k id=3F270E0A
 h after pre decrement: -2
 z: -2
-h id=7241A47D
-z id=7241A47D
+h id=70F59913
+z id=70F59913
 
 ----
 
@@ -1808,15 +1808,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=70F59913
+h id=77258E59
 h after post decrement: -1
 k: -1
-h id=70F59913
-k id=70F59913
+h id=77258E59
+k id=77258E59
 h after pre decrement: -2
 z: -2
-h id=70F59913
-z id=70F59913
+h id=77258E59
+z id=77258E59
 
 ----
 
@@ -4584,12 +4584,12 @@ Thread 1 generated 19
 Thread 1 generated 23
 stopping
 exception Task stopped.
+Thread 2 generated 3
  prime read 2
-Thread 2 prime read 3
- generated 3
+ prime read 3
 Thread 2 generated 5
- prime read 5
 Thread 2 generated 7
+ prime read 5
  prime read 7
 Thread 2 generated 11
 Thread 2 generated 13
@@ -4649,9 +4649,9 @@ println( (end-start)/1000000, "ms")
 [source]
 ----
 [1, 2, 3]
-307.301875ms
+311.612375ms
 []
-312.716166ms
+313.40275ms
 
 ----
 
@@ -8931,10 +8931,10 @@ kalifa
 
             * `split` 
  split the string into a list using the argument as a regular expression.
- If there is no argument, the function uses `"\n"` making it behave the same as `lines()`.
- Optionally there is a second argument that can limit how many pieces the string is split.
+ If there is no argument, the function uses `"\n"`, making it behave the same as `lines()`.
+ Optionally, there is a second argument that can limit how many pieces the string is split.
  If it is `0` then there is no limit, but the trailing empty strings are discarded.
- It the limit is -1 the trailing empty elements are kept.
+ If the limit is -1, the trailing empty elements are kept.
  
 +
 .source of snippet `string_split`
@@ -8948,6 +8948,29 @@ println jsonify("abraka, muhaha dabra, mutabor; kalifa".split("[ ,;]+",3));
 [source]
 ----
 ["abraka","muhaha","dabra, mutabor; kalifa"]
+
+----
+
+
+            * `msplit` 
+ split the string into a list of list of list... using the characters of the argument.
+ There is no default splitter character(s) in the case of msplit.
+ Optionally, there is a second, third and so on arguments that can limit how many pieces the strings are split.
+ If it is `0` then there is no limit, but the trailing empty strings are discarded.
+ If the limit is -1, the trailing empty elements are kept.
+ 
++
+.source of snippet `string_msplit`
+[source]
+----
+println jsonify("gropeId:artichokId:varsio,mersio,mubakka|abraka:debarbara,mucika::hoppana|mutabor.kalofa:nohabor,kalifa:abrbor,kalifa".msplit("|:,"));
+
+----
++
+.output of snippet `string_msplit`
+[source]
+----
+[[["gropeId"],["artichokId"],["varsio","mersio","mubakka"]],[["abraka"],["debarbara","mucika"],[""],["hoppana"]],[["mutabor.kalofa"],["nohabor","kalifa"],["abrbor","kalifa"]]]
 
 ----
 
@@ -10045,7 +10068,7 @@ println nano_time()
 .output of snippet `nano_time`
 [source]
 ----
-3570829864243000
+344249990000041
 
 ----
 
@@ -10434,77 +10457,81 @@ none
 [source]
 ----
 task2 is not ready 0
+task1 is ready 1
 task1 is not ready 0
-task2 is ready 1
-task1 is not ready 1
-task2 is not ready 0
-task1 is not ready 2
 task2 is not ready 1
-task1 is ready 2
-task1 is not ready 0
-task2 is not ready 2
-task1 is not ready 1task2 is not ready 3
-
-task1 is not ready 2
-task2 is not ready 4
-task1 is ready 3
-task2 is not ready 5task1 is not ready 0
-
-task2 is not ready 6
 task1 is not ready 1
-task2 is not ready 7
-task1 is not ready 2
-task2 is ready 4task1 is not ready 3
+task2 is not ready 2task1 is not ready 2
 
-task2 is not ready 0
+task2 is not ready 3
+task1 is not ready 3
+task2 is ready 2
 task1 is not ready 4
-task2 is not ready 1
-task2 is not ready 2
+task2 is not ready 0
 task1 is not ready 5
+task2 is not ready 1
 task1 is not ready 6
-task2 is ready 5
-task2 is not ready 0
-task1 is not ready 7task2 is not ready 1
-
-task1 is not ready 8
 task2 is not ready 2
-task1 is not ready 9
-task2 is ready 6
-task2 is not ready 0
-task2 is not ready 1
-task1 is not ready 10
-task2 is not ready 2
-task1 is not ready 11
-task1 is not ready 12
-task2 is ready 7
-task2 is not ready 0
-task1 is not ready 13
-task2 is not ready 1
-task1 is not ready 14
-task2 is not ready 2
-task1 is not ready 15task2 is not ready 3
-
+task1 is ready 3
+task2 is not ready 3
+task1 is not ready 0
 task2 is not ready 4
+task1 is not ready 1
+task2 is not ready 5
+task1 is not ready 2
+task1 is ready 4
+task2 is not ready 6
+task1 is not ready 0
+task2 is not ready 7
+task1 is not ready 1
+task2 is not ready 8
+task1 is not ready 2
+task1 is ready 5
+task2 is not ready 9
+task1 is not ready 0
+task2 is not ready 10
+task1 is not ready 1
+task1 is not ready 2task2 is not ready 11
+
+task1 is ready 6task2 is not ready 12
+
+task1 is not ready 0
+task1 is not ready 1
+task2 is not ready 13
+task1 is not ready 2
+task2 is not ready 14
+task1 is not ready 3
+task2 is not ready 15
+task1 is ready 7
+task1 is not ready 0
+task2 is not ready 16
+task1 is not ready 1
+task2 is not ready 17
+task1 is not ready 2
+task2 is not ready 18
+task2 is not ready 19
 task1 is ready 8
 task1 is not ready 0
-task2 is not ready 5
+task2 is not ready 20
 task1 is not ready 1
-task2 is ready 9
-task2 is not ready 0
+task2 is not ready 21
 task1 is not ready 2
-task2 is not ready 1
+task2 is ready 9
 task1 is not ready 3
-task2 is not ready 2
+task2 is not ready 0
+task2 is not ready 1
 task1 is not ready 4
 closing the channel
+task2 is not ready 2
+task1 is not ready 5
 channel is closed
 1 is done false
 2 is done false
 we start to wait the first time
-task1 is done
 task2 is done
-task1 done true
-task2 done false
+task1 is done
+task1 done false
+task2 done true
 We start to wait the second time
 task1 done true
 task2 done true
@@ -10748,11 +10775,11 @@ not ready 0
 received 1
 not ready 0
 not ready 1
-not ready 2
 sending 2
 received 2
 not ready 0
 not ready 1
+not ready 2
 sending 3
 received 3
 not ready 0
@@ -11151,6 +11178,7 @@ Preprocessors are usually defined in imported files and invoked using a simple f
 
 === Full Annotated EBNF
 
+
 The following is the non-standard EBNF definition of the programming language called Turicum.
 
 * Strings between ' characters are literal keywords.
@@ -11173,33 +11201,88 @@ New line can replace the use of `;`.
 The recognition of the command end upon new-line is heuristic.
 The safe way is to use `;` to close commands.
 
- PROGRAM ::= { COMMAND [;] } ;
+
+[source]
+----
+     PROGRAM ::= { COMMAND [;] } ;
+
+----
+
 
 A program is an ordered list of commands optionally separated by `;`.
 
 Commands have values.
 It is the __result__ of the command.
 
- COMMAND ::=  IF |
-              LOOP |
-              CLASS |
-              FLOW |
-              FN |
-              LOCAL | GLOBAL | PIN
-              BREAK | YIELD | RETURN |
-              TRY |
-              ASSIGNMENT |
-              EXPRESSION |
-              ;
 
- LOOP ::= (
-           'while' [EXPRESSION] ['list']( BLOCK | ':' COMMAND )|
-           'for' COMMAND ';' [EXPRESSION] ';' COMMAND ['list']( BLOCK | ':' COMMAND ) |
-           'for' '(' COMMAND [EXPRESSION] COMMAND ')' ['list'](  BLOCK | ':' COMMAND )  |
-           'for each' identifier [with identifier] 'in' EXPRESSION ['list']( BLOCK | ':' COMMAND ) |
-           'for each' '(' identifier ['with' identifier] 'in' EXPRESSION ')' ['list'](  BLOCK | ':' COMMAND )
-          ) [ 'until' EXPRESSION]
- ;
+[source]
+----
+   COMMAND ::=  KEYWORD_COMMAND |
+                ASSIGNMENT |
+                FUNCTION CALL |
+                EXPRESSION |
+                ; //empty command
+
+----
+
+
+
+[source]
+----
+       KEYWORD_COMMAND ::=  IF |
+                    LOOP |
+                    WITH |
+                    FLOW |
+                    FN |
+                    CLASS |
+                    PIN |
+                    GLOBAL |
+                    BREAK |
+                    CONTINUE |
+                    DIE |
+                    RETURN |
+                    YIELD |
+                    PRINT |
+                    PRINTLN |
+                    TRY |
+                    MUT |
+                    LET
+                    ;
+
+----
+
+
+
+   LOOP ::= ( WHILE | FOR | FOR_EACH ) [ 'until' EXPRESSION];
+
+
+[source]
+----
+  WHILE ::= 'while' [EXPRESSION] ['list']( BLOCK | ':' COMMAND )
+
+----
+
+
+
+[source]
+----
+  FOR ::= 'for' COMMAND ';' [EXPRESSION] ';' COMMAND ['list']( BLOCK | ':' COMMAND ) |
+             'for' '(' COMMAND [EXPRESSION] COMMAND ')' ['list'](  BLOCK | ':' COMMAND )
+
+----
+
+
+
+[source]
+----
+  // the conventional '(' and ')' around the expressions giving the iterable is optional
+  FOR_EACH ::= 'for each' identifier [with identifier]
+                   'in' EXPRESSION ['list']( BLOCK | ':' COMMAND ) |
+               'for each' '(' identifier ['with' identifier]
+                   'in' EXPRESSION ')' ['list'](  BLOCK | ':' COMMAND )
+
+----
+
 
 If the condition expression is missing after 'for' or 'while' it is `true`.
 The expression following the 'until' keyword is not optional, but the whole `until` `EXPRESSION` part is.
@@ -11209,19 +11292,87 @@ The elements of the list are the last __executed__ commands for each iteration.
 The value of an `IF` command is the value of the first or the second block, whichever is executed.
 If the condition expression is false and there is no second block, then the value is `none`.
 
- IF ::= 'if' EXPRESSION ( ':' COMMAND | BLOCK ) [ 'else' ( ':' COMMAND | BLOCK )] ;
+
+[source]
+----
+  IF ::= 'if' EXPRESSION ( ':' COMMAND | BLOCK ) [ 'else' ( ':' COMMAND | BLOCK )] ;
+
+----
+
 
 The result of a CLASS declaration is the declared class itself.
 
- CLASS ::= 'class' [IDENTIFIER] [ ':' IDENTIFIER_LIST ] BLOCK ;
+
+[source]
+----
+  CLASS ::= 'class' [IDENTIFIER] [INHERITANCE] BODY
+ 
+  INHERITANCE ::= ':' PARENT_LIST
+ 
+  PARENT_LIST ::= IDENTIFIER (',' IDENTIFIER)
+ 
+  BODY ::= '{' COMMAND '}'
+ 
+
+----
+
 
 The class object is also assigned to the variable denoted by the `IDENTIFIER` in the current context.
 
 The result of a function declaration is the function itself.
 
- FN ::= FN_EXPR | FN_BLOCK ;
- FN_EXPR   ::= 'fn' [ IDENTIFIER ] '(' IDENTIFIER_LIST ')' '=' EXPRESSION ;
- FN_BLOCK  ::= 'fn' [ IDENTIFIER ] [ '(' IDENTIFIER_LIST ')' ] BLOCK ;
+
+[source]
+----
+  FUNCTION ::= 'fn' (NAMED_FUNCTION | ANONYMOUS_FUNCTION)
+ 
+  NAMED_FUNCTION ::= IDENTIFIER FUNCTION_BODY
+                    | IDENTIFIER '(' PARAM_LIST ')' [RETURN_TYPE] FUNCTION_BODY
+ 
+  ANONYMOUS_FUNCTION ::= '(' PARAMETER_LIST ')' [RETURN_TYPE] FUNCTION_BODY
+ 
+  RETURN_TYPE ::=':'IDENTIFIER (','IDENTIFIER)
+ 
+  FUNCTION_BODY ::= BLOCK_BODY
+                   |'='EXPRESSION
+                   |';'
+ 
+  BLOCK_BODY ::= '{' COMMAND '}'
+ 
+
+----
+
+
+[source]
+----
+  PARAMETER_LIST ::= PARAMETER (',' PARAMETER)
+ 
+  PARAMETER ::= NORMAL_PARAMETER | SPECIAL_PARAMETER
+ 
+  NORMAL_PARAMETER ::= [PARAMETER_TYPE] IDENTIFIER [TYPE_DECLARATION] [DEFAULT_VALUE]
+ 
+  PARAMETER_TYPE ::= '!'  // positional only
+                  | '@'  // named only
+ 
+  SPECIAL_PARAMETER ::= REST_PARAMETER | META_PARAMETER | CLOSURE_PARAMETER
+ 
+  REST_PARAMETER ::= '[' IDENTIFIER ']'
+ 
+  META_PARAMETER ::= '{' IDENTIFIER '}'
+ 
+  CLOSURE_PARAMETER ::= '^' IDENTIFIER
+ 
+  TYPE_DECLARATION ::= ':' TYPE_LIST
+ 
+  TYPE_LIST ::= IDENTIFIER (',' IDENTIFIER)
+ 
+  DEFAULT_VALUE ::= '=' EXPRESSION
+ 
+  // Special parameters must appear in this order, if present
+  PARAMETERS_ORDER ::= NORMAL_PARAMETER [REST_PARAMETER] [META_PARAMETER] [CLOSURE_PARAMETER]
+
+----
+
 
 For functions with an expression body following a '=', the parameter list is mandatory.
 The parameter list may be empty, having only '(' and ')'.
@@ -11231,9 +11382,28 @@ For functions with a block body, both the function name and parameter list are o
 Variables declared as local will be local to the context, even if the same name is used in some enclosing context or as a global variable.
 The value of the local declaration is the value of the last assignment in the command
 
- LOCAL ::= 'let' IDENTIFIER_ASSIGNMENT_LIST |
-           'let' '{' TYPED_IDENTIFIER_LIST '}' '=' EXPRESSION|
-           'let' '[' TYPED_IDENTIFIER_LIST ']' '=' EXPRESSION ;
+
+[source]
+----
+  LET ::= SINGLE_LET | MULTI_LET
+ 
+  SINGLE_LET ::= ('let' | 'mut') ASSIGNMENT_LIST
+ 
+  MULTI_LET ::= ('let' | 'mut') MULTI_ASSIGNMENT_HEADER '=' EXPRESSION
+ 
+  MULTI_ASSIGNMENT_HEADER ::= '[' ASSIGNMENT_LIST ']'
+                          | '{' ASSIGNMENT_LIST '}'
+ 
+  ASSIGNMENT_LIST ::= ASSIGNMENT (',' ASSIGNMENT)
+ 
+  ASSIGNMENT ::= IDENTIFIER (':' TYPE_DECLARATION)?
+ 
+  TYPE_DECLARATION ::= IDENTIFIER
+ 
+  EXPRESSION ::= // Any valid Turicum expression
+
+----
+
 
 When there are braces or brackets around the identifier list the `EXPRESSION` has to be an object (for braces) or a list (for brackets).
 The fields or the elements of the object or list are assigned to the individual variables.

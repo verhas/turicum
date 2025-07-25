@@ -579,10 +579,10 @@ public class TuriString implements TuriClass {
                     });
             case "split" ->
                 // split the string into a list using the argument as a regular expression.
-                // If there is no argument, the function uses `"\n"` making it behave the same as `lines()`.
-                // Optionally there is a second argument that can limit how many pieces the string is split.
+                // If there is no argument, the function uses `"\n"`, making it behave the same as `lines()`.
+                // Optionally, there is a second argument that can limit how many pieces the string is split.
                 // If it is `0` then there is no limit, but the trailing empty strings are discarded.
-                // It the limit is -1 the trailing empty elements are kept.
+                // If the limit is -1, the trailing empty elements are kept.
                 // {%S string_split%}
                     new TuriMethod<>((args) -> {
                         final String splitter;
@@ -600,6 +600,26 @@ public class TuriString implements TuriClass {
                         final var list = new LngList();
                         list.array.addAll(Arrays.asList(string.split(splitter, limit)));
                         return list;
+                    });
+            case "msplit" ->
+                // split the string into a list of list of list... using the characters of the argument.
+                // There is no default splitter character(s) in the case of msplit.
+                // Optionally, there is a second, third and so on arguments that can limit how many pieces the strings are split.
+                // If it is `0` then there is no limit, but the trailing empty strings are discarded.
+                // If the limit is -1, the trailing empty elements are kept.
+                // {%S string_msplit%}
+                    new TuriMethod<>((args) -> {
+                        final String splitter;
+                        if (args.length == 0) {
+                            throw new ExecutionException("msplit() needs at least one argument");
+                        } else {
+                            splitter = args[0].toString();
+                        }
+                        final var limits = new int[args.length - 1];
+                        for( int i = 1; i < args.length; i++ ) {
+                            limits[i-1] = Cast.toLong(args[i]).intValue();
+                        }
+                        return StringUtils.msplit(string, 0,splitter,limits);
                     });
             case "bytes" ->
                 // return a list that contains the bytes of the string using UTF-8 character encoding.

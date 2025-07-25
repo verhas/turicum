@@ -6,25 +6,45 @@ import ch.turic.ExecutionException;
 import ch.turic.commands.*;
 
 /**
- * <pre>{@code
- * fn myFunction a,b,c,d {
- * commands
- * }
- * }</pre>
+ * The FunctionDefinitionAnalyzer is responsible for analyzing function definitions
+ * in a lexical context. It parses function signatures, parameter lists, return types,
+ * and function bodies, which may include block commands or expressions.
+ * This class is a singleton and operates as an analyzer within the framework.
  * <p>
- * OR
- * <pre>{@code
- * fn myFunction (a,b,c,d) {
- * commands
- * }
- * }</pre>
+ * It extends the AbstractAnalyzer and utilizes a LexList to read and interpret
+ * a sequence of lexemes for the purpose of creating a FunctionDefinition object.
  * <p>
- * OR
- * <pre>{@code
- * fn (a,b,c,d) {
- * commands
- * }
- * }</pre>
+ * Key operations performed by this class include:
+ * - Determining whether the function being analyzed has a name or is anonymous.
+ * - Parsing parameter lists and handling optional parentheses.
+ * - Parsing and validating function return types.
+ * - Handling both short-form function bodies and block bodies.
+ * - Ensuring proper syntax for function definitions.
+ * <p>
+ * The resulting FunctionDefinition object encapsulates all necessary elements
+ * of the function's structure for further interpretation or execution.
+ * <p>
+ * Responsibilities handled by this class may throw exceptions where syntax
+ * errors or structural issues are identified during analysis.
+ * <pre>
+ * snippet EBNF_FN
+ * FUNCTION ::= 'fn' (NAMED_FUNCTION | ANONYMOUS_FUNCTION)
+ *
+ * NAMED_FUNCTION ::= IDENTIFIER FUNCTION_BODY
+ *                   | IDENTIFIER '(' PARAM_LIST ')' [RETURN_TYPE] FUNCTION_BODY
+ *
+ * ANONYMOUS_FUNCTION ::= '(' PARAMETER_LIST ')' [RETURN_TYPE] FUNCTION_BODY
+ *
+ * RETURN_TYPE ::=':'IDENTIFIER (','IDENTIFIER)*
+ *
+ * FUNCTION_BODY ::= BLOCK_BODY
+ *                  |'='EXPRESSION
+ *                  |';'
+ *
+ * BLOCK_BODY ::= '{' COMMAND* '}'
+ *
+ * end snippet
+ * </pre>
  */
 public class FunctionDefinitionAnalyzer extends AbstractAnalyzer {
     public static final FunctionDefinitionAnalyzer INSTANCE = new FunctionDefinitionAnalyzer();

@@ -3,28 +3,28 @@ sys_import "turi.maven"
 import "turicum_versions"
 
 let project = maven_project({
-    name : "maven extension",
-    artifactId : "turicum-maven-extension"
-    version : VERSION,
-    description : "Turicum maven extension",
-    parent : {
+    name: "maven extension",
+    artifactId: "turicum-maven-extension"
+    version: VERSION,
+    description: "Turicum maven extension",
+    parent: {
         groupId: groupId,
         artifactId: "turicum-parent",
         version: VERSION
     }
-    build : { 
-        plugins : [
+    build: { 
+        plugins: [
             maven_plugin("source"),
             maven_plugin("javadoc"),
             maven_plugin("compiler"),
             maven_plugin("resources"),
             {
-                groupId : "org.codehaus.plexus",
-                artifactId : "plexus-component-metadata",
-                version : "2.2.0",
-                executions : [
+                groupId: "org.codehaus.plexus",
+                artifactId: "plexus-component-metadata",
+                version: "2.2.0",
+                executions: [
                     {
-                        goals : [ "generate-metadata" ]
+                        goals: [ "generate-metadata" ]
                     }
                 ]
             }
@@ -32,23 +32,29 @@ let project = maven_project({
     },
     dependencies: [
         {
-            groupId : "ch.turic",
-            artifactId : "turicum",
-            version : VERSION
+            groupId: "ch.turic",
+            artifactId: "turicum",
+            version: VERSION
         },
         {
-            groupId : "org.junit.jupiter",
-            artifactId : "junit-jupiter-api",
+            groupId: "org.junit.jupiter",
+            artifactId: "junit-jupiter-api",
         },
         {
-            groupId : "org.junit.jupiter",
-            artifactId : "junit-jupiter-engine",
+            groupId: "org.junit.jupiter",
+            artifactId: "junit-jupiter-engine",
         },
         {
-            groupId : "org.apache.maven",
-            artifactId : "maven-core",
-            version : "3.9.8",
-            scope : "provided",
+            groupId: "org.apache.maven",
+            artifactId: "maven-core",
+            version: `maven-core`,
+            scope: "provided",
+        }
+        {
+            groupId: "org.codehaus.plexus",
+            artifactId: "plexus-component-annotations",
+            version: "2.2.0",
+            scope: "provided",
         }
     ]
 });
