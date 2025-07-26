@@ -11,7 +11,7 @@ let project = maven_project({
         groupId: groupId,
         artifactId: "turicum-parent",
         version: VERSION
-    }
+    },
     build: { 
         plugins: [
             maven_plugin("source"),
@@ -49,7 +49,7 @@ let project = maven_project({
             artifactId: "maven-core",
             version: `maven-core`,
             scope: "provided",
-        }
+        },
         {
             groupId: "org.codehaus.plexus",
             artifactId: "plexus-component-annotations",
