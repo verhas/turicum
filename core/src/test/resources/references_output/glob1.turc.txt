@@ -9,6 +9,7 @@
     "target/test-classes/ch/turic/TestInterpreter.class",
     "target/test-classes/ch/turic/ParameterDefinitionTest.class",
     "target/test-classes/ch/turic/TestCompilation$ProgramSnippet.class",
+    "target/test-classes/ch/turic/Basic.class",
     "target/test-classes/ch/turic/TestReferenceSnippets.class",
     "target/test-classes/ch/turic/TestReferenceSnippets$ProgramSnippet.class",
     "target/test-classes/ch/turic/analyzer/StringFetcherTest$EscapeSequenceTests.class",

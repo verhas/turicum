@@ -8,7 +8,7 @@ println "Turicum STARTED"
 let modules =  [ "core", "maven", "cli" ];
 
 let project = maven_project({
-    name : $"${groupId}:turicum-parent",
+    name: $"${groupId}:turicum-parent",
     packaging: "pom",
     groupId: groupId,
     artifactId: "turicum-parent",
@@ -16,25 +16,25 @@ let project = maven_project({
     description: "Turicum programming language",
     modules: modules,
 
-    licenses : [ license.apache2_0 ],
+    licenses: [ license.apache2_0 ],
     
     developers: [ {
             name: "Peter Verhas",
             email: "peter@verhas.com"
     } ],
-    scm: github("verhas","turicum"),
+    scm: github("verhas", "turicum"),
 
     url: "https://github.com/verhas/turicum",
     build: {
         pluginManagement: {
-            plugins : [
+            plugins: [
                 {
                     groupId: groupIdMavenPlugin,
                     artifactId: "maven-source-plugin",
                     version: `maven-source-plugin`,
-                    executions : [ {
+                    executions: [ {
                             id: "attach-sources",
-                            goals : [ "jar" ]
+                            goals: [ "jar" ]
                             } ]
                 },
                 {
@@ -43,7 +43,7 @@ let project = maven_project({
                     version: "3.4.2",
                     configuration: {
                         archive :{
-                            manifest : {
+                            manifest: {
                                 addDefaultImplementationEntries: "true",
                                 addDefaultSpecificationEntries: "true",
                             }
@@ -56,62 +56,62 @@ let project = maven_project({
                     version: `maven-assembly-plugin`,
                 },
                 {
-                    groupId : groupIdMavenPlugin,
-                    artifactId : "maven-javadoc-plugin",
-                    version : `maven-javadoc-plugin`
+                    groupId: groupIdMavenPlugin,
+                    artifactId: "maven-javadoc-plugin",
+                    version: `maven-javadoc-plugin`
                     configuration: {
                         source: "21",
                         doclint: "none"
                     },
-                    executions : [ {
-                            id : "attach-javadoc",
-                            goals : [ "jar" ]
+                    executions: [ {
+                            id: "attach-javadoc",
+                            goals: [ "jar" ]
                             } ]
                 },
 
                 {
-                    groupId : groupIdMavenPlugin,
-                    artifactId : "maven-compiler-plugin",
-                    version : `maven-compiler-plugin`,
-                    configuration : {
+                    groupId: groupIdMavenPlugin,
+                    artifactId: "maven-compiler-plugin",
+                    version: `maven-compiler-plugin`,
+                    configuration: {
                         encoding: "UTF-8",
-                        source : JAVA_VERSION.to_string(),
-                        target : JAVA_VERSION.to_string(),
-                        release : JAVA_VERSION.to_string()
+                        source: JAVA_VERSION.to_string(),
+                        target: JAVA_VERSION.to_string(),
+                        release: JAVA_VERSION.to_string()
                         }
                 },
                 {
                     groupId: groupIdMavenPlugin,
                     artifactId: "maven-resources-plugin",
                     version: `maven-resources-plugin`,
-                    configuration : {encoding: "UTF-8", delimiters : ["@"] }
+                    configuration: {encoding: "UTF-8", delimiters: ["@"] }
                 },
                 {
-                    groupId : groupIdMavenPlugin,
-                    artifactId : "maven-dependency-plugin",
-                    version : `maven-dependency-plugin`,
-                    executions : [ {
-                            id : "collect",
-                            goals : [ "collect" ]
+                    groupId: groupIdMavenPlugin,
+                    artifactId: "maven-dependency-plugin",
+                    version: `maven-dependency-plugin`,
+                    executions: [ {
+                            id: "collect",
+                            goals: [ "collect" ]
                             } ]
                 },
 
                 {
-                    groupId : groupIdMavenPlugin,
-                    artifactId : "maven-surefire-plugin",
-                    version : `maven-surefire-plugin`
+                    groupId: groupIdMavenPlugin,
+                    artifactId: "maven-surefire-plugin",
+                    version: `maven-surefire-plugin`
                 },
                 {
-                    groupId : groupIdMavenPlugin,
-                    artifactId : "maven-gpg-plugin",
-                    version : "3.2.7",
+                    groupId: groupIdMavenPlugin,
+                    artifactId: "maven-gpg-plugin",
+                    version: "3.2.7",
                 },
                 {
-                    groupId : "org.sonatype.central",
-                    artifactId : "central-publishing-maven-plugin",
-                    version : "0.7.0",
-                    extensions : true,
-                    configuration : {
+                    groupId: "org.sonatype.central",
+                    artifactId: "central-publishing-maven-plugin",
+                    version: "0.7.0",
+                    extensions: true,
+                    configuration: {
                             publishingServerId: "central",
                             autoPublish: true
                           }
@@ -121,69 +121,69 @@ let project = maven_project({
 },
         
     
-    dependencyManagement : {
-        dependencies : [
+    dependencyManagement: {
+        dependencies: [
           ..{
               for each m in modules list{
                   {
-                      groupId : "ch.turic",
-                      artifactId : m,
-                      version : VERSION
+                      groupId: "ch.turic",
+                      artifactId: m,
+                      version: VERSION
                   }
               }
             },
             {
-                groupId : "org.junit.jupiter",
-                artifactId : "junit-jupiter-api",
-                version :  `org.junit.jupiter`,
-                scope : "test"
+                groupId: "org.junit.jupiter",
+                artifactId: "junit-jupiter-api",
+                version:  `org.junit.jupiter`,
+                scope: "test"
             },
             {
-                groupId : "org.junit.jupiter",
-                artifactId : "junit-jupiter-engine",
-                version :  `org.junit.jupiter`,
-                scope : "test"
-            },
-            
-            {
-                groupId : "org.junit.jupiter",
-                artifactId : "junit-jupiter-params",
-                version :  `org.junit.jupiter`,
-                scope : "test"
+                groupId: "org.junit.jupiter",
+                artifactId: "junit-jupiter-engine",
+                version:  `org.junit.jupiter`,
+                scope: "test"
             },
             
             {
-                groupId : "org.mockito",
-                artifactId : "mockito-core",
-                version : `org.mockito`,
-                scope : "test"
+                groupId: "org.junit.jupiter",
+                artifactId: "junit-jupiter-params",
+                version:  `org.junit.jupiter`,
+                scope: "test"
+            },
+            
+            {
+                groupId: "org.mockito",
+                artifactId: "mockito-core",
+                version: `org.mockito`,
+                scope: "test"
             },
             {
-                groupId : "org.jline",
-                artifactId : "jline",
-                version : "3.30.0"
+                groupId: "org.jline",
+                artifactId: "jline",
+                version: "3.30.0"
             }
 
         ]
     },
 
-    profiles : [ {
-        id : "release",
-        build : {
-            plugins : [ {
-                    groupId : groupIdMavenPlugin,
-                    artifactId : "maven-gpg-plugin",
-                    executions : [ {
-                            id : "sign-artifacts",
-                            phase : "verify",
-                            goals : [ "sign" ]
+    profiles: [ {
+        id: "release",
+        build: {
+            plugins: [ {
+                    groupId: groupIdMavenPlugin,
+                    artifactId: "maven-gpg-plugin",
+                    executions: [ {
+                            id: "sign-artifacts",
+                            phase: "verify",
+                            goals: [ "sign" ]
                             } ]
                     },
                     {
-                        groupId : "org.sonatype.central",
-                        artifactId : "central-publishing-maven-plugin",
-                        extensions : true,
-                        configuration : {
+                        groupId: "org.sonatype.central",
+                        artifactId: "central-publishing-maven-plugin",
+                        extensions: true,
+                        configuration: {
                                 publishingServerId: "central",
                                 autoPublish: true
                               }

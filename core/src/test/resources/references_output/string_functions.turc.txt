@@ -57,7 +57,7 @@
 57. d6f644b19812e97b5d871658d6d3400ecd4787faeb9b8990c1e7608288664be77257104a58d033bcf1a0e0945ff06468ebe53e2dff36e248424c7273117dac09
 60. 47bce5c74f589f4867dbd57e9ca9f808
 61. 0x3D
-62. [Lex{types=RESERVED, text='mut'}, Lex{types=IDENTIFIER, text='z'}, Lex{types=RESERVED, text='='}, Lex{types=RESERVED, text='if'}, Lex{types=IDENTIFIER, text='a'}, Lex{types=RESERVED, text='=='}, Lex{types=INTEGER, text='3'}, Lex{types=RESERVED, text=':'}, Lex{types=INTEGER, text='3'}, Lex{types=RESERVED, text='else'}, Lex{types=RESERVED, text=':'}, Lex{types=INTEGER, text='5'}, Lex{types=RESERVED, text=';'}]
+62. [Lex{type=RESERVED, text='mut', atLineStart=false}, Lex{type=IDENTIFIER, text='z', atLineStart=false}, Lex{type=RESERVED, text='=', atLineStart=false}, Lex{type=RESERVED, text='if', atLineStart=false}, Lex{type=IDENTIFIER, text='a', atLineStart=false}, Lex{type=RESERVED, text='==', atLineStart=false}, Lex{type=INTEGER, text='3', atLineStart=false}, Lex{type=RESERVED, text=':', atLineStart=false}, Lex{type=INTEGER, text='3', atLineStart=false}, Lex{type=RESERVED, text='else', atLineStart=false}, Lex{type=RESERVED, text=':', atLineStart=false}, Lex{type=INTEGER, text='5', atLineStart=false}, Lex{type=RESERVED, text=';', atLineStart=false}]
 63. 01234567
 64. 01234567
 65. 65is 65... literally

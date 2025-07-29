@@ -87,7 +87,7 @@ The Turicum project configuration is
     <extension>
         <groupId>ch.turic</groupId>
         <artifactId>turicum-maven-extension</artifactId>
-        <version>1.3.0</version>
+        <version>1.4.1</version>
     </extension>
 </extensions>
 
@@ -107,7 +107,7 @@ If you want to embed the application into Java, or Kotlin application, you use t
 <dependency>
    <groupId>ch.turic</groupId>
    <artifactId>turicum-parent</artifactId>
-   <version>1.4.0</version>
+   <version>1.4.2</version>
 </dependency>
 ----
 
@@ -1649,15 +1649,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=71529963
+h id=4F1BFE23
 h after post increment: 1
 k: 0
-h id=61A88B8C
-k id=71529963
+h id=E19BB76
+k id=4F1BFE23
 h after pre increment: 2
 z: 2
-h id=22295EC4
-z id=22295EC4
+h id=512535FF
+z id=512535FF
 
 ----
 
@@ -1702,15 +1702,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=5ADB0DB3
+h id=71529963
 h after post increment: 1
 k: 1
-h id=5ADB0DB3
-k id=5ADB0DB3
+h id=71529963
+k id=71529963
 h after pre increment: 2
 z: 2
-h id=5ADB0DB3
-z id=5ADB0DB3
+h id=71529963
+z id=71529963
 
 ----
 
@@ -1758,15 +1758,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=3F270E0A
+h id=61A88B8C
 h after post decrement: -1
 k: 0
-h id=7241A47D
-k id=3F270E0A
+h id=5ADB0DB3
+k id=61A88B8C
 h after pre decrement: -2
 z: -2
-h id=70F59913
-z id=70F59913
+h id=3F270E0A
+z id=3F270E0A
 
 ----
 
@@ -1808,15 +1808,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=77258E59
+h id=1A760689
 h after post decrement: -1
 k: -1
-h id=77258E59
-k id=77258E59
+h id=1A760689
+k id=1A760689
 h after pre decrement: -2
 z: -2
-h id=77258E59
-z id=77258E59
+h id=1A760689
+z id=1A760689
 
 ----
 
@@ -4100,27 +4100,53 @@ println {
 The continue command will "break" the current loop execution and start the loop over for the next iteration.
 In the case of a for loop, the step command will be executed, and the exit condition will also be evaluated.
 
-The `continue` command can have an expression, but it is only allowed if the loop is a list-resulting loop.
-In this case the value of the expression will be appended to the resulting list.
-If the value of the expression is `none` then `none` as a value will be appended to the list.
+The `continue` command can have an expression, but it is only allowed if the loop is a list-producing loop.
+In this case, the value of the expression will be appended to the resulting list.
+If the value of the expression is `none`, then `none` as a value will be appended to the list.
 If there is no expression after the `continue` keyword, then the resulting list will remain untouched for the actual execution.
 
-The use of `continue` is restricted.
-You can use it only inside a loop as a top-level command, and not inside a block, or part of other commands, like `if`.
+.source of snippet `mixed_continue`
+
+[source]
+----
+println {for each z in [1, 2, 3, 4, 5, 10, 11, 12] list {
+            if z % 5 == 0 : continue;
+            if z % 3 == 0 : continue z + 0.1;
+            z
+          }
+        }
+
+----
+
+.output of snippet `mixed_continue`
+[source]
+----
+[1, 2, 3.1, 4, 11, 12.1]
+
+----
+
+
+
+As you can see, the resulting list adds 0.1 to each element that is a multiple of three, but the elements that are multiples of five are skipped.
+
+You cannot use `continue` with a value in a loop that does not result a list:
 
 .source of snippet `bad_continue`
 
 [source]
 ----
-try: let k = {for each z in [1,2,3] { if z%2 == 0 : continue 2*z else: continue 3*z}}
-catch e: println e
+try: let k = {for each z in [1,2,3] {
+    continue z/2 if z % 2 == 0;
+    continue z;
+    }
+}catch e: println e
 
 ----
 
 .output of snippet `bad_continue`
 [source]
 ----
-Continue executed in non-loop.
+You cannot 'continue' with a value in a non-list resulting loop.
 
 ----
 
@@ -4571,12 +4597,12 @@ execute("Thread 2",2)
 [source]
 ----
  prime read 2
-Thread 1 generated  prime read 3
-3
+Thread 1 generated 3
+ prime read 3
 Thread 1 generated 5
  prime read 5
-Thread 1 generated 7
- prime read 7
+Thread 1 prime read 7
+ generated 7
 Thread 1 generated 11
 Thread 1 generated 13
 Thread 1 generated 17
@@ -4584,12 +4610,12 @@ Thread 1 generated 19
 Thread 1 generated 23
 stopping
 exception Task stopped.
-Thread 2 generated 3
- prime read 2
+ prime read Thread 2 generated 2
+3
  prime read 3
 Thread 2 generated 5
-Thread 2 generated 7
  prime read 5
+Thread 2 generated 7
  prime read 7
 Thread 2 generated 11
 Thread 2 generated 13
@@ -4649,9 +4675,9 @@ println( (end-start)/1000000, "ms")
 [source]
 ----
 [1, 2, 3]
-311.612375ms
+310.119083ms
 []
-313.40275ms
+309.933041ms
 
 ----
 
@@ -4860,10 +4886,9 @@ a =3.6820276497695854
 a =3.6063454894655185
 a =3.6055513629176015
 a =3.6055512754639905
-a =3.6055512754639896
-sqrt(13) ≈ 3.6055512754639905
+sqrt(13) ≈ 3.6055513629176015
 sqrt(13) ≈ 3.605551275463989 calculated by java Math
-square ≈ 13.000000000000009
+square ≈ 13.000000630636974
 
 ----
 
@@ -7575,7 +7600,7 @@ println "for each i in range(1,55) : println i".turi_lex()
 .output of snippet `string_turi_lex`
 [source]
 ----
-[Lex{types=RESERVED, text='for'}, Lex{types=RESERVED, text='each'}, Lex{types=IDENTIFIER, text='i'}, Lex{types=RESERVED, text='in'}, Lex{types=IDENTIFIER, text='range'}, Lex{types=RESERVED, text='('}, Lex{types=INTEGER, text='1'}, Lex{types=RESERVED, text=','}, Lex{types=INTEGER, text='55'}, Lex{types=RESERVED, text=')'}, Lex{types=RESERVED, text=':'}, Lex{types=RESERVED, text='println'}, Lex{types=IDENTIFIER, text='i'}]
+[Lex{type=RESERVED, text='for', atLineStart=false}, Lex{type=RESERVED, text='each', atLineStart=false}, Lex{type=IDENTIFIER, text='i', atLineStart=false}, Lex{type=RESERVED, text='in', atLineStart=false}, Lex{type=IDENTIFIER, text='range', atLineStart=false}, Lex{type=RESERVED, text='(', atLineStart=false}, Lex{type=INTEGER, text='1', atLineStart=false}, Lex{type=RESERVED, text=',', atLineStart=false}, Lex{type=INTEGER, text='55', atLineStart=false}, Lex{type=RESERVED, text=')', atLineStart=false}, Lex{type=RESERVED, text=':', atLineStart=false}, Lex{type=RESERVED, text='println', atLineStart=false}, Lex{type=IDENTIFIER, text='i', atLineStart=false}]
 
 ----
 
@@ -9230,7 +9255,7 @@ println "66. ","0765".number(8), " is ", 8*8*7+8*6+5
 57. d6f644b19812e97b5d871658d6d3400ecd4787faeb9b8990c1e7608288664be77257104a58d033bcf1a0e0945ff06468ebe53e2dff36e248424c7273117dac09
 60. 47bce5c74f589f4867dbd57e9ca9f808
 61. 0x3D
-62. [Lex{types=RESERVED, text='mut'}, Lex{types=IDENTIFIER, text='z'}, Lex{types=RESERVED, text='='}, Lex{types=RESERVED, text='if'}, Lex{types=IDENTIFIER, text='a'}, Lex{types=RESERVED, text='=='}, Lex{types=INTEGER, text='3'}, Lex{types=RESERVED, text=':'}, Lex{types=INTEGER, text='3'}, Lex{types=RESERVED, text='else'}, Lex{types=RESERVED, text=':'}, Lex{types=INTEGER, text='5'}, Lex{types=RESERVED, text=';'}]
+62. [Lex{type=RESERVED, text='mut', atLineStart=false}, Lex{type=IDENTIFIER, text='z', atLineStart=false}, Lex{type=RESERVED, text='=', atLineStart=false}, Lex{type=RESERVED, text='if', atLineStart=false}, Lex{type=IDENTIFIER, text='a', atLineStart=false}, Lex{type=RESERVED, text='==', atLineStart=false}, Lex{type=INTEGER, text='3', atLineStart=false}, Lex{type=RESERVED, text=':', atLineStart=false}, Lex{type=INTEGER, text='3', atLineStart=false}, Lex{type=RESERVED, text='else', atLineStart=false}, Lex{type=RESERVED, text=':', atLineStart=false}, Lex{type=INTEGER, text='5', atLineStart=false}, Lex{type=RESERVED, text=';', atLineStart=false}]
 63. 01234567
 64. 01234567
 65. 65is 65... literally
@@ -10068,7 +10093,7 @@ println nano_time()
 .output of snippet `nano_time`
 [source]
 ----
-344249990000041
+81542202083208
 
 ----
 
@@ -10195,6 +10220,7 @@ println jsonify_beauty(glob("**/test-classes/**/*.class", recursive=true))
     "target/test-classes/ch/turic/TestInterpreter.class",
     "target/test-classes/ch/turic/ParameterDefinitionTest.class",
     "target/test-classes/ch/turic/TestCompilation$ProgramSnippet.class",
+    "target/test-classes/ch/turic/Basic.class",
     "target/test-classes/ch/turic/TestReferenceSnippets.class",
     "target/test-classes/ch/turic/TestReferenceSnippets$ProgramSnippet.class",
     "target/test-classes/ch/turic/analyzer/StringFetcherTest$EscapeSequenceTests.class",
@@ -10459,71 +10485,71 @@ none
 task2 is not ready 0
 task1 is ready 1
 task1 is not ready 0
-task2 is not ready 1
 task1 is not ready 1
-task2 is not ready 2task1 is not ready 2
-
+task2 is not ready 1
+task1 is not ready 2
+task2 is not ready 2
 task2 is not ready 3
 task1 is not ready 3
-task2 is ready 2
-task1 is not ready 4
+task2 is ready 2task1 is not ready 4
+
 task2 is not ready 0
-task1 is not ready 5
-task2 is not ready 1
-task1 is not ready 6
-task2 is not ready 2
-task1 is ready 3
+task2 is not ready 1task1 is not ready 5
+
+task1 is not ready 6task2 is not ready 2
+
 task2 is not ready 3
+task1 is ready 3
+task1 is not ready 0
+task1 is not ready 1
+task2 is not ready 4
+task1 is not ready 2
+task2 is not ready 5
+task2 is ready 4
+task1 is not ready 3
+task2 is not ready 0
+task2 is not ready 1
+task1 is not ready 4
+task1 is not ready 5
+task2 is not ready 2
+task2 is ready 5
+task2 is not ready 0
+task1 is not ready 6
+task2 is not ready 1
+task1 is not ready 7
+task2 is not ready 2
+task1 is not ready 8
+task1 is ready 6task2 is not ready 3
+
 task1 is not ready 0
 task2 is not ready 4
 task1 is not ready 1
+task1 is not ready 2
 task2 is not ready 5
-task1 is not ready 2
-task1 is ready 4
-task2 is not ready 6
-task1 is not ready 0
-task2 is not ready 7
-task1 is not ready 1
-task2 is not ready 8
-task1 is not ready 2
-task1 is ready 5
-task2 is not ready 9
-task1 is not ready 0
-task2 is not ready 10
-task1 is not ready 1
-task1 is not ready 2task2 is not ready 11
-
-task1 is ready 6task2 is not ready 12
-
-task1 is not ready 0
-task1 is not ready 1
-task2 is not ready 13
-task1 is not ready 2
-task2 is not ready 14
-task1 is not ready 3
-task2 is not ready 15
 task1 is ready 7
 task1 is not ready 0
-task2 is not ready 16
+task2 is not ready 6
+task2 is not ready 7
 task1 is not ready 1
-task2 is not ready 17
 task1 is not ready 2
-task2 is not ready 18
-task2 is not ready 19
+task2 is not ready 8
+task1 is not ready 3
+task2 is not ready 9
+task2 is not ready 10
 task1 is ready 8
 task1 is not ready 0
-task2 is not ready 20
+task2 is not ready 11
 task1 is not ready 1
-task2 is not ready 21
+task2 is not ready 12
 task1 is not ready 2
 task2 is ready 9
 task1 is not ready 3
 task2 is not ready 0
 task2 is not ready 1
 task1 is not ready 4
+task1 is not ready 5task2 is not ready 2
+
 closing the channel
-task2 is not ready 2
-task1 is not ready 5
 channel is closed
 1 is done false
 2 is done false

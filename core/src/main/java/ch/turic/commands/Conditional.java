@@ -24,7 +24,7 @@ sealed public interface Conditional permits Conditional.Result {
      * Base implementation of Conditional that stores a result value and completion status.
      * This class serves as the parent for specific result types like break and return.
      */
-    sealed class Result implements Conditional permits BreakResult, ReturnResult {
+    sealed class Result implements Conditional permits BreakResult, ReturnResult, ContinueResult {
         private final Object result;
         private final boolean done;
 
@@ -62,6 +62,18 @@ sealed public interface Conditional permits Conditional.Result {
         }
     }
 
+    final class ContinueResult extends Result {
+
+        private ContinueResult(Object result) {
+            super(result, true);
+        }
+
+        @Override
+        public String toString() {
+            return "continue{" + result() + "}";
+        }
+    }
+
     /**
      * Represents a return statement result, typically used for method returns.
      */
@@ -95,6 +107,10 @@ sealed public interface Conditional permits Conditional.Result {
      */
     static Conditional doBreak(Object result) {
         return new BreakResult(result, true);
+    }
+
+    static Conditional doContinue(Object result) {
+        return new ContinueResult(result);
     }
 
     /**

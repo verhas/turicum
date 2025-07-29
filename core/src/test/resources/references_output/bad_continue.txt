@@ -1,1 +1,1 @@
-Continue executed in non-loop.
+You cannot 'continue' with a value in a non-list resulting loop.

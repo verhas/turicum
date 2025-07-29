@@ -86,7 +86,7 @@ public class LexList extends LngList {
      * Creates a {@code BadSyntax} exception with a formatted message and the current token position,
      * removing the top stack frame from its stack trace.
      *
-     * @param msg the error message format string
+     * @param msg    the error message format string
      * @param params optional parameters for the message format
      * @return a {@code BadSyntax} exception with a modified stack trace
      */
@@ -108,7 +108,11 @@ public class LexList extends LngList {
      */
     public Pos position() {
         if (index >= array.size()) {
-            return lexAt(array.size() - 1).position();
+            if (array.isEmpty()) {
+                return null;
+            } else {
+                return lexAt(array.size() - 1).position();
+            }
         }
         return lexAt(index).position().clone();
     }
