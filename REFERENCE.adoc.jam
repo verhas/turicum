@@ -1509,13 +1509,16 @@ When the expression following the `break` keyword starts with the `if` keyword t
 The continue command will "break" the current loop execution and start the loop over for the next iteration.
 In the case of a for loop, the step command will be executed, and the exit condition will also be evaluated.
 
-The `continue` command can have an expression, but it is only allowed if the loop is a list-resulting loop.
-In this case the value of the expression will be appended to the resulting list.
-If the value of the expression is `none` then `none` as a value will be appended to the list.
+The `continue` command can have an expression, but it is only allowed if the loop is a list-producing loop.
+In this case, the value of the expression will be appended to the resulting list.
+If the value of the expression is `none`, then `none` as a value will be appended to the list.
 If there is no expression after the `continue` keyword, then the resulting list will remain untouched for the actual execution.
 
-The use of `continue` is restricted.
-You can use it only inside a loop as a top-level command, and not inside a block, or part of other commands, like `if`.
+{%S mixed_continue%}
+
+As you can see, the resulting list adds 0.1 to each element that is a multiple of three, but the elements that are multiples of five are skipped.
+
+You cannot use `continue` with a value in a loop that does not result a list:
 
 {%S bad_continue%}
 

@@ -46,7 +46,7 @@ public class Lex implements HasFields {
 
     @Override
     public String toString() {
-        return String.format("Lex{types=%s, text='%s'}", type, text);
+        return String.format("Lex{type=%s, text='%s', atLineStart=%s}", type, text, ""+atLineStart);
     }
 
     @Override

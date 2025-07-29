@@ -25,22 +25,23 @@ public class BadSyntax extends RuntimeException {
      * Formats the error message with contextual information about the error location.
      * Shows up to 3 lines of code before the error position and marks the exact column with a caret.
      *
-     * @param position The position information about where the error occurred
-     * @param s        The message format string
-     * @param params   The parameters to be formatted into the message
+     * @param position        The position information about where the error occurred
+     * @param errorMessageFmt The message format string
+     * @param params          The parameters to be formatted into the message
      * @return A formatted error message with context
      */
-    private static String format(Pos position, String s, Object... params) {
-        final var start = position.line >= 3 ? position.line - 3 : 0;
+    private static String format(Pos position, String errorMessageFmt, Object... params) {
+        final var start = position != null && position.line >= 3 ? position.line - 3 : 0;
         final var sb = new StringBuilder();
-        for (int i = start; i < position.line; i++) {
-            sb.append(String.format("\n%3d. %s", i+1, position.lines[i]));
+        for (int i = start; position != null && i < position.line; i++) {
+            sb.append(String.format("\n%3d. %s", i + 1, position.lines[i]));
         }
 
-        return String.format(s, params)
-                + String.format("\nat %s:%d:%d", position.file, position.line, position.column)
-                + sb
-                + String.format("\n   %s^", "-".repeat(position.column));
+        return String.format(errorMessageFmt, params) +
+                (position == null ? "" :
+                        (String.format("\nat %s:%d:%d", position.file, position.line, position.column)
+                                + sb
+                                + String.format("\n   %s^", "-".repeat(position.column))));
 
     }
 

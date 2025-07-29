@@ -789,9 +789,21 @@ println { for i=0 ; i < 0 ; i=i+1 : "anything, not executed, will print none" }
 println { for i=0 ; i < 0 ; i=i+1 list: "anything, not executed, will print []" }
 // end snippet
 
+// snippet mixed_continue
+println {for each z in [1, 2, 3, 4, 5, 10, 11, 12] list {
+            if z % 5 == 0 : continue;
+            if z % 3 == 0 : continue z + 0.1;
+            z
+          }
+        }
+// end snippet
+
 // snippet bad_continue
-try: let k = {for each z in [1,2,3] { if z%2 == 0 : continue 2*z else: continue 3*z}}
-catch e: println e
+try: let k = {for each z in [1,2,3] {
+    continue z/2 if z % 2 == 0;
+    continue z;
+    }
+}catch e: println e
 // end snippet
 
 // snippet bnot

@@ -79,7 +79,7 @@ public class BlockCommand extends AbstractCommand {
                     return cResult;
                 }
                 // important if it was the last command
-                // to avoid double conditional casketing
+                // to avoid double conditional casting
                 result = cResult.result();
             }
         }

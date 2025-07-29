@@ -1,6 +1,13 @@
-sys_import  "turi.maven"
+sys_import "turi.flat"
 
-print plugin("group:artif:53", executions="attach_sources:jar,pom|other_id:java,a");
+for each a in [1,2,3] : println a
+
+
+
+
+
+
+
 
 
 /*
