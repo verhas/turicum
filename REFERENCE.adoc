@@ -87,7 +87,7 @@ The Turicum project configuration is
     <extension>
         <groupId>ch.turic</groupId>
         <artifactId>turicum-maven-extension</artifactId>
-        <version>1.4.1</version>
+        <version>1.4.0</version>
     </extension>
 </extensions>
 
@@ -11245,7 +11245,7 @@ It is the __result__ of the command.
 ----
    COMMAND ::=  KEYWORD_COMMAND |
                 ASSIGNMENT |
-                FUNCTION CALL |
+                FUNCTION_CALL |
                 EXPRESSION |
                 ; //empty command
 

@@ -14,7 +14,7 @@ import static ch.turic.analyzer.PrimaryExpressionAnalyzer.analyzeArguments;
  * snippet EBNF_COMMAND
  *  COMMAND ::=  KEYWORD_COMMAND |
  *               ASSIGNMENT |
- *               FUNCTION CALL |
+ *               FUNCTION_CALL |
  *               EXPRESSION |
  *               ; //empty command
  * end snippet

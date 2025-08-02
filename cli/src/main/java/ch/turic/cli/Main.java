@@ -87,6 +87,23 @@ public class Main {
                 version = "DEV-SNAPSHOT";
             }
             System.out.printf("Turicum Version %s (Built: %s)\n", version, buildTime);
+            System.out.println("JVM Version: " + System.getProperty("java.version"));
+            System.out.println("JVM Version Details: " + System.getProperty("java.runtime.version"));
+            System.out.println("JVM Name: " + System.getProperty("java.vm.name"));
+            System.out.println("\n=== Operating System Information ===");
+            System.out.println("OS Name: " + System.getProperty("os.name"));
+            System.out.println("OS Version: " + System.getProperty("os.version"));
+            System.out.println("OS Architecture: " + System.getProperty("os.arch"));
+            System.out.println("\n=== Hardware Information ===");
+            System.out.println("Available Processors (cores): " + Runtime.getRuntime().availableProcessors());
+            System.out.println("Total Memory (bytes): " + Runtime.getRuntime().totalMemory());
+            System.out.println("Max Memory (bytes): " + Runtime.getRuntime().maxMemory());
+            System.out.println("Free Memory (bytes): " + Runtime.getRuntime().freeMemory());
+            System.out.println("\n=== File System Information ===");
+            System.out.println("File Separator: " + System.getProperty("file.separator"));
+            System.out.println("User Home Directory: " + System.getProperty("user.home"));
+            System.out.println("User Working Directory: " + System.getProperty("user.dir"));
+
             return;
         }
         if (params.get("help").isPresent()) {

@@ -1,5 +1,4 @@
 sending 1
-not ready 0
 received 1
 not ready 0
 not ready 1
@@ -12,7 +11,6 @@ sending 3
 received 3
 not ready 0
 not ready 1
-not ready 2
 closing the channel
 channel is closed
 is done false
