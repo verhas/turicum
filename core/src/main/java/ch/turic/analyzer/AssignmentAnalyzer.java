@@ -12,15 +12,27 @@ public class AssignmentAnalyzer extends AbstractAnalyzer {
      * Analyzes the given lexical tokens to identify and construct assignment or increment/decrement commands.
      * <p>
      * Recognizes and returns commands for prefix and postfix increment (`++`) and decrement (`--`) operations,
-     * as well as assignment operations using any supported assignment operator. Throws a syntax error if an
-     * increment or decrement operator is not followed by a valid left value.
+     * as well as assignment operations using any supported assignment operator.
+     *
+     * If the return value if {@code null}, then lexeme is consumed (position is restored).
      *
      * @param lexes the list of lexical tokens to analyze
      * @return a command representing an assignment or increment/decrement operation, or {@code null} if no valid operation is found
-     * @throws BadSyntax if a prefix increment or decrement operator is not followed by a valid left value
+     * @throws BadSyntax if a valid left value does not follow a prefix increment or decrement operator
      */
     @Override
     public Command _analyze(LexList lexes) throws BadSyntax {
+        final var position = lexes.getIndex();
+        final var assignmentCommand = __analyze(lexes);
+        if (assignmentCommand != null) {
+            Analyzer.checkCommandTermination(lexes);
+            return assignmentCommand;
+        }
+        lexes.setIndex(position);
+        return null;
+    }
+
+    private Command __analyze(LexList lexes) throws BadSyntax {
         if (lexes.is("++")) {
             lexes.next();
             final var leftValue = LeftValueAnalyzer.INSTANCE.analyze(lexes);

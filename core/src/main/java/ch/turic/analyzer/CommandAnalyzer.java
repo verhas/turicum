@@ -12,11 +12,11 @@ import static ch.turic.analyzer.PrimaryExpressionAnalyzer.analyzeArguments;
 
 /**
  * snippet EBNF_COMMAND
- *  COMMAND ::=  KEYWORD_COMMAND |
- *               ASSIGNMENT |
- *               FUNCTION_CALL |
- *               EXPRESSION |
- *               ; //empty command
+ * COMMAND ::=  KEYWORD_COMMAND |
+ * ASSIGNMENT |
+ * FUNCTION_CALL |
+ * EXPRESSION |
+ * ; //empty command
  * end snippet
  */
 public class CommandAnalyzer extends AbstractAnalyzer {
@@ -28,13 +28,13 @@ public class CommandAnalyzer extends AbstractAnalyzer {
             lexes.next();
             return null;
         }
-        if ( lexes.isKeyword()) {
-            final var command =  analyzeKeywordCommand(lexes);
-            if( command != null ) {
+        if (lexes.isKeyword()) {
+            final var command = analyzeKeywordCommand(lexes);
+            if (command != null) {
                 return command;
             }
         }
-        Command assignmentCommand = tryToGetAssignment(lexes);
+        Command assignmentCommand = AssignmentAnalyzer.INSTANCE.analyze(lexes);
         if (assignmentCommand != null) {
             return assignmentCommand;
         }
@@ -71,26 +71,7 @@ public class CommandAnalyzer extends AbstractAnalyzer {
         return null;
     }
 
-    /**
-     * Save the lexical position and try to analyze the input tokens as an assignment. When it fails, reset the lexical
-     * position and return null. When successful, return the assignment command.
-     *
-     * @param lexes the token list
-     * @return the result of the analysis or {@code null} if it failed.
-     */
-    private Command tryToGetAssignment(LexList lexes) {
-        final var position = lexes.getIndex();
-        final var assignmentCommand = AssignmentAnalyzer.INSTANCE.analyze(lexes);
-        if (assignmentCommand != null) {
-            Analyzer.checkCommandTermination(lexes);
-            return assignmentCommand;
-        }
-        lexes.setIndex(position);
-        return null;
-    }
-
     private static final Map<String, Analyzer> analyzers = new HashMap<>();
-
 
     static {
         analyzers.put(Keywords.LET, LetAnalyzer.INSTANCE);
@@ -120,27 +101,27 @@ public class CommandAnalyzer extends AbstractAnalyzer {
      *
      * @param lexes the lexical elements following the keyword
      * @return the command created later used to execute
-     *
+     * <p>
      * snippet EBNF_KEYWORD_COMMAND
-     *  KEYWORD_COMMAND ::=  IF |
-     *               LOOP |
-     *               WITH |
-     *               FLOW |
-     *               FN |
-     *               CLASS |
-     *               PIN |
-     *               GLOBAL |
-     *               BREAK |
-     *               CONTINUE |
-     *               DIE |
-     *               RETURN |
-     *               YIELD |
-     *               PRINT |
-     *               PRINTLN |
-     *               TRY |
-     *               MUT |
-     *               LET
-     *               ;
+     * KEYWORD_COMMAND ::=  IF |
+     * LOOP |
+     * WITH |
+     * FLOW |
+     * FN |
+     * CLASS |
+     * PIN |
+     * GLOBAL |
+     * BREAK |
+     * CONTINUE |
+     * DIE |
+     * RETURN |
+     * YIELD |
+     * PRINT |
+     * PRINTLN |
+     * TRY |
+     * MUT |
+     * LET
+     * ;
      * end snippet
      */
     private Command analyzeKeywordCommand(final LexList lexes) throws BadSyntax {

@@ -1,9 +1,7 @@
-sys_import "turi.flat"
 
-for each a in [1,2,3] : println a
-
-
-
+mut z = []
+try: z[3] = { z = [];  "K"}
+catch e: println e
 
 
 

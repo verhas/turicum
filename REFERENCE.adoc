@@ -107,7 +107,7 @@ If you want to embed the application into Java, or Kotlin application, you use t
 <dependency>
    <groupId>ch.turic</groupId>
    <artifactId>turicum-parent</artifactId>
-   <version>1.4.2</version>
+   <version>1.4.1</version>
 </dependency>
 ----
 
@@ -1649,15 +1649,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=4F1BFE23
+h id=5F59185E
 h after post increment: 1
 k: 0
-h id=E19BB76
-k id=4F1BFE23
+h id=60BDF15D
+k id=5F59185E
 h after pre increment: 2
 z: 2
-h id=512535FF
-z id=512535FF
+h id=47DA3952
+z id=47DA3952
 
 ----
 
@@ -1702,15 +1702,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=71529963
+h id=51E4CCB3
 h after post increment: 1
 k: 1
-h id=71529963
-k id=71529963
+h id=51E4CCB3
+k id=51E4CCB3
 h after pre increment: 2
 z: 2
-h id=71529963
-z id=71529963
+h id=51E4CCB3
+z id=51E4CCB3
 
 ----
 
@@ -1758,15 +1758,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=61A88B8C
+h id=46E8A539
 h after post decrement: -1
 k: 0
-h id=5ADB0DB3
-k id=61A88B8C
+h id=495083A0
+k id=46E8A539
 h after pre decrement: -2
 z: -2
-h id=3F270E0A
-z id=3F270E0A
+h id=5FD62371
+z id=5FD62371
 
 ----
 
@@ -1808,15 +1808,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=1A760689
+h id=28A0FD6C
 h after post decrement: -1
 k: -1
-h id=1A760689
-k id=1A760689
+h id=28A0FD6C
+k id=28A0FD6C
 h after pre decrement: -2
 z: -2
-h id=1A760689
-z id=1A760689
+h id=28A0FD6C
+z id=28A0FD6C
 
 ----
 
@@ -2957,7 +2957,7 @@ print z.z, " already changed"
 .output of snippet `update_forbiden4`
 [source]
 ----
-Assigned value changed while calculating new value z[ch.turic.commands.StringConstant@57bc27f5]
+Assigned value changed while calculating new value z[ch.turic.commands.StringConstant@2ed3b1f5]
 12 already changed
 ----
 
@@ -4601,8 +4601,8 @@ Thread 1 generated 3
  prime read 3
 Thread 1 generated 5
  prime read 5
-Thread 1 prime read 7
- generated 7
+Thread 1 generated 7
+ prime read 7
 Thread 1 generated 11
 Thread 1 generated 13
 Thread 1 generated 17
@@ -4610,8 +4610,8 @@ Thread 1 generated 19
 Thread 1 generated 23
 stopping
 exception Task stopped.
- prime read Thread 2 generated 2
-3
+ prime read 2
+Thread 2 generated 3
  prime read 3
 Thread 2 generated 5
  prime read 5
@@ -4675,9 +4675,9 @@ println( (end-start)/1000000, "ms")
 [source]
 ----
 [1, 2, 3]
-310.119083ms
+310.965625ms
 []
-309.933041ms
+315.795625ms
 
 ----
 
@@ -4886,9 +4886,10 @@ a =3.6820276497695854
 a =3.6063454894655185
 a =3.6055513629176015
 a =3.6055512754639905
-sqrt(13) ≈ 3.6055513629176015
+a =3.6055512754639896
+sqrt(13) ≈ 3.6055512754639905
 sqrt(13) ≈ 3.605551275463989 calculated by java Math
-square ≈ 13.000000630636974
+square ≈ 13.000000000000009
 
 ----
 
@@ -10093,7 +10094,7 @@ println nano_time()
 .output of snippet `nano_time`
 [source]
 ----
-81542202083208
+236146688548458
 
 ----
 
@@ -10482,83 +10483,83 @@ none
 .output of snippet `que`
 [source]
 ----
-task2 is not ready 0
-task1 is ready 1
 task1 is not ready 0
+task2 is ready 1
+task2 is not ready 0
 task1 is not ready 1
 task2 is not ready 1
-task1 is not ready 2
 task2 is not ready 2
+task1 is not ready 2
 task2 is not ready 3
 task1 is not ready 3
-task2 is ready 2task1 is not ready 4
-
+task2 is ready 2
 task2 is not ready 0
-task2 is not ready 1task1 is not ready 5
-
-task1 is not ready 6task2 is not ready 2
-
+task1 is not ready 4
+task2 is not ready 1
+task1 is not ready 5
+task2 is not ready 2
+task1 is not ready 6
+task2 is ready 3
+task2 is not ready 0
+task1 is not ready 7
+task2 is not ready 1
+task1 is not ready 8
+task2 is not ready 2
+task1 is not ready 9
 task2 is not ready 3
-task1 is ready 3
+task1 is ready 4
 task1 is not ready 0
 task1 is not ready 1
 task2 is not ready 4
 task1 is not ready 2
 task2 is not ready 5
-task2 is ready 4
-task1 is not ready 3
+task1 is ready 5
+task2 is not ready 6
+task1 is not ready 0
+task1 is not ready 1
+task2 is not ready 7
+task1 is not ready 2
+task2 is not ready 8
+task1 is ready 6
+task1 is not ready 0
+task2 is not ready 9
+task2 is not ready 10
+task1 is not ready 1
+task2 is not ready 11
+task1 is not ready 2
+task2 is ready 7
 task2 is not ready 0
+task1 is not ready 3
 task2 is not ready 1
 task1 is not ready 4
 task1 is not ready 5
 task2 is not ready 2
-task2 is ready 5
-task2 is not ready 0
 task1 is not ready 6
-task2 is not ready 1
+task2 is not ready 3
+task2 is ready 8
 task1 is not ready 7
-task2 is not ready 2
-task1 is not ready 8
-task1 is ready 6task2 is not ready 3
-
-task1 is not ready 0
-task2 is not ready 4
-task1 is not ready 1
-task1 is not ready 2
-task2 is not ready 5
-task1 is ready 7
-task1 is not ready 0
-task2 is not ready 6
-task2 is not ready 7
-task1 is not ready 1
-task1 is not ready 2
-task2 is not ready 8
-task1 is not ready 3
-task2 is not ready 9
-task2 is not ready 10
-task1 is ready 8
-task1 is not ready 0
-task2 is not ready 11
-task1 is not ready 1
-task2 is not ready 12
-task1 is not ready 2
-task2 is ready 9
-task1 is not ready 3
 task2 is not ready 0
+task1 is not ready 8
 task2 is not ready 1
-task1 is not ready 4
-task1 is not ready 5task2 is not ready 2
-
+task1 is not ready 9
+task2 is ready 9
+task2 is not ready 0
+task1 is not ready 10
+task2 is not ready 1
+task1 is not ready 11
+task2 is not ready 2
+task1 is not ready 12
+task2 is not ready 3
 closing the channel
 channel is closed
 1 is done false
 2 is done false
 we start to wait the first time
-task2 is done
 task1 is done
-task1 done false
-task2 done true
+task1 done true
+task2 done false
 We start to wait the second time
+task2 is done
 task1 done true
 task2 done true
 

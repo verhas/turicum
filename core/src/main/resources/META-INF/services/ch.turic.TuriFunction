@@ -79,4 +79,5 @@ ch.turic.builtins.functions.Signature
 ch.turic.builtins.functions.UnCurry
 ch.turic.builtins.functions.IsCurried
 ch.turic.builtins.functions.CurriedArity
+ch.turic.builtins.functions.Enumerate
 
