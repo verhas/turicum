@@ -1649,15 +1649,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=5F59185E
+h id=7E3181AA
 h after post increment: 1
 k: 0
-h id=60BDF15D
-k id=5F59185E
+h id=253D9F73
+k id=7E3181AA
 h after pre increment: 2
 z: 2
-h id=47DA3952
-z id=47DA3952
+h id=142269F2
+z id=142269F2
 
 ----
 
@@ -1702,15 +1702,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=51E4CCB3
+h id=331ACDAD
 h after post increment: 1
 k: 1
-h id=51E4CCB3
-k id=51E4CCB3
+h id=331ACDAD
+k id=331ACDAD
 h after pre increment: 2
 z: 2
-h id=51E4CCB3
-z id=51E4CCB3
+h id=331ACDAD
+z id=331ACDAD
 
 ----
 
@@ -1758,15 +1758,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=46E8A539
+h id=41D426B5
 h after post decrement: -1
 k: 0
-h id=495083A0
-k id=46E8A539
+h id=F316AEB
+k id=41D426B5
 h after pre decrement: -2
 z: -2
-h id=5FD62371
-z id=5FD62371
+h id=6AA3A905
+z id=6AA3A905
 
 ----
 
@@ -1808,15 +1808,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=28A0FD6C
+h id=A22CB6A
 h after post decrement: -1
 k: -1
-h id=28A0FD6C
-k id=28A0FD6C
+h id=A22CB6A
+k id=A22CB6A
 h after pre decrement: -2
 z: -2
-h id=28A0FD6C
-z id=28A0FD6C
+h id=A22CB6A
+z id=A22CB6A
 
 ----
 
@@ -2957,7 +2957,7 @@ print z.z, " already changed"
 .output of snippet `update_forbiden4`
 [source]
 ----
-Assigned value changed while calculating new value z[ch.turic.commands.StringConstant@2ed3b1f5]
+Assigned value changed while calculating new value z[ch.turic.commands.StringConstant@5fb759d6]
 12 already changed
 ----
 
@@ -3536,7 +3536,7 @@ To get the list as a result, you have to write the `list` keyword in front of th
 
 [NOTE]
 ====
- When a loop executes, two distinct contexts are used: an *outer context* and an *inner context*.
+When a loop executes, two distinct contexts are used: an *outer context* and an *inner context*.
 
 * The *outer context* is created before the loop begins and is discarded after the loop ends.
 * The *inner context* is created freshly for each execution of the loop body and is discarded immediately after that execution completes.
@@ -3545,7 +3545,10 @@ The outer context *wraps* the surrounding scopes, and the inner context *wraps* 
 This means that both contexts have access to all variables defined in the surrounding code.
 Additionally, the inner context can read and modify variables from the outer context and the scopes it wraps.
 However, *new variables defined in the inner context do not propagate into the outer context*.
- * The *head condition* following the `+while+` keyword is evaluated in the outer context.
+
+
+* The *head condition* following the `+while+` keyword is evaluated in the outer context.
+
  * The *loop body* and the *exit condition* following the `+until+` keyword are evaluated in the inner context.
 
 This design ensures that each iteration of the loop starts in a clean environment.
@@ -3723,7 +3726,7 @@ To get the list as a result, you have to write the `list` keyword in front of th
 
 [NOTE]
 ====
- When a loop executes, two distinct contexts are used: an *outer context* and an *inner context*.
+When a loop executes, two distinct contexts are used: an *outer context* and an *inner context*.
 
 * The *outer context* is created before the loop begins and is discarded after the loop ends.
 * The *inner context* is created freshly for each execution of the loop body and is discarded immediately after that execution completes.
@@ -3732,7 +3735,10 @@ The outer context *wraps* the surrounding scopes, and the inner context *wraps* 
 This means that both contexts have access to all variables defined in the surrounding code.
 Additionally, the inner context can read and modify variables from the outer context and the scopes it wraps.
 However, *new variables defined in the inner context do not propagate into the outer context*.
- * The *start*, *condition*, and *step* expressions in the `+for+` loop header are evaluated in the outer context.
+
+
+* The *start*, *condition*, and *step* expressions in the `+for+` loop header are evaluated in the outer context.
+
  * The *loop body* and the *exit condition* following the `+until+` keyword are evaluated in the inner context.
 
 This design ensures that each iteration of the loop starts in a clean environment.
@@ -3804,10 +3810,88 @@ for each z with i in ["apple", "banana", "orange", "peach"] {
 
 The index starts from zero and increments with each execution by one.
 The index variable is local to the loop.
-Without this feature you would need to declare a variable one context higher and then use it in the loop.
-That would violate the locality principle, not to rely on anything out of a context that can change and even less modify anything out of the context, which is in this case a loop.
+Without this feature, you would need to declare a variable at a higher context level and then use it in the loop.
+That would violate the locality principle, not to rely on anything out of a context that can change, and even less modify anything out of the context, which is in this case a loop.
 
-When used in an expression position, a `for each` loop returns the result of the last executed loop body.
+It is also possible to deconstruct multiple values in the for-each loop.
+
+.source of snippet `foreach4`
+
+[source]
+----
+for each [fruit, origin ] in [ ["apple","Ukraine"], ["banana","Brasil"], ["orange","Spain"], ["peach","Hungary"]] {
+println "Fruit %s comes from %s" % [fruit, origin]
+}
+
+----
+
+.output of snippet `foreach4`
+[source]
+----
+Fruit apple comes from Ukraine
+Fruit banana comes from Brasil
+Fruit orange comes from Spain
+Fruit peach comes from Hungary
+
+----
+
+
+
+If you specify multiple loop variables between `[` and `]`, then the loop values will be deconstructed.
+Deconstructing objects is not supported.
+
+[NOTE]
+====
+Other languages allow multiple variables in for-each loops without extra `[` and `]` characters.
+In Turicum, we decided to require the brackets, because it can distinguish between
+
+[source]
+----
+ for each x in [[1],[2],[3],[4]] : ...
+----
+
+and
+
+[source]
+----
+ for each [x] in [[1],[2],[3],[4]] : ...
+----
+
+The value of `x` is a list for each iteration in the first case and a number in the second case.
+
+It also makes the code easier to read.
+====
+
+
+If you do not want to use the `with` part feature of the for-each loop, you can use the `enumerate()` built-in function.
+This function (the idea) was taken from Python.
+
+.source of snippet `foreach5`
+
+[source]
+----
+for each [ j, z ] with i in enumerate(["apple", "banana", "orange", "peach"]) {
+println "%s.%s. %s" % [i, j, z]
+}
+
+----
+
+.output of snippet `foreach5`
+[source]
+----
+0.0. apple
+1.1. banana
+2.2. orange
+3.3. peach
+
+----
+
+
+
+As you can see, the variables `j` and `i get the same value in each iteration.
+
+When used in an expression position, a `for each` loop returns the result of the last executed loop body
+or a list if the `list` keyword was used.
 
 .source of snippet `for_each_result`
 
@@ -3854,7 +3938,7 @@ To get the list as a result, you have to write the `list` keyword in front of th
 
 [NOTE]
 ====
- When a loop executes, two distinct contexts are used: an *outer context* and an *inner context*.
+When a loop executes, two distinct contexts are used: an *outer context* and an *inner context*.
 
 * The *outer context* is created before the loop begins and is discarded after the loop ends.
 * The *inner context* is created freshly for each execution of the loop body and is discarded immediately after that execution completes.
@@ -3863,9 +3947,13 @@ The outer context *wraps* the surrounding scopes, and the inner context *wraps* 
 This means that both contexts have access to all variables defined in the surrounding code.
 Additionally, the inner context can read and modify variables from the outer context and the scopes it wraps.
 However, *new variables defined in the inner context do not propagate into the outer context*.
- * The *list* is evaluated only once in the outer context.
+
+
+* The *list* is evaluated only once in the outer context.
+
 * The loop variable and the optional loop counter are part of the inner context, but they are pinned.
 Pinned variables cannot be modified.
+
  * The *loop body* and the *exit condition* following the `+until+` keyword are evaluated in the inner context.
 
 This design ensures that each iteration of the loop starts in a clean environment.
@@ -4610,12 +4698,12 @@ Thread 1 generated 19
 Thread 1 generated 23
 stopping
 exception Task stopped.
- prime read 2
 Thread 2 generated 3
+ prime read 2
  prime read 3
 Thread 2 generated 5
- prime read 5
 Thread 2 generated 7
+ prime read 5
  prime read 7
 Thread 2 generated 11
 Thread 2 generated 13
@@ -4675,9 +4763,9 @@ println( (end-start)/1000000, "ms")
 [source]
 ----
 [1, 2, 3]
-310.965625ms
+311.201541ms
 []
-315.795625ms
+314.535375ms
 
 ----
 
@@ -4887,9 +4975,10 @@ a =3.6063454894655185
 a =3.6055513629176015
 a =3.6055512754639905
 a =3.6055512754639896
-sqrt(13) ≈ 3.6055512754639905
+a =3.6055512754639896
+sqrt(13) ≈ 3.6055512754639896
 sqrt(13) ≈ 3.605551275463989 calculated by java Math
-square ≈ 13.000000000000009
+square ≈ 13.000000000000002
 
 ----
 
@@ -10094,7 +10183,7 @@ println nano_time()
 .output of snippet `nano_time`
 [source]
 ----
-236146688548458
+521288414201458
 
 ----
 
@@ -10483,83 +10572,83 @@ none
 .output of snippet `que`
 [source]
 ----
-task1 is not ready 0
 task2 is ready 1
+task1 is not ready 0
 task2 is not ready 0
+task2 is not ready 1
 task1 is not ready 1
-task2 is not ready 1
-task2 is not ready 2
 task1 is not ready 2
-task2 is not ready 3
-task1 is not ready 3
-task2 is ready 2
-task2 is not ready 0
-task1 is not ready 4
-task2 is not ready 1
-task1 is not ready 5
 task2 is not ready 2
-task1 is not ready 6
-task2 is ready 3
-task2 is not ready 0
-task1 is not ready 7
-task2 is not ready 1
-task1 is not ready 8
-task2 is not ready 2
-task1 is not ready 9
+task1 is ready 2
 task2 is not ready 3
-task1 is ready 4
 task1 is not ready 0
 task1 is not ready 1
 task2 is not ready 4
 task1 is not ready 2
 task2 is not ready 5
-task1 is ready 5
+task1 is not ready 3
 task2 is not ready 6
+task2 is not ready 7task1 is ready 3
 task1 is not ready 0
-task1 is not ready 1
-task2 is not ready 7
-task1 is not ready 2
+
 task2 is not ready 8
-task1 is ready 6
-task1 is not ready 0
-task2 is not ready 9
-task2 is not ready 10
 task1 is not ready 1
-task2 is not ready 11
+task2 is not ready 9
 task1 is not ready 2
-task2 is ready 7
+task2 is ready 4
+task1 is not ready 3
 task2 is not ready 0
+task1 is not ready 4
+task2 is not ready 1
+task2 is not ready 2task1 is not ready 5
+
+task2 is not ready 3
+task1 is ready 5
+task1 is not ready 0
+task2 is not ready 4
+task1 is not ready 1
+task2 is not ready 5
+task1 is not ready 2
+task2 is not ready 6task1 is not ready 3
+
+task2 is ready 6
+task1 is not ready 4
+task2 is not ready 0
+task1 is not ready 5
+task2 is not ready 1
+task1 is not ready 6
+task2 is not ready 2
+task1 is ready 7
+task2 is not ready 3
+task1 is not ready 0
+task2 is not ready 4
+task1 is not ready 1
+task2 is ready 8
+task2 is not ready 0
+task1 is not ready 2
 task1 is not ready 3
 task2 is not ready 1
-task1 is not ready 4
-task1 is not ready 5
-task2 is not ready 2
-task1 is not ready 6
-task2 is not ready 3
-task2 is ready 8
-task1 is not ready 7
-task2 is not ready 0
-task1 is not ready 8
-task2 is not ready 1
-task1 is not ready 9
+task2 is not ready 2task1 is not ready 4
+
 task2 is ready 9
+task1 is not ready 5
 task2 is not ready 0
-task1 is not ready 10
+task1 is not ready 6
 task2 is not ready 1
-task1 is not ready 11
+task1 is not ready 7
 task2 is not ready 2
-task1 is not ready 12
+task1 is not ready 8
 task2 is not ready 3
 closing the channel
 channel is closed
 1 is done false
 2 is done false
 we start to wait the first time
-task1 is done
-task1 done true
-task2 done false
-We start to wait the second time
 task2 is done
+task1 is done
+task1 done false
+task2 done true
+We start to wait the second time
 task1 done true
 task2 done true
 
@@ -11244,11 +11333,11 @@ It is the __result__ of the command.
 
 [source]
 ----
-   COMMAND ::=  KEYWORD_COMMAND |
-                ASSIGNMENT |
-                FUNCTION_CALL |
-                EXPRESSION |
-                ; //empty command
+  COMMAND ::=  KEYWORD_COMMAND |
+  ASSIGNMENT |
+  FUNCTION_CALL |
+  EXPRESSION |
+  ; //empty command
 
 ----
 
@@ -11256,25 +11345,25 @@ It is the __result__ of the command.
 
 [source]
 ----
-       KEYWORD_COMMAND ::=  IF |
-                    LOOP |
-                    WITH |
-                    FLOW |
-                    FN |
-                    CLASS |
-                    PIN |
-                    GLOBAL |
-                    BREAK |
-                    CONTINUE |
-                    DIE |
-                    RETURN |
-                    YIELD |
-                    PRINT |
-                    PRINTLN |
-                    TRY |
-                    MUT |
-                    LET
-                    ;
+      KEYWORD_COMMAND ::=  IF |
+      LOOP |
+      WITH |
+      FLOW |
+      FN |
+      CLASS |
+      PIN |
+      GLOBAL |
+      BREAK |
+      CONTINUE |
+      DIE |
+      RETURN |
+      YIELD |
+      PRINT |
+      PRINTLN |
+      TRY |
+      MUT |
+      LET
+      ;
 
 ----
 
@@ -11304,9 +11393,9 @@ It is the __result__ of the command.
 ----
   // the conventional '(' and ')' around the expressions giving the iterable is optional
   FOR_EACH ::= 'for each' identifier [with identifier]
-                   'in' EXPRESSION ['list']( BLOCK | ':' COMMAND ) |
-               'for each' '(' identifier ['with' identifier]
-                   'in' EXPRESSION ')' ['list'](  BLOCK | ':' COMMAND )
+  'in' EXPRESSION ['list']( BLOCK | ':' COMMAND ) |
+  'for each' '(' identifier ['with' identifier]
+  'in' EXPRESSION ')' ['list'](  BLOCK | ':' COMMAND )
 
 ----
 

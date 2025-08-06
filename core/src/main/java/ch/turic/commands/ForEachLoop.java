@@ -7,16 +7,32 @@ import ch.turic.memory.LeftValue;
 import ch.turic.memory.LngList;
 import ch.turic.utils.Unmarshaller;
 
+import java.util.Arrays;
+
 public class ForEachLoop extends Loop {
-    public final Identifier identifier;
+    /**
+     * the array of loop variables
+     */
+    public final Identifier[] identifiers;
+    /**
+     * true if the loop works on a list. Must be true when there is more than one loop variable
+     */
+    public final boolean listLoopVar;
     public final Identifier with;
     public final Command expression;
     public final boolean resultList;
     public final Command body;
     public final Command exitCondition;
 
-    public ForEachLoop(Identifier identifier, Identifier with, Command expression, boolean resultList, Command body, Command exitCondition) {
-        this.identifier = identifier;
+    public ForEachLoop(Identifier[] identifiers, final boolean listLoopVar, Identifier with, Command expression, boolean resultList, Command body, Command exitCondition) {
+        if (identifiers == null || identifiers.length == 0) {
+            throw new IllegalArgumentException("Loop needs at least one identifier. Got: " + Arrays.toString(identifiers));
+        }
+        if (identifiers.length > 1 && !listLoopVar) {
+            throw new IllegalArgumentException("Loop with multiple loop-vars needs to work on a list. Got: " + Arrays.toString(identifiers) + " and listLoopVar is false");
+        }
+        this.identifiers = identifiers;
+        this.listLoopVar = listLoopVar;
         this.with = with;
         this.expression = expression;
         this.resultList = resultList;
@@ -30,7 +46,8 @@ public class ForEachLoop extends Loop {
 
     public static ForEachLoop factory(final Unmarshaller.Args args) {
         return new ForEachLoop(
-                args.get("identifier", Identifier.class),
+                args.get("identifiers", Identifier[].class),
+                args.bool("listLoopVar"),
                 args.get("with", Identifier.class),
                 args.command("expression"),
                 args.bool("resultList"),
@@ -43,8 +60,8 @@ public class ForEachLoop extends Loop {
         return expression;
     }
 
-    public Identifier identifier() {
-        return identifier;
+    public Identifier[] identifiers() {
+        return identifiers;
     }
 
     @Override
@@ -61,8 +78,27 @@ public class ForEachLoop extends Loop {
                 innerContext.let0(with.name, loopCounter);
                 innerContext.freeze(with.name);
             }
-            innerContext.let0(identifier.name, item);
-            innerContext.freeze(identifier.name);
+            if (listLoopVar) {
+                if (item instanceof Iterable<?> list) {
+                    int i = 0;
+                    for (var listItem : list) {
+                        if (i >= identifiers.length) {
+                            throw new ExecutionException("Loop with list-loop-var needs " + identifiers.length + " arguments, and got more: " + item);
+                        }
+                        innerContext.let0(identifiers[i].name, listItem);
+                        innerContext.freeze(identifiers[i].name);
+                        i++;
+                    }
+                    if (i < identifiers.length) {
+                        throw new ExecutionException("Loop with list-loop-var needs " + identifiers.length + " arguments, and got less: " + item);
+                    }
+                } else {
+                    throw new ExecutionException("Loop with list-loop-var needs to work on a list. Got: " + item.getClass().getName());
+                }
+            } else {
+                innerContext.let0(identifiers[0].name, item);
+                innerContext.freeze(identifiers[0].name);
+            }
 
             lp = loopCore(body, innerContext, listResult);
             if (breakLoop(lp)) {

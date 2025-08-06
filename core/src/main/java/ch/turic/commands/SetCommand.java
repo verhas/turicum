@@ -9,10 +9,9 @@ import ch.turic.memory.HasFields;
 import ch.turic.utils.Unmarshaller;
 
 /**
- * Command implementation for multi-let assignments that handles both list and object assignments.
- * This class supports assigning multiple values from either a list or an object to multiple variables.
+ * Command implementation for multi-assignments that handles both list and object assignments.
  */
-public class MultiLetAssignment extends AbstractCommand {
+public class SetCommand extends AbstractCommand {
     final AssignmentList.Assignment[] assignments;
     final Command rightHandSide;
     final Type type;
@@ -22,8 +21,8 @@ public class MultiLetAssignment extends AbstractCommand {
         LIST, OBJECT
     }
 
-    public static MultiLetAssignment factory(final Unmarshaller.Args args) {
-        return new MultiLetAssignment(
+    public static SetCommand factory(final Unmarshaller.Args args) {
+        return new SetCommand(
                 args.get("assignments", AssignmentList.Assignment[].class),
                 args.command("rightHandSide"),
                 args.get("type", Type.class),
@@ -38,7 +37,7 @@ public class MultiLetAssignment extends AbstractCommand {
      * @param rightHandSide Command that produces the value to be assigned
      * @param type          Type of assignment (LIST or OBJECT)
      */
-    public MultiLetAssignment(AssignmentList.Assignment[] assignments, Command rightHandSide, Type type, boolean mut) {
+    public SetCommand(AssignmentList.Assignment[] assignments, Command rightHandSide, Type type, boolean mut) {
         this.assignments = assignments;
         this.rightHandSide = rightHandSide;
         this.type = type;

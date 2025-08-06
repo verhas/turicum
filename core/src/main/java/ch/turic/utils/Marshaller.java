@@ -16,13 +16,41 @@ import java.util.Map;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
 
+/**
+ * A utility class responsible for serializing objects into byte arrays.
+ * This class works in conjunction with the Unmarshaller to convert objects
+ * into a binary format that can be stored or transmitted.
+ */
 public class Marshaller {
 
+    /**
+     * Marker used to indicate array values in the serialized stream.
+     */
     public static final short ARRAY_SIGN = 999;
+
+    /**
+     * Marker used to indicate map values in the serialized stream.
+     */
     public static final short MAP_SIGN = 998;
+
+    /**
+     * Marker used to indicate null values in the serialized stream.
+     */
     public static final short NULL_SIGN = 0;
+
+    /**
+     * Magic number used to identify serialized data format.
+     */
     public static final int MAGIC = 0xCADAFABE;
+
+    /**
+     * Version number of the serialization format.
+     */
     public static final short VERSION = 1;
+
+    /**
+     * Starting offset for class registry IDs.
+     */
     public static final short OFFSET = 1000;
 
     private final Map<String, Short> classRegistry = new HashMap<>();
@@ -57,16 +85,23 @@ public class Marshaller {
 
     }
 
+    /**
+     * Compresses a byte array using Deflater.
+     *
+     * @param serialized the byte array to compress
+     * @return the compressed byte array
+     * @throws RuntimeException if compression fails
+     */
     private byte[] compress(byte[] serialized) {
-        final var deflater = new Deflater(Deflater.BEST_COMPRESSION );
+        final var deflater = new Deflater(Deflater.BEST_COMPRESSION);
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
-             DeflaterOutputStream dStream = new DeflaterOutputStream(baos,deflater)) {
+             DeflaterOutputStream dStream = new DeflaterOutputStream(baos, deflater)) {
             new ByteArrayInputStream(serialized).transferTo(dStream);
             dStream.finish();
             return baos.toByteArray();
         } catch (Exception e) {
             throw new RuntimeException("Compression failed", e);
-        }finally {
+        } finally {
             deflater.end();
         }
     }
@@ -92,6 +127,14 @@ public class Marshaller {
         }
     }
 
+    /**
+     * Marshals a Map into its byte array representation. This method serializes
+     * the map's size, followed by the serialized forms of its keys and values.
+     *
+     * @param map the Map to be marshalled; each key and value should be serializable
+     * @return a byte array representing the marshalled form of the given Map
+     * @throws RuntimeException if an I/O error occurs during the marshalling process
+     */
     private byte[] marshall_map(Map<?, ?> map) {
         try (final var baos = new ByteArrayOutputStream();
              final var buffer = new DataOutputStream(baos)) {
@@ -191,6 +234,14 @@ public class Marshaller {
         }
     }
 
+    /**
+     * Counts the number of fields in the given object that meet the specified criteria
+     * of being marshalled. The criteria are defined by the {@code isFieldToMarshall} method,
+     * which checks if the field is non-synthetic, non-static, and final.
+     *
+     * @param object the object whose fields will be analyzed; must not be null
+     * @return the number of fields in the object that satisfy the specified criteria
+     */
     private short countFields(Object object) {
         short fieldCounter = 0;
         for (final var f : object.getClass().getDeclaredFields()) {
@@ -201,11 +252,29 @@ public class Marshaller {
         return fieldCounter;
     }
 
+    /**
+     * Determines whether the specified field should be included in the marshalling process.
+     * A field is eligible for marshalling if it is not synthetic, is declared as final,
+     * and is not static.
+     *
+     * @param f the {@code Field} object to be evaluated
+     * @return {@code true} if the field meets the criteria for marshalling;
+     * {@code false} otherwise
+     */
     private boolean isFieldToMarshall(Field f) {
         int modifiers = f.getModifiers();
         return !f.isSynthetic() && (modifiers & Modifier.FINAL) != 0 && (modifiers & Modifier.STATIC) == 0;
     }
 
+    /**
+     * Retrieves the class ID associated with the given object's class.
+     * <p>
+     * If the class is not already registered, it assigns a new ID and registers the class
+     * into the internal class registry.
+     *
+     * @param object the object whose class ID is to be retrieved; must not be null
+     * @return the class ID corresponding to the given object's class
+     */
     private short getClassId(Object object) {
         final var cname = object.getClass().getName();
         if (!classRegistry.containsKey(cname)) {

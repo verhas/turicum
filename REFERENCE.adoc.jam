@@ -1341,7 +1341,7 @@ The list will contain the results of each body loop execution.
 
 [NOTE]
 ====
-{%@def LOOP_CONTEXT_HEADER= When a loop executes, two distinct contexts are used: an *outer context* and an *inner context*.
+{%@def LOOP_CONTEXT_HEADER=When a loop executes, two distinct contexts are used: an *outer context* and an *inner context*.
 
 * The *outer context* is created before the loop begins and is discarded after the loop ends.
 * The *inner context* is created freshly for each execution of the loop body and is discarded immediately after that execution completes.
@@ -1350,7 +1350,10 @@ The outer context *wraps* the surrounding scopes, and the inner context *wraps* 
 This means that both contexts have access to all variables defined in the surrounding code.
 Additionally, the inner context can read and modify variables from the outer context and the scopes it wraps.
 However, *new variables defined in the inner context do not propagate into the outer context*.
-%} * The *head condition* following the `+while+` keyword is evaluated in the outer context.
+%}
+
+* The *head condition* following the `+while+` keyword is evaluated in the outer context.
+
 {%@def LOOP_CONTEXT_FOOTER= * The *loop body* and the *exit condition* following the `+until+` keyword are evaluated in the inner context.
 
 This design ensures that each iteration of the loop starts in a clean environment.
@@ -1403,7 +1406,10 @@ The list will contain the results of each body loop execution.
 
 [NOTE]
 ====
-{%LOOP_CONTEXT_HEADER%} * The *start*, *condition*, and *step* expressions in the `+for+` loop header are evaluated in the outer context.
+{%LOOP_CONTEXT_HEADER%}
+
+* The *start*, *condition*, and *step* expressions in the `+for+` loop header are evaluated in the outer context.
+
 {%LOOP_CONTEXT_FOOTER%}
 ====
 
@@ -1423,10 +1429,48 @@ You can also define an index variable following the `with` keyword.
 
 The index starts from zero and increments with each execution by one.
 The index variable is local to the loop.
-Without this feature you would need to declare a variable one context higher and then use it in the loop.
-That would violate the locality principle, not to rely on anything out of a context that can change and even less modify anything out of the context, which is in this case a loop.
+Without this feature, you would need to declare a variable at a higher context level and then use it in the loop.
+That would violate the locality principle, not to rely on anything out of a context that can change, and even less modify anything out of the context, which is in this case a loop.
 
-When used in an expression position, a `for each` loop returns the result of the last executed loop body.
+It is also possible to deconstruct multiple values in the for-each loop.
+
+{%S foreach4%}
+
+If you specify multiple loop variables between `[` and `]`, then the loop values will be deconstructed.
+Deconstructing objects is not supported.
+
+[NOTE]
+====
+Other languages allow multiple variables in for-each loops without extra `[` and `]` characters.
+In Turicum, we decided to require the brackets, because it can distinguish between
+
+[source]
+----
+ for each x in [[1],[2],[3],[4]] : ...
+----
+
+and
+
+[source]
+----
+ for each [x] in [[1],[2],[3],[4]] : ...
+----
+
+The value of `x` is a list for each iteration in the first case and a number in the second case.
+
+It also makes the code easier to read.
+====
+
+
+If you do not want to use the `with` part feature of the for-each loop, you can use the `enumerate()` built-in function.
+This function (the idea) was taken from Python.
+
+{%S foreach5%}
+
+As you can see, the variables `j` and `i get the same value in each iteration.
+
+When used in an expression position, a `for each` loop returns the result of the last executed loop body
+or a list if the `list` keyword was used.
 
 {%S for_each_result%}
 
@@ -1439,9 +1483,13 @@ The result will include the result of each iteration.
 
 [NOTE]
 ====
-{%LOOP_CONTEXT_HEADER%} * The *list* is evaluated only once in the outer context.
+{%LOOP_CONTEXT_HEADER%}
+
+* The *list* is evaluated only once in the outer context.
+
 * The loop variable and the optional loop counter are part of the inner context, but they are pinned.
 Pinned variables cannot be modified.
+
 {%LOOP_CONTEXT_FOOTER%}
 ====
 

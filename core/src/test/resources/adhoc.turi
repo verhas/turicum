@@ -1,8 +1,10 @@
 
-mut z = []
-try: z[3] = { z = [];  "K"}
-catch e: println e
+mut a:num=0,b:bool=false,c;
 
+mut [ a  , b ] = [13, true]
+
+println a
+println b
 
 
 

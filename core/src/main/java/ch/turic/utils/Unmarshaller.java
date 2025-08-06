@@ -14,10 +14,23 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.InflaterInputStream;
 
+/**
+ * A class responsible for deserializing Program objects from byte arrays.
+ * This class works in conjunction with the {@link Marshaller} to reconstruct objects
+ * from their serialized form.
+ */
 public class Unmarshaller {
 
     private final Map<Short, Class<?>> classRegistry = new HashMap<>();
 
+    /**
+     * Deserializes a compressed byte array into a Program object.
+     *
+     * @param compressedData the compressed byte array containing serialized data
+     * @return the deserialized Program object
+     * @throws RuntimeException if deserialization fails, the magic number is invalid,
+     *         or the version is not supported
+     */
     public Program deserialize(byte[] compressedData) {
         final var data = decompress(compressedData);
         try (var bais = new ByteArrayInputStream(data);
@@ -40,6 +53,13 @@ public class Unmarshaller {
         }
     }
 
+    /**
+     * Decompresses a byte array using InflaterInputStream.
+     *
+     * @param compressedData the compressed byte array to decompress
+     * @return the decompressed byte array
+     * @throws RuntimeException if decompression fails
+     */
     public static byte[] decompress(byte[] compressedData) {
         try (
                 ByteArrayInputStream bais = new ByteArrayInputStream(compressedData);
@@ -53,9 +73,17 @@ public class Unmarshaller {
         }
     }
 
+    /**
+     * Unmarshalls data from an input stream into an object based on the marker type.
+     *
+     * @param input the DataInputStream to read from
+     * @return the unmarshalled object
+     * @throws IOException if an I/O error occurs
+     * @throws ReflectiveOperationException if reflection-related operations fail
+     */
     @SuppressWarnings("unchecked")
     private Object unmarshall(DataInputStream input) throws IOException, ReflectiveOperationException {
-        short marker = input.readShort();
+        final short marker = input.readShort();
 
         if (marker == Marshaller.NULL_SIGN) {
             return null;
@@ -95,6 +123,14 @@ public class Unmarshaller {
         };
     }
 
+    /**
+     * Unmarshalls a map from the input stream.
+     *
+     * @param input the DataInputStream to read from
+     * @return the unmarshalled Map object
+     * @throws IOException if an I/O error occurs
+     * @throws ReflectiveOperationException if reflection-related operations fail
+     */
     private Map<?, ?> unmarshall_map(DataInputStream input) throws IOException, ReflectiveOperationException {
         int size = input.readInt();
         final var result = new HashMap<>(size);
@@ -106,6 +142,14 @@ public class Unmarshaller {
         return result;
     }
 
+    /**
+     * Unmarshalls an array from the input stream.
+     *
+     * @param input the DataInputStream to read from
+     * @return the unmarshalled Object array
+     * @throws IOException if an I/O error occurs
+     * @throws ReflectiveOperationException if reflection-related operations fail
+     */
     private Object[] unmarshall_array(DataInputStream input) throws IOException, ReflectiveOperationException {
         int length = input.readInt();
         final var result = new Object[length];
@@ -115,6 +159,15 @@ public class Unmarshaller {
         return result;
     }
 
+    /**
+     * Constructs an object using its factory method.
+     *
+     * @param cls the Class of the object to construct
+     * @param fieldMap the Args object containing field values
+     * @return the constructed object
+     * @throws IllegalStateException if the factory method is missing or not static
+     * @throws RuntimeException if factory method invocation fails
+     */
     private Object constructViaFactory(Class<?> cls, Args fieldMap) {
         try {
             Method factory = cls.getDeclaredMethod("factory", Args.class);
@@ -130,46 +183,94 @@ public class Unmarshaller {
         }
     }
 
+    /**
+     * Inner class that holds argument values for object construction.
+     * Provides utility methods for accessing and converting values.
+     *
+     * This class is used in the static factory classes in the command classes.
+     */
     public static class Args {
         private final Map<String, Object> args = new HashMap<>();
 
+        /**
+         * Stores a value with the specified name.
+         *
+         * @param name the name of the argument
+         * @param value the value to store
+         */
         public void put(String name, Object value) {
             args.put(name, value);
         }
 
+        /**
+         * Retrieves a value of the specified type.
+         *
+         * @param name the name of the argument
+         * @param targetClass the expected class of the value
+         * @param <T> the type parameter
+         * @return the value cast to the specified type
+         */
         public <T> T get(final String name, Class<T> targetClass) {
             return cast(args.get(name), targetClass);
         }
 
+        /**
+         * Retrieves a boolean value.
+         *
+         * @param name the name of the argument
+         * @return the boolean value
+         */
         public boolean bool(final String name) {
             return get(name, Boolean.class);
         }
 
+        /**
+         * Retrieves a String value.
+         *
+         * @param name the name of the argument
+         * @return the String value
+         */
         public String str(final String name) {
             return get(name, String.class);
         }
 
+        /**
+         * Retrieves a Command value.
+         *
+         * @param name the name of the argument
+         * @return the Command value
+         */
         public Command command(final String name) {
             return get(name, Command.class);
         }
 
+        /**
+         * Retrieves an array of Commands using the default name "commands".
+         *
+         * @return array of Commands
+         */
         public Command[] commands() {
             return commands("commands");
         }
 
+        /**
+         * Retrieves an array of Commands with the specified name.
+         *
+         * @param name the name of the argument
+         * @return array of Commands
+         */
         public Command[] commands(final String name) {
             return get(name, Command[].class);
         }
 
         /**
-         * Casts the given object to the specified type.
-         * If the object is an array, converts it to a new array of the specified component type.
+         * Casts or converts an object to the specified type.
          *
-         * @param obj         the object to cast or convert
-         * @param targetClass the class representing the desired type or component type
-         * @param <T>         the target type
+         * @param obj the object to cast
+         * @param targetClass the target class
+         * @param <T> the type parameter
          * @return the cast or converted object
-         * @throws ClassCastException if conversion is not possible
+         * @throws ClassCastException if the conversion is not possible
          */
         @SuppressWarnings("unchecked")
         private static <T> T cast(Object obj, Class<T> targetClass) {
@@ -215,6 +316,3 @@ public class Unmarshaller {
 
 
 }
-
-
-

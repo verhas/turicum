@@ -5,13 +5,15 @@ import ch.turic.Command;
 import ch.turic.commands.ForEachLoop;
 import ch.turic.commands.Identifier;
 
+import java.util.ArrayList;
+
 /**
  * snippet EBNF_FOR_EACH
  * // the conventional '(' and ')' around the expressions giving the iterable is optional
  * FOR_EACH ::= 'for each' identifier [with identifier]
- *                  'in' EXPRESSION ['list']( BLOCK | ':' COMMAND ) |
- *              'for each' '(' identifier ['with' identifier]
- *                  'in' EXPRESSION ')' ['list'](  BLOCK | ':' COMMAND )
+ * 'in' EXPRESSION ['list']( BLOCK | ':' COMMAND ) |
+ * 'for each' '(' identifier ['with' identifier]
+ * 'in' EXPRESSION ')' ['list'](  BLOCK | ':' COMMAND )
  * end snippet
  */
 public class ForEachLoopAnalyzer extends AbstractAnalyzer {
@@ -23,9 +25,33 @@ public class ForEachLoopAnalyzer extends AbstractAnalyzer {
         if (withParentheses) {
             lexes.next();
         }
-        lexes.peek(Lex.Type.IDENTIFIER, null, "'for each' needs an identifier");
-        final var name = lexes.next().text();
-        final var identifier = new Identifier(name);
+
+        final Identifier[] identifiers;
+        final boolean listLoopVar;
+        if (lexes.is("[")) {
+            listLoopVar = true;
+            lexes.next();
+            final var idList = new ArrayList<Identifier>();
+            while(true) {
+                lexes.peek(Lex.Type.IDENTIFIER, null, "'for each' needs an identifier");
+                final var name = lexes.next().text();
+                idList.add(new Identifier(name));
+                if( lexes.isNot(",") ) {
+                    break;
+                }
+                lexes.next();
+            }
+            if(lexes.isNot("]")){
+                throw lexes.syntaxError( "']' expected following '[' in for each loop" );
+            }
+            lexes.next();
+            identifiers = idList.toArray(Identifier[]::new);
+        } else {
+            listLoopVar = false;
+            lexes.peek(Lex.Type.IDENTIFIER, null, "'for each' needs an identifier");
+            final var name = lexes.next().text();
+            identifiers = new Identifier[]{new Identifier(name)};
+        }
         final Identifier with;
         if (lexes.is(Keywords.WITH)) {
             lexes.next();
@@ -49,6 +75,6 @@ public class ForEachLoopAnalyzer extends AbstractAnalyzer {
 
         final Command body = ForLoopAnalyzer.getLoopBody(lexes);
         final Command exitCondition = ForLoopAnalyzer.getOptionalExistCondition(lexes);
-        return new ForEachLoop(identifier, with, expression, resultList, body,  exitCondition);
+        return new ForEachLoop(identifiers, listLoopVar, with, expression, resultList, body, exitCondition);
     }
 }

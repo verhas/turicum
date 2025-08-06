@@ -1089,6 +1089,18 @@ for each z with i in ["apple", "banana", "orange", "peach"] {
 }
 // end snippet
 
+// snippet foreach4
+for each [fruit, origin ] in [ ["apple","Ukraine"], ["banana","Brasil"], ["orange","Spain"], ["peach","Hungary"]] {
+println "Fruit %s comes from %s" % [fruit, origin]
+}
+// end snippet
+
+// snippet foreach5
+for each [ j, z ] with i in enumerate(["apple", "banana", "orange", "peach"]) {
+println "%s.%s. %s" % [i, j, z]
+}
+// end snippet
+
 // snippet yield1
 fn gen_1_to_10 {
     for i=1 ; i <= 10 ; i++:

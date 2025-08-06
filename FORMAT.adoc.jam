@@ -1,0 +1,145 @@
+= Turicum Serialized Format Specification
+
+== File Format Overview
+
+The serialized format consists of three main sections:
+
+1. Header
+
+2. Class Registry
+
+3. Object Data
+
+== Header Structure
+
+The header contains the following elements:
+
+- Magic Number (4 bytes): `0xCADAFABE`
+- Version Number (2 bytes): Currently version 1
+- Class Registry Count (2 bytes): Number of classes in the registry
+
+== Class Registry
+
+The class registry follows the header and contains class definitions used for type information during serialization and deserialization:
+
+=== Registry Format
+
+1. Class Registry Count (2 bytes): Number of classes in the registry
+2. For each class entry:
+- Class Name Length (2 bytes): Length of the class name string
+- Class Name (UTF-8): Full qualified class name (e.g., "java.lang.String")
+- Class ID: Implicitly assigned sequentially starting from OFFSET (`1000`)
+
+=== Registry Management
+
+- Class IDs are assigned dynamically as classes are encountered during serialization
+- The registry is maintained in memory during serialization/deserialization
+- New classes are automatically registered when first encountered
+- Class IDs are consistent within a single serialization session
+- Registry entries are written to the output stream before object data
+
+=== Example Registry Content
+
+```
+[Class Registry Count: 0x0003]
+[Class Entry 1]
+  Length: 0x0010
+  Name: "java.lang.String"
+  ID: 3 (implicit)
+[Class Entry 2]
+  Length: 0x0011
+  Name: "java.lang.Integer"
+  ID: 4 (implicit)
+[Class Entry 3]
+  Length: 0x0014
+  Name: "ch.turic.Program"
+  ID: 5 (implicit)
+```
+
+This section precedes the object data and ensures that all type information needed for deserialization is available.
+The registry serves as a lookup table for converting between class names and their compact ID representations used throughout the serialized data.
+
+== Object Data
+
+Objects are serialized with a marker (2 bytes) followed by type-specific data:
+
+=== Special Markers
+
+- NULL (0): Represents null values - Format: `[0x00 0x00]`
+
+- ARRAY (1): Represents array values
+** Format: `[0x00 0x01] [length (4 bytes)] [elements...]`
+
+- MAP (2): Represents map values
+** Format: `[0x00 0x02] [size (4 bytes)] [key-value pairs...]`
+
+=== Basic Types
+
+Each basic type is preceded by its class ID from the registry:
+
+- String - Format: `[class_id (2 bytes)] [UTF-8 string data]`
+
+- Boolean
+- Format: `[class_id (2 bytes)] [1 byte: 0=false, 1=true]`
+
+- Long
+- Format: `[class_id (2 bytes)] [8 bytes]`
+
+- Integer
+- Format: `[class_id (2 bytes)] [4 bytes]`
+
+- Double
+- Format: `[class_id (2 bytes)] [8 bytes]`
+
+=== Enum Values
+
+- Format: `[class_id (2 bytes)] [UTF-8 string of enum constant name]`
+
+=== Complex Objects
+
+For objects that aren't basic types:
+
+- Format:
+
+```
+  [class_id (2 bytes)]
+  [field_count (2 bytes)]
+  For each field:
+    [field_name (UTF-8 string)]
+    [field_value (recursively serialized)]
+```
+
+== Compression
+
+The entire serialized data (including header, registry, and object data) is compressed using the Deflater algorithm.
+
+== Example Structure
+
+Here's an example of how a simple Program object might be serialized:
+
+```
+[Header]
+- Magic Number (0xCADAFABE)
+- Version (0x0001)
+- Class Count (0x0003)
+
+[Class Registry]
+- "java.lang.String"
+- "java.lang.Integer"
+- "ch.turic.Program"
+
+[Object Data]
+- Program object marker
+  - Field count
+  - Field name/value pairs
+    - Each value recursively serialized
+```
+
+== Notes
+
+1. All multi-byte values are written in big-endian order
+2. Strings are stored in UTF-8 format with their length prefix
+3. Class IDs are assigned sequentially starting from offset 3
+4. Objects must provide a static factory(Args) method for deserialization
+
+This format provides a compact and efficient way to serialize Turicum code while maintaining type safety and object relationships.
