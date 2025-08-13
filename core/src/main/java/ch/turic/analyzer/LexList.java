@@ -154,6 +154,14 @@ public class LexList extends LngList {
         return !is(textAlternatives);
     }
 
+    /**
+     * Checks if the current lexeme at the specified offset matches any of the provided text alternatives, requiring that
+     * these are reserved works or reserved symbols, like {@code if}, {@code ->} and so on.
+     *
+     * @param i                the offset from the current position to check
+     * @param textAlternatives an array of text alternatives to compare the lexeme against
+     * @return true if the lexeme at the offset matches any of the text alternatives, false otherwise
+     */
     public boolean isAt(int i, String... textAlternatives) {
         return hasNext(i) && lexAt(index + i).is(textAlternatives);
     }

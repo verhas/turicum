@@ -65,7 +65,7 @@ public class Assignment extends AbstractCommand {
      * Executes the assignment operation within the given context.
      * <p>
      * Performs a simple assignment if the operator is empty, assigning the evaluated expression to the left value.
-     * For compound assignments, applies the specified operator to the current value and the evaluated expression.
+     * For compound assignments, apply the specified operator to the current value and the evaluated expression.
      *
      * @param ctx the execution context
      * @return the result of the assignment operation

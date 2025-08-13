@@ -8,6 +8,11 @@ import ch.turic.utils.Unmarshaller;
 
 import java.util.ArrayList;
 
+/**
+ * The AssignmentList class provides methods to analyze and parse sequences of tokens related
+ * to variable assignments and type declarations in a lexical token list. It can parse
+ * identifiers, types, and associated expressions based on a defined syntax.
+ */
 public class AssignmentList {
     public static final AssignmentList INSTANCE = new AssignmentList();
     public static final TypeDeclaration[] EMPTY_TYPE = new TypeDeclaration[0];

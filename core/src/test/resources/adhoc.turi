@@ -1,11 +1,6 @@
-
-mut a:num=0,b:bool=false,c;
-
-mut [ a  , b ] = [13, true]
-
-println a
-println b
-
+try:
+mut [a, b, c, f] = [1,2,3]
+catch err: println err
 
 
 

@@ -1,3 +1,7 @@
+-- TEST multi_let1
+
+
+
 -- TEST curry_chained_macro
     fn a(a,y,c){
         return  a + y + evaluate(c)

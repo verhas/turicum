@@ -6,6 +6,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
+/**
+ * Represents the concept of a "left value" in an execution context, which is an element capable of being
+ * assigned a value, indexed, or transformed dynamically.
+ * <p>
+ * This interface provides methods for retrieving and manipulating values, ensuring compatibility with
+ * complex data types such as arrays, fields, maps, and custom indexable or field-based objects.
+ */
 public interface LeftValue {
 
     /**

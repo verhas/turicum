@@ -3,6 +3,7 @@ package ch.turic.analyzer;
 
 import ch.turic.BadSyntax;
 
+import java.security.Key;
 import java.util.*;
 
 public class Lexer {
