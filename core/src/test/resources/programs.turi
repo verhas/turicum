@@ -63,7 +63,7 @@ die if b != 1
 die if c != 2
 
 -- TEST multi_let8
-mut {cc->a, ac -> [ [b,c]]}} = {cc: 3, "ac": [ [1, 2]] }}
+mut {cc->a, ac -> [ [b,c]]} = {cc: 3, "ac": [ [1, 2]] }
 die if a != 3
 die if b != 1
 die if c != 2
