@@ -972,58 +972,56 @@ The caller does not need to know that the implementation of the something it cal
 
 === Variable Declaration
 
-Upon first assignment the code has to use the keyword `let` or `mut` to define the variable.
+Upon first assignment, the code has to use the keyword `let` or `mut` to define the variable.
 Until that happens, you cannot use a variable.
 
-Variables defined using the keyword `let` are not mutable.
+Variables defined using the keyword `let` are immutable.
 Variables defined using the keyword `mut` are mutable.
-Mutable variables can be pinned, made immutable any time using the `pin` command.
-Immutable variables remain immutable forever.
+Mutable variables can be pinned, making them immutable at any time using the `pin` command.
+Immutable variables remain immutable while they exist.
 
 You cannot read an undefined variable.
-If a variable is not defined, it will throw an exception.
+Reading an undefined variable will throw an exception.
 
 NOTE: There is a subtle difference between an undefined variable and a defined variable having the value `none`.
 An undefined variable was never defined.
-An already defined variable can have the value of `none`, and it can also have type declaration.
-Also, you can assign values to object fields without the `let` keyword, even to define them.
+An already defined variable can have the value of `none`, and it can also have a type declaration.
+Also, you can assign values to object fields without the `let` keyword, even when the field was not "defined".
 
 The syntax of a `let` and `mut` command is the following:
 
 [source]
 ----
-let identifier:type = expression
-mut identifier:type = expression
+'let' | 'mut'  identifier [ ':' type ] [ = expression ]
 ----
 
 or
 
 [source]
 ----
-let {identifier:type , ... } = expression
-mut {identifier:type , ... } = expression
+'let' | 'mut'  mapping = expression
 ----
 
-or
-
-[source]
-----
-let [identifier:type ...] = expression
-mut [identifier:type ...] = expression
-----
-
-In the first version you assign a value to an identifier and optionally define the type.
+In the first version, you assign a value to an identifier and optionally define the type.
 If the type is defined, only values that match the type can be assigned to the variable.
-Type is one of the predefined types or the name of the class or a java object type.
+Type is
+
+* one of the predefined types, or
+
+* the name of a class,
+
+* or a java object type.
+
 You can specify multiple types separated using `|` character.
 
-Note that if you do not define an expression, but you define a type that is not `any` or `none` then you should also specify `|none` as an alternative, because the initial value will be `none`.
+If you do not specify an expression, then the value will be `none`.
+In this case, the type has to include `any` or `none` as an alternative.
 A variable of a type that does not have `none` or `any` in the allowed types cannot be `none`.
 
 The `: type` and the `= expression` parts are optional.
 If the type is not defined, then the variable can get any value.
-If the expression is missing the value will be `none`, but the variable becomes defined.
-There can be multiple `identifier: type = expression` after the `let` keyword comma separated.
+If the expression is missing, the value will be `none`, and the variable is defined.
+There can be multiple `identifier: type = expression` after the `let` keyword, comma-separated.
 There are predefined type names.
 
 {%#trimLines
@@ -1033,7 +1031,7 @@ There are predefined type names.
 If the name starts with `java.`, then the variable can hold a Java object.
 For example, `java.java.math.BigInteger` can hold any `java.math.BigInteger` object.
 
-In other cases the type can be the name of a class defined in the program.
+In other cases, the type can be the name of a class defined in the program.
 The class has to be defined by the time the variable is defined.
 
 If the name of the type is specified between `(` and `)` then the expression between the parentheses is evaluated and the string value is used as a type name.
@@ -1051,24 +1049,30 @@ Note that a variable can hold `none` only if
 For example, `let a:num;` will fail, because it allows only numerical values, but missing the initial value will try to set it to `none`.
 ====
 
-You can define multiple types for a variable separating the types with `|`.
-For example `let a:num|str|myClass` makes `a` eligible to store a numeric value, a string or an instance of `MyClass`.
+You can define multiple types for a variable, separating the types with `|`.
+For example, `let a:num|str|myClass` makes `a` eligible to store a numeric value, a string, or an instance of `MyClass`.
 
 The following example declares a variable that can hold a string or a numeric value.
 
 {%S let_with_types_example%}
 
-If you use the format `let { identifier list } = expression` or `mut { identifier list } = expression` then the identifiers are not followed by expressions individually.
-Instead, the expression after the `=` is evaluated once, used as an object and the fields are assigned to the variables of the same name on the left side.
+The format
+
+[source]
+----
+'let' | 'mut'  mapping = expression
+----
+
+uses the expression as a list or an object and assigns part of it to the variables following the structure of the mapping.
+The following is a simple example when the mapping copies the values from an object to variables.
 
 {%S flat_let_object1%}
 
-It is not an error if there are fields in the object not read during the assignment and also if some of the variables do not have matching fields.
+It is not an error if there are fields in the object that are not read during the assignment, and also if some of the variables do not have matching fields.
 
 {%S flat_let_object2%}
 
-If you use the format `let [ identifier list ] = expression` or `mut [ identifier list ] = expression` then the identifiers are not followed by expressions individually.
-Instead, the expression after the `=` is evaluated once, used as a list and the elements are assigned to the variables.
+You can also map a list to variables, like in the following example:
 
 {%S flat_let_list1%}
 
@@ -1089,6 +1093,60 @@ If you have too few you can extend the list:
 or even
 
 {%S flat_let_list6%}
+
+Mapping can be more complex than just listing variables for an object field or elements of a list.
+Any mapping element can also be a mapping.
+The following example maps the fields of an object to variables.
+The field `k` is an array, and it is mapped to variables in a submapping.
+Submapping can go any level deep, in this case, the submapping list has a fourth element, which is an object also submapped to the variables `f` and `g`.
+
+{%S let_map1%}
+
+The name of the field is the same as the name of the variable it is mapped to, unless you specify the field name using the `->` symbol.
+In the example above, the variable `g` gets the value of the field `k`.
+It is specified as `k -> g`, read: the field `k` goes into the variable `g`.
+
+You cannot use the default field name mapping when you map to a submapping or when you map to a left value other than a naked variable.
+In these cases, there is no reliable field name to depend on without explicit declaration.
+
+In the mapping, you can use a left value to get the value if the declaration is `mut`.
+
+{%S let_map2%}
+
+In the example above, the field `b` is mapped to the first element of the array `b`.
+You cannot use left values if the mapping is `let`.
+You will get a compilation error:
+
+[source]
+----
+ch.turic.BadSyntax: you cannot map to left value in let
+at let_map3.turi:2:20
+  1. let b = []
+  2. let { a:num , b -> b[0] } = {a:1,b:2};
+   --------------------^
+----
+
+`let` is always declarative, declaring new variables.
+It is an error to reference a variable in the `let` mapping or submapping, which already exists, even if it is mutable.
+
+{%S let_map3%}
+
+You can also use the `let` keyword in front of any submapping, making that part immutable and declarative.
+
+{%S let_map4%}
+
+You can use the `let` keyword in front of individual mappings to make them immutable and declarative.
+
+{%S let_map5%}
+
+Although `mut` is not strictly declarative, you can declare variables in a mapping for `mut` as in the example above.
+However, if the variable you declare with a type already exists, it is an error:
+
+{%S let_map6%}
+
+You cannot make a submapping mutable inside a declarative `let` mapping or submapping.
+
+
 
 ==== Updating a Variable
 

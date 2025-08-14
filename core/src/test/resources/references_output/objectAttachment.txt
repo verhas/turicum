@@ -1,0 +1,6 @@
+hello {Kukk: 2, cls: class B}, class B  [1, 2, 3]
+2
+Now with h
+hello none, class B  [1, 2, 3]
+none
+hello {Kukk: 2, cls: class B}, class B  [2, 3]

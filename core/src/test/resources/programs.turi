@@ -1,6 +1,72 @@
 -- TEST multi_let1
+// a simple test that assigns values to listed variables
+let [a,b,c] = [1,2,3]
+die if a != 1
+die if b != 2
+die if c != 3
+try {
+    a = 3
+}catch e: none;
+die "reassigned" if a == 3
 
+-- TEST multi_let2
+// a simple test that assigns values to field-named variables
+let {a,b,c} = { c: 3, "a":1, b:2}
+die if a != 1
+die if b != 2
+die if c != 3
+try {
+    a = 3
+}catch e: none;
+die "reassigned" if a == 3
 
+-- TEST multi_let3
+// a simple test that assigns values to field-specified variables
+let {ac->a, bc->b, cc->c} = { cc: 3, "ac":1, bc:2}
+die if a != 1
+die if b != 2
+die if c != 3
+try {
+    a = 3
+}catch e: none
+die "reassigned" if a == 3
+
+-- TEST multi_let4
+// assign value to left value
+let a = {}
+mut { ac->a.a, bc->b, cc->c } = { cc: 3, "ac":1, bc:2}
+die if a.a != 1
+die if b != 2
+die if c != 3
+a.a = 3
+die "reassigned" if a.a != 3
+
+-- TEST multi_let5
+mut a = 7
+mut SENTINEL = none
+try {
+    let {ac->a, bc->b, cc->c} = {cc: 3, "ac":1, bc: 2 }
+    SENTINEL = 1
+}catch e: none
+die if SENTINEL == none
+
+-- TEST multi_let6
+mut {cc->a, ac -> {b,c}} = {cc: 3, "ac": {b:1, c: 2 }}
+die if a != 3
+die if b != 1
+die if c != 2
+
+-- TEST multi_let7
+mut {cc->a, ac -> { h -> [b,c]}} = {cc: 3, "ac": {h: [1, 2] }}
+die if a != 3
+die if b != 1
+die if c != 2
+
+-- TEST multi_let8
+mut {cc->a, ac -> [ [b,c]]}} = {cc: 3, "ac": [ [1, 2]] }}
+die if a != 3
+die if b != 1
+die if c != 2
 
 -- TEST curry_chained_macro
     fn a(a,y,c){

@@ -3,6 +3,7 @@ package ch.turic.commands;
 
 import ch.turic.Command;
 import ch.turic.ExecutionException;
+import ch.turic.analyzer.Keywords;
 import ch.turic.memory.Context;
 import ch.turic.memory.HasFields;
 import ch.turic.memory.LeftValue;
@@ -157,7 +158,7 @@ public class MultiLetAssignment extends AbstractCommand {
             final var iterator = iterable.iterator();
             for (var elementMapping : mapper.elementMappings) {
                 if (!iterator.hasNext()) {
-                    throw new ExecutionException("[set] assignment right-hand side has too few values", value);
+                    throw new ExecutionException("%s assignment right-hand side has too few values", pin ? Keywords.LET : Keywords.MUT, value);
                 }
                 final var mappedValue = iterator.next();
                 final var mapping = elementMapping.mapping();
@@ -181,6 +182,9 @@ public class MultiLetAssignment extends AbstractCommand {
                 } else {
                     throw new ExecutionException("Cannot map to list " + value.getClass().getName());
                 }
+            }
+            if( iterator.hasNext()){
+                throw new ExecutionException("%s assignment right-hand side has too many values", pin ? Keywords.LET : Keywords.MUT, value);
             }
         }
     }

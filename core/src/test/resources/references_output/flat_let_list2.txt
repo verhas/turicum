@@ -1,1 +1,1 @@
-[set] assignment right-hand side has too few values
+let assignment right-hand side has too few values

@@ -1,0 +1,6 @@
+a=alamaba
+b=bourbenk
+c=cica
+rest=[rist, yayy]
+meta={rust: the best programming language ever, joke: true}
+who am I kidding?

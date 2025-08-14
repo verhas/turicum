@@ -1,0 +1,6 @@
+be10() 10
+uncurry(be10)(6,7) 13
+uncurry(be10,0)() 10
+uncurry(be10,1)(6) 11
+uncurry(be10,2)(6,6) 12
+uncurry(be10,curried_arity(be10))(6,6) 12

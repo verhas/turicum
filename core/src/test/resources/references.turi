@@ -1928,8 +1928,8 @@ execute("Thread 2",2)
 
 // snippet flat_let_object1
 
-mut z = { a: "apple", b:"bier", c : "count" }
-mut {a, b, c} = z
+let z = { a: "apple", b:"bier", c : "count" }
+let {a, b, c} = z
 println a
 println b
 println c
@@ -1937,8 +1937,8 @@ println c
 
 // snippet flat_let_object2
 
-mut z = { a: "apple", b:"bier", c : "count" , d: "not used" }
-mut {a, b, c, f} = z
+let z = { a: "apple", b:"bier", c : "count" , d: "not used" }
+let {a, b, c, f} = z
 println a
 println b
 println c
@@ -1954,7 +1954,7 @@ println c
 
 // snippet flat_let_list2
 try:
-    mut [a, b, c, f] = [1,2,3]
+    let [a, b, c, f] = [1,2,3]
 catch err: println err
 // end snippet
 
@@ -2003,6 +2003,58 @@ println b
 println c
 println d
 // end snippet
+
+// snippet let_map1
+let { a , b , k -> [c,d,e , {f , k -> g }]} = {a:1,b:2, k: [3,4,5,{f:6, k: 7}]};
+println a
+println b
+println c
+println d
+println e
+println f
+println g
+// end snippet
+
+// snippet let_map2
+let b = []
+mut { a:num , b -> b[0] } = {a:1,b:2};
+println a
+println b
+// end snippet
+
+// snippet let_map3
+mut b = 5
+try:
+  let { a , b  } = {a:1,b:1};
+catch e: println e
+// end snippet
+
+// snippet let_map4
+let b = []
+mut { a:num , let b -> [ x, y, z ] } = {a:1,b:[1,2,3]};
+a = 5 // a is mutable
+try: x = 77 catch e: none // x is immutable will not change
+println a
+println x
+println y
+println z
+// end snippet
+
+// snippet let_map5
+mut { a:num , let b } = {a:1,b:1};
+a = 5 // a is mutable
+try: b = 5 catch e: none // b is immutable will not change
+println a
+println b
+// end snippet
+
+// snippet let_map6
+mut a:num = 3
+try:
+  mut { a:num , let b } = {a:1,b:1};
+catch e: println e
+// end snippet
+
 
 // snippet re
 sys_import "turi.re"

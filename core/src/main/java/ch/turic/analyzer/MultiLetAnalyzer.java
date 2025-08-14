@@ -14,6 +14,7 @@ public class MultiLetAnalyzer extends AbstractAnalyzer {
     private final boolean mut;
     public static final MultiLetAnalyzer INSTANCE = new MultiLetAnalyzer(false);
     public static final MultiLetAnalyzer INSTANCE_MUT = new MultiLetAnalyzer(true);
+    private static final DirectMapping NO_DIRECT_MAPPING = new DirectMapping(null, new TypeDeclaration[0], null);
 
     public MultiLetAnalyzer(boolean mut) {
         this.mut = mut;
@@ -61,7 +62,7 @@ public class MultiLetAnalyzer extends AbstractAnalyzer {
         while (lexes.isNot("]")) {
             final boolean subPin = isSubmappingPinned(lexes, pin);
             final var submapping = getSubMappingIfAny(lexes, subPin);
-            final var directMapping = getDirectMappingIfAny(lexes,subPin);
+            final var directMapping = submapping == null ? getDirectMappingIfAny(lexes, subPin) : NO_DIRECT_MAPPING;
 
             elementMappings.add(new MultiLetAssignment.ElementMapping(directMapping.identifier(),
                     directMapping.types(),
@@ -97,7 +98,7 @@ public class MultiLetAnalyzer extends AbstractAnalyzer {
             final boolean subPin = isSubmappingPinned(lexes, pin);
             final var explicitFieldName = getExplicitFieldName(lexes);
             final var submapping = getSubMappingIfAny(lexes, subPin);
-            final var directMapping = getDirectMappingIfAny(lexes,subPin);
+            final var directMapping = submapping == null ? getDirectMappingIfAny(lexes, subPin) : NO_DIRECT_MAPPING;
 
             if (explicitFieldName.isEmpty() && directMapping.identifier() == null) {
                 throw lexes.syntaxError("missing field name for mapping");
@@ -107,7 +108,7 @@ public class MultiLetAnalyzer extends AbstractAnalyzer {
                     new MultiLetAssignment.ElementMapping(directMapping.identifier(),
                             directMapping.types(),
                             directMapping.leftValue(),
-                            submapping, pin||subPin)));
+                            submapping, pin || subPin)));
             stepOverTheComma(lexes);
         }
         lexes.next(); // step over the '}'
@@ -171,7 +172,7 @@ public class MultiLetAnalyzer extends AbstractAnalyzer {
                 types = new TypeDeclaration[0];
             }
         } else {
-            if( pin ){
+            if (pin) {
                 throw lexes.syntaxError("you cannot map to left value in let");
             }
             identifier = null;
