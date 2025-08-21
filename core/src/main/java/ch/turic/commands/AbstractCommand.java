@@ -90,7 +90,7 @@ public abstract class AbstractCommand implements Command, HasFields {
             case Long s -> s;
             case Double s -> s;
             case Boolean s -> s;
-            case Map m -> castMap(context, (Map<?, ?>) m);
+            case Map<?,?> m -> castMap(context, (Map<?, ?>) m);
             default -> _toLngObject(command, context);
         };
     }

@@ -7,7 +7,7 @@ import ch.turic.TuriFunction;
 import java.lang.reflect.InvocationTargetException;
 
 /**
- * The JavaNewObject class implements the TuriFunction interface to provide the ability
+ * The JavaObject class implements the TuriFunction interface to provide the ability
  * to dynamically instantiate new Java objects at runtime using reflection. This function
  * is registered within the Turi language system under the name "java_object".
  * <p>
@@ -18,11 +18,7 @@ import java.lang.reflect.InvocationTargetException;
  * If the class cannot be found, the constructor is inaccessible, or no suitable constructor
  * matches the arguments, an {@link ExecutionException} is thrown.
  */
-public class JavaNewObject implements TuriFunction {
-    @Override
-    public String name() {
-        return "java_object";
-    }
+public class JavaObject implements TuriFunction {
 
     @Override
     public Object call(Context ctx, Object[] arguments) throws ExecutionException {

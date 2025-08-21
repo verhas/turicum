@@ -63,4 +63,4 @@ Closure eclosing is a unique language feature.
 
 The language is designed for **experienced developers**, particularly those who work with the JVM and need a powerful scripting or DSL tool that feels natural but scales to complex architectural needs.
 
-For further information read the link:REFERENCE.adoc[reference documentation].
+For further information read the link:REFERENCE[reference documentation].

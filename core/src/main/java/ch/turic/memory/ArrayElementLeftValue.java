@@ -18,6 +18,7 @@ public record ArrayElementLeftValue(LeftValue arrayLeftValue, Command index) imp
      * @param args the unmarshalling arguments containing the array left value and index command
      * @return a new ArrayElementLeftValue instance
      */
+    @SuppressWarnings("unused")
     public static ArrayElementLeftValue factory(final Unmarshaller.Args args) {
         return new ArrayElementLeftValue(
                 args.get("arrayLeftValue", LeftValue.class),

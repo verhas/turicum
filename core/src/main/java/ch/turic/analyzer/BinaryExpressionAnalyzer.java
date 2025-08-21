@@ -6,12 +6,22 @@ import ch.turic.commands.Operation;
 
 import java.util.Arrays;
 
+/**
+ * The BinaryExpressionAnalyzer class is responsible for analyzing and parsing binary expressions
+ * based on defined precedence levels and operators. It extends AbstractAnalyzer to leverage
+ * a structured approach to expression analysis and supports precedence-based parsing of binary
+ * operations.
+ * <p>
+ * This class uses a two-dimensional array of operators, categorized by precedence levels, for parsing
+ * and constructing specific operations. It processes expressions recursively based on these precedence
+ * levels and creates an operation tree.
+ */
 public class BinaryExpressionAnalyzer extends AbstractAnalyzer {
     final String[][] binops;
 
     static final String[][] binaryOperators = {
             // snippet operators
-            // this is not included, copied and checked against modification
+            // this is not included, copied, and checked against modification
             {Keywords.OR}, // 0
             {"||"},        // 1
             {"&&"},        // 2
@@ -24,7 +34,7 @@ public class BinaryExpressionAnalyzer extends AbstractAnalyzer {
             {"<<", ">>", ">>>"},
             {"+", "-"},
             {"*", "/", "%"},
-            { "**" , "##" }
+            {"**", "##"}
             // end snippet
     };
     static final BinaryExpressionAnalyzer INSTANCE = new BinaryExpressionAnalyzer(binaryOperators);
@@ -44,7 +54,7 @@ public class BinaryExpressionAnalyzer extends AbstractAnalyzer {
 
     public Command analyze(final int precedenceLevel, final LexList lexes) throws BadSyntax {
         if (lexes.isEmpty()) {
-            throw lexes.syntaxError( "Expression is empty");
+            throw lexes.syntaxError("Expression is empty");
         }
 
         if (precedenceLevel == N) {

@@ -128,7 +128,7 @@ public class WithCommand extends AbstractCommand {
      *
      * @param closeExceptions    a list of {@link RuntimeException}s thrown during resource cleanup
      * @param exception          the {@link ExecutionException} to throw if exceptions are not suppressed
-     * @param suppressExceptions whether exceptions should be suppressed
+     * @param suppressExceptions whether exceptions should be suppressed or thrown
      * @return {@code null} if exceptions are suppressed
      * @throws ExecutionException if {@code suppressExceptions} is {@code false}
      */

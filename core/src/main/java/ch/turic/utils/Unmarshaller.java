@@ -29,7 +29,7 @@ public class Unmarshaller {
      * @param compressedData the compressed byte array containing serialized data
      * @return the deserialized Program object
      * @throws RuntimeException if deserialization fails, the magic number is invalid,
-     *         or the version is not supported
+     *                          or the version is not supported
      */
     public Program deserialize(byte[] compressedData) {
         final var data = decompress(compressedData);
@@ -78,7 +78,7 @@ public class Unmarshaller {
      *
      * @param input the DataInputStream to read from
      * @return the unmarshalled object
-     * @throws IOException if an I/O error occurs
+     * @throws IOException                  if an I/O error occurs
      * @throws ReflectiveOperationException if reflection-related operations fail
      */
     @SuppressWarnings("unchecked")
@@ -128,7 +128,7 @@ public class Unmarshaller {
      *
      * @param input the DataInputStream to read from
      * @return the unmarshalled Map object
-     * @throws IOException if an I/O error occurs
+     * @throws IOException                  if an I/O error occurs
      * @throws ReflectiveOperationException if reflection-related operations fail
      */
     private Map<?, ?> unmarshall_map(DataInputStream input) throws IOException, ReflectiveOperationException {
@@ -147,7 +147,7 @@ public class Unmarshaller {
      *
      * @param input the DataInputStream to read from
      * @return the unmarshalled Object array
-     * @throws IOException if an I/O error occurs
+     * @throws IOException                  if an I/O error occurs
      * @throws ReflectiveOperationException if reflection-related operations fail
      */
     private Object[] unmarshall_array(DataInputStream input) throws IOException, ReflectiveOperationException {
@@ -162,11 +162,11 @@ public class Unmarshaller {
     /**
      * Constructs an object using its factory method.
      *
-     * @param cls the Class of the object to construct
+     * @param cls      the Class of the object to construct
      * @param fieldMap the Args object containing field values
      * @return the constructed object
      * @throws IllegalStateException if the factory method is missing or not static
-     * @throws RuntimeException if factory method invocation fails
+     * @throws RuntimeException      if factory method invocation fails
      */
     private Object constructViaFactory(Class<?> cls, Args fieldMap) {
         try {
@@ -186,7 +186,7 @@ public class Unmarshaller {
     /**
      * Inner class that holds argument values for object construction.
      * Provides utility methods for accessing and converting values.
-     *
+     * <p>
      * This class is used in the static factory classes in the command classes.
      */
     public static class Args {
@@ -195,7 +195,7 @@ public class Unmarshaller {
         /**
          * Stores a value with the specified name.
          *
-         * @param name the name of the argument
+         * @param name  the name of the argument
          * @param value the value to store
          */
         public void put(String name, Object value) {
@@ -205,9 +205,9 @@ public class Unmarshaller {
         /**
          * Retrieves a value of the specified type.
          *
-         * @param name the name of the argument
+         * @param name        the name of the argument
          * @param targetClass the expected class of the value
-         * @param <T> the type parameter
+         * @param <T>         the type parameter
          * @return the value cast to the specified type
          */
         public <T> T get(final String name, Class<T> targetClass) {
@@ -266,9 +266,9 @@ public class Unmarshaller {
         /**
          * Casts or converts an object to the specified type.
          *
-         * @param obj the object to cast
+         * @param obj         the object to cast
          * @param targetClass the target class
-         * @param <T> the type parameter
+         * @param <T>         the type parameter
          * @return the cast or converted object
          * @throws ClassCastException if the conversion is not possible
          */

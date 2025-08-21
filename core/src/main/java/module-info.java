@@ -10,10 +10,10 @@ module ch.turic {
     opens turi; // needed to read the sysimport files as resources
 
     provides ch.turic.TuriFunction with Len, Type, Macro, Evaluate,
-            Reclose, Keys, JavaNewObject, JavaMethodCall,
-            JavaMethodCallVararg, Sleep, Set, SetGlobal, SetCaller,
+            Reclose, Keys, JavaObject, JavaCall,
+            JavaCallVararg, Sleep, Set, SetGlobal, SetCaller,
             Que, TryYield, YieldIsClosed, Rx, RxMatch, TuriHttpServer, XmlFormat,
-            IsObject, IsType, ExportAll, Parents, AllParents, Rng, Time, NanoTime,
+            IsObj, IsType, ExportAll, Parents, AllParents, Rng, Time, NanoTime,
             MathFunctions.Abs, MathFunctions.Sin, MathFunctions.Cos, MathFunctions.ACos,
             MathFunctions.Asin, MathFunctions.Atan, MathFunctions.Cbrt, MathFunctions.Ceil,
             MathFunctions.Exp, MathFunctions.Floor, MathFunctions.Log, MathFunctions.Log10,

@@ -1,47 +1,15 @@
-let  [{f , k -> g }] = [{f:6, k: 7}];
-//let {  k -> [ {f , k -> g }]} = {k: [{f:6, k: 7}]};
+mut commands = block_list(thunk({k = 13; suss = "huss"; mut x = 3; println "hello"}))
+println "before execution"
 
-
-
-/*
-sys_import "turi.duration"
-sys_import "turi.http_client"
-
-let GEMINI_API_KEY = env("GEMINI_API_KEY");
-
-let body = {}
-
-body.contents.parts[0].text = "Give me python code to sort a list.";
-
-with http.post($"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}",
-                 headers={
-                     "User-Agent" : "Mozilla"
-                 },
-                 stream=true,
-                 body=body
-
-        ) as z {
-
-        mut buffer:str = ""
-        mut ch:str|none = ""
-        mut brace_counter:num = 0
-        println "starting the loop"
-        while (ch=z.stream.read_char()) != none {
-            buffer += ch;
-            if ch == "{" : brace_counter++;
-            if ch == "}" {
-                brace_counter--;
-                if brace_counter == 0 {
-                    // buffer contains a JSON
-                    // in Turicum if you execute a JSON it will result the object itself
-                    let result = buffer.execute()
-                    print result.response or (die "There was no response : \n"+ buffer)
-                    // delete the JSON text just processed from the buffer
-                    buffer = ""
-
-                }
-            }
-        }
-        println "done"
-    }
-*/
+mut i = 1;
+for each command in commands {
+  mut suss;
+  println "%s. before is_defined(x) = %s" % [i,is_defined(x)]
+  if i == 1 {
+    try: unthunk(command) catch e: println "ERROR: %s" % [e];
+  } else {
+    unthunk(command)
+    println "%s. after is_defined(x) = %s" % [i,is_defined(x)]
+  }
+  i++
+}

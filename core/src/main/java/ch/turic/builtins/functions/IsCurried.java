@@ -11,12 +11,20 @@ import ch.turic.commands.ClosureLike;
  * <p>
  * A curried object is defined as one that retains a partial set of arguments or
  * a reference to itself for future invocation.
+ *
+ * <pre>{@code
+ * fn x(a,b){}
+ * let k = x.()
+ * die "" if ! is_curried(k) || curried_arity(k) != 0
+ * die "" if is_curried(x) || curried_arity(x) != 0
+ * }</pre>
+ *
+ * {@code k} is a curried function even though zero arguments are curried. You cannot simply rely on the number
+ * of the curried arguments to know if a function is curried or not. Bot {@code k} and {@code x} have zero curried
+ * arguments in the example, but only one is curried.
+ *
  */
 public class IsCurried implements TuriFunction {
-    @Override
-    public String name() {
-        return "is_curried";
-    }
 
     @Override
     public Object call(Context context, Object[] arguments) throws ExecutionException {

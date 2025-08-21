@@ -1649,15 +1649,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=2E2FF723
+h id=3AF17BE2
 h after post increment: 1
 k: 0
-h id=324A0017
-k id=2E2FF723
+h id=F9879AC
+k id=3AF17BE2
 h after pre increment: 2
 z: 2
-h id=6187D1F5
-z id=6187D1F5
+h id=37F21974
+z id=37F21974
 
 ----
 
@@ -1702,15 +1702,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=2445445A
+h id=5F4D427E
 h after post increment: 1
 k: 1
-h id=2445445A
-k id=2445445A
+h id=5F4D427E
+k id=5F4D427E
 h after pre increment: 2
 z: 2
-h id=2445445A
-z id=2445445A
+h id=5F4D427E
+z id=5F4D427E
 
 ----
 
@@ -1758,15 +1758,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=7502291E
+h id=6E521C1E
 h after post decrement: -1
 k: 0
-h id=487DB668
-k id=7502291E
+h id=224B4D61
+k id=6E521C1E
 h after pre decrement: -2
 z: -2
-h id=46944CA9
-z id=46944CA9
+h id=5D5D9E5
+z id=5D5D9E5
 
 ----
 
@@ -1808,15 +1808,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=22BAC7BC
+h id=303E3593
 h after post decrement: -1
 k: -1
-h id=22BAC7BC
-k id=22BAC7BC
+h id=303E3593
+k id=303E3593
 h after pre decrement: -2
 z: -2
-h id=22BAC7BC
-z id=22BAC7BC
+h id=303E3593
+z id=303E3593
 
 ----
 
@@ -2920,7 +2920,9 @@ Variable 'a' is already defined.
 
 
 You cannot make a submapping mutable inside a declarative `let` mapping or submapping.
+In other words, you cannot use `mut` on a submapping.
 
+Although there is no limit on the nesting of mapping and structure and list destrucuring, it is usually not a good practice to create too deep structures.
 
 
 ==== Updating a Variable
@@ -3143,7 +3145,7 @@ print z.z, " already changed"
 .output of snippet `update_forbiden4`
 [source]
 ----
-Assigned value changed while calculating new value z[ch.turic.commands.StringConstant@5fb759d6]
+Assigned value changed while calculating new value z[ch.turic.commands.StringConstant@4648ce9]
 12 already changed
 ----
 
@@ -4884,13 +4886,13 @@ Thread 1 generated 19
 Thread 1 generated 23
 stopping
 exception Task stopped.
- prime read 2Thread 2 generated 3
-
-Thread 2 generated  prime read 5
-3
+ prime read 2
+Thread 2 generated 3
+ prime read 3
+Thread 2 generated 5
  prime read 5
-Thread 2 generated 7
- prime read 7
+Thread 2 generated  prime read 7
+7
 Thread 2 generated 11
 Thread 2 generated 13
 stopping
@@ -4949,9 +4951,9 @@ println( (end-start)/1000000, "ms")
 [source]
 ----
 [1, 2, 3]
-315.408125ms
+309.569208ms
 []
-310.630209ms
+310.575083ms
 
 ----
 
@@ -5161,10 +5163,9 @@ a =3.6063454894655185
 a =3.6055513629176015
 a =3.6055512754639905
 a =3.6055512754639896
-a =3.6055512754639896
-sqrt(13) ≈ 3.6055512754639896
+sqrt(13) ≈ 3.6055512754639905
 sqrt(13) ≈ 3.605551275463989 calculated by java Math
-square ≈ 13.000000000000002
+square ≈ 13.000000000000009
 
 ----
 
@@ -10369,7 +10370,7 @@ println nano_time()
 .output of snippet `nano_time`
 [source]
 ----
-410323385436958
+308336004334291
 
 ----
 
@@ -10758,78 +10759,82 @@ none
 .output of snippet `que`
 [source]
 ----
-task1 is not ready 0
+task1 is not ready 0task2 is not ready 0
+
+task1 is not ready 1
 task2 is ready 1
 task2 is not ready 0
-task2 is not ready 1task1 is not ready 1
-
-task2 is not ready 2task1 is not ready 2
-
-task2 is ready 2
-task1 is not ready 3
-task2 is not ready 0
-task1 is not ready 4
 task2 is not ready 1
-task1 is not ready 5task2 is not ready 2
-
-task1 is ready 3task2 is not ready 3
-
+task1 is not ready 2
+task1 is not ready 3
+task2 is not ready 2
+task2 is ready 2
+task1 is not ready 4
+task2 is not ready 0
+task2 is not ready 1
+task1 is not ready 5
+task2 is not ready 2
+task1 is not ready 6
+task1 is ready 3
+task2 is not ready 3
 task1 is not ready 0
 task2 is not ready 4
 task1 is not ready 1
 task1 is not ready 2
 task2 is not ready 5
-task1 is ready 4
-task1 is not ready 0
-task2 is not ready 6
-task1 is not ready 1task2 is not ready 7
-
-task2 is not ready 8
-task1 is not ready 2
-task1 is ready 5
-task2 is not ready 9
-task1 is not ready 0
-task1 is not ready 1
-task2 is not ready 10
-task2 is not ready 11task1 is not ready 2
-
 task1 is not ready 3
-task2 is ready 6
+task2 is ready 4
 task2 is not ready 0
 task1 is not ready 4
 task2 is not ready 1
 task1 is not ready 5
 task2 is not ready 2
 task2 is not ready 3
-task1 is ready 7
-task1 is not ready 0
-task2 is not ready 4
-task1 is not ready 1
-task2 is not ready 5task1 is ready 8
-
-task1 is not ready 0
-task2 is not ready 6
-task1 is not ready 1
-task2 is not ready 7
-task1 is not ready 2
-task2 is ready 9task1 is not ready 3
-
-task2 is not ready 0
-task1 is not ready 4task2 is not ready 1
-
-task2 is not ready 2task1 is not ready 5
-
-task2 is not ready 3
 task1 is not ready 6
+task1 is ready 5
+task2 is not ready 4
+task1 is not ready 0
+task2 is not ready 5
+task1 is not ready 1
+task1 is ready 6
+task2 is not ready 6
+task1 is not ready 0
+task2 is not ready 7
+task1 is not ready 1
+task2 is not ready 8
+task1 is not ready 2
+task1 is not ready 3
+task2 is not ready 9
+task2 is ready 7
+task1 is not ready 4
+task2 is not ready 0
+task2 is not ready 1
+task1 is not ready 5
+task2 is not ready 2
+task1 is not ready 6
+task1 is ready 8
+task2 is not ready 3
+task1 is not ready 0
+task1 is not ready 1
+task2 is not ready 4
+task2 is not ready 5
+task1 is not ready 2
+task2 is ready 9
+task1 is not ready 3
+task2 is not ready 0
+task1 is not ready 4
+task2 is not ready 1
+task1 is not ready 5
+task2 is not ready 2
 closing the channel
 channel is closed
 1 is done false
-2 is done false
-we start to wait the first time
 task1 is done
 task2 is done
+2 is done false
+we start to wait the first time
 task1 done true
-task2 done false
+task2 done true
 We start to wait the second time
 task1 done true
 task2 done true
@@ -11069,7 +11074,6 @@ none
 [source]
 ----
 sending 1
-not ready 0
 received 1
 not ready 0
 not ready 1
@@ -11078,12 +11082,14 @@ sending 2
 received 2
 not ready 0
 not ready 1
+not ready 2
 sending 3
 received 3
 not ready 0
 not ready 1
-closing the channel
 not ready 2
+not ready 3
+closing the channel
 channel is closed
 is done false
 we are done
@@ -11338,7 +11344,7 @@ true
 
 
 
-==== `blocl_list`
+==== `block_list`
 
 The function `block_list` will return a list containing the commands in a command block.
 The following example shows you how it can be used together with `thunk` and `unthunk`.
@@ -11687,16 +11693,22 @@ The value of the local declaration is the value of the last assignment in the co
  
   SINGLE_LET ::= ('let' | 'mut') ASSIGNMENT_LIST
  
-  MULTI_LET ::= ('let' | 'mut') MULTI_ASSIGNMENT_HEADER '=' EXPRESSION
+  MULTI_LET ::= ('let' | 'mut') DESTRUCTURING '=' EXPRESSION
  
-  MULTI_ASSIGNMENT_HEADER ::= '[' ASSIGNMENT_LIST ']'
-                          | '{' ASSIGNMENT_LIST '}'
+  DESTRUCTURING ::= '[' MAP_LIST ']'
+                  | '{' FIELD_MAP_LIST '}'
  
-  ASSIGNMENT_LIST ::= ASSIGNMENT (',' ASSIGNMENT)
+  MAP_LIST ::= ['let'] MAP ( ',' ['let'] MAP )
  
-  ASSIGNMENT ::= IDENTIFIER (':' TYPE_DECLARATION)?
+  FIELD_MAP_LIST ::== ['let'] FIELD_MAP (',' ['let'] FIELD_MAP)
  
-  TYPE_DECLARATION ::= IDENTIFIER
+  MAP ::_= IDENTIFIER [':' TYPE_DECLARATIONS ] | LEFT_VALUE | DESTRUCTURING
+ 
+  FIELD_MAP ::= [ IDENTIFIER '->' ] MAP
+ 
+  TYPE_DECLARATIONS ::= TYPE_DECLARATION ( '|' TYPE_DECLARATION )
+ 
+  TYPE_DECLARATION ::= IDENTIFIER | '(' EXPRESION ')'
  
   EXPRESSION ::= // Any valid Turicum expression
 

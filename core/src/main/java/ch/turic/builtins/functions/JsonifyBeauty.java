@@ -29,7 +29,7 @@ public class JsonifyBeauty implements TuriFunction {
             case LngObject lngObject -> jsonifyObject(lngObject, tab, tabsize, margin);
             case LngList lngList -> jsonifyList(lngList, tab, tabsize, margin);
             case String s -> Jsonify.jsonifyString(s);
-            case null -> jsonifyNull(tab, tabsize, margin);
+            case null -> "null";
             default -> jsonifyAny(object, tab, tabsize, margin);
         };
     }
@@ -47,10 +47,6 @@ public class JsonifyBeauty implements TuriFunction {
 
     private static String spc(int tab) {
         return " ".repeat(tab);
-    }
-
-    private static String jsonifyNull(int tab, int tabsize, int margin) {
-        return "null";
     }
 
     private static String jsonifyAny(Object s, int tab, int tabsize, int margin) {

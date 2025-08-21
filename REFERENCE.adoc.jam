@@ -792,7 +792,7 @@ If we modify the equality check to consider the classes, we get a different resu
 
 === Using parentheses
 
-{%@snip:check hash="ad9e325c" id=operators message="check the operator table for change"%}
+{%@snip:check hash="9cafadec" id=operators message="check the operator table for change"%}
 
 The different operators have their precedences as in most of the programming languages.
 
@@ -1145,7 +1145,9 @@ However, if the variable you declare with a type already exists, it is an error:
 {%S let_map6%}
 
 You cannot make a submapping mutable inside a declarative `let` mapping or submapping.
+In other words, you cannot use `mut` on a submapping.
 
+Although there is no limit on the nesting of mapping and structure and list destrucuring, it is usually not a good practice to create too deep structures.
 
 
 ==== Updating a Variable
@@ -3438,7 +3440,7 @@ The following example shows how these functions work.
 
 {%S thunk_unthunk%}
 
-==== `blocl_list`
+==== `block_list`
 
 The function `block_list` will return a list containing the commands in a command block.
 The following example shows you how it can be used together with `thunk` and `unthunk`.

@@ -28,7 +28,7 @@ public class Signature implements TuriFunction {
                 // * `name` is the name of the function, closure, macro or `none` if it has no name
                 result.setField("name", closure.name());
                 // * `return_type` is a list of return type strings
-                result.setField("return_type", LngList.of(closure.returnType()));
+                result.setField("return_type", LngList.ofStrings(closure.returnType()));
                 // * `parameters` is a list of parameters. Each element is an object with the following fields:
                 final var parameters = LngList.of();
                 for (var parameter : closure.parameters().parameters()) {

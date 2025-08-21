@@ -6,6 +6,19 @@ import ch.turic.TuriFunction;
 import ch.turic.memory.LngObject;
 
 /**
+ * The function {@code is_obj()} returns {@code true} if the argument is an object.
+ *
+ * <pre>{@code
+ * let a = 13
+ * let b = "string"
+ * let k = { a: a , b: b}
+ * die "" if is_obj(a)
+ * die "" if is_obj(b)
+ * die "" if !is_obj(k)
+ *
+ * }</pre>
+ *
+ *
  * The IsObject class implements the TuriFunction interface and provides
  * functionality to determine if a given argument is an instance of LngObject.
  * This function is identified by the name "is_obj" and is used in the context
@@ -24,7 +37,7 @@ import ch.turic.memory.LngObject;
  * - ExecutionException: Thrown if function execution encounters an error,
  * such as an incorrect number of arguments.
  */
-public class IsObject implements TuriFunction {
+public class IsObj implements TuriFunction {
     @Override
     public String name() {
         return "is_obj";

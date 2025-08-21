@@ -13,6 +13,8 @@ import java.util.stream.Stream;
 
 public class Glob {
 
+    public static final String CURR_DIR = Path.of(".").normalize().toAbsolutePath().toString();
+
     public static List<String> glob(String pattern, final boolean recurse) throws IOException {
         DirNPath dirNPath = splitToDirAndPattern(pattern);
         Path root = Path.of(dirNPath.baseDir());
@@ -40,15 +42,14 @@ public class Glob {
         if (pattern.contains("/")) {
             int lastSlash = getLastSlashBeforeWildCard(pattern);
             if (lastSlash == -1) {
-                baseDir = Path.of(".").normalize().toAbsolutePath().toString();
-                matcher = new Matcher(pattern, baseDir);
+                baseDir = CURR_DIR;
             } else {
                 baseDir = Path.of(pattern.substring(0, lastSlash)).normalize().toAbsolutePath().toString();
                 pattern = pattern.substring(lastSlash + 1);
-                matcher = new Matcher(pattern, baseDir);
             }
+            matcher = new Matcher(pattern, baseDir);
         } else {
-            baseDir = Path.of(".").normalize().toAbsolutePath().toString();
+            baseDir = CURR_DIR;
             matcher = new Matcher(pattern, baseDir);
         }
         return new DirNPath(baseDir, matcher);

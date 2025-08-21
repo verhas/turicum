@@ -3,8 +3,6 @@ package ch.turic.commands;
 import ch.turic.LngCallable;
 import ch.turic.memory.Context;
 
-import java.util.Arrays;
-
 /**
  * Represents a closure that chains the execution of two {@link ClosureLike} objects.
  * Allows their sequential execution in a provided context.

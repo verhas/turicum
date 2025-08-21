@@ -2,16 +2,36 @@ package ch.turic.builtins.functions;
 
 import ch.turic.Context;
 import ch.turic.ExecutionException;
+import ch.turic.SnakeNamed;
+import ch.turic.SnakeNamed.Name;
 import ch.turic.TuriFunction;
 import ch.turic.memory.LngList;
 
 import static ch.turic.builtins.functions.FunUtils.ArgumentsHolder.optional;
 
+/**
+ * This function is used to list file names in a directory, possibly using recursion.
+ * <p>
+ * The function is named {@code _glob()} with an underscore at the start because it is
+ * not supposed to be called directly. Source code should instead import the function {@code glob}
+ * from the {@code turi.io} module.
+ * <pre>{@code
+ * // import the 'glob' function from the io module
+ * sys_import "turi.io", "glob"
+ *
+ * // 'file_list' will contain all the files without recursion
+ * let file_list = glob("*")
+ * die "" if type(file_list) != "lst"
+ * die "" if len(file_list) == 0
+ *
+ * // get all the files recursively
+ * let all_files = glob("*",recursive=true)
+ * // it has to be at least the same number of files, presumably more
+ * die "" if len(file_list) > len(all_files)
+ * }</pre>
+ */
+@Name("_glob")
 public class Glob implements TuriFunction {
-    @Override
-    public String name() {
-        return "_glob";
-    }
 
     @Override
     public Object call(Context ctx, Object[] arguments) throws ExecutionException {
@@ -30,7 +50,7 @@ public class Glob implements TuriFunction {
         try {
             result.addAll(ch.turic.utils.Glob.glob(pattern, recursive));
         } catch (Exception e) {
-            throw new ExecutionException(e,"Error, while globbing file names in glob(): '" + e.getMessage() + "'");
+            throw new ExecutionException(e, "Error, while globbing file names in glob(): '" + e.getMessage() + "'");
         }
         return result;
     }

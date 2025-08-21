@@ -8,6 +8,7 @@ import ch.turic.utils.Unmarshaller;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;
@@ -100,7 +101,7 @@ public class Main {
             System.out.println("Max Memory (bytes): " + Runtime.getRuntime().maxMemory());
             System.out.println("Free Memory (bytes): " + Runtime.getRuntime().freeMemory());
             System.out.println("\n=== File System Information ===");
-            System.out.println("File Separator: " + System.getProperty("file.separator"));
+            System.out.println("File Separator: " + FileSystems.getDefault().getSeparator());
             System.out.println("User Home Directory: " + System.getProperty("user.home"));
             System.out.println("User Working Directory: " + System.getProperty("user.dir"));
 

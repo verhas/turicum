@@ -14,16 +14,22 @@ import ch.turic.commands.LetAssignment;
  *
  * SINGLE_LET ::= ('let' | 'mut') ASSIGNMENT_LIST
  *
- * MULTI_LET ::= ('let' | 'mut') MULTI_ASSIGNMENT_HEADER '=' EXPRESSION
+ * MULTI_LET ::= ('let' | 'mut') DESTRUCTURING '=' EXPRESSION
  *
- * MULTI_ASSIGNMENT_HEADER ::= '[' ASSIGNMENT_LIST ']'
- *                         | '{' ASSIGNMENT_LIST '}'
+ * DESTRUCTURING ::= '[' MAP_LIST ']'
+ *                 | '{' FIELD_MAP_LIST '}'
  *
- * ASSIGNMENT_LIST ::= ASSIGNMENT (',' ASSIGNMENT)*
+ * MAP_LIST ::= ['let'] MAP ( ',' ['let'] MAP )*
  *
- * ASSIGNMENT ::= IDENTIFIER (':' TYPE_DECLARATION)?
+ * FIELD_MAP_LIST ::== ['let'] FIELD_MAP (',' ['let'] FIELD_MAP)*
  *
- * TYPE_DECLARATION ::= IDENTIFIER
+ * MAP ::_= IDENTIFIER [':' TYPE_DECLARATIONS ] | LEFT_VALUE | DESTRUCTURING
+ *
+ * FIELD_MAP ::= [ IDENTIFIER '->' ] MAP
+ *
+ * TYPE_DECLARATIONS ::= TYPE_DECLARATION ( '|' TYPE_DECLARATION )*
+ *
+ * TYPE_DECLARATION ::= IDENTIFIER | '(' EXPRESION ')'
  *
  * EXPRESSION ::= // Any valid Turicum expression
  * end snippet

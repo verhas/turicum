@@ -16,7 +16,7 @@ import java.util.HashSet;
  * or ensuring correct default usage.</p>
  *
  * <p>For example, a parameter list like the following:
- * <pre>{@code
+ * <pre> {@code
  * fn myFunction(!a, b, c = 13, @d, [rest], {meta}, |closure|): body
  * }</pre>
  * will be represented as:

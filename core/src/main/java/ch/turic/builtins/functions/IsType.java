@@ -10,23 +10,36 @@ import ch.turic.memory.LngObject;
 import java.util.ArrayList;
 
 /**
- * The IsType class is an implementation of the TuriFunction interface that provides a function
- * named "is_type" for checking if an object belongs to a specified class in the Turi language system.
+ * {@code is_type(o,t)} checks that the object {@code o} is of type {@code t}.
  * <p>
  * It is not an alternative using the function {@code type()} implemented in {@link Type}.
  * That function returns the string representation of the type and that works for all types.
  * This function
  * <ul>
  *     <li>works only on object and will result in {@code false} for non-object first arguments</li>
- *     <li>will work {@code true} if the object is not the type given, but matches the type: a child class of the specified type.</li>
+ *     <li>will return {@code true} if the object is not the type given, but matches the type: a child class of the specified type.</li>
  * </ul>
+ * <pre>{@code
+ * class A {}
+ * class B : A {}
+ * class C {}
+ * class D : A,C {}
+ * let h:D = D()
+ *
+ * // 'h' is directly type 'D'
+ * die "" if !is_type(h,D)
+ * // 'A' is inherited, so 'h' is an instance of 'A'
+ * die "" if !is_type(h,A)
+ * // 'C' is also extended so again it is true
+ * die "" if !is_type(h,C)
+ * // 'B' has nothinf to do with the type, 'is_type" here returns false
+ * die "" if is_type(h,B)
+ *
+ * }</pre>
+ *
+ *
  */
 public class IsType implements TuriFunction {
-
-    @Override
-    public String name() {
-        return "is_type";
-    }
 
     @Override
     public Object call(Context context, Object[] arguments) throws ExecutionException {

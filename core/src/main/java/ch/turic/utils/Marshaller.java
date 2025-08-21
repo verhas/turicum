@@ -117,7 +117,7 @@ public class Marshaller {
         if (object == null) {
             return new byte[]{NULL_SIGN, NULL_SIGN};
         }
-        if (object instanceof Map map) {
+        if (object instanceof Map<?,?> map) {
             return marshall_map(map);
         }
         if (object.getClass().isArray()) {
@@ -195,24 +195,12 @@ public class Marshaller {
             final var id = getClassId(object);
             buffer.writeShort(id);
             switch (object) {
-                case String s -> {
-                    buffer.writeUTF(s);
-                }
-                case Boolean b -> {
-                    buffer.writeBoolean(b);
-                }
-                case Long l -> {
-                    buffer.writeLong(l);
-                }
-                case Integer i -> {
-                    buffer.writeInt(i);
-                }
-                case Double d -> {
-                    buffer.writeDouble(d);
-                }
-                case Enum<?> e -> {
-                    buffer.writeUTF(e.name());
-                }
+                case String s -> buffer.writeUTF(s);
+                case Boolean b -> buffer.writeBoolean(b);
+                case Long l -> buffer.writeLong(l);
+                case Integer i -> buffer.writeInt(i);
+                case Double d -> buffer.writeDouble(d);
+                case Enum<?> e -> buffer.writeUTF(e.name());
                 default -> {
                     short fieldCounter = countFields(object);
                     buffer.writeShort(fieldCounter);

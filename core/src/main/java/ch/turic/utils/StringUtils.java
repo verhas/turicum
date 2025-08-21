@@ -6,8 +6,6 @@ import ch.turic.memory.LngList;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -139,6 +137,55 @@ public class StringUtils {
         return sb.toString();
     }
 
+    /**
+     * Converts PascalCase (Java class naming convention) to snake_case.
+     *
+     * Examples:
+     * - "UserManager" -> "user_manager"
+     * - "HTTPClient" -> "http_client"
+     * - "XMLParser" -> "xml_parser"
+     * - "IOUtils" -> "io_utils"
+     *
+     * @param pascalCase the PascalCase string to convert
+     * @return the snake_case equivalent
+     */
+    public static String toSnakeCase(String pascalCase) {
+        if (pascalCase == null || pascalCase.isEmpty()) {
+            return pascalCase;
+        }
+
+        StringBuilder result = new StringBuilder();
+
+        for (int i = 0; i < pascalCase.length(); i++) {
+            char currentChar = pascalCase.charAt(i);
+
+            // If it's an uppercase letter and not the first character
+            if (Character.isUpperCase(currentChar) && i > 0) {
+                // Check if the previous character is lowercase (transition from lower to upper)
+                // or if the next character is lowercase (end of acronym like "XMLParser" -> "XML" + "Parser")
+                char prevChar = pascalCase.charAt(i - 1);
+                boolean prevIsLower = Character.isLowerCase(prevChar);
+                boolean nextIsLower = i < pascalCase.length() - 1 &&
+                        Character.isLowerCase(pascalCase.charAt(i + 1));
+
+                if (prevIsLower || nextIsLower) {
+                    result.append('_');
+                }
+            }
+
+            result.append(Character.toLowerCase(currentChar));
+        }
+
+        return result.toString();
+    }
+
+    /**
+     * Converts the provided string to title-case, where the first letter of each word is capitalized,
+     * and the remaining letters are in lowercase. Words are determined by whitespace separation.
+     *
+     * @param input the string to be converted to title case; may be null or empty
+     * @return the converted string in title case, or the original string if it is null or empty
+     */
     public static String toTitleCase(String input) {
         if (input == null || input.isEmpty()) {
             return input;

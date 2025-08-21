@@ -9,8 +9,18 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * <pre>{@code
- * expression ::= binary_expression[0]
+ * The ExpressionAnalyzer class is responsible for analyzing lexical elements and constructing the appropriate
+ * command objects based on the provided syntax. This analyzer handles expressions related to asynchronous
+ * execution and waiting operations, as well as delegating other expressions to the BinaryExpressionAnalyzer.
+ * <p>
+ * This class extends {@link AbstractAnalyzer}, inheriting the general behavior of an Analyzer while implementing
+ * the specific details for expression-based commands. It operates on lexical elements provided by a {@link LexList},
+ * consuming and interpreting them to create corresponding {@link Command} objects.
+ * <p>
+ * The ExpressionAnalyzer supports:
+ * - The `async` keyword with an optional set of parameters defined in {@code ASYNC_OPTIONS}.
+ * - The `await` keyword with an optional set of parameters defined in {@code AWAIT_OPTIONS}.
+ * - Delegation of non-async and non-await expressions to {@link BinaryExpressionAnalyzer}.
  */
 public class ExpressionAnalyzer extends AbstractAnalyzer {
 

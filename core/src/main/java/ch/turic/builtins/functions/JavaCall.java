@@ -7,16 +7,14 @@ import ch.turic.TuriFunction;
 import java.lang.reflect.InvocationTargetException;
 
 /**
- * Represents a function in the Turi language to invoke Java methods dynamically.
- * This class implements the TuriFunction interface and facilitates calling specified
- * Java methods on classes or objects, handling method overloading, variable arguments,
- * and type conversions as necessary.
+ *
+ * {@code java_call()} can call a Java method.
+ *
+ * <pre>{@code
+ * }</pre>
+ *
  */
-public class JavaMethodCall implements TuriFunction {
-    @Override
-    public String name() {
-        return "java_call";
-    }
+public class JavaCall implements TuriFunction {
 
     @Override
     public Object call(Context ctx, Object[] arguments) throws ExecutionException {

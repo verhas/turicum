@@ -11,19 +11,15 @@ import ch.turic.utils.StringUtils;
  * a function that retrieves environment variables by their name.
  * <p>
  * This function is registered in the Turi language system using the name "env".
- * It allows querying of environment variables from the underlying operating
- * system by passing the variable name as an argument.
+ * It allows querying of environment variables from the underlying operating system
+ * by passing the variable name as an argument.
+ *
+ * <pre>{@code
+ * // TUricum is implemented in Java, so this env variable is probably defined
+ * die "" if env("JAVA_HOME") == none
+ * }</pre>
  */
 public class Env implements TuriFunction {
-    /**
-     * Returns the name of this function, "env".
-     *
-     * @return the string "env"
-     */
-    @Override
-    public String name() {
-        return "env";
-    }
 
     /**
      * Executes the function call to retrieve the value of an environment variable.

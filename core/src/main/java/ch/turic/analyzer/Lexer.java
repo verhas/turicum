@@ -3,7 +3,6 @@ package ch.turic.analyzer;
 
 import ch.turic.BadSyntax;
 
-import java.security.Key;
 import java.util.*;
 
 public class Lexer {
@@ -72,8 +71,8 @@ public class Lexer {
             "…", "..",
             "→", "->",
             "≠", "!=",
-            "≥", "<=",
-            "≤", ">=",
+            "≥", ">=",
+            "≤", "<=",
     };
 
     private static String getUnicodeSymbol(String ch) {

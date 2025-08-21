@@ -7,23 +7,11 @@ import ch.turic.builtins.functions.FunUtils;
 
 /**
  * A class representing the "thunk" macro in the Turi language.
- * The Thunk class implements the TuriMacro interface and provides
- * a specific implementation for the "thunk" functionality.
  * <p>
- * The class provides the following behavior:
- * - The `name` method returns the name of the macro as "thunk".
- * - The `call` method is invoked during execution and validates
- * that exactly one argument is provided via the `FunUtils.oneArg` utility
- * before returning that argument.
- * <p>
- * This class is executed in the context of the Turi language runtime.
+ * This macro gets the argument and returns it unevaluated as an object.
+ * This can later be evaluated or analyzed retrospectively.
  */
 public class Thunk implements TuriMacro {
-
-    @Override
-    public String name() {
-        return "thunk";
-    }
 
     @Override
     public Object call(Context context, Object[] arguments) throws ExecutionException {

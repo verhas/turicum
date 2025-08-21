@@ -13,7 +13,7 @@ public class AssignmentAnalyzer extends AbstractAnalyzer {
      * <p>
      * Recognizes and returns commands for prefix and postfix increment (`++`) and decrement (`--`) operations,
      * as well as assignment operations using any supported assignment operator.
-     *
+     * <p>
      * If the return value if {@code null}, then lexeme is consumed (position is restored).
      *
      * @param lexes the list of lexical tokens to analyze
@@ -69,7 +69,7 @@ public class AssignmentAnalyzer extends AbstractAnalyzer {
         }
         final var op = lexes.next().text();
         final var expression = ExpressionAnalyzer.INSTANCE.analyze(lexes);
-        return new Assignment(leftValue, op.substring(0,op.length()-1), expression);
+        return new Assignment(leftValue, op.substring(0, op.length() - 1), expression);
     }
 
     /**

@@ -7,7 +7,7 @@ import java.util.List;
  * This interface extends both LngCallable.LngCallableClosure for function execution
  * capabilities and ServiceLoaded for service loading functionality.
  */
-public interface TuriFunction extends LngCallable.LngCallableClosure, ServiceLoaded {
+public interface TuriFunction extends LngCallable.LngCallableClosure, ServiceLoaded, SnakeNamed {
 
     /**
      * Returns all instances of TuriFunction that are currently loaded in the system.
@@ -19,14 +19,5 @@ public interface TuriFunction extends LngCallable.LngCallableClosure, ServiceLoa
     static List<TuriFunction> getInstances() {
         return ServiceLoaded.getInstances(TuriFunction.class);
     }
-
-    /**
-     * Returns the identifier name of this function used for registration in the global heap space.
-     * This name is used to reference and call the function within the Turi language environment.
-     * The name must be unique within the scope where the function is registered.
-     *
-     * @return the unique name of the function used for registration and reference in the global space
-     */
-    String name();
 
 }

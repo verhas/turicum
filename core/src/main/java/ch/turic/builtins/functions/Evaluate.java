@@ -6,16 +6,22 @@ import ch.turic.ExecutionException;
 import ch.turic.TuriFunction;
 
 /**
- * The Evaluate class implements the TuriFunction interface and provides the functionality
- * for evaluating a single argument if it is an instance of the Command interface.
- * This class is designed to operate within the Turi language execution context and
- * ensures that the evaluation is performed only in supported environments.
+ * The evaluate function evaluates its argument.
+ * This is typically used in a macro, that gets the arguments unevaluated, and the macro code can decide when to
+ * evaluate the individual arguments.
+ *
+ * The function evaluates the arguments in the caller environment, and if it is invoked from a code that does not have that
+ * (nothing like a macro) then it will throw an exception.
+ *
+ * <pre>{@code
+ * mut twice = macro(fn (arg){ evaluate(arg); evaluate(arg);});
+ * twice( {println("Hello")} )
+ * }</pre>
+ *
+ * will print {@code Hello} twice.
+ *
  */
 public class Evaluate implements TuriFunction {
-    @Override
-    public String name() {
-        return "evaluate";
-    }
 
     @Override
     public Object call(Context context, Object[] arguments) throws ExecutionException {

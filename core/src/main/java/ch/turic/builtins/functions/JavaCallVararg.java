@@ -7,16 +7,12 @@ import ch.turic.memory.LngList;
 
 import java.lang.reflect.InvocationTargetException;
 
-import static ch.turic.builtins.functions.JavaMethodCall.getKlassAndObject;
+import static ch.turic.builtins.functions.JavaCall.getKlassAndObject;
 
 /**
  * A function that calls a Java method.
  */
-public class JavaMethodCallVararg implements TuriFunction {
-    @Override
-    public String name() {
-        return "java_call_vararg";
-    }
+public class JavaCallVararg implements TuriFunction {
 
     @Override
     public Object call(Context ctx, Object[] arguments) throws ExecutionException {

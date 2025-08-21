@@ -58,7 +58,7 @@ public sealed abstract class ClosureLike extends AbstractCommand implements Comm
             throw new ExecutionException("You cannot curry a method to different objects. How could it happen?");
         }
         try {
-            final var it = (ClosureLike) this.clone();
+            final var it = this.clone();
             it.setCurriedSelf(self);
             if (it.getCurriedArguments() == null) {
                 it.setCurriedArguments(arguments);

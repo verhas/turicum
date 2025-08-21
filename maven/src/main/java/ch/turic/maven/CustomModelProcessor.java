@@ -163,7 +163,7 @@ public class CustomModelProcessor implements ModelProcessor {
         tf.setOutputProperty(OutputKeys.INDENT, "yes");
         Writer out = new StringWriter();
         tf.transform(new DOMSource(doc), new StreamResult(out));
-        return Arrays.stream(out.toString().split(System.lineSeparator())).filter(s -> s.trim().length() > 0).collect(Collectors.joining(System.lineSeparator()));
+        return Arrays.stream(out.toString().split(System.lineSeparator())).filter(s -> !s.trim().isEmpty()).collect(Collectors.joining(System.lineSeparator()));
     }
 
     /**

@@ -6,8 +6,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static ch.turic.utils.StringUtils.toSnakeCase;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TestStringUtils {
 
@@ -24,6 +24,34 @@ public class TestStringUtils {
     }
 
     @Test
+    public void testToSnakeCase() {
+        // Test regular PascalCase
+        assertEquals("user_manager", toSnakeCase("UserManager"));
+        assertEquals("simple_class", toSnakeCase("SimpleClass"));
+        assertEquals("database_connection_manager", toSnakeCase("DatabaseConnectionManager"));
+
+        // Test acronyms
+        assertEquals("http_client", toSnakeCase("HTTPClient"));
+        assertEquals("xml_parser", toSnakeCase("XMLParser"));
+        assertEquals("io_utils", toSnakeCase("IOUtils"));
+
+        // Test single letters and short strings
+        assertEquals("a", toSnakeCase("A"));
+        assertEquals("ab", toSnakeCase("AB"));
+        assertEquals("abc", toSnakeCase("ABC"));
+        assertEquals("ab_c", toSnakeCase("AbC"));
+
+        // Test edge cases
+        assertEquals("", toSnakeCase(""));
+        assertNull(toSnakeCase(null));
+        assertEquals("lowercase", toSnakeCase("lowercase"));
+
+        // Test complex mixed cases
+        assertEquals("jsonapi_response", toSnakeCase("JSONAPIResponse"));
+        assertEquals("htmldom_parser", toSnakeCase("HTMLDOMParser"));
+    }
+
+    @Test
     public void testMsplit() {
         // Test basic splitting with a single delimiter
         LngList result1 = StringUtils.msplit("a,b,c", 0, ",");
@@ -32,30 +60,30 @@ public class TestStringUtils {
         // Test nested splitting with two delimiters
         LngList result2 = StringUtils.msplit("a,b;c,d;e,f", 0, ";,");
         assertEquals(
-            LngList.of(
-                LngList.of("a", "b"),
-                LngList.of("c", "d"),
-                LngList.of("e", "f")
-            ),
-            result2
+                LngList.of(
+                        LngList.of("a", "b"),
+                        LngList.of("c", "d"),
+                        LngList.of("e", "f")
+                ),
+                result2
         );
 
         // Test three-level nested splitting
         LngList result3 = StringUtils.msplit("a,b#c,d#e,f|g,h#i,j", 0, "|#,");
 
         assertEquals(
-            LngList.of(
                 LngList.of(
-                    LngList.of("a", "b"),
-                    LngList.of("c", "d"),
-                    LngList.of("e", "f")
+                        LngList.of(
+                                LngList.of("a", "b"),
+                                LngList.of("c", "d"),
+                                LngList.of("e", "f")
+                        ),
+                        LngList.of(
+                                LngList.of("g", "h"),
+                                LngList.of("i", "j")
+                        )
                 ),
-                LngList.of(
-                    LngList.of("g", "h"),
-                    LngList.of("i", "j")
-                )
-            ),
-            result3
+                result3
         );
 
         // Test with empty delimiters
@@ -69,15 +97,15 @@ public class TestStringUtils {
         // Test with special regex characters as delimiters
         LngList result6 = StringUtils.msplit("a.b.c|d.e.f", 0, "|.");
         assertEquals(
-            LngList.of(
-                LngList.of("a", "b", "c"),
-                LngList.of("d", "e", "f")
-            ),
-            result6
+                LngList.of(
+                        LngList.of("a", "b", "c"),
+                        LngList.of("d", "e", "f")
+                ),
+                result6
         );
 
         // Test with empty parts
-        LngList result7 = StringUtils.msplit("a,,b,", 0, ",",-1);
+        LngList result7 = StringUtils.msplit("a,,b,", 0, ",", -1);
         assertEquals(LngList.of("a", "", "b", ""), result7);
 
         // Test null input handling

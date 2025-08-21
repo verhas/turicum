@@ -45,17 +45,14 @@ public class LetAssignment extends AbstractCommand {
                         null,
                         typeNames);
                 ctx.local(assignment.identifier(), null);
-                if (!mut) {
-                    ctx.freeze(assignment.identifier());
-                }
             } else {
                 value = assignment.expression().execute(ctx);
                 ctx.defineTypeChecked(assignment.identifier(),
                         value,
                         typeNames);
-                if (!mut) {
-                    ctx.freeze(assignment.identifier());
-                }
+            }
+            if (!mut) {
+                ctx.freeze(assignment.identifier());
             }
         }
         return value;
