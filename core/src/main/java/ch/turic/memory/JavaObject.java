@@ -2,8 +2,11 @@ package ch.turic.memory;
 
 import ch.turic.ExecutionException;
 import ch.turic.commands.FunctionCall;
+import ch.turic.utils.Reflection;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -33,7 +36,13 @@ public record JavaObject(Object object) implements HasFields {
             return;
         }
         try {
-            final var field = object.getClass().getField(name);
+            Field field;
+            try {
+                field = object.getClass().getField(name);
+            } catch (NoSuchFieldException e) {
+                field = object.getClass().getDeclaredField(name);
+                field.setAccessible(true);
+            }
             field.set(object, value);
         } catch (NoSuchFieldException | IllegalAccessException e) {
             throw new ExecutionException("Cannot set the value of the field '" + name + "' ", e);
@@ -56,7 +65,13 @@ public record JavaObject(Object object) implements HasFields {
             return fieldHaber.getField(name);
         }
         try {
-            final var field = object.getClass().getField(name);
+            Field field;
+            try {
+                field = object.getClass().getField(name);
+            } catch (NoSuchFieldException e) {
+                field = object.getClass().getDeclaredField(name);
+                field.setAccessible(true);
+            }
             return field.get(object);
         } catch (NoSuchFieldException | IllegalAccessException e) {
             throw new ExecutionException("Cannot get '%s.%s' because '%s'.", object, name, e);
@@ -68,7 +83,7 @@ public record JavaObject(Object object) implements HasFields {
      *
      * <p>If the wrapped object implements {@code HasFields}, delegates to its {@code getField} method. Otherwise, attempts to resolve a method from a Turi class using the context; if found, returns the result of invoking the method. If no Turi class is available, accesses the public field by name via reflection.</p>
      *
-     * @param name the name of the field or method to retrieve
+     * @param name    the name of the field or method to retrieve
      * @param context the context used for dynamic method resolution
      * @return the value of the field or the result of the method invocation
      * @throws ExecutionException if the field or method cannot be found or accessed
@@ -82,7 +97,13 @@ public record JavaObject(Object object) implements HasFields {
             if (turi != null) {
                 return turi.getMethod(object(), name);
             }
-            final var field = object.getClass().getField(name);
+            Field field;
+            try {
+                field = object.getClass().getField(name);
+            } catch (NoSuchFieldException e) {
+                field = object.getClass().getDeclaredField(name);
+                field.setAccessible(true);
+            }
             return field.get(object);
         } catch (NoSuchFieldException | IllegalAccessException e) {
             throw new ExecutionException("Cannot get '%s.%s' because '%s'.", object, name, e);

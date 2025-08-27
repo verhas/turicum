@@ -13,11 +13,6 @@ import ch.turic.commands.Identifier;
 public class Export implements TuriMacro {
 
     @Override
-    public String name() {
-        return "export";
-    }
-
-    @Override
     public Object call(Context context, Object[] arguments) throws ExecutionException {
         final var ctx = FunUtils.ctx(context);
         for (final var arg : arguments) {

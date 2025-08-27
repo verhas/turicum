@@ -2596,13 +2596,16 @@ Also note that the execution of the `try` command has an atomic nature.
 
 {%S try6%}
 
-In the example above, the local variables defined in the expression are not defined afterward because an error, division by zero, has happened.
+In the example above, the local variables defined in the expression are undefined afterward because an error, division by zero, has occurred.
 
 The next example shows how this atomic behavior works.
 
 {%S try7%}
 
-When the code following the `try` executes it opens a new context.
+Note that the atomicity works only for the new variable definition.
+If you update a variable, an array element, an object, or something else the update is done and final even if later an exception happens.
+
+When the code following the `try` executes, it opens a new context.
 This context is a so-called shadow context.
 It wraps the surrounding context.
 When you define a new variable in this context, it checks not only this context but also the surrounding context to see whether the variable is already defined.
@@ -2636,12 +2639,12 @@ However, as soon as we try to invoke `z()` the program fails.
 It tries to invoke the closure returned by `fun_decorator()`, which tries to call `closure()` which now has the value `none`.
 This happens because the syntax analysis does not use the function definition as a parameter.
 
-The code can, however, be fixed:
+The code can, however, be fixed, not onlyusing `@` but also passing the function definition as a regular argument between `(` and `)`:
 
 {%S fnDecorator2%}
 
 The application of the `@` is therefore only a syntactic sugar.
-The following example shows that a decorator cannot only return the decorated 0, class, or closure.
+The following example shows that a decorator cannot only return the decorated function, class, or closure.
 They can also modify the existing definition.
 
 {%S fnDecorator3%}
@@ -3003,7 +3006,7 @@ There are three functions in this group:
 
 * `java_call`, and
 
-* `java_call_vararg`.
+* `java_class`
 
 ==== `java_object`
 
@@ -3011,8 +3014,19 @@ This function can be used to create new instances of any Java class.
 The first argument to the function is the binary name of the class.
 The rest of the arguments should be the constructor arguments.
 
-Since Turicum stores numbers as Double and Long, strings as Strings, boolean values as Boolean without any wrapping class, calling this function is straightforward when the constructor arguments are one of these primitive values.
-If the parameter type is something else, then you have to use to create that object calling `java_object()`.
+NOTE: Since Turicum stores numbers as `Double` and `Long`, strings as `Strings`, and boolean values as `Boolean` without any wrapping class.
+Calling this function is straightforward when the constructor arguments are one of these primitive values.
+If the parameter type is something else, then you have to use `java_object()` to create that object.
+If some of the parameters are `Integer` or `int`, you can use the built-in function `int()` that converts a numeric value to an `Integer` Java object.
+Similarly, if the argument is a `Float` or `float`, you can use the built-in function `float()` that converts a numeric value to a `Float` Java object.
+
+{%S java_object1%}
+
+As you can see in the example above, you can invoke the Java methods on the object directly.
+
+{%S java_object2%}
+
+The example shows that you may need to convert the argument calling `int()` when invoking methods that do not work with a `Long` value.
 
 ==== `java_call`
 
@@ -3028,39 +3042,36 @@ The second argument is the name of the method.
 The rest of the arguments are passed to the Java method.
 The return value is the value returned by the Java method.
 
-==== `java_call_vararg`
+This method works with a fixed number of argument functions as well as with vararg methods.
+Note that you can call the Java methods on Java objects or on Java class objects directly, like they were Turicum methods.
+Use this method only when the name of the method is known only at run-time.
 
-This function should be used to call a vararg method.
+{%S java_call1%}
 
-An example of the use of `java_call` and `java_call_vararg` from the early stage of `io.turi`:
+The example above performs the same call as in the `java_object` example, but using a string to specify the name of the Java method.
 
-[source]
-----
-class files {
-    fn read_all_lines(file_name_or_path){
-    println(file_name_or_path)
-    println(type(file_name_or_path))
+==== `java_class`
 
-        if type(file_name_or_path) == "str" :
-            let file = java_call("java.nio.file.Path","of",file_name_or_path)
-        else:
-            let file = file_name_or_path
-        java_call("java.nio.file.Files","readAllLines",file)
-    }
-}
+It can be used to create a special object that encapsulates a Java class.
+This object can be used to call the static method of that class.
 
-class path {
- fn `of`(file_name,[rest]){
- java_call_vararg("java.nio.file.Path","of",file_name,rest)
- }
-}
-----
+{%S java_class1%}
+
+You can also use these objects to create a new instance of the Java class.
+These objects are callable, so you can just call them to get a new instance of the underlying Java class:
+
+{%S java_class2%}
+
+The constructor can also be vararg:
+
+{%S java_class3%}
+
 
 === `arity`
 
 The built-in function `arity` returns the number of parameters of the argument function.
 You pass a function, macro, or closure to this function, and the return value is the number of arguments.
-The argument `[rest]`, `{meta}`, and `^closure` do ot count into the arity.
+The arguments `[rest]`, `{meta}`, and `^closure` do ot count into the arity.
 
 === `signature`
 
@@ -3083,6 +3094,8 @@ The function `keys()` returns a string list containing the keys of the argument.
 * If it is an object, then the list contains the fields.
 
 * If it is a macro, a closure, or a function, then it will return the parameter names.
+
+{%S keys1%}
 
 === `jsonify`, `jsonify_beauty`
 
@@ -3164,9 +3177,13 @@ Unlike timestamps, the returned value has no absolute meaning but is strictly mo
 
 === `parents`
 
-Returns a list of the classes that are the parent classes of the argument.
+Returns a list of the classes that are the direct parent classes of the argument.
 
 {%S parents%}
+
+Note that although `B` is a child class of `A`, the variable `K` contains an anonymous class that has only `B` as parent.
+The function `parent()` lists only `B` as a direct parent and does not contain `A`.
+If you need all the parents you have to use the function `all_parents()`.
 
 === `reclose`
 
@@ -3223,12 +3240,18 @@ Returns a number range.
 ----
 rng(start, end, step)
 ----
+or
+
+[source]
+----
+rng(start, end)
+----
 
 It is a read-only list that contains all the numbers from the start (inclusive) to the end (exclusive) with the given step.
-It does not create an actual list but just provides access to the numbers of the range by index.
+It does not create an actual list, but rather provides access to the numbers in the range by index.
 You can also iterate through the elements.
 
-The next example demonstrates that you can have extremely large ranges.
+The following example demonstrates that you can have extensive ranges.
 
 {%S rng%}
 
@@ -3236,21 +3259,35 @@ If you want a physical list with the elements, you can create it using the `..` 
 
 {%S rngThousand%}
 
-In this case `array` will be a list that contains the elements that we print out.
+In this case, `array` will be a list that contains the elements that we print out.
 Do not try this with too large numbers unless you want to test out of memory errors.
 
 You can index a number range, and you can also use a range to index another range:
 
 {%S rngRange%}
 
-In this case you index the range and do not spread it into a list.
-We only spread the new range for the printout.
-The range called `range` does not allocate the almost two-million elements.
+In this case, you index the range and do not spread it into a list.
+We only spread the new range for printing.
+The `range` object does not allocate nearly two million elements.
 It is simply another number range.
-At the end the code allocates a list of ten elements for the printout.
+At the end, the code allocates a list of ten elements for the printout.
 
 The third parameter `step` is optional.
-If not specified it will be `+1` or `-1` depending on the start and the end value.
+If not specified, it will be `+1`, `0`, or `-1` depending on the start and the end value.
+
+If `start` is larger than `end`, the step value must be negative.
+The default value is `-1` in this case.
+
+If `start` is smaller than `end`, the step value must be positive.
+The default value is `+1` in this case.
+
+When the `start` and `end` values are the same, the range will
+
+* be empty if the step is specified and is not zero (positive or negative), and
+* contain the one single `start`/`end` value if the step is zero.
+
+The default value for `step` is `0` in this case.
+
 
 If specified, it must not be zero, and it has to be positive or negative based on the relations between the start and end value.
 Essentially, stepping has to approach the end value.
@@ -3260,12 +3297,15 @@ Essentially, stepping has to approach the end value.
 It is recommended not to use the `rng()` function directly.
 You can import the system module `range` that defines a more flexible name:
 
-{%S rangeThousand%}
+{%S range%}
+
 
 === `que`
 
-This function will create a FIFO queue that different code fragments can write and read.
+This function will create a FIFO queue that different code fragments can write to and read from.
 These fragments will probably run in different threads.
+
+{%S que1%}
 
 Here is a complex example using this function:
 
@@ -3298,7 +3338,7 @@ It is simlar to `set()` but it sets the value of a global variable.
 ==== `set_caller`
 
 This function sets the variable in the caller context.
-This comes handy when you implement a decorator that wants to redefine a function or class, and the decorator is in a different context than the decorated function.
+This comes in handy when you implement a decorator that wants to redefine a function or class, and the decorator is in a different context than the decorated function.
 You can set the name as a global name, but that will define the name globally, and if the function is in a local context, it may not exactly work as expected.
 
 Calling this function from inside a function can redefine a variable in the context of the code that is calling the function or closure.
@@ -3309,9 +3349,9 @@ Calling this function from inside a function can redefine a variable in the cont
 
 This command can be used to import Turicum system files.
 These are classes and functions that give an interface to the surrounding environment through the Java VM.
-Although Turicum can call any Java method using the functions `java_object`, `java_call` and `java_call_vararg` there are not meant to be used in application code.
+Although Turicum can call any Java method using the functions `java_object`, and `java_call` there are not meant to be used in application code.
 They are primitives and are used as part of the system library part of the run-time.
-When you use `sys_import` you import the file from the Java resource path, that delivers more Turicum idiomatic API.
+When you use `sys_import`, you import the file from the Java resource path, which delivers more Turicum idiomatic API.
 
 === `type`
 
@@ -3320,17 +3360,30 @@ This method returns the type of the argument as a string.
 {%S type1%}
 
 When the argument is a Java object then the type is `java.` + the canonical name of the class.
+
 === `sleep`
 
-Will sleep the execution of the thread for the given number of seconds.
+Sleep pauses the execution.
+
+`sleep(N)` will sleep approximately `N` seconds.
+It can be a floating point value, does not need to sleep in round seconds, but the precision is not finer than
+0.001 seconds.
+
+The return value is the actual number of seconds spent with millisecond precision.
+It is the same as the argument or a bit more.
 
 {%S sleep%}
 
+No sleep call will be executed in the underlying system if the time is negative.
+In all other cases, a `Thread.sleep()` call is invoked, giving all multi-thread synchronization effects of such a call.
+
 === `yield()`, `try_yield()`, `yield_is_close()`
 
-In an asynchronous thread you can get objects sent by the parent thread calling `yield()`.
-This call will wait for an object and return it.
-If the que from the parent thread is already closed, then `yield()` will throw an exception.
+In an asynchronous thread, you can get objects sent by the parent thread by using `yield()`.
+It will wait for an object and return it.
+If the queue from the parent thread is already closed, then `yield()` will throw an exception.
+
+NOTE: `yield` is an operator and not a function and it is used in other context with slightly different semantics also.
 
 `try_yield()` is more lenient.
 It does not wait and returns `none` if there is no message or the channel is closed.
@@ -3338,6 +3391,10 @@ It does not wait and returns `none` if there is no message or the channel is clo
 `yield_is_close()` can be used to test of the que is open from the parent to the child thread.
 
 {%S try_yield%}
+
+Note that the output of this sample is not deterministic.
+The sending happens __approximately__ every 9ms, and the reading is retried __approximately__ every 3ms.
+
 
 === Regular Expressions
 
@@ -3376,14 +3433,21 @@ This macro accepts an identifier and returns `true` if the identifier is defined
 === `unlet`
 
 Unlet is a macro that accepts one identifier and deletes it from the local context.
-It is an error if the variable is not defined in the local context or defined but not in the local context.
+It is an error if the variable is not defined in the local context or is defined but not in the local context.
 
-This macro was designed for a special purpose to, to create an initializer that can copy the values of an initializer class.
-Fo example:
+This macro was designed for a special purpose: to remove some of the `init` arguments from the object.
+By default, the arguments to the init method become fields of the object, and they are also mutable.
+This differs significantly from the parameters of other functions.
+Some of the arguments you may not want to become fields.
+
+A typical example is when you want to "clone" another object inheriting the field,
+  but you do not want the object to be a field by itself in the initialized new object.
+
+For example:
 
 {%S unlet%}
 
-Without the call to `unlet` the class would also have the variable `obj` as a field.
+Without the call to `unlet`, the class would also have the variable `obj` as a field.
 
 === `is_obj`
 

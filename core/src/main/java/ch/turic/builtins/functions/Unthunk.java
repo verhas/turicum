@@ -6,13 +6,9 @@ import ch.turic.TuriFunction;
 import ch.turic.Command;
 
 /**
- * Executes a previously deferred command produced by {@code thunk}.
+ * Executes a previously deferred command produced by {@code thunk()}.
  */
 public class Unthunk implements TuriFunction {
-    @Override
-    public String name() {
-        return "unthunk";
-    }
 
     @Override
     public Object call(Context context, Object[] arguments) throws ExecutionException {

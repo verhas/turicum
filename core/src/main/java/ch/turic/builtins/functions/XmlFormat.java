@@ -28,10 +28,6 @@ import java.io.Writer;
  * Format an XML string.
  */
 public class XmlFormat implements TuriFunction {
-    @Override
-    public String name() {
-        return "xml_format";
-    }
 
     /**
      * A static final instance of an {@link ErrorHandler} that suppresses warnings
@@ -61,7 +57,6 @@ public class XmlFormat implements TuriFunction {
 
     @Override
     public Object call(Context context, Object[] arguments) throws ExecutionException {
-        final var ctx = FunUtils.ctx(context);
         final var arg = FunUtils.arg(name(), arguments);
 
         final var input = "" + arg;
@@ -91,10 +86,10 @@ public class XmlFormat implements TuriFunction {
 
     /**
      * Remove the blank text nodes from the XML. These are the nodes that result from the source formatting of the
-     * XML file. On the other hand when we write them back to a file formatted, then they are treated as first class
+     * XML file. On the other hand, when we write them back to a file, formatted, then they are treated as first-class
      * citizen nodes, that deserve their separate lines and indentation.
      * <p>
-     * This way reading an XML file and writing back inserts a new new-line for one already existing, unless we delete
+     * This way, reading an XML file and writing back inserts a new new-line for one already existing, unless we delete
      * these before formatting.
      *
      * @param doc the document to remove the blank text nodes from

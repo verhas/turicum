@@ -5,15 +5,10 @@ import ch.turic.ExecutionException;
 import ch.turic.TuriFunction;
 
 /**
- * Implement the len function more or less as it is implemented in Python.
- * Return the length of a string or a length of a list, which you can get anyway using the 'length' field.
- * For any Java collection it will also return the size.
+ * the function {@code time()} returns the time in milliseconds as it is returned by the
+ * Java {@link System#currentTimeMillis()}.
  */
 public class Time implements TuriFunction {
-    @Override
-    public String name() {
-        return "time";
-    }
 
     @Override
     public Object call(Context context, Object[] arguments) throws ExecutionException {

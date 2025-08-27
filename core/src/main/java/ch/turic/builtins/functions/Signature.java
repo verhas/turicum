@@ -8,13 +8,9 @@ import ch.turic.memory.LngList;
 import ch.turic.memory.LngObject;
 
 /**
- * Return the keys of the argument.
+ * Return the signature of a macro, function, or closure.
  */
 public class Signature implements TuriFunction {
-    @Override
-    public String name() {
-        return "signature";
-    }
 
     @Override
     public Object call(Context context, Object[] arguments) throws ExecutionException {

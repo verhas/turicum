@@ -2,6 +2,7 @@ package ch.turic.builtins.functions;
 
 import ch.turic.Context;
 import ch.turic.ExecutionException;
+import ch.turic.SnakeNamed.Name;
 import ch.turic.TuriFunction;
 import ch.turic.commands.Closure;
 import ch.turic.commands.operators.Cast;
@@ -19,6 +20,7 @@ import java.util.concurrent.Semaphore;
 /**
  * Start an HTTP server
  */
+@Name("server")
 public class TuriHttpServer implements TuriFunction {
     @Override
     public String name() {
@@ -67,7 +69,7 @@ public class TuriHttpServer implements TuriFunction {
             throw new ExecutionException(e);
         }
 
-        final var concurrency = Cast.toLong(Objects.requireNonNullElse(conf.getField("concurrency"),10)).intValue();
+        final var concurrency = Cast.toLong(Objects.requireNonNullElse(conf.getField("concurrency"), 10)).intValue();
         final var executor = new LimitedVirtualThreadExecutor(concurrency);
 
         final ChannelIterator<?> channel = (ChannelIterator<?>) new BlockingQueueChannel<>(concurrency).iterator();
@@ -100,8 +102,8 @@ public class TuriHttpServer implements TuriFunction {
                                 out.write(result.getBytes(StandardCharsets.UTF_8));
                                 out.flush();
                             }
-                        }catch(Exception e) {
-                            final var exception = Channel.Message.exception(LngException.build(handlerCtx,e,handlerCtx.threadContext.getStackTrace()));
+                        } catch (Exception e) {
+                            final var exception = Channel.Message.exception(LngException.build(handlerCtx, e, handlerCtx.threadContext.getStackTrace()));
                             channel.send((Channel.Message) exception);
                         }
                     }
@@ -118,7 +120,7 @@ public class TuriHttpServer implements TuriFunction {
      * Converts the details of an HTTP response into a structured {@link LngObject} representation.
      *
      * @param exchange the {@link HttpExchange} object representing the HTTP response and its context, must not be null
-     * @param ctx the {@link ch.turic.memory.Context} in which the resulting {@link LngObject} will be created, must not be null
+     * @param ctx      the {@link ch.turic.memory.Context} in which the resulting {@link LngObject} will be created, must not be null
      * @return a {@link LngObject} instance containing the structured details of the HTTP response, such as headers and response code
      */
     private LngObject mapResponse(HttpExchange exchange, ch.turic.memory.Context ctx) {
@@ -132,9 +134,9 @@ public class TuriHttpServer implements TuriFunction {
      * Maps an incoming HTTP request into a structured {@link LngObject} representation.
      *
      * @param exchange the {@link HttpExchange} object representing the HTTP request and its context, must not be null
-     * @param ctx the {@link ch.turic.memory.Context} in which the resulting {@link LngObject} will be created, must not be null
+     * @param ctx      the {@link ch.turic.memory.Context} in which the resulting {@link LngObject} will be created, must not be null
      * @return a {@link LngObject} instance containing the structured details of the HTTP request, such as method,
-     *         client information, server information, protocol, headers, URI, and body
+     * client information, server information, protocol, headers, URI, and body
      */
     private LngObject mapRequest(HttpExchange exchange, ch.turic.memory.Context ctx) {
         final var request = LngObject.newEmpty(ctx);
@@ -149,7 +151,7 @@ public class TuriHttpServer implements TuriFunction {
         srv.setField("port", exchange.getLocalAddress().getPort());
         request.setField("server", srv);
         final var headers = LngObject.newEmpty(ctx);
-        for( final var h : exchange.getRequestHeaders().entrySet() ) {
+        for (final var h : exchange.getRequestHeaders().entrySet()) {
             final var headerValues = new LngList();
             headerValues.array.addAll(h.getValue());
             headers.setField(h.getKey(), headerValues);

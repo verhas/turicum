@@ -1,4 +1,6 @@
-Variable 'a' is already defined.
+we redefined 'a'
+we defined 'b'
+Cannot divide by zero
 Do we have a? true
-Was it changed or still 3? It is 3
+Was it changed or still 3? It is 1
 Do we have b? false

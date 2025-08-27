@@ -12,11 +12,6 @@ import ch.turic.commands.Identifier;
 public class IsDefined implements TuriMacro {
 
     @Override
-    public String name() {
-        return "is_defined";
-    }
-
-    @Override
     public Object call(Context context, Object[] arguments) throws ExecutionException {
         final var ctx = FunUtils.ctx(context);
         final var arg = FunUtils.arg(name(), arguments);

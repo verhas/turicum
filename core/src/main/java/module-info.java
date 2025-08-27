@@ -11,7 +11,7 @@ module ch.turic {
 
     provides ch.turic.TuriFunction with Len, Type, Macro, Evaluate,
             Reclose, Keys, JavaObject, JavaCall,
-            JavaCallVararg, Sleep, Set, SetGlobal, SetCaller,
+            Sleep, Set, SetGlobal, SetCaller,
             Que, TryYield, YieldIsClosed, Rx, RxMatch, TuriHttpServer, XmlFormat,
             IsObj, IsType, ExportAll, Parents, AllParents, Rng, Time, NanoTime,
             MathFunctions.Abs, MathFunctions.Sin, MathFunctions.Cos, MathFunctions.ACos,
@@ -22,11 +22,11 @@ module ch.turic {
             MathFunctions.Atan2, MathFunctions.CopySign,
             MathFunctions.GetExponent, MathFunctions.Hypot, MathFunctions.IEEERemainder,
             MathFunctions.NextAfter, MathFunctions.NextDown,
-            MathFunctions.NextUp, MathFunctions.Random, MathFunctions.Rint, MathFunctions.Round,
+            MathFunctions.NextUp, MathFunctions.Random, MathFunctions.ToInt, MathFunctions.ToFloat, MathFunctions.Rint, MathFunctions.Round,
             MathFunctions.SigNum, MathFunctions.Ulp, IdHash,
             Unthunk, Unwrap, BlockList, Command, Min, Max, MathFunctions.Pow, MathFunctions.Scalb, Env,
-            TuriHttpClient, Jsonify, JsonifyBeauty,Str,Glob, SourceDirectory,Arity, Signature,
-            UnCurry,IsCurried,CurriedArity, Enumerate;
+            TuriHttpClient, Jsonify, JsonifyBeauty, Str, Glob, SourceDirectory, Arity, Signature,
+            Uncurry, IsCurried, CurriedArity, Enumerate, JavaClass;
     provides ch.turic.TuriMacro with Export, IsDefined, UnLet, Thunk, Import, SysImport;
     provides ch.turic.TuriClass with TuriString, TuriLong, TuriDouble, TuriIterator, TuriChannel, TuriInputStream, TuriInputStreamReader;
 }

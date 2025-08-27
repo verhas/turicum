@@ -2,6 +2,8 @@ package ch.turic.builtins.functions;
 
 import ch.turic.Context;
 import ch.turic.ExecutionException;
+import ch.turic.SnakeNamed;
+import ch.turic.SnakeNamed.Name;
 import ch.turic.TuriFunction;
 import ch.turic.commands.operators.Cast;
 
@@ -24,6 +26,35 @@ public class MathFunctions {
         public Object call(Context context, Object[] arguments) throws ExecutionException {
             FunUtils.noArg(name(), arguments);
             return Math.random();
+        }
+    }
+
+    @Name("int")
+    public static class ToInt implements TuriFunction {
+        @Override
+        public Object call(Context context, Object[] arguments) throws ExecutionException {
+            final var arg = FunUtils.arg(name(), arguments);
+            if( Cast.isLong(arg) ) {
+                return Cast.toLong(arg).intValue();
+            }
+            if( Cast.isDouble(arg) ) {
+                return Cast.toDouble(arg).intValue();
+            }
+            throw new ExecutionException("%s argument is not a long/double", name());
+        }
+    }
+    @Name("float")
+    public static class ToFloat implements TuriFunction {
+        @Override
+        public Object call(Context context, Object[] arguments) throws ExecutionException {
+            final var arg = FunUtils.arg(name(), arguments);
+            if( Cast.isLong(arg) ) {
+                return Cast.toLong(arg).floatValue();
+            }
+            if( Cast.isDouble(arg) ) {
+                return Cast.toDouble(arg).floatValue();
+            }
+            throw new ExecutionException("%s argument is not a long/double", name());
         }
     }
 
@@ -81,7 +112,7 @@ public class MathFunctions {
 
     /**
      * Represents an abstract base class for mathematical functions in the Turi language
-     * that take a single numeric argument (either long or double) and return a result of the type long.
+     * that takes a single numeric argument (either long or double) and returns a result of the type long.
      * This class serves as a utility for defining mathematical operations that conform
      * to the TuriFunction interface.
      * <p>

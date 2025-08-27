@@ -33,7 +33,7 @@ public class WithAnalyzer extends AbstractAnalyzer {
         final var pairs = new ArrayList<WithPair>();
         while (true) {
             final var expression = ExpressionAnalyzer.INSTANCE.analyze(lexes);
-            if (lexes.is("as")) {
+            if (lexes.is(Keywords.AS)) {
                 lexes.next();
                 if (!lexes.isIdentifier()) {
                     throw new ExecutionException("as has to be followed by an identifier");

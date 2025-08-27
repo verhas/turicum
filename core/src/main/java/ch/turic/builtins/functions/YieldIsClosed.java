@@ -15,10 +15,8 @@ public class YieldIsClosed implements TuriFunction {
 
     @Override
     public Object call(Context context, Object[] arguments) throws ExecutionException {
-        if (!(context instanceof ch.turic.memory.Context ctx)) {
-            throw new ExecutionException("context must be a context of type ch.turic.memory.Context");
-        }
-        ExecutionException.when(arguments.length > 0, "Built-in function %s needs no argument",name());
+        final var ctx = FunUtils.ctx(context);
+        FunUtils.noArg(name(), arguments);
         return ctx.threadContext.yielder().toChild().isClosed();
     }
 }

@@ -1,23 +1,19 @@
+global Path = java_class("java.nio.file.Path");
+global Files = java_class("java.nio.file.Files");
 class files {
     fn read_all_lines(!file_name_or_path){
         let file = if type(file_name_or_path) == "str" :
-                        java_call("java.nio.file.Path","of",file_name_or_path)
+                        Path.of(file_name_or_path)
                    else:
                         file_name_or_path
-        java_call "java.nio.file.Files","readAllLines",file
+        Files.readAllLines(file)
     }
     fn write(!file_name_or_path, content){
         let file = if type(file_name_or_path) == "str" :
-                        java_call("java.nio.file.Path","of",file_name_or_path)
+                        Path.of(file_name_or_path)
                    else:
                         file_name_or_path
-        java_call("java.nio.file.Files","writeString",file,content)
-    }
-}
-
-class path {
-    fn `of`(file_name,[rest]){
-        java_call_vararg("java.nio.file.Path","of",file_name,rest)
+        Files.writeString(file,content)
     }
 }
 

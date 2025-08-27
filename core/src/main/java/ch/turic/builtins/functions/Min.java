@@ -6,8 +6,28 @@ import ch.turic.TuriFunction;
 import ch.turic.commands.operators.Compare;
 
 /**
- * Get the absolute value of the argument
- */
+ * Get the min value of the arguments. If there are no arguments, the function returns {@code none}.
+ *
+ * <pre>{@code
+ * // return none if there are no arguments
+ * die "" if min() != none
+ * // return the smallest argument
+ * die "" if min(1,2,3) != 1
+ * // it also works on lists
+ * die "" if min([1,2,3]) != 1
+ * class SORTED {
+ *     fn init(value:num);
+ *     fn `<`(b:SORTED):bool{
+ *         value < b.value
+ *     }
+ *     fn to_string(){
+ *         ""+value
+ *     }
+ * }
+ *
+ * die "" if min( SORTED(1), SORTED(2), SORTED(3) ) != SORTED(1)
+ * die "" if min( SORTED(1), SORTED(2), SORTED(3) ) === SORTED(1)
+ * }</pre> */
 public class Min implements TuriFunction {
     @Override
     public String name() {

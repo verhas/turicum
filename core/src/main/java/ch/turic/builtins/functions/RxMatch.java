@@ -2,6 +2,8 @@ package ch.turic.builtins.functions;
 
 import ch.turic.Context;
 import ch.turic.ExecutionException;
+import ch.turic.SnakeNamed;
+import ch.turic.SnakeNamed.Name;
 import ch.turic.TuriFunction;
 import ch.turic.commands.operators.Cast;
 import ch.turic.memory.LngList;
@@ -9,11 +11,11 @@ import ch.turic.memory.LngObject;
 
 import java.util.regex.Pattern;
 
+/**
+ * Match a regular expression against a pattern and create a regex matcher.
+ */
+@Name("_rx_match")
 public class RxMatch implements TuriFunction {
-    @Override
-    public String name() {
-        return "_rx_match";
-    }
 
     @Override
     public Object call(Context context, Object[] arguments) throws ExecutionException {

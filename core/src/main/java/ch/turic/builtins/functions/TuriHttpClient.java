@@ -2,6 +2,7 @@ package ch.turic.builtins.functions;
 
 import ch.turic.Context;
 import ch.turic.ExecutionException;
+import ch.turic.SnakeNamed.Name;
 import ch.turic.TuriFunction;
 import ch.turic.builtins.classes.TuriMethod;
 import ch.turic.memory.LngList;
@@ -16,11 +17,11 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.Set;
 
+/**
+ * Perform a http request to a remote (or not so remote) server.
+ */
+@Name("http_client")
 public class TuriHttpClient implements TuriFunction {
-    @Override
-    public String name() {
-        return "http_client";
-    }
 
     private static String str(Object s) {
         if (s == null) {

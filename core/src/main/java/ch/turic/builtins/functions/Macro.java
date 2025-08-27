@@ -10,6 +10,13 @@ import ch.turic.commands.ClosureLike;
 
 /**
  * Convert the argument to a macro from a closure
+ *
+ * <pre>{@code
+ * let m = macro({|a,b| if evaluate(a) : evaluate(b) else: none})
+ * // will not throw an exception because 1 / 0 is not evaluated
+ * die "" if m( false ,  1 / 0)
+ * }</pre>
+ *
  */
 public class Macro implements TuriFunction {
     @Override

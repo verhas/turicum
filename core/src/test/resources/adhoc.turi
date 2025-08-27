@@ -1,15 +1,14 @@
-mut commands = block_list(thunk({k = 13; suss = "huss"; mut x = 3; println "hello"}))
-println "before execution"
 
-mut i = 1;
-for each command in commands {
-  mut suss;
-  println "%s. before is_defined(x) = %s" % [i,is_defined(x)]
-  if i == 1 {
-    try: unthunk(command) catch e: println "ERROR: %s" % [e];
-  } else {
-    unthunk(command)
-    println "%s. after is_defined(x) = %s" % [i,is_defined(x)]
-  }
-  i++
+
+fn seta(){
+  set_caller("a",3)
 }
+
+mut a = 1
+if true {
+  mut a = 2
+  seta()
+  println $"herein ${a}"
+}
+
+println a

@@ -6,19 +6,20 @@ import ch.turic.TuriFunction;
 import ch.turic.commands.operators.Cast;
 
 /**
- * Evaluate a Command
+ * Sleep pauses the execution.
+ * <p>
+ * {@code sleep(N)} will sleep approximately {@code N} seconds.
+ * It can be a floating point value, does not need to sleep round seconds, but the precision is not finer than
+ * 0.001 seconds.
+ *
+ * The return value is the actual number of seconds spent with millisecond precision.
  */
 public class Sleep implements TuriFunction {
-    @Override
-    public String name() {
-        return "sleep";
-    }
 
     @Override
     public Object call(Context context, Object[] arguments) throws ExecutionException {
+        final var arg = FunUtils.arg(name(), arguments);
         final long start = System.currentTimeMillis();
-        ExecutionException.when(arguments.length != 1, "Built-in function '%s' needs exactly one argument", name());
-        final var arg = arguments[0];
         final long waitTime;
         if (Cast.isLong(arg)) {
             waitTime = Cast.toLong(arg) * 1000;
@@ -27,7 +28,7 @@ public class Sleep implements TuriFunction {
         } else {
             throw new ExecutionException("cannot sleep for '%s' seconds. What is that?", arg);
         }
-        if (waitTime > 0) {
+        if (waitTime >= 0) {
             try {
                 Thread.sleep(waitTime);
             } catch (InterruptedException e) {
@@ -35,7 +36,7 @@ public class Sleep implements TuriFunction {
             }
         }
         final long end = System.currentTimeMillis();
-        return (double)(end - start) / 1000.0;
+        return (double) (end - start) / 1000.0;
     }
 
 }

@@ -68,7 +68,7 @@ class Reflect {
      * @param op   the target object
      * @return an {@link Optional} containing a callable {@link Op} if a suitable method is found, otherwise empty
      */
-    static Optional<Reflect.Op> getUnaryMethod(String name, Object op) {
+    static Optional<Reflect.Op> getUnaryMethod(final String name, final Object op) {
         try {
             final var method = op.getClass().getMethod(name);
             if (method.isSynthetic() || Modifier.isStatic(method.getModifiers())) {

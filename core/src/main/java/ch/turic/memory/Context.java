@@ -430,8 +430,9 @@ public class Context implements ch.turic.Context {
      * It is an error if the variable is not defined.
      * <p>
      * If the variable was declared as global, then update the value in the global context.
-     * In this case the variable may not exist yet.
-     * This is an exception.
+     * In this case, the variable may not exist yet in the global scope, but it was declared as 'global' in the local
+     * scope, so it is okay.
+     * This is a special case.
      * <p>
      * If the variable is not global, then the method tries to find the variable in the context and then in the wrapped
      * contexts one after the other, and it will update the one it finds the earliest.

@@ -7,14 +7,9 @@ import ch.turic.builtins.functions.FunUtils;
 import ch.turic.commands.Identifier;
 
 /**
- * returns true if the argument is defined
+ * Remove the definition of a variable from the local context.
  */
 public class UnLet implements TuriMacro {
-
-    @Override
-    public String name() {
-        return "unlet";
-    }
 
     @Override
     public Object call(Context context, Object[] arguments) throws ExecutionException {

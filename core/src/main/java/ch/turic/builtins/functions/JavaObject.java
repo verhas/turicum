@@ -3,6 +3,7 @@ package ch.turic.builtins.functions;
 import ch.turic.Context;
 import ch.turic.ExecutionException;
 import ch.turic.TuriFunction;
+import ch.turic.utils.Reflection;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -17,6 +18,18 @@ import java.lang.reflect.InvocationTargetException;
  * <p>
  * If the class cannot be found, the constructor is inaccessible, or no suitable constructor
  * matches the arguments, an {@link ExecutionException} is thrown.
+ *
+ * This function may be needed in exceptional cases only. The same functionality can be reached
+ * calling the {@link JavaClass} function, get the class as an object. When called with arguments
+ * it will invoke the appropriate constructor.
+ *
+ * <pre>{@code
+ * let bd1 = java_object("java.math.BigDecimal", "10.50");
+ * let BigDecimal = java_class("java.math.BigDecimal");
+ * let bd2 = BigDecimal("3.25")
+ * let result = bd1.add(bd2)
+ * println result // is 13.75 BigDecimal
+ * }</pre>
  */
 public class JavaObject implements TuriFunction {
 
@@ -24,33 +37,13 @@ public class JavaObject implements TuriFunction {
     public Object call(Context ctx, Object[] arguments) throws ExecutionException {
         final var args = FunUtils.args(name(), arguments, String.class, Object[].class);
         final var className = args.at(0).as(String.class);
+        final var javaArgs = args.tail(1);
         try {
-            final var klass = Class.forName(className);
-            for (final var constructor : klass.getConstructors()) {
-                if (constructor.getParameterCount() != args.N - 1 || constructor.isSynthetic()) {
-                    continue;
-                }
-                int i = 1;
-                for (final var pType : constructor.getParameterTypes()) {
-                    if (!pType.isAssignableFrom(args.at(i).type)) {
-                        break;
-                    }
-                    i++;
-                }
-                if (i == args.N) {
-                    final Object[] javaArgs = args.tail(1);
-                    return constructor.newInstance(javaArgs);
-                }
-            }
-            throw new ExecutionException("No suitable constructor found for class " + className);
-        } catch (ClassNotFoundException e) {
-            throw new ExecutionException("Could not load class " + className, e);
-        } catch (InvocationTargetException e) {
-            throw new ExecutionException("Could not invoke constructor " + className, e.getCause());
-        } catch (InstantiationException e) {
-            throw new ExecutionException("Could not instantiate class " + className, e);
-        } catch (IllegalAccessException e) {
-            throw new ExecutionException("Could not access constructor " + className, e);
+            final var constructor = Reflection.getConstructorForArgs(Class.forName(className), javaArgs);
+            return constructor.newInstance(javaArgs);
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException |
+                 InvocationTargetException e) {
+            throw new ExecutionException(e, "Cannot create an instance of %s with arguments", className);
         }
     }
 }

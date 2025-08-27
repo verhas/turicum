@@ -18,11 +18,6 @@ import static ch.turic.builtins.macros.Import.getImportsList;
 public class SysImport implements TuriMacro {
 
     @Override
-    public String name() {
-        return "sys_import";
-    }
-
-    @Override
     public Object call(Context context, Object[] arguments) throws ExecutionException {
         final var ctx = FunUtils.ctx(context);
         final var argO = FunUtils.oneOrMoreArgs(name(), arguments);
@@ -30,7 +25,7 @@ public class SysImport implements TuriMacro {
         if (argO instanceof Command cmd) {
             sys_name = Import.getImportString(cmd,ctx);
         } else {
-            throw new ExecutionException("Import needs a string first argument");
+            throw new ExecutionException("sys_import needs a string first argument");
         }
         final var resourceName = sys_name.replace(".", "/") + ".turi";
 

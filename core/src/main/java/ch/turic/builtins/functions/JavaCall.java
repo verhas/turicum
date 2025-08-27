@@ -3,157 +3,104 @@ package ch.turic.builtins.functions;
 import ch.turic.Context;
 import ch.turic.ExecutionException;
 import ch.turic.TuriFunction;
+import ch.turic.memory.JavaObject;
+import ch.turic.utils.Reflection;
 
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 /**
- *
  * {@code java_call()} can call a Java method.
+ * <p>
+ * The first argument to the function is either
+ * <ul>
+ *     <li>a string representing the name of a class to invoke a static method, or</li>
+ *     <li>an object on which we are going to call the method</li>
+ * </ul>
+ * <p>
+ * The second argument is the name of the method we want to call.
+ * <p>
+ * The rest of the arguments are the values passed to the method to call.
+ * <p>
+ * Note: you do not call {@code java.lang.String} methods using this function on a string instance.
  *
  * <pre>{@code
- * }</pre>
+ * // you can create Java objects
+ * let BigDecimal = java_class("java.math.BigDecimal")
+ * let bd1 = BigDecimal("10.50");
+ * // the type is 'java.' and then the fully qualified class name
+ * die "wrong type" if type(bd1) != "java.java.math.BigDecimal";
  *
+ * let bd2 = BigDecimal("3.25");
+ * // that is bd1.add(bd2)
+ * let result = java_call(bd1, "add", bd2);
+ * die "wrong type" if type(result) != "java.java.math.BigDecimal";
+ *
+ * let formatted = result.toString()
+ * die "formatted" if formatted != "13.75";
+ *
+ * // we can call math utilities
+ * let square_root = java_call("java.lang.Math", "sqrt", 16.0);
+ * // which are also provided in the language anyway
+ * die "wrong square root value" if square_root != sqrt(16.0);
+ *
+ * // Create deterministic UUID for testing
+ * let sample_uuid_str = "550e8400-e29b-41d4-a716-446655440000";
+ * let uuid = java_call("java.util.UUID", "fromString", sample_uuid_str)
+ * die "" if type(uuid) != "java.java.util.UUID"
+ * let string_repr = java_call(uuid, "toString")
+ * die "" if string_repr != sample_uuid_str
+ * }</pre>
  */
 public class JavaCall implements TuriFunction {
 
+    /**
+     * Invokes a method dynamically using reflection based on the provided arguments.
+     * This method supports both static and instance method calls.
+     *
+     * @param ctx The execution context in which the method call is performed.
+     * @param arguments An array of arguments where:
+     *                  - arguments[0] is either a class name (for static calls) or an instance of the object.
+     *                  - arguments[1] is the name of the method to invoke.
+     *                  - arguments[2] and beyond are the parameters to pass to the method.
+     * @return The result of the invoked method.
+     * @throws ExecutionException If:
+     *         - The specified class cannot be found.
+     *         - The method cannot be located with the given parameters.
+     *         - An error occurs during the invocation of the method.
+     */
     @Override
     public Object call(Context ctx, Object[] arguments) throws ExecutionException {
         final var args = FunUtils.args(name(), arguments, Object.class, String.class, Object[].class);
         final var methodName = args.at(1).as(String.class);
-
-        final var tuple = getKlassAndObject(args);
-        final var klass = tuple.klass();
-        final var object = tuple.object();
-
-        for (final var method : klass.getMethods()) {
-            if (!method.getName().equals(methodName) || method.isSynthetic()) {
-                continue;
-            }
-            if (method.isVarArgs()) {
-                if (method.getParameterCount() <= args.N - 2) {
-                    continue;
-                }
-            } else {
-                if (method.getParameterCount() != args.N - 2) {
-                    continue;
-                }
-            }
-            int i = 2;
-            if (method.isVarArgs()) {
-                for (int j = 0; j < method.getParameterTypes().length - 1; j++, i++) {
-                    final var pType = method.getParameterTypes()[j];
-                    if (!pType.isAssignableFrom(args.at(i).type)) {
-                        break;
-                    }
-                }
-                final var lastPType = method.getParameterTypes()[method.getParameterTypes().length - 1].arrayType();
-                while (i < args.N) {
-                    if (!lastPType.isAssignableFrom(args.at(i).type)) {
-                        break;
-                    }
-                    i++;
-                }
-
-            } else {
-                for (final var pType : method.getParameterTypes()) {
-                    if (!isAssignable(pType, args.at(i).get())) {
-                        break;
-                    }
-                    i++;
-                }
-            }
-            if (i == args.N) {
-                try {
-                    if (method.isVarArgs()) {
-                        final Object[] javaArgs = new Object[method.getParameterCount()];
-                        int k = 2, h = 0;
-                        while (h < method.getParameterCount() - 1) {
-                            javaArgs[h++] = args.at(k++).get();
-                        }
-                        Class<?> varargComponentType = method.getParameterTypes()[method.getParameterCount() - 1].getComponentType();
-                        Object varargs = java.lang.reflect.Array.newInstance(varargComponentType, args.N - k);
-                        for (int v = 0; k < args.N; k++, v++) {
-                            java.lang.reflect.Array.set(varargs, v, args.at(k).get());
-                        }
-                        javaArgs[h] = varargs;
-                        return method.invoke(object, javaArgs);
-                    } else {
-                        final Object[] ajavArgs = args.tail(2);
-                        return method.invoke(object, ajavArgs);
-                    }
-                }catch( InvocationTargetException ite){
-                    Throwable cause = ite.getCause();
-                    while(cause.getCause() != null){
-                        cause = cause.getCause();
-                    }
-                    throw new ExecutionException(cause,"Exception while executing method call '"+methodName+"'");
-                }
-                catch (IllegalAccessException  e) {
-                    throw new ExecutionException("Cannot invoke method '" + methodName + "'.", e);
-                }
-            }
-        }
-        throw new ExecutionException("Cannot find method '" + methodName + "'.");
-    }
-
-    /**
-     * Determines if the given argument is assignable to the specified parameter type.
-     *
-     * @param parameterType the target class type to check against
-     * @param arg the object to check for assignability
-     * @return true if the argument can be assigned to the parameter type, false otherwise
-     */
-    private static boolean isAssignable(Class<?> parameterType, Object arg) {
-        if (arg == null) return !parameterType.isPrimitive(); // null can only go into non-primitives
-        Class<?> argClass = arg.getClass();
-        if (parameterType.isPrimitive()) {
-            return switch (parameterType.getName()) {
-                case "boolean" -> argClass == Boolean.class;
-                case "byte"    -> argClass == Byte.class;
-                case "char"    -> argClass == Character.class;
-                case "short"   -> argClass == Short.class;
-                case "int"     -> argClass == Integer.class;
-                case "long"    -> argClass == Long.class;
-                case "float"   -> argClass == Float.class;
-                case "double"  -> argClass == Double.class;
-                default        -> false;
-            };
-        } else {
-            return parameterType.isAssignableFrom(argClass);
-        }
-    }
-
-    /**
-     * Processes the provided arguments to determine the corresponding class and object.
-     * If the first argument is a String, it is treated as a class name, and the method
-     * attempts to load the corresponding class. If the first argument is an object, which is not a String, the
-     * class of the object is determined, and the object itself is returned.
-     *
-     * @param args the arguments of the call to the function
-     * @return a record containing the determined class and object. If the first
-     *         argument is a String (class name), the returned object is null.
-     * @throws ExecutionException if the class corresponding to the provided
-     *                            class name cannot be loaded.
-     */
-    static Tuple getKlassAndObject(FunUtils.ArgumentsHolder args) throws ExecutionException {
-        final Class<?> klass;
+        final var params = args.tail(2);
+        final Method method;
         final Object object;
-        if ( args.at(0).is_a(String.class)) {// if it is a string then it is a class name, we do not call string methods from Turicum
-            final var className = args.at(0).as(String.class);
+        final Class<?> klass;
+        if (args.at(0).is_a(String.class)) { // static call
             try {
-                klass = Class.forName(className);
-                object = null;
-            } catch (ClassNotFoundException ex) {
-                throw new ExecutionException("Cannot find class '" + className + "'.", ex);
+                klass = Class.forName(args.at(0).as(String.class));
+            } catch (ClassNotFoundException e) {
+                throw new ExecutionException("Cannot find class '" + args.at(0).as(String.class) + "'.", e);
             }
-        } else {
+            method = Reflection.getStaticMethodForArgs(klass, methodName, params);
+            object = null;
+        } else { // non-static call
             object = args.at(0).get();
+            method = Reflection.getMethodForArgs(object, methodName, params);
             klass = object.getClass();
         }
-        return new Tuple(klass, object);
-    }
+        if (method == null) {
+            throw new ExecutionException("Cannot find method '" + methodName + "' for class '" + klass.getName() + "' with arguments (" +
+                    Arrays.stream(params).map(obj -> obj.getClass().getName() + ":" + obj.toString()).collect(Collectors.joining(",")) + ")");
+        }
+        try {
+            return Reflection.invoke(method, object, params);
+        } catch (Exception e) {
+            throw new ExecutionException(e);
+        }
 
-    record Tuple(Class<?> klass, Object object) {
     }
-
 }

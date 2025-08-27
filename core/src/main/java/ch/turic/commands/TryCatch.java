@@ -34,7 +34,7 @@ public class TryCatch extends AbstractCommand {
     @Override
     public Object _execute(final Context context) throws ExecutionException {
         Object result;
-        // save the position of the stack trace so we can drop the elements that are deeper when catching
+        // save the position of the stack trace so we can drop the deeper elements when catching
         final int traceSize = context.threadContext.traceSize();
         // create a temporary context: we will export from it if no error occurs
         final var ctx = context.shadow();
@@ -49,7 +49,7 @@ public class TryCatch extends AbstractCommand {
             if (exceptionVariable != null) {
                 final var exception = LngException.build(context, e, context.threadContext.getStackTrace());
                 if( context.containsLocal(exceptionVariable) ) {
-                    throw new ExecutionException("Variable '%s' usen in catch is already defined", exceptionVariable);
+                    throw new ExecutionException("Variable '%s' used in catch is already defined", exceptionVariable);
                 }
                 context.local(exceptionVariable, exception);
                 context.freeze(exceptionVariable);
@@ -58,8 +58,8 @@ public class TryCatch extends AbstractCommand {
             if (catchBlock == null) {
                 throw e;
             } else {
-                // we reset the stack trace only now
-                // even if there is finally, but no catch the original trace lives on
+                //We reset the stack trace only now
+                // even if there is finally, but no catch, the original trace lives on
                 context.threadContext.resetTrace(traceSize);
                 result = catchBlock.execute(context);
             }

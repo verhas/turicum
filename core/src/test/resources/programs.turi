@@ -264,7 +264,7 @@ let fraction = java_call(duration,"dividedBy",10);
 
 die ""+fraction if ""+fraction != "PT0.0063S"
 
-let f = java_call_vararg("java.lang.String","format", "an unlucky number is %s", [13])
+let f = java_call("java.lang.String","format", "an unlucky number is %s", 13)
 die if f != "an unlucky number is 13"
 
 
@@ -277,8 +277,8 @@ mut z = {
 if z != none : die "z has value " % z
 
 -- TEST try2
-// when there is an error the local variables are not changed
-// if there is no error the local variables are defined in the surrounding context
+// when there is an error, the local variables are not changed
+// if there is no error, the local variables are defined in the surrounding context
 
 mut a = 1
 

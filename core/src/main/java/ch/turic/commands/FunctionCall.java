@@ -3,8 +3,14 @@ package ch.turic.commands;
 import ch.turic.Command;
 import ch.turic.ExecutionException;
 import ch.turic.LngCallable;
+import ch.turic.builtins.classes.TuriNone;
 import ch.turic.memory.*;
+import ch.turic.utils.Reflection;
 import ch.turic.utils.Unmarshaller;
+
+import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 import static ch.turic.commands.Closure.evaluateClosureArguments;
 import static ch.turic.commands.Macro.evaluateMacroArguments;
@@ -38,7 +44,42 @@ public class FunctionCall extends FunctionCallOrCurry {
         final Object function;
         if (myObject instanceof FieldAccess fieldAccess) {
             final var obj = LeftValue.toObject(fieldAccess.object().execute(context));
-            function = getMethod(context, obj, fieldAccess.identifier());
+            if (obj instanceof JavaClass jc) {
+                final var args = bareValues(evaluateClosureArguments(context, this.arguments));
+                final var method = Reflection.getStaticMethodForArgs(jc.klass(), fieldAccess.identifier(), args);
+                try {
+                    return Reflection.invoke(method, null, args);
+                } catch (Exception e) {
+                    throw new ExecutionException(e);
+                }
+            }
+            if (obj instanceof JavaObject jo) {
+                if (jo.object() == null) {
+                    // if we somehow get a JavaObject that is 'null' we can still invoke 'to_string'
+                    function = TuriNone.INSTANCE.getMethod(null, fieldAccess.identifier());
+                } else {
+                    final var turi = getTuriClass(context, jo);
+                    if (turi != null) {
+                        // if there is a turi class for this Java object (like for String), then we will
+                        // invoke those methods
+                        function = turi.getMethod(jo.object(), fieldAccess.identifier());
+                    } else {
+                        final var args = bareValues(evaluateClosureArguments(context, this.arguments));
+                        final var method = Reflection.getMethodForArgs(jo.object(), fieldAccess.identifier(), args);
+                        if (method == null) {
+                            throw new ExecutionException("Cannot find method '%s' on object '%s' with arguments %s", fieldAccess.identifier(), jo.object(),
+                                    Arrays.stream(args).map(o -> o.getClass() + ":" + o).collect(Collectors.joining(",")));
+                        }
+                        try {
+                            return Reflection.invoke(method, jo.object(), args);
+                        } catch (Exception e) {
+                            throw new ExecutionException(e);
+                        }
+                    }
+                }
+            } else {
+                function = getMethod(context, obj, fieldAccess.identifier());
+            }
             if (function instanceof ClosureLike command) {
                 final var nullableOptionalResult = command.methodCall(context, obj, fieldAccess.identifier(), this.arguments());
                 if (nullableOptionalResult.isPresent()) {

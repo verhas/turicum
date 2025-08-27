@@ -25,6 +25,7 @@ public class TuriChannel implements TuriClass {
                 channelIterator.close();
                 return null;
             });
+            case "has_next" -> new TuriMethod<>(channelIterator::hasNext);
             case "is_closed" -> new TuriMethod<>(channelIterator::isClosed);
             case "receive" -> new TuriMethod<>(() -> {
                 try {

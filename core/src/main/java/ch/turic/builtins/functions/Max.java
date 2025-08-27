@@ -6,7 +6,28 @@ import ch.turic.TuriFunction;
 import ch.turic.commands.operators.Compare;
 
 /**
- * Get the absolute value of the argument
+ * Get the max value of the arguments. If there are no arguments, the function returns {@code none}.
+ *
+ * <pre>{@code
+ * // return none if there are no arguments
+ * die "" if max() != none
+ * // return the largest argument
+ * die "" if max(1,2,3) != 3
+ * // it also works on lists
+ * die "" if max([1,2,3]) != 3
+ * class SORTED {
+ *     fn init(value:num);
+ *     fn `<`(b:SORTED):bool{
+ *         value < b.value
+ *     }
+ *     fn to_string(){
+ *         ""+value
+ *     }
+ * }
+ *
+ * die "" if max( SORTED(1), SORTED(2), SORTED(3) ) != SORTED(3)
+ * die "" if max( SORTED(1), SORTED(2), SORTED(3) ) === SORTED(3)
+ * }</pre>
  */
 public class Max implements TuriFunction {
     @Override

@@ -6,7 +6,6 @@ ch.turic.builtins.functions.Reclose
 ch.turic.builtins.functions.Keys
 ch.turic.builtins.functions.JavaObject
 ch.turic.builtins.functions.JavaCall
-ch.turic.builtins.functions.JavaCallVararg
 ch.turic.builtins.functions.Sleep
 ch.turic.builtins.functions.Set
 ch.turic.builtins.functions.SetGlobal
@@ -57,6 +56,8 @@ ch.turic.builtins.functions.MathFunctions$Scalb
 ch.turic.builtins.functions.MathFunctions$NextDown
 ch.turic.builtins.functions.MathFunctions$SigNum
 ch.turic.builtins.functions.MathFunctions$Random
+ch.turic.builtins.functions.MathFunctions$ToInt
+ch.turic.builtins.functions.MathFunctions$ToFloat
 ch.turic.builtins.functions.MathFunctions$Round
 ch.turic.builtins.functions.MathFunctions$Ulp
 ch.turic.builtins.functions.MathFunctions$NextAfter
@@ -76,8 +77,9 @@ ch.turic.builtins.functions.Glob
 ch.turic.builtins.functions.SourceDirectory
 ch.turic.builtins.functions.Arity
 ch.turic.builtins.functions.Signature
-ch.turic.builtins.functions.UnCurry
+ch.turic.builtins.functions.Uncurry
 ch.turic.builtins.functions.IsCurried
 ch.turic.builtins.functions.CurriedArity
 ch.turic.builtins.functions.Enumerate
+ch.turic.builtins.functions.JavaClass
 

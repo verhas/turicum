@@ -665,6 +665,25 @@ println xml_format(to_xml(project, top="project"))
 
 // end snippet
 
+// snippet keys1
+class A {
+    mut z:num = 1
+    let k:str = "two"
+    fn zibabwa(a,b,@shia,[ta]){}
+}
+let k = A()
+let uu = {|f,y,z| none}
+
+println keys(A), " of A"
+println keys(A.zibabwa), " of A.zibabwa"
+println keys(k), " of k"
+println keys(uu), " of uu"
+
+let BigDecimal = java_class("java.math.BigDecimal")
+println keys(BigDecimal)
+println keys(BigDecimal("0"))
+// end snippet
+
 // snippet jsonify
 let z = {
   a: 1, b:? [1,2,3]
@@ -1687,10 +1706,11 @@ println "Do we have c? ", is_defined(c)
 
 // snippet try7
 mut a = 3;
-try : (mut a = 1;
+try : (a = 1;
        println "we redefined 'a'"
        mut b = 2;
        println "we defined 'b'"
+       1/0; // exception
       )
 catch e : println e;
 
@@ -1734,10 +1754,48 @@ println "java object ", type(java_object("java.lang.Object"))
 
 // end snippet
 
+// snippet java_object1
+let bd1 = java_object("java.math.BigDecimal", "10.50");
+let bd2 = java_object("java.math.BigDecimal", "3.25");
+let result = bd1.add(bd2)
+println result
+// end snippet
+
+// snippet java_object2
+let sb = java_object("java.lang.StringBuilder", "xBruhahha");
+try: sb.deleteCharAt(0) catch e: println e
+sb.deleteCharAt(int(0))
+println sb
+// end snippet
+
+// snippet java_call1
+let sb = java_object("java.lang.StringBuilder", "xBruhahha");
+java_call sb,"deleteCharAt",int(0)
+println sb
+// end snippet
+
+// snippet java_class3
+let Locale = java_class("java.util.Locale")
+// Locale constructor is vararg
+let l1 = Locale("en", "US");
+let l2 = Locale("en", "US", "POSIX");
+println "%s %s" % [l1, l2]
+// end snippet
+
+// snippet java_class2
+let BigDecimal = java_class("java.math.BigDecimal")
+let h = BigDecimal("10.50")
+println $"h is ${h} of ${type(h)}"
+// end snippet
+
+// snippet java_class1
+let m = java_class("java.lang.Math");
+println m.abs(-5)
+println m.absExact(int(-5))
+// end snippet
+
 // snippet sleep
-
-sleep(0.001) // sleep one mili
-
+println sleep(0.001) // sleep one milli
 // end snippet
 
 // snippet reclose
@@ -1747,16 +1805,30 @@ fn my_fun(@close_it) {
 }
 
 mut s:str ="outer";
+// this closure has a reference to 's' that contains "outer"
+// it prints the value of the enclosed variable and then
+// changes to a new value passed as argument
 let closure = {|x| println s; s = x};
+// after reclosing the new closure stored in 'reclosure' refers to the
+//variable 's' in the 'my_fun' function
 let reclosure = my_fun(close_it=closure);
+// another reclosure will reference another 's'
+// local variables are allocated dynamically
+let rereclosure = my_fun(close_it=closure);
 
+// prints the original "outer" and sets the variable to "closure 1"
 closure("closure 1")
+// prints "in function" and sets the 's' inside the function
 reclosure("reclosure 1")
-println "s = %s" % s
+// prints "in function" and sets the 's' inside the second function
+rereclosure("rereclosure 1")
+println "s = %s" % s // prints "closure 1"
 
-closure("closure 2")
-reclosure("reclosure 2")
-println "s = %s" % s
+// we repeat the call sequence
+closure("closure 2") // output is "closure 1"
+reclosure("reclosure 2") // and "reclosure 1"
+rereclosure("rereclosure 2") // and "rereclosure 1"
+println "s = %s" % s // the new value is "closure 2"
 // end snippet
 
 // snippet die
@@ -1769,12 +1841,45 @@ catch ex:
     print "don't die"
 // end snippet
 
+// snippet que1
+let q = que(3) // create a queue that can hold 3 messages
+println q.send("apple"), " apple is sent" // return value true means the message was sent
+println q.send("birne"), " birne ist geschickt"
+println q.try_send("peach"), " means ok"
+
+// q.send("queue is full") // this would wait infinitely
+// or until some other thread reads something from the queue and there is space to send
+
+println q.try_send("fail"), " means no" // false means sending failed, the queue is full
+
+// just print out the fruits we read from the queue
+println q.receive()
+println q.receive()
+println q.receive()
+
+// println q.receive() // this would wait infinitely, there is nothing in the queue
+// or until some other thread puts something into the queue
+
+// try_receive() returns none if there is nothing in the queue
+println q.try_receive()," return none, there is nothing in the queue"
+
+// it also returns none if there is a none in the queue
+q.send(none)
+println q.receive(), " was received... how do we know?"
+// we send again a none
+q.send(none)
+// check that there is something in the queue
+if q.has_next() : print "has_next() is true: it has value and it is "
+// we can be sure the 'none' was coming as a message from the queue
+println q.try_receive()
+// end snippet
+
 // snippet que
 /**
  * A printing function that will print the objects received through the que `q` till it gets closed.
  */
 fn printer(q,@name){
-    mut n = 0 // counts the number of not ready que attempts
+    mut n = 0 // counts the number of not-ready que attempts
     while {
         mut s = q.try_receive(); // try to receive one or get none if there is nothing in the queue
         return { println "%s is done" % name } if q.is_closed(); // return when the que is closed
@@ -2380,6 +2485,8 @@ class Z {
         for each t in keys(obj){
             this[t] = obj[t]
         }
+        // arguments to `init` are automatically fields
+        // we do not need this extra field here
         unlet obj;
     }
 }
@@ -2840,18 +2947,19 @@ println([ ..all_parents(K) -> type(it()) ])
 // end snippet
 
 // snippet rng
-mut z = rng(0,9223372036854775807)
+let z = rng(0,9223372036854775807)
 mut i = 0
 for each k in z {
-  println k
+  print k, " "
   i++
-}until i > 5
+} until i > 5
 // end snippet
 
 // snippet rngThousand
 mut z = rng(0,1000)
-mut array = [ ..z ]
-print( [..array[0 .. 5], ..array[-5 .. len(array)]])
+mut array = [ ..z ] // this creates an array of 1000 elements
+println len(array)
+print( [..array[0 .. 5], "...", ..array[-5 .. len(array)]])
 // end snippet
 
 // snippet objectAttachment
@@ -2878,17 +2986,13 @@ let w = k[1..3]
 w.a()
 // end snippet
 
-// snippet rangeThousand
-sys_import "turi.range"
-mut z = range(start=0,end=1000,closend=true)
-mut array = [ ..z ]
-print( array[0 .. 5] + array[-5 .. len(array)])
-// end snippet
-
 // snippet rngRange
+// a range does not store the numbers only where to start, end, and the step
 mut z = rng(100,9223372036854775807,100)
+// a range indexed is still only a range with a minimal memory footprint
 mut range = z[20..2000000]
-print( [..range[0 .. 5], ..range[-5 .. len(range)]])
+// the values come from the sub-range
+print( [..range[0 .. 5], "...", ..range[-5 .. len(range)]])
 // end snippet
 
 // snippet rngErrs
@@ -2908,6 +3012,25 @@ catch e3:
 println "Special zero element range can have zero as step %s" % [rng(10,10,0)]
 println "but it is just the same as %s" % [rng(10,10)]
 
+// end snippet
+
+// snippet range
+// import the Turicum range function to get named parameters for range
+sys_import turi.range
+
+// start from zero
+// also note ranges print wisely, when they are long
+println range(end=10)
+// all elements are printed when not more than five
+println range(end=5)
+println range(start=100, 200, 50)
+println range(end=200, 100, 50)
+// range object has one field: 'length'
+println "length=",range(end=200, 100, 50).length
+// you can also index a range object, it will not allocate memory
+println "r[1]=",range(end=200, 100, 50)[1]
+println range(100,100)
+println range(100,100,step=0)
 // end snippet
 
 // snippet asyn_list
@@ -3060,12 +3183,17 @@ catch e: println e
 // end snippet
 
 // snippet thunk_unthunk
+// thunk is a macro, gets the block before it evaluates, and it does not evaluate it
 mut z = thunk({mut x = 3; println "hello"})
 println "before eval"
+// unthunking will evaluate the block, as a block
 unthunk(z)
 println "after eval"
+// 'x' was defined as a mutable variable inside the block, so here it is undefined
 println is_defined(x) // will print false
+// this will evaluate the block unwrapped
 unthunk(unwrap(z))
+// the block was unwrapped, so 'x' is defined in this context
 println is_defined(x) // will print true and
 println x             // then the value
 // end snippet

@@ -21,7 +21,6 @@ import static ch.turic.builtins.functions.FunUtils.ArgumentsHolder.optional;
  * operations in scripts, enabling runtime manipulation of closures and macros.
  * <p>
  * Key methods include:
- * - name(): Returns the identifier name "uncurry".
  * - call(Context context, Object[] arguments): Executes the uncurry operation, taking
  * the current execution context and arguments, and ensuring the input object is a valid
  * curried closure-like construct.
@@ -29,11 +28,7 @@ import static ch.turic.builtins.functions.FunUtils.ArgumentsHolder.optional;
  * Throws ExecutionException if the input cannot be uncurried or if the operation fails due
  * to a clone-related error.
  */
-public class UnCurry implements TuriFunction {
-    @Override
-    public String name() {
-        return "uncurry";
-    }
+public class Uncurry implements TuriFunction {
 
     @Override
     public Object call(Context context, Object[] arguments) throws ExecutionException {

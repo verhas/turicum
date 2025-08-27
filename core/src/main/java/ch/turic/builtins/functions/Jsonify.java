@@ -6,11 +6,59 @@ import ch.turic.TuriFunction;
 import ch.turic.memory.LngList;
 import ch.turic.memory.LngObject;
 
+/**
+ * This function converts a Turicum value to JSON string.
+ * It is very similar to just using {@code str()} but it also puts {@code "} around the keys
+ * and ensures that the output is a valid json.
+ * <p>
+ * Also {@code none} values are represented as {@code null}.
+ *
+ * <pre>{@code
+ * let z = {
+ *   a: 1, b:? [1,2,3]
+ *   pi : 3.1415926,
+ *   location : {
+ *     latidude : 16.990635373109665,
+ *     longidude: 17.935398980291257,
+ *     altidude: [2000, 1000,  -3 , false, "karma" ]
+ *     the_dude : "Peter Verhas",
+ *   }
+ * };
+ *
+ * println $"object to_string=${z}";
+ * println;
+ * println $"object jsonify=${jsonify(z)}";
+ * println;
+ * println $"object beauty=${jsonify_beauty(z,2,60)}";
+ * }</pre>
+ * <p>
+ * will print out
+ * <pre>
+ * {@code
+ * object to_string={a: 1, b: [1, 2, 3], pi: 3.1415926, location: {the_dude: Peter Verhas, longidude: 17.935398980291257, latidude: 16.990635373109665, altidude: [2000, 1000, -3, false, karma]}}
+ *
+ * object jsonify={"a":1,"b":[1,2,3],"pi":3.1415926,"location":{"the_dude":"Peter Verhas","longidude":17.935398980291257,"latidude":16.990635373109665,"altidude":[2000,1000,-3,false,"karma"]}}
+ *
+ * object beauty={
+ *   "a": 1,
+ *   "b": [ 1, 2, 3],
+ *   "pi": 3.1415926,
+ *   "location": {
+ *                 "the_dude": "Peter Verhas",
+ *                 "longidude": 17.935398980291257,
+ *                 "latidude": 16.990635373109665,
+ *                 "altidude": [
+ *                               2000,
+ *                               1000,
+ *                               -3,
+ *                               false,
+ *                               "karma"
+ *                             ]
+ *               }
+ * }
+ * }</pre>
+ */
 public class Jsonify implements TuriFunction {
-    @Override
-    public String name() {
-        return "jsonify";
-    }
 
     @Override
     public Object call(Context ctx, Object[] arguments) throws ExecutionException {

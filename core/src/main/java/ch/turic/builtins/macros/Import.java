@@ -25,11 +25,6 @@ public class Import implements TuriMacro {
     private final List<Path> appiaRoots = getAppiaRoots();
 
     @Override
-    public String name() {
-        return "import";
-    }
-
-    @Override
     public Object call(Context context, Object[] arguments) throws ExecutionException {
         final var ctx = FunUtils.ctx(context);
         final var argO = FunUtils.oneOrMoreArgs(name(), arguments);
@@ -37,7 +32,7 @@ public class Import implements TuriMacro {
         if (argO instanceof Command cmd) {
             arg = getImportString(cmd, ctx);
         } else {
-            throw new ExecutionException("Import needs a string first argument");
+            throw new ExecutionException("import needs a string first argument");
         }
         Path sourceFile = locateSource(ctx, arg);
 

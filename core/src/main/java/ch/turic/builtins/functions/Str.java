@@ -12,10 +12,6 @@ import java.util.Objects;
  * If the argument is null, it defaults to the string "none".
  */
 public class Str implements TuriFunction {
-    @Override
-    public String name() {
-        return "str";
-    }
 
     /**
      * Executes the function to convert the provided argument to its string representation.

@@ -9,13 +9,17 @@ import ch.turic.commands.Macro;
 import ch.turic.memory.*;
 
 /**
- * Return the types of the argument as a string.
+ * Return the type of the argument as a string.
+ * <p>
+ * The type is represented by one of the type names, like {@code bool}, {@code macro} etc.
+ * <p>
+ * The type of {@code none} is {@code none}. This is the only value for which the {@code type()} is not a string.
+ * <p>
+ * General Java types are represented by the canonical name with an extra {@code java.} prefix.
+ * It may seem redundant when you look at classes from the JDK that already start with {@code java.} prefix, like
+ * {@code java.lang.Integer} that will be {@code java.java.lang.Integer}.
  */
 public class Type implements TuriFunction {
-    @Override
-    public String name() {
-        return "type";
-    }
 
     @Override
     public Object call(Context context, Object[] arguments) throws ExecutionException {

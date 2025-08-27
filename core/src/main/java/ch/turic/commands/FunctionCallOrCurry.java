@@ -59,6 +59,17 @@ public abstract class FunctionCallOrCurry extends AbstractCommand {
     public record ArgumentEvaluated(Identifier id, Object value) {
     }
 
+    /**
+     * Extracts the values from an array of evaluated arguments. Converts the evaluated arguments to an object array
+     * that contains only the values and not the argument names.
+     *
+     * Evaluated arguments contain optional names when arguments are passed by name. This method strips these names off
+     * to call methods of types that do not feature named arguments.
+     *
+     * @param arguments an array of {@code FunctionCallOrCurry.ArgumentEvaluated} instances,
+     *                  each containing an identifier and a value
+     * @return an array of {@code Object}s representing the extracted values from the input arguments
+     */
     protected Object[] bareValues(FunctionCallOrCurry.ArgumentEvaluated[] arguments) {
         final Object[] result = new Object[arguments.length];
         for (int i = 0; i < arguments.length; i++) {

@@ -7,12 +7,56 @@ import ch.turic.memory.LngList;
 import ch.turic.memory.LngObject;
 
 import static ch.turic.builtins.functions.FunUtils.ArgumentsHolder.optional;
-
+/**
+ * This function converts a Turicum value to JSON string like {@link Jsonify}, but also formats it.
+ *
+ * <pre>{@code
+ * let z = {
+ *   a: 1, b:? [1,2,3]
+ *   pi : 3.1415926,
+ *   location : {
+ *     latidude : 16.990635373109665,
+ *     longidude: 17.935398980291257,
+ *     altidude: [2000, 1000,  -3 , false, "karma" ]
+ *     the_dude : "Peter Verhas",
+ *   }
+ * };
+ *
+ * println $"object to_string=${z}";
+ * println;
+ * println $"object jsonify=${jsonify(z)}";
+ * println;
+ * println $"object beauty=${jsonify_beauty(z,2,60)}";
+ * }</pre>
+ *
+ *will print out
+ * <pre>
+ * {@code
+ * object to_string={a: 1, b: [1, 2, 3], pi: 3.1415926, location: {the_dude: Peter Verhas, longidude: 17.935398980291257, latidude: 16.990635373109665, altidude: [2000, 1000, -3, false, karma]}}
+ *
+ * object jsonify={"a":1,"b":[1,2,3],"pi":3.1415926,"location":{"the_dude":"Peter Verhas","longidude":17.935398980291257,"latidude":16.990635373109665,"altidude":[2000,1000,-3,false,"karma"]}}
+ *
+ * object beauty={
+ *   "a": 1,
+ *   "b": [ 1, 2, 3],
+ *   "pi": 3.1415926,
+ *   "location": {
+ *                 "the_dude": "Peter Verhas",
+ *                 "longidude": 17.935398980291257,
+ *                 "latidude": 16.990635373109665,
+ *                 "altidude": [
+ *                               2000,
+ *                               1000,
+ *                               -3,
+ *                               false,
+ *                               "karma"
+ *                             ]
+ *               }
+ * }
+ * }</pre>
+ *
+ */
 public class JsonifyBeauty implements TuriFunction {
-    @Override
-    public String name() {
-        return "jsonify_beauty";
-    }
 
     @Override
     public Object call(Context ctx, Object[] arguments) throws ExecutionException {

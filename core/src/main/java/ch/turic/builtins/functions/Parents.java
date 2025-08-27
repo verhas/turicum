@@ -9,12 +9,17 @@ import ch.turic.memory.LngList;
 
 import java.util.Arrays;
 
+/**
+ * Returns the list of the direct parents.
+ *
+ * <pre>{@code
+ * class A {}
+ * class B : A {}
+ * mut K = class : B {}
+ * die "" if [ ..parents(K) -> type(it()) ] != ["B"]
+ * }</pre>
+ */
 public class Parents implements TuriFunction {
-
-    @Override
-    public String name() {
-        return "parents";
-    }
 
     @Override
     public Object call(Context context, Object[] arguments) throws ExecutionException {

@@ -6,25 +6,21 @@ import ch.turic.TuriFunction;
 
 /**
  * Set the value of a variable in the caller's context.
+ * This function can be used in a function or closure that wants to alter some of the variables in the environment
+ * it was invoked from.
+ *
+ * This is a very dangerous practice, and it is mainly to allow the development of decorators that modify named
+ * functions or closures and then they want to alter the original variable holding these.
  */
 public class SetCaller implements TuriFunction {
-    @Override
-    public String name() {
-        return "set_caller";
-    }
 
     @Override
     public Object call(Context context, Object[] arguments) throws ExecutionException {
-        if( arguments.length != 2 ){
-            throw new ExecutionException("'%s' requires 2 arguments", name());
-        }
-        if( !(context instanceof ch.turic.memory.Context ctx)){
-            throw new ExecutionException("'%s' requires the context to be a MemoryContext", name());
-        }
-        if( !(arguments[0] instanceof String name) ){
-            throw new ExecutionException("%s requires a string as first argument, as name of the variable to set. Got '%s'", name(), arguments[0]);
-        }
-        final var value = arguments[1];
+        FunUtils.twoArgs(name(), arguments);
+        final var args = FunUtils.args(name(), arguments, String.class, Object.class);
+        final var ctx = FunUtils.ctx(context);
+        final var name = args.at(0).get().toString();
+        final var value = args.at(1).get();
         ctx.caller().update(name,value);
         return value;
     }

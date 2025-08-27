@@ -84,10 +84,6 @@ public class FunUtils {
         ExecutionException.when(args.length != 2, "Function %s needs two arguments.", name);
     }
 
-    public static void twoPlusArgs(final String name, Object[] args) {
-        ExecutionException.when(args.length < 2, "Function %s needs at least two arguments.", name);
-    }
-
     public static class Argument {
         private final String name;
         private final Object value;
@@ -226,7 +222,7 @@ public class FunUtils {
          * Determines whether the current argument is considered present.
          *
          * @return true if the current object is not equal to the constant UNDEFINED_ARGUMENT,
-         *         false otherwise.
+         * false otherwise.
          */
         public boolean isPresent() {
             return this != UNDEFINED_ARGUMENT;
@@ -269,10 +265,45 @@ public class FunUtils {
     };
 
     public static class ArgumentsHolder {
+        /**
+         * An array of {@link Argument} objects representing individual arguments encapsulated with their respective
+         * metadata such as index, value, and associated function name.
+         * <p>
+         * This field is initialized during the construction of the {@code ArgumentsHolder} class, wrapping the array
+         * of {@code Object} inputs into corresponding {@code Argument} instances. Each argument retains its position
+         * (index) and context (name) to facilitate easy access and manipulation.
+         * <p>
+         * This field is immutable and cannot be modified after initialization.
+         */
         private final Argument[] arguments;
+        /**
+         * Holds an array of arguments used by the {@code ArgumentsHolder} class.
+         * Each element in this array can represent an input argument passed to the built-in functions
+         * and is utilized for various operations such as indexing, transformations, or subsetting.
+         * This field is immutable and initialized during the creation of an {@code ArgumentsHolder} instance.
+         */
         private final Object[] args;
+        /**
+         * The {@code N} field represents the total number of arguments or elements
+         * managed within the context of the containing class. It is a constant value
+         * that is primarily used to indicate the size or count of a specific array,
+         * list, or collection.
+         * <p>
+         * This field is typically utilized in operations that depend on the number
+         * of arguments, such as iterating through or validating elements within
+         * the associated collection.
+         */
         public final int N;
 
+        /**
+         * Constructs an {@code ArgumentsHolder} instance, initializing it with the given array of arguments and a name.
+         * Each argument in the input array is wrapped into an {@code Argument} object, with its index and the provided
+         * name of the built-in function.
+         *
+         * @param arguments An array of objects to be stored and wrapped as {@code Argument} instances.
+         *                  Each object in the array represents an individual argument.
+         * @param name      A name associated with all arguments. It is used to identify the context of the arguments.
+         */
         public ArgumentsHolder(Object[] arguments, String name) {
             this.args = arguments;
             this.arguments = new Argument[arguments.length];
@@ -289,10 +320,22 @@ public class FunUtils {
             return arguments[i];
         }
 
+        /**
+         * Returns a portion of the `args` array, starting from the specified index `from` to the end of the array.
+         *
+         * @param from The starting index (inclusive) from where to copy the elements in the array.
+         * @return An array containing the elements from the specified starting index to the end of the original `args` array.
+         */
         public Object[] tail(int from) {
             return Arrays.copyOfRange(args, from, N);
         }
 
+        /**
+         * Returns the last argument from the list of arguments.
+         *
+         * @return The last {@code Argument} in the internal arguments array.
+         * If the array is empty, accessing this method will throw an {@code ArrayIndexOutOfBoundsException}.
+         */
         public Argument last() {
             return arguments[arguments.length - 1];
         }
