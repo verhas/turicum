@@ -9,7 +9,7 @@ import ch.turic.commands.Identifier;
 /**
  * Remove the definition of a variable from the local context.
  */
-public class UnLet implements TuriMacro {
+public class Unlet implements TuriMacro {
 
     @Override
     public Object call(Context context, Object[] arguments) throws ExecutionException {

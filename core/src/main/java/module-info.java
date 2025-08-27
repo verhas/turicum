@@ -27,6 +27,6 @@ module ch.turic {
             Unthunk, Unwrap, BlockList, Command, Min, Max, MathFunctions.Pow, MathFunctions.Scalb, Env,
             TuriHttpClient, Jsonify, JsonifyBeauty, Str, Glob, SourceDirectory, Arity, Signature,
             Uncurry, IsCurried, CurriedArity, Enumerate, JavaClass;
-    provides ch.turic.TuriMacro with Export, IsDefined, UnLet, Thunk, Import, SysImport;
+    provides ch.turic.TuriMacro with Export, IsDefined, Unlet, Thunk, Import, SysImport;
     provides ch.turic.TuriClass with TuriString, TuriLong, TuriDouble, TuriIterator, TuriChannel, TuriInputStream, TuriInputStreamReader;
 }
