@@ -1,0 +1,61 @@
+global APPIA = ?(env("APPIA")?.split("\\|")) or [ source_directory() + "/.." ];
+sys_import "turi.maven"
+import "turicum_versions"
+
+let project = maven_project({
+    name: "Turicum-LSP",
+    artifactId: "turicum-lsp-server"
+    version: VERSION,
+    description: "Turicum LSP server",
+    parent: {
+        groupId: groupId,
+        artifactId: "turicum-parent",
+        version: VERSION
+    },
+    build: { 
+        plugins: [
+            maven_plugin("source"),
+            maven_plugin("javadoc"),
+            maven_plugin("compiler"),
+            maven_plugin("resources"),
+            {
+                groupId: "org.codehaus.plexus",
+                artifactId: "plexus-component-metadata",
+                version: "2.2.0",
+                executions: [
+                    {
+                        goals: [ "generate-metadata" ]
+                    }
+                ]
+            }
+        ]
+    },
+    dependencies: [
+        {
+            groupId: "ch.turic",
+            artifactId: "turicum",
+            version: VERSION
+        },
+        {
+            groupId: "org.junit.jupiter",
+            artifactId: "junit-jupiter-api",
+        },
+        {
+            groupId: "org.junit.jupiter",
+            artifactId: "junit-jupiter-engine",
+        },
+        {
+            groupId: "org.apache.maven",
+            artifactId: "maven-core",
+            version: `maven-core`,
+            scope: "provided",
+        },
+        {
+            groupId: "org.eclipse.lsp4j",
+            artifactId: "org.eclipse.lsp4j",
+            version: "0.24.0"
+        }
+    ]
+});
+project.properties = import("properties").properties;
+project.done();

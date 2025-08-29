@@ -1,0 +1,34 @@
+= Turicum LSP Server
+{%@snip:xml pom=pom.xml%}\
+{%#define VERSION={%pom /project/version/text()%}%}\
+{%#define ARTIFACT_ID={%pom /project/artifactId/text()%}%}\
+{%@snip:collect ignoreErrors from=../core/src/test/resources/references.turi%}
+{%@snip:collect ignoreErrors from=../core/src/test/resources/references_output%}\
+
+{%@define sample($X)=
+.source of snippet `$X`
+[source]
+----
+{%#trimLines
+{%@snip $X%}
+%}
+----
+{%#define [global] output()=
+.output of snippet `$X`
+[source]
+----
+{%@include [verbatim] ../core/src/test/resources/references_output/$X.txt%}
+----
+%}
+{%#define [global] result()=
+.result of snippet `$X`
+[source]
+----
+{%@include [verbatim] ../core/src/test/resources/references_output/$X_result.txt%}
+----
+%}
+%}
+{%@define S($X)={%sample $X%}
+{%output%}
+%}
+
