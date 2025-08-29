@@ -10,6 +10,12 @@ import java.util.function.Supplier;
  * Provides context about where the syntax error occurred, including file location and surrounding code.
  */
 public class BadSyntax extends RuntimeException {
+    private final Pos position;
+
+    public Pos getPosition() {
+        return position;
+    }
+
     /**
      * Constructs a new BadSyntax exception with detailed error information.
      *
@@ -19,6 +25,7 @@ public class BadSyntax extends RuntimeException {
      */
     public BadSyntax(Pos position, String s, Object... params) {
         super(format(position, s, params));
+        this.position = position;
     }
 
     /**

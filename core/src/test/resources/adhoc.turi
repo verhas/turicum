@@ -1,14 +1,1 @@
-
-
-fn seta(){
-  set_caller("a",3)
-}
-
-mut a = 1
-if true {
-  mut a = 2
-  seta()
-  println $"herein ${a}"
-}
-
-println a
+print "hello world"

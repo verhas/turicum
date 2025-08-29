@@ -95,6 +95,23 @@ public class Lexer {
      */
     public static LexList analyze(Input in) throws BadSyntax {
         final var list = new ArrayList<Lex>();
+        return analyze_into(in, list);
+    }
+
+    public static LexList try_analyze(Input in) throws BadSyntax {
+        final var list = new ArrayList<Lex>();
+        final var result = new LexList(list);
+        try {
+            analyze_into(in, list);
+        } catch (BadSyntax bs) {
+            result.setBs(bs);
+        }
+        // return it anyway
+        return result;
+    }
+
+
+    private static LexList analyze_into(Input in, List<Lex> list) throws BadSyntax {
         // honor the shebang
         if (in.startsWith("#!") == 0) {
             while (!in.isEmpty() && in.charAt(0) != '\n') {

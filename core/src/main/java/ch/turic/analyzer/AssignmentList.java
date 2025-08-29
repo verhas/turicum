@@ -133,11 +133,15 @@ public class AssignmentList {
         if (referenced) {
             lexes.next();
             final var expression = ExpressionAnalyzer.INSTANCE.analyze(lexes);
-            ExecutionException.when(lexes.isNot(")"), "Type expression starting with '(' must finish with ')'");
+            if (lexes.isNot(")")) {
+                throw lexes.syntaxError("Type expression starting with '(' must finish with ')'");
+            }
             lexes.next();
             type.add(new TypeDeclaration(null, expression));
         } else {
-            ExecutionException.when(!lexes.isIdentifier() && !lexes.isKeyword(), "following the ':' and '|' a type identifier has to follow");
+            if (!lexes.isIdentifier() && !lexes.isKeyword()) {
+                throw lexes.syntaxError("following the ':' and '|' a type identifier has to follow");
+            }
             type.add(new TypeDeclaration(lexes.next().text(), null));
         }
     }

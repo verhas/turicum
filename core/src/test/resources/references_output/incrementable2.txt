@@ -1,10 +1,10 @@
 h original: 0
-h id=56DB847E
+h id=30ED9C6C
 h after post increment: 1
 k: 1
-h id=56DB847E
-k id=56DB847E
+h id=30ED9C6C
+k id=30ED9C6C
 h after pre increment: 2
 z: 2
-h id=56DB847E
-z id=56DB847E
+h id=30ED9C6C
+z id=30ED9C6C

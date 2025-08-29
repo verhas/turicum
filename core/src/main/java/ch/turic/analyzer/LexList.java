@@ -7,6 +7,16 @@ import java.util.List;
 
 public class LexList extends LngList {
 
+    private BadSyntax bs = null;
+
+    public BadSyntax getBs() {
+        return bs;
+    }
+
+    public void setBs(BadSyntax bs) {
+        this.bs = bs;
+    }
+
     /**
      * Get the current index. It can be saved and in the case a syntax analysis fails that is not implemented using
      * single token look ahead then {@link #setIndex(int)} can be used to restore the lexer state.

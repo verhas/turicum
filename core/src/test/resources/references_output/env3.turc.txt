@@ -1,1 +1,1 @@
-{JAVA_HOME: /Users/verhasp/.sdkman/candidates/java/current}
+{JAVA_HOME: /Users/verhasp/.sdkman/candidates/java/21.0.7-tem}

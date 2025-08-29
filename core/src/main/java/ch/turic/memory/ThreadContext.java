@@ -22,8 +22,8 @@ public class ThreadContext {
      * <p>
      * Before this call, the stack trace contains all the elements to the point and stack depth where the exception
      * was caught.
-     * This call will reset the stack trace keeping only those elements; that are valid in the calling stack to the
-     * level of call stack where the exception was caught.
+     * This call will reset the stack trace, keeping only those elements that are valid in the calling stack to the
+     * level of the call stack where the exception was caught.
      *
      * @param size the size of the stack trace at the level of the exception catch
      */

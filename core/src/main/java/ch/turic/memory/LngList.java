@@ -62,7 +62,12 @@ public class LngList implements HasIndex, HasFields {
     public void setIndex(Object index, Object value) throws ExecutionException {
         ExecutionException.when(pinned.get(), "Cannot change a pinned list.");
         if (Cast.isLong(index)) {
-            final var indexValue = Cast.toLong(index).intValue();
+            final var longIndex = Cast.toLong(index);
+            if( longIndex > (long) Integer.MAX_VALUE) {
+                throw new ExecutionException("Indexing error, %d is too large, %s > %s.", longIndex,
+                        longIndex, Integer.MAX_VALUE);
+            }
+            final var indexValue = longIndex.intValue();
             if (indexValue < 0) {
                 ExecutionException.when(array.size() + indexValue < 0, "Indexing error, %d is too small, %s-%s < %s.", indexValue,
                         array.size(), -indexValue, 0);
@@ -107,7 +112,12 @@ public class LngList implements HasIndex, HasFields {
     @Override
     public Object getIndex(Object index) throws ExecutionException {
         if (Cast.isLong(index)) {
-            final var indexValue = Cast.toLong(index).intValue();
+            final var longIndex = Cast.toLong(index);
+            if( longIndex > (long) Integer.MAX_VALUE) {
+                throw new ExecutionException("Indexing error, %d is too large, %s > %s.", longIndex,
+                        longIndex, Integer.MAX_VALUE);
+            }
+            final var indexValue = longIndex.intValue();
             ExecutionException.when(indexValue < 0, "Indexing error, %s < 0", indexValue);
             if (indexValue >= array.size()) {
                 return null;
