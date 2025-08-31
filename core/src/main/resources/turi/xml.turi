@@ -1,18 +1,19 @@
 /**
  * Converts an object into XML string representation.
- * 
- * @param object The object to convert to XML format
- * @param top The name of the root XML element
- * @param plurals A dictionary mapping plural tag names to their singular forms
- * @return A string containing the XML representation of the object
+ *
+ * * `object` The object to convert to XML format
+ * * `top` The name of the root XML element
+ * * `plurals` A dictionary mapping plural tag names to their singular forms
+ *
+ *  returns a string containing the XML representation of the object
  */
 fn to_xml(object, @top, @plurals= {}) : str {
     fn to_singular(s : str, plurals : obj) : str {
         plurals[s] or if len(s) >= 3 && s[len(s)-3..inf] == "ies" : s[0..-3] + "y" else: s[0..-1];
     }
-
+    
     return  $"<${top}>${object}</${top}>" if !is_obj(object);
-
+    
     mut XML = $"<${top}";
     for each tag in keys(object){
         if tag[0] == "@" : XML += $" ${tag[1..inf]} =\"${object[tag]}\"";
@@ -21,22 +22,22 @@ fn to_xml(object, @top, @plurals= {}) : str {
     for each tag in keys(object){
         if tag[0] != "@" && tag != "!" && tag != "this" && tag != "cls" && object[tag] != none {
             {
-            break {
-                XML += $"<${tag}>";
-                mut singular:str|none = none;
-                let top = to_singular(tag,plurals);
-                for each item in object[tag] {
-                    if is_obj(item) && item["!"] != none : singular = item["!"];
-                    XML += me(item,top=singular or top,plurals=plurals);
-                }
-                XML += $"</${tag}>";
-            } if type(object[tag]) == "lst";
-
-            break { XML += me(object[tag], top=tag, plurals=plurals) } if is_obj(object[tag]);
-
-            break { XML += $"<${tag}/>" } if len(""+object[tag]) == 0;
-
-            XML += $"<${tag}>${object[tag]}</${tag}>";
+                break {
+                    XML += $"<${tag}>";
+                    mut singular:str|none = none;
+                    let top = to_singular(tag,plurals);
+                    for each item in object[tag] {
+                        if is_obj(item) && item["!"] != none : singular = item["!"];
+                        XML += me(item,top=singular or top,plurals=plurals);
+                    }
+                    XML += $"</${tag}>";
+                } if type(object[tag]) == "lst";
+                
+                break { XML += me(object[tag], top=tag, plurals=plurals) } if is_obj(object[tag]);
+                
+                break { XML += $"<${tag}/>" } if len(""+object[tag]) == 0;
+                
+                XML += $"<${tag}>${object[tag]}</${tag}>";
             }
         }
     }

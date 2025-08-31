@@ -20,9 +20,11 @@ import java.util.concurrent.Executors;
 
 // Text Document Service - handles document-related operations
 class TuriTextDocumentService implements TextDocumentService {
+    private static final Executor VIRTUAL_EXECUTOR = Executors.newThreadPerTaskExecutor(Thread.ofVirtual().factory());
     final DocumentManager documentManager = new DocumentManager();
     private LanguageClient client;
     private TuriSyntaxErrorReporter errorReporter;
+
 
     public void connect(LanguageClient client) {
         this.client = client;
@@ -235,21 +237,24 @@ class TuriTextDocumentService implements TextDocumentService {
     // Helper classes for storing completion information
     private static class FunctionInfo {
         String signature;
+
     }
 
     private static class VariableInfo {
         String type;
         String description;
         String scope;
+
     }
 
     private static class TypeInfo {
         String kind; // "class", "interface", etc.
         String description;
         java.util.List<String> methods;
-    }
 
+    }
     // Mock data methods - replace these with real data from your language
+
     private Map<String, FunctionInfo> getFunctionDatabase(String source, String functionName) {
         Map<String, FunctionInfo> functions = new HashMap<>();
         try {
@@ -308,8 +313,6 @@ class TuriTextDocumentService implements TextDocumentService {
         return docs;
     }
 
-    private static final Executor VIRTUAL_EXECUTOR = Executors.newThreadPerTaskExecutor(Thread.ofVirtual().factory());
-
     @Override
     public CompletableFuture<Either<List<CompletionItem>, CompletionList>> completion(CompletionParams params) {
         return CompletableFuture.supplyAsync(() -> {
@@ -320,20 +323,9 @@ class TuriTextDocumentService implements TextDocumentService {
 
     @Override
     public CompletableFuture<Hover> hover(HoverParams params) {
-        // Hover information
-        String content = "Hover information for position: " +
-                params.getTextDocument().getUri() + ":" +
-                params.getPosition().getLine() + ":" +
-                params.getPosition().getCharacter();
-
-        MarkupContent markupContent = new MarkupContent();
-        markupContent.setKind(MarkupKind.MARKDOWN);
-        markupContent.setValue("**Information**\n\n" + content);
-
-        Hover hover = new Hover();
-        hover.setContents(markupContent);
-
-        return CompletableFuture.completedFuture(hover);
+        return CompletableFuture.supplyAsync(() -> {
+            return new TuriHover(documentManager).hover_synch(params);
+        }, VIRTUAL_EXECUTOR);
     }
 
     @Override
@@ -349,15 +341,14 @@ class TuriTextDocumentService implements TextDocumentService {
     }
 
     @Override
-    public CompletableFuture<Either<List<? extends Location>, List<? extends LocationLink>>> definition
-            (DefinitionParams params) {
+    public CompletableFuture<Either<List<? extends Location>, List<? extends LocationLink>>> definition(DefinitionParams params) {
         List<Location> locations = new ArrayList<>();
         try {
             final var uri = new URI(params.getTextDocument().getUri());
             final var file = Paths.get(uri);
             final var source = new Input(new StringBuilder(Files.readString(file)), file.toString());
             final var lexes = Lexer.try_analyze(source);
-            final var start = lexes.getIndex(); // likely zer, but whatever
+            final var start = lexes.getIndex(); // likely zero, but whatever
             final var srcLine = params.getPosition().getLine();
             final var srcCharacter = params.getPosition().getCharacter();
             // first find the thing that we want to find

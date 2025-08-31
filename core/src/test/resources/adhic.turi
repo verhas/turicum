@@ -1,18 +1,30 @@
 print "hello world"
-
-fn alma(a,b,c):num|any {
+(
+    /**
+     * Alma is a tree argument function.
+     *  ```
+     *  alma(1,2,3)
+     * ```
+     * will return either anything or a number. The return type is `num|any`
+     */
+    fn alma(a,b,c):num|any {
         """
-This is a multi line string
+This is a multi-line string
     """
-        /*
+        /**
          * /*  sss
          *       */
          */
+        
         let alabama ;felhambra
         let alhambra
         let `class`
         let cliss
         let name = 1;let name = 2;
         `class` = 13;
+        alma
+    } +
+    fn kabuki( args) {
+        
     }
-    
+)

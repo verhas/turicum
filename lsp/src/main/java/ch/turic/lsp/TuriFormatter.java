@@ -17,47 +17,28 @@ public class TuriFormatter {
         String[] lines = content.split("\n", -1); // -1 to preserve empty lines at the end
         StringBuilder result = new StringBuilder();
         int indentLevel = 0;
-        boolean inString = false;
-        boolean inComment = false;
         boolean nextLineIndentedFromColon = false; // Track if the next line should be indented due to colon
 
+        int index = 0;
         for (int i = 0; i < lines.length; i++) {
             final var line = lines[i];
-            inString = isInString( lexes, i);
-            inComment = isInComment( lexes, i);
-            
+            index = lineIndex(lexes, i, index);
+            boolean inString = isInString(lexes, i, index);
+            boolean inComment = !inString && isInComment(lexes, i, index);
+
             final var newIndentLevel = calculateNewIndentLevel(line, indentLevel);
             if (newIndentLevel < indentLevel) {
                 indentLevel = newIndentLevel;
             }
             char lastChar = getLastNonSpaceChar(line);
+            nextLineIndentedFromColon = lastChar == ':';
             // Apply extra indent for colon if needed
             int currentIndent = indentLevel + (nextLineIndentedFromColon ? 1 : 0);
             var formattedLine = formatLine(line, currentIndent, inString, inComment);
 
-            // Reset colon indent flag after applying it
-            nextLineIndentedFromColon = false;
-
+            // if we are tabbing back, we need to adjust the indent level starting with the next line
             indentLevel = newIndentLevel;
-            // Check if we need to adjust indent for next line
-            if (!formattedLine.isEmpty()) {
 
-                if (lastChar == '{' || lastChar == '(' || lastChar == '[') {
-                    indentLevel++;
-                } else if (lastChar == ':') {
-                    // For colon, only indent the next line, don't change base indent level
-                    nextLineIndentedFromColon = true;
-                }
-            }
-
-            // Check if the current line should decrease indent (closing brackets)
-            if (!formattedLine.isBlank()) {
-                char firstChar = formattedLine.stripLeading().charAt(0);
-                if (firstChar == '}' || firstChar == ')' || firstChar == ']') {
-                    // Re-format the line with the correct indent (no colon indent for closing brackets)
-                    formattedLine = formatLine(line, indentLevel, inString, inComment);
-                }
-            }
             result.append(formattedLine);
             if (i < lines.length - 1) {
                 result.append("\n");
@@ -67,10 +48,42 @@ public class TuriFormatter {
         return result.toString();
     }
 
-    private static boolean isInString(LexList lexes, int lineNr) {
-        int index = lexes.getIndex();
+    /**
+     * Determines the lexical index before the start of a specific line number in a lexical list.
+     * Iterates through the given list to locate the starting index of the specified line
+     * relative to the provided index.
+     *
+     * @param lexes  the lexical list object containing the sequence of lexemes
+     * @param lineNr the line number for which the index is to be determined (0-based)
+     * @param index  the current index from which the search should begin
+     * @return the lexical index at the start of the specified line, or zero if the line is not found
+     */
+    private static int lineIndex(LexList lexes, int lineNr, int index) {
+        int start = lexes.getIndex();
         try {
-            lexes.setIndex(0);
+            lexes.setIndex(index);
+            var priPos = lexes.getIndex();
+            var priLex = lexes.hasNext() ? lexes.next() : null;
+            while (priLex != null && lexes.hasNext()) {
+                final var nextPos = lexes.getIndex();
+                final var thisLex = lexes.next();
+                if (priLex.position().line - 1 < lineNr &&
+                        thisLex.position().line - 1 >= lineNr) {
+                    return priPos;
+                }
+                priPos = nextPos;
+                priLex = thisLex;
+            }
+            return 0;
+        } finally {
+            lexes.setIndex(start);
+        }
+    }
+
+    private static boolean isInString(LexList lexes, int lineNr, int index) {
+        int start = lexes.getIndex();
+        try {
+            lexes.setIndex(index);
             var priLex = lexes.hasNext() ? lexes.next() : null;
             while (priLex != null && lexes.hasNext()) {
                 final var thisLex = lexes.next();
@@ -83,14 +96,14 @@ public class TuriFormatter {
             }
             return false;
         } finally {
-            lexes.setIndex(index);
+            lexes.setIndex(start);
         }
     }
 
-    private static boolean isInComment(LexList lexes, int lineNr) {
-        int index = lexes.getIndex();
+    private static boolean isInComment(LexList lexes, int lineNr, int index) {
+        int start = lexes.getIndex();
         try {
-            lexes.setIndex(0);
+            lexes.setIndex(index);
             var priLex = lexes.hasNext() ? lexes.next() : null;
             while (priLex != null && lexes.hasNext()) {
                 final var thisLex = lexes.next();
@@ -103,7 +116,7 @@ public class TuriFormatter {
             }
             return false;
         } finally {
-            lexes.setIndex(index);
+            lexes.setIndex(start);
         }
     }
 
