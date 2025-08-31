@@ -1,5 +1,10 @@
 package ch.turic.lsp;
 
+import ch.turic.Input;
+import ch.turic.analyzer.Lex;
+import ch.turic.analyzer.LexList;
+import ch.turic.analyzer.Lexer;
+
 public class TuriFormatter {
 
     public static String formatDocument(String content) {
@@ -7,25 +12,36 @@ public class TuriFormatter {
             return content;
         }
 
-        String[] lines = content.split("\n", -1); // -1 to preserve empty lines at end
+        final var lexes = Lexer.try_analyze(Input.fromString(content));
+
+        String[] lines = content.split("\n", -1); // -1 to preserve empty lines at the end
         StringBuilder result = new StringBuilder();
         int indentLevel = 0;
-        boolean nextLineIndentedFromColon = false; // Track if next line should be indented due to colon
+        boolean inString = false;
+        boolean inComment = false;
+        boolean nextLineIndentedFromColon = false; // Track if the next line should be indented due to colon
 
         for (int i = 0; i < lines.length; i++) {
-            String line = lines[i];
-
+            final var line = lines[i];
+            inString = isInString( lexes, i);
+            inComment = isInComment( lexes, i);
+            
+            final var newIndentLevel = calculateNewIndentLevel(line, indentLevel);
+            if (newIndentLevel < indentLevel) {
+                indentLevel = newIndentLevel;
+            }
+            char lastChar = getLastNonSpaceChar(line);
             // Apply extra indent for colon if needed
             int currentIndent = indentLevel + (nextLineIndentedFromColon ? 1 : 0);
-            String formattedLine = formatLine(line, currentIndent);
+            var formattedLine = formatLine(line, currentIndent, inString, inComment);
 
             // Reset colon indent flag after applying it
             nextLineIndentedFromColon = false;
 
+            indentLevel = newIndentLevel;
             // Check if we need to adjust indent for next line
-            String trimmedFormatted = formattedLine.trim();
-            if (!trimmedFormatted.isEmpty()) {
-                char lastChar = getLastNonSpaceChar(formattedLine);
+            if (!formattedLine.isEmpty()) {
+
                 if (lastChar == '{' || lastChar == '(' || lastChar == '[') {
                     indentLevel++;
                 } else if (lastChar == ':') {
@@ -34,16 +50,14 @@ public class TuriFormatter {
                 }
             }
 
-            // Check if current line should decrease indent (closing brackets)
-            if (!trimmedFormatted.isEmpty()) {
-                char firstChar = trimmedFormatted.charAt(0);
+            // Check if the current line should decrease indent (closing brackets)
+            if (!formattedLine.isBlank()) {
+                char firstChar = formattedLine.stripLeading().charAt(0);
                 if (firstChar == '}' || firstChar == ')' || firstChar == ']') {
-                    indentLevel = Math.max(0, indentLevel - 1);
-                    // Re-format the line with correct indent (no colon indent for closing brackets)
-                    formattedLine = formatLine(line, indentLevel);
+                    // Re-format the line with the correct indent (no colon indent for closing brackets)
+                    formattedLine = formatLine(line, indentLevel, inString, inComment);
                 }
             }
-
             result.append(formattedLine);
             if (i < lines.length - 1) {
                 result.append("\n");
@@ -53,32 +67,81 @@ public class TuriFormatter {
         return result.toString();
     }
 
-    private static String formatLine(String line, int indentLevel) {
-        if (line.trim().isEmpty()) {
-            return ""; // Empty lines become completely empty
+    private static boolean isInString(LexList lexes, int lineNr) {
+        int index = lexes.getIndex();
+        try {
+            lexes.setIndex(0);
+            var priLex = lexes.hasNext() ? lexes.next() : null;
+            while (priLex != null && lexes.hasNext()) {
+                final var thisLex = lexes.next();
+                if (priLex.type() == Lex.Type.STRING &&
+                        priLex.position().line - 1 < lineNr &&
+                        thisLex.position().line - 1 >= lineNr) {
+                    return true;
+                }
+                priLex = thisLex;
+            }
+            return false;
+        } finally {
+            lexes.setIndex(index);
         }
-
-        // Convert tabs to spaces (align to next 4th character)
-        String expandedTabs = expandTabs(line);
-
-        // Parse the line to separate code from comments
-        LineContent parsed = parseLineContent(expandedTabs);
-
-        // Format the code part (trim trailing spaces, apply indentation)
-        String formattedCode = parsed.code.replaceAll("\\s+$", ""); // Remove trailing spaces
-
-        // Apply indentation (4 spaces per level)
-        String indent = "    ".repeat(indentLevel);
-        String trimmedCode = formattedCode.trim();
-
-        if (trimmedCode.isEmpty()) {
-            return parsed.comment.isEmpty() ? "" : indent + parsed.comment;
-        }
-
-        return indent + trimmedCode + parsed.comment;
     }
 
-    private static  String expandTabs(String line) {
+    private static boolean isInComment(LexList lexes, int lineNr) {
+        int index = lexes.getIndex();
+        try {
+            lexes.setIndex(0);
+            var priLex = lexes.hasNext() ? lexes.next() : null;
+            while (priLex != null && lexes.hasNext()) {
+                final var thisLex = lexes.next();
+                if (priLex.type() == Lex.Type.COMMENT &&
+                        priLex.position().line - 1 < lineNr &&
+                        thisLex.position().line - 1 >= lineNr) {
+                    return true;
+                }
+                priLex = thisLex;
+            }
+            return false;
+        } finally {
+            lexes.setIndex(index);
+        }
+    }
+
+    /**
+     * Calculates the new indentation level based on the given formatted line and current indentation level.
+     * Adjusts the level based on the presence of opening and closing braces, parentheses, and brackets.
+     *
+     * @param formattedLine the line of text to analyze for indentation changes
+     * @param indentLevel   the current indentation level before analyzing the line
+     * @return the updated indentation level after analyzing the line
+     */
+    private static int calculateNewIndentLevel(String formattedLine, int indentLevel) {
+        for (int k = 0; k < formattedLine.length(); k++) {
+            final var c = formattedLine.charAt(k);
+            if (c == '}' || c == ')' || c == ']') {
+                indentLevel = Math.max(0, indentLevel - 1);
+            }
+            if (c == '{' || c == '(' || c == '[') {
+                indentLevel++;
+            }
+        }
+        return indentLevel;
+    }
+
+    private static String formatLine(String line, int indentLevel, boolean inString, boolean inComment) {
+        // if we are in a multi-line string, we do not even extend the tabs to spaces
+        if (inString) {
+            return line;
+        }
+        String expandedTabs = expandTabs(line);
+        if (inComment) {
+            return "    ".repeat(indentLevel) + " " + expandedTabs.trim();
+        }
+        // Convert tabs to spaces (align to next 4th character)
+        return "    ".repeat(indentLevel) + expandedTabs.trim();
+    }
+
+    private static String expandTabs(String line) {
         StringBuilder result = new StringBuilder();
         int column = 0;
 
@@ -107,6 +170,13 @@ public class TuriFormatter {
         }
     }
 
+    /**
+     * Parses a line of text and separates it into code and comment components.
+     * Identifies and handles line comments, block comments, and nested block comments.
+     *
+     * @param line the input line of text to be parsed
+     * @return a LineContent object containing the code and comment extracted from the input line
+     */
     private static LineContent parseLineContent(String line) {
         StringBuilder code = new StringBuilder();
         String comment = "";
@@ -118,25 +188,7 @@ public class TuriFormatter {
             char current = line.charAt(i);
             char next = (i + 1 < line.length()) ? line.charAt(i + 1) : '\0';
 
-            if (!inBlockComment) {
-                // Check for start of line comment
-                if (current == '/' && next == '/') {
-                    comment = line.substring(i);
-                    break;
-                }
-                // Check for start of block comment
-                else if (current == '/' && next == '*') {
-                    inBlockComment = true;
-                    blockCommentDepth = 1;
-                    code.append(current).append(next);
-                    i += 2;
-                    continue;
-                }
-                // Regular code character
-                else {
-                    code.append(current);
-                }
-            } else {
+            if (inBlockComment) {
                 // Inside block comment
                 code.append(current);
 
@@ -156,6 +208,24 @@ public class TuriFormatter {
                     code.append(next);
                     i += 2;
                     continue;
+                }
+            } else {
+                // Check for start of line comment
+                if (current == '/' && next == '/') {
+                    comment = line.substring(i);
+                    break;
+                }
+                // Check for start of block comment
+                else if (current == '/' && next == '*') {
+                    inBlockComment = true;
+                    blockCommentDepth = 1;
+                    code.append(current).append(next);
+                    i += 2;
+                    continue;
+                }
+                // Regular code character
+                else {
+                    code.append(current);
                 }
             }
 

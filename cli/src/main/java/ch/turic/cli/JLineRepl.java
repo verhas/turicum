@@ -232,7 +232,7 @@ public class JLineRepl {
 
     private static SyntaxState countBraces(String s) {
         try {
-            final var lexes = Lexer.analyze((ch.turic.analyzer.Input)Input.fromString(s));
+            final var lexes = Lexer.analyze(Input.fromString(s));
             final var braces = new ArrayList<Lex>();
             while (lexes.hasNext()) {
                 if (lexes.is("{", "(", "[")) {

@@ -7,6 +7,10 @@ import org.eclipse.lsp4j.TextDocumentContentChangeEvent;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Manages a collection of text documents identified by their URI.
+ * Provides operations to store, retrieve, remove, and apply changes to document content.
+ */
 public class DocumentManager {
     private final Map<String, String> documents = new ConcurrentHashMap<>();
 

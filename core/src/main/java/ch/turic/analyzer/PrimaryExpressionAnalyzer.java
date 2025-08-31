@@ -125,15 +125,16 @@ public class PrimaryExpressionAnalyzer extends AbstractAnalyzer {
             return getAccessOrCall(lexes, new Identifier(lex.text()), true);
         }
         final var lex = lexes.next();
+        try{
         return switch (lex.type()) {
             case IDENTIFIER -> getAccessOrCall(lexes, new Identifier(lex.text()), false);
             case STRING -> getAccessOrCall(lexes, new StringConstant(lex.text(), lex.interpolated), false);
             case INTEGER -> getAccessOrCall(lexes, new IntegerConstant(lex.text()), false);
             case FLOAT -> getAccessOrCall(lexes, new FloatConstant(lex.text()), false);
             default -> throw lexes.syntaxError("Expression: expected identifier, or constant, got '%s'", lex.text());
+        };}catch(ExecutionException ee){
+            throw lexes.syntaxError(ee.getMessage());
         }
-
-                ;
     }
 
     /**
@@ -174,8 +175,8 @@ public class PrimaryExpressionAnalyzer extends AbstractAnalyzer {
      * parentheses, dots, optional chaining, or array indexing to chain accesses or calls
      * until no further valid tokens remain.
      *
-     * @param lexes the list of lexical tokens to analyze, positioned at or after the base expression
-     * @param left the base expression to which access or function calls will be applied
+     * @param lexes       the list of lexical tokens to analyze, positioned at or after the base expression
+     * @param left        the base expression to which access or function calls will be applied
      * @param isDecorator a flag indicating whether the context of parsing involves a decorator
      * @return a {@code Command} representing the parsed access or function call expression
      * @throws BadSyntax if the token sequence contains syntax errors or unexpected tokens

@@ -6,8 +6,6 @@ import org.eclipse.lsp4j.*;
 import org.eclipse.lsp4j.services.LanguageClient;
 
 import java.util.*;
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
 
 public class TuriSyntaxErrorReporter {
     private final LanguageClient client;
@@ -82,8 +80,10 @@ public class TuriSyntaxErrorReporter {
 
         for (int i = 0; i < line.length(); i++) {
             char c = line.charAt(i);
-
-            if (c == '"' && (i == 0 || line.charAt(i - 1) != '\\')) {
+            if (i > 0 && line.charAt(i - 1) == '\\' && c == '"') {
+                continue;
+            }
+            if (c == '"' && (i < line.length() - 2 ? (line.charAt(i + 1) != '"' || line.charAt(i + 2) != '"') : true)) {
                 if (!inString) {
                     inString = true;
                     stringStart = i;
@@ -109,16 +109,16 @@ public class TuriSyntaxErrorReporter {
         try {
             Interpreter interpreter = new Interpreter(content);
             interpreter.compile();
-        }catch (BadSyntax bs){
+        } catch (BadSyntax bs) {
             final var line = bs.getPosition().line;
             final var column = bs.getPosition().column;
             int i = bs.getMessage().indexOf("\n");
-            if( i == -1 ){
+            if (i == -1) {
                 i = bs.getMessage().length();
             }
             diagnostics.add(createDiagnostic(
-                    line-1, column, column + 2,
-                    bs.getMessage().substring(0,i),
+                    line - 1, column, column + 2,
+                    bs.getMessage().substring(0, i),
                     DiagnosticSeverity.Error
             ));
         }

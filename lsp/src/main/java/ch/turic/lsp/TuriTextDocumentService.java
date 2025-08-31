@@ -3,8 +3,6 @@ package ch.turic.lsp;
 import ch.turic.analyzer.Input;
 import ch.turic.analyzer.Lex;
 import ch.turic.analyzer.Lexer;
-import ch.turic.analyzer.StringFetcher;
-import ch.turic.builtins.functions.Str;
 import org.eclipse.lsp4j.*;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.LanguageClient;
@@ -17,6 +15,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 // Text Document Service - handles document-related operations
 class TuriTextDocumentService implements TextDocumentService {
@@ -120,7 +120,7 @@ class TuriTextDocumentService implements TextDocumentService {
     private void resolveFunctionDetails(CompletionItem item) {
         String functionName = item.getLabel();
         final var cData = (CompletionData) item.getData();
-        final var source = documentManager.getContent(cData.uri);
+        final var source = documentManager.getContent(cData.uri());
         Map<String, FunctionInfo> functions = getFunctionDatabase(source, functionName);
         FunctionInfo info = functions.get(functionName);
 
@@ -308,105 +308,14 @@ class TuriTextDocumentService implements TextDocumentService {
         return docs;
     }
 
+    private static final Executor VIRTUAL_EXECUTOR = Executors.newThreadPerTaskExecutor(Thread.ofVirtual().factory());
+
     @Override
     public CompletableFuture<Either<List<CompletionItem>, CompletionList>> completion(CompletionParams params) {
-        final var uri = params.getTextDocument().getUri();
-        final var source = documentManager.getContent(uri);
-        final var position = params.getPosition();
-        final var lines = source.split("\n", -1);
-        final var line = lines[position.getLine()];
-        String fraction;
-        if (!line.isEmpty()) {
-            // find the start of the identifier if we are standing on something that looks like an id
-            int j = position.getCharacter();
-            if (j >= line.length()) {
-                j--;
-            }
-            while (j >= 0 && (line.charAt(j) == '_' || Character.isAlphabetic(line.charAt(j)) || Character.isDigit(line.charAt(j)))) {
-                j--;
-            }
-            fraction = line.substring(j);
-        } else {
-            fraction = "";
-        }
-        final var input = new Input(new StringBuilder(fraction), uri);
-        List<CompletionItem> items = new ArrayList<>();
-
-        final String startString;
-        if (input.charAt(0) == '`') {
-            startString = StringFetcher.fetchId(input);
-        } else if (input.charAt(0) == '_' || Character.isAlphabetic(input.charAt(0))) {
-            startString = input.fetchId();
-        } else {
-            startString = input.substring(0, 1);
-        }
-        final var lexer = Lexer.try_analyze(new Input(new StringBuilder(source), uri));
-        final var ids = new HashSet<String>();
-        while (lexer.hasNext()) {
-            final var lex = lexer.next();
-            if (lex.type() == Lex.Type.IDENTIFIER && lex.text().equals(startString)) {
-                if (!ids.contains(lex.text())) {
-                    ids.add(lex.text());
-                    final var item = new CompletionItem(lex.text());
-                    item.setKind(CompletionItemKind.Variable);
-                    item.setInsertText(lex.text());
-                    item.setSortText(lex.text());
-                    item.setFilterText(lex.text());
-                    item.setDocumentation(new MarkupContent(MarkupKind.MARKDOWN, "identifier"));
-                    item.setData(new CompletionData(uri));
-                    items.add(item);
-                }
-
-            }
-        }
-
-        // Auto-completion logic
-        CompletionItem item;
-        for (final var kw : Lexer.RESERVED) {
-            item = new CompletionItem("keyword");
-            item.setKind(CompletionItemKind.Keyword);
-            item.setDetail("");
-            item.setInsertText(kw);
-            item.setInsertTextFormat(InsertTextFormat.Snippet);
-            items.add(item);
-        }
-
-        item = new CompletionItem("class");
-        item.setKind(CompletionItemKind.Class);
-        item.setDetail("Create a new class");
-        item.setInsertText("class ${1:name} : ${2:parents} {\n\t$0\n}");
-        item.setInsertTextFormat(InsertTextFormat.Snippet);
-        items.add(item);
-
-        item = new CompletionItem("initializer");
-        item.setKind(CompletionItemKind.Constructor);
-        item.setDetail("Create a new initializer");
-        item.setInsertText("fn init( ${1:fields}) {\n\t$0\n}");
-        item.setInsertTextFormat(InsertTextFormat.Snippet);
-        items.add(item);
-
-        item = new CompletionItem("variable");
-        item.setKind(CompletionItemKind.Variable);
-        item.setDetail("Declare a variable");
-        item.setInsertText("mut ${1:name} = $0;");
-        item.setInsertTextFormat(InsertTextFormat.Snippet);
-        items.add(item);
-
-        item = new CompletionItem("constant");
-        item.setKind(CompletionItemKind.Constant);
-        item.setDetail("Declare a variable");
-        item.setInsertText("let ${1:name} = $0;");
-        item.setInsertTextFormat(InsertTextFormat.Snippet);
-        items.add(item);
-
-        for (final var i : items) {
-            i.setData(new CompletionData(params.getTextDocument().getUri()));
-        }
-
-        return CompletableFuture.completedFuture(Either.forLeft(items));
-    }
-
-    private record CompletionData(String uri) {
+        return CompletableFuture.supplyAsync(() -> {
+            var list = new TuriCompletion(documentManager).completion_synch(params);
+            return Either.<List<CompletionItem>, CompletionList>forLeft(list);
+        }, VIRTUAL_EXECUTOR);
     }
 
     @Override

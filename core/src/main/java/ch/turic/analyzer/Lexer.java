@@ -95,49 +95,73 @@ public class Lexer {
      */
     public static LexList analyze(Input in) throws BadSyntax {
         final var list = new ArrayList<Lex>();
-        return analyze_into(in, list);
+        return analyze_into(in, list, false);
     }
 
-    public static LexList try_analyze(Input in) throws BadSyntax {
+    public static LexList try_analyze(Input in) {
         final var list = new ArrayList<Lex>();
-        final var result = new LexList(list);
         try {
-            analyze_into(in, list);
+            analyze_into(in, list, true);
         } catch (BadSyntax bs) {
+            final var result = new LexList(list);
             result.setBs(bs);
+            return result;
         }
-        // return it anyway
-        return result;
+        return new LexList(list);
     }
 
 
-    private static LexList analyze_into(Input in, List<Lex> list) throws BadSyntax {
+    private static LexList analyze_into(Input in, List<Lex> list, boolean collectAll) throws BadSyntax {
         // honor the shebang
         if (in.startsWith("#!") == 0) {
+            final var p = in.position.clone();
+            final var sheBangLine = new StringBuilder();
             while (!in.isEmpty() && in.charAt(0) != '\n') {
+                sheBangLine.append(in.charAt(0));
                 in.skip(1);
+            }
+            if (collectAll) {
+                list.add(new Lex(Lex.Type.TEXT, sheBangLine.toString(), true, p));
             }
         }
+        boolean nextAtLineStart = false;
         while (!in.isEmpty()) {
-            final var position = in.position;
-            boolean atLineStart = false;// the first line start does not matter
-            while (!in.isEmpty() && (in.charAt(0) == '\n' || in.charAt(0) == '\r')) {
-                atLineStart = true;
+            boolean atLineStart = nextAtLineStart;// the first line start does not matter
+            final var position = in.position.clone();
+            if ((in.charAt(0) == '\n' || in.charAt(0) == '\r')) {
+                if (collectAll) {
+                    list.add(new Lex(Lex.Type.TEXT, in.substring(0, 1), atLineStart, position));
+                }
+                nextAtLineStart = true;
                 in.skip(1);
+                continue;
             }
-            while (!in.isEmpty() && Character.isWhitespace(in.charAt(0))) {
-                in.skip(1);
+
+            if (Character.isWhitespace(in.charAt(0))) {
+                final var sb = new StringBuilder();
+                while (!in.isEmpty() && Character.isWhitespace(in.charAt(0))) {
+                    sb.append(in.charAt(0));
+                    in.skip(1);
+                }
+                if (collectAll) {
+                    list.add(new Lex(Lex.Type.TEXT, sb.toString(), atLineStart, position));
+                }
+                continue;
             }
-            if (in.isEmpty()) {
-                break;
-            }
+            nextAtLineStart = false;
             if (in.length() >= 2 && in.charAt(0) == '/' && in.charAt(1) == '*') {
                 in.skip(2);
-                skipMLComment(in);
+                final var mlComment = fetchMLComment(in);
+                if (collectAll) {
+                    list.add(new Lex(Lex.Type.COMMENT, mlComment, atLineStart, position));
+                }
                 continue;
             }
             if (in.length() >= 2 && in.charAt(0) == '/' && in.charAt(1) == '/') {
-                skipComment(in);
+                final var comment = fetchComment(in);
+                if (collectAll) {
+                    list.add(new Lex(Lex.Type.TEXT, comment, atLineStart, position));
+                }
                 continue;
             }
             if (in.charAt(0) == '`') {
@@ -236,21 +260,25 @@ public class Lexer {
      *
      * @param in the input
      */
-    private static void skipMLComment(final Input in) {
+    private static String fetchMLComment(final Input in) {
+        final var sb = new StringBuilder("/*");
         while (in.length() >= 2 && (in.charAt(0) != '*' || in.charAt(1) != '/')) {
             if (in.charAt(0) == '/' && in.charAt(1) == '*') {
                 in.skip(2);
-                skipMLComment(in);
+                sb.append(fetchMLComment(in));
             } else {
+                sb.append(in.charAt(0));
                 in.skip(1);
             }
         }
+        sb.append("*/");
         if (!in.isEmpty()) {
             in.skip(1);
         }
         if (!in.isEmpty()) {
             in.skip(1);
         }
+        return sb.toString();
     }
 
     /**
@@ -258,9 +286,12 @@ public class Lexer {
      *
      * @param in the input
      */
-    private static void skipComment(final Input in) {
+    private static String fetchComment(final Input in) {
+        final var sb = new StringBuilder("//");
         while (!in.isEmpty() && in.charAt(0) != '\n') {
+            sb.append(in.charAt(0));
             in.skip(1);
         }
+        return sb.toString();
     }
 }

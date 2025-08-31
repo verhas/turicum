@@ -82,7 +82,10 @@ public class Lex implements HasFields {
     }
 
     public enum Type {
-        IDENTIFIER, RESERVED, STRING, INTEGER, FLOAT
+        IDENTIFIER, RESERVED, STRING, INTEGER, FLOAT,
+        // these are only collected when parsing for all
+        COMMENT, // the comment
+        TEXT // general text, which is not a comment, but ignored, currently only
     }
 
     public boolean is(String... textAlternatives) {

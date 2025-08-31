@@ -1,6 +1,6 @@
 package ch.turic.analyzer;
 
-public class Input implements ch.turic.Input, CharSequence {
+public final class Input implements ch.turic.Input, CharSequence {
 
     public final Pos position;
     private final StringBuilder builder;

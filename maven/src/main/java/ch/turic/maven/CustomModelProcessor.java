@@ -20,10 +20,7 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -68,7 +65,7 @@ public class CustomModelProcessor implements ModelProcessor {
      * @throws RuntimeException if the 'pom.turi' file is not found, cannot be processed,
      *                          cannot be formatted, or the output file cannot be written
      */
-    private void turi2Xml(final File directory) {
+    public static void turi2Xml(final File directory) {
         File turiFile = new File(directory, "pom.turi");
         if (!turiFile.exists()) {
             throw new RuntimeException("There is no 'pom.turi' file.");
@@ -108,7 +105,7 @@ public class CustomModelProcessor implements ModelProcessor {
      * @return a string representation of the throwable, including its message, stack trace,
      * causes, and suppressed exceptions.
      */
-    private String dumpException(Throwable e) {
+    private static String dumpException(Throwable e) {
         return dumpException(e, new HashSet<>());
     }
 
@@ -123,7 +120,7 @@ public class CustomModelProcessor implements ModelProcessor {
      * @return a string representation of the throwable, including its message and stack trace,
      * as well as information about its causes and suppressed exceptions.
      */
-    private String dumpException(Throwable e, Set<Throwable> processed) {
+    private static String dumpException(Throwable e, Set<Throwable> processed) {
         if (e == null || processed.contains(e)) {
             return "";
         }
@@ -153,7 +150,7 @@ public class CustomModelProcessor implements ModelProcessor {
      * @return the formatted XML string with proper indentation and encoding
      * @throws Exception if an error occurs during XML parsing or transformation
      */
-    private String formatOutput(String result) throws Exception {
+    private static String formatOutput(String result) throws Exception {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         dbf.setValidating(false);
         DocumentBuilder db = dbf.newDocumentBuilder();
@@ -190,8 +187,8 @@ public class CustomModelProcessor implements ModelProcessor {
      * @param input   the path from which the model data is read; must not be null
      * @param options a map of options that influence the model reading process; can be null
      * @return the constructed {@code Model} object based on the data read from the input
-     * @throws IOException          if an I/O error occurs while reading the input
-     * @throws ModelParseException  if the model cannot be parsed
+     * @throws IOException         if an I/O error occurs while reading the input
+     * @throws ModelParseException if the model cannot be parsed
      */
     @Override
     public Model read(Path input, Map<String, ?> options) throws IOException, ModelParseException {

@@ -1,11 +1,18 @@
 print "hello world"
 
 fn alma(a,b,c):num|any {
-
-}
-let alabama ;felhambra
-let alhambra
-let `class`
-let cliss
-let name = 1;let name = 2;
-`class` = 13;
+        """
+This is a multi line string
+    """
+        /*
+         * /*  sss
+         *       */
+         */
+        let alabama ;felhambra
+        let alhambra
+        let `class`
+        let cliss
+        let name = 1;let name = 2;
+        `class` = 13;
+    }
+    

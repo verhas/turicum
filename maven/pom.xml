@@ -70,6 +70,36 @@
         <dependency>
             <scope>provided</scope>
             <groupId>org.apache.maven</groupId>
+            <artifactId>maven-api-spi</artifactId>
+            <version>4.0.0-beta-4</version>
+        </dependency>
+        <dependency>
+            <scope>provided</scope>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-api-model</artifactId>
+            <version>4.0.0-beta-4</version>
+        </dependency>
+        <dependency>
+            <scope>provided</scope>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-api-core</artifactId>
+            <version>4.0.0-beta-4</version>
+        </dependency>
+        <dependency>
+            <scope>provided</scope>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-api-di</artifactId>
+            <version>4.0.0-beta-4</version>
+        </dependency>
+        <dependency>
+            <scope>provided</scope>
+            <groupId>jakarta.inject</groupId>
+            <artifactId>jakarta.inject-api</artifactId>
+            <version>2.0.1</version>
+        </dependency>
+        <dependency>
+            <scope>provided</scope>
+            <groupId>org.apache.maven</groupId>
             <artifactId>maven-core</artifactId>
             <version>4.0.0-beta-4</version>
         </dependency>

@@ -1,11 +1,11 @@
 message "Variable 'z' is undefined." 
 cause "none" 
 suppressed []" 
-try5.turi:3:9
+try5.turi:3:8
 source:         z = 55 // undefined variable
 try5.turi:2:3
 source: try{
-try5.turi:2:3
+try5.turi:2:0
 source: try{
-try5.turi:1:4
+try5.turi:1:1
 source: mut error:err|none
