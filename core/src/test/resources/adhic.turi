@@ -1,4 +1,4 @@
-print "hello world"
+print "hello world";
 (
     /**
      * Alma is a tree argument function.
@@ -7,15 +7,16 @@ print "hello world"
      * ```
      * will return either anything or a number. The return type is `num|any`
      */
+"dd"
     fn alma(a,b,c):num|any {
         """
 This is a multi-line string
     """
         /**
          * /*  sss
-         *       */
+      //   *       */
          */
-        
+    //    /*
         let alabama ;felhambra
         let alhambra
         let `class`

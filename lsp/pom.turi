@@ -3,59 +3,101 @@ sys_import "turi.maven"
 import "turicum_versions"
 
 let project = maven_project({
-    name: "Turicum-LSP",
-    artifactId: "turicum-lsp-server"
-    version: VERSION,
-    description: "Turicum LSP server",
-    parent: {
-        groupId: groupId,
-        artifactId: "turicum-parent",
-        version: VERSION
-    },
-    build: { 
-        plugins: [
-            maven_plugin("source"),
-            maven_plugin("javadoc"),
-            maven_plugin("compiler"),
-            maven_plugin("resources"),
-            {
-                groupId: "org.codehaus.plexus",
-                artifactId: "plexus-component-metadata",
-                version: "2.2.0",
-                executions: [
-                    {
-                        goals: [ "generate-metadata" ]
-                    }
-                ]
-            }
-        ]
-    },
-    dependencies: [
-        {
-            groupId: "ch.turic",
-            artifactId: "turicum",
+        name: "Turicum-LSP",
+        artifactId: "turicum-lsp-server"
+        version: VERSION,
+        description: "Turicum LSP server",
+        parent: {
+            groupId: groupId,
+            artifactId: "turicum-parent",
             version: VERSION
         },
-        {
-            groupId: "org.junit.jupiter",
-            artifactId: "junit-jupiter-api",
+        build: {
+            plugins: [
+                maven_plugin("source"),
+                maven_plugin("javadoc"),
+                maven_plugin("compiler"),
+                maven_plugin("resources"),
+                {
+                    groupId: "org.codehaus.plexus",
+                    artifactId: "plexus-component-metadata",
+                    version: "2.2.0",
+                    executions: [
+                        {
+                            goals: [ "generate-metadata" ]
+                        }
+                    ]
+                },
+                {
+                    groupId: "org.apache.maven.plugins",
+                    artifactId: "maven-shade-plugin",
+                    version: "3.5.1",
+                    executions: [
+                        {
+                            phase: "package",
+                            goals: [ "shade" ],
+                            configuration: {
+                                createDependencyReducedPom: false,
+                                shadedArtifactAttached: true,
+                                shadedClassifierName: "shaded",
+                                transformers: [
+                                    {
+                                        "@implementation": "org.apache.maven.plugins.shade.resource.ManifestResourceTransformer",
+                                        mainClass: "ch.turic.lsp.LSPServerMain"
+                                    },
+                                    {
+                                        "@implementation": "org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"
+                                    },
+                                    {
+                                        "@implementation": "org.apache.maven.plugins.shade.resource.ApacheNoticeResourceTransformer",
+                                        addHeader: false
+                                    },
+                                    {
+                                        "@implementation": "org.apache.maven.plugins.shade.resource.ApacheLicenseResourceTransformer"
+                                    }
+                                ],
+                                filters: [
+                                    {
+                                        artifact: "*:*",
+                                        excludes: [
+                                            "META-INF/*.SF",
+                                            "META-INF/*.DSA",
+                                            "META-INF/*.RSA"
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            ]
         },
-        {
-            groupId: "org.junit.jupiter",
-            artifactId: "junit-jupiter-engine",
-        },
-        {
-            groupId: "org.apache.maven",
-            artifactId: "maven-core",
-            version: `maven-core`,
-            scope: "provided",
-        },
-        {
-            groupId: "org.eclipse.lsp4j",
-            artifactId: "org.eclipse.lsp4j",
-            version: "0.24.0"
-        }
-    ]
+        dependencies: [
+            {
+                groupId: "ch.turic",
+                artifactId: "turicum",
+                version: VERSION
+            },
+            {
+                groupId: "org.junit.jupiter",
+                artifactId: "junit-jupiter-api",
+            },
+            {
+                groupId: "org.junit.jupiter",
+                artifactId: "junit-jupiter-engine",
+            },
+            {
+                groupId: "org.apache.maven",
+                artifactId: "maven-core",
+                version: `maven-core`,
+                scope: "provided",
+            },
+            {
+                groupId: "org.eclipse.lsp4j",
+                artifactId: "org.eclipse.lsp4j",
+                version: "0.24.0"
+            }
+        ]
 });
 project.properties = import("properties").properties;
 project.done();

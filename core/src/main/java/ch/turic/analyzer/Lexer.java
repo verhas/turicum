@@ -262,6 +262,7 @@ public class Lexer {
      */
     private static String fetchMLComment(final Input in) {
         final var sb = new StringBuilder("/*");
+        final var pos = in.position.clone();
         while (in.length() >= 2 && (in.charAt(0) != '*' || in.charAt(1) != '/')) {
             if (in.charAt(0) == '/' && in.charAt(1) == '*') {
                 in.skip(2);
@@ -270,6 +271,9 @@ public class Lexer {
                 sb.append(in.charAt(0));
                 in.skip(1);
             }
+        }
+        if( in.length() < 2){
+            throw new BadSyntax(pos, "Unclosed block comment");
         }
         sb.append("*/");
         if (!in.isEmpty()) {
