@@ -3,7 +3,7 @@
     <extension>
         <groupId>ch.turic</groupId>
         <artifactId>turicum-maven-extension</artifactId>
-        <version>1.4.1</version>
+        <version>1.4.0</version>
     </extension>
     <!--
     <extension>
