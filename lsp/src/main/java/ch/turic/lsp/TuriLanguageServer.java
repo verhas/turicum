@@ -4,6 +4,8 @@ import org.eclipse.lsp4j.services.*;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 // Main Language Server class
 public class TuriLanguageServer implements LanguageServer, LanguageClientAware {
@@ -44,6 +46,8 @@ public class TuriLanguageServer implements LanguageServer, LanguageClientAware {
         InitializeResult result = new InitializeResult(capabilities);
         return CompletableFuture.completedFuture(result);
     }
+    public static final Executor VIRTUAL_EXECUTOR = Executors.newThreadPerTaskExecutor(Thread.ofVirtual().factory());
+
 
     @Override
     public CompletableFuture<Object> shutdown() {

@@ -42,6 +42,9 @@ public class TuriCompletion {
     public List<CompletionItem> completion_synch(CompletionParams params) {
         final var uri = params.getTextDocument().getUri();
         final var source = documentManager.getContent(uri);
+        if( source == null ){
+            new CompletionItem();
+        }
         final var position = params.getPosition();
         List<CompletionItem> items = new ArrayList<>();
         final String startString = TuricUtils.getWordAtPosition(source, position, uri);
@@ -52,7 +55,7 @@ public class TuriCompletion {
         // add keywords
         CompletionItem item;
         for (final var kw : Lexer.RESERVED) {
-            item = new CompletionItem("keyword");
+            item = new CompletionItem(kw);
             item.setKind(CompletionItemKind.Keyword);
             item.setDetail("");
             item.setInsertText(kw);
@@ -69,7 +72,7 @@ public class TuriCompletion {
         items.add(Snippet.item("if", Keywords.IF, CompletionItemKind.Function, "if blocks", "if ${1:expression} {\n    ${2:block1}\n}else{\n   ${3:block2}\n}"));
         items.add(Snippet.item("if", Keywords.IF, CompletionItemKind.Function, "if statement", "if ${1:expression}: ${2:statement1} else: ${3:statement2};"));
         items.add(Snippet.item("try", Keywords.TRY, CompletionItemKind.Function, "try block", "try{\n    ${1:block}\n}catch ${2:exception}{\n    ${2:block_catch}\n}finally{\n    ${3:block_finally}}"));
-        items.add(Snippet.item("try", Keywords.TRY, CompletionItemKind.Function, "try statement", "try: ${1:block} catch ${2:exception}: ${2:catcher;"));
+        items.add(Snippet.item("try", Keywords.TRY, CompletionItemKind.Function, "try statement", "try: ${1:block} catch ${2:exception}: ${2:catcher};"));
 
         for (final var i : items) {
             i.setData(new CompletionData(params.getTextDocument().getUri()));

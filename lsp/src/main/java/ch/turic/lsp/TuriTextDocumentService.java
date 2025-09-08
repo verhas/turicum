@@ -13,14 +13,14 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 // Text Document Service - handles document-related operations
 class TuriTextDocumentService implements TextDocumentService {
-    private static final Executor VIRTUAL_EXECUTOR = Executors.newThreadPerTaskExecutor(Thread.ofVirtual().factory());
     final DocumentManager documentManager = new DocumentManager();
     private LanguageClient client;
     private TuriSyntaxErrorReporter errorReporter;
@@ -318,14 +318,14 @@ class TuriTextDocumentService implements TextDocumentService {
         return CompletableFuture.supplyAsync(() -> {
             var list = new TuriCompletion(documentManager).completion_synch(params);
             return Either.<List<CompletionItem>, CompletionList>forLeft(list);
-        }, VIRTUAL_EXECUTOR);
+        }, TuriLanguageServer.VIRTUAL_EXECUTOR);
     }
 
     @Override
     public CompletableFuture<Hover> hover(HoverParams params) {
         return CompletableFuture.supplyAsync(() -> {
             return new TuriHover(documentManager).hover_synch(params);
-        }, VIRTUAL_EXECUTOR);
+        }, TuriLanguageServer.VIRTUAL_EXECUTOR);
     }
 
     @Override
@@ -344,7 +344,11 @@ class TuriTextDocumentService implements TextDocumentService {
     public CompletableFuture<Either<List<? extends Location>, List<? extends LocationLink>>> definition(DefinitionParams params) {
         List<Location> locations = new ArrayList<>();
         try {
-            final var uri = new URI(params.getTextDocument().getUri());
+            String uriStr = params.getTextDocument().getUri();
+            if( !uriStr.startsWith("file:")){
+                return CompletableFuture.completedFuture(Either.forLeft(List.of()));
+            }
+            final var uri = new URI(uriStr);
             final var file = Paths.get(uri);
             final var source = new Input(new StringBuilder(Files.readString(file)), file.toString());
             final var lexes = Lexer.try_analyze(source);
@@ -415,7 +419,9 @@ class TuriTextDocumentService implements TextDocumentService {
     public CompletableFuture<List<? extends TextEdit>> formatting(DocumentFormattingParams params) {
         String uri = params.getTextDocument().getUri();
         String currentContent = documentManager.getContent(uri);
-
+        if (currentContent == null) {
+            return CompletableFuture.completedFuture(List.of());
+        }
         // Now format the current content
         String formattedContent = TuriFormatter.formatDocument(currentContent);
 

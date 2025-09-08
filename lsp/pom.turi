@@ -96,6 +96,11 @@ let project = maven_project({
                 groupId: "org.eclipse.lsp4j",
                 artifactId: "org.eclipse.lsp4j",
                 version: "0.24.0"
+            },
+            {
+                groupId: "org.eclipse.lsp4j",
+                artifactId: "org.eclipse.lsp4j.debug",
+                version: "0.24.0"
             }
         ]
 });

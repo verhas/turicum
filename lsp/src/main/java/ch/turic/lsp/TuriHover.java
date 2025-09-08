@@ -17,6 +17,9 @@ public class TuriHover {
         final var position = params.getPosition();
         final var uri = params.getTextDocument().getUri();
         final var source = documentManager.getContent(uri);
+        if( source == null ){
+            return new Hover();
+        }
         final String id = TuricUtils.getWordAtPosition(source, position, uri);
         if (id == null || id.isEmpty() || !Character.isAlphabetic(id.charAt(0))) {
             final var mc = new MarkupContent();

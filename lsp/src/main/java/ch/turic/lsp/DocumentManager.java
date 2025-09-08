@@ -17,6 +17,7 @@ public class DocumentManager {
     public void put(String uri, String content) {
         documents.put(uri, content);
     }
+
     public void remove(String uri) {
         documents.remove(uri);
     }
@@ -26,16 +27,19 @@ public class DocumentManager {
     }
 
     public void applyChange(String uri, TextDocumentContentChangeEvent change) {
-        String currentContent = documents.get(uri);
-        if (change.getRange() == null) {
-            // Full document update
-            documents.put(uri, change.getText());
-        } else {
-            // Incremental update - apply the change to the specific range
-            final var updatedContent = applyIncrementalChange(currentContent, change);
-            documents.put(uri, updatedContent);
+        final var currentContent = documents.get(uri);
+        if (currentContent != null) {
+            if (change.getRange() == null) {
+                // Full document update
+                documents.put(uri, change.getText());
+            } else {
+                // Incremental update - apply the change to the specific range
+                final var updatedContent = applyIncrementalChange(currentContent, change);
+                documents.put(uri, updatedContent);
+            }
         }
     }
+
     private String applyIncrementalChange(String content, TextDocumentContentChangeEvent change) {
         Range range = change.getRange();
         Position start = range.getStart();

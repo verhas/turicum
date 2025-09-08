@@ -26,7 +26,7 @@ public class TuriFormatter {
             boolean inString = isInString(lexes, i, index);
             boolean inComment = !inString && isInComment(lexes, i, index);
 
-            final var newIndentLevel = calculateNewIndentLevel(line, indentLevel);
+            final var newIndentLevel = calculateIndentLevel(lexes, i, indentLevel, index);
             if (newIndentLevel < indentLevel) {
                 indentLevel = newIndentLevel;
             }
@@ -104,15 +104,15 @@ public class TuriFormatter {
         int start = lexes.getIndex();
         try {
             lexes.setIndex(index);
-            var priLex = lexes.hasNext() ? lexes.next() : null;
-            while (priLex != null && lexes.hasNext()) {
-                final var thisLex = lexes.next();
-                if (priLex.type() == Lex.Type.COMMENT &&
-                        priLex.position().line - 1 < lineNr &&
-                        thisLex.position().line - 1 >= lineNr) {
+            var current = lexes.hasNext() ? lexes.next() : null;
+            while (current != null && lexes.hasNext()) {
+                final var next = lexes.next();
+                if (current.type() == Lex.Type.COMMENT &&
+                        current.position().line - 1 < lineNr &&
+                        next.position().line - 1 >= lineNr) {
                     return true;
                 }
-                priLex = thisLex;
+                current = next;
             }
             return false;
         } finally {
@@ -122,23 +122,44 @@ public class TuriFormatter {
 
     /**
      * Calculates the new indentation level based on the given formatted line and current indentation level.
-     * Adjusts the level based on the presence of opening and closing braces, parentheses, and brackets.
+     * <p>
+     * This indentation level will be AFTER the current line
      *
-     * @param formattedLine the line of text to analyze for indentation changes
-     * @param indentLevel   the current indentation level before analyzing the line
      * @return the updated indentation level after analyzing the line
      */
-    private static int calculateNewIndentLevel(String formattedLine, int indentLevel) {
-        for (int k = 0; k < formattedLine.length(); k++) {
-            final var c = formattedLine.charAt(k);
-            if (c == '}' || c == ')' || c == ']') {
-                indentLevel = Math.max(0, indentLevel - 1);
+    private static int calculateIndentLevel(LexList lexes, int lineNr, int indentLevel, int index) {
+        int start = lexes.getIndex();
+        try {
+            lexes.setIndex(index);
+            if (!lexes.hasNext()) {
+                return 0;
             }
-            if (c == '{' || c == '(' || c == '[') {
-                indentLevel++;
+            Lex lex = lexes.next();
+            while (true) {
+                if (lex.position().line - 1 > lineNr) {
+                    return indentLevel;
+                }
+                if (lex.type() == Lex.Type.RESERVED) {
+                    switch (lex.text()) {
+                        case "{", "(", "[":
+                            indentLevel++;
+                            break;
+                        case "}", ")", "]":
+                            indentLevel = Math.max(0, indentLevel - 1);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                if (lexes.hasNext()) {
+                    lex = lexes.next();
+                } else {
+                    return indentLevel;
+                }
             }
+        } finally {
+            lexes.setIndex(start);
         }
-        return indentLevel;
     }
 
     private static String formatLine(String line, int indentLevel, boolean inString, boolean inComment) {
@@ -146,12 +167,27 @@ public class TuriFormatter {
         if (inString) {
             return line;
         }
-        String expandedTabs = expandTabs(line);
+        var trimmed = expandTabs(line).trim();
         if (inComment) {
-            return "    ".repeat(indentLevel) + " " + expandedTabs.trim();
+            if (trimmed.isEmpty()) {
+                trimmed = "*";
+            } else {
+                if (!trimmed.startsWith("* ")) {
+                    if (trimmed.startsWith("*")) {
+                        if (!trimmed.startsWith("*/")) {
+                            trimmed = "* " + trimmed.substring(1);
+                        }
+                    } else {
+                        trimmed = "* " + trimmed;
+                    }
+                }
+            }
+            final var gutter = " "; // add an extra space to align the '*' characters
+            return "    ".repeat(indentLevel) +
+                    gutter + trimmed;
         }
         // Convert tabs to spaces (align to next 4th character)
-        return "    ".repeat(indentLevel) + expandedTabs.trim();
+        return "    ".repeat(indentLevel) + trimmed.trim();
     }
 
     private static String expandTabs(String line) {
