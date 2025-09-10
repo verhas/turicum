@@ -570,8 +570,30 @@ for i=0 ; i < 8 ; i++ :
 
 // snippet string_safe_char_at
 for i=-3 ; i < 18 ; i++ :
-    print "alma ata".safe_char_at(i)
+    print "alma ata".safe_char_at(i);
 // end snippet
+
+// snippet string_ord
+println "a".ord()
+// end snippet
+
+// snippet delete
+let a = { a: 1 , b: 2, c: ["kedavra"], d:"avraka"}
+a.a = none // this does not delete the field
+println jsonify(a)
+delete a, a // delete the field a
+println jsonify(a)
+delete {13; 55; a }, b // the object is calculated
+delete a, "c" // string name for the field
+println jsonify(a)
+delete a, chr("c".ord()+1) // string calculated name
+println a
+try delete a, d catch e1 println e1  // was already deleted
+a.c = []
+try delete a.c, h catch e2 println e2
+// end snippet
+
+
 
 // snippet string_index_of
 println "alma ata".index_of("lma")
@@ -1693,11 +1715,11 @@ for each st in error.stack_trace {
 // end snippet
 
 // snippet try6
-try : (mut a = 1;
+try (mut a = 1;
        mut b = 2;
        mut c = 1 / 0;
       )
-catch e : println e;
+catch e println e;
 
 println "Do we have a? ", is_defined(a)
 println "Do we have b? ", is_defined(b)

@@ -1,1 +1,1 @@
-
+for i=1000 ; i < 1020 ; i ++ : println chr(i)

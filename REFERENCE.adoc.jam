@@ -506,7 +506,7 @@ Other operators, like `+`, `-`, `*` and so on, which are defined for lists will 
 
 {%S objectAttachment%}
 
-Using this possibility, you can handle lists as objects, while the same time you can also access the individual elements.
+Using this possibility, you can handle lists as objects, while at the same time you can also access the individual elements.
 
 ==== Operators and Symbols
 
@@ -2247,7 +2247,7 @@ This is useful when you want to pass on parameters you got in the `rest` or `met
 
 [NOTE]
 ====
-Technically you can spread any value resulting from an expression that implements internally the `HasFields, or `Iterable<?>` interface.
+Technically, you can spread any value resulting from an expression that internally implements the `HasFields`, or ``Iterable<?>`` interface.
 
 Currently, the following classes implement the `HasField` interface:
 
@@ -2312,16 +2312,16 @@ If they were pinned like regular arguments, the object's fields would become per
 
 == Joker Method
 
-It is possible to define a special method in a class or attached to an object, named `pass[.]` (a single dot), which is automatically invoked when the code tries to call a method not defined in the object or class hierarchy.
+It is possible to define a special method in a class or attached to an object, named `pass:[.]` (a single dot), which is automatically invoked when the code tries to call a method not defined in the object or class hierarchy.
 
 {%S dot_method1%}
 
 It is a special tool for meta-programming.
-In this special method, you can access the name of the method used to invoke the joker method using the variable named  `pass[.]`.
+In this special method, you can access the name of the method used to invoke the joker method using the variable named  `pass:[.]`.
 
 {%S dot_method2%}
 
-Note that in this case this variable is a local variable inside the method execution.
+Note that in this case, this variable is a local variable inside the method execution.
 You can still access the method itself via the `this` reference:
 
 {%S dot_method3%}
@@ -2559,26 +2559,25 @@ An exception has
 
 Try is very similar to Java `try`-`catch`-`finally`.
 The command `try` tries to execute a block.
-If an exception happens it executes the block following the keyword `catch`.
-At the end it executes the block following the `finally` keyword.
-
+If an exception happens, it executes the block following the keyword `catch`.
 The syntax of the command is
 
 [source]
 ----
-try ( ':' COMMAND | BLOCK ) [catch [exception_variable] (':' COMMAND | BLOCK)] [finally (':' COMMAND | BLOCK)]
+try ( [':'] COMMAND | BLOCK ) [catch [exception_variable] ([':'] COMMAND | BLOCK)] [finally ([':'] COMMAND | BLOCK)]
 ----
 
 The command is executed in the same context as the whole try-catch command.
 If, however, a block between `+{+` and `+}+` is used, it will create its own context.
-In this case the use of the `:` is optional and is also discouraged, as clutter.
+The use of the `:` is optional and is also discouraged as clutter.
+It is provided to let it have the same structure as the conditional and loop commands.
 
-If there is an exception variable specified, it will be defined when the exception is caught.
-This is same as defining a variable using the `let` command.
+If an exception variable is specified, it will be defined when the exception is caught.
+This is equivalent to defining a variable using the `let` command.
 It will hold the value of the exception during the execution of the catch part and after the whole try-catch command.
-If there was no exception the value of this variable will be `none`.
+If there were no exceptions, the value of this variable will be `none`.
 
-The exception variable can be defined as `catch(e)` with parentheses to be a bit more familiar for Java developers.
+The exception variable can be defined as `catch(e)` with parentheses to make it more familiar to Java developers.
 
 If an exception happens, the execution of the try command stops, the exception variable will get the exception object and the catch block starts to execute.
 The exception variable is not available during the execution of the try command.
@@ -3138,6 +3137,10 @@ If the argument contains some wild card characters, then the result will be an o
 Converts the argument to a string.
 Similar to the `to_string()` method, but it works safely on any value and in some situations it may be more readable.
 
+=== `chr`
+
+Converts a number interpreted as a Unicode code point to a one-character string.
+
 === `len`
 
 This function returns the length of the argument.
@@ -3448,6 +3451,19 @@ For example:
 {%S unlet%}
 
 Without the call to `unlet`, the class would also have the variable `obj` as a field.
+
+=== `delete`
+
+`delete` is a macro to delete a field from an object.
+The macro should have exactly two arguments.
+
+* The first argument is evaluated, and it has to be an object.
+
+* The second argument has to be an identifier or a string that results in a field name.
+
+It is an error if there is no such field in the object or if the first argument is not an object.
+
+{%S delete%}
 
 === `is_obj`
 

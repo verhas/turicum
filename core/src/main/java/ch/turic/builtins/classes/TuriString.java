@@ -77,7 +77,7 @@ public class TuriString implements TuriClass {
                     });
             case "pad_left" ->
                 // add characters on the left of the string to get the desired length.
-                // You can specify only the number of the characters to pad with spaces.
+                // You can specify only the number of characters to pad with spaces.
                 // Alternatively, you can also specify a string and the desired total length of the result.
                 // The string is supposed to be a single character, but it can be any length.
                 // If the necessary number of padding characters is not the multiple of string length, the resulting string may be shorter than desired.
@@ -616,10 +616,10 @@ public class TuriString implements TuriClass {
                             splitter = args[0].toString();
                         }
                         final var limits = new int[args.length - 1];
-                        for( int i = 1; i < args.length; i++ ) {
-                            limits[i-1] = Cast.toLong(args[i]).intValue();
+                        for (int i = 1; i < args.length; i++) {
+                            limits[i - 1] = Cast.toLong(args[i]).intValue();
                         }
-                        return StringUtils.msplit(string, 0,splitter,limits);
+                        return StringUtils.msplit(string, 0, splitter, limits);
                     });
             case "bytes" ->
                 // return a list that contains the bytes of the string using UTF-8 character encoding.
@@ -659,6 +659,15 @@ public class TuriString implements TuriClass {
                             return "";
                         }
                         return "" + string.charAt(index);
+                    });
+            case "ord" ->
+                // return the Unicode code point of the first character of the string.
+                // {%S string_ord%}
+                    new TuriMethod<>((args) -> {
+                        if (string.isEmpty()) {
+                            throw new ExecutionException("ord() needs a non-empty string");
+                        }
+                        return Character.codePointAt(string, 0);
                     });
             case "index_of" ->
                 // return the first position of the argument string, or -1 if the argument string cannot be found in the original string.

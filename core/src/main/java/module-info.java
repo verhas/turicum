@@ -23,10 +23,10 @@ module ch.turic {
             MathFunctions.GetExponent, MathFunctions.Hypot, MathFunctions.IEEERemainder,
             MathFunctions.NextAfter, MathFunctions.NextDown,
             MathFunctions.NextUp, MathFunctions.Random, MathFunctions.ToInt, MathFunctions.ToFloat, MathFunctions.Rint, MathFunctions.Round,
-            MathFunctions.SigNum, MathFunctions.Ulp, IdHash,
+            MathFunctions.SigNum, MathFunctions.Ulp, IdHash, Chr,
             Unthunk, Unwrap, BlockList, Command, Min, Max, MathFunctions.Pow, MathFunctions.Scalb, Env,
             TuriHttpClient, Jsonify, JsonifyBeauty, Str, Glob, SourceDirectory, Arity, Signature,
             Uncurry, IsCurried, CurriedArity, Enumerate, JavaClass;
-    provides ch.turic.TuriMacro with Export, IsDefined, Unlet, Thunk, Import, SysImport;
+    provides ch.turic.TuriMacro with Export, IsDefined, Unlet, Thunk, Import, SysImport,Delete;
     provides ch.turic.TuriClass with TuriString, TuriLong, TuriDouble, TuriIterator, TuriChannel, TuriInputStream, TuriInputStreamReader;
 }

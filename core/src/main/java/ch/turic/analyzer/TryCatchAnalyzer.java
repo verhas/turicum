@@ -42,7 +42,7 @@ public class TryCatchAnalyzer extends AbstractAnalyzer {
      * @return the name of the variable, or {@code null} if there is no variable
      */
     private String getExceptionVariableIdentifier(LexList lexes) {
-        // '(' and ')' around the exception name is optional to give a bit of ease for old style Java/C ... programmers
+        // '(' and ')' around the exception name are optional to provide some ease for old-style Java/C programmers.
         final var usesParen = lexes.is("(");
         if (usesParen) {
             lexes.next();
@@ -76,7 +76,7 @@ public class TryCatchAnalyzer extends AbstractAnalyzer {
             lexes.next();
             command = Objects.requireNonNullElse(CommandAnalyzer.INSTANCE.analyze(lexes), BlockCommand.EMPTY_BLOCK);
         } else {
-            throw lexes.syntaxError(": or {", "Expected ':' or '{'");
+            command = Objects.requireNonNullElse(CommandAnalyzer.INSTANCE.analyze(lexes), BlockCommand.EMPTY_BLOCK);
         }
         return command;
     }

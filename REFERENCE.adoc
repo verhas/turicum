@@ -89,6 +89,13 @@ The Turicum project configuration is
         <artifactId>turicum-maven-extension</artifactId>
         <version>1.4.0</version>
     </extension>
+    <!--
+    <extension>
+            <groupId>eu.maveniverse.maven.mason</groupId>
+            <artifactId>mason</artifactId>
+            <version>0.2.1</version>
+        </extension>
+        -->
 </extensions>
 
 ----
@@ -984,7 +991,7 @@ hello {Kukk: 2, cls: class B}, class B  [2, 3]
 
 
 
-Using this possibility, you can handle lists as objects, while the same time you can also access the individual elements.
+Using this possibility, you can handle lists as objects, while at the same time you can also access the individual elements.
 
 ==== Operators and Symbols
 
@@ -1649,15 +1656,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=7DF587EF
+h id=112F364D
 h after post increment: 1
 k: 0
-h id=6E57E95E
-k id=7DF587EF
+h id=5CCBEB64
+k id=112F364D
 h after pre increment: 2
 z: 2
-h id=2755D705
-z id=2755D705
+h id=6D9F7A80
+z id=6D9F7A80
 
 ----
 
@@ -1702,15 +1709,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=56DB847E
+h id=59252CB6
 h after post increment: 1
 k: 1
-h id=56DB847E
-k id=56DB847E
+h id=59252CB6
+k id=59252CB6
 h after pre increment: 2
 z: 2
-h id=56DB847E
-z id=56DB847E
+h id=59252CB6
+z id=59252CB6
 
 ----
 
@@ -1758,15 +1765,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=740ABB5
+h id=31D0E481
 h after post decrement: -1
 k: 0
-h id=560CBF1A
-k id=740ABB5
+h id=241E8EA6
+k id=31D0E481
 h after pre decrement: -2
 z: -2
-h id=5FE8B721
-z id=5FE8B721
+h id=542E560F
+z id=542E560F
 
 ----
 
@@ -1808,15 +1815,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=551A20D6
+h id=626C44E7
 h after post decrement: -1
 k: -1
-h id=551A20D6
-k id=551A20D6
+h id=626C44E7
+k id=626C44E7
 h after pre decrement: -2
 z: -2
-h id=551A20D6
-z id=551A20D6
+h id=626C44E7
+z id=626C44E7
 
 ----
 
@@ -3145,7 +3152,7 @@ print z.z, " already changed"
 .output of snippet `update_forbiden4`
 [source]
 ----
-Assigned value changed while calculating new value z[ch.turic.commands.StringConstant@2fab4aff]
+Assigned value changed while calculating new value z[ch.turic.commands.StringConstant@6a8658ff]
 12 already changed
 ----
 
@@ -4872,14 +4879,14 @@ execute("Thread 2",2)
 .output of snippet `channel_limit`
 [source]
 ----
-Thread 1 generated 3
-Thread 1 generated 5
-Thread 1 generated 7
-Thread 1 generated 11
  prime read 2
+Thread 1 generated 3
  prime read 3
+Thread 1 generated 5
  prime read 5
+Thread 1 generated 7
  prime read 7
+Thread 1 generated 11
 Thread 1 generated 13
 Thread 1 generated 17
 Thread 1 generated 19
@@ -4892,8 +4899,8 @@ Thread 2 generated 3
 Thread 2 generated 5
  prime read 5
 Thread 2 generated 7
- prime read 7
 Thread 2 generated 11
+ prime read 7
 Thread 2 generated 13
 stopping
 exception Task stopped.
@@ -4951,9 +4958,9 @@ println( (end-start)/1000000, "ms")
 [source]
 ----
 [1, 2, 3]
-313.539792ms
+315.774459ms
 []
-315.882792ms
+321.002042ms
 
 ----
 
@@ -5163,10 +5170,9 @@ a =3.6063454894655185
 a =3.6055513629176015
 a =3.6055512754639905
 a =3.6055512754639896
-a =3.6055512754639896
-sqrt(13) ≈ 3.6055512754639896
+sqrt(13) ≈ 3.6055512754639905
 sqrt(13) ≈ 3.605551275463989 calculated by java Math
-square ≈ 13.000000000000002
+square ≈ 13.000000000000009
 
 ----
 
@@ -5854,7 +5860,7 @@ This is useful when you want to pass on parameters you got in the `rest` or `met
 
 [NOTE]
 ====
-Technically you can spread any value resulting from an expression that implements internally the `HasFields, or `Iterable<?>` interface.
+Technically, you can spread any value resulting from an expression that internally implements the `HasFields`, or ``Iterable<?>`` interface.
 
 Currently, the following classes implement the `HasField` interface:
 
@@ -5941,7 +5947,7 @@ If they were pinned like regular arguments, the object's fields would become per
 
 == Joker Method
 
-It is possible to define a special method in a class or attached to an object, named `pass[.]` (a single dot), which is automatically invoked when the code tries to call a method not defined in the object or class hierarchy.
+It is possible to define a special method in a class or attached to an object, named `pass:[.]` (a single dot), which is automatically invoked when the code tries to call a method not defined in the object or class hierarchy.
 
 .source of snippet `dot_method1`
 
@@ -5968,7 +5974,7 @@ B(1,2,3).`we can write here anything`()
 
 
 It is a special tool for meta-programming.
-In this special method, you can access the name of the method used to invoke the joker method using the variable named  `pass[.]`.
+In this special method, you can access the name of the method used to invoke the joker method using the variable named  `pass:[.]`.
 
 .source of snippet `dot_method2`
 
@@ -5995,7 +6001,7 @@ we can write here anything
 
 
 
-Note that in this case this variable is a local variable inside the method execution.
+Note that in this case, this variable is a local variable inside the method execution.
 You can still access the method itself via the `this` reference:
 
 .source of snippet `dot_method3`
@@ -7024,13 +7030,13 @@ for each st in error.stack_trace {
 message "Variable 'z' is undefined." 
 cause "none" 
 suppressed []" 
-try4.turi:2:9
+try4.turi:2:8
 source:         z = 55 // undefined variable
 try4.turi:1:4
 source: try{
-try4.turi:1:4
+try4.turi:1:1
 source: try{
-try4.turi:1:4
+try4.turi:1:1
 source: try{
 
 ----
@@ -7041,26 +7047,25 @@ source: try{
 
 Try is very similar to Java `try`-`catch`-`finally`.
 The command `try` tries to execute a block.
-If an exception happens it executes the block following the keyword `catch`.
-At the end it executes the block following the `finally` keyword.
-
+If an exception happens, it executes the block following the keyword `catch`.
 The syntax of the command is
 
 [source]
 ----
-try ( ':' COMMAND | BLOCK ) [catch [exception_variable] (':' COMMAND | BLOCK)] [finally (':' COMMAND | BLOCK)]
+try ( [':'] COMMAND | BLOCK ) [catch [exception_variable] ([':'] COMMAND | BLOCK)] [finally ([':'] COMMAND | BLOCK)]
 ----
 
 The command is executed in the same context as the whole try-catch command.
 If, however, a block between `+{+` and `+}+` is used, it will create its own context.
-In this case the use of the `:` is optional and is also discouraged, as clutter.
+The use of the `:` is optional and is also discouraged as clutter.
+It is provided to let it have the same structure as the conditional and loop commands.
 
-If there is an exception variable specified, it will be defined when the exception is caught.
-This is same as defining a variable using the `let` command.
+If an exception variable is specified, it will be defined when the exception is caught.
+This is equivalent to defining a variable using the `let` command.
 It will hold the value of the exception during the execution of the catch part and after the whole try-catch command.
-If there was no exception the value of this variable will be `none`.
+If there were no exceptions, the value of this variable will be `none`.
 
-The exception variable can be defined as `catch(e)` with parentheses to be a bit more familiar for Java developers.
+The exception variable can be defined as `catch(e)` with parentheses to make it more familiar to Java developers.
 
 If an exception happens, the execution of the try command stops, the exception variable will get the exception object and the catch block starts to execute.
 The exception variable is not available during the execution of the try command.
@@ -7080,11 +7085,11 @@ Also note that the execution of the `try` command has an atomic nature.
 
 [source]
 ----
-try : (mut a = 1;
+try (mut a = 1;
        mut b = 2;
        mut c = 1 / 0;
       )
-catch e : println e;
+catch e println e;
 
 println "Do we have a? ", is_defined(a)
 println "Do we have b? ", is_defined(b)
@@ -7767,7 +7772,7 @@ alma
 
             * `pad_left` 
  add characters on the left of the string to get the desired length.
- You can specify only the number of the characters to pad with spaces.
+ You can specify only the number of characters to pad with spaces.
  Alternatively, you can also specify a string and the desired total length of the result.
  The string is supposed to be a single character, but it can be any length.
  If the necessary number of padding characters is not the multiple of string length, the resulting string may be shorter than desired.
@@ -9349,7 +9354,7 @@ alma ata
 [source]
 ----
 for i=-3 ; i < 18 ; i++ :
-    print "alma ata".safe_char_at(i)
+    print "alma ata".safe_char_at(i);
 
 ----
 +
@@ -9357,6 +9362,25 @@ for i=-3 ; i < 18 ; i++ :
 [source]
 ----
 alma ata
+----
+
+
+            * `ord` 
+ return the Unicode code point of the first character of the string.
+ 
++
+.source of snippet `string_ord`
+[source]
+----
+println "a".ord()
+
+----
++
+.output of snippet `string_ord`
+[source]
+----
+97
+
 ----
 
 
@@ -10119,7 +10143,7 @@ println m.absExact(int(-5))
 .output of snippet `java_class1`
 [source]
 ----
-5
+5.0
 5
 
 ----
@@ -10417,6 +10441,10 @@ println env("JAVA_*")
 Converts the argument to a string.
 Similar to the `to_string()` method, but it works safely on any value and in some situations it may be more readable.
 
+=== `chr`
+
+Converts a number interpreted as a Unicode code point to a one-character string.
+
 === `len`
 
 This function returns the length of the argument.
@@ -10530,7 +10558,7 @@ println nano_time()
 .output of snippet `nano_time`
 [source]
 ----
-495068762258333
+1532004191567083
 
 ----
 
@@ -11051,69 +11079,71 @@ none
 .output of snippet `que`
 [source]
 ----
-task1 is not ready 0
-task2 is ready 1
 task2 is not ready 0
-task1 is not ready 1
+task1 is ready 1
+task1 is not ready 0
 task2 is not ready 1
+task1 is not ready 1
 task1 is not ready 2
 task2 is not ready 2
+task2 is not ready 3
 task1 is ready 2
 task1 is not ready 0
-task2 is not ready 3
-task2 is not ready 4
 task1 is not ready 1
-task1 is not ready 2
+task2 is not ready 4
 task2 is not ready 5
+task1 is not ready 2
+task1 is not ready 3
 task2 is not ready 6
+task2 is not ready 7
 task1 is ready 3
 task1 is not ready 0
+task1 is not ready 1task2 is not ready 8
+
+task2 is not ready 9
+task1 is not ready 2
+task1 is not ready 3
+task2 is ready 4
+task2 is not ready 0
+task1 is not ready 4
+task2 is not ready 1
+task2 is not ready 2
+task1 is ready 5
+task1 is not ready 0
+task1 is not ready 1
+task2 is not ready 3
+task1 is not ready 2
+task2 is not ready 4
+task2 is not ready 5
+task1 is ready 6
+task1 is not ready 0
+task2 is not ready 6
 task1 is not ready 1
 task2 is not ready 7
 task1 is not ready 2
+task1 is not ready 3
 task2 is not ready 8
-task1 is ready 4
-task1 is not ready 0
 task2 is not ready 9
-task1 is not ready 1
+task1 is ready 7
+task1 is not ready 0
 task2 is not ready 10
-task2 is not ready 11
+task1 is not ready 1
 task1 is not ready 2
-task2 is ready 5
+task2 is ready 8
 task2 is not ready 0
 task1 is not ready 3
 task2 is not ready 1
 task1 is not ready 4
 task2 is not ready 2
-task1 is not ready 5
 task2 is not ready 3
-task1 is ready 6
+task1 is ready 9
 task1 is not ready 0
 task2 is not ready 4
 task1 is not ready 1
 task2 is not ready 5
 task1 is not ready 2
-task1 is ready 7
-task2 is not ready 6
-task1 is not ready 0
-task1 is not ready 1
-task2 is not ready 7
-task1 is not ready 2
-task2 is not ready 8
-task1 is ready 8
-task2 is not ready 9
-task1 is not ready 0
-task2 is not ready 10
-task1 is not ready 1
-task1 is not ready 2
-task2 is not ready 11
-task1 is not ready 3
-task2 is ready 9
-task2 is not ready 0
-task1 is not ready 4
-task2 is not ready 1
-task1 is not ready 5
-task2 is not ready 2
+task2 is not ready 6task1 is not ready 3
+
 closing the channel
 channel is closed
 1 is done false
@@ -11122,7 +11152,7 @@ we start to wait the first time
 task1 is done
 task2 is done
 task1 done true
-task2 done true
+task2 done false
 We start to wait the second time
 task1 done true
 task2 done true
@@ -11311,7 +11341,7 @@ println sleep(0.001) // sleep one milli
 .output of snippet `sleep`
 [source]
 ----
-0.002
+0.001
 
 ----
 
@@ -11374,6 +11404,7 @@ none
 [source]
 ----
 sending 1
+not ready 0
 received 1
 not ready 0
 not ready 1
@@ -11571,6 +11602,51 @@ println z
 
 
 Without the call to `unlet`, the class would also have the variable `obj` as a field.
+
+=== `delete`
+
+`delete` is a macro to delete a field from an object.
+The macro should have exactly two arguments.
+
+* The first argument is evaluated, and it has to be an object.
+
+* The second argument has to be an identifier or a string that results in a field name.
+
+It is an error if there is no such field in the object or if the first argument is not an object.
+
+.source of snippet `delete`
+
+[source]
+----
+let a = { a: 1 , b: 2, c: ["kedavra"], d:"avraka"}
+a.a = none // this does not delete the field
+println jsonify(a)
+delete a, a // delete the field a
+println jsonify(a)
+delete {13; 55; a }, b // the object is calculated
+delete a, "c" // string name for the field
+println jsonify(a)
+delete a, chr("c".ord()+1) // string calculated name
+println a
+try delete a, d catch e1 println e1  // was already deleted
+a.c = []
+try delete a.c, h catch e2 println e2
+
+----
+
+.output of snippet `delete`
+[source]
+----
+{"a":null,"b":2,"c":["kedavra"],"d":"avraka"}
+{"b":2,"c":["kedavra"],"d":"avraka"}
+{"d":"avraka"}
+{}
+Variable 'd' is not defined in the local context, you cannot unlet it.
+'[]' is not a valid object
+
+----
+
+
 
 === `is_obj`
 

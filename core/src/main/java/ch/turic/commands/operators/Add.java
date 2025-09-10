@@ -21,7 +21,7 @@ public class Add extends AbstractOperator {
     /**
      * Performs addition or merging based on operand types.
      * <p>
-     * If the left operand is a string, concatenates it with the right operand as a string (disallowing control flow values). If the left operand is a list, returns a new list with elements from both operands. If both operands are objects, returns a merged object combining their fields. For all other types, performs numeric addition.
+     * If the left operand is a string, it concatenates that with the right operand as a string (disallowing control flow values). If the left operand is a list, returns a new list with elements from both operands. If both operands are objects, returns a merged object combining their fields. For all other types, performs numeric addition.
      *
      * @param op1 the left operand
      * @param right the command producing the right operand

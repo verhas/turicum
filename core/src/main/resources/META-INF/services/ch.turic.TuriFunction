@@ -82,4 +82,5 @@ ch.turic.builtins.functions.IsCurried
 ch.turic.builtins.functions.CurriedArity
 ch.turic.builtins.functions.Enumerate
 ch.turic.builtins.functions.JavaClass
+ch.turic.builtins.functions.Chr
 
