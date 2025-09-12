@@ -1,1 +1,2 @@
-for i=1000 ; i < 1020 ; i ++ : println chr(i)
+mut z = 0xFfE3;
+println z

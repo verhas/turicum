@@ -7,7 +7,7 @@ import java.util.*;
 
 public class Lexer {
 
-    final static public Set<String> RESERVED = new HashSet<>(Set.of(
+    public static final Set<String> RESERVED = new HashSet<>(Set.of(
             Keywords.CLASS, Keywords.PIN, Keywords.FN, Keywords.LET, Keywords.GLOBAL, Keywords.IF, Keywords.ELSE,
             Keywords.ELSEIF, Keywords.DIE, Keywords.BREAK, Keywords.CONTINUE, Keywords.WHILE, Keywords.WITH, Keywords.UNTIL, Keywords.FOR, Keywords.FLOW,
             Keywords.EACH, Keywords.LIST, Keywords.IN, Keywords.RETURN, Keywords.YIELD, Keywords.WHEN, Keywords.TRY, Keywords.CATCH,
@@ -75,6 +75,14 @@ public class Lexer {
             "≤", "<=",
     };
 
+    /**
+     * Retrieves the ASCII representation of a given symbol, if available.
+     * Iterates through a predefined list of symbol mappings to find a match
+     * and returns its corresponding multi-character ASCII representation.
+     *
+     * @param ch the symbol whose Unicode representation is to be retrieved
+     * @return the Unicode representation of the given symbol if found; otherwise, null
+     */
     private static String getUnicodeSymbol(String ch) {
         for (int i = 0; i < uniSymbols.length; i += 2) {
             if (ch.equals(uniSymbols[i])) {
@@ -85,7 +93,7 @@ public class Lexer {
     }
 
     /****
-     * Performs lexical analysis on the provided input, converting source code text into a list of lexical tokens.
+     * Performs lexical analysis on the provided input, converting source code a into a list of lexical tokens.
      * <p>
      * This method recognizes and tokenizes reserved keywords, identifiers, operands, string and numeric literals, comments (including nested multi-line comments), Unicode keywords and symbols, and handles shebang lines. Throws a BadSyntax exception if an unexpected character is encountered.
      *
@@ -111,26 +119,38 @@ public class Lexer {
     }
 
 
+    /**
+     * Performs lexical analysis on the provided input, tokenizing the source code into lexical tokens
+     * and adding them to the provided list. Handles various types of tokens, including identifiers,
+     * reserved keywords, comments, strings, numbers, operators, and special symbols. The method
+     * also processes shebang lines and can handle nested multi-line comments.
+     *
+     * @param in         the input source to be analyzed
+     * @param list       the list to store the resulting Lex tokens
+     * @param collectAll a flag indicating whether to collect all tokens, including whitespace and comments
+     * @return a LexList containing the lexical tokens generated from the input source
+     * @throws BadSyntax if an unexpected character or syntax error is encountered
+     */
     private static LexList analyze_into(Input in, List<Lex> list, boolean collectAll) throws BadSyntax {
+        BadSyntax bs = null;
         // honor the shebang
-        if (in.startsWith("#!") == 0) {
+        if (in.startsWith("#!")) {
             final var p = in.position.clone();
             final var sheBangLine = new StringBuilder();
-            while (!in.isEmpty() && in.charAt(0) != '\n') {
-                sheBangLine.append(in.charAt(0));
-                in.skip(1);
+            while (in.startsWith("\n")) {
+                in.move(1, sheBangLine);
             }
             if (collectAll) {
-                list.add(new Lex(Lex.Type.TEXT, sheBangLine.toString(), true, p));
+                list.add(new Lex(Lex.Type.SPACES, sheBangLine.toString(), true, p));
             }
         }
         boolean nextAtLineStart = false;
         while (!in.isEmpty()) {
             boolean atLineStart = nextAtLineStart;// the first line start does not matter
             final var position = in.position.clone();
-            if ((in.charAt(0) == '\n' || in.charAt(0) == '\r')) {
+            if ((in.startsWith("\n") || in.startsWith("\r"))) {
                 if (collectAll) {
-                    list.add(new Lex(Lex.Type.TEXT, in.substring(0, 1), atLineStart, position));
+                    list.add(new Lex(Lex.Type.SPACES, in.substring(0, 1), atLineStart, position));
                 }
                 nextAtLineStart = true;
                 in.skip(1);
@@ -140,77 +160,82 @@ public class Lexer {
             if (Character.isWhitespace(in.charAt(0))) {
                 final var sb = new StringBuilder();
                 while (!in.isEmpty() && Character.isWhitespace(in.charAt(0))) {
-                    sb.append(in.charAt(0));
-                    in.skip(1);
+                    in.move(1, sb);
                 }
                 if (collectAll) {
-                    list.add(new Lex(Lex.Type.TEXT, sb.toString(), atLineStart, position));
+                    list.add(new Lex(Lex.Type.SPACES, sb.toString(), atLineStart, position));
                 }
                 continue;
             }
             nextAtLineStart = false;
-            if (in.length() >= 2 && in.charAt(0) == '/' && in.charAt(1) == '*') {
-                in.skip(2);
-                final var mlComment = fetchMLComment(in);
+            if (in.startsWith("/*")) {
+                final BadSyntax commentBS;
                 if (collectAll) {
-                    list.add(new Lex(Lex.Type.COMMENT, mlComment, atLineStart, position));
+                    final var sb = new StringBuilder();
+                    commentBS = fetchMLComment(in, sb);
+                    list.add(new Lex(Lex.Type.COMMENT, sb.toString(), atLineStart, position));
+                } else {
+                    commentBS = fetchMLComment(in, new StringBuilder());
+                }
+                if (bs == null) {
+                    bs = commentBS;
                 }
                 continue;
             }
-            if (in.length() >= 2 && in.charAt(0) == '/' && in.charAt(1) == '/') {
+            if (in.startsWith("//")) {
                 final var comment = fetchComment(in);
                 if (collectAll) {
-                    list.add(new Lex(Lex.Type.TEXT, comment, atLineStart, position));
+                    list.add(new Lex(Lex.Type.COMMENT, comment, atLineStart, position));
                 }
                 continue;
             }
-            if (in.charAt(0) == '`') {
-                final var id = StringFetcher.fetchId(in);
-                list.add(new Lex(Lex.Type.IDENTIFIER, id, atLineStart, position));
+            if (in.startsWith("`")) {
+                final var pair = StringFetcher.fetchQuotedId(in);
+                list.add(Lex.identifier(pair.a(), pair.b(), atLineStart, position));
                 continue;
             }
-            final var uniKeyword = getUnicodeKeyword("" + in.charAt(0));
+            final var uniKeyword = getUnicodeKeyword(in.substring(0, 1));
             if (uniKeyword != null) {
                 if (RESERVED.contains(uniKeyword)) {
-                    list.add(new Lex(Lex.Type.RESERVED, uniKeyword, atLineStart, position));
+                    list.add(Lex.reserved(uniKeyword, atLineStart, position));
                 } else {
-                    list.add(new Lex(Lex.Type.IDENTIFIER, uniKeyword, atLineStart, position));
+                    list.add(Lex.identifier(uniKeyword, atLineStart, position));
                 }
                 in.skip(1);
                 continue;
             }
-            int operandIndex = in.startsWith(OPERANDS);
+            int operandIndex = in.select(OPERANDS);
             if (operandIndex >= 0) {
-                final var lex = new Lex(Lex.Type.RESERVED, OPERANDS[operandIndex], atLineStart, position);
+                final var lex = Lex.reserved(OPERANDS[operandIndex], atLineStart, position);
                 list.add(lex);
                 in.skip(OPERANDS[operandIndex].length());
                 continue;
             }
             if (Input.validId1stChar(in.charAt(0))) {
-                final var id = in.fetchId();
+                final var id = StringFetcher.fetchId(in);
                 if (RESERVED.contains(id)) {
-                    list.add(new Lex(Lex.Type.RESERVED, id, atLineStart, position));
+                    list.add(Lex.reserved(id, atLineStart, position));
                 } else {
-                    list.add(new Lex(Lex.Type.IDENTIFIER, id, atLineStart, position));
+                    list.add(Lex.identifier(id, atLineStart, position));
                 }
                 continue;
             }
-            if (in.charAt(0) == '$' && in.length() >= 2 && in.charAt(1) == '"') {
+            if (in.startsWith("$\"")) {
                 in.skip(1);
-                final var str = ch.turic.analyzer.StringFetcher.getString(in);
-                final var lex = new Lex(Lex.Type.STRING, str, atLineStart, position, true);
+                final var pair = ch.turic.analyzer.StringFetcher.getPair(in);
+                final var lex = Lex.string(pair.a(), "$" + pair.b(), atLineStart, position);
                 list.add(lex);
                 continue;
             }
-            if (in.charAt(0) == '"') {
-                final var str = ch.turic.analyzer.StringFetcher.getString(in);
-                final var lex = new Lex(Lex.Type.STRING, str, atLineStart, position, false);
+            if (in.startsWith("\"")) {
+                final var pair = ch.turic.analyzer.StringFetcher.getPair(in);
+                final var lex = Lex.string(pair.a(), pair.b(), atLineStart, position);
                 list.add(lex);
                 continue;
             }
-            if (in.length() > 2 && in.charAt(0) == '0' && (in.charAt(1) == 'x' || in.charAt(1) == 'X')) {
-                final var str = new StringBuilder(in.substring(0, 2));
-                in.skip(2);
+            if (in.length() > 2 && (in.startsWithIgnoreCase("0x"))) {
+                final var str = new StringBuilder();
+                in.move(2, str);
                 str.append(in.fetchHexNumber());
                 final var lex = new Lex(Lex.Type.INTEGER, str.toString(), atLineStart, position);
                 list.add(lex);
@@ -220,18 +245,15 @@ public class Lexer {
                 final var str = new StringBuilder();
                 str.append(in.fetchNumber());
                 final Lex.Type type;
-                if (in.length() >= 2 && (in.charAt(0) == '.' && Character.isDigit(in.charAt(1))) || (!in.isEmpty() && (in.charAt(0) == 'e' || in.charAt(0) == 'E'))) {
-                    if (in.charAt(0) == '.') {
-                        str.append('.');
-                        in.skip(1);
+                if (in.length() >= 2 && (in.startsWith(".") && Character.isDigit(in.charAt(1))) || in.startsWithIgnoreCase("e")) {
+                    if (in.startsWith(".")) {
+                        in.move(1, str);
                         str.append(in.fetchNumber());
                     }
-                    if (!in.isEmpty() && (in.charAt(0) == 'e' || in.charAt(0) == 'E')) {
-                        str.append('e');
-                        in.skip(1);
-                        if (!in.isEmpty() && (in.charAt(0) == '+' || in.charAt(0) == '-')) {
-                            str.append(in.charAt(0));
-                            in.skip(1);
+                    if (in.startsWithIgnoreCase("e")) {
+                        in.move(1, str);
+                        if (in.startsWithEither("+", "-")) {
+                            in.move(1, str);
                         }
                         str.append(in.fetchNumber());
                     }
@@ -243,46 +265,60 @@ public class Lexer {
                 list.add(lex);
                 continue;
             }
-            final var uniSym = getUnicodeSymbol("" + in.charAt(0));
+            final var uniSym = getUnicodeSymbol(in.substring(0, 1));
             if (uniSym != null) {
-                final var lex = new Lex(Lex.Type.RESERVED, uniSym, atLineStart, position);
+                final var lex = Lex.reserved(uniSym, atLineStart, position);
                 list.add(lex);
                 in.skip(1);
                 continue;
             }
-            throw new BadSyntax(in.position, "Unexpected character '" + in.charAt(0) + "' in the input");
+            if (collectAll) {
+                list.add(Lex.character(in, atLineStart, position));
+                in.skip(1);
+                if (bs == null) {
+                    bs = new BadSyntax(in.position, "Unexpected character '" + in.charAt(0) + "' in the input");
+                }
+            } else {
+                throw new BadSyntax(in.position, "Unexpected character '" + in.charAt(0) + "' in the input");
+            }
+        }
+        if (bs != null) {
+            throw bs;
         }
         return new LexList(list);
     }
 
     /**
-     * Skip the multi-line comment, can be nested
+     * Parses and extracts a multi-line comment from the input, considering nested comments if present.
+     * The method appends the parsed comment content to the provided StringBuilder.
+     * If the comment is not closed correctly, it returns a BadSyntax exception.
+     * In this case, the comment in the builder will contain all the characters of the input from the `/*`
+     * till the end of the input.
      *
-     * @param in the input
+     * @param in the input source to be analyzed for the multi-line comment
+     * @param sb the StringBuilder to which the parsed comment content is appended
+     * @return null if the multi-line comment is successfully parsed, otherwise throws a BadSyntax exception
+     * for unclosed block comments
+     * @throws BadSyntax if the multi-line comment is unclosed or contains invalid syntax
      */
-    private static String fetchMLComment(final Input in) {
-        final var sb = new StringBuilder("/*");
+    private static BadSyntax fetchMLComment(final Input in, final StringBuilder sb) {
+        in.move(2, sb);
         final var pos = in.position.clone();
-        while (in.length() >= 2 && (in.charAt(0) != '*' || in.charAt(1) != '/')) {
-            if (in.charAt(0) == '/' && in.charAt(1) == '*') {
-                in.skip(2);
-                sb.append(fetchMLComment(in));
+        while (in.length() >= 2 && !in.startsWith("*/")) {
+            if (in.startsWith("/*")) {
+                final var bs = fetchMLComment(in, sb);
+                if (bs != null) {
+                    return bs;
+                }
             } else {
-                sb.append(in.charAt(0));
-                in.skip(1);
+                in.move(1, sb);
             }
         }
-        if( in.length() < 2){
-            throw new BadSyntax(pos, "Unclosed block comment");
+        if (in.length() < 2) {
+            return new BadSyntax(pos, "Unclosed block comment");
         }
-        sb.append("*/");
-        if (!in.isEmpty()) {
-            in.skip(1);
-        }
-        if (!in.isEmpty()) {
-            in.skip(1);
-        }
-        return sb.toString();
+        in.try_move(2, sb);
+        return null;
     }
 
     /**
@@ -291,10 +327,9 @@ public class Lexer {
      * @param in the input
      */
     private static String fetchComment(final Input in) {
-        final var sb = new StringBuilder("//");
-        while (!in.isEmpty() && in.charAt(0) != '\n') {
-            sb.append(in.charAt(0));
-            in.skip(1);
+        final var sb = new StringBuilder();
+        while (!in.isEmpty() && !in.startsWith("\n")) {
+            in.move(1, sb);
         }
         return sb.toString();
     }

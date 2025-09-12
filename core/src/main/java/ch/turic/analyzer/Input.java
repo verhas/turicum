@@ -1,5 +1,9 @@
 package ch.turic.analyzer;
 
+import java.util.Objects;
+
+import static ch.turic.utils.Require.require;
+
 public final class Input implements ch.turic.Input, CharSequence {
 
     public final Pos position;
@@ -55,7 +59,7 @@ public final class Input implements ch.turic.Input, CharSequence {
      * @throws NullPointerException      if {@code s} or any of its elements are {@code null}
      * @throws IndexOutOfBoundsException if any string in {@code s} is longer than the builder's content
      */
-    public int startsWith(final String... s) {
+    public int select(final String... s) {
         for (int i = 0; i < s.length; i++) {
             if (s[i].length() <= builder.length() && builder.subSequence(0, s[i].length()).equals(s[i])) return i;
         }
@@ -69,39 +73,60 @@ public final class Input implements ch.turic.Input, CharSequence {
     public String fetchHexNumber() {
         final var output = new StringBuilder();
         while (length() > 0 && isHex(charAt(0))) {
-            output.append(charAt(0));
-            skip(1);
+            move(1, output);
         }
         return output.toString();
     }
 
+
+    /**
+     * Checks if the internal {@code builder} starts with the given string.
+     * 
+     * @param s the string to check against the start of the {@code builder}'s content
+     * @return true if the builder starts with the given string, false otherwise
+     * @throws NullPointerException if {@code s} is {@code null}          
+     */
+    public boolean startsWith(String s) {
+        Objects.requireNonNull(s);
+        return s.length() <= builder.length() && builder.subSequence(0, s.length()).equals(s);
+    }
+
+    /**
+     * Checks if the internal {@code builder} starts with any of the given strings.
+     *
+     * @param s one or more strings to check against the start of the {@code builder}'s content
+     * @return true if the builder starts with any of the given strings, false otherwise
+     * @throws NullPointerException if {@code s} or any of its elements are {@code null}
+     */
+    public boolean startsWithEither(String... s) {
+        Objects.requireNonNull(s);
+        return select(s) != -1;
+    }
+
+
+    /**
+     * Checks if the internal {@code builder} starts with the given string, ignoring case.
+     *
+     * @param s the string to check against the start of the {@code builder}'s content
+     * @return true if the builder starts with the given string (ignoring case), false otherwise
+     * @throws NullPointerException if {@code s} is {@code null}
+     */
+    public boolean startsWithIgnoreCase(String s) {
+        Objects.requireNonNull(s);
+        return s.length() <= builder.length() &&
+                builder.subSequence(0, s.length()).toString().equalsIgnoreCase(s);
+    }
 
     public String fetchNumber() {
         final var output = new StringBuilder();
         while (length() > 0 && (Character.isDigit(charAt(0)) || charAt(0) == '_')) {
-            output.append(charAt(0));
-            skip(1);
-        }
-        return output.toString();
-    }
-
-    public String fetchId() {
-        final var output = new StringBuilder();
-        if (length() > 0 && validId1stChar(charAt(0))) {
-            while (length() > 0 && validIdChar(charAt(0))) {
-                output.append(charAt(0));
-                skip(1);
-            }
-        } else {
-            while (length() > 0 && !Character.isWhitespace(charAt(0))) {
-                output.append(charAt(0));
-                skip(1);
-            }
+            move(1, output);
         }
         return output.toString();
     }
 
     public void skip(int numberOfCharacters) {
+        require(() -> numberOfCharacters > 0, "numberOfCharacters must be non-negative");
         if (builder.charAt(0) == '\n') {
             position.line++;
             position.column = 0;
@@ -112,15 +137,40 @@ public final class Input implements ch.turic.Input, CharSequence {
     }
 
     /**
-     * Determines if a character is valid as the first character of an identifier.
+     * Moves a specified number of characters from the internal {@code builder} to the provided {@code target}.
+     * Appends the specified number of characters from the beginning of the {@code builder} to {@code target},
+     * and then skips those characters in the internal {@code builder}.
+     *
+     * @param numberOfCharacters the number of characters to move and skip; must be non-negative
+     * @param target             the {@code StringBuilder} to which the characters are appended
+     * @throws IllegalArgumentException if {@code numberOfCharacters} is less than or equal to 0
+     */
+    public void move(int numberOfCharacters, final StringBuilder target) {
+        require(() -> numberOfCharacters > 0, "numberOfCharacters must be non-negative");
+        target.append(builder, 0, numberOfCharacters);
+        skip(numberOfCharacters);
+    }
+
+    public void try_move(int numberOfCharacters, final StringBuilder target) {
+        require(() -> numberOfCharacters > 0, "numberOfCharacters must be non-negative");
+        final var z = Math.min(builder.length(), numberOfCharacters);
+        if (z > 0) {
+            target.append(builder, 0, z);
+            skip(z);
+        }
+    }
+
+    /**
+     * Checks if the given character is a valid first character for a Java identifier.
      * <p>
-     * Only underscores and alphabetic characters are considered valid.
+     * It is the same as in Java, with the exception that '$' is not a valid identifier start character.
      *
      * @param c the character to check
-     * @return true if the character is an underscore or an alphabetic character; false otherwise
+     * @return {@code true} if the character is a valid starting character for a Java identifier,
+     * {@code false} otherwise
      */
     static boolean validId1stChar(char c) {
-        return c == '_' || Character.isAlphabetic(c);
+        return Character.isJavaIdentifierStart(c) && c != '$';
     }
 
     /**
@@ -129,6 +179,6 @@ public final class Input implements ch.turic.Input, CharSequence {
      * be used as first characters (see {@link #validId1stChar(char)}) and also digits.
      */
     static boolean validIdChar(char c) {
-        return validId1stChar(c) || Character.isDigit(c);
+        return Character.isJavaIdentifierPart(c);
     }
 }

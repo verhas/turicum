@@ -5,19 +5,22 @@ import ch.turic.analyzer.Keywords;
 import ch.turic.analyzer.Lex;
 import ch.turic.analyzer.Lexer;
 import org.eclipse.lsp4j.*;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
 public class TuriHover {
     final DocumentManager documentManager;
+    final CancelChecker cancelChecker;
 
-    public TuriHover(DocumentManager documentManager) {
+    public TuriHover(DocumentManager documentManager, CancelChecker cancelChecker) {
         this.documentManager = documentManager;
+        this.cancelChecker = cancelChecker;
     }
 
     public Hover hover_synch(HoverParams params) {
         final var position = params.getPosition();
         final var uri = params.getTextDocument().getUri();
         final var source = documentManager.getContent(uri);
-        if( source == null ){
+        if (source == null) {
             return new Hover();
         }
         final String id = TuricUtils.getWordAtPosition(source, position, uri);
@@ -44,7 +47,7 @@ public class TuriHover {
                 line = lex.position().line - 1;
                 break;
             } else {
-                if (lex.type() != Lex.Type.TEXT || !lex.text().isBlank()) {
+                if (lex.type() != Lex.Type.SPACES || !lex.text().isBlank()) {
                     switch (lex.text()) {
                         case Keywords.CLASS:
                             idType = "class";
@@ -81,9 +84,9 @@ public class TuriHover {
             final var docLines = docComment.text().split("\n");
             final var sb = new StringBuilder(idType == null ? "" : "**" + idType + "** : " + id + "\n\n");
             final var sourceLines = source.split("\n");
-            if( line >= 0 && line < sourceLines.length){
+            if (line >= 0 && line < sourceLines.length) {
                 var sourceLine = sourceLines[line];
-                if( sourceLine.endsWith("{")){
+                if (sourceLine.endsWith("{")) {
                     sourceLine = sourceLine.substring(0, sourceLine.length() - 1);
                 }
                 sb.append("**").append(sourceLine.trim()).append("**\n");

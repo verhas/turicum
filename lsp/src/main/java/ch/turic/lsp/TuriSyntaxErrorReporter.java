@@ -49,8 +49,10 @@ public class TuriSyntaxErrorReporter {
     private List<Diagnostic> syntaxAnalysis(String content) {
         List<Diagnostic> diagnostics = new ArrayList<>();
         try {
+            // <editor-fold>
             Interpreter interpreter = new Interpreter(content);
             interpreter.compile();
+            // </editor-fold>
         } catch (BadSyntax bs) {
             final var line = bs.getPosition().line;
             final var column = bs.getPosition().column;
@@ -61,6 +63,12 @@ public class TuriSyntaxErrorReporter {
             diagnostics.add(createDiagnostic(
                     line - 1, column, column + 2,
                     bs.getMessage().substring(0, i),
+                    DiagnosticSeverity.Error
+            ));
+        } catch (Exception e) {
+            diagnostics.add(createDiagnostic(
+                    1, 0, 2,
+                    e.getMessage(),
                     DiagnosticSeverity.Error
             ));
         }

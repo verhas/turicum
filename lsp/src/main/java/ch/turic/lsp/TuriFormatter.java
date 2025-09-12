@@ -1,11 +1,16 @@
 package ch.turic.lsp;
 
 import ch.turic.Input;
+import ch.turic.analyzer.Keywords;
 import ch.turic.analyzer.Lex;
 import ch.turic.analyzer.LexList;
 import ch.turic.analyzer.Lexer;
 
+import java.util.regex.Pattern;
+
 public class TuriFormatter {
+
+    private static final Pattern SWITCH = Pattern.compile("//\\s*format:(on|off)");
 
     public static String formatDocument(String content) {
         if (content == null || content.isEmpty()) {
@@ -17,29 +22,36 @@ public class TuriFormatter {
         String[] lines = content.split("\n", -1); // -1 to preserve empty lines at the end
         StringBuilder result = new StringBuilder();
         int indentLevel = 0;
-        boolean nextLineIndentedFromColon = false; // Track if the next line should be indented due to colon
-
+        int colonLevel = 0; // Track if the next line should be indented due to colon
+        boolean formattingIsOn = true;
         int index = 0;
         for (int i = 0; i < lines.length; i++) {
             final var line = lines[i];
+            final var formatSwitch = SWITCH.matcher(line);
+            if (formatSwitch.find()) {
+                formattingIsOn = formatSwitch.group(1).equals("on");
+            }
             index = lineIndex(lexes, i, index);
             boolean inString = isInString(lexes, i, index);
             boolean inComment = !inString && isInComment(lexes, i, index);
 
             final var newIndentLevel = calculateIndentLevel(lexes, i, indentLevel, index);
+            // when we are stepping back with a closing '}', we already put that on the previous indent level
             if (newIndentLevel < indentLevel) {
                 indentLevel = newIndentLevel;
             }
-            char lastChar = getLastNonSpaceChar(line);
-            nextLineIndentedFromColon = lastChar == ':';
-            // Apply extra indent for colon if needed
-            int currentIndent = indentLevel + (nextLineIndentedFromColon ? 1 : 0);
-            var formattedLine = formatLine(line, currentIndent, inString, inComment);
 
-            // if we are tabbing back, we need to adjust the indent level starting with the next line
+            if (formattingIsOn) {
+                var formattedLine = (inString ? "" : "    ".repeat(indentLevel + colonLevel))
+                        + formatLine(inString, inComment, line, lexes, index, i);
+
+                colonLevel = lastNonSpaceChar(line) == ':' && !inComment ? colonLevel + 1 : 0;
+
+                result.append(formattedLine);
+            } else {
+                result.append(line);
+            }
             indentLevel = newIndentLevel;
-
-            result.append(formattedLine);
             if (i < lines.length - 1) {
                 result.append("\n");
             }
@@ -49,9 +61,10 @@ public class TuriFormatter {
     }
 
     /**
-     * Determines the lexical index before the start of a specific line number in a lexical list.
-     * Iterates through the given list to locate the starting index of the specified line
-     * relative to the provided index.
+     * Returns the index of the lexical element that is the last lexical element BEFORE the specified line number.
+     * Since the code starts at index zero and steps only forward the argument 'index' returned from the last call
+     * is used to continue the search.
+     * This parameter is zero on the first call.
      *
      * @param lexes  the lexical list object containing the sequence of lexemes
      * @param lineNr the line number for which the index is to be determined (0-based)
@@ -162,32 +175,155 @@ public class TuriFormatter {
         }
     }
 
-    private static String formatLine(String line, int indentLevel, boolean inString, boolean inComment) {
-        // if we are in a multi-line string, we do not even extend the tabs to spaces
-        if (inString) {
-            return line;
-        }
-        var trimmed = expandTabs(line).trim();
-        if (inComment) {
-            if (trimmed.isEmpty()) {
-                trimmed = "*";
-            } else {
-                if (!trimmed.startsWith("* ")) {
-                    if (trimmed.startsWith("*")) {
-                        if (!trimmed.startsWith("*/")) {
-                            trimmed = "* " + trimmed.substring(1);
+    private static String formatLine(final boolean inString, final boolean inComment, final String line, final LexList lexes, final int index, final int lineNr) {
+        final var start = lexes.getIndex();
+        try {
+            if (inString) {
+                return line;
+            }
+            if (inComment) {
+                var trimmed = expandTabs(line).trim();
+                if (trimmed.isEmpty()) {
+                    trimmed = "*";
+                } else {
+                    if (!trimmed.startsWith("* ")) {
+                        if (trimmed.startsWith("*")) {
+                            if (!trimmed.startsWith("*/")) {
+                                trimmed = "* " + trimmed.substring(1);
+                            }
+                        } else {
+                            trimmed = "* " + trimmed;
                         }
-                    } else {
-                        trimmed = "* " + trimmed;
                     }
                 }
+                return " " + trimmed;
             }
-            final var gutter = " "; // add an extra space to align the '*' characters
-            return "    ".repeat(indentLevel) +
-                    gutter + trimmed;
+            final var sb = new StringBuilder();
+            Lex lex = getFirstLexOnTheLine(lexes, index, lineNr);
+            while (lex != null && lex.position().line - 1 == lineNr) {
+                final var next = getTheNextSignificantLex(lexes);
+                sb.append(lexToString(lex, next));
+                if (next == null) {
+                    break;
+                }
+                lex = next;
+            }
+            return sb.toString();
+        } finally {
+            lexes.setIndex(start);
         }
-        // Convert tabs to spaces (align to next 4th character)
-        return "    ".repeat(indentLevel) + trimmed.trim();
+    }
+
+    /**
+     * Retrieves the next lexical element from the given lexical list that is considered significant.
+     * Significant elements are those that are not of type SPACES and are not blank.
+     * <p>
+     * The method skips over insignificant elements, and if an element at the start of a line is encountered, it returns null.
+     *
+     * @param lexes the lexical list containing the sequence of lexemes to iterate through
+     * @return the next significant lexical element, or null if none is found or the next element is at the start of a line
+     */
+    private static Lex getTheNextSignificantLex(LexList lexes) {
+        Lex next;
+        if (lexes.hasNext()) {
+            do {
+                next = lexes.next();
+            } while (next.type() == Lex.Type.SPACES && next.text().isBlank() && !next.atLineStart() && lexes.hasNext());
+            if (next.atLineStart()) {
+                next = null;
+            }
+        } else {
+            next = null;
+        }
+        return next;
+    }
+
+    /**
+     * Retrieves the first lexical element on the specified line in the given lexical list.
+     * The method starts from the specified index and iterates through the lexical elements
+     * until it finds a b located on or after the specified line number, skipping any
+     * elements of type SPACES.
+     *
+     * @param lexes  the lexical list containing the sequence of lexemes
+     * @param index  the starting index in the lexical list from which the search begins
+     * @param lineNr the 0-based line number where the first b is to be retrieved
+     * @return the first lexical element on the specified line, or null if none is found
+     */
+    private static Lex getFirstLexOnTheLine(LexList lexes, int index, int lineNr) {
+        lexes.setIndex(index);
+        Lex lex = null;
+        while (lexes.hasNext()) {
+            lex = lexes.next();
+            if (lex.position().line - 1 >= lineNr && !(lex.type() == Lex.Type.SPACES)) {
+                break;
+            }
+        }
+        return lex;
+    }
+
+    /**
+     * Converts a lexical element (Lex) to its corresponding string representation based on its type.
+     * Handles various types of lexical elements such as spaces, a, identifiers, integers, floats,
+     * strings, comments, and reserved keywords. The method also considers the next lexical element
+     * to determine accurate spacing or formatting.
+     *
+     * @param lex  the current lexical element to be converted to a string representation
+     * @param next the next lexical element, used to determine spacing or additional formatting
+     * @return the string representation of the current lexical element, formatted appropriately
+     */
+    private static String lexToString(Lex lex, Lex next) {
+        return switch (lex.type()) {
+            case SPACES -> "";
+            case CHARACTER -> lex.text();
+            case IDENTIFIER, INTEGER, FLOAT -> lex.text() + spc(lex, next);
+            case STRING -> firstLine(lex.lexeme()) + spc(lex, next);
+            case COMMENT -> firstLine(lex.text()) + spcOrEol(next);
+            case RESERVED -> {
+                if (lex.is(Keywords.RETURN)) {
+                    yield "return" + spcOrEol(next);
+                }
+                if (isKw(lex)) {
+                    yield lex.text() + spc(lex, next);
+                } else {
+                    if (next != null) {
+                        yield switch (lex.text()) {
+                            case "===", "==", "!=", ">=", "<=", ">", "<", "=", "##", "->" ->
+                                    " " + lex.text() + spcOrEol(next);
+                            case "," -> "," + spc(lex, next);
+                            case ":" -> ":" + spc(lex, next);
+                            case ";" -> "; ";
+                            default -> lex.text();
+                        };
+                    } else
+                        yield lex.text();
+                }
+            }
+        };
+    }
+
+    private static String firstLine(String text) {
+        int i = text.indexOf('\n');
+        if (i < 0) {
+            return text;
+        } else {
+            return text.substring(0, i);
+        }
+    }
+
+    private static String spcOrEol(Lex next) {
+        return next == null ? "" : " ";
+    }
+
+    private static String spc(Lex lex, Lex next) {
+        if (next == null) return "";
+        return switch (next.type()) {
+            case INTEGER, FLOAT, SPACES, CHARACTER, IDENTIFIER, STRING, COMMENT -> " ";
+            case RESERVED -> isKw(next) || next.is("{") ? " " : "";
+        };
+    }
+
+    private static boolean isKw(Lex lex) {
+        return Character.isJavaIdentifierStart(lex.text().charAt(0));
     }
 
     private static String expandTabs(String line) {
@@ -196,7 +332,7 @@ public class TuriFormatter {
 
         for (char c : line.toCharArray()) {
             if (c == '\t') {
-                // Calculate spaces needed to reach next 4th column
+                // Calculate spaces needed to reach the next 4th column
                 int spacesToAdd = 4 - (column % 4);
                 result.append(" ".repeat(spacesToAdd));
                 column += spacesToAdd;
@@ -220,10 +356,10 @@ public class TuriFormatter {
     }
 
     /**
-     * Parses a line of text and separates it into code and comment components.
+     * Parses a line of a and separates it into code and comment components.
      * Identifies and handles line comments, block comments, and nested block comments.
      *
-     * @param line the input line of text to be parsed
+     * @param line the input line of a to be parsed
      * @return a LineContent object containing the code and comment extracted from the input line
      */
     private static LineContent parseLineContent(String line) {
@@ -284,7 +420,7 @@ public class TuriFormatter {
         return new LineContent(code.toString(), comment);
     }
 
-    private static char getLastNonSpaceChar(String line) {
+    private static char lastNonSpaceChar(String line) {
         // Parse to get only the code part (excluding line comments)
         LineContent parsed = parseLineContent(line);
         String codePart = parsed.code.replaceAll("\\s+$", ""); // Remove trailing spaces

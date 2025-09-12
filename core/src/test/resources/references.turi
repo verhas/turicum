@@ -1,5 +1,4 @@
 
-
 // snippet uncurry1
 fn add(a,b)=a + b
 let add5 = add.(5)
@@ -578,16 +577,18 @@ println "a".ord()
 // end snippet
 
 // snippet delete
-let a = { a: 1 , b: 2, c: ["kedavra"], d:"avraka"}
+let a = { a: 1 , b: 2, c: ["kedavra"], d:"avraka" , h: none}
 a.a = none // this does not delete the field
-println jsonify(a)
+println "'a' set to none ", jsonify(a)
 delete a, a // delete the field a
-println jsonify(a)
+println "deleted field 'a' ", jsonify(a)
+delete a.h
+println "deleted field 'h' via field access", jsonify(a)
 delete {13; 55; a }, b // the object is calculated
 delete a, "c" // string name for the field
-println jsonify(a)
+println "deleted field 'c' using a string ", jsonify(a)
 delete a, chr("c".ord()+1) // string calculated name
-println a
+println "deleted field 'd' using calculated string ", a
 try delete a, d catch e1 println e1  // was already deleted
 a.c = []
 try delete a.c, h catch e2 println e2

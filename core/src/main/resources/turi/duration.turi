@@ -1,9 +1,9 @@
 
 fn duration(!amount:num, unit:str="SECONDS"){
-    let ChronoUnit = java_class("java.time.temporal.ChronoUnit")
-    let Duration = java_class("java.time.temporal.Duration")
-    let java_unit = ChronoUnit.valueOf(unit.upper_case())
-    Duration.of(amount,java_unit);
+    let ChronoUnit=java_class("java.time.temporal.ChronoUnit")
+    let Duration=java_class("java.time.temporal.Duration")
+    let java_unit=ChronoUnit.valueOf(unit.upper_case())
+    Duration.of(amount, java_unit);
 }
 
 export_all();

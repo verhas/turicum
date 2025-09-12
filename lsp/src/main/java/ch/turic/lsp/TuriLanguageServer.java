@@ -1,9 +1,11 @@
 package ch.turic.lsp;
+
+import ch.turic.analyzer.Lexer;
 import org.eclipse.lsp4j.*;
 import org.eclipse.lsp4j.services.*;
 
-import java.util.concurrent.CompletableFuture;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -22,17 +24,23 @@ public class TuriLanguageServer implements LanguageServer, LanguageClientAware {
 
     @Override
     public CompletableFuture<InitializeResult> initialize(InitializeParams params) {
-        ServerCapabilities capabilities = new ServerCapabilities();
+        final var capabilities = new ServerCapabilities();
         capabilities.setTextDocumentSync(TextDocumentSyncKind.Full);
 
         // Completion support
-        CompletionOptions completionOptions = new CompletionOptions();
+        final var completionOptions = new CompletionOptions();
         completionOptions.setResolveProvider(true);
         completionOptions.setTriggerCharacters(List.of("."));
         capabilities.setCompletionProvider(completionOptions);
 
         // Hover support
         capabilities.setHoverProvider(true);
+        capabilities.setDocumentSymbolProvider(true);
+
+        // Add code lens support
+        final var codeLensOptions = new CodeLensOptions();
+        codeLensOptions.setResolveProvider(false);
+        capabilities.setCodeLensProvider(codeLensOptions);
 
         // Definition support
         capabilities.setDefinitionProvider(true);
@@ -43,9 +51,20 @@ public class TuriLanguageServer implements LanguageServer, LanguageClientAware {
         // Diagnostic support (error reporting)
         capabilities.setDiagnosticProvider(new DiagnosticRegistrationOptions());
 
+        // Semantic tokens for better syntax highlighting
+        final var semanticTokens = new SemanticTokensWithRegistrationOptions();
+        SemanticTokensLegend legend = new SemanticTokensLegend();
+        legend.setTokenTypes(List.of(Lexer.RESERVED.toArray(String[]::new)));
+        legend.setTokenModifiers(List.of("documented"));
+
+        semanticTokens.setLegend(legend);
+//        capabilities.setSemanticTokensProvider(semanticTokens);
+
+
         InitializeResult result = new InitializeResult(capabilities);
         return CompletableFuture.completedFuture(result);
     }
+
     public static final Executor VIRTUAL_EXECUTOR = Executors.newThreadPerTaskExecutor(Thread.ofVirtual().factory());
 
 

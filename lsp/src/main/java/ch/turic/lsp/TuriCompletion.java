@@ -42,8 +42,8 @@ public class TuriCompletion {
     public List<CompletionItem> completion_synch(CompletionParams params) {
         final var uri = params.getTextDocument().getUri();
         final var source = documentManager.getContent(uri);
-        if( source == null ){
-            new CompletionItem();
+        if (source == null) {
+            return List.of(new CompletionItem());
         }
         final var position = params.getPosition();
         List<CompletionItem> items = new ArrayList<>();
@@ -73,6 +73,7 @@ public class TuriCompletion {
         items.add(Snippet.item("if", Keywords.IF, CompletionItemKind.Function, "if statement", "if ${1:expression}: ${2:statement1} else: ${3:statement2};"));
         items.add(Snippet.item("try", Keywords.TRY, CompletionItemKind.Function, "try block", "try{\n    ${1:block}\n}catch ${2:exception}{\n    ${2:block_catch}\n}finally{\n    ${3:block_finally}}"));
         items.add(Snippet.item("try", Keywords.TRY, CompletionItemKind.Function, "try statement", "try: ${1:block} catch ${2:exception}: ${2:catcher};"));
+        items.add(Snippet.item("formatting switch", "format", CompletionItemKind.Function, "format:on/off", "format:${1|on,off|}"));
 
         for (final var i : items) {
             i.setData(new CompletionData(params.getTextDocument().getUri()));
@@ -85,7 +86,7 @@ public class TuriCompletion {
      * Adds identifiers to the provided list of completion items by parsing the given lexer.
      * Identifiers are matched against a starting string and only added if they haven't
      * already been processed. Each identifier is added as a `CompletionItem` with specific attributes
-     * set, such as its kind, text, sort text, and documentation.
+     * set, such as its kind, a, sort a, and documentation.
      *
      * @param lexer       The lexer containing the sequence of tokens to parse for identifiers.
      * @param startString The starting string to match against token identifiers in the lexer.

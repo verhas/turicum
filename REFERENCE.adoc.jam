@@ -1333,15 +1333,17 @@ The syntax of the command is:
 
 [source]
 ----
-'if' EXPRESSION ( ':' COMMAND | BLOCK ) [ 'else' ( ':' COMMAND | BLOCK )] ;
+'if' EXPRESSION ( ':' COMMAND | BLOCK ) [ 'else' ( [':'] COMMAND | BLOCK )] ;
 ----
 
-If the expression is `true` the command executes the first command or block.
-If the expression is `false` it executes the second command or block following the `else` keyword.
-The second command or block along with the keyword `else` is optional.
+If the expression is `true`, the command executes the first command or block.
+If the expression is `false`, it executes the second command or block following the `else` keyword.
+The second command or block, along with the keyword `else`, is optional.
 
 The block is a series of commands enclosed between `+{+` and `+}+`.
 If there is only a single command after the condition or the keyword `else` it can be preceded with a `:`, or enclosed in a block.
+The `:` following the `else` keyword is optional.
+Its use can emphasize the structure and may help Python lovers.
 
 The conditional expression can, but does not need to be enclosed between parentheses.
 
@@ -3455,12 +3457,36 @@ Without the call to `unlet`, the class would also have the variable `obj` as a f
 === `delete`
 
 `delete` is a macro to delete a field from an object.
-The macro should have exactly two arguments.
+The macro should have exactly one or two arguments.
 
 * The first argument is evaluated, and it has to be an object.
 
 * The second argument has to be an identifier or a string that results in a field name.
 
+That way you can delete the field named `b` of object `a` as
+
+[source]
+----
+    delete a,b
+----
+
+You can also use the form:
+
+[source]
+----
+    delete a.b
+----
+
+In this case, there is only one argument: an expression resulting from accessing an object field.
+The field of the object is deleted.
+
+Although you can access a field using the `a["b"]` format, this format is not usable in the delete command.
+Instead, you can use the two-argument version with a string as the second argument.
+
+[source]
+----
+    delete a, "b"
+----
 It is an error if there is no such field in the object or if the first argument is not an object.
 
 {%S delete%}

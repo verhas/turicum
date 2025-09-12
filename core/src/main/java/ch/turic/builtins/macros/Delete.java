@@ -5,6 +5,7 @@ import ch.turic.Context;
 import ch.turic.ExecutionException;
 import ch.turic.TuriMacro;
 import ch.turic.builtins.functions.FunUtils;
+import ch.turic.commands.FieldAccess;
 import ch.turic.commands.Identifier;
 import ch.turic.memory.LngObject;
 
@@ -37,17 +38,30 @@ public class Delete implements TuriMacro {
     @Override
     public Object call(Context context, Object[] arguments) throws ExecutionException {
         final var ctx = FunUtils.ctx(context);
-        final var args = FunUtils.args(name(), arguments, Command.class, Command.class);
-        final var object = ((Command) args.at(0).get()).execute(ctx);
-        if( object instanceof LngObject lngObject) {
-            final var arg = (Command)args.at(1).get();
-            if( arg instanceof Identifier id) {
-                lngObject.context().unlet(id.name());
+        final var args = FunUtils.args(name(), arguments, Command.class, Object[].class);
+        if (args.N == 1) {
+            if( args.at(0).get() instanceof FieldAccess fa){
+                final var obj = fa.object().execute(ctx);
+                if( obj instanceof LngObject lngObject) {
+                    lngObject.context().unlet(fa.identifier());
+                }else{
+                    throw new ExecutionException("'%s' is not a valid object", obj);
+                }
             }else{
+                throw new ExecutionException("'%s' is not a field of an object", args.at(0).get());
+            }
+            return null;
+        }
+        final var object = ((Command) args.at(0).get()).execute(ctx);
+        if (object instanceof LngObject lngObject) {
+            final var arg = (Command) args.at(1).get();
+            if (arg instanceof Identifier id) {
+                lngObject.context().unlet(id.name());
+            } else {
                 final var id = arg.execute(ctx).toString();
                 lngObject.context().unlet(id);
             }
-        }else{
+        } else {
             throw new ExecutionException("'%s' is not a valid object", object);
         }
         return null;

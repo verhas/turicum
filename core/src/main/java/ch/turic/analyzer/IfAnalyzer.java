@@ -8,8 +8,24 @@ import ch.turic.commands.If;
 
 /**
  * snippet EBNF_IF
- * IF ::= 'if' EXPRESSION ( ':' COMMAND | BLOCK ) [ 'else' ( ':' COMMAND | BLOCK )] ;
+ * IF ::= 'if' EXPRESSION ( ':' COMMAND | BLOCK ) [ 'else' ( [':'] COMMAND | BLOCK )] ;
  * end snippet
+ * <p>
+ * Analyzes an 'if' statement.
+ * The expression following the statement will be evaluated as a Boolean value, and based on that, the
+ * "then block" or "else block" will be executed.
+ * <p>
+ * An optional 'elseif' statement may follow the 'if' statement.
+ * <p>
+ * The command following the 'if' and the 'else' may be a block or a single command.
+ * Both can be blocks, or none, or only one of them.
+ * Using a block after the 'if' part does NOT mean you must also use a block after the 'else' part.
+ * <p>
+ * When using a single command after the 'if' part, it is necessary to use a ':' before the command.
+ * This clearly separates the conditional expression and the command to be executed.
+ * <p>
+ * To provide symmetry, you can also use a ':' following the 'else' part, but it is optional.
+ *
  */
 public class IfAnalyzer extends AbstractAnalyzer {
     public static final IfAnalyzer INSTANCE = new IfAnalyzer();
@@ -41,13 +57,13 @@ public class IfAnalyzer extends AbstractAnalyzer {
             final Command elseBlock;
             if (lexes.is("{")) {
                 elseBlock = BlockAnalyzer.INSTANCE.analyze(lexes);
-            } else if (lexes.is(":")) {
-                lexes.next();
+            } else {
+                if (lexes.is(":")) {
+                    lexes.next();
+                }
                 final var t = CommandAnalyzer.INSTANCE.analyze(lexes);
                 BadSyntax.when(lexes, t == null, "Empty command ( ';' ) must not be after 'else expression'");
                 elseBlock = new BlockCommand(new Command[]{t}, true);
-            } else {
-                throw lexes.syntaxError(": or {", "Expected '{' after if condition");
             }
             return new If(condition, thenBlock, elseBlock);
         }

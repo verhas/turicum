@@ -1,36 +1,44 @@
-class http {
+/**
+ *
+ * This class implements a convenience interface to the built-in low-level function `http_client`.
+ *
+ */
+class http{
     fn do(!url,@body=none,@headers={},@method="GET",{extra}){
         http_client({
-            "method": method,
-            "body": {if type(body) == "str" { body
-                        } else {
+                "method": method,
+                    "body":
+                {
+                    if type(body)=="str"{
+                        body
+                        }else{
                         jsonify(body)
-                        }
-                    },
-            "headers": headers,
-            "url": url
-        } + extra )
-        }
+                    }
+                },
+                "headers": headers,
+                "url": url
+        }+extra)
+    }
     fn get(!url,@headers={},{extra}){
-        do(url,method="GET",headers=headers,..extra)
+        do(url, method="GET", headers=headers,..extra)
     }
     fn delete(!url,@headers={},{extra}){
-        do(url,method="DELETE",headers=headers,..extra)
+        do(url, method="DELETE", headers=headers,..extra)
     }
     fn post(!url,@body=none,@headers={},{extra}){
-        do(url,method="POST",body=body,headers=headers,..extra)
+        do(url, method="POST", body=body, headers=headers,..extra)
     }
     fn put(!url,@body=none,@headers={},{extra}){
-        do(url,method="PUT",body=body,headers=headers,..extra)
+        do(url, method="PUT", body=body, headers=headers,..extra)
     }
     fn patch(!url,@body=none,@headers={},{extra}){
-        do(url,method="PATCH",body=body,headers=headers,..extra)
+        do(url, method="PATCH", body=body, headers=headers,..extra)
     }
     fn head(!url,@body=none,@headers={},{extra}){
-        do(url,method="HEAD",body=body,headers=headers,..extra)
+        do(url, method="HEAD", body=body, headers=headers,..extra)
     }
     fn options(!url,@body=none,@headers={},{extra}){
-        do(url,method="OPTIONS",body=body,headers=headers,..extra)
+        do(url, method="OPTIONS", body=body, headers=headers,..extra)
     }
 }
 

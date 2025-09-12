@@ -1,18 +1,15 @@
 package ch.turic.lsp;
 
 import ch.turic.analyzer.Input;
+import ch.turic.analyzer.Keywords;
 import ch.turic.analyzer.Lex;
 import ch.turic.analyzer.Lexer;
 import org.eclipse.lsp4j.*;
+import org.eclipse.lsp4j.jsonrpc.CompletableFutures;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.lsp4j.services.TextDocumentService;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,6 +17,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 // Text Document Service - handles document-related operations
+
 class TuriTextDocumentService implements TextDocumentService {
     final DocumentManager documentManager = new DocumentManager();
     private LanguageClient client;
@@ -323,9 +321,117 @@ class TuriTextDocumentService implements TextDocumentService {
 
     @Override
     public CompletableFuture<Hover> hover(HoverParams params) {
-        return CompletableFuture.supplyAsync(() -> {
-            return new TuriHover(documentManager).hover_synch(params);
-        }, TuriLanguageServer.VIRTUAL_EXECUTOR);
+        return CompletableFutures.computeAsync(TuriLanguageServer.VIRTUAL_EXECUTOR, cancelChecker -> new TuriHover(documentManager, cancelChecker).hover_synch(params));
+    }
+
+    @Override
+    public CompletableFuture<List<FoldingRange>> foldingRange(FoldingRangeRequestParams params) {
+        return CompletableFutures.computeAsync(TuriLanguageServer.VIRTUAL_EXECUTOR, cancelChecker -> {
+            final var uri = params.getTextDocument().getUri();
+            final var content = documentManager.getContent(uri);
+
+            final var lexes = Lexer.try_analyze(new Input(new StringBuilder(content), uri));
+
+            List<FoldingRange> ranges = new ArrayList<>();
+
+            while (lexes.hasNext()) {
+                if (cancelChecker.isCanceled()) {
+                    return null;
+                }
+                final var lex = lexes.next();
+                if (lex.type() == Lex.Type.COMMENT && lex.text().startsWith("/**")) {
+                    FoldingRange range = new FoldingRange();
+                    range.setStartLine(lex.position().line - 1);
+
+                    int newLines = 0;
+                    final var text = lex.text().toCharArray();
+                    for (final var ch : text) {
+                        if (ch == '\n') {
+                            newLines++;
+                        }
+                    }
+                    range.setEndLine(lex.position().line - 1 + newLines);
+                    range.setKind(FoldingRangeKind.Comment);
+                    ranges.add(range);
+                }
+            }
+            return ranges;
+
+        });
+    }
+
+    @Override
+    public CompletableFuture<List<? extends CodeLens>> codeLens(CodeLensParams params) {
+        return CompletableFutures.computeAsync(cancelChecker -> {
+            final var uri = params.getTextDocument().getUri();
+            final var content = documentManager.getContent(uri);
+
+            final var lexes = Lexer.try_analyze(new Input(new StringBuilder(content), uri));
+
+            List<CodeLens> lenses = new ArrayList<>();
+
+            while (lexes.hasNext()) {
+                final var lex = lexes.next();
+                if (lexes.hasNext() && lex.type() == Lex.Type.COMMENT && lex.text().startsWith("/**") && lexes.peek().is(Keywords.FN)) {
+                    lexes.next();// step over the 'fn' keyword
+                    if (lexes.hasNext() && lexes.peek().type() == Lex.Type.IDENTIFIER) {
+                        final var fn = lexes.next();
+                        CodeLens lens = new CodeLens();
+                        lens.setRange(new Range(new Position(fn.position().line - 1, fn.position().column), new Position(fn.position().line - 1, fn.position().column + fn.text().length())));
+
+                        Command command = new Command();
+                        command.setTitle("📖"); // Documentation icon
+                        command.setCommand("turicum.showDocumentation");
+                        lens.setCommand(command);
+                        lenses.add(lens);
+                    }
+                }
+            }
+
+            return lenses;
+        });
+    }
+
+
+    @Override
+    public CompletableFuture<List<Either<SymbolInformation, DocumentSymbol>>> documentSymbol(
+            DocumentSymbolParams params) {
+
+        return CompletableFutures.computeAsync(TuriLanguageServer.VIRTUAL_EXECUTOR, cancelChecker -> {
+            final var uri = params.getTextDocument().getUri();
+            final var content = documentManager.getContent(uri);
+
+            final var lexes = Lexer.try_analyze(new Input(new StringBuilder(content), uri));
+            List<Either<SymbolInformation, DocumentSymbol>> symbols = new ArrayList<>();
+
+            Lex prior = null;
+            while (lexes.hasNext()) {
+                if (cancelChecker.isCanceled()) {
+                    return null;
+                }
+                final var lex = lexes.next();
+                if (lex.type() == Lex.Type.IDENTIFIER) {
+                    DocumentSymbol symbol = new DocumentSymbol();
+                    symbol.setName(lex.text());
+                    if (prior != null) {
+                        if (prior.is(Keywords.FN)) {
+                            symbol.setKind(SymbolKind.Function);
+                        } else if (prior.is(Keywords.LET, Keywords.PIN)) {
+                            symbol.setKind(SymbolKind.Constant);
+                        } else if (prior.is(Keywords.MUT, Keywords.GLOBAL)) {
+                            symbol.setKind(SymbolKind.Variable);
+                        } else if (prior.is(Keywords.CLASS)) {
+                            symbol.setKind(SymbolKind.Class);
+                        }
+                        symbol.setRange(new Range(new Position(prior.position().line - 1, prior.position().column), new Position(lex.position().line - 1, lex.position().column + 1)));
+                        symbol.setSelectionRange(new Range(new Position(prior.position().line - 1, prior.position().column), new Position(lex.position().line - 1, lex.position().column + lex.text().length())));
+                    }
+                    symbols.add(Either.forRight(symbol));
+                }
+                prior = lex;
+            }
+            return symbols;
+        });
     }
 
     @Override
@@ -340,55 +446,52 @@ class TuriTextDocumentService implements TextDocumentService {
         return CompletableFuture.completedFuture(diagnostics);
     }
 
+
     @Override
     public CompletableFuture<Either<List<? extends Location>, List<? extends LocationLink>>> definition(DefinitionParams params) {
-        List<Location> locations = new ArrayList<>();
-        try {
-            String uriStr = params.getTextDocument().getUri();
-            if( !uriStr.startsWith("file:")){
-                return CompletableFuture.completedFuture(Either.forLeft(List.of()));
-            }
-            final var uri = new URI(uriStr);
-            final var file = Paths.get(uri);
-            final var source = new Input(new StringBuilder(Files.readString(file)), file.toString());
+        return CompletableFutures.computeAsync(TuriLanguageServer.VIRTUAL_EXECUTOR, cancelChecker -> {
+            final var locations = new ArrayList<Location>();
+            String uri = params.getTextDocument().getUri();
+            final var source = new Input(new StringBuilder(documentManager.getContent(uri)), uri);
             final var lexes = Lexer.try_analyze(source);
-            final var start = lexes.getIndex(); // likely zero, but whatever
             final var srcLine = params.getPosition().getLine();
             final var srcCharacter = params.getPosition().getCharacter();
             // first find the thing that we want to find
             String id = null;
-            int line = 0;
-            int character = 0;
+            Lex prior = null;
             while (lexes.hasNext()) {
                 final var lex = lexes.next();
                 final var pos = lex.position();
-                if (line <= srcLine && srcLine <= pos.line - 1 && character <= srcCharacter && srcCharacter <= pos.column) {
-                    if (lex.type() == Lex.Type.IDENTIFIER) {
-                        id = lex.text();
-                    }
+                if (lex.type() == Lex.Type.IDENTIFIER) {
+                    id = lex.text();
+                } else {
+                    prior = lex;
+                }
+                if (srcLine == pos.line - 1 && lex.position().column - 1 <= srcCharacter && srcCharacter <= pos.column + lex.lexeme().length()) {
                     break;
                 }
-                line = pos.line - 1;
-                character = pos.column;
+                prior = lex;
             }
+            final var listUses = prior != null && prior.is(Keywords.FN, Keywords.LET, Keywords.PIN, Keywords.MUT, Keywords.GLOBAL, Keywords.CLASS);
             if (id != null) {
-                lexes.setIndex(start);
+                lexes.setIndex(0);
                 while (lexes.hasNext()) {
                     final var lex = lexes.next();
                     if (lex.type() == Lex.Type.IDENTIFIER && lex.text().equals(id)) {
                         final var pos = lex.position();
                         final var location = new Location();
-                        location.setUri(uri.toString());
-                        location.setRange(new Range(new Position(pos.line - 1, pos.column), new Position(pos.line - 1, pos.column + 1)));
+                        location.setUri(uri);
+                        location.setRange(new Range(new Position(pos.line - 1, pos.column), new Position(pos.line - 1, pos.column + lex.lexeme().length())));
                         locations.add(location);
-                        break;
+                        if( ! listUses ) {
+                            break;
+                        }
                     }
                 }
             }
-        } catch (URISyntaxException | IOException e) {
-            throw new RuntimeException(e);
-        }
-        return CompletableFuture.completedFuture(Either.forLeft(locations));
+            Either<List<? extends Location>, List<? extends LocationLink>> rv = Either.forLeft(locations);
+            return rv;
+        });
     }
 
     private List<TextEdit> createMinimalEdits(String original, String formatted) {

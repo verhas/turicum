@@ -1656,15 +1656,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=112F364D
+h id=2FD1731C
 h after post increment: 1
 k: 0
-h id=5CCBEB64
-k id=112F364D
+h id=5AE76500
+k id=2FD1731C
 h after pre increment: 2
 z: 2
-h id=6D9F7A80
-z id=6D9F7A80
+h id=6063D80A
+z id=6063D80A
 
 ----
 
@@ -1709,15 +1709,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=59252CB6
+h id=1133EC6E
 h after post increment: 1
 k: 1
-h id=59252CB6
-k id=59252CB6
+h id=1133EC6E
+k id=1133EC6E
 h after pre increment: 2
 z: 2
-h id=59252CB6
-z id=59252CB6
+h id=1133EC6E
+z id=1133EC6E
 
 ----
 
@@ -1765,15 +1765,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=31D0E481
+h id=355E34C7
 h after post decrement: -1
 k: 0
-h id=241E8EA6
-k id=31D0E481
+h id=54709809
+k id=355E34C7
 h after pre decrement: -2
 z: -2
-h id=542E560F
-z id=542E560F
+h id=2A2DA905
+z id=2A2DA905
 
 ----
 
@@ -1815,15 +1815,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=626C44E7
+h id=24F360B2
 h after post decrement: -1
 k: -1
-h id=626C44E7
-k id=626C44E7
+h id=24F360B2
+k id=24F360B2
 h after pre decrement: -2
 z: -2
-h id=626C44E7
-z id=626C44E7
+h id=24F360B2
+z id=24F360B2
 
 ----
 
@@ -3152,7 +3152,7 @@ print z.z, " already changed"
 .output of snippet `update_forbiden4`
 [source]
 ----
-Assigned value changed while calculating new value z[ch.turic.commands.StringConstant@6a8658ff]
+Assigned value changed while calculating new value z[ch.turic.commands.StringConstant@6fff253c]
 12 already changed
 ----
 
@@ -3552,15 +3552,17 @@ The syntax of the command is:
 
 [source]
 ----
-'if' EXPRESSION ( ':' COMMAND | BLOCK ) [ 'else' ( ':' COMMAND | BLOCK )] ;
+'if' EXPRESSION ( ':' COMMAND | BLOCK ) [ 'else' ( [':'] COMMAND | BLOCK )] ;
 ----
 
-If the expression is `true` the command executes the first command or block.
-If the expression is `false` it executes the second command or block following the `else` keyword.
-The second command or block along with the keyword `else` is optional.
+If the expression is `true`, the command executes the first command or block.
+If the expression is `false`, it executes the second command or block following the `else` keyword.
+The second command or block, along with the keyword `else`, is optional.
 
 The block is a series of commands enclosed between `+{+` and `+}+`.
 If there is only a single command after the condition or the keyword `else` it can be preceded with a `:`, or enclosed in a block.
+The `:` following the `else` keyword is optional.
+Its use can emphasize the structure and may help Python lovers.
 
 The conditional expression can, but does not need to be enclosed between parentheses.
 
@@ -4879,14 +4881,14 @@ execute("Thread 2",2)
 .output of snippet `channel_limit`
 [source]
 ----
- prime read 2
 Thread 1 generated 3
- prime read 3
 Thread 1 generated 5
- prime read 5
 Thread 1 generated 7
- prime read 7
 Thread 1 generated 11
+ prime read 2
+ prime read 3
+ prime read 5
+ prime read 7
 Thread 1 generated 13
 Thread 1 generated 17
 Thread 1 generated 19
@@ -4900,8 +4902,8 @@ Thread 2 generated 5
  prime read 5
 Thread 2 generated 7
 Thread 2 generated 11
- prime read 7
 Thread 2 generated 13
+ prime read 7
 stopping
 exception Task stopped.
 
@@ -4958,9 +4960,9 @@ println( (end-start)/1000000, "ms")
 [source]
 ----
 [1, 2, 3]
-315.774459ms
+314.148875ms
 []
-321.002042ms
+309.051875ms
 
 ----
 
@@ -10143,7 +10145,7 @@ println m.absExact(int(-5))
 .output of snippet `java_class1`
 [source]
 ----
-5.0
+5
 5
 
 ----
@@ -10392,7 +10394,7 @@ println env().JAVA_HOME
 .output of snippet `env1`
 [source]
 ----
-/Users/verhasp/.sdkman/candidates/java/current
+/Users/verhasp/.sdkman/candidates/java/21.0.7-tem
 
 ----
 
@@ -10411,7 +10413,7 @@ println env("JAVA_HOME")
 .output of snippet `env2`
 [source]
 ----
-/Users/verhasp/.sdkman/candidates/java/current
+/Users/verhasp/.sdkman/candidates/java/21.0.7-tem
 
 ----
 
@@ -10430,7 +10432,7 @@ println env("JAVA_*")
 .output of snippet `env3`
 [source]
 ----
-{JAVA_HOME: /Users/verhasp/.sdkman/candidates/java/current}
+{JAVA_HOME: /Users/verhasp/.sdkman/candidates/java/21.0.7-tem}
 
 ----
 
@@ -10558,7 +10560,7 @@ println nano_time()
 .output of snippet `nano_time`
 [source]
 ----
-1532004191567083
+1623238845426458
 
 ----
 
@@ -11079,71 +11081,69 @@ none
 .output of snippet `que`
 [source]
 ----
+task1 is not ready 0
 task2 is not ready 0
 task1 is ready 1
 task1 is not ready 0
 task2 is not ready 1
 task1 is not ready 1
-task1 is not ready 2
 task2 is not ready 2
+task1 is not ready 2
 task2 is not ready 3
 task1 is ready 2
-task1 is not ready 0
-task1 is not ready 1
 task2 is not ready 4
-task2 is not ready 5
-task1 is not ready 2
-task1 is not ready 3
-task2 is not ready 6
-task2 is not ready 7
-task1 is ready 3
 task1 is not ready 0
-task1 is not ready 1task2 is not ready 8
-
-task2 is not ready 9
+task2 is not ready 5
+task1 is not ready 1
+task2 is not ready 6
 task1 is not ready 2
+task2 is ready 3
 task1 is not ready 3
-task2 is ready 4
 task2 is not ready 0
 task1 is not ready 4
 task2 is not ready 1
+task1 is not ready 5
 task2 is not ready 2
+task1 is ready 4
+task1 is not ready 0
+task2 is not ready 3
+task1 is not ready 1
+task2 is not ready 4
+task1 is not ready 2
+task2 is not ready 5
 task1 is ready 5
-task1 is not ready 0
-task1 is not ready 1
-task2 is not ready 3
-task1 is not ready 2
-task2 is not ready 4
-task2 is not ready 5
-task1 is ready 6
-task1 is not ready 0
 task2 is not ready 6
-task1 is not ready 1
-task2 is not ready 7
-task1 is not ready 2
-task1 is not ready 3
-task2 is not ready 8
-task2 is not ready 9
-task1 is ready 7
 task1 is not ready 0
-task2 is not ready 10
+task2 is not ready 7
 task1 is not ready 1
+task2 is not ready 8
 task1 is not ready 2
-task2 is ready 8
+task2 is ready 6
 task2 is not ready 0
 task1 is not ready 3
 task2 is not ready 1
 task1 is not ready 4
 task2 is not ready 2
+task1 is not ready 5
+task2 is ready 7
+task2 is not ready 0
+task1 is not ready 6
+task2 is not ready 1
+task1 is not ready 7
+task2 is not ready 2
+task1 is not ready 8
 task2 is not ready 3
+task1 is not ready 9
+task2 is ready 8
+task1 is not ready 10
+task2 is not ready 0
+task1 is not ready 11
+task2 is not ready 1
 task1 is ready 9
 task1 is not ready 0
-task2 is not ready 4
+task2 is not ready 2
 task1 is not ready 1
-task2 is not ready 5
-task1 is not ready 2
-task2 is not ready 6task1 is not ready 3
-
+task2 is not ready 3
 closing the channel
 channel is closed
 1 is done false
@@ -11152,7 +11152,7 @@ we start to wait the first time
 task1 is done
 task2 is done
 task1 done true
-task2 done false
+task2 done true
 We start to wait the second time
 task1 done true
 task2 done true
@@ -11341,7 +11341,7 @@ println sleep(0.001) // sleep one milli
 .output of snippet `sleep`
 [source]
 ----
-0.001
+0.002
 
 ----
 
@@ -11404,15 +11404,15 @@ none
 [source]
 ----
 sending 1
-not ready 0
 received 1
 not ready 0
 not ready 1
+not ready 2
+not ready 3
 sending 2
 received 2
 not ready 0
 not ready 1
-not ready 2
 sending 3
 received 3
 not ready 0
@@ -11606,28 +11606,54 @@ Without the call to `unlet`, the class would also have the variable `obj` as a f
 === `delete`
 
 `delete` is a macro to delete a field from an object.
-The macro should have exactly two arguments.
+The macro should have exactly one or two arguments.
 
 * The first argument is evaluated, and it has to be an object.
 
 * The second argument has to be an identifier or a string that results in a field name.
 
+That way you can delete the field named `b` of object `a` as
+
+[source]
+----
+    delete a,b
+----
+
+You can also use the form:
+
+[source]
+----
+    delete a.b
+----
+
+In this case, there is only one argument: an expression resulting from accessing an object field.
+The field of the object is deleted.
+
+Although you can access a field using the `a["b"]` format, this format is not usable in the delete command.
+Instead, you can use the two-argument version with a string as the second argument.
+
+[source]
+----
+    delete a, "b"
+----
 It is an error if there is no such field in the object or if the first argument is not an object.
 
 .source of snippet `delete`
 
 [source]
 ----
-let a = { a: 1 , b: 2, c: ["kedavra"], d:"avraka"}
+let a = { a: 1 , b: 2, c: ["kedavra"], d:"avraka" , h: none}
 a.a = none // this does not delete the field
-println jsonify(a)
+println "'a' set to none ", jsonify(a)
 delete a, a // delete the field a
-println jsonify(a)
+println "deleted field 'a' ", jsonify(a)
+delete a.h
+println "deleted field 'h' via field access", jsonify(a)
 delete {13; 55; a }, b // the object is calculated
 delete a, "c" // string name for the field
-println jsonify(a)
+println "deleted field 'c' using a string ", jsonify(a)
 delete a, chr("c".ord()+1) // string calculated name
-println a
+println "deleted field 'd' using calculated string ", a
 try delete a, d catch e1 println e1  // was already deleted
 a.c = []
 try delete a.c, h catch e2 println e2
@@ -11637,10 +11663,11 @@ try delete a.c, h catch e2 println e2
 .output of snippet `delete`
 [source]
 ----
-{"a":null,"b":2,"c":["kedavra"],"d":"avraka"}
-{"b":2,"c":["kedavra"],"d":"avraka"}
-{"d":"avraka"}
-{}
+'a' set to none {"a":null,"b":2,"c":["kedavra"],"d":"avraka","h":null}
+deleted field 'a' {"b":2,"c":["kedavra"],"d":"avraka","h":null}
+deleted field 'h' via field access{"b":2,"c":["kedavra"],"d":"avraka"}
+deleted field 'c' using a string {"d":"avraka"}
+deleted field 'd' using calculated string {}
 Variable 'd' is not defined in the local context, you cannot unlet it.
 '[]' is not a valid object
 

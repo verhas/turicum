@@ -1,41 +1,41 @@
 /**
-# flat Function
-
-Flattens a list by concatenating its elements into a single list.
-
-## Syntax
-```
-flat(list, recurse=false)
-```
-
-## Args
-
-*   `list` (list): The list to flatten.
-*   `recurse` (bool, optional): If `true`, recursively flattens any nested lists. Defaults to `false`.
-
-## Returns
-
-*   list: A new list containing all elements of the input list, flattened.
-
-## Examples
-
-```
-flat([1, 2, [3, 4], 5])
-; [1, 2, 3, 4, 5]
-
-flat([1, 2, 3, 4, 5], recurse=true)
-; [1, 2, 3, 4, 5]
-
-flat([1, [2, [3, [4, [5]]]]], recurse=true)
-; [1, 2, 3, 4, 5]
-```
-*/
+ * # flat Function
+ *
+ * Flattens a list by concatenating its elements into a single list.
+ *
+ * ## Syntax
+ * ```
+ * flat(list, recurse=false)
+ * ```
+ *
+ * ## Args
+ *
+ *   `list` (list): The list to flatten.
+ *   `recurse` (bool, optional): If `true`, recursively flattens any nested lists. Defaults to `false`.
+ *
+ * ## Returns
+ *
+ *   list: A new list containing all elements of the input list, flattened.
+ *
+ * ## Examples
+ *
+ * ```
+ * flat([1, 2, [3, 4], 5])
+ * ; [1, 2, 3, 4, 5]
+ *
+ * flat([1, 2, 3, 4, 5], recurse=true)
+ * ; [1, 2, 3, 4, 5]
+ *
+ * flat([1, [2, [3, [4, [5]]]]], recurse=true)
+ * ; [1, 2, 3, 4, 5]
+ * ```
+ */
 fn flat(!clist:lst,@recurse:bool=false):lst{
-  mut flattened = [];
-  for each l in clist {
-      flattened += if recurse && type(l) == "lst" : flat(l) else: l;
-      }
-  flattened
+    mut flattened=[];
+    for each l in clist{
+        flattened+=if recurse&&type(l)=="lst":flat(l)else:l;
+    }
+    flattened
 }
 
 export flat;
