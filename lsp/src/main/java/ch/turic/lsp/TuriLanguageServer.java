@@ -42,6 +42,8 @@ public class TuriLanguageServer implements LanguageServer, LanguageClientAware {
         codeLensOptions.setResolveProvider(false);
         capabilities.setCodeLensProvider(codeLensOptions);
 
+        capabilities.setReferencesProvider(true);
+
         // Definition support
         capabilities.setDefinitionProvider(true);
 

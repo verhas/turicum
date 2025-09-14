@@ -459,13 +459,65 @@ class TuriTextDocumentService implements TextDocumentService {
             // first find the thing that we want to find
             String id = null;
             Lex prior = null;
+            Lex lex = null;
             while (lexes.hasNext()) {
-                final var lex = lexes.next();
+                lex = lexes.next();
+                if (lex.type() == Lex.Type.SPACES) {
+                    continue;
+                }
                 final var pos = lex.position();
                 if (lex.type() == Lex.Type.IDENTIFIER) {
                     id = lex.text();
                 } else {
                     prior = lex;
+                    id = null;
+                }
+                if (srcLine == pos.line - 1 && lex.position().column - 1 <= srcCharacter && srcCharacter <= pos.column + lex.lexeme().length()) {
+                    break;
+                }
+                prior = lex;
+            }
+            if (id != null) {
+                lexes.setIndex(0);
+                while (lexes.hasNext()) {
+                    final var ref = lexes.next();
+                    if (lex != ref && ref.text().equals(id)) {
+                        final var pos = ref.position();
+                        final var location = new Location();
+                        location.setUri(uri);
+                        location.setRange(new Range(new Position(pos.line - 1, pos.column), new Position(pos.line - 1, pos.column + ref.lexeme().length())));
+                        locations.add(location);
+                    }
+                }
+            }
+            Either<List<? extends Location>, List<? extends LocationLink>> rv = Either.<List<? extends Location>, List<? extends LocationLink>>forLeft(locations);
+            return rv;
+        });
+    }
+
+    @Override
+    public CompletableFuture<List<? extends Location>> references(ReferenceParams params) {
+        return CompletableFutures.computeAsync(TuriLanguageServer.VIRTUAL_EXECUTOR, cancelChecker -> {
+            final var locations = new ArrayList<Location>();
+            String uri = params.getTextDocument().getUri();
+            final var source = new Input(new StringBuilder(documentManager.getContent(uri)), uri);
+            final var lexes = Lexer.try_analyze(source);
+            final var srcLine = params.getPosition().getLine();
+            final var srcCharacter = params.getPosition().getCharacter();
+            // first find the thing that we want to find
+            String id = null;
+            Lex prior = null;
+            while (lexes.hasNext()) {
+                final var lex = lexes.next();
+                if (lex.type() == Lex.Type.SPACES) {
+                    continue;
+                }
+                final var pos = lex.position();
+                if (lex.type() == Lex.Type.IDENTIFIER) {
+                    id = lex.text();
+                } else {
+                    prior = lex;
+                    id = null;
                 }
                 if (srcLine == pos.line - 1 && lex.position().column - 1 <= srcCharacter && srcCharacter <= pos.column + lex.lexeme().length()) {
                     break;
@@ -477,20 +529,19 @@ class TuriTextDocumentService implements TextDocumentService {
                 lexes.setIndex(0);
                 while (lexes.hasNext()) {
                     final var lex = lexes.next();
-                    if (lex.type() == Lex.Type.IDENTIFIER && lex.text().equals(id)) {
+                    if (lex.text().equals(id)) {
                         final var pos = lex.position();
                         final var location = new Location();
                         location.setUri(uri);
                         location.setRange(new Range(new Position(pos.line - 1, pos.column), new Position(pos.line - 1, pos.column + lex.lexeme().length())));
                         locations.add(location);
-                        if( ! listUses ) {
+                        if (!listUses) {
                             break;
                         }
                     }
                 }
             }
-            Either<List<? extends Location>, List<? extends LocationLink>> rv = Either.forLeft(locations);
-            return rv;
+            return locations;
         });
     }
 

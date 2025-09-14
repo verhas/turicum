@@ -1,0 +1,10 @@
+true apple is sent
+true birne ist geschickt
+true means ok
+false means no
+apple
+birne
+peach
+none return none, there is nothing in the queue
+none was received... how do we know?
+has_next() is true: it has value and it is none

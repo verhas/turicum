@@ -1,0 +1,7 @@
+'a' set to none {"a":null,"b":2,"c":["kedavra"],"d":"avraka","h":null}
+deleted field 'a' {"b":2,"c":["kedavra"],"d":"avraka","h":null}
+deleted field 'h' via field access{"b":2,"c":["kedavra"],"d":"avraka"}
+deleted field 'c' using a string {"d":"avraka"}
+deleted field 'd' using calculated string {}
+Variable 'd' is not defined in the local context, you cannot unlet it.
+'[]' is not a valid object
