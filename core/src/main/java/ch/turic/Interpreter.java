@@ -3,7 +3,9 @@ package ch.turic;
 import ch.turic.analyzer.LexList;
 import ch.turic.analyzer.Lexer;
 import ch.turic.analyzer.ProgramAnalyzer;
-import ch.turic.memory.Context;
+import ch.turic.memory.Channel;
+import ch.turic.memory.LocalContext;
+import ch.turic.memory.debugger.ConcurrentWorkItem;
 import ch.turic.utils.Marshaller;
 import ch.turic.utils.Unmarshaller;
 
@@ -14,27 +16,26 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 
 /**
- * Interprets and executes source code written in the programming language.
+ * Interprets and executes source code written in the Turicum programming language.
  * <p>
  * While this class is designed to be used from a single thread, it implements
- * thread-safe compilation of the source code using double-checked locking pattern.
+ * thread-safe compilation of the source code using the double-checked locking pattern.
  * This means that even if multiple threads accidentally execute the same interpreter
- * instance, the source code will be compiled exactly once and the compiled code
+ * instance, the source code will be compiled exactly once, and the compiled code
  * will be properly visible to all threads.
  * <p>
- * However, note that each execution creates a new {@link Context} instance, which
+ * However, note that each execution creates a new {@link LocalContext} instance, which
  * means that concurrent executions will not share state. This is not the recommended
  * usage pattern, and the interpreter should ideally be used from a single thread.
  */
-public class Interpreter {
+public class Interpreter implements AutoCloseable {
     private ch.turic.analyzer.Input source = null;
     private volatile Program code = null;
     private final Object lock = new Object();
-    private Context preprocessorContext;
-    private Context ctx;
+    private LocalContext ctx;
 
     public Interpreter(String source) {
-        this.source = (ch.turic.analyzer.Input) ch.turic.Input.fromString(source);
+        this.source = ch.turic.Input.fromString(source);
     }
 
     /**
@@ -73,7 +74,7 @@ public class Interpreter {
             final var bytes = Files.readAllBytes(path);
             final var unmarshaller = new Unmarshaller();
             this.code = unmarshaller.deserialize(bytes);
-            this.ctx = new Context();
+            this.ctx = new LocalContext();
             this.ctx.sourcePath(path);
             BuiltIns.register(ctx);
         } else {
@@ -81,8 +82,12 @@ public class Interpreter {
         }
     }
 
-    public ch.turic.Context getImportContext() {
+    public Context getImportContext() {
         return ctx;
+    }
+
+    public boolean debugMode(boolean debugMode, Channel<ConcurrentWorkItem<?>> channel) {
+        return ctx.debugMode(debugMode,channel);
     }
 
     /**
@@ -160,12 +165,11 @@ public class Interpreter {
                         localCode = analyzer.analyze(lexes);
                     }
                     code = (Program) localCode;
-                    preprocessorContext = analyzer.context();
                 }
             }
         }
 
-        ctx = new Context();
+        ctx = new LocalContext();
         BuiltIns.register(ctx);
         return (Program) localCode;
     }
@@ -173,5 +177,10 @@ public class Interpreter {
     public byte[] serialize() {
         final var marshaller = new Marshaller();
         return marshaller.serialize(code);
+    }
+
+    @Override
+    public void close() {
+        this.ctx.close();
     }
 }

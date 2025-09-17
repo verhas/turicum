@@ -3,7 +3,7 @@ package ch.turic.commands;
 
 import ch.turic.Command;
 import ch.turic.ExecutionException;
-import ch.turic.memory.Context;
+import ch.turic.memory.LocalContext;
 import ch.turic.memory.LeftValue;
 import ch.turic.utils.Unmarshaller;
 
@@ -31,7 +31,7 @@ public class ArrayAccess extends AbstractCommand {
 
 
     @Override
-    public Object _execute(final Context context) throws ExecutionException {
+    public Object _execute(final LocalContext context) throws ExecutionException {
         // the execution order is array first, index afterward
         final var lvalValue = object.execute(context);
         final var indexValue = this.index.execute(context);

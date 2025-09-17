@@ -2,7 +2,7 @@ package ch.turic.commands;
 
 import ch.turic.ExecutionException;
 import ch.turic.analyzer.AssignmentList;
-import ch.turic.memory.Context;
+import ch.turic.memory.LocalContext;
 import ch.turic.utils.Unmarshaller;
 
 public class GlobalAssignment extends AbstractCommand {
@@ -23,7 +23,7 @@ public class GlobalAssignment extends AbstractCommand {
     }
 
     @Override
-    public Object _execute(final Context context) throws ExecutionException {
+    public Object _execute(final LocalContext context) throws ExecutionException {
         Object value = null;
         for (var assignment : assignments) {
             context.step();

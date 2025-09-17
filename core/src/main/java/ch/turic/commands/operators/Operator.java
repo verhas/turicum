@@ -2,7 +2,7 @@ package ch.turic.commands.operators;
 
 import ch.turic.ExecutionException;
 import ch.turic.Command;
-import ch.turic.memory.Context;
+import ch.turic.memory.LocalContext;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -42,7 +42,7 @@ public interface Operator {
         String value();
     }
 
-    Object execute(Context ctx, Command left, Command right) throws ExecutionException;
+    Object execute(LocalContext ctx, Command left, Command right) throws ExecutionException;
 
     default String symbol() {
         final var s = this.getClass().getAnnotation(Symbol.class);

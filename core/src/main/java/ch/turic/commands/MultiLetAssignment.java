@@ -4,7 +4,7 @@ package ch.turic.commands;
 import ch.turic.Command;
 import ch.turic.ExecutionException;
 import ch.turic.analyzer.Keywords;
-import ch.turic.memory.Context;
+import ch.turic.memory.LocalContext;
 import ch.turic.memory.HasFields;
 import ch.turic.memory.LeftValue;
 import ch.turic.utils.Unmarshaller;
@@ -112,7 +112,7 @@ public class MultiLetAssignment extends AbstractCommand {
     }
 
     @Override
-    public Object _execute(final Context ctx) throws ExecutionException {
+    public Object _execute(final LocalContext ctx) throws ExecutionException {
         final var value = expression.execute(ctx);
         switch (mapping) {
             case ObjectMapping objectMapping -> executeObjectMap(ctx, objectMapping, value, !mut);
@@ -121,7 +121,7 @@ public class MultiLetAssignment extends AbstractCommand {
         return value;
     }
 
-    private void executeObjectMap(final Context ctx, ObjectMapping mapper, Object value, boolean pin) throws ExecutionException {
+    private void executeObjectMap(final LocalContext ctx, ObjectMapping mapper, Object value, boolean pin) throws ExecutionException {
         if (value instanceof HasFields feldHaber) {
 
             for (final var fieldMapping : mapper.fieldMappings) {
@@ -153,7 +153,7 @@ public class MultiLetAssignment extends AbstractCommand {
         }
     }
 
-    private void executeListMap(final Context ctx, ListMapping mapper, Object value, boolean pin) throws ExecutionException {
+    private void executeListMap(final LocalContext ctx, ListMapping mapper, Object value, boolean pin) throws ExecutionException {
         if (value instanceof Iterable<?> iterable) {
             final var iterator = iterable.iterator();
             for (var elementMapping : mapper.elementMappings) {
@@ -189,7 +189,7 @@ public class MultiLetAssignment extends AbstractCommand {
         }
     }
 
-    private void defineOrUpdate(final Context ctx, final String identifier, Object value, String[] typeNames, boolean pin) {
+    private void defineOrUpdate(final LocalContext ctx, final String identifier, Object value, String[] typeNames, boolean pin) {
         if (mut && !pin) {
             if (typeNames != null && typeNames.length > 0) {
                 ctx.defineTypeChecked(identifier, value, typeNames);
@@ -213,7 +213,7 @@ public class MultiLetAssignment extends AbstractCommand {
      * @param types an array of TypeDeclaration objects whose type names are to be calculated; can be null
      * @return an array of type names as strings, or null if the types parameter is null
      */
-    private String[] getTypeNames(Context ctx, TypeDeclaration[] types) {
+    private String[] getTypeNames(LocalContext ctx, TypeDeclaration[] types) {
         final String[] typeNames;
         if (types == null) {
             typeNames = null;

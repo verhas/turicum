@@ -1,23 +1,29 @@
 package ch.turic.memory;
 
 
+import ch.turic.Context;
 import ch.turic.ExecutionException;
+import ch.turic.memory.debugger.ConcurrentWorkItem;
+import ch.turic.memory.debugger.DebuggerContext;
 
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
- * Keep a context of the current threads executing environment.
+ * Keep a context of the current thread's executing environment.
  */
-public class Context implements ch.turic.Context {
-    Map<String, Variable> frame;
+public class LocalContext implements Context, AutoCloseable {
+    VarTable frame;
     private final Set<String> globals = new HashSet<>();
     private final Set<String> nonlocal = new HashSet<>();
     private final Set<String> frozen;
-    private final Context wrapped;
+    private final LocalContext wrapped;
     public final GlobalContext globalContext;
     public final ThreadContext threadContext;
-    public Context caller = null;
+    public LocalContext caller = null;
     private final List<String> exporting = new ArrayList<>();
     private final boolean shadow;
     private final boolean with;
@@ -32,8 +38,8 @@ public class Context implements ch.turic.Context {
      * This includes both local keys and global keys. The method combines the keys
      * from the local context and the global context, ensuring no duplicates.
      * <p>
-     * Since this returns the set of only the keys it is meaningless to ask which is returned in case of name collision.
-     * It is the name only.
+     * Since this returns only the set of keys, it isn't very sensible to ask which is
+     * returned in the case of name collision. It is the name only.
      *
      * @return a set of all keys available in the current context, including local and global keys
      */
@@ -75,7 +81,7 @@ public class Context implements ch.turic.Context {
     /**
      * Create a new context with -1 as a step limit, a.k.a. unlimited, for example, a server application.
      */
-    public Context() {
+    public LocalContext() {
         this(-1);
     }
 
@@ -84,20 +90,22 @@ public class Context implements ch.turic.Context {
      *
      * @param stepLimit the number of maximal steps before killing the interpreter
      */
-    public Context(int stepLimit) {
-        this.globalContext = new GlobalContext(stepLimit, this);
+    public LocalContext(int stepLimit) {
+        this.globalContext = new GlobalContext(stepLimit);
+        this.globalContext.registerContext(this);
         this.wrapped = null;
         this.frame = globalContext.heap;
-        this.threadContext = new ThreadContext();
+        this.threadContext = new ThreadContext(Thread.currentThread());
         this.shadow = false;
         this.with = false;
         this.frozen = new HashSet<>();
     }
 
-    public Context(final GlobalContext globalContext, final ThreadContext threadContext) {
+    public LocalContext(final GlobalContext globalContext, final ThreadContext threadContext) {
         this.wrapped = null;
-        this.frame = new HashMap<>();
+        this.frame = new VarTable();
         this.globalContext = globalContext;
+        this.globalContext.registerContext(this);
         this.threadContext = threadContext;
         this.shadow = false;
         this.with = false;
@@ -105,8 +113,8 @@ public class Context implements ch.turic.Context {
     }
 
     /**
-     * Clone the context creating a new stack frame. The new context inherits the heap and the step limit and the
-     * already consumed steps' counter.
+     * Clone the context, creating a new stack frame. The new context inherits the heap and the step limit and the
+     * already consumed the steps' counter.
      * <p>
      * The new context has its own heap.
      * <p>
@@ -116,27 +124,27 @@ public class Context implements ch.turic.Context {
      * @param clone   the current context when starting a new frame
      * @param wrapped is the context wrapped by this context
      */
-    private Context(final Context clone, final Context wrapped) {
+    private LocalContext(final LocalContext clone, final LocalContext wrapped) {
         this.globalContext = clone.globalContext;
         this.threadContext = clone.threadContext;
-        this.frame = new HashMap<>();
+        this.frame = new VarTable();
         this.wrapped = wrapped;
         this.shadow = false;
         this.with = false;
         this.frozen = new HashSet<>();
     }
 
-    private Context(final Context thisContext, final Context wrappedContext, final boolean shadow) {
+    private LocalContext(final LocalContext thisContext, final LocalContext wrappedContext, final boolean shadow) {
         this.globalContext = thisContext.globalContext;
         this.threadContext = thisContext.threadContext;
-        this.frame = new HashMap<>();
+        this.frame = new VarTable();
         this.wrapped = wrappedContext;
         this.shadow = shadow;
         this.with = false;
         this.frozen = new HashSet<>();
     }
 
-    private Context(final Context thisContext, final Context wrappedContext, final Context withContext) {
+    private LocalContext(final LocalContext thisContext, final LocalContext wrappedContext, final LocalContext withContext) {
         this.globalContext = thisContext.globalContext;
         this.threadContext = thisContext.threadContext;
         this.frame = withContext.frame;
@@ -146,12 +154,17 @@ public class Context implements ch.turic.Context {
         this.with = true;
     }
 
+    @Override
+    public void close() {
+        this.globalContext.removeContext(this);
+    }
+
     /**
      * The VariableHibernation class represents a variable that is temporarily
-     * frozen and cannot be modified during the hibernation.
+     * frozen and cannot be modified during hibernation.
      * <p>
      * Typically, a variable gets hibernated during an assignment while the right-hand side is calculated.
-     * The right-hand side expression can use the value of the variable but must not have side effects that modify it.
+     * The right-hand side expression can use the value of the variable, but must not have side effects that modify it.
      * For example:
      * <pre>
      * {@code
@@ -240,7 +253,7 @@ public class Context implements ch.turic.Context {
     }
 
     /**
-     * Define a variable with the types 'typeNames'.
+     * Define a variable with the types defined by {@code typeNames}.
      *
      * @param key       the name of the variable
      * @param value     the value of the new variable
@@ -249,11 +262,10 @@ public class Context implements ch.turic.Context {
     public void define(String key, Object value, String[] typeNames) {
         final var v = createVariable(key, typeNames);
         v.value = value;
-        frame.put(key, v);
     }
 
     /**
-     * Same as {@link #define(String, Object, String[]) define()} but it throws exception if the type does not fit the
+     * Same as {@link #define(String, Object, String[]) define()}, but it throws an exception if the type does not fit the
      * value.
      *
      * @param key       the name of the variable
@@ -266,9 +278,9 @@ public class Context implements ch.turic.Context {
     }
 
     /**
-     * Create a new variable. Also check that the name is not global, not non-local and not frozen.
+     * Create a new variable. Also, check that the name is not global, not non-local, and not frozen.
      * <p>
-     * The variable is also added to the local frame with the name, but it does not have value (it has null).
+     * The variable is also added to the local frame with the name, but it does not have a value (it is null).
      * <p>
      * It is an error if the variable already exists in the current context.
      * If this is a shadow context, then the next wrapped non-shadow context is checked for the variable definition.
@@ -316,7 +328,7 @@ public class Context implements ch.turic.Context {
     }
 
 
-    public void mergeVariablesFrom(Context ctx, Set<String> exceptions) throws ExecutionException {
+    public void mergeVariablesFrom(LocalContext ctx, Set<String> exceptions) throws ExecutionException {
         for (final var e : ctx.frame.entrySet()) {
             final var key = e.getKey();
             final var value = e.getValue();
@@ -356,7 +368,7 @@ public class Context implements ch.turic.Context {
         ExecutionException.when(globals.contains(key), "Local variable is already defined as global '" + key + "'");
         ExecutionException.when(nonlocal.contains(key), "Variable cannot be local, it is already used as non-local '" + key + "'");
         ExecutionException.when(frozen.contains(key), "pinned variable cannot be altered '" + key + "'");
-        frame.computeIfAbsent(key, x -> new Variable(key)).set(value);
+        frame.set(key, value);
     }
 
     public void global(String global) throws ExecutionException {
@@ -366,7 +378,7 @@ public class Context implements ch.turic.Context {
 
     public void global(String global, Object value) throws ExecutionException {
         global(global);
-        globalContext.heap.computeIfAbsent(global, Variable::new).set(value);
+        globalContext.heap.set(global, value);
     }
 
     /**
@@ -377,8 +389,8 @@ public class Context implements ch.turic.Context {
      *
      * @return the new context. New stack frame, no wrapped.
      */
-    public Context open() {
-        return new Context(this, null);
+    public LocalContext open() {
+        return new LocalContext(this, null);
     }
 
     /**
@@ -388,12 +400,33 @@ public class Context implements ch.turic.Context {
      * @param other the other context from which we will use the frame in the new one
      * @return the nex context
      */
-    public Context with(Context other) {
-        return new Context(this, this, other);
+    public LocalContext with(LocalContext other) {
+        return new LocalContext(this, this, other);
     }
 
-    public Context thread() {
-        return new Context(globalContext, new ThreadContext());
+    /**
+     * Creates and returns a new Context instance associated with the specified thread.
+     * This method generates a ThreadContext using the provided thread and combines it
+     * with the existing globalContext to construct the new Context instance.
+     *
+     * @param thread the thread to be associated with the new Context
+     * @return a new Context instance tied to the specified thread
+     */
+    public LocalContext thread(Thread thread) {
+        return new LocalContext(globalContext, new ThreadContext(thread));
+    }
+
+    /**
+     * Creates and returns a new Context instance, which is composed of a global context
+     * and a thread-specific context.
+     * <p>
+     * Use this method if the thread context is created from a different thread and not from inside
+     * the thread that is currently running.
+     *
+     * @return a new Context object that combines the global context and a thread-specific context
+     */
+    public LocalContext thread() {
+        return new LocalContext(globalContext, new ThreadContext());
     }
 
     /**
@@ -405,12 +438,12 @@ public class Context implements ch.turic.Context {
      *
      * @return the new context. New stack frame, wrapped context.
      */
-    public Context wrap() {
-        return new Context(this, this);
+    public LocalContext wrap() {
+        return new LocalContext(this, this);
     }
 
-    public Context shadow() {
-        return new Context(this, this, true);
+    public LocalContext shadow() {
+        return new LocalContext(this, this, true);
     }
 
     /**
@@ -421,8 +454,8 @@ public class Context implements ch.turic.Context {
      * @param wrapped the wrapped context, probably stored in a closure and queried from there
      * @return the new context
      */
-    public Context wrap(Context wrapped) {
-        return new Context(this, wrapped);
+    public LocalContext wrap(LocalContext wrapped) {
+        return new LocalContext(this, wrapped);
     }
 
     /**
@@ -444,7 +477,7 @@ public class Context implements ch.turic.Context {
         if (globals.contains(key)) {
             // when we set a global value, it does not matter if it is already defined because it is declared or
             // was already declared as 'global'
-            globalContext.heap.computeIfAbsent(key, Variable::new).set(value);
+            globalContext.heap.set(key, value);
             return;
         }
 
@@ -459,7 +492,7 @@ public class Context implements ch.turic.Context {
                 if (ctx != this) {
                     nonlocal.add(key);
                 }
-                ctx.frame.computeIfAbsent(key, Variable::new).set(value);
+                ctx.frame.set(key, value);
                 return;
             }
         }
@@ -467,8 +500,8 @@ public class Context implements ch.turic.Context {
         throw new ExecutionException("Variable '%s' is not defined.", key);
     }
 
-    public List<Context> wrappingContexts() {
-        final var ctxList = new ArrayList<Context>();
+    public List<LocalContext> wrappingContexts() {
+        final var ctxList = new ArrayList<LocalContext>();
         ctxList.add(this);
         if (wrapped != null) {
             ctxList.addAll(wrapped.wrappingContexts());
@@ -480,7 +513,7 @@ public class Context implements ch.turic.Context {
 
         @Override
         public void close() {
-            Context.this.pinned = false;
+            LocalContext.this.pinned = false;
         }
     }
 
@@ -518,7 +551,7 @@ public class Context implements ch.turic.Context {
      * @param value the value in the loop
      */
     public void let0(final String key, final Object value) {
-        frame.computeIfAbsent(key, Variable::new).set(value);
+        frame.set(key, value);
     }
 
     /**
@@ -602,11 +635,16 @@ public class Context implements ch.turic.Context {
         return null;
     }
 
+    public boolean debugMode(boolean debugMode, Channel<ConcurrentWorkItem<?>> channel) {
+        threadContext.setDebuggerContext(new DebuggerContext(globalContext.debuggerContext, channel));
+        return globalContext.debugMode(debugMode);
+    }
+
     public void step() throws ExecutionException {
         globalContext.step();
     }
 
-    public Context caller() {
+    public LocalContext caller() {
         var ctx = this;
         while (ctx.caller == null && ctx.wrapped != null) {
             ctx = ctx.wrapped;
@@ -614,7 +652,7 @@ public class Context implements ch.turic.Context {
         return ctx.caller;
     }
 
-    public void setCaller(Context caller) {
+    public void setCaller(LocalContext caller) {
         this.caller = caller;
     }
 

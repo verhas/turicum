@@ -4,7 +4,7 @@ package ch.turic.commands;
 import ch.turic.Command;
 import ch.turic.ExecutionException;
 import ch.turic.commands.operators.Operator;
-import ch.turic.memory.Context;
+import ch.turic.memory.LocalContext;
 import ch.turic.memory.LeftValue;
 import ch.turic.utils.Unmarshaller;
 
@@ -72,7 +72,7 @@ public class Assignment extends AbstractCommand {
      * @throws ExecutionException if an error occurs during execution or if the operator is unknown
      */
     @Override
-    public Object _execute(final Context ctx) throws ExecutionException {
+    public Object _execute(final LocalContext ctx) throws ExecutionException {
         ctx.step();
         return leftValue.reassign(ctx, getOperation(op, ctx));
     }
@@ -85,7 +85,7 @@ public class Assignment extends AbstractCommand {
      * @return a function that takes the current value and returns the result of applying the operator with the assignment expression
      * @throws ExecutionException if the operator is not recognized
      */
-    Function<Object, Object> getOperation(final String operator, final Context ctx) {
+    Function<Object, Object> getOperation(final String operator, final LocalContext ctx) {
         if (operator.isEmpty()) {
             return (oldValue) -> expression.execute(ctx);
         }

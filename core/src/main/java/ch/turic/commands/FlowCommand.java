@@ -3,7 +3,7 @@ package ch.turic.commands;
 import ch.turic.Command;
 import ch.turic.ExecutionException;
 import ch.turic.commands.operators.Cast;
-import ch.turic.memory.Context;
+import ch.turic.memory.LocalContext;
 import ch.turic.memory.NameGen;
 import ch.turic.memory.Sentinel;
 import ch.turic.utils.Unmarshaller;
@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
  * Flow execution is thread-safe and based on {@code CompletableFuture} using virtual threads.
  *
  * @see Command
- * @see ch.turic.memory.Context
+ * @see LocalContext
  */
 public class FlowCommand extends AbstractCommand {
     /**
@@ -450,7 +450,7 @@ public class FlowCommand extends AbstractCommand {
      * @throws ExecutionException if the execution fails, the task limit is exceeded, or the timeout is hit
      */
     @Override
-    public Object _execute(Context context) throws ExecutionException {
+    public Object _execute(LocalContext context) throws ExecutionException {
         final var ctx = context.wrap();
         final var stateCounters = new HashMap<String, Long>();
         final var stoppedCells = new HashSet<Cell>();
@@ -567,7 +567,7 @@ public class FlowCommand extends AbstractCommand {
      * @throws InterruptedException                    if task execution is interrupted
      * @throws java.util.concurrent.ExecutionException if a task fails
      */
-    private void updateAndScheduleStart(Context ctx,
+    private void updateAndScheduleStart(LocalContext ctx,
                                         HashSet<CompletableFuture<CellWithResult>> tasksRunning,
                                         HashMap<String, Long> stateCounters,
                                         AtomicReference<Exception> exception,
@@ -600,7 +600,7 @@ public class FlowCommand extends AbstractCommand {
      * @param ctx the context to use for evaluation
      * @return {@code true} if the exit condition evaluates to true; {@code false} otherwise
      */
-    private boolean isExitConditionMet(Context ctx) {
+    private boolean isExitConditionMet(LocalContext ctx) {
         if (exitCondition == null) {
             return false;
         }
@@ -628,7 +628,7 @@ public class FlowCommand extends AbstractCommand {
      * @param stoppedCells  is the set of cells that have returned fini signaling that they are done.
      * @return the number of new tasks scheduled
      */
-    private int updateAndScheduleNewTasks(Context ctx, CellWithResult cnR, HashSet<CompletableFuture<CellWithResult>> tasksRunning, AtomicReference<Exception> exception, Map<String, Long> stateCounters, HashSet<Cell> stoppedCells) {
+    private int updateAndScheduleNewTasks(LocalContext ctx, CellWithResult cnR, HashSet<CompletableFuture<CellWithResult>> tasksRunning, AtomicReference<Exception> exception, Map<String, Long> stateCounters, HashSet<Cell> stoppedCells) {
         final var updated = updateCellVariable(ctx, cnR, stateCounters);
         if (updated) {
             return scheduleNewTasks(ctx, cnR, tasksRunning, exception, stateCounters, stoppedCells);
@@ -650,7 +650,7 @@ public class FlowCommand extends AbstractCommand {
      * @param stoppedCells  set of cells that have signaled completion and should not be rescheduled
      * @return the number of new tasks that were scheduled
      */
-    private int scheduleNewTasks(Context ctx,
+    private int scheduleNewTasks(LocalContext ctx,
                                  CellWithResult cnR,
                                  HashSet<CompletableFuture<CellWithResult>> tasksRunning,
                                  AtomicReference<Exception> exception,
@@ -679,7 +679,7 @@ public class FlowCommand extends AbstractCommand {
      * @param stateCounters map tracking the version/counter of each cell's state
      * @return {@code true} if the value was updated in the context; {@code false} if the value was unchanged or stale
      */
-    private boolean updateCellVariable(Context ctx, CellWithResult cnR, Map<String, Long> stateCounters) {
+    private boolean updateCellVariable(LocalContext ctx, CellWithResult cnR, Map<String, Long> stateCounters) {
         final var oldValue = ctx.getLocal(cnR.cell.id);
         final var updated = (!ctx.contains0(cnR.cell.id) || calculatedValueIsNew(cnR, oldValue)) && notStale(cnR, stateCounters);
         if (updated) {
@@ -695,12 +695,12 @@ public class FlowCommand extends AbstractCommand {
      * @param cnR           the cell with its evaluated result
      * @param stateCounters the state variable counters as they currently are
      */
-    private void saveState(Context ctx, CellWithResult cnR, Map<String, Long> stateCounters) {
+    private void saveState(LocalContext ctx, CellWithResult cnR, Map<String, Long> stateCounters) {
         ctx.let0(cnR.cell.id, cnR.result);
         updateStateCounter(ctx, cnR, stateCounters);
     }
 
-    private void updateStateCounter(Context ctx, CellWithResult cnR, Map<String, Long> stateCounters) {
+    private void updateStateCounter(LocalContext ctx, CellWithResult cnR, Map<String, Long> stateCounters) {
         stateCounters.computeIfPresent(cnR.cell.id, (k, v) -> v + 1);
     }
 
@@ -739,13 +739,14 @@ public class FlowCommand extends AbstractCommand {
      *                  to avoid update with stale calculation.
      * @return the comparable future running the task
      */
-    private CompletableFuture<CellWithResult> startTask(Context ctx, Cell cell, AtomicReference<Exception> exception, long counter) {
-        final var newThreadContext = ctx.thread();
-        copyVariables(ctx, newThreadContext);
+    private CompletableFuture<CellWithResult> startTask(LocalContext ctx, Cell cell, AtomicReference<Exception> exception, long counter) {
+        final var newContext = ctx.thread();
+        copyVariables(ctx, newContext);
         return CompletableFuture.supplyAsync(() -> {
             Thread.currentThread().setName(cell.id + ":" + NameGen.generateName());
+            newContext.threadContext.setThread(Thread.currentThread());
             try {
-                return new CellWithResult(cell.command.execute(newThreadContext), cell, counter);
+                return new CellWithResult(cell.command.execute(newContext), cell, counter);
             } catch (ExecutionException e) {
                 final var newException = new ExecutionException("Exception in flow '%s' in thread %s %s", flowId, Thread.currentThread().getName(), e.getMessage());
                 newException.setStackTrace(e.getStackTrace());
@@ -755,11 +756,13 @@ public class FlowCommand extends AbstractCommand {
                 final var newException = new ExecutionException(t, "Exception in flow '%s' thread %s ", flowId, Thread.currentThread().getName());
                 exception.compareAndSet(null, newException);
                 return null;
+            }finally {
+                newContext.close();
             }
         }, executor);
     }
 
-    private static void copyVariables(Context source, Context target) {
+    private static void copyVariables(LocalContext source, LocalContext target) {
         for (final var key : source.allLocalKeys()) {
             target.let0(key, source.get(key));
             target.freeze(key);

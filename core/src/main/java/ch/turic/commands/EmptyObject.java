@@ -2,7 +2,7 @@ package ch.turic.commands;
 
 
 import ch.turic.ExecutionException;
-import ch.turic.memory.Context;
+import ch.turic.memory.LocalContext;
 import ch.turic.memory.LngObject;
 import ch.turic.utils.Unmarshaller;
 
@@ -15,7 +15,7 @@ public class EmptyObject extends AbstractCommand {
     }
 
     @Override
-    public Object _execute(final Context ctx) throws ExecutionException {
+    public Object _execute(final LocalContext ctx) throws ExecutionException {
         ctx.step();
         return LngObject.newEmpty(ctx);
     }

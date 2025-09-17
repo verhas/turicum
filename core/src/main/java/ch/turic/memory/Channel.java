@@ -22,22 +22,22 @@ public interface Channel<T> extends AutoCloseable, Iterable<T> {
         enum Type {
             OBJECT, // a plain old non-null object is in the message
             NULL, // a null object is in the message
-            END, // this message signals the end of the message stream, no more messages will come
+            END, // this message signals the end of the message stream; no more messages will come
             EXCEPTION, // the message contains an exception, it will be thrown when fetched
         }
 
         /**
          * The message is empty. This type of message is not supposed to be sent through the channel.
-         * This is to return when we try to read from a channel and there is no available message.
+         * This is returned when we try to read from a channel and there is no available message.
          *
-         * @return {@code true} if the message is an empty message
+         * @return {@code true} if the message is empty
          */
         boolean isEmpty();
 
         /**
          * Opposite of {@link #isEmpty()}
          *
-         * @return {@code false} if the message is an empty message
+         * @return {@code false} if the message is empty
          */
         default boolean isPresent() {
             return !isEmpty();
@@ -47,12 +47,12 @@ public interface Channel<T> extends AutoCloseable, Iterable<T> {
          * This message is sent through the channel as a last message signaling that there are no more messages after
          * this message.
          *
-         * @return {@code true} if this message is a close message.
+         * @return {@code true} if this message is a closing message.
          */
         boolean isCloseMessage();
 
         /**
-         * The message contains an exception and not as an ordinary object but because an exception happened executing
+         * The message contains an exception, not as an ordinary object, but because an exception happened executing
          * the code of the future.
          *
          * @return {@code true} if there is an exception in the message
@@ -68,25 +68,25 @@ public interface Channel<T> extends AutoCloseable, Iterable<T> {
         T get();
 
         /**
-         * Get the object wrapped into the message even if it is an exception or a close message.
+         * Get the object wrapped into the message, even if it is an exception or a close message.
          *
          * @return the message and it does not throw it as an exception
          */
         T _get();
 
         /**
-         * Create a normal object message
+         * Create a standard object message
          *
          * @param value the object wrapped into the message
-         * @param <T>   the type of the object
+         * @param <H>   the type of the object
          * @return the created message
          */
-        static <T> Message<T> of(T value) {
+        static <H> Message<H> of(H value) {
             return new SimpleMessage<>(value, Type.OBJECT);
         }
 
         /**
-         * Create an empty message. Since empty messages are not sent through the channel, this method will mainly used
+         * Create an empty message. Since empty messages are not sent through the channel, this method will mainly be used
          * by the channel implementation to create an empty message when an underlying channel has nothing to deliver.
          *
          * @param <T> the type of the object
@@ -109,8 +109,19 @@ public interface Channel<T> extends AutoCloseable, Iterable<T> {
         static Message<LngException> exception(LngException throwable) {
             return new SimpleMessage<>(throwable, Type.EXCEPTION);
         }
+
+        static Message<?> exception(Throwable throwable) {
+            return new SimpleMessage<>(throwable, Type.EXCEPTION);
+        }
     }
 
+    /**
+     * The SimpleMessage class is an implementation of the {@link Message} interface.
+     * This class encapsulates a message with its value and type, based on the {@link Message.Type} enumeration.
+     * It provides methods for determining the properties of the message and for retrieving its value.
+     *
+     * @param <T> the type of the object wrapped in the message
+     */
     class SimpleMessage<T> implements Message<T> {
         final Type type;
         final T value;
@@ -154,8 +165,8 @@ public interface Channel<T> extends AutoCloseable, Iterable<T> {
                         throw new ExecutionException((Throwable) value);
                     } else if (value instanceof LngException lngException) {
                         throw new ExecutionException(lngException.getCause());
-                    }else{
-                        throw new ExecutionException("Unkown message wrapped for exception '%s'",value);
+                    } else {
+                        throw new ExecutionException("Unknown message wrapped for exception '%s'", value);
                     }
                 }
             };

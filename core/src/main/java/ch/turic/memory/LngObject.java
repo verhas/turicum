@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class LngObject implements HasFields, HasIndex, HasContext {
     public static final String TO_STRING_METHOD = "to_string";
     final private LngClass lngClass;
-    final private Context context;
+    final private LocalContext context;
     public final AtomicBoolean pinned = new AtomicBoolean(false);
 
     /**
@@ -26,7 +26,7 @@ public class LngObject implements HasFields, HasIndex, HasContext {
      *                 This context will hold the data for the object. Usually this is a wrapping context of the context
      *                 from where the object was created.
      */
-    public LngObject(LngClass lngClass, Context context) {
+    public LngObject(LngClass lngClass, LocalContext context) {
         this.lngClass = lngClass;
         this.context = context;
     }
@@ -35,12 +35,12 @@ public class LngObject implements HasFields, HasIndex, HasContext {
      * Creates a new empty without class opening a new context under the provided one.
      *
      * @param context the context in which the object is created. The context of the object will be opened from
-     *                this object using {@link Context#open()}, thus the object does not wrap the provided
+     *                this object using {@link LocalContext#open()}, thus the object does not wrap the provided
      *                context, but it is necessary to create the context of the object in the given interpreter
      *                (global context is inherited).
      * @return a new instance of LngObject with no associated class.
      */
-    public static LngObject newEmpty(Context context) {
+    public static LngObject newEmpty(LocalContext context) {
         return new LngObject(null, context.open());
     }
 
@@ -84,7 +84,7 @@ public class LngObject implements HasFields, HasIndex, HasContext {
     }
 
     @Override
-    public Context context() {
+    public LocalContext context() {
         return context;
     }
 
@@ -112,7 +112,7 @@ public class LngObject implements HasFields, HasIndex, HasContext {
         if (method instanceof Closure lngEquals) {
             ExecutionException.when(!lngEquals.parameters().fitOperator(), "Operator methods must have exactly one argument");
             final var argValues = new FunctionCall.ArgumentEvaluated[]{new FunctionCall.ArgumentEvaluated(null, o)};
-            final Context ctx;
+            final LocalContext ctx;
             if (lngEquals.wrapped() == null) {
                 ctx = context.wrap(this.context());
             } else {

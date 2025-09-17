@@ -6,6 +6,13 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * A thread-safe implementation of a channel backed by a blocking queue.
+ * This class allows sending and receiving messages between threads with optional
+ * support for timeouts and non-blocking operations.
+ *
+ * @param <T> the type of message to be transmitted through this channel
+ */
 public class BlockingQueueChannel<T> implements Channel<T> {
     private final BlockingQueue<Message<T>> queue;
     private volatile boolean closed = false;
@@ -21,7 +28,7 @@ public class BlockingQueueChannel<T> implements Channel<T> {
                 throw new ExecutionException("Channel is closed");
             }
             if (message.isCloseMessage() ) {
-                // we do not block for close messages, it may never be read
+                // we do not block for closing messages, it may never be read
                 Thread.startVirtualThread(()-> {
                     try {
                         queue.put(message);

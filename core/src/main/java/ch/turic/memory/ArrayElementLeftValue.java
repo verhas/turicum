@@ -41,7 +41,7 @@ public record ArrayElementLeftValue(LeftValue arrayLeftValue, Command index) imp
      * @return the object located at the computed index or a newly instantiated object if none exists
      */
     @Override
-    public HasFields getObject(Context ctx) {
+    public HasFields getObject(LocalContext ctx) {
         final var indexValue = index.execute(ctx);
         final var guaranteedObject = arrayLeftValue.getIndexable(ctx, indexValue);
         final var existing = guaranteedObject.getIndex(indexValue);
@@ -55,7 +55,7 @@ public record ArrayElementLeftValue(LeftValue arrayLeftValue, Command index) imp
     }
 
     @Override
-    public HasIndex getIndexable(Context ctx, Object indexValue) {
+    public HasIndex getIndexable(LocalContext ctx, Object indexValue) {
         final var leftValueIndex = index.execute(ctx);
         final var guaranteedObject = arrayLeftValue.getIndexable(ctx, leftValueIndex);
         final var existing = guaranteedObject.getIndex(leftValueIndex);
@@ -127,7 +127,7 @@ public record ArrayElementLeftValue(LeftValue arrayLeftValue, Command index) imp
      * @throws ExecutionException if index evaluation or assignment fails
      */
     @Override
-    public void assign(Context ctx, Object value) throws ExecutionException {
+    public void assign(LocalContext ctx, Object value) throws ExecutionException {
         final var indexValue = index.execute(ctx);
         final var indexable = arrayLeftValue.getIndexable(ctx, indexValue);
         indexable.setIndex(indexValue, value);
@@ -149,12 +149,12 @@ public record ArrayElementLeftValue(LeftValue arrayLeftValue, Command index) imp
      * @throws ExecutionException if index evaluation or assignment fails
      */
     @Override
-    public Object reassign(Context ctx, Function<Object, Object> newValueCalculator) throws ExecutionException {
+    public Object reassign(LocalContext ctx, Function<Object, Object> newValueCalculator) throws ExecutionException {
         final var indexValue = index.execute(ctx);
         final var indexable = arrayLeftValue.getIndexable(ctx, indexValue);
         final Object value;
         final Object newValue;
-        try (Context.VariableHibernation vh = getVariableHibernation(ctx)) {
+        try (LocalContext.VariableHibernation vh = getVariableHibernation(ctx)) {
             value = indexable.getIndex(indexValue);
             newValue = newValueCalculator.apply(value);
         }
@@ -177,7 +177,7 @@ public record ArrayElementLeftValue(LeftValue arrayLeftValue, Command index) imp
      * @return a VariableHibernation instance representing the state of the variable in the given context
      * @throws ExecutionException if the left value is a calculated value or any other issue related to assignment occurs
      */
-    private Context.VariableHibernation getVariableHibernation(Context ctx) {
+    private LocalContext.VariableHibernation getVariableHibernation(LocalContext ctx) {
         return switch (arrayLeftValue) {
             case CalculatedLeftValue ignored ->
                     throw new ExecutionException("Cannot change the part of a calculated string. Left side of the assignment has to be left value.");
@@ -217,7 +217,7 @@ public record ArrayElementLeftValue(LeftValue arrayLeftValue, Command index) imp
      * @param ctx       the execution context
      * @param indexable the indexable object to check and update if necessary
      */
-    private void updateString(Context ctx, HasIndex indexable) {
+    private void updateString(LocalContext ctx, HasIndex indexable) {
         HasIndex embedded = indexable;
         while (embedded instanceof WithIndexedContainer wic) {
             embedded = wic.indexed;

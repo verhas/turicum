@@ -4,6 +4,7 @@ import ch.turic.Command;
 import ch.turic.Context;
 import ch.turic.ExecutionException;
 import ch.turic.TuriFunction;
+import ch.turic.memory.LocalContext;
 
 /**
  * The evaluate function evaluates its argument.
@@ -27,7 +28,7 @@ public class Evaluate implements TuriFunction {
     public Object call(Context context, Object[] arguments) throws ExecutionException {
         final var command = FunUtils.arg(name(), arguments, Command.class);
         final var caller = FunUtils.ctx(context).caller();
-        if (caller instanceof ch.turic.memory.Context callerContext) {
+        if (caller instanceof LocalContext callerContext) {
             return command.execute(callerContext);
         } else {
             throw new ExecutionException("'%s' is used outside of macro", name());

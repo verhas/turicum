@@ -2,13 +2,13 @@ package ch.turic.commands.operators;
 
 import ch.turic.Command;
 import ch.turic.ExecutionException;
-import ch.turic.memory.Context;
+import ch.turic.memory.LocalContext;
 
 @Operator.Symbol("/")
 public class Divide extends AbstractOperator {
 
     @Override
-    public Object binaryOp(Context ctx, Object op1, Command right) throws ExecutionException {
+    public Object binaryOp(LocalContext ctx, Object op1, Command right) throws ExecutionException {
         final var op2 = right.execute(ctx);
 
         if (Cast.isLong(op1) && Cast.isLong(op2)) {

@@ -6,7 +6,7 @@ import ch.turic.ExecutionException;
 import ch.turic.Input;
 import ch.turic.analyzer.BlockAnalyzer;
 import ch.turic.analyzer.Lexer;
-import ch.turic.memory.Context;
+import ch.turic.memory.LocalContext;
 import ch.turic.utils.Unmarshaller;
 
 import java.util.ArrayList;
@@ -116,7 +116,7 @@ public class StringConstant extends AbstractCommand {
     }
 
     @Override
-    public String _execute(final Context context) throws ExecutionException {
+    public String _execute(final LocalContext context) throws ExecutionException {
         if (commands == null) {
             return value;
         } else {

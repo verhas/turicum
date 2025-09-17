@@ -14,7 +14,7 @@ public interface HasIndex extends Iterable<Object> {
 
     Object getIndex(Object index) throws ExecutionException;
 
-    static HasIndex createFor(Object indexValue, Context ctx) {
+    static HasIndex createFor(Object indexValue, LocalContext ctx) {
         final HasIndex newIndexable;
         if (Cast.isLong(indexValue)) {
             newIndexable = new LngList();

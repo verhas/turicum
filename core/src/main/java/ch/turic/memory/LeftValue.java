@@ -19,13 +19,13 @@ public interface LeftValue {
      * Get the left value as an object.
      * <p>
      * This getting may also alter the left value to guarantee automatic array extension and/or field creation.
-     * For details see {@link ArrayElementLeftValue#getObject(Context)} and {@link ObjectFieldLeftValue#getObject(Context)}.
+     * For details see {@link ArrayElementLeftValue#getObject(LocalContext)} and {@link ObjectFieldLeftValue#getObject(LocalContext)}.
      *
      * @param ctx the execution context
      * @return an instance of {@code HasFields} representing the retrieved object
      * @throws ExecutionException if the object cannot be resolved
      */
-    HasFields getObject(Context ctx) throws ExecutionException;
+    HasFields getObject(LocalContext ctx) throws ExecutionException;
 
     /**
      * Retrieves an indexable object from the given context using the specified index value.
@@ -35,7 +35,7 @@ public interface LeftValue {
      * @return an object that supports indexed access
      * @throws ExecutionException if the indexable object cannot be resolved
      */
-    HasIndex getIndexable(Context ctx, Object indexValue) throws ExecutionException;
+    HasIndex getIndexable(LocalContext ctx, Object indexValue) throws ExecutionException;
 
     /****
      * Assigns the specified value to this left value within the given execution context.
@@ -44,7 +44,7 @@ public interface LeftValue {
      * @param value the value to assign
      * @throws ExecutionException if the assignment fails or is not permitted
      */
-    void assign(Context ctx, Object value) throws ExecutionException;
+    void assign(LocalContext ctx, Object value) throws ExecutionException;
 
     /****
      * Updates the value represented by this left value by applying a transformation function to its current value.
@@ -53,7 +53,7 @@ public interface LeftValue {
      * @return the updated value after applying the transformation
      * @throws ExecutionException if the reassignment fails or an error occurs during value computation
      */
-    Object reassign(Context ctx, Function<Object, Object> newValueCalculator) throws ExecutionException;
+    Object reassign(LocalContext ctx, Function<Object, Object> newValueCalculator) throws ExecutionException;
 
     /**
      * Converts a Java object to a {@link HasFields} instance.

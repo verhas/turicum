@@ -1,7 +1,7 @@
 package ch.turic;
 
 import ch.turic.commands.AbstractCommand;
-import ch.turic.memory.Context;
+import ch.turic.memory.LocalContext;
 import ch.turic.utils.Unmarshaller;
 
 public class Program extends AbstractCommand {
@@ -20,7 +20,7 @@ public class Program extends AbstractCommand {
     }
 
     @Override
-    public Object _execute(final Context context) throws ExecutionException {
+    public Object _execute(final LocalContext context) throws ExecutionException {
         Object value = null;
         for (Command command : commands) {
             value = command.execute(context);

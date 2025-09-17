@@ -1,5 +1,6 @@
 package ch.turic.maven;
 
+import ch.turic.Interpreter;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.building.ModelProcessor;
 import org.apache.maven.model.io.ModelParseException;
@@ -73,8 +74,7 @@ public class CustomModelProcessor implements ModelProcessor {
 
         final String fileName = turiFile.getAbsolutePath();
         final String xml;
-        try {
-            final var interpreter = new ch.turic.Interpreter(Path.of(fileName));
+        try(final var interpreter = new Interpreter(Path.of(fileName))){
             xml = interpreter.compileAndExecute().toString();
         } catch (Exception e) {
             throw new RuntimeException("Jamal error processing the file " + fileName + "\n" + dumpException(e), e);

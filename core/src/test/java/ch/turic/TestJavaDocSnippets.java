@@ -10,11 +10,8 @@ import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class TestJavaDocSnippets {
@@ -42,11 +39,9 @@ public class TestJavaDocSnippets {
                         () -> {
                             final var baos = new ByteArrayOutputStream();
                             final var ps = new PrintStream(baos);
-                            try {
-                                System.setOut(ps);
+                            try(final Interpreter interpreter = new Interpreter(new Input(new StringBuilder(snippet.programCode()), snippet.filePath()))){
                                 // Execute the snippet as Turicum code
-                                Interpreter interpreter = new Interpreter(new Input(new StringBuilder(snippet.programCode()), snippet.filePath()));
-
+                                System.setOut(ps);
                                 final var program = interpreter.compile();
                                 interpreter.execute(program);
                             } catch (ExecutionException e) {

@@ -1,7 +1,7 @@
 package ch.turic.commands;
 
 import ch.turic.ExecutionException;
-import ch.turic.memory.Context;
+import ch.turic.memory.LocalContext;
 import ch.turic.utils.Unmarshaller;
 
 public class YieldFetch extends AbstractCommand {
@@ -11,7 +11,7 @@ public class YieldFetch extends AbstractCommand {
     }
 
     @Override
-    public Object _execute(final Context context) throws ExecutionException {
+    public Object _execute(final LocalContext context) throws ExecutionException {
         final var msg = context.threadContext.yielder().toChild().receive();
         return msg.get();
     }

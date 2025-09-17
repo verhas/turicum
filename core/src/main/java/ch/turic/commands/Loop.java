@@ -3,7 +3,7 @@ package ch.turic.commands;
 import ch.turic.Command;
 import ch.turic.ExecutionException;
 import ch.turic.commands.operators.Cast;
-import ch.turic.memory.Context;
+import ch.turic.memory.LocalContext;
 import ch.turic.memory.LngList;
 import ch.turic.memory.Sentinel;
 
@@ -11,7 +11,7 @@ public abstract class Loop extends AbstractCommand {
 
     public abstract Command exitCondition();
 
-    public boolean exitLoop(Context ctx) {
+    public boolean exitLoop(LocalContext ctx) {
         return Cast.toBoolean(exitCondition().execute(ctx));
     }
 
@@ -84,7 +84,7 @@ public abstract class Loop extends AbstractCommand {
      * @return the result of the loop execution, which could be an object representing a single result
      *         or a list of results, depending on the type of the loop.
      */
-    public Object loopCore(Command body, Context ctx, LngList listResult) {
+    public Object loopCore(Command body, LocalContext ctx, LngList listResult) {
         if (listResult == null) {
             return loopCoreForObject(body, ctx);
         } else {
@@ -92,7 +92,7 @@ public abstract class Loop extends AbstractCommand {
         }
     }
 
-    public Object loopCoreForObject(Command body, Context ctx) {
+    public Object loopCoreForObject(Command body, LocalContext ctx) {
         if (body instanceof BlockCommand block) {
             return loop(ctx, block, false);
         } else {
@@ -100,7 +100,7 @@ public abstract class Loop extends AbstractCommand {
         }
     }
 
-    private Object loopCoreList(Command body, Context ctx, LngList listResult) {
+    private Object loopCoreList(Command body, LocalContext ctx, LngList listResult) {
         if (body instanceof BlockCommand block) {
             final var conditional = loop(ctx, block, true);
             if (conditional != null) {
@@ -129,7 +129,7 @@ public abstract class Loop extends AbstractCommand {
      * It means no result, and in case it is a list-producing loop, then no value will be added to the list for this
      * execution.
      */
-    private Conditional loop(final Context context, BlockCommand block, boolean resultList) {
+    private Conditional loop(final LocalContext context, BlockCommand block, boolean resultList) {
         Object result = null;
         for (final var cmd : block.commands) {
             result = cmd.execute(context);
@@ -156,13 +156,13 @@ public abstract class Loop extends AbstractCommand {
         return Conditional.result(result);
     }
 
-    private static LngList singleCommandExecutionForList(Command body, Context ctx, LngList listResult) {
+    private static LngList singleCommandExecutionForList(Command body, LocalContext ctx, LngList listResult) {
         listResult.array.add(body.execute(ctx));
         return listResult;
     }
 
     private static Object singleCommandExecutionForObject
-            (Command body, Context ctx) {
+            (Command body, LocalContext ctx) {
         return body.execute(ctx);
     }
 

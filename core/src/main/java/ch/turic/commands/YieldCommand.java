@@ -4,7 +4,7 @@ import ch.turic.Command;
 import ch.turic.ExecutionException;
 import ch.turic.commands.operators.Cast;
 import ch.turic.memory.Channel;
-import ch.turic.memory.Context;
+import ch.turic.memory.LocalContext;
 import ch.turic.utils.Unmarshaller;
 
 public class YieldCommand extends AbstractCommand {
@@ -32,7 +32,7 @@ public class YieldCommand extends AbstractCommand {
     }
 
     @Override
-    public Object _execute(final Context context) throws ExecutionException {
+    public Object _execute(final LocalContext context) throws ExecutionException {
         if( Cast.toBoolean(condition.execute(context))) {
             final var result = expression.execute(context);
             context.threadContext.yielder().toParent().send((Channel.Message)Channel.Message.of(result));

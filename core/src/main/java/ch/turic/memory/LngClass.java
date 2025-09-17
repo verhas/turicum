@@ -1,5 +1,6 @@
 package ch.turic.memory;
 
+import ch.turic.Context;
 import ch.turic.ExecutionException;
 import ch.turic.LngCallable;
 import ch.turic.commands.ClosureLike;
@@ -25,7 +26,7 @@ public class LngClass implements HasFields, HasIndex, HasContext, LngCallable.Ln
         this.name = name;
     }
 
-    public Context context() {
+    public LocalContext context() {
         return context;
     }
 
@@ -34,7 +35,7 @@ public class LngClass implements HasFields, HasIndex, HasContext, LngCallable.Ln
     }
 
 
-    public Object newInstance(Object that, Context callerContext, FunctionCall.Argument[] arguments) {
+    public Object newInstance(Object that, LocalContext callerContext, FunctionCall.Argument[] arguments) {
         final var objectContext = callerContext.wrap(context());
         final var uninitialized = new LngObject(this, objectContext);
         if (that != null) {
@@ -53,7 +54,7 @@ public class LngClass implements HasFields, HasIndex, HasContext, LngCallable.Ln
         }
     }
 
-    private Object callConstructor(Context callerContext, Argument[] arguments, ClosureLike command, Context objectContext) {
+    private Object callConstructor(LocalContext callerContext, Argument[] arguments, ClosureLike command, LocalContext objectContext) {
         if (command instanceof Macro) {
             objectContext.setCaller(callerContext);
         }
@@ -101,8 +102,8 @@ public class LngClass implements HasFields, HasIndex, HasContext, LngCallable.Ln
      * @throws ExecutionException if there is some error during the initialization
      */
     @Override
-    public Object call(ch.turic.Context callerContext, Object[] arguments) throws ExecutionException {
-        if (!(callerContext instanceof Context callerCtx)) {
+    public Object call(Context callerContext, Object[] arguments) throws ExecutionException {
+        if (!(callerContext instanceof LocalContext callerCtx)) {
             throw new RuntimeException("Cannot work with this context implementation. This is an internal error.");
         }
         final var objectContext = callerCtx.wrap(context);

@@ -52,7 +52,7 @@ public class FieldAccess extends AbstractCommand {
      * @throws ExecutionException if the object is undefined and lenient mode is disabled
      */
     @Override
-    public Object _execute(final Context context) throws ExecutionException {
+    public Object _execute(final LocalContext context) throws ExecutionException {
         final var rawObject = this.object.execute(context);
         final HasFields object;
         if (rawObject == null) {

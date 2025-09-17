@@ -1,51 +1,55 @@
 fn basic(lexes){
-  mut turi_code = {
-      for each lex in lexes list {
-          if lex.atLineStart {
-              continue "mut" if lex.text == "LET";
-              continue "while" if lex.text == "WHILE";
-              continue "}" if lex.text == "WEND";
-              continue "for" if lex.text == "FOR";
-              continue "if" if lex.text == "IF";
-              continue "}" if lex.text == "ENDIF";
-              continue "println" if lex.text == "PRINT";
-          }
-          continue "{" if lex.text == "DO";
-          continue "} else {" if lex.text == "ELSE";
-          continue "{" if lex.text == "THEN";
-
-          lex;
-      }
-  }
-  turi_code
-}
-
-fn LIST(lexes){
-    for each lex in lexes {
-        if lex.atLineStart {
-            println "";
+    mut turi_code = {
+        for each lex in lexes list {
+            if lex.atLineStart {
+                continue "\nmut" if lex.text == "LET";
+                continue "\nwhile" if lex.text == "WHILE";
+                continue "\n}" if lex.text == "WEND";
+                continue "\nif" if lex.text == "IF";
+                continue "\n}" if lex.text == "ENDIF";
+                continue "\nprintln" if lex.text == "PRINT";
+            }
+            continue "{\n" if lex.text == "DO";
+            continue "} else {\n" if lex.text == "ELSE";
+            continue "{\n" if lex.text == "THEN";
+            
+            lex;
         }
-        print lex.text, " "
     }
+    turi_code
 }
+
 
 
 #basic
 
+fn LIST(lexes){
+    try {
+        for each lex in lexes list {
+            if lex.atLineStart {
+                println "";
+            }
+            print lex.text, " "
+            lex
+        }
+        }finally {
+        println;
+    }
+}
+
+// #LIST // uncomment at the start of the line to print out the program
+
 LET A = 12
 LET B = 14
-IF A + B == 26 THEN
-  PRINT "Yes it works."
+IF A+B == 26 THEN
+PRINT "Yes, it works."
 ELSE
-  PRINT "No, it does not work, it is ", (A+B)
+PRINT "No, it does not work, it is ",(A+B)
 ENDIF
 
 LET I = 0
 WHILE I < 10 DO
-    PRINT I
-    I = I + 1
+PRINT I
+I = I+1
 WEND
 
-FOR I=1 TO 10 STEP 3
-
-NEXT I

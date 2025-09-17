@@ -3,7 +3,7 @@ package ch.turic.commands;
 
 import ch.turic.Command;
 import ch.turic.ExecutionException;
-import ch.turic.memory.Context;
+import ch.turic.memory.LocalContext;
 import ch.turic.utils.Unmarshaller;
 
 public class BlockCommand extends AbstractCommand {
@@ -46,7 +46,7 @@ public class BlockCommand extends AbstractCommand {
     final boolean wrap;
 
     @Override
-    public Object _execute(final Context ctx) throws ExecutionException {
+    public Object _execute(final LocalContext ctx) throws ExecutionException {
         ctx.step();
         if (wrap) {
             final var blockContext = ctx.wrap();
@@ -70,7 +70,7 @@ public class BlockCommand extends AbstractCommand {
      * @param context the contex to execute the commands in
      * @return the Loop result including the break flag and the result
      */
-    private Conditional loop(final Context context) {
+    private Conditional loop(final LocalContext context) {
         Object result = null;
         for (final var cmd : commands) {
             result = cmd.execute(context);

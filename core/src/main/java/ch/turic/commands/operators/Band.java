@@ -2,7 +2,7 @@ package ch.turic.commands.operators;
 
 import ch.turic.Command;
 import ch.turic.ExecutionException;
-import ch.turic.memory.Context;
+import ch.turic.memory.LocalContext;
 import ch.turic.memory.LngList;
 
 import java.util.HashSet;
@@ -24,7 +24,7 @@ public class Band extends AbstractOperator {
      * @throws ExecutionException if an error occurs during command execution
      */
     @Override
-    public Object binaryOp(Context ctx, Object op1, Command right) throws ExecutionException {
+    public Object binaryOp(LocalContext ctx, Object op1, Command right) throws ExecutionException {
         final var op2 = right.execute(ctx);
 
         // for lists calculate unique union

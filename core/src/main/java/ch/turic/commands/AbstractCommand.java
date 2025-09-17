@@ -4,6 +4,8 @@ import ch.turic.Command;
 import ch.turic.ExecutionException;
 import ch.turic.analyzer.Pos;
 import ch.turic.memory.*;
+import ch.turic.memory.debugger.DebuggerCommand;
+import ch.turic.memory.debugger.DebuggerContext;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Modifier;
@@ -11,12 +13,14 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import static ch.turic.memory.debugger.DebuggerContext.State.PAUSED;
+
 public abstract class AbstractCommand implements Command, HasFields {
     private Pos startPosition;
     private Pos endPosition;
     private volatile LngObject lngObjectRef = null;
 
-    public LngObject toLngObject(Context context) {
+    public LngObject toLngObject(LocalContext context) {
         if (lngObjectRef == null) {
             synchronized (this) {
                 if (lngObjectRef == null) {
@@ -27,11 +31,11 @@ public abstract class AbstractCommand implements Command, HasFields {
         return lngObjectRef;
     }
 
-    public LngObject _toLngObject(Context context) throws ExecutionException {
+    public LngObject _toLngObject(LocalContext context) throws ExecutionException {
         return _toLngObject(this, context);
     }
 
-    private LngObject _toLngObject(Object object, Context context) throws ExecutionException {
+    private LngObject _toLngObject(Object object, LocalContext context) throws ExecutionException {
         try {
             final var lngObject = LngObject.newEmpty(context);
             lngObject.setField("java$canonicalName", object.getClass().getCanonicalName());
@@ -65,7 +69,7 @@ public abstract class AbstractCommand implements Command, HasFields {
         }
     }
 
-    private LngList _toLngList(Object object, Context context) throws ExecutionException {
+    private LngList _toLngList(Object object, LocalContext context) throws ExecutionException {
         final var lngList = new LngList();
         final int length = Array.getLength(object);
         for (int i = 0; i < length; i++) {
@@ -74,13 +78,13 @@ public abstract class AbstractCommand implements Command, HasFields {
         return lngList;
     }
 
-    private LngObject castMap(Context context, Map<?, ?> map) throws ExecutionException {
+    private LngObject castMap(LocalContext context, Map<?, ?> map) throws ExecutionException {
         final var lngObject = LngObject.newEmpty(context);
         map.forEach((key, value) -> lngObject.setField(key.toString(), cast2Lang(context, value)));
         return lngObject;
     }
 
-    private Object cast2Lang(Context context, Object command) {
+    private Object cast2Lang(LocalContext context, Object command) {
         if (command.getClass().isArray()) {
             return _toLngList(command, context);
         }
@@ -90,7 +94,7 @@ public abstract class AbstractCommand implements Command, HasFields {
             case Long s -> s;
             case Double s -> s;
             case Boolean s -> s;
-            case Map<?,?> m -> castMap(context, (Map<?, ?>) m);
+            case Map<?, ?> m -> castMap(context, (Map<?, ?>) m);
             default -> _toLngObject(command, context);
         };
     }
@@ -111,15 +115,82 @@ public abstract class AbstractCommand implements Command, HasFields {
         this.startPosition = startPosition;
     }
 
-    public Object execute(final Context ctx) throws ExecutionException {
+    public Object execute(final LocalContext ctx) throws ExecutionException {
         final var sf = new LngStackFrame(this);
+        final var dc = ctx.threadContext.getDebuggerContext();
+        boolean step = handleDebugActions(ctx, dc);
+
         ctx.threadContext.push(sf);
         final var result = _execute(ctx);
         ctx.threadContext.pop();
+        if (dc != null && step) {
+            dc.setState(DebuggerContext.State.STEPPING);
+        }
         return result;
     }
 
-    public abstract Object _execute(final Context ctx) throws ExecutionException;
+    /**
+     * Handles the debug actions based on the current context and debugger state.
+     * This method processes and updates the debugger state according to the
+     * provided commands and checks for breakpoints or stepping actions.
+     * It handles stepping into, stepping over, continuing execution, or stopping
+     * the execution based on the debugger commands.
+     *
+     * @param ctx The current execution context, which includes global states and configurations.
+     * @param dc  The debugger context, containing state and commands for controlling debugging actions.
+     * @return A boolean indicating whether stepping has to be restored after the execution of the command or not.
+     * @throws ExecutionException If an error occurs during execution or if stopped by the debugger.
+     */
+    private boolean handleDebugActions(LocalContext ctx, DebuggerContext dc) {
+        boolean step = false;
+        if (!ctx.globalContext.debugMode() || dc == null) {
+            return false;
+        }
+        if (dc.getState() == DebuggerContext.State.STEPPING) {
+            dc.setState(PAUSED);
+        }
+        if (dc.getState() == DebuggerContext.State.RUNNING) {
+            if (dc.isBreakPoint(startPosition().line, endPosition().line)) {
+                dc.setState(PAUSED);
+            }
+        }
+        final var command = new DebuggerCommand();
+        while (dc.getState() == PAUSED) {
+            try {
+                dc.pause(command);
+                dc.setState(switch (command.command()) {
+                    case STOP -> throw new ExecutionException("Stopped by debugger");
+                    case RUN -> DebuggerContext.State.RUNNING;
+                    case STEP_OVER -> {
+                        step = true; // step over
+                        yield DebuggerContext.State.RUNNING;
+                    }
+                    case STEP_INTO -> {
+                        step = true; // we need to stop if we step into and on a deeper level, we start to run
+                        yield DebuggerContext.State.STEPPING;
+                    }
+                    case POS -> {
+                        command.response = new DebuggerCommand.PosResponse(startPosition(),endPosition());
+                        yield PAUSED;
+                    }
+                    case LOCALS -> {
+                        command.response = new DebuggerCommand.VarResponse(ctx.keys());
+                        yield PAUSED;
+                    }
+                    case GLOBALS -> {
+                        command.response = new DebuggerCommand.VarResponse(ctx.globalContext.heap.keySet());
+                        yield PAUSED;
+                    }
+                    default -> PAUSED;
+                });
+            } catch (Throwable e) {
+                throw new ExecutionException(e);
+            }
+        }
+        return step;
+    }
+
+    public abstract Object _execute(final LocalContext ctx) throws ExecutionException;
 
     @Override
     public void setField(String name, Object value) throws ExecutionException {
@@ -172,7 +243,7 @@ public abstract class AbstractCommand implements Command, HasFields {
      * but not `static` are added to the set.
      *
      * @return A set of field names representing the declared fields in the current class,
-     *         including "java$canonicalName" and other eligible fields.
+     * including "java$canonicalName" and other eligible fields.
      */
     @Override
     public Set<String> fields() {

@@ -8,7 +8,6 @@ import ch.turic.memory.*;
 import ch.turic.utils.Reflection;
 import ch.turic.utils.Unmarshaller;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
@@ -39,7 +38,7 @@ public class FunctionCall extends FunctionCallOrCurry {
     }
 
     @Override
-    public Object _execute(final Context context) throws ExecutionException {
+    public Object _execute(final LocalContext context) throws ExecutionException {
         final Command myObject = myFunctionObject(context);
         final Object function;
         if (myObject instanceof FieldAccess fieldAccess) {

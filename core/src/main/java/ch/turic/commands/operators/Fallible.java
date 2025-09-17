@@ -2,7 +2,7 @@ package ch.turic.commands.operators;
 
 import ch.turic.Command;
 import ch.turic.ExecutionException;
-import ch.turic.memory.Context;
+import ch.turic.memory.LocalContext;
 
 /**
  * The Fallible operator (?) provides safe navigation and error handling capabilities.
@@ -21,7 +21,7 @@ public class Fallible extends AbstractOperator {
      * @throws ExecutionException If execution fails
      */
     @Override
-    public Object unaryOp(Context ctx, Object op) throws ExecutionException {
+    public Object unaryOp(LocalContext ctx, Object op) throws ExecutionException {
         return op;
     }
 
@@ -36,7 +36,7 @@ public class Fallible extends AbstractOperator {
      * @throws ExecutionException If exception handling fails
      */
     @Override
-    public Object exceptionHandler(Context ctx, ExecutionException t, Command right) throws ExecutionException {
+    public Object exceptionHandler(LocalContext ctx, ExecutionException t, Command right) throws ExecutionException {
         return null;
     }
 
@@ -51,7 +51,7 @@ public class Fallible extends AbstractOperator {
      * @throws ExecutionException Always throws this exception as binary operation is not supported
      */
     @Override
-    public Object binaryOp(Context ctx, Object op1, Command right) throws ExecutionException {
+    public Object binaryOp(LocalContext ctx, Object op1, Command right) throws ExecutionException {
         throw new ExecutionException("Somehow '?' is used as a binary operator");
     }
 }

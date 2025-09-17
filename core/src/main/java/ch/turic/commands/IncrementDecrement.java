@@ -3,7 +3,7 @@ package ch.turic.commands;
 
 import ch.turic.ExecutionException;
 import ch.turic.commands.operators.Cast;
-import ch.turic.memory.Context;
+import ch.turic.memory.LocalContext;
 import ch.turic.memory.LeftValue;
 import ch.turic.memory.LngObject;
 import ch.turic.utils.Unmarshaller;
@@ -52,7 +52,7 @@ public class IncrementDecrement extends AbstractCommand {
      * @throws ExecutionException if the increment or decrement operation cannot be performed
      */
     @Override
-    public Object _execute(final Context ctx) throws ExecutionException {
+    public Object _execute(final LocalContext ctx) throws ExecutionException {
         ctx.step();
         AtomicReference<Object> result = new AtomicReference<>();
         final Function<Object, Object> converter = increment ? (x) -> applyDelta(ctx, x, result, 1) : (x) -> applyDelta(ctx, x, result, -1);
@@ -73,7 +73,7 @@ public class IncrementDecrement extends AbstractCommand {
      * @return the incremented value
      * @throws ExecutionException if the increment operation cannot be performed on the value
      */
-    private Object applyDelta(Context ctx, Object value, AtomicReference<Object> result, int delta) throws ExecutionException {
+    private Object applyDelta(LocalContext ctx, Object value, AtomicReference<Object> result, int delta) throws ExecutionException {
         result.set(value);
         if (Cast.isLong(value)) {
             return Cast.toLong(value) + delta;

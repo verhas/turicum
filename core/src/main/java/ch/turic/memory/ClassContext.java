@@ -3,10 +3,10 @@ package ch.turic.memory;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ClassContext extends Context {
+public class ClassContext extends LocalContext {
     private final LngClass[] parents;
 
-    public ClassContext(Context context, LngClass[] parents) {
+    public ClassContext(LocalContext context, LngClass[] parents) {
         super(context.globalContext, context.threadContext);
         this.parents = parents;
     }
@@ -38,10 +38,10 @@ public class ClassContext extends Context {
      * wrapping behavior. A loop would not correctly handle these varying context types 
      * and their specific implementations of wrappingContexts().
      *
-     * @return a list of {@link Context} instances, comprising the wrapping contexts 
+     * @return a list of {@link LocalContext} instances, comprising the wrapping contexts
      *         of this instance and all parent contexts.
      */
-    public List<Context> wrappingContexts() {
+    public List<LocalContext> wrappingContexts() {
         final var ctxList = new ArrayList<>(super.wrappingContexts());
         for (final var parent : parents) {
             ctxList.addAll(parent.context().wrappingContexts());

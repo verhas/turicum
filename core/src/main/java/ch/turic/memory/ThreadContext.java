@@ -1,6 +1,7 @@
 package ch.turic.memory;
 
 import ch.turic.ExecutionException;
+import ch.turic.memory.debugger.DebuggerContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +12,30 @@ import java.util.List;
 public class ThreadContext {
     private Yielder yielder = null;
 
+    private Thread thread;
+
+    public void setThread(Thread thread) {
+        this.thread = thread;
+    }
+
+    private DebuggerContext debuggerContext;
+
+    public DebuggerContext getDebuggerContext() {
+        return debuggerContext;
+    }
+
+    public void setDebuggerContext(DebuggerContext debuggerContext) {
+        this.debuggerContext = debuggerContext;
+    }
+
     private final List<LngStackFrame> trace = new ArrayList<>();
+
+    public ThreadContext() {
+
+    }
+    public ThreadContext(Thread thread) {
+        this.thread = thread;
+    }
 
     public int traceSize() {
         return trace.size();

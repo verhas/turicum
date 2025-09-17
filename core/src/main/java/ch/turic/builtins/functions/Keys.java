@@ -5,10 +5,7 @@ import ch.turic.ExecutionException;
 import ch.turic.TuriFunction;
 import ch.turic.commands.ClosureLike;
 import ch.turic.commands.ParameterList;
-import ch.turic.memory.HasFields;
-import ch.turic.memory.LngClass;
-import ch.turic.memory.LngList;
-import ch.turic.memory.LngObject;
+import ch.turic.memory.*;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -47,7 +44,7 @@ public class Keys implements TuriFunction {
         final var args = FunUtils.args(name(), arguments, Object[].class);
         final var result = new LngList();
         if (args.N == 0) {
-            result.addAll(((ch.turic.memory.Context) context).keys());
+            result.addAll(((LocalContext) context).keys());
             return result;
         }
         final var arg = args.at(0).get();

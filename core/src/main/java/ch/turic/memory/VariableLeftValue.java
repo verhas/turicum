@@ -17,13 +17,13 @@ public record VariableLeftValue(String variable) implements LeftValue {
     }
 
     @Override
-    public HasFields getObject(Context ctx) {
+    public HasFields getObject(LocalContext ctx) {
         final var existing = ctx.get(variable);
         return LeftValue.toObject(existing);
     }
 
     @Override
-    public HasIndex getIndexable(Context ctx, Object indexValue) {
+    public HasIndex getIndexable(LocalContext ctx, Object indexValue) {
         final var existing = ctx.get(variable);
         return LeftValue.toIndexable(existing, indexValue);
     }
@@ -36,7 +36,7 @@ public record VariableLeftValue(String variable) implements LeftValue {
      * @throws ExecutionException if the assignment fails
      */
     @Override
-    public void assign(Context ctx, Object value) throws ExecutionException {
+    public void assign(LocalContext ctx, Object value) throws ExecutionException {
         ctx.update(variable, value);
     }
 
@@ -49,7 +49,7 @@ public record VariableLeftValue(String variable) implements LeftValue {
      * @throws ExecutionException if updating the variable in the context fails
      */
     @Override
-    public Object reassign(Context ctx, Function<Object, Object> newValueCalculator) throws ExecutionException {
+    public Object reassign(LocalContext ctx, Function<Object, Object> newValueCalculator) throws ExecutionException {
         final var value = ctx.get(variable);
         final Object newValue;
         try (final var ignore = ctx.hibernate(variable)) {

@@ -1,9 +1,9 @@
 package ch.turic.cli;
 
+import ch.turic.ExecutionException;
 import ch.turic.Input;
 import ch.turic.Interpreter;
 import ch.turic.commands.operators.Cast;
-import ch.turic.utils.Marshaller;
 import ch.turic.utils.Unmarshaller;
 
 import java.io.IOException;
@@ -66,8 +66,8 @@ public class Main {
      *             - "-REPL": Launches the REPL (Read-Eval-Print Loop) environment.
      *             Additionally, the last positional argument is the file path to
      *             a program to execute, which must end with ".turi" or ".turc".
-     * @throws IOException If an I/O error occurs during properties file access,
-     *                     compilation, or file reading/writing.
+     * @throws IOException              If an I/O error occurs during properties file access,
+     *                                  compilation, or file reading/writing.
      * @throws IllegalArgumentException If no program file is specified or an
      *                                  invalid command-line argument is provided.
      */
@@ -130,27 +130,11 @@ public class Main {
         if (params.get("APPIA").isPresent()) {
             System.setProperty("APPIA", params.get("APPIA").get());
         }
-        try {
-            final Interpreter interpreter;
-            if (inputFile.endsWith(".turi")) {
-                interpreter = new Interpreter(Input.fromFile(Path.of(inputFile)));
-            } else if (inputFile.endsWith(".turc")) {
-                if (params.get("compile").isPresent()) {
-                    System.out.println("'.turc' files are already compiled");
-                    return;
-                }
-                final var bytes = Files.readAllBytes(Path.of(inputFile));
-                final var unmarshaller = new Unmarshaller();
-                final var code = unmarshaller.deserialize(bytes);
-                interpreter = new Interpreter(code);
-            } else {
-                System.out.println("The program file name has to end with '.turi' or '.turc'");
-                return;
-            }
+
+        try( final Interpreter interpreter = getInterpreter(inputFile, params)){
             if (params.get("compile").isPresent()) {
-                final var program = interpreter.compile();
-                final var marshaller = new Marshaller();
-                final var bytes = marshaller.serialize(program);
+                interpreter.compile();
+                final var bytes = interpreter.serialize();
                 final var outputFile = inputFile.substring(0, inputFile.length() - 5) + ".turc";
                 Files.write(Path.of(outputFile), bytes);
                 return;
@@ -160,9 +144,27 @@ public class Main {
                 System.exit(Cast.toLong(returnValue).intValue());
             }
         } catch (Exception e) {
+            System.err.println("Error: " + e.getMessage());
             e.printStackTrace(System.err);
             System.exit(1);
         }
+    }
+
+    private static Interpreter getInterpreter(final String inputFile, final CmdParser params) throws IOException {
+        if (inputFile.endsWith(".turi")) {
+            return new Interpreter(Input.fromFile(Path.of(inputFile)));
+        } else if (inputFile.endsWith(".turc")) {
+            if (params.get("compile").isPresent()) {
+                throw new ExecutionException("'.turc' files are already compiled");
+            }
+            final var bytes = Files.readAllBytes(Path.of(inputFile));
+            final var unmarshaller = new Unmarshaller();
+            final var code = unmarshaller.deserialize(bytes);
+            return new Interpreter(code);
+        } else {
+            throw new ExecutionException("The program file name has to end with '.turi' or '.turc'");
+        }
+
     }
 }
 

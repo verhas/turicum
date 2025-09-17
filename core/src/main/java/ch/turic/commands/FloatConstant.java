@@ -2,7 +2,7 @@ package ch.turic.commands;
 
 
 import ch.turic.ExecutionException;
-import ch.turic.memory.Context;
+import ch.turic.memory.LocalContext;
 import ch.turic.utils.Unmarshaller;
 
 public class FloatConstant extends AbstractCommand {
@@ -26,7 +26,7 @@ public class FloatConstant extends AbstractCommand {
     }
 
     @Override
-    public Double _execute(Context ctx) throws ExecutionException {
+    public Double _execute(LocalContext ctx) throws ExecutionException {
         return value;
     }
 }

@@ -2,7 +2,7 @@ package ch.turic.commands;
 
 import ch.turic.Command;
 import ch.turic.ExecutionException;
-import ch.turic.memory.Context;
+import ch.turic.memory.LocalContext;
 import ch.turic.memory.LngObject;
 import ch.turic.utils.Unmarshaller;
 
@@ -29,7 +29,7 @@ public class Print extends AbstractCommand {
         this.nl = nl;
     }
 
-    private static void out(String str, Context ctx, Object outputHandle) {
+    private static void out(String str, LocalContext ctx, Object outputHandle) {
         if (outputHandle == null) {
             System.out.print(str);
         } else {
@@ -47,7 +47,7 @@ public class Print extends AbstractCommand {
         }
     }
 
-    private static void flush(Context ctx, Object outputHandle) {
+    private static void flush(LocalContext ctx, Object outputHandle) {
         if (outputHandle == null) {
             System.out.flush();
         }
@@ -65,7 +65,7 @@ public class Print extends AbstractCommand {
     }
 
     @Override
-    public Object _execute(final Context ctx) throws ExecutionException {
+    public Object _execute(final LocalContext ctx) throws ExecutionException {
         final var printTarget = ctx.contains(PRINT_TARGET) ? ctx.get(PRINT_TARGET) : null;
         if (printTarget != null && !(printTarget instanceof LngObject) && !(printTarget instanceof Closure)) {
             throw new ExecutionException("Output must be an object or closure");

@@ -3,7 +3,7 @@ package ch.turic.commands;
 
 import ch.turic.ExecutionException;
 import ch.turic.analyzer.AssignmentList;
-import ch.turic.memory.Context;
+import ch.turic.memory.LocalContext;
 import ch.turic.utils.Unmarshaller;
 
 public class LetAssignment extends AbstractCommand {
@@ -26,7 +26,7 @@ public class LetAssignment extends AbstractCommand {
     }
 
     @Override
-    public Object _execute(final Context ctx) throws ExecutionException {
+    public Object _execute(final LocalContext ctx) throws ExecutionException {
         Object value = null;
         for (var assignment : assignments) {
             ctx.step();

@@ -9,7 +9,8 @@ public class AdHocTest {
     @Test
     void adHocTest() throws Exception {
         System.out.println(new File(".").getAbsolutePath());
-        Interpreter interpreter = new Interpreter(Input.fromFile(Path.of("./src/test/resources/adhoc.turi")));
-        interpreter.compileAndExecute();
+        try (Interpreter interpreter = new Interpreter(Input.fromFile(Path.of("./src/test/resources/adhoc.turi")))) {
+            interpreter.compileAndExecute();
+        }
     }
 }

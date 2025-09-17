@@ -29,7 +29,7 @@ public class ListComposition extends AbstractCommand {
     }
 
     @Override
-    public Object _execute(final Context context) throws ExecutionException {
+    public Object _execute(final LocalContext context) throws ExecutionException {
         LngList list = new LngList();
         for (final var command : array) {
             final var item = command.execute(context);
@@ -79,7 +79,7 @@ public class ListComposition extends AbstractCommand {
      */
     private static void filterElements(final long end,
                                        final CompositionModifier[] modifiers,
-                                       final Context context,
+                                       final LocalContext context,
                                        final LngList list,
                                        final Function<Long, Object> fetch) throws ExecutionException {
         for (long i = 0; !Objects.equals(i, end); i += (i <= end ? 1 : -1)) {
@@ -129,7 +129,7 @@ public class ListComposition extends AbstractCommand {
         }
     }
 
-    private static void setParameter(Context ctx, Closure closure, Object item) {
+    private static void setParameter(LocalContext ctx, Closure closure, Object item) {
         if (closure.parameters().parameters().length > 0) {
             ctx.local(closure.parameters().parameters()[0].identifier(), item);
         }

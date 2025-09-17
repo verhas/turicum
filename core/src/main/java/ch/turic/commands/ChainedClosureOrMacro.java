@@ -1,8 +1,9 @@
 package ch.turic.commands;
 
+import ch.turic.Context;
 import ch.turic.ExecutionException;
 import ch.turic.LngCallable;
-import ch.turic.memory.Context;
+import ch.turic.memory.LocalContext;
 import ch.turic.memory.HasFields;
 import ch.turic.utils.NullableOptional;
 import ch.turic.utils.Unmarshaller;
@@ -44,7 +45,7 @@ public abstract sealed class ChainedClosureOrMacro extends ClosureLike implement
     }
 
     @Override
-    public Context wrapped() {
+    public LocalContext wrapped() {
         return closure1.wrapped();
     }
 
@@ -67,14 +68,14 @@ public abstract sealed class ChainedClosureOrMacro extends ClosureLike implement
     }
 
     @Override
-    public Object _execute(final Context ctx) throws ExecutionException {
+    public Object _execute(final LocalContext ctx) throws ExecutionException {
         ctx.step();
         return new FunctionCall((c) -> closure2, new FunctionCall.Argument[]{new FunctionCall.Argument(null, closure1)}).execute(ctx);
     }
 
     @Override
-    public Object call(final ch.turic.Context callerContext, final Object... arguments) {
-        if (!(callerContext instanceof Context context)) {
+    public Object call(final Context callerContext, final Object... arguments) {
+        if (!(callerContext instanceof LocalContext context)) {
             throw new RuntimeException("Cannot work with this context implementation. This is an internal error.");
         }
         final var ctx = context.wrap(this.closure1.wrapped());
@@ -85,13 +86,13 @@ public abstract sealed class ChainedClosureOrMacro extends ClosureLike implement
     }
 
     @Override
-    public NullableOptional<Object> methodCall(Context context, HasFields obj, String methodName, FunctionCall.Argument[] arguments) {
+    public NullableOptional<Object> methodCall(LocalContext context, HasFields obj, String methodName, FunctionCall.Argument[] arguments) {
         final var argValues = evaluateArguments(context, arguments);
         return ClosureLike.callTheMethod(context, obj, methodName, argValues, this);
     }
 
     @Override
-    public FunctionCall.ArgumentEvaluated[] evaluateArguments(Context context, FunctionCall.Argument[] arguments) {
+    public FunctionCall.ArgumentEvaluated[] evaluateArguments(LocalContext context, FunctionCall.Argument[] arguments) {
         return Closure.evaluateClosureArguments(context, arguments);
     }
 }

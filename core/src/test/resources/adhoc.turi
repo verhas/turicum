@@ -1,2 +1,9 @@
-mut z = 0xFfE3;
-println z
+mut de = debug_session("src/test/resources/debugged.turi")
+mut i = 0
+debug_step_into(de)
+println i; i ++
+debug_step_into(de)
+println i; i ++
+debug_step_into(de)
+println i; i ++
+println de

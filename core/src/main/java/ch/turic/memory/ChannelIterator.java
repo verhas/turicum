@@ -6,6 +6,18 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * The {@code ChannelIterator} class acts as an iterator implementation over a {@link Channel}.
+ * It enables iteration over the elements in a channel, while also delegating operations
+ * to the underlying {@link Channel} instance.
+ *
+ * <p>This class implements both the {@link Channel} and {@link Iterator} interfaces.
+ * The delegation methods handle standard channel operations such as sending, receiving, and closing,
+ * while the iterator methods {@link #hasNext()} and {@link #next()} allow sequential access to the elements
+ * within the channel.
+ *
+ * @param <T> the type of elements handled by the channel.
+ */
 public class ChannelIterator<T> implements Channel<T>, Iterator<T> {
     private final Channel<T> channel;
 
@@ -74,7 +86,7 @@ public class ChannelIterator<T> implements Channel<T>, Iterator<T> {
      * It can be a close message signaling that the channel is closing, or it can be an exception message.
      * If the message is a close message then {@code hasNextMessage} will be {@code false} and the method will return
      * false.
-     * However, if the message cached contains an exception the return value will still be {@code true} and when the
+     * However, if the message cached contains an exception, the return value will still be {@code true} and when the
      * message is fetched calling {@link #next()} the exception will be thrown. That way one end of the communication
      * can transfer an exception through the channel.
      *

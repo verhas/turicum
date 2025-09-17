@@ -2,7 +2,7 @@ package ch.turic.commands.operators;
 
 import ch.turic.ExecutionException;
 import ch.turic.Command;
-import ch.turic.memory.Context;
+import ch.turic.memory.LocalContext;
 
 import java.util.List;
 import java.util.Set;
@@ -11,7 +11,7 @@ import java.util.Set;
 public class Contains extends AbstractOperator {
 
     @Override
-    public Object binaryOp(Context ctx, Object op1, Command right) throws ExecutionException {
+    public Object binaryOp(LocalContext ctx, Object op1, Command right) throws ExecutionException {
         final var op2 = right.execute(ctx);
 
         // if the left side is a string, then convert it to a string

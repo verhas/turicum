@@ -88,7 +88,7 @@ public class TuriHttpServer implements TuriFunction {
                 throw new ExecutionException("Handler is '%s' not a closure or function", handler);
             }
             server.createContext(path, (exchange) -> {
-                        final var handlerCtx = ctx.thread();
+                        final var handlerCtx = ctx.thread(Thread.currentThread());
                         final var request = mapRequest(exchange, handlerCtx);
                         // create a separate instance sent over the channel and used in a different thread
                         final var requestMessage = mapRequest(exchange, handlerCtx);
@@ -105,6 +105,8 @@ public class TuriHttpServer implements TuriFunction {
                         } catch (Exception e) {
                             final var exception = Channel.Message.exception(LngException.build(handlerCtx, e, handlerCtx.threadContext.getStackTrace()));
                             channel.send((Channel.Message) exception);
+                        }finally {
+                            handlerCtx.close();
                         }
                     }
             );
@@ -120,10 +122,10 @@ public class TuriHttpServer implements TuriFunction {
      * Converts the details of an HTTP response into a structured {@link LngObject} representation.
      *
      * @param exchange the {@link HttpExchange} object representing the HTTP response and its context, must not be null
-     * @param ctx      the {@link ch.turic.memory.Context} in which the resulting {@link LngObject} will be created, must not be null
+     * @param ctx      the {@link LocalContext} in which the resulting {@link LngObject} will be created, must not be null
      * @return a {@link LngObject} instance containing the structured details of the HTTP response, such as headers and response code
      */
-    private LngObject mapResponse(HttpExchange exchange, ch.turic.memory.Context ctx) {
+    private LngObject mapResponse(HttpExchange exchange, LocalContext ctx) {
         final var response = LngObject.newEmpty(ctx);
         response.setField("headers", exchange.getResponseHeaders());
         response.setField("code", exchange.getResponseCode());
@@ -134,11 +136,11 @@ public class TuriHttpServer implements TuriFunction {
      * Maps an incoming HTTP request into a structured {@link LngObject} representation.
      *
      * @param exchange the {@link HttpExchange} object representing the HTTP request and its context, must not be null
-     * @param ctx      the {@link ch.turic.memory.Context} in which the resulting {@link LngObject} will be created, must not be null
+     * @param ctx      the {@link LocalContext} in which the resulting {@link LngObject} will be created, must not be null
      * @return a {@link LngObject} instance containing the structured details of the HTTP request, such as method,
      * client information, server information, protocol, headers, URI, and body
      */
-    private LngObject mapRequest(HttpExchange exchange, ch.turic.memory.Context ctx) {
+    private LngObject mapRequest(HttpExchange exchange, LocalContext ctx) {
         final var request = LngObject.newEmpty(ctx);
         request.setField("method", exchange.getRequestMethod());
         final var client = LngObject.newEmpty(ctx);

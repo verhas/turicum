@@ -1,7 +1,7 @@
 package ch.turic.commands;
 
 import ch.turic.ExecutionException;
-import ch.turic.memory.Context;
+import ch.turic.memory.LocalContext;
 import ch.turic.memory.HasFields;
 import ch.turic.memory.Variable;
 import ch.turic.utils.NullableOptional;
@@ -9,7 +9,7 @@ import ch.turic.utils.NullableOptional;
 public sealed abstract class ClosureOrMacro extends ClosureLike permits Closure, Macro {
     final String name;
     final ParameterList parameters;
-    final Context wrapped;
+    final LocalContext wrapped;
     final String[] returnType;
     final BlockCommand command;
     @Override
@@ -27,7 +27,7 @@ public sealed abstract class ClosureOrMacro extends ClosureLike permits Closure,
     }
 
     @Override
-    public Context wrapped() {
+    public LocalContext wrapped() {
         return wrapped;
     }
 
@@ -35,7 +35,7 @@ public sealed abstract class ClosureOrMacro extends ClosureLike permits Closure,
         return returnType;
     }
 
-    public ClosureOrMacro(String name, ParameterList parameters, Context wrapped, String[] returnType, BlockCommand command) {
+    public ClosureOrMacro(String name, ParameterList parameters, LocalContext wrapped, String[] returnType, BlockCommand command) {
         this.name = name;
         this.parameters = parameters;
         this.wrapped = wrapped;
@@ -44,7 +44,7 @@ public sealed abstract class ClosureOrMacro extends ClosureLike permits Closure,
     }
 
     @Override
-    public Object _execute(final Context ctx) throws ExecutionException {
+    public Object _execute(final LocalContext ctx) throws ExecutionException {
         ctx.step();
         Object result = null;
         for (final var cmd : command.commands()) {
@@ -64,7 +64,7 @@ public sealed abstract class ClosureOrMacro extends ClosureLike permits Closure,
                 String.join(",", returnType));
     }
 
-    private static boolean isOfTypes(final Context ctx, final Object value, String[] types) {
+    private static boolean isOfTypes(final LocalContext ctx, final Object value, String[] types) {
         if (types == null || types.length == 0) {
             return true;
         } else {
@@ -79,7 +79,7 @@ public sealed abstract class ClosureOrMacro extends ClosureLike permits Closure,
     }
 
     @Override
-    public NullableOptional<Object> methodCall(Context context, HasFields obj, String methodName, FunctionCallOrCurry.Argument[] arguments) {
+    public NullableOptional<Object> methodCall(LocalContext context, HasFields obj, String methodName, FunctionCallOrCurry.Argument[] arguments) {
         final var argValues = evaluateArguments(context, arguments);
         return ClosureLike.callTheMethod(context, obj, methodName, argValues, this);
     }

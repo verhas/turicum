@@ -3,7 +3,7 @@ package ch.turic.commands.operators;
 import ch.turic.ExecutionException;
 import ch.turic.commands.Closure;
 import ch.turic.Command;
-import ch.turic.memory.Context;
+import ch.turic.memory.LocalContext;
 import ch.turic.memory.LngObject;
 
 import java.util.function.BiPredicate;
@@ -24,7 +24,7 @@ public abstract class Compare implements Operator {
     public static final BiPredicate<Double, Double> DOUBLE_GREATER_EQUAL_PREDICATE = (a, b) -> a >= b;
     public static final Predicate<Integer> GREATER_EQUAL_COMPARATOR_PREDICATE = x -> x >= 0;
 
-    public static boolean compare(Context ctx,
+    public static boolean compare(LocalContext ctx,
                                   Command left,
                                   Command right,
                                   final String operator,
@@ -37,7 +37,7 @@ public abstract class Compare implements Operator {
         return compareEvaluated(ctx, op1, op2, operator, longComparator, doubleComparator, comparatorTest);
     }
 
-    public static boolean compareEvaluated(Context ctx,
+    public static boolean compareEvaluated(LocalContext ctx,
                                            Object op1,
                                            Object op2,
                                            final String operator,
@@ -91,7 +91,7 @@ public abstract class Compare implements Operator {
     @Operator.Symbol("<")
     public static class LessThan extends Compare {
         @Override
-        public Object execute(Context ctx, Command left, Command right) throws ExecutionException {
+        public Object execute(LocalContext ctx, Command left, Command right) throws ExecutionException {
             return compare(ctx, left, right, "<",LONG_LESS_THAN_PREDICATE, DOUBLE_LESS_THAN_PREDICATE, LESS_THAN_COMPARATOR_PREDICATE);
         }
     }
@@ -99,7 +99,7 @@ public abstract class Compare implements Operator {
     @Operator.Symbol("<=")
     public static class LessOrEqual extends Compare {
         @Override
-        public Object execute(Context ctx, Command left, Command right) throws ExecutionException {
+        public Object execute(LocalContext ctx, Command left, Command right) throws ExecutionException {
             return compare(ctx, left, right, "<=", LONG_LESS_EQUAL_PREDICATE, DOUBLE_LESS_EQUAL_PREDICATE, LESS_EQUAL_COMPARATOR_PREDICATE);
         }
     }
@@ -107,7 +107,7 @@ public abstract class Compare implements Operator {
     @Operator.Symbol(">")
     public static class GreaterThan extends Compare {
         @Override
-        public Object execute(Context ctx, Command left, Command right) throws ExecutionException {
+        public Object execute(LocalContext ctx, Command left, Command right) throws ExecutionException {
             return compare(ctx, left, right, ">", LONG_GREATER_THAN_PREDICATE, DOUBLE_GREATER_THAN_PREDICATE, GREATER_THAN_COMPARATOR_PREDICATE);
         }
     }
@@ -115,7 +115,7 @@ public abstract class Compare implements Operator {
     @Operator.Symbol(">=")
     public static class GreaterOrEqual extends Compare {
         @Override
-        public Object execute(Context ctx, Command left, Command right) throws ExecutionException {
+        public Object execute(LocalContext ctx, Command left, Command right) throws ExecutionException {
             return compare(ctx, left, right, ">=", LONG_GREATER_EQUAL_PREDICATE, DOUBLE_GREATER_EQUAL_PREDICATE, GREATER_EQUAL_COMPARATOR_PREDICATE);
         }
     }
@@ -123,7 +123,7 @@ public abstract class Compare implements Operator {
     @Operator.Symbol("==")
     public static class Equal extends Compare {
         @Override
-        public Object execute(Context ctx, Command left, Command right) throws ExecutionException {
+        public Object execute(LocalContext ctx, Command left, Command right) throws ExecutionException {
             final var op1 = left.execute(ctx);
             final var op2 = right.execute(ctx);
             if (op1 == null && op2 == null) {
@@ -139,7 +139,7 @@ public abstract class Compare implements Operator {
     @Operator.Symbol("===")
     public static class Same extends Compare {
         @Override
-        public Object execute(Context ctx, Command left, Command right) throws ExecutionException {
+        public Object execute(LocalContext ctx, Command left, Command right) throws ExecutionException {
             final var op1 = left.execute(ctx);
             final var op2 = right.execute(ctx);
             if (Cast.isLong(op1) || Cast.isLong(op2)) {
@@ -155,7 +155,7 @@ public abstract class Compare implements Operator {
     @Operator.Symbol("!=")
     public static class NotEqual extends Compare {
         @Override
-        public Object execute(Context ctx, Command left, Command right) throws ExecutionException {
+        public Object execute(LocalContext ctx, Command left, Command right) throws ExecutionException {
             final var op1 = left.execute(ctx);
             final var op2 = right.execute(ctx);
             if (op1 == null && op2 == null) {

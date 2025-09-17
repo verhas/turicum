@@ -7,7 +7,9 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.*;
 
-public class AsyncStreamHandler extends CompletableFuture<Object> implements Yielder, AutoCloseable, Iterable<Object>, Future<Object>, HasFields {
+public class AsyncStreamHandler
+        extends CompletableFuture<Object>
+        implements Yielder, AutoCloseable, Iterable<Object>, Future<Object>, HasFields {
 
     private final BlockingQueueChannel<Object> toChildQueue;
     private final BlockingQueueChannel<Object> toParentQueue;

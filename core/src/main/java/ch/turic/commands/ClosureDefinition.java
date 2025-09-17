@@ -1,7 +1,7 @@
 package ch.turic.commands;
 
 import ch.turic.ExecutionException;
-import ch.turic.memory.Context;
+import ch.turic.memory.LocalContext;
 import ch.turic.utils.Unmarshaller;
 
 public class ClosureDefinition extends AbstractCommand {
@@ -30,7 +30,7 @@ public class ClosureDefinition extends AbstractCommand {
     public final BlockCommand body;
 
     @Override
-    public Object _execute(final Context context) throws ExecutionException {
+    public Object _execute(final LocalContext context) throws ExecutionException {
         return new Closure(null, arguments, context, null, body);
     }
 }

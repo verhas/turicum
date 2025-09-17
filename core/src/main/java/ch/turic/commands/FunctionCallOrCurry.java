@@ -95,8 +95,8 @@ public abstract class FunctionCallOrCurry extends AbstractCommand {
      * @param freeze        requires that the arguments are frozen after they are defined
      * @throws ExecutionException if required parameters are missing or parameter assignment fails
      */
-    public static void defineArgumentsInContext(final Context ctx,
-                                                final Context callerContext,
+    public static void defineArgumentsInContext(final LocalContext ctx,
+                                                final LocalContext callerContext,
                                                 final ParameterList pList,
                                                 final ArgumentEvaluated[] argValues,
                                                 final boolean freeze) {
@@ -171,7 +171,7 @@ public abstract class FunctionCallOrCurry extends AbstractCommand {
      *                 is spread. In that case, it is not a problem, if there is no "cls", "this" or some other parameters-
      * @throws ExecutionException if there is no 'meta' and the name is not defined
      */
-    protected static void addNamedParameter(Context ctx, ParameterList pList, ArgumentEvaluated argValue, LngObject meta, boolean[] filled, boolean lenient) {
+    protected static void addNamedParameter(LocalContext ctx, ParameterList pList, ArgumentEvaluated argValue, LngObject meta, boolean[] filled, boolean lenient) {
         if (argValue.value instanceof Spread) {
             throw new ExecutionException("Named argument cannot be spread");
         } else {
@@ -217,7 +217,7 @@ public abstract class FunctionCallOrCurry extends AbstractCommand {
      * @param filled   the array keeping track of which parameters had got value from the caller
      * @throws ExecutionException if there is no rest and there are too many positional parameters
      */
-    private static void addPositionalParameter(Context ctx,
+    private static void addPositionalParameter(LocalContext ctx,
                                                ParameterList pList,
                                                ArgumentEvaluated argValue,
                                                LngList rest,
@@ -268,7 +268,7 @@ public abstract class FunctionCallOrCurry extends AbstractCommand {
      *
      * @param ctx the context in which we have to freeze "this"
      */
-    public static void freezeThisAndCls(Context ctx) {
+    public static void freezeThisAndCls(LocalContext ctx) {
         if (ctx.contains("this")) {
             ctx.freeze("this");// better do not change 'this' inside methods
         }
@@ -280,7 +280,7 @@ public abstract class FunctionCallOrCurry extends AbstractCommand {
      *
      * @param ctx the context in which to freeze 'cls'
      */
-    public static void freezeCls(Context ctx) {
+    public static void freezeCls(LocalContext ctx) {
         if (ctx.contains("cls")) {
             ctx.freeze("cls");// better do not change 'this' inside methods
         }
@@ -295,7 +295,7 @@ public abstract class FunctionCallOrCurry extends AbstractCommand {
      * @param identifier the name of the method
      * @return the method object that can be a closure
      */
-    protected static Object getMethod(Context context, HasFields obj, String identifier) {
+    protected static Object getMethod(LocalContext context, HasFields obj, String identifier) {
         return switch (obj) {
             case null -> null;
             case JavaObject jo -> {
@@ -326,7 +326,7 @@ public abstract class FunctionCallOrCurry extends AbstractCommand {
      * @param jo      the JavaObject whose class is used for lookup
      * @return the associated TuriClass, or null if none is found
      */
-    public static TuriClass getTuriClass(Context context, JavaObject jo) {
+    public static TuriClass getTuriClass(LocalContext context, JavaObject jo) {
         var turi = context.globalContext.getTuriClass(jo.object().getClass());
         if (turi == null) {
             var papi = jo.object().getClass();
@@ -369,7 +369,7 @@ public abstract class FunctionCallOrCurry extends AbstractCommand {
      * @param context the execution context used for evaluating "this" or "cls" and their local fields
      * @return the resulting Command object, either transformed into a FieldAccess Command or the original Command object
      */
-    protected Command myFunctionObject(final Context context) {
+    protected Command myFunctionObject(final LocalContext context) {
         final Command myObject;
         if (object instanceof Identifier id && (context.contains("this") || context.contains("cls"))) {
             final var thisObject = context.contains("this") ? context.get("this") : null;
@@ -394,7 +394,7 @@ public abstract class FunctionCallOrCurry extends AbstractCommand {
      * @param types the type names declared
      * @return the array of actual type names
      */
-    public static String[] calculateTypeNames(final Context ctx, TypeDeclaration[] types) {
+    public static String[] calculateTypeNames(final LocalContext ctx, TypeDeclaration[] types) {
         if (types != null) {
             return Arrays.stream(types).map(t -> t.calculateTypeName(ctx)).toArray(String[]::new);
         } else {

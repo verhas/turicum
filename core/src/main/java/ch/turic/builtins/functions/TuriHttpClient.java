@@ -7,6 +7,7 @@ import ch.turic.TuriFunction;
 import ch.turic.builtins.classes.TuriMethod;
 import ch.turic.memory.LngList;
 import ch.turic.memory.LngObject;
+import ch.turic.memory.LocalContext;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -80,7 +81,7 @@ public class TuriHttpClient implements TuriFunction {
      * @param result   the LngObject where the headers will be set
      * @param response the HTTP response from which the headers will be extracted
      */
-    private void setHeaders(ch.turic.memory.Context context, LngObject result, HttpResponse<?> response) {
+    private void setHeaders(LocalContext context, LngObject result, HttpResponse<?> response) {
         final var headers = LngObject.newEmpty(context);
         for (final var header : response.headers().map().entrySet()) {
             final var headerValues = new LngList();

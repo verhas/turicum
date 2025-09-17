@@ -3,7 +3,7 @@ package ch.turic.commands;
 
 import ch.turic.Command;
 import ch.turic.ExecutionException;
-import ch.turic.memory.Context;
+import ch.turic.memory.LocalContext;
 import ch.turic.memory.LazyObject;
 import ch.turic.memory.LngObject;
 import ch.turic.utils.Unmarshaller;
@@ -30,7 +30,7 @@ public class JsonConstant extends AbstractCommand {
     }
 
     @Override
-    public LngObject _execute(Context ctx) throws ExecutionException {
+    public LngObject _execute(LocalContext ctx) throws ExecutionException {
         if (lazy) {
             return new LazyObject(ctx.open(), fields);
         } else {

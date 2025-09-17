@@ -16,13 +16,13 @@ public sealed abstract class ClosureLike extends AbstractCommand implements Comm
 
     public abstract ParameterList parameters();
 
-    public abstract Context wrapped();
+    public abstract LocalContext wrapped();
 
     public abstract String[] returnType();
 
-    public abstract NullableOptional<Object> methodCall(Context context, HasFields obj, String methodName, FunctionCallOrCurry.Argument[] arguments);
+    public abstract NullableOptional<Object> methodCall(LocalContext context, HasFields obj, String methodName, FunctionCallOrCurry.Argument[] arguments);
 
-    public abstract FunctionCallOrCurry.ArgumentEvaluated[] evaluateArguments(Context context, FunctionCallOrCurry.Argument[] arguments);
+    public abstract FunctionCallOrCurry.ArgumentEvaluated[] evaluateArguments(LocalContext context, FunctionCallOrCurry.Argument[] arguments);
 
     public abstract String name();
 
@@ -104,9 +104,9 @@ public sealed abstract class ClosureLike extends AbstractCommand implements Comm
         }
     }
 
-    private static Context prepareListContext(Context context, String methodName, LngList lngList, FunctionCallOrCurry.ArgumentEvaluated[] argValues, ClosureLike it) {
+    private static LocalContext prepareListContext(LocalContext context, String methodName, LngList lngList, FunctionCallOrCurry.ArgumentEvaluated[] argValues, ClosureLike it) {
         final var fp = lngList.getFieldProvider();
-        final Context ctx;
+        final LocalContext ctx;
         if (fp instanceof LngObject lngObject) {
             ctx = prepareObjectContext(context, lngObject, methodName, argValues, it);
         } else if (fp instanceof LngClass lngClass) {
@@ -118,8 +118,8 @@ public sealed abstract class ClosureLike extends AbstractCommand implements Comm
         return ctx;
     }
 
-    private static Context prepareObjectContext(Context context, LngObject lngObject, String methodName, FunctionCallOrCurry.ArgumentEvaluated[] argValues, ClosureLike it) {
-        final Context ctx;
+    private static LocalContext prepareObjectContext(LocalContext context, LngObject lngObject, String methodName, FunctionCallOrCurry.ArgumentEvaluated[] argValues, ClosureLike it) {
+        final LocalContext ctx;
         if (it.wrapped() == null) {
             ctx = context.wrap(lngObject.context());
         } else {
@@ -135,7 +135,7 @@ public sealed abstract class ClosureLike extends AbstractCommand implements Comm
         return ctx;
     }
 
-    private static Context getClassContext(Context context, String methodName, LngClass lngClass, FunctionCallOrCurry.ArgumentEvaluated[] argValues, ClosureLike it) {
+    private static LocalContext getClassContext(LocalContext context, String methodName, LngClass lngClass, FunctionCallOrCurry.ArgumentEvaluated[] argValues, ClosureLike it) {
         final var ctx = context.wrap(lngClass.context());
         ctx.let0(".", methodName);
         ctx.freeze(".");
@@ -167,13 +167,13 @@ public sealed abstract class ClosureLike extends AbstractCommand implements Comm
      * @return a {@code NullableOptional} containing the result of the method execution if successful,
      * or an empty {@code NullableOptional} if the method invocation is not applicable
      */
-    static NullableOptional<Object> callTheMethod(Context context, HasFields obj, String methodName, FunctionCallOrCurry.ArgumentEvaluated[] argValues, ClosureLike it) {
+    static NullableOptional<Object> callTheMethod(LocalContext context, HasFields obj, String methodName, FunctionCallOrCurry.ArgumentEvaluated[] argValues, ClosureLike it) {
         if (obj instanceof LngObject lngObject) {
-            final Context ctx = ClosureLike.prepareObjectContext(context, lngObject, methodName, argValues, it);
+            final LocalContext ctx = ClosureLike.prepareObjectContext(context, lngObject, methodName, argValues, it);
             return NullableOptional.of(it.execute(ctx));
         }
         if (obj instanceof LngList lngList && lngList.hasFieldProvider()) {
-            final Context ctx = ClosureLike.prepareListContext(context, methodName, lngList, argValues, it);
+            final LocalContext ctx = ClosureLike.prepareListContext(context, methodName, lngList, argValues, it);
             return NullableOptional.of(it.execute(ctx));
         }
         if (obj instanceof LngClass lngClass) {

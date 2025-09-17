@@ -6,7 +6,7 @@ import ch.turic.analyzer.LexList;
 import ch.turic.analyzer.Lexer;
 import ch.turic.analyzer.ProgramAnalyzer;
 import ch.turic.Program;
-import ch.turic.memory.Context;
+import ch.turic.memory.LocalContext;
 import org.junit.jupiter.api.Test;
 
 public class TestMarshalling {
@@ -29,7 +29,7 @@ public class TestMarshalling {
         final var bytes = marshaller.serialize(program);
         final var unmarshaller = new Unmarshaller();
         final var descode = unmarshaller.deserialize(bytes);
-        final var ctx = new Context();
+        final var ctx = new LocalContext();
         BuiltIns.register(ctx);
         descode.execute(ctx);
     }

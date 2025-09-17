@@ -1,7 +1,7 @@
 package ch.turic.commands;
 
 import ch.turic.LngCallable;
-import ch.turic.memory.Context;
+import ch.turic.memory.LocalContext;
 
 /**
  * Represents a closure that chains the execution of two {@link ClosureLike} objects.
@@ -21,7 +21,7 @@ public final class ChainedMacro extends ChainedClosureOrMacro implements LngCall
     }
 
     @Override
-    public FunctionCall.ArgumentEvaluated[] evaluateArguments(Context context, FunctionCall.Argument[] arguments) {
+    public FunctionCall.ArgumentEvaluated[] evaluateArguments(LocalContext context, FunctionCall.Argument[] arguments) {
         return Macro.evaluateMacroArguments(context, arguments);
     }
 }

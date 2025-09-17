@@ -26,7 +26,7 @@ public class AsyncEvaluation extends AbstractCommand {
     }
 
     @Override
-    public Object _execute(Context ctx) throws ExecutionException {
+    public Object _execute(LocalContext ctx) throws ExecutionException {
         int inCapacity = Integer.MAX_VALUE, outCapacity = Integer.MAX_VALUE, stepLimit = -1;
         long timeLimit = -1;
         for (final var key : options.keySet()) {
@@ -61,21 +61,24 @@ public class AsyncEvaluation extends AbstractCommand {
         }
     }
 
-    private AsyncStreamHandler startAsyncStream(Command command, Context ctx, int outCapacity, int inCapacity) {
+    private AsyncStreamHandler startAsyncStream(Command command, LocalContext ctx, int outCapacity, int inCapacity) {
         final var yielder = new AsyncStreamHandler(outCapacity, inCapacity);
 
-        final var newThreadContext = ctx.thread();
-        copyVariables(ctx, newThreadContext);
-        newThreadContext.threadContext.addYielder(yielder);
+        final var newContext = ctx.thread();
+        copyVariables(ctx, newContext);
+        newContext.threadContext.addYielder(yielder);
 
         CompletableFuture<Channel.Message<?>> future =
                 CompletableFuture.supplyAsync(() -> {
                     Thread.currentThread().setName(NameGen.generateName());
+                    newContext.threadContext.setThread(Thread.currentThread());
                     try (yielder) {
-                        return Channel.Message.of(command.execute(newThreadContext));
+                        return Channel.Message.of(command.execute(newContext));
                     } catch (Exception t) {
-                        final var exception = LngException.build(ctx, t, newThreadContext.threadContext.getStackTrace());
+                        final var exception = LngException.build(ctx, t, newContext.threadContext.getStackTrace());
                         return Channel.Message.exception(exception);
+                    }finally {
+                        newContext.close();
                     }
                 }, executor);
         yielder.setFuture(future);
@@ -90,14 +93,14 @@ public class AsyncEvaluation extends AbstractCommand {
      * @param source the context from which we copy the variables
      * @param target the context to which we copy the variables
      */
-    private static void copyVariables(Context source, Context target) {
+    private static void copyVariables(LocalContext source, LocalContext target) {
         for (final var key : source.keys()) {
             target.let0(key, source.get(key));
             target.freeze(key);
         }
     }
 
-    private static Long parameter(String key, Context context, Command command, long multiplier) {
+    private static Long parameter(String key, LocalContext context, Command command, long multiplier) {
         final var arg = command.execute(context);
         if (Cast.isLong(arg)) {
             return Cast.toLong(arg) * multiplier;

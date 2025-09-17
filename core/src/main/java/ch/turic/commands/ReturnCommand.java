@@ -3,7 +3,7 @@ package ch.turic.commands;
 import ch.turic.Command;
 import ch.turic.ExecutionException;
 import ch.turic.commands.operators.Cast;
-import ch.turic.memory.Context;
+import ch.turic.memory.LocalContext;
 import ch.turic.utils.Unmarshaller;
 
 public class ReturnCommand extends AbstractCommand {
@@ -31,7 +31,7 @@ public class ReturnCommand extends AbstractCommand {
     }
 
     @Override
-    public Conditional _execute(Context context) throws ExecutionException {
+    public Conditional _execute(LocalContext context) throws ExecutionException {
         if (Cast.toBoolean(condition.execute(context))) {
             if (expression == null) {
                 return Conditional.doReturn(null);

@@ -1,7 +1,7 @@
 package ch.turic.commands;
 
 import ch.turic.Command;
-import ch.turic.memory.Context;
+import ch.turic.memory.LocalContext;
 import ch.turic.memory.HasFields;
 
 import static ch.turic.commands.FunctionCallOrCurry.ArgumentEvaluated;
@@ -13,17 +13,17 @@ import static ch.turic.commands.FunctionCallOrCurry.ArgumentEvaluated;
  */
 public final class Macro extends ClosureOrMacro {
 
-    public Macro(String name, ParameterList parameters, Context wrapped, String[] returnType, BlockCommand command) {
+    public Macro(String name, ParameterList parameters, LocalContext wrapped, String[] returnType, BlockCommand command) {
         super(name, parameters, wrapped, returnType, command);
     }
 
-    public Macro(String name, ParameterList parameters, Context wrapped, String[] returnType, BlockCommand command, HasFields curriedSelf, FunctionCallOrCurry.ArgumentEvaluated[] curriedArgs) {
+    public Macro(String name, ParameterList parameters, LocalContext wrapped, String[] returnType, BlockCommand command, HasFields curriedSelf, FunctionCallOrCurry.ArgumentEvaluated[] curriedArgs) {
         super(name, parameters, wrapped, returnType, command);
         this.curryThis(curriedSelf, curriedArgs);
     }
 
     @Override
-    public FunctionCallOrCurry.ArgumentEvaluated[] evaluateArguments(Context context, FunctionCallOrCurry.Argument[] arguments) {
+    public FunctionCallOrCurry.ArgumentEvaluated[] evaluateArguments(LocalContext context, FunctionCallOrCurry.Argument[] arguments) {
         return evaluateMacroArguments(context, arguments);
     }
 
@@ -40,7 +40,7 @@ public final class Macro extends ClosureOrMacro {
      * @param arguments the array of arguments to be evaluated; can be null
      * @return an array of evaluated arguments in the form of {@link FunctionCallOrCurry.ArgumentEvaluated}
      */
-    public static FunctionCallOrCurry.ArgumentEvaluated[] evaluateMacroArguments(Context context, FunctionCallOrCurry.Argument[] arguments) {
+    public static FunctionCallOrCurry.ArgumentEvaluated[] evaluateMacroArguments(LocalContext context, FunctionCallOrCurry.Argument[] arguments) {
         final var argValues = arguments == null ? new ArgumentEvaluated[0] : new ArgumentEvaluated[arguments.length];
         for (int i = 0; i < argValues.length; i++) {
             argValues[i] = new ArgumentEvaluated(arguments[i].id(), arguments[i].expression());

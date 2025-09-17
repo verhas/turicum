@@ -1,7 +1,7 @@
 package ch.turic.commands;
 
 import ch.turic.Command;
-import ch.turic.memory.Context;
+import ch.turic.memory.LocalContext;
 import ch.turic.utils.Unmarshaller;
 
 /**
@@ -29,7 +29,7 @@ public record TypeDeclaration(String identifier, Command expression) {
      * @param context the context used to execute the expression in
      * @return the name of the type
      */
-    public String calculateTypeName(Context context) {
+    public String calculateTypeName(LocalContext context) {
         if (expression == null) {
             return identifier;
         } else {

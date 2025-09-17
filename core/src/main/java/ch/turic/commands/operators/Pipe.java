@@ -2,7 +2,7 @@ package ch.turic.commands.operators;
 
 import ch.turic.Command;
 import ch.turic.ExecutionException;
-import ch.turic.memory.Context;
+import ch.turic.memory.LocalContext;
 
 @Operator.Symbol("or")
 public class Pipe extends AbstractOperator {
@@ -21,7 +21,7 @@ public class Pipe extends AbstractOperator {
      * @throws ExecutionException If there is an error during the execution of the right operand
      */
     @Override
-    public Object binaryOp(Context ctx, Object op1, Command right) throws ExecutionException {
+    public Object binaryOp(LocalContext ctx, Object op1, Command right) throws ExecutionException {
         if (op1 != null) {
             return op1;
         }

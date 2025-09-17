@@ -37,7 +37,7 @@ public record ObjectFieldLeftValue(LeftValue object, String field) implements Le
      * @return the object field represented by this left-value within the provided context
      */
     @Override
-    public HasFields getObject(Context ctx) {
+    public HasFields getObject(LocalContext ctx) {
         final var guaranteedObject = object.getObject(ctx);
         final var existing = guaranteedObject.getField(field);
         if (existing == null) {
@@ -50,7 +50,7 @@ public record ObjectFieldLeftValue(LeftValue object, String field) implements Le
     }
 
     @Override
-    public HasIndex getIndexable(Context ctx, Object indexValue) {
+    public HasIndex getIndexable(LocalContext ctx, Object indexValue) {
         final var guaranteedObject = object.getObject(ctx);
         final var existing = guaranteedObject.getField(field);
         if (existing == null) {
@@ -70,7 +70,7 @@ public record ObjectFieldLeftValue(LeftValue object, String field) implements Le
      * @throws ExecutionException if the assignment operation fails
      */
     @Override
-    public void assign(Context ctx, Object value) throws ExecutionException {
+    public void assign(LocalContext ctx, Object value) throws ExecutionException {
         object.getObject(ctx).setField(field, value);
     }
 
@@ -91,7 +91,7 @@ public record ObjectFieldLeftValue(LeftValue object, String field) implements Le
      * @throws ExecutionException if an error occurs during value retrieval or assignment
      */
     @Override
-    public Object reassign(Context ctx, Function<Object, Object> newValueCalculator) throws ExecutionException {
+    public Object reassign(LocalContext ctx, Function<Object, Object> newValueCalculator) throws ExecutionException {
         final var object = this.object.getObject(ctx);
         final Object newValue;
         if (object instanceof LngObject lngObject) {

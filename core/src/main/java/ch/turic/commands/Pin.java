@@ -2,7 +2,7 @@ package ch.turic.commands;
 
 
 import ch.turic.ExecutionException;
-import ch.turic.memory.Context;
+import ch.turic.memory.LocalContext;
 import ch.turic.memory.LngClass;
 import ch.turic.memory.LngList;
 import ch.turic.memory.LngObject;
@@ -36,7 +36,7 @@ public class Pin extends AbstractCommand {
     }
 
     @Override
-    public Object _execute(final Context ctx) throws ExecutionException {
+    public Object _execute(final LocalContext ctx) throws ExecutionException {
         for (var item : items) {
             ctx.step();
             switch (item.type) {

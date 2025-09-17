@@ -7,7 +7,7 @@ import ch.turic.Input;
 import ch.turic.commands.Closure;
 import ch.turic.Command;
 import ch.turic.Program;
-import ch.turic.memory.Context;
+import ch.turic.memory.LocalContext;
 
 import java.util.ArrayList;
 
@@ -18,7 +18,7 @@ import java.util.ArrayList;
  * end snippet
  */
 public class ProgramAnalyzer extends AbstractAnalyzer {
-    private Context preprocessorContext = null;
+    private LocalContext preprocessorContext = null;
 
 
     /**
@@ -36,7 +36,7 @@ public class ProgramAnalyzer extends AbstractAnalyzer {
                 lexes.next();
                 final var preprocessor = CommandAnalyzer.INSTANCE.analyze(lexes);
                 if (preprocessorContext == null) {
-                    preprocessorContext = new Context();
+                    preprocessorContext = new LocalContext();
                     BuiltIns.register(preprocessorContext);
                 }
                 preprocess(lexes, preprocessor, commands);
@@ -49,7 +49,7 @@ public class ProgramAnalyzer extends AbstractAnalyzer {
         return new Program(commands.toArray(Command[]::new));
     }
 
-    public Context context() {
+    public LocalContext context() {
         return preprocessorContext;
     }
 

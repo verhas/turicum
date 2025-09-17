@@ -2,7 +2,7 @@ package ch.turic.commands;
 
 import ch.turic.Command;
 import ch.turic.ExecutionException;
-import ch.turic.memory.Context;
+import ch.turic.memory.LocalContext;
 import ch.turic.memory.LngException;
 import ch.turic.utils.Unmarshaller;
 
@@ -32,7 +32,7 @@ public class TryCatch extends AbstractCommand {
 
 
     @Override
-    public Object _execute(final Context context) throws ExecutionException {
+    public Object _execute(final LocalContext context) throws ExecutionException {
         Object result;
         // save the position of the stack trace so we can drop the deeper elements when catching
         final int traceSize = context.threadContext.traceSize();
@@ -80,7 +80,7 @@ public class TryCatch extends AbstractCommand {
      * @param from source context containing the variables to be exported
      * @param to   destination context where variables will be copied to
      */
-    public static void exportFromTemporaryContext(Context from, Context to) {
+    public static void exportFromTemporaryContext(LocalContext from, LocalContext to) {
         for (final var variable : from.allFrameKeys()) {
             if (to.containsFrame(variable)) {
                 throw new ExecutionException("Variable '%s' is already defined.", variable);

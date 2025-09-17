@@ -2,7 +2,7 @@ package ch.turic.commands;
 
 
 import ch.turic.ExecutionException;
-import ch.turic.memory.Context;
+import ch.turic.memory.LocalContext;
 import ch.turic.utils.Unmarshaller;
 
 public class IntegerConstant extends AbstractCommand {
@@ -28,7 +28,7 @@ public class IntegerConstant extends AbstractCommand {
     }
 
     @Override
-    public Long _execute(Context ctx) throws ExecutionException {
+    public Long _execute(LocalContext ctx) throws ExecutionException {
         return value;
     }
 

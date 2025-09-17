@@ -13,13 +13,13 @@ public record CalculatedLeftValue(Command expression) implements LeftValue {
     }
 
     @Override
-    public HasFields getObject(Context ctx) {
+    public HasFields getObject(LocalContext ctx) {
         final var existing = expression.execute(ctx);
         return LeftValue.toObject(existing);
     }
 
     @Override
-    public HasIndex getIndexable(Context ctx, Object indexValue) {
+    public HasIndex getIndexable(LocalContext ctx, Object indexValue) {
         final var existing = expression.execute(ctx);
         return LeftValue.toIndexable(existing, indexValue);
     }
@@ -30,7 +30,7 @@ public record CalculatedLeftValue(Command expression) implements LeftValue {
      * @throws ExecutionException always thrown to signal that assignment is disallowed
      */
     @Override
-    public void assign(Context ctx, Object value) throws ExecutionException {
+    public void assign(LocalContext ctx, Object value) throws ExecutionException {
         throw new ExecutionException("Cannot assign value to calculated left side");
     }
 
@@ -40,7 +40,7 @@ public record CalculatedLeftValue(Command expression) implements LeftValue {
      * @throws ExecutionException always thrown to signal that modification is not allowed
      */
     @Override
-    public Object reassign(Context ctx, Function<Object, Object> newValueCalculator) throws ExecutionException {
+    public Object reassign(LocalContext ctx, Function<Object, Object> newValueCalculator) throws ExecutionException {
         throw new ExecutionException("Cannot modify left value to calculated value");
     }
 

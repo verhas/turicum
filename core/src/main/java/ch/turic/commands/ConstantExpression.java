@@ -1,7 +1,7 @@
 package ch.turic.commands;
 
 import ch.turic.ExecutionException;
-import ch.turic.memory.Context;
+import ch.turic.memory.LocalContext;
 import ch.turic.utils.Unmarshaller;
 
 public class ConstantExpression extends AbstractCommand {
@@ -22,7 +22,7 @@ public class ConstantExpression extends AbstractCommand {
     final Object value;
 
     @Override
-    public Object _execute(final Context context) throws ExecutionException {
+    public Object _execute(final LocalContext context) throws ExecutionException {
         return value;
     }
 }

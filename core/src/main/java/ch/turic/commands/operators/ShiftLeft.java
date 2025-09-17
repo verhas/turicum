@@ -28,7 +28,7 @@ public class ShiftLeft extends AbstractOperator {
     }
 
     @Override
-    public Object binaryOp(Context ctx, Object op1, Command right) throws ExecutionException {
+    public Object binaryOp(LocalContext ctx, Object op1, Command right) throws ExecutionException {
         final var op2 = right.execute(ctx);
         return binary("shl", op1, op2, (a, b) -> (a << b), ShiftLeft::shl);
     }

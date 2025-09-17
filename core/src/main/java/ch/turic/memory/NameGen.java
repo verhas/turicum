@@ -20,10 +20,6 @@ public class NameGen {
         String noun = NOUNS[(nIndex++) % NOUNS.length];
         return adjective + "_" + noun;
     }
-
-    public static void main(String[] args) {
-        System.out.println(generateName());
-    }
 }
 
 

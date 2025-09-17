@@ -4,7 +4,7 @@ import ch.turic.analyzer.LexList;
 import ch.turic.analyzer.Lexer;
 import ch.turic.analyzer.ProgramAnalyzer;
 import ch.turic.commands.BlockCommand;
-import ch.turic.memory.Context;
+import ch.turic.memory.LocalContext;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -24,11 +24,11 @@ import java.util.Collection;
  */
 public class Repl {
 
-    public Context ctx;
+    public LocalContext ctx;
     public LexList lexes;
 
     public Repl() {
-        ctx = new Context();
+        ctx = new LocalContext();
         BuiltIns.register(ctx);
     }
 

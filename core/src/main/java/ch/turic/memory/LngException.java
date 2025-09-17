@@ -11,9 +11,9 @@ public class LngException extends LngObject {
     private static final LngClass exceptionClass = new LngClass(null, "EXCEPTION");
     private final Throwable e;
     private final LngList stackTrace;
-    private final Context context;
+    private final LocalContext context;
 
-    public LngException(Context context, Throwable e, List<LngStackFrame> stackTrace) {
+    public LngException(LocalContext context, Throwable e, List<LngStackFrame> stackTrace) {
         super(exceptionClass, null);
         this.context = context;
         this.e = e;
@@ -39,7 +39,7 @@ public class LngException extends LngObject {
         }
     }
 
-    public static LngException build(Context context, Throwable e, List<LngStackFrame> stackTrace){
+    public static LngException build(LocalContext context, Throwable e, List<LngStackFrame> stackTrace){
         if( e instanceof ExecutionException ee && ee.embedded() != null ){
             return ee.embedded();
         }
@@ -51,7 +51,7 @@ public class LngException extends LngObject {
     }
 
     @Override
-    public Context context() {
+    public LocalContext context() {
         return context;
     }
 

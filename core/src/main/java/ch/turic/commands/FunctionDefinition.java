@@ -1,7 +1,7 @@
 package ch.turic.commands;
 
 import ch.turic.ExecutionException;
-import ch.turic.memory.Context;
+import ch.turic.memory.LocalContext;
 import ch.turic.utils.Unmarshaller;
 
 public class FunctionDefinition extends AbstractCommand {
@@ -36,7 +36,7 @@ public class FunctionDefinition extends AbstractCommand {
     public final BlockCommand body;
 
     @Override
-    public Object _execute(final Context context) throws ExecutionException {
+    public Object _execute(final LocalContext context) throws ExecutionException {
         final var closure = new Closure(functionName, arguments, null, FunctionCall.calculateTypeNames(context, returnType), body);
         if (functionName != null) {
             context.local(functionName, closure);

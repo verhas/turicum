@@ -14,14 +14,23 @@ import java.util.stream.Collectors;
  * An object that holds information about a variable
  */
 public class Variable {
+    /**
+     * Create a new variable for a name without defining the value or the different types it can be.
+     *
+     * @param name the name of the variable
+     */
     public Variable(String name) {
         this.name = name;
     }
 
     /**
-     * @param javaType    the declared types of the variable or null if there are no declared types
-     * @param lngClass    the class object if the types is LngObject, otherwise null and ignored
-     * @param declaration is the name used to define the type. It is used only for printouts.
+     * A variable can have one or more types. These types are checked and restrict the value of the variable.
+     * Assigning a value to a variable that does not fit any of the types is an error.
+     * This record describes one type.
+     *
+     * @param javaType    the declared type of the variable, or null if there are no declared types
+     * @param lngClass    the class object if the type is LngObject, otherwise null and ignored
+     * @param declaration is the name used to define the type. It is used only for logs, debug, and printouts.
      */
     public record Type(Class<?> javaType, LngClass lngClass, String declaration) {
         public Type(Class<?> javaType, LngClass lngClass, Identifier id) {
@@ -54,8 +63,15 @@ public class Variable {
     Object value;
     Type[] types;
 
+    /**
+     * Set the value of the variable. Setting also checks that the value is assignable to this variable.
+     * It is assignable if there is a type for this variable that is okay with this value.
+     *
+     * @param newValue the value to be assigned to the variable
+     * @throws ExecutionException if the value does not fit any of the types.
+     */
     public void set(Object newValue) throws ExecutionException {
-        if (!isOfTypes(newValue, types)) {
+        if (!isOfTypes(newValue)) {
             if (types.length == 1) {
                 throw new ExecutionException(
                         "Cannot set variable '%s' to value '%s' because it does not fit the declared type %s",
@@ -73,7 +89,13 @@ public class Variable {
         this.value = newValue;
     }
 
-    public static boolean isOfTypes(final Object value, Type[] types) {
+    /**
+     * Checks that the value fits any of the types.
+     *
+     * @param value the value to be checked.
+     * @return {@code true} if the value fits any of the types of the variable.
+     */
+    private boolean isOfTypes(final Object value) {
         if (types == null || types.length == 0) {
             return true;
         } else {
@@ -88,7 +110,7 @@ public class Variable {
 
     private static final Type[] NO_TYPE = new Type[0];
 
-    public static Type[] getTypes(final Context context, final String[] names) {
+    public static Type[] getTypes(final LocalContext context, final String[] names) {
         return names == null ? NO_TYPE :
                 Arrays.stream(names).map((s) -> getTypeFromName(context, s)).toArray(Type[]::new);
     }
@@ -100,7 +122,7 @@ public class Variable {
      * The method maps predefined types names (e.g., {@code "bool"}, {@code "str"}, {@code "num"}, etc.)
      * to their corresponding Java classes or internal representations. It also handles custom class names
      * either by prefixing with {@code "java."} to identify a Java class dynamically, or by looking up
-     * user-defined classes in the provided {@link Context}.
+     * user-defined classes in the provided {@link LocalContext}.
      *
      * <p>Recognized built-in types:
      * <ul>
@@ -131,7 +153,7 @@ public class Variable {
      * @throws ExecutionException if the types cannot be found, is not defined in the context,
      *                            or is not a class when expected
      */
-    public static Type getTypeFromName(Context context, String name) {
+    public static Type getTypeFromName(LocalContext context, String name) {
         return switch (name) {
             // snippet types
             case "bool" -> new Variable.Type(Boolean.class, null, new Identifier(name));

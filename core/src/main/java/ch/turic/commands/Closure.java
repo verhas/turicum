@@ -1,8 +1,9 @@
 package ch.turic.commands;
 
+import ch.turic.Context;
 import ch.turic.ExecutionException;
 import ch.turic.LngCallable;
-import ch.turic.memory.Context;
+import ch.turic.memory.LocalContext;
 import ch.turic.memory.LngObject;
 import ch.turic.utils.Unmarshaller;
 
@@ -17,7 +18,7 @@ import java.util.Arrays;
  */
 public final class Closure extends ClosureOrMacro implements LngCallable.LngCallableClosure {
 
-    public Closure(String name, ParameterList parameters, Context wrapped, String[] returnType, BlockCommand command) {
+    public Closure(String name, ParameterList parameters, LocalContext wrapped, String[] returnType, BlockCommand command) {
         super(name, parameters, wrapped, returnType, command);
     }
 
@@ -25,7 +26,7 @@ public final class Closure extends ClosureOrMacro implements LngCallable.LngCall
         return new Closure(
                 args.str("name"),
                 args.get("parameters", ParameterList.class),
-                args.get("wrapped", Context.class),
+                args.get("wrapped", LocalContext.class),
                 args.get("returnType", String[].class),
                 args.get("command", BlockCommand.class)
         );
@@ -41,8 +42,8 @@ public final class Closure extends ClosureOrMacro implements LngCallable.LngCall
      * @throws ExecutionException if there are not enough parameters provided, too many, or the closure throws an exception
      */
     @Override
-    public Object call(final ch.turic.Context callerContext, final Object... arguments) {
-        if (!(callerContext instanceof Context context)) {
+    public Object call(final Context callerContext, final Object... arguments) {
+        if (!(callerContext instanceof LocalContext context)) {
             throw new RuntimeException("Cannot work with this context implementation. This is an internal error.");
         }
         final var ctx = context.wrap(this.wrapped);
@@ -65,7 +66,7 @@ public final class Closure extends ClosureOrMacro implements LngCallable.LngCall
      * @return The result of the method execution.
      * @throws ExecutionException If the method cannot be executed on the provided object or if any execution errors occur.
      */
-    public Object callAsMethod(final Context context, final LngObject obj, final String methodName, final Object... params) {
+    public Object callAsMethod(final LocalContext context, final LngObject obj, final String methodName, final Object... params) {
         final var argValues = new FunctionCallOrCurry.ArgumentEvaluated[params.length];
         for (int i = 0; i < params.length; i++) {
             argValues[i] = new FunctionCallOrCurry.ArgumentEvaluated(null, params[i]);
@@ -80,7 +81,7 @@ public final class Closure extends ClosureOrMacro implements LngCallable.LngCall
     }
 
     @Override
-    public FunctionCallOrCurry.ArgumentEvaluated[] evaluateArguments(Context context, FunctionCallOrCurry.Argument[] arguments) {
+    public FunctionCallOrCurry.ArgumentEvaluated[] evaluateArguments(LocalContext context, FunctionCallOrCurry.Argument[] arguments) {
         return evaluateClosureArguments(context, arguments);
     }
 
@@ -92,7 +93,7 @@ public final class Closure extends ClosureOrMacro implements LngCallable.LngCall
      * @param arguments an array of arguments to be evaluated; if null, an empty array is returned
      * @return an array of {@code FunctionCallOrCurry.ArgumentEvaluated} objects containing the evaluated arguments
      */
-    public static FunctionCallOrCurry.ArgumentEvaluated[] evaluateClosureArguments(Context context, FunctionCallOrCurry.Argument[] arguments) {
+    public static FunctionCallOrCurry.ArgumentEvaluated[] evaluateClosureArguments(LocalContext context, FunctionCallOrCurry.Argument[] arguments) {
         final var argValues = arguments == null ? new FunctionCallOrCurry.ArgumentEvaluated[0] : new FunctionCallOrCurry.ArgumentEvaluated[arguments.length];
         for (int i = 0; i < argValues.length; i++) {
             argValues[i] = new FunctionCallOrCurry.ArgumentEvaluated(arguments[i].id(), arguments[i].expression().execute(context));

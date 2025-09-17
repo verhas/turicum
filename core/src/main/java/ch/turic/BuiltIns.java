@@ -1,5 +1,6 @@
 package ch.turic;
 
+import ch.turic.memory.LocalContext;
 import ch.turic.memory.Sentinel;
 import ch.turic.memory.GlobalContext;
 import ch.turic.memory.InfiniteValue;
@@ -45,7 +46,7 @@ public class BuiltIns {
      * @throws IllegalArgumentException if the provided context is not an instance of ch.turic.memory.Context
      */
     public static void register(Context context) {
-        if (context instanceof ch.turic.memory.Context ctx) {
+        if (context instanceof LocalContext ctx) {
             registerGlobalConstants(ctx);
             registerGlobalFunctionsAndMacros(ctx);
             registerTuriClasses(ctx.globalContext);
@@ -68,7 +69,7 @@ public class BuiltIns {
      *
      * @param context The context where functions and macros should be registered
      */
-    private static void registerGlobalFunctionsAndMacros(ch.turic.memory.Context context) {
+    private static void registerGlobalFunctionsAndMacros(LocalContext context) {
         TuriFunction.getInstances().forEach(
                 jif -> context.global(jif.name(), jif));
         TuriMacro.getInstances().forEach(
@@ -81,7 +82,7 @@ public class BuiltIns {
      *
      * @param context The context where constants should be registered
      */
-    static void registerGlobalConstants(ch.turic.memory.Context context) {
+    static void registerGlobalConstants(LocalContext context) {
         for (int i = 0; i < values.length; i += 2) {
             context.global((String) values[i], values[i + 1]);
             context.freeze((String) values[i]);

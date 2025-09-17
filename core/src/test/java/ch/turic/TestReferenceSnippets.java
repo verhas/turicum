@@ -43,10 +43,11 @@ public class TestReferenceSnippets {
                         snippet.name() + " " + snippet.name() + ":" + snippet.lineNumber(),
                         () -> {
                             try (final var baos = new ByteArrayOutputStream();
-                                 final var ps = new PrintStream(baos)) {
-                                System.setOut(ps);
+                                 final var ps = new PrintStream(baos);
+                                 Interpreter interpreter = new Interpreter(new Input(new StringBuilder(snippet.programCode()), snippet.filePath));
+                            ) {
                                 // Execute the snippet.
-                                Interpreter interpreter = new Interpreter(new Input(new StringBuilder(snippet.programCode()), snippet.filePath));
+                                System.setOut(ps);
 
                                 final var program = interpreter.compile();
                                 var result = interpreter.execute(program);

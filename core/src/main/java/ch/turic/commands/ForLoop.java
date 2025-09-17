@@ -3,7 +3,7 @@ package ch.turic.commands;
 import ch.turic.Command;
 import ch.turic.ExecutionException;
 import ch.turic.commands.operators.Cast;
-import ch.turic.memory.Context;
+import ch.turic.memory.LocalContext;
 import ch.turic.memory.LngList;
 import ch.turic.utils.Unmarshaller;
 
@@ -61,7 +61,7 @@ public class ForLoop extends Loop {
     }
 
     @Override
-    public Object _execute(final Context context) throws ExecutionException {
+    public Object _execute(final LocalContext context) throws ExecutionException {
         Object lp = null;
         final var listResult = resultList ? new LngList() : null; // not only to save an object memory but also to fail fast
         context.step();

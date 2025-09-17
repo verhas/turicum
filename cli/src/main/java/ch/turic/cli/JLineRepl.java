@@ -5,7 +5,7 @@ import ch.turic.analyzer.Lex;
 import ch.turic.analyzer.Lexer;
 import ch.turic.commands.Closure;
 import ch.turic.commands.Macro;
-import ch.turic.memory.Context;
+import ch.turic.memory.LocalContext;
 import org.jline.reader.*;
 import org.jline.reader.impl.DefaultParser;
 import org.jline.reader.impl.completer.StringsCompleter;
@@ -67,7 +67,7 @@ public class JLineRepl {
 
         StringBuilder buffer = new StringBuilder();
         var state = SyntaxState.OK;
-        final var ctx_stack = new ArrayList<Context>();
+        final var ctx_stack = new ArrayList<LocalContext>();
 
         while (true) {
             String line;
@@ -185,7 +185,7 @@ public class JLineRepl {
         }
     }
 
-    private static String openContexts(int num, ArrayList<Context> ctx_stack, Repl interpreter, StringBuilder buffer) {
+    private static String openContexts(int num, ArrayList<LocalContext> ctx_stack, Repl interpreter, StringBuilder buffer) {
         String prefix;
         for (int i = 0; i < num; i++) {
             ctx_stack.add(interpreter.ctx);
@@ -196,7 +196,7 @@ public class JLineRepl {
         return prefix;
     }
 
-    private static String closeContexts(int num, Repl interpreter, ArrayList<Context> ctx_stack) {
+    private static String closeContexts(int num, Repl interpreter, ArrayList<LocalContext> ctx_stack) {
         String prefix;
         for (int i = 0; i < num; i++) {
             interpreter.ctx = ctx_stack.removeLast();
@@ -205,7 +205,7 @@ public class JLineRepl {
         return prefix;
     }
 
-    private static String calculatePrefix(ArrayList<Context> ctx_stack) {
+    private static String calculatePrefix(ArrayList<LocalContext> ctx_stack) {
         final var num = ctx_stack.size();
         if (num > 5) {
             return "{" + (num) + "{";
@@ -214,7 +214,7 @@ public class JLineRepl {
         }
     }
 
-    private static void printVariable(String k, Context context) {
+    private static void printVariable(String k, LocalContext context) {
         Object value = formatValue(context.get(k));
         System.out.printf("%s: %s\n", k, value);
     }

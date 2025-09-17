@@ -5,7 +5,7 @@ import ch.turic.ExecutionException;
 import ch.turic.analyzer.WithAnalyzer;
 import ch.turic.builtins.classes.TuriMethod;
 import ch.turic.commands.operators.Cast;
-import ch.turic.memory.Context;
+import ch.turic.memory.LocalContext;
 import ch.turic.memory.LngException;
 import ch.turic.memory.LngObject;
 import ch.turic.utils.Unmarshaller;
@@ -38,7 +38,7 @@ public class WithCommand extends AbstractCommand {
     public final Command body;
 
     @Override
-    public Object _execute(final Context context) throws ExecutionException {
+    public Object _execute(final LocalContext context) throws ExecutionException {
         context.step();
         var ctx = context;
 
@@ -79,11 +79,11 @@ public class WithCommand extends AbstractCommand {
      * @param obj     the evaluated result of the expression in the {@code with} clause
      * @param objects a list to which processed {@link LngObject}s with aliases are added
      * @param ctx     the current context to be wrapped or updated
-     * @return a new {@link Context} instance that includes any alias bindings or updated context information
+     * @return a new {@link LocalContext} instance that includes any alias bindings or updated context information
      * @throws ExecutionException if the object is not a {@link LngObject}, has no valid {@code entry} method,
      *                            or the {@code entry} method returns a non-object
      */
-    private static Context wrapCallingEntry(Context context, WithAnalyzer.WithPair pair, Object obj, ArrayList<LngObject> objects, Context ctx) {
+    private static LocalContext wrapCallingEntry(LocalContext context, WithAnalyzer.WithPair pair, Object obj, ArrayList<LngObject> objects, LocalContext ctx) {
         if (obj instanceof LngObject lngObject) {
             if (pair.alias() == null) {
                 ctx = ctx.with(lngObject.context());
@@ -192,14 +192,14 @@ public class WithCommand extends AbstractCommand {
      * Any exceptions thrown during the retrieval or invocation of the {@code exit} method are wrapped
      * in a {@link RuntimeException} and collected into the {@code closeExceptions} list.
      *
-     * @param context            the current execution {@link Context}, used for building exceptions and calling closures
+     * @param context            the current execution {@link LocalContext}, used for building exceptions and calling closures
      * @param exception          the {@link ExecutionException} that caused the termination, or {@code null}
      * @param lngObjects         a list of {@link LngObject}s whose {@code exit} methods are to be called
      * @param suppressExceptions an {@link AtomicBoolean} flag indicating whether exceptions should be suppressed;
      *                           updated based on the return values of the {@code exit} closures
      * @param closeExceptions    a list to collect any {@link RuntimeException}s thrown during method execution
      */
-    private static void callExitMethods(final Context context,
+    private static void callExitMethods(final LocalContext context,
                                         final ExecutionException exception,
                                         final ArrayList<LngObject> lngObjects,
                                         final AtomicBoolean suppressExceptions,

@@ -5,6 +5,7 @@ import ch.turic.ExecutionException;
 import ch.turic.TuriFunction;
 import ch.turic.commands.Closure;
 import ch.turic.commands.Macro;
+import ch.turic.memory.LocalContext;
 
 /**
  * Recloses a closure in the current environment. Reclosing means that the new closure
@@ -63,10 +64,10 @@ public class Reclose implements TuriFunction {
         ExecutionException.when(arguments.length != 1, "Built-in function reclose needs exactly one argument");
         final var arg = arguments[0];
         if (arg instanceof Closure closure) {
-            return new Closure(closure.name(), closure.parameters(), (ch.turic.memory.Context) context, closure.returnType(), closure.command());
+            return new Closure(closure.name(), closure.parameters(), (LocalContext) context, closure.returnType(), closure.command());
         }
         if (arg instanceof Macro macro) {
-            return new Macro(macro.name(),macro.parameters(), (ch.turic.memory.Context) context, macro.returnType(), macro.command());
+            return new Macro(macro.name(),macro.parameters(), (LocalContext) context, macro.returnType(), macro.command());
         }
         throw new ExecutionException("Cannot get the lazy(%s) for thevalue of %s", arg.getClass().getCanonicalName(), arg);
     }

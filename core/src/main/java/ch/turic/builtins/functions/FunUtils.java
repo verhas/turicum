@@ -4,6 +4,7 @@ import ch.turic.Context;
 import ch.turic.ExecutionException;
 import ch.turic.commands.operators.Cast;
 import ch.turic.memory.LngObject;
+import ch.turic.memory.LocalContext;
 
 import java.util.Arrays;
 import java.util.Optional;
@@ -362,9 +363,20 @@ public class FunUtils {
 
     }
 
+    public static int intArg(final String name, Object[] args) {
+        if (args.length != 1) {
+            throw new ExecutionException("Built-in function '%s' needs exactly one argument.", name);
+        }
+        if (Cast.isLong(args[0])) {
+            return Cast.toLong(args[0]).intValue();
+        } else {
+            throw new ExecutionException("Argument to %s('%s') must be a number", name, args[0]);
+        }
+    }
+
     public static <T> T arg(final String name, Object[] args, Class<T> type) {
         if (args.length != 1) {
-            throw new ExecutionException("Built-in function '%s' needs exactly 1 argument.", name);
+            throw new ExecutionException("Built-in function '%s' needs exactly one argument.", name);
         }
         //noinspection unchecked
         return (T) args[0];
@@ -496,8 +508,8 @@ public class FunUtils {
      * @return the cast context
      * @throws ExecutionException if the context is not of type ch.turic.memory.Context
      */
-    public static ch.turic.memory.Context ctx(Context context) {
-        if (context instanceof ch.turic.memory.Context ctx) {
+    public static LocalContext ctx(Context context) {
+        if (context instanceof LocalContext ctx) {
             return ctx;
         }
         throw new ExecutionException("context must be a context of type ch.turic.memory.Context");

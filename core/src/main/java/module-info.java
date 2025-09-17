@@ -1,5 +1,7 @@
 import ch.turic.builtins.classes.*;
 import ch.turic.builtins.functions.*;
+import ch.turic.builtins.functions.debugger.DebugSession;
+import ch.turic.builtins.functions.debugger.StepInto;
 import ch.turic.builtins.macros.*;
 
 module ch.turic {
@@ -7,6 +9,8 @@ module ch.turic {
     requires jdk.httpserver;
     requires java.net.http;
     exports ch.turic;
+    exports ch.turic.memory;
+    exports ch.turic.memory.debugger;
     opens turi; // needed to read the sysimport files as resources
 
     provides ch.turic.TuriFunction with Len, Type, Macro, Evaluate,
@@ -26,7 +30,8 @@ module ch.turic {
             MathFunctions.SigNum, MathFunctions.Ulp, IdHash, Chr,
             Unthunk, Unwrap, BlockList, Command, Min, Max, MathFunctions.Pow, MathFunctions.Scalb, Env,
             TuriHttpClient, Jsonify, JsonifyBeauty, Str, Glob, SourceDirectory, Arity, Signature,
-            Uncurry, IsCurried, CurriedArity, Enumerate, JavaClass;
+            Uncurry, IsCurried, CurriedArity, Enumerate, JavaClass,
+            DebugSession, StepInto;
     provides ch.turic.TuriMacro with Export, IsDefined, Unlet, Thunk, Import, SysImport,Delete;
     provides ch.turic.TuriClass with TuriString, TuriLong, TuriDouble, TuriIterator, TuriChannel, TuriInputStream, TuriInputStreamReader;
 }

@@ -2,11 +2,8 @@ package ch.turic.memory;
 
 import ch.turic.ExecutionException;
 import ch.turic.commands.FunctionCall;
-import ch.turic.utils.Reflection;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -88,7 +85,7 @@ public record JavaObject(Object object) implements HasFields {
      * @return the value of the field or the result of the method invocation
      * @throws ExecutionException if the field or method cannot be found or accessed
      */
-    public Object getField(String name, Context context) throws ExecutionException {
+    public Object getField(String name, LocalContext context) throws ExecutionException {
         if (object instanceof HasFields fieldHaber) {
             return fieldHaber.getField(name);
         }

@@ -18,7 +18,7 @@ public class LazyObject extends LngObject {
      *
      * @param context is the surrounding context in which the closure object is created.
      */
-    public LazyObject(Context context, Map<String, Command> fields) {
+    public LazyObject(LocalContext context, Map<String, Command> fields) {
         super(macroObjectClass, context.wrap());
         fields.forEach((key, value) -> context().let0(key, value));
 

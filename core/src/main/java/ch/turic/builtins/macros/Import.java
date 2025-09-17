@@ -6,6 +6,7 @@ import ch.turic.commands.FieldAccess;
 import ch.turic.commands.Identifier;
 import ch.turic.memory.LngList;
 import ch.turic.memory.LngObject;
+import ch.turic.memory.LocalContext;
 import ch.turic.utils.StringUtils;
 
 import java.io.File;
@@ -45,7 +46,7 @@ public class Import implements TuriMacro {
         }
     }
 
-    static List<String> getImportsList(Object[] args, ch.turic.memory.Context ctx) {
+    static List<String> getImportsList(Object[] args, LocalContext ctx) {
         final var imports = new ArrayList<String>();
         for (int i = 1; i < args.length; i++) {
             if (args[i] instanceof Identifier id) {
@@ -57,10 +58,10 @@ public class Import implements TuriMacro {
         return imports;
     }
 
-    static Object doImportExport(ch.turic.memory.Context ctx, String source, List<String> imports) {
+    static Object doImportExport(LocalContext ctx, String source, List<String> imports) {
         final var interpreter = new Interpreter(source);
         interpreter.compileAndExecute();
-        final var importedContext = (ch.turic.memory.Context) interpreter.getImportContext();
+        final var importedContext = (LocalContext) interpreter.getImportContext();
         final var set = new HashSet<String>();
         for (final var exported : (imports == null || imports.isEmpty()) ? importedContext.exporting() : imports) {
             for (final var k : importedContext.keys()) {
@@ -75,7 +76,7 @@ public class Import implements TuriMacro {
         return new LngObject(null, importedContext);
     }
 
-    private Path locateSource(ch.turic.memory.Context context, String arg) {
+    private Path locateSource(LocalContext context, String arg) {
         final var relativePath = Path.of(arg.replace('.', File.separatorChar) + ".turi");
 
         final List<Path> appiaRoots;
@@ -166,7 +167,7 @@ public class Import implements TuriMacro {
         return null;
     }
 
-    static String getImportString(Command cmd, ch.turic.memory.Context ctx) {
+    static String getImportString(Command cmd, LocalContext ctx) {
         if (cmd instanceof Identifier id) {
             return id.name();
         }

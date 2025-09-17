@@ -74,7 +74,7 @@ public class Lex implements HasFields {
 
     @Override
     public String toString() {
-        return String.format("Lex{type=%s, a='%s', atLineStart=%s}", type, text, "" + atLineStart);
+        return String.format("Lex{type=%s, text='%s', atLineStart=%s}", type, text, "" + atLineStart);
     }
 
     @Override
@@ -83,7 +83,7 @@ public class Lex implements HasFields {
             case "type":
                 type = (Type) value;
                 break;
-            case "a":
+            case "text":
                 text = (String) value;
                 break;
             case "atLineStart":
@@ -98,7 +98,7 @@ public class Lex implements HasFields {
     public Object getField(String name) throws ExecutionException {
         return switch (name) {
             case "type" -> type;
-            case "a" -> text;
+            case "text" -> text;
             case "atLineStart" -> atLineStart;
             default -> throw new ExecutionException("Unknown field: " + name);
         };
@@ -106,7 +106,7 @@ public class Lex implements HasFields {
 
     @Override
     public Set<String> fields() {
-        return Set.of("type", "a", "atLineStart");
+        return Set.of("type", "text", "atLineStart");
     }
 
     public enum Type {

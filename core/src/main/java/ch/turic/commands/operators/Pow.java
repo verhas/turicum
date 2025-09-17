@@ -2,7 +2,7 @@ package ch.turic.commands.operators;
 
 import ch.turic.Command;
 import ch.turic.ExecutionException;
-import ch.turic.memory.Context;
+import ch.turic.memory.LocalContext;
 
 @Operator.Symbol("**")
 public class Pow extends AbstractOperator {
@@ -19,7 +19,7 @@ public class Pow extends AbstractOperator {
      * @throws ExecutionException if evaluation fails or the exponent is invalid
      */
     @Override
-    public Object binaryOp(Context ctx, Object op1, Command right) throws ExecutionException {
+    public Object binaryOp(LocalContext ctx, Object op1, Command right) throws ExecutionException {
         final var op2 = right.execute(ctx);
 
         return binary("pow", op1, op2, Pow::pow, Math::pow);

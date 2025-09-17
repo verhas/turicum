@@ -3,7 +3,7 @@ package ch.turic.commands.operators;
 import ch.turic.Command;
 import ch.turic.ExecutionException;
 import ch.turic.commands.*;
-import ch.turic.memory.Context;
+import ch.turic.memory.LocalContext;
 import ch.turic.memory.LngObject;
 
 import java.util.function.BiFunction;
@@ -25,7 +25,7 @@ public abstract class AbstractOperator implements Operator {
      * @throws ExecutionException if execution fails or operator dispatch is invalid
      */
     @Override
-    public final Object execute(Context context, Command left, Command right) throws ExecutionException {
+    public final Object execute(LocalContext context, Command left, Command right) throws ExecutionException {
         if (left == null) {
             final Object op2;
             final var shadowed = context.shadow();
@@ -45,7 +45,7 @@ public abstract class AbstractOperator implements Operator {
             if (operatorMethod instanceof ClosureLike command) {
                 ExecutionException.when(!command.parameters().fitOperator(), "Operator methods must have exactly one argument");
                 final var argValues = new FunctionCall.ArgumentEvaluated[]{new FunctionCall.ArgumentEvaluated(null, null)};
-                final Context ctx;
+                final LocalContext ctx;
                 if (command.wrapped() == null) {
                     ctx = context.wrap(lngObject.context());
                 } else {
@@ -86,7 +86,7 @@ public abstract class AbstractOperator implements Operator {
                         case ChainedMacro ignored -> new FunctionCall.ArgumentEvaluated(null, right);
                     }
             };
-            final Context ctx;
+            final LocalContext ctx;
             if (command.wrapped() == null) {
                 ctx = context.wrap(lngObject.context());
             } else {
@@ -101,13 +101,13 @@ public abstract class AbstractOperator implements Operator {
         return binaryOp(context, op1, right);
     }
 
-    public Object unaryOp(Context ctx, Object op) throws ExecutionException {
+    public Object unaryOp(LocalContext ctx, Object op) throws ExecutionException {
         throw new ExecutionException(symbol(), "is not an unary operator");
     }
 
-    public abstract Object binaryOp(Context ctx, Object left, Command right) throws ExecutionException;
+    public abstract Object binaryOp(LocalContext ctx, Object left, Command right) throws ExecutionException;
 
-    public Object exceptionHandler(Context ctx, ExecutionException t, Command right) throws ExecutionException {
+    public Object exceptionHandler(LocalContext ctx, ExecutionException t, Command right) throws ExecutionException {
         throw t;
     }
 

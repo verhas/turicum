@@ -31,7 +31,7 @@ public class TestCompilation {
      *
      * @return A stream of dynamic tests, each representing a specific program snippet's
      * compilation, execution, and verification process.
-     * @throws IOException        If there is an error in reading or writing files during processing.
+     * @throws IOException If there is an error in reading or writing files during processing.
      */
     @TestFactory
     Stream<DynamicTest> dynamicTestsForInterpreterPrograms() throws IOException {
@@ -53,9 +53,12 @@ public class TestCompilation {
                                 var ps = new PrintStream(baos);
                                 System.setOut(ps);
                                 // Execute the snippet.
-                                Interpreter interpreter = new Interpreter(new Input(new StringBuilder(snippet.programCode()), snippet.filePath));
-                                final var program = interpreter.compile();
-                                var result = interpreter.execute(program);
+                                Object result;
+                                final Program program;
+                                try (Interpreter interpreter = new Interpreter(new Input(new StringBuilder(snippet.programCode()), snippet.filePath))) {
+                                    program = interpreter.compile();
+                                    result = interpreter.execute(program);
+                                }
                                 final var marshaller = new Marshaller();
                                 Path turcFile = outputDir.resolve(snippet.name() + ".turc");
                                 Files.write(turcFile, marshaller.serialize(program));
@@ -73,8 +76,9 @@ public class TestCompilation {
                                 ps = new PrintStream(baos);
                                 System.setOut(ps);
                                 // Execute the snippet.
-                                interpreter = new Interpreter(turcFile);
-                                result = interpreter.execute(program);
+                                try (final Interpreter interpreter = new Interpreter(turcFile)) {
+                                    result = interpreter.execute(program);
+                                }
                                 ps.close();
                                 baos.close();
                                 output = outputDir.resolve(snippet.name() + ".turc.txt");
