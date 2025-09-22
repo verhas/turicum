@@ -14,7 +14,7 @@ public class FlowAnalyzer extends AbstractAnalyzer {
 
     @Override
     public Command _analyze(LexList lexes) throws BadSyntax {
-        final var flowStartPos = lexes.position();
+        final var flowStartPos = lexes.startPosition();
         Command exitCondition = null;
         Command limitExpression = null;
         Command timeoutExpression = null;

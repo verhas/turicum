@@ -26,7 +26,7 @@ public class Identifier extends AbstractCommand {
     }
 
     public static Identifier factory(Unmarshaller.Args args) {
-        return new Identifier(args.str("name"));
+        return new Identifier(args.str("name")).fixPosition(args);
     }
 
     @Override

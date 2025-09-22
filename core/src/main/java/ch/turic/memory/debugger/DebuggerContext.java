@@ -1,5 +1,7 @@
 package ch.turic.memory.debugger;
 
+import ch.turic.Command;
+import ch.turic.commands.AbstractCommand;
 import ch.turic.memory.Channel;
 
 import java.util.HashSet;
@@ -21,6 +23,10 @@ public class DebuggerContext {
     public DebuggerContext(DebuggerContext parent, Channel<ConcurrentWorkItem<?>> pauseSignal) {
         this.parent = parent;
         this.pauseSignalChannel = pauseSignal;
+    }
+
+    public void close() {
+        pauseSignalChannel.close();
     }
 
     public enum State {
@@ -55,9 +61,18 @@ public class DebuggerContext {
         breakpoints.add(bp);
     }
 
-    public boolean isBreakPoint(int lineStart, int lineEnd) {
-        return breakpoints.stream().anyMatch(bp -> bp.line >= lineStart && bp.line <= lineEnd) ||
-                (parent != null && parent.isBreakPoint(lineStart, lineEnd));
+    public boolean isBreakPoint(Command command) {
+        if (command instanceof AbstractCommand abstractCommand) {
+            if( abstractCommand.startPosition() == null || abstractCommand.endPosition() == null ) {
+                return false;
+            }
+            final var lineStart = abstractCommand.startPosition().line;
+            final var lineEnd = abstractCommand.endPosition().line;
+            return breakpoints.stream().anyMatch(bp -> bp.line >= lineStart && bp.line <= lineEnd) ||
+                    (parent != null && parent.isBreakPoint(abstractCommand));
+        } else {
+            return false;
+        }
     }
 
     public void removeBreakPoint(BreakPoint bp) {

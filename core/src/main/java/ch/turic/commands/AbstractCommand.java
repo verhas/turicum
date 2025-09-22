@@ -2,16 +2,16 @@ package ch.turic.commands;
 
 import ch.turic.Command;
 import ch.turic.ExecutionException;
+import ch.turic.analyzer.Lex;
 import ch.turic.analyzer.Pos;
 import ch.turic.memory.*;
 import ch.turic.memory.debugger.DebuggerCommand;
 import ch.turic.memory.debugger.DebuggerContext;
+import ch.turic.utils.Unmarshaller;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Modifier;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static ch.turic.memory.debugger.DebuggerContext.State.PAUSED;
 
@@ -108,12 +108,27 @@ public abstract class AbstractCommand implements Command, HasFields {
     }
 
     public void setEndPosition(Pos endPosition) {
-        this.endPosition = endPosition;
+        this.endPosition = endPosition == null ? null : endPosition.clone();
     }
 
     public void setStartPosition(Pos startPosition) {
-        this.startPosition = startPosition;
+        this.startPosition = startPosition == null ? null : startPosition.clone();
     }
+
+    @SuppressWarnings("unchecked")
+    protected <T extends Command> T fixPosition(Unmarshaller.Args args) {
+        this.setStartPosition(args.get("startPosition", Pos.class));
+        this.setEndPosition(args.get("endPosition", Pos.class));
+        return (T) this;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends Command> T fixPosition(Lex lex) {
+        setStartPosition(lex.startPosition());
+        setEndPosition(lex.endPosition());
+        return (T) this;
+    }
+
 
     public Object execute(final LocalContext ctx) throws ExecutionException {
         final var sf = new LngStackFrame(this);
@@ -150,11 +165,11 @@ public abstract class AbstractCommand implements Command, HasFields {
             dc.setState(PAUSED);
         }
         if (dc.getState() == DebuggerContext.State.RUNNING) {
-            if (dc.isBreakPoint(startPosition().line, endPosition().line)) {
+            if (dc.isBreakPoint(this)) {
                 dc.setState(PAUSED);
             }
         }
-        final var command = new DebuggerCommand();
+        final var command = new DebuggerCommand(ctx.threadContext);
         while (dc.getState() == PAUSED) {
             try {
                 dc.pause(command);
@@ -170,15 +185,31 @@ public abstract class AbstractCommand implements Command, HasFields {
                         yield DebuggerContext.State.STEPPING;
                     }
                     case POS -> {
-                        command.response = new DebuggerCommand.PosResponse(startPosition(),endPosition());
+                        command.response = new DebuggerCommand.PosResponse(startPosition(), endPosition());
                         yield PAUSED;
                     }
                     case LOCALS -> {
-                        command.response = new DebuggerCommand.VarResponse(ctx.keys());
+                        final var keys = ctx.keys();
+                        final var map = new HashMap<String, Object>();
+                        for (final var k : keys) {
+                            final var variable = ctx.get(k);
+                            map.put(k, variable);
+                        }
+                        command.response = new DebuggerCommand.VarResponse(map);
                         yield PAUSED;
                     }
                     case GLOBALS -> {
-                        command.response = new DebuggerCommand.VarResponse(ctx.globalContext.heap.keySet());
+                        final var keys = ctx.globalContext.heap.keySet();
+                        final var map = new HashMap<String, Object>();
+                        for (final var k : keys) {
+                            final var variable = ctx.globalContext.heap.get(k);
+                            map.put(k, variable.get());
+                        }
+                        command.response = new DebuggerCommand.VarResponse(map);
+                        yield PAUSED;
+                    }
+                    case COMMAND -> {
+                        command.response = new DebuggerCommand.CommandResponse(this);
                         yield PAUSED;
                     }
                     default -> PAUSED;

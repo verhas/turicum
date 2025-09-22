@@ -3,10 +3,8 @@ package ch.turic.builtins.functions;
 import ch.turic.Context;
 import ch.turic.ExecutionException;
 import ch.turic.TuriFunction;
-import ch.turic.memory.JavaObject;
 import ch.turic.utils.Reflection;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.stream.Collectors;
@@ -30,13 +28,18 @@ import java.util.stream.Collectors;
  * // you can create Java objects
  * let BigDecimal = java_class("java.math.BigDecimal")
  * let bd1 = BigDecimal("10.50");
- * // the type is 'java.' and then the fully qualified class name
- * die "wrong type" if type(bd1) != "java.java.math.BigDecimal";
+ * // BigDecimal extends the Number class
+ * die "wrong type" if type(bd1) != "num";
  *
  * let bd2 = BigDecimal("3.25");
  * // that is bd1.add(bd2)
  * let result = java_call(bd1, "add", bd2);
- * die "wrong type" if type(result) != "java.java.math.BigDecimal";
+ * die "wrong type" if type(result) != "num";
+ *
+ * // automatically adds, because the class implements "add"
+ * let result2 = bd1 + bd2
+ * die "wrong type" if type(result) != "num";
+ * die "add differs from +" if result != result2
  *
  * let formatted = result.toString()
  * die "formatted" if formatted != "13.75";
@@ -49,6 +52,7 @@ import java.util.stream.Collectors;
  * // Create deterministic UUID for testing
  * let sample_uuid_str = "550e8400-e29b-41d4-a716-446655440000";
  * let uuid = java_call("java.util.UUID", "fromString", sample_uuid_str)
+ * // name starts with an extra "java." prefix to separate from turicum types
  * die "" if type(uuid) != "java.java.util.UUID"
  * let string_repr = java_call(uuid, "toString")
  * die "" if string_repr != sample_uuid_str

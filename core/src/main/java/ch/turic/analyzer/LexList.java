@@ -59,20 +59,20 @@ public class LexList extends LngList {
 
     public Lex next() throws BadSyntax {
         if (index >= array.size()) {
-            throw new BadSyntax(lexAt(array.size() - 1).position(), "more elements expected");
+            throw new BadSyntax(lexAt(array.size() - 1).startPosition(), "more elements expected");
         }
         return lexAt(index++);
     }
 
     public Lex next(Lex.Type expectedType) throws BadSyntax {
         final var lex = next();
-        BadSyntax.when(lex.position(), lex.type() != expectedType, "%s was expected and got '%s' which is %s", expectedType.name(), lex.text(), lex.type().name());
+        BadSyntax.when(lex.startPosition(), lex.type() != expectedType, "%s was expected and got '%s' which is %s", expectedType.name(), lex.text(), lex.type().name());
         return lex;
     }
 
     public Lex next(Lex.Type type, String msg) throws BadSyntax {
         if (index >= array.size() || lexAt(index).type() != type) {
-            throw new BadSyntax(lexAt(index).position(), msg);
+            throw new BadSyntax(lexAt(index).startPosition(), msg);
         }
         return next();
     }
@@ -87,7 +87,7 @@ public class LexList extends LngList {
      */
     public void next(Lex.Type type, String text, String msg) throws BadSyntax {
         if (index >= array.size() || lexAt(index).type() != type || !lexAt(index).text().equals(text)) {
-            throw new BadSyntax(lexAt(index).position(), msg);
+            throw new BadSyntax(lexAt(index).startPosition(), msg);
         }
         next();
     }
@@ -101,7 +101,7 @@ public class LexList extends LngList {
      * @return a {@code BadSyntax} exception with a modified stack trace
      */
     public BadSyntax syntaxError(String msg, Object... params) {
-        final var e = new BadSyntax(position(), msg, params);
+        final var e = new BadSyntax(startPosition(), msg, params);
         final var oldSt = e.getStackTrace();
         if (oldSt != null && oldSt.length > 1) {
             final var newSt = new StackTraceElement[oldSt.length - 1];
@@ -112,24 +112,39 @@ public class LexList extends LngList {
     }
 
     /**
-     * Returns the position of the current token, or the last token if at the end of the list.
+     * Returns the start position of the current token, or the last token if at the end of the list.
      *
      * @return a clone of the current or last token's position
      */
-    public Pos position() {
+    public Pos startPosition() {
         if (index >= array.size()) {
             if (array.isEmpty()) {
                 return null;
             } else {
-                return lexAt(array.size() - 1).position();
+                return lexAt(array.size() - 1).startPosition().clone();
             }
         }
-        return lexAt(index).position().clone();
+        return lexAt(index).startPosition().clone();
+    }
+    /**
+     * Returns the start position of the current token, or the last token if at the end of the list.
+     *
+     * @return a clone of the current or last token's position
+     */
+    public Pos endPosition() {
+        if (index >= array.size()) {
+            if (array.isEmpty()) {
+                return null;
+            } else {
+                return lexAt(array.size() - 1).endPosition().clone();
+            }
+        }
+        return lexAt(index).endPosition().clone();
     }
 
     public void peek(Lex.Type type, String text, String msg) throws BadSyntax {
         if (index >= array.size() || lexAt(index).type() != type || (text != null && !text.equals(lexAt(index).text()))) {
-            throw new BadSyntax(lexAt(index).position(), msg);
+            throw new BadSyntax(lexAt(index).startPosition(), msg);
         }
     }
 
@@ -139,7 +154,7 @@ public class LexList extends LngList {
 
     public Lex peek() throws BadSyntax {
         if (index >= array.size()) {
-            throw new BadSyntax(lexAt(array.size() - 1).position(), "more elements expected");
+            throw new BadSyntax(lexAt(array.size() - 1).startPosition(), "more elements expected");
         }
         return lexAt(index);
     }

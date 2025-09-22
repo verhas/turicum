@@ -44,7 +44,7 @@ public class TuriHover {
                 continue;
             }
             if (lex.type() == Lex.Type.IDENTIFIER && lex.text().equals(id)) {
-                line = lex.position().line - 1;
+                line = lex.startPosition().line - 1;
                 break;
             } else {
                 if (lex.type() != Lex.Type.SPACES || !lex.text().isBlank()) {

@@ -4,7 +4,6 @@ import ch.turic.Context;
 import ch.turic.ExecutionException;
 import ch.turic.TuriFunction;
 
-import java.lang.reflect.InvocationTargetException;
 
 /**
  * This class represents an implementation of the TuriFunction interface, designed to

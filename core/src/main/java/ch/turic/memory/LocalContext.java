@@ -92,10 +92,10 @@ public class LocalContext implements Context, AutoCloseable {
      */
     public LocalContext(int stepLimit) {
         this.globalContext = new GlobalContext(stepLimit);
-        this.globalContext.registerContext(this);
+        this.threadContext = new ThreadContext(Thread.currentThread());
+        this.globalContext.registerContext(threadContext);
         this.wrapped = null;
         this.frame = globalContext.heap;
-        this.threadContext = new ThreadContext(Thread.currentThread());
         this.shadow = false;
         this.with = false;
         this.frozen = new HashSet<>();
@@ -105,8 +105,10 @@ public class LocalContext implements Context, AutoCloseable {
         this.wrapped = null;
         this.frame = new VarTable();
         this.globalContext = globalContext;
-        this.globalContext.registerContext(this);
         this.threadContext = threadContext;
+        if (threadContext != null) {
+            this.globalContext.registerContext(threadContext);
+        }
         this.shadow = false;
         this.with = false;
         this.frozen = new HashSet<>();
@@ -156,7 +158,7 @@ public class LocalContext implements Context, AutoCloseable {
 
     @Override
     public void close() {
-        this.globalContext.removeContext(this);
+        this.globalContext.removeContext(this.threadContext);
     }
 
     /**

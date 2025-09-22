@@ -23,7 +23,7 @@ public class LngException extends LngObject {
             final var tr = new LngObject(null, context().open());
             AbstractCommand command = st.command();
             tr.setField("command", command.getClass().getSimpleName());
-            Pos position = command.startPosition();
+            final var position = command.startPosition();
             if (position != null) {
                 tr.setField("file", position.file);
                 tr.setField("line", position.line);

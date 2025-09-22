@@ -62,7 +62,7 @@ public class BadSyntax extends RuntimeException {
      * @throws BadSyntax when the condition is true
      */
     public static void when(LexList lexes, final boolean b, String msg, Object... parameters) throws BadSyntax {
-        when(lexes.position(), b, msg, parameters);
+        when(lexes.startPosition(), b, msg, parameters);
     }
 
     /**

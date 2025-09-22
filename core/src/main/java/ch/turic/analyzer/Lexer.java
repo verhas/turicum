@@ -141,7 +141,8 @@ public class Lexer {
                 in.move(1, sheBangLine);
             }
             if (collectAll) {
-                list.add(new Lex(Lex.Type.SPACES, sheBangLine.toString(), true, p));
+                list.add(new Lex(Lex.Type.SPACES, sheBangLine.toString(), true, p,
+                        new Pos(p.file, p.line, sheBangLine.length(), p.lines)));
             }
         }
         boolean nextAtLineStart = false;
@@ -150,7 +151,8 @@ public class Lexer {
             final var position = in.position.clone();
             if ((in.startsWith("\n") || in.startsWith("\r"))) {
                 if (collectAll) {
-                    list.add(new Lex(Lex.Type.SPACES, in.substring(0, 1), atLineStart, position));
+                    list.add(new Lex(Lex.Type.SPACES, in.substring(0, 1), atLineStart, position,
+                            new Pos(position.file, position.line, position.column + 1, position.lines)));
                 }
                 nextAtLineStart = true;
                 in.skip(1);
@@ -163,7 +165,8 @@ public class Lexer {
                     in.move(1, sb);
                 }
                 if (collectAll) {
-                    list.add(new Lex(Lex.Type.SPACES, sb.toString(), atLineStart, position));
+                    final var s = sb.toString();
+                    list.add(new Lex(Lex.Type.SPACES, s, atLineStart, position, position.offset(s)));
                 }
                 continue;
             }
@@ -173,7 +176,8 @@ public class Lexer {
                 if (collectAll) {
                     final var sb = new StringBuilder();
                     commentBS = fetchMLComment(in, sb);
-                    list.add(new Lex(Lex.Type.COMMENT, sb.toString(), atLineStart, position));
+                    final var s = sb.toString();
+                    list.add(new Lex(Lex.Type.COMMENT, s, atLineStart, position, position.offset(s)));
                 } else {
                     commentBS = fetchMLComment(in, new StringBuilder());
                 }
@@ -185,7 +189,7 @@ public class Lexer {
             if (in.startsWith("//")) {
                 final var comment = fetchComment(in);
                 if (collectAll) {
-                    list.add(new Lex(Lex.Type.COMMENT, comment, atLineStart, position));
+                    list.add(new Lex(Lex.Type.COMMENT, comment, atLineStart, position,position.offset(comment)));
                 }
                 continue;
             }
@@ -237,7 +241,8 @@ public class Lexer {
                 final var str = new StringBuilder();
                 in.move(2, str);
                 str.append(in.fetchHexNumber());
-                final var lex = new Lex(Lex.Type.INTEGER, str.toString(), atLineStart, position);
+                final var s = str.toString();
+                final var lex = new Lex(Lex.Type.INTEGER, s, atLineStart, position,position.offset(s));
                 list.add(lex);
                 continue;
             }
@@ -261,7 +266,8 @@ public class Lexer {
                 } else {
                     type = Lex.Type.INTEGER;
                 }
-                final var lex = new Lex(type, str.toString(), atLineStart, position);
+                final var s = str.toString();
+                final var lex = new Lex(type, s, atLineStart, position,position.offset(s));
                 list.add(lex);
                 continue;
             }

@@ -31,7 +31,8 @@ public class Type implements TuriFunction {
             case LngList ignore -> "lst";
             case String ignore -> "str";
             case Double ignore -> "float";
-            case Long ignore -> "num";
+            case Long ignore -> "int";
+            case Number ignore -> "num";
             case LngException ignore -> "err";
             case LngObject object -> object.lngClass() == null ? "obj" : object.lngClass().name();
             case Closure ignore -> "fn";

@@ -1,5 +1,5 @@
 "13" str
-13 num
+13 int
 3.14 float
 err err
 A() A

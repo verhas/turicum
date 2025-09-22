@@ -23,6 +23,7 @@
     "target/test-classes/ch/turic/utils/TestStringUtils.class",
     "target/test-classes/ch/turic/utils/ReflectionTest$ParameterTypeMatchingTests.class",
     "target/test-classes/ch/turic/TestInterpreter.class",
+    "target/test-classes/ch/turic/AdHoc.class",
     "target/test-classes/ch/turic/ParameterDefinitionTest.class",
     "target/test-classes/ch/turic/TestCompilation$ProgramSnippet.class",
     "target/test-classes/ch/turic/TestBasic.class",
@@ -33,6 +34,5 @@
     "target/test-classes/ch/turic/analyzer/StringFetcherTest$MultilineStringTests.class",
     "target/test-classes/ch/turic/analyzer/StringFetcherTest$EdgeCases.class",
     "target/test-classes/ch/turic/analyzer/StringFetcherTest.class",
-    "target/test-classes/ch/turic/analyzer/StringFetcherTest$SimpleStringTests.class",
-    "target/test-classes/ch/turic/AdHocTest.class"
+    "target/test-classes/ch/turic/analyzer/StringFetcherTest$SimpleStringTests.class"
 ]

@@ -18,7 +18,7 @@ public class StringConstant extends AbstractCommand {
 
     public static StringConstant factory(Unmarshaller.Args args) {
         return new StringConstant(args.str("value"),
-                args.commands());
+                args.commands()).fixPosition(args);
     }
 
     public String value() {
@@ -39,7 +39,7 @@ public class StringConstant extends AbstractCommand {
                 commands[i] = new StringConstant(parts[i], false);
             }
             for (int i = 1; i < parts.length; i += 2) {
-                final var lexes = Lexer.analyze((ch.turic.analyzer.Input)Input.fromString(parts[i]));
+                final var lexes = Lexer.analyze(Input.fromString(parts[i]));
                 commands[i] = lexes.is("(") ? BlockAnalyzer.FLAT.analyze(lexes) : BlockAnalyzer.INSTANCE.analyze(lexes);
             }
             this.value = null;
@@ -123,6 +123,18 @@ public class StringConstant extends AbstractCommand {
             final var sb = new StringBuilder();
             for (Command command : commands) {
                 sb.append(Objects.requireNonNullElse(command.execute(context), "none"));
+            }
+            return sb.toString();
+        }
+    }
+
+    public String toString() {
+        if (commands == null) {
+            return value;
+        } else {
+            final var sb = new StringBuilder();
+            for (Command command : commands) {
+                sb.append(Objects.requireNonNullElse(command.toString(), "none")).append("|");
             }
             return sb.toString();
         }

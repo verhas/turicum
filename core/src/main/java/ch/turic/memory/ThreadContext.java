@@ -12,7 +12,17 @@ import java.util.List;
 public class ThreadContext {
     private Yielder yielder = null;
 
+    public void abort() {
+        if (thread != null) {
+            thread.interrupt();
+        }
+    }
+
     private Thread thread;
+
+    public Thread getThread() {
+        return thread;
+    }
 
     public void setThread(Thread thread) {
         this.thread = thread;
@@ -31,8 +41,8 @@ public class ThreadContext {
     private final List<LngStackFrame> trace = new ArrayList<>();
 
     public ThreadContext() {
-
     }
+
     public ThreadContext(Thread thread) {
         this.thread = thread;
     }

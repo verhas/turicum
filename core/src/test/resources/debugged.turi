@@ -1,1 +1,11 @@
-println "Hello, World!"
+{
+    let k  = 13
+    
+    global zummamma  = "harbaropi tukirrama"
+    fn sumabva(kirta : num , jurtka : str , zeruomo : any){
+        return str(kirta)+jurtka +str(zeruomo)
+    }
+    println "Hello, World!"
+    let muthafa  = "ka"
+    println $"Hello, ${sumabva(629541.3,\" jippieee \", muthafa)}"
+}

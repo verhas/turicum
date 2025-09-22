@@ -75,7 +75,7 @@ public class ParameterDefinition {
         String rest = null;
         String meta = null;
         String closure = null;
-        Pos position = lexes.position();
+        Pos position = lexes.startPosition();
 
         while (lexes.peek().type() == Lex.Type.IDENTIFIER || lexes.is("@", "[", "!", "{", "^")) {
             final ParameterList.Parameter.Type type;

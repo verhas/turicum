@@ -5,9 +5,7 @@ import ch.turic.TuriClass;
 import ch.turic.memory.debugger.DebuggerContext;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -24,8 +22,8 @@ public class GlobalContext {
     private final Map<Class<?>, TuriClass> turiClasses = new HashMap<>();
     Path sourcePath;
     private boolean debugMode = false; // true when the interpreter is in debug mode
-    final DebuggerContext debuggerContext = new DebuggerContext(null,null);
-    private final List<LocalContext> contexts = new ArrayList<>();
+    final DebuggerContext debuggerContext = new DebuggerContext(null, null);
+    private final Map<ThreadContext, AtomicInteger> contexts = new ConcurrentHashMap<>();
 
     public GlobalContext(int stepLimit) {
         this.stepLimit = stepLimit;
@@ -112,27 +110,64 @@ public class GlobalContext {
     /**
      * Registers the given context into the global context registry.
      * Ensures thread-safe addition of the context to the internal collection.
+     * <p>
+     * One thread context can be attached to many local contexts; therefore, the registry
+     * counts the number of local contexts that are attached to the context.
      *
      * @param context the context to be registered
      */
-    public void registerContext(LocalContext context) {
+    public void registerContext(ThreadContext context) {
         synchronized (contexts) {
-            contexts.add(context);
+            contexts.computeIfAbsent(context, k -> new AtomicInteger(0)).incrementAndGet();
         }
     }
 
     /**
      * Removes the specified context from the global context registry.
      * Ensures thread-safe removal of the context from the internal collection.
+     * <p>
+     * The method decrements the reference counter and if it is zero then it fully removes the thread context from the
+     * registry.
      *
      * @param context the context to be removed
      */
-    public void removeContext(LocalContext context) {
+    public void removeContext(ThreadContext context) {
         synchronized (contexts) {
-            if( !contexts.remove(context) ){
+            if (!contexts.containsKey(context)) {
                 throw new RuntimeException("Context of a thread was not found in registry");
             }
+            final var count = contexts.get(context).decrementAndGet();
+            if (count == 0) {
+                contexts.remove(context);
+            }
         }
+    }
+
+    /**
+     * Joins all threads that are currently registered in the global context, ensuring
+     * that the calling thread waits for the other threads to terminate before proceeding.
+     * <p>
+     * The method iterates over all the contexts in the internal collection and, for each entry,
+     * checks if its associated thread is not the current thread. If the thread is different,
+     * it joins the thread, blocking execution until the respective thread completes.
+     * <p>
+     * If the thread is interrupted during the join operation, the exception is caught
+     * and silently ignored.
+     */
+    public void joinThreads() {
+        contexts.forEach((k, v) -> {
+            try {
+                if (k.getDebuggerContext() != null) {
+                    k.getDebuggerContext().close();
+                }
+                if (k.getThread() != null && k.getThread() != Thread.currentThread()) {
+                    k.abort();
+                    k.getThread().join();
+                }
+
+            } catch (InterruptedException ignored) {
+            }
+        });
     }
 
     /**
@@ -150,7 +185,7 @@ public class GlobalContext {
      * The heap replacement to {@link ConcurrentHashMap} does not guarantee that the variables are also updated.
      */
     public void switchToMultithreading() {
-            heap.parallel();
+        heap.parallel();
     }
 
 }

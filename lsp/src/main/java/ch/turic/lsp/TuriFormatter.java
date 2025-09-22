@@ -80,8 +80,8 @@ public class TuriFormatter {
             while (priLex != null && lexes.hasNext()) {
                 final var nextPos = lexes.getIndex();
                 final var thisLex = lexes.next();
-                if (priLex.position().line - 1 < lineNr &&
-                        thisLex.position().line - 1 >= lineNr) {
+                if (priLex.startPosition().line - 1 < lineNr &&
+                        thisLex.startPosition().line - 1 >= lineNr) {
                     return priPos;
                 }
                 priPos = nextPos;
@@ -101,8 +101,8 @@ public class TuriFormatter {
             while (priLex != null && lexes.hasNext()) {
                 final var thisLex = lexes.next();
                 if (priLex.type() == Lex.Type.STRING &&
-                        priLex.position().line - 1 < lineNr &&
-                        thisLex.position().line - 1 >= lineNr) {
+                        priLex.startPosition().line - 1 < lineNr &&
+                        thisLex.startPosition().line - 1 >= lineNr) {
                     return true;
                 }
                 priLex = thisLex;
@@ -121,8 +121,8 @@ public class TuriFormatter {
             while (current != null && lexes.hasNext()) {
                 final var next = lexes.next();
                 if (current.type() == Lex.Type.COMMENT &&
-                        current.position().line - 1 < lineNr &&
-                        next.position().line - 1 >= lineNr) {
+                        current.startPosition().line - 1 < lineNr &&
+                        next.startPosition().line - 1 >= lineNr) {
                     return true;
                 }
                 current = next;
@@ -149,7 +149,7 @@ public class TuriFormatter {
             }
             Lex lex = lexes.next();
             while (true) {
-                if (lex.position().line - 1 > lineNr) {
+                if (lex.startPosition().line - 1 > lineNr) {
                     return indentLevel;
                 }
                 if (lex.type() == Lex.Type.RESERVED) {
@@ -200,7 +200,7 @@ public class TuriFormatter {
             }
             final var sb = new StringBuilder();
             Lex lex = getFirstLexOnTheLine(lexes, index, lineNr);
-            while (lex != null && lex.position().line - 1 == lineNr) {
+            while (lex != null && lex.startPosition().line - 1 == lineNr) {
                 final var next = getTheNextSignificantLex(lexes);
                 sb.append(lexToString(lex, next));
                 if (next == null) {
@@ -254,7 +254,7 @@ public class TuriFormatter {
         Lex lex = null;
         while (lexes.hasNext()) {
             lex = lexes.next();
-            if (lex.position().line - 1 >= lineNr && !(lex.type() == Lex.Type.SPACES)) {
+            if (lex.startPosition().line - 1 >= lineNr && !(lex.type() == Lex.Type.SPACES)) {
                 break;
             }
         }
@@ -287,7 +287,7 @@ public class TuriFormatter {
                 } else {
                     if (next != null) {
                         yield switch (lex.text()) {
-                            case "===", "==", "!=", ">=", "<=", ">", "<", "=", "##", "->" ->
+                            case "&&", "||", "===", "==", "!=", ">=", "<=", ">", "<", "=", "##", "->" ->
                                     " " + lex.text() + spcOrEol(next);
                             case "," -> "," + spc(lex, next);
                             case ":" -> ":" + spc(lex, next);
@@ -318,7 +318,7 @@ public class TuriFormatter {
         if (next == null) return "";
         return switch (next.type()) {
             case INTEGER, FLOAT, SPACES, CHARACTER, IDENTIFIER, STRING, COMMENT -> " ";
-            case RESERVED -> isKw(next) || next.is("{") ? " " : "";
+            case RESERVED -> isKw(next) || !next.is(".", "[", "{", "(", ")", "}", "]") ? " " : "";
         };
     }
 

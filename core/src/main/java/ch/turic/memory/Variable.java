@@ -71,7 +71,9 @@ public class Variable {
      * @throws ExecutionException if the value does not fit any of the types.
      */
     public void set(Object newValue) throws ExecutionException {
-        if (!isOfTypes(newValue)) {
+        if (isOfTypes(newValue)) {
+            this.value = newValue;
+        } else {
             if (types.length == 1) {
                 throw new ExecutionException(
                         "Cannot set variable '%s' to value '%s' because it does not fit the declared type %s",
@@ -86,7 +88,6 @@ public class Variable {
                         Arrays.stream(types).map(Type::toString).collect(Collectors.joining("|")));
             }
         }
-        this.value = newValue;
     }
 
     /**
@@ -129,6 +130,7 @@ public class Variable {
      * <li> {@code bool} boolean type
      * <li> {@code str} string
      * <li> {@code num} any numeric type, integer or float
+     * <li> {@code int} any integer type
      * <li> {@code float} float type
      * <li> {@code any} the variable can hold any value
      * <li> {@code obj} the variable can hols any object without restriction on the class of that object
@@ -160,14 +162,16 @@ public class Variable {
             // boolean type
             case "str" -> new Variable.Type(String.class, null, new Identifier(name));
             // string
-            case "num" -> new Variable.Type(Long.class, null, new Identifier(name));
+            case "num" -> new Variable.Type(Number.class, null, new Identifier(name));
             // any numeric type, integer or float
+            case "int" -> new Variable.Type(Long.class, null, new Identifier(name));
+            // any integer type
             case "float" -> new Variable.Type(Double.class, null, new Identifier(name));
             // float type
             case "any" -> new Variable.Type(null, null, new Identifier(name));
             // the variable can hold any value
             case "obj" -> new Variable.Type(LngObject.class, null, new Identifier(name));
-            // the variable can hols any object without restriction on the class of that object
+            // the variable can hold any object without restriction on the class of that object
             case "lst" -> new Variable.Type(LngList.class, null, new Identifier(name));
             // the variable has to be a list
             case "que" -> new Variable.Type(Channel.class, null, new Identifier(name));
@@ -222,7 +226,8 @@ public class Variable {
         } else {
             if (javaType == NoneType.class) return value == null;
             if (javaType == SomeType.class) return value != null;
-            if (javaType == Double.class || javaType == Float.class) return Cast.isDouble(value);
+            if (javaType == Double.class) return Cast.isDouble(value);
+            if (javaType == Long.class) return Cast.isLong(value);
             return value != null && javaType.isAssignableFrom(value.getClass());
         }
     }

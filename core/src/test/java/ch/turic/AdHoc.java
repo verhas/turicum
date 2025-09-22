@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.nio.file.Path;
 
-public class AdHocTest {
+public class AdHoc {
     @Test
     void adHocTest() throws Exception {
         System.out.println(new File(".").getAbsolutePath());

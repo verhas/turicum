@@ -1656,15 +1656,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=2FD1731C
+h id=2E1792E7
 h after post increment: 1
 k: 0
-h id=5AE76500
-k id=2FD1731C
+h id=6719A5B8
+k id=2E1792E7
 h after pre increment: 2
 z: 2
-h id=6063D80A
-z id=6063D80A
+h id=3EB631B8
+z id=3EB631B8
 
 ----
 
@@ -1709,15 +1709,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=1133EC6E
+h id=6BFF19FF
 h after post increment: 1
 k: 1
-h id=1133EC6E
-k id=1133EC6E
+h id=6BFF19FF
+k id=6BFF19FF
 h after pre increment: 2
 z: 2
-h id=1133EC6E
-z id=1133EC6E
+h id=6BFF19FF
+z id=6BFF19FF
 
 ----
 
@@ -1765,15 +1765,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=355E34C7
+h id=4E558728
 h after post decrement: -1
 k: 0
-h id=54709809
-k id=355E34C7
+h id=5ECCD3B9
+k id=4E558728
 h after pre decrement: -2
 z: -2
-h id=2A2DA905
-z id=2A2DA905
+h id=4D6F197E
+z id=4D6F197E
 
 ----
 
@@ -1815,15 +1815,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=24F360B2
+h id=64E1DD11
 h after post decrement: -1
 k: -1
-h id=24F360B2
-k id=24F360B2
+h id=64E1DD11
+k id=64E1DD11
 h after pre decrement: -2
 z: -2
-h id=24F360B2
-z id=24F360B2
+h id=64E1DD11
+z id=64E1DD11
 
 ----
 
@@ -2459,12 +2459,14 @@ There are predefined type names.
  string
 * `num`
  any numeric type, integer or float
+* `int`
+ any integer type
 * `float`
  float type
 * `any`
  the variable can hold any value
 * `obj`
- the variable can hols any object without restriction on the class of that object
+ the variable can hold any object without restriction on the class of that object
 * `lst`
  the variable has to be a list
 * `que`
@@ -3152,7 +3154,7 @@ print z.z, " already changed"
 .output of snippet `update_forbiden4`
 [source]
 ----
-Assigned value changed while calculating new value z[ch.turic.commands.StringConstant@6fff253c]
+Assigned value changed while calculating new value z[ch.turic.commands.StringConstant@36c54a56]
 12 already changed
 ----
 
@@ -4881,14 +4883,14 @@ execute("Thread 2",2)
 .output of snippet `channel_limit`
 [source]
 ----
-Thread 1 generated 3
-Thread 1 generated 5
-Thread 1 generated 7
-Thread 1 generated 11
  prime read 2
+Thread 1 generated 3
  prime read 3
+Thread 1 generated 5
  prime read 5
+Thread 1 generated 7
  prime read 7
+Thread 1 generated 11
 Thread 1 generated 13
 Thread 1 generated 17
 Thread 1 generated 19
@@ -4900,10 +4902,10 @@ Thread 2 generated 3
  prime read 3
 Thread 2 generated 5
  prime read 5
-Thread 2 generated 7
+Thread 2 generated  prime read 7
+7
 Thread 2 generated 11
 Thread 2 generated 13
- prime read 7
 stopping
 exception Task stopped.
 
@@ -4960,9 +4962,9 @@ println( (end-start)/1000000, "ms")
 [source]
 ----
 [1, 2, 3]
-314.148875ms
+310.228667ms
 []
-309.051875ms
+311.927959ms
 
 ----
 
@@ -5171,10 +5173,9 @@ a =3.6820276497695854
 a =3.6063454894655185
 a =3.6055513629176015
 a =3.6055512754639905
-a =3.6055512754639896
-sqrt(13) ≈ 3.6055512754639905
+sqrt(13) ≈ 3.6055513629176015
 sqrt(13) ≈ 3.605551275463989 calculated by java Math
-square ≈ 13.000000000000009
+square ≈ 13.000000630636974
 
 ----
 
@@ -10145,7 +10146,7 @@ println m.absExact(int(-5))
 .output of snippet `java_class1`
 [source]
 ----
-5
+5.0
 5
 
 ----
@@ -10394,7 +10395,7 @@ println env().JAVA_HOME
 .output of snippet `env1`
 [source]
 ----
-/Users/verhasp/.sdkman/candidates/java/21.0.7-tem
+/Users/verhasp/.sdkman/candidates/java/24-open
 
 ----
 
@@ -10413,7 +10414,7 @@ println env("JAVA_HOME")
 .output of snippet `env2`
 [source]
 ----
-/Users/verhasp/.sdkman/candidates/java/21.0.7-tem
+/Users/verhasp/.sdkman/candidates/java/24-open
 
 ----
 
@@ -10432,7 +10433,7 @@ println env("JAVA_*")
 .output of snippet `env3`
 [source]
 ----
-{JAVA_HOME: /Users/verhasp/.sdkman/candidates/java/21.0.7-tem}
+{JAVA_HOME: /Users/verhasp/.sdkman/candidates/java/24-open}
 
 ----
 
@@ -10560,7 +10561,7 @@ println nano_time()
 .output of snippet `nano_time`
 [source]
 ----
-1623238845426458
+2132950685959208
 
 ----
 
@@ -10723,7 +10724,7 @@ println jsonify_beauty(glob("**/test-classes/**/*.class", recursive=true))
     "target/test-classes/ch/turic/TestInterpreter.class",
     "target/test-classes/ch/turic/ParameterDefinitionTest.class",
     "target/test-classes/ch/turic/TestCompilation$ProgramSnippet.class",
-    "target/test-classes/ch/turic/Basic.class",
+    "target/test-classes/ch/turic/TestBasic.class",
     "target/test-classes/ch/turic/TestReferenceSnippets.class",
     "target/test-classes/ch/turic/TestJavaDocSnippets$JavaDocSnippet.class",
     "target/test-classes/ch/turic/TestReferenceSnippets$ProgramSnippet.class",
@@ -11082,74 +11083,79 @@ none
 [source]
 ----
 task1 is not ready 0
+task2 is ready 1
 task2 is not ready 0
-task1 is ready 1
-task1 is not ready 0
-task2 is not ready 1
 task1 is not ready 1
+task2 is not ready 1
 task2 is not ready 2
 task1 is not ready 2
-task2 is not ready 3
-task1 is ready 2
-task2 is not ready 4
-task1 is not ready 0
-task2 is not ready 5
-task1 is not ready 1
-task2 is not ready 6
-task1 is not ready 2
-task2 is ready 3
 task1 is not ready 3
-task2 is not ready 0
-task1 is not ready 4
-task2 is not ready 1
-task1 is not ready 5
-task2 is not ready 2
-task1 is ready 4
-task1 is not ready 0
 task2 is not ready 3
-task1 is not ready 1
 task2 is not ready 4
-task1 is not ready 2
-task2 is not ready 5
-task1 is ready 5
-task2 is not ready 6
+task1 is ready 2
 task1 is not ready 0
+task2 is not ready 5
+task1 is not ready 1
+task2 is not ready 6
+task1 is not ready 2
+task1 is ready 3
 task2 is not ready 7
+task1 is not ready 0
 task1 is not ready 1
 task2 is not ready 8
+task2 is not ready 9
 task1 is not ready 2
-task2 is ready 6
-task2 is not ready 0
 task1 is not ready 3
-task2 is not ready 1
+task2 is ready 4
+task2 is not ready 0
 task1 is not ready 4
+task2 is not ready 1
 task2 is not ready 2
 task1 is not ready 5
-task2 is ready 7
-task2 is not ready 0
+task2 is ready 5
 task1 is not ready 6
+task2 is not ready 0
 task2 is not ready 1
 task1 is not ready 7
-task2 is not ready 2
 task1 is not ready 8
+task2 is not ready 2
+task1 is ready 6
+task1 is not ready 0
 task2 is not ready 3
-task1 is not ready 9
+task1 is not ready 1
+task2 is not ready 4
+task2 is not ready 5
+task1 is not ready 2
+task2 is not ready 6
+task1 is not ready 3
+task2 is ready 7
+task2 is not ready 0
+task1 is not ready 4
+task2 is not ready 1
+task1 is not ready 5
+task2 is not ready 2
+task1 is not ready 6
+task1 is not ready 7
 task2 is ready 8
+task2 is not ready 0
+task1 is not ready 8
+task2 is not ready 1
+task2 is not ready 2
+task1 is not ready 9
+task2 is ready 9
 task1 is not ready 10
 task2 is not ready 0
 task1 is not ready 11
 task2 is not ready 1
-task1 is ready 9
-task1 is not ready 0
 task2 is not ready 2
-task1 is not ready 1
-task2 is not ready 3
+task1 is not ready 12
 closing the channel
+task2 is not ready 3
 channel is closed
+task1 is done
 1 is done false
 2 is done false
 we start to wait the first time
-task1 is done
 task2 is done
 task1 done true
 task2 done true
@@ -11341,7 +11347,7 @@ println sleep(0.001) // sleep one milli
 .output of snippet `sleep`
 [source]
 ----
-0.002
+0.001
 
 ----
 
@@ -11413,12 +11419,13 @@ sending 2
 received 2
 not ready 0
 not ready 1
+not ready 2
 sending 3
 received 3
 not ready 0
 not ready 1
-not ready 2
 closing the channel
+not ready 2
 channel is closed
 is done false
 we are done
@@ -12018,7 +12025,7 @@ If the condition expression is false and there is no second block, then the valu
 
 [source]
 ----
-  IF ::= 'if' EXPRESSION ( ':' COMMAND | BLOCK ) [ 'else' ( ':' COMMAND | BLOCK )] ;
+  IF ::= 'if' EXPRESSION ( ':' COMMAND | BLOCK ) [ 'else' ( [':'] COMMAND | BLOCK )] ;
 
 ----
 

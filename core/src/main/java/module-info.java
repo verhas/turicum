@@ -1,7 +1,6 @@
 import ch.turic.builtins.classes.*;
 import ch.turic.builtins.functions.*;
-import ch.turic.builtins.functions.debugger.DebugSession;
-import ch.turic.builtins.functions.debugger.StepInto;
+import ch.turic.builtins.functions.debugger.DebugSessionFactory;
 import ch.turic.builtins.macros.*;
 
 module ch.turic {
@@ -26,12 +25,12 @@ module ch.turic {
             MathFunctions.Atan2, MathFunctions.CopySign,
             MathFunctions.GetExponent, MathFunctions.Hypot, MathFunctions.IEEERemainder,
             MathFunctions.NextAfter, MathFunctions.NextDown,
-            MathFunctions.NextUp, MathFunctions.Random, MathFunctions.ToInt, MathFunctions.ToFloat, MathFunctions.Rint, MathFunctions.Round,
+            MathFunctions.NextUp, MathFunctions.Random, MathFunctions.ToInt, MathFunctions.ToNumber, MathFunctions.ToFloat, MathFunctions.Rint, MathFunctions.Round,
             MathFunctions.SigNum, MathFunctions.Ulp, IdHash, Chr,
             Unthunk, Unwrap, BlockList, Command, Min, Max, MathFunctions.Pow, MathFunctions.Scalb, Env,
             TuriHttpClient, Jsonify, JsonifyBeauty, Str, Glob, SourceDirectory, Arity, Signature,
             Uncurry, IsCurried, CurriedArity, Enumerate, JavaClass,
-            DebugSession, StepInto;
+            DebugSessionFactory;
     provides ch.turic.TuriMacro with Export, IsDefined, Unlet, Thunk, Import, SysImport,Delete;
     provides ch.turic.TuriClass with TuriString, TuriLong, TuriDouble, TuriIterator, TuriChannel, TuriInputStream, TuriInputStreamReader;
 }

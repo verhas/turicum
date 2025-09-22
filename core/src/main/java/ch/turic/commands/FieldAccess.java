@@ -32,7 +32,7 @@ public class FieldAccess extends AbstractCommand {
                 args.command("object"),
                 args.str("identifier"),
                 args.bool("lenient")
-        );
+        ).fixPosition(args);
     }
 
     public FieldAccess(Command object, String identifier, boolean lenient) {

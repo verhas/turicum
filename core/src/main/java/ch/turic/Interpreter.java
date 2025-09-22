@@ -87,7 +87,7 @@ public class Interpreter implements AutoCloseable {
     }
 
     public boolean debugMode(boolean debugMode, Channel<ConcurrentWorkItem<?>> channel) {
-        return ctx.debugMode(debugMode,channel);
+        return ctx.debugMode(debugMode, channel);
     }
 
     /**
@@ -107,6 +107,13 @@ public class Interpreter implements AutoCloseable {
         return execute(localCode);
     }
 
+    public Object executeNotify(Command code, Runnable callback) {
+        try {
+            return execute(code);
+        } finally {
+            callback.run();
+        }
+    }
     /**
      * Executes the provided command within the current execution context.
      * If an execution error occurs, it adapts the stack trace to include
@@ -140,6 +147,8 @@ public class Interpreter implements AutoCloseable {
             final var turiException = new ExecutionException(e);
             turiException.setStackTrace(newStackTrace.toArray(StackTraceElement[]::new));
             throw turiException;
+        } finally {
+            ctx.globalContext.joinThreads();
         }
     }
 
@@ -181,6 +190,8 @@ public class Interpreter implements AutoCloseable {
 
     @Override
     public void close() {
-        this.ctx.close();
+        if (ctx != null) {
+            ctx.close();
+        }
     }
 }

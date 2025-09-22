@@ -57,6 +57,20 @@ public class MathFunctions {
             throw new ExecutionException("%s argument is not a long/double", name());
         }
     }
+    @Name("num")
+    public static class ToNumber implements TuriFunction {
+        @Override
+        public Object call(Context context, Object[] arguments) throws ExecutionException {
+            final var arg = FunUtils.arg(name(), arguments);
+            if( Cast.isLong(arg) ) {
+                return Cast.toLong(arg);
+            }
+            if( Cast.isDouble(arg) ) {
+                return Cast.toDouble(arg);
+            }
+            throw new ExecutionException("%s argument is not a long/double", name());
+        }
+    }
 
     private static abstract class MathFunc1 implements TuriFunction {
         private final Function<Double, Double> functions;

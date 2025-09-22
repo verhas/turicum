@@ -17,7 +17,7 @@ public class AsyncEvaluation extends AbstractCommand {
     private final Map<String, Command> options;
 
     public static AsyncEvaluation factory(Unmarshaller.Args args) {
-        return new AsyncEvaluation(args.command("command"),args.get("options",Map.class));
+        return new AsyncEvaluation(args.command("command"), args.get("options", Map.class));
     }
 
     public AsyncEvaluation(Command command, Map<String, Command> options) {
@@ -53,10 +53,10 @@ public class AsyncEvaluation extends AbstractCommand {
         if (command instanceof ListComposition composition) {
             final var lngList = new LngList();
             for (final var command : composition.array) {
-               lngList.array.add(startAsyncStream(command, ctx, outCapacity, inCapacity));
+                lngList.array.add(startAsyncStream(command, ctx, outCapacity, inCapacity));
             }
             return lngList;
-        }else {
+        } else {
             return startAsyncStream(this.command, ctx, outCapacity, inCapacity);
         }
     }
@@ -77,11 +77,12 @@ public class AsyncEvaluation extends AbstractCommand {
                     } catch (Exception t) {
                         final var exception = LngException.build(ctx, t, newContext.threadContext.getStackTrace());
                         return Channel.Message.exception(exception);
-                    }finally {
+                    } finally {
                         newContext.close();
                     }
                 }, executor);
         yielder.setFuture(future);
+        yielder.setThreadContext(newContext.threadContext);
         return yielder;
     }
 

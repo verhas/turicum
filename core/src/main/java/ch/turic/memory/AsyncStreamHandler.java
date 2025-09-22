@@ -21,6 +21,7 @@ public class AsyncStreamHandler
     }
 
     private CompletableFuture<Channel.Message<?>> future;
+    private ThreadContext threadContext;
 
     public AsyncStreamHandler(int outQueueSize, int inQueueSize) {
         this.toChildQueue = new BlockingQueueChannel<>(outQueueSize);
@@ -54,6 +55,10 @@ public class AsyncStreamHandler
         this.future = future;
     }
 
+    public void setThreadContext(ThreadContext threadContext) {
+        this.threadContext = threadContext;
+    }
+
     @Override
     public boolean cancel(boolean mayInterruptIfRunning) {
         return future.cancel(mayInterruptIfRunning);
@@ -81,7 +86,7 @@ public class AsyncStreamHandler
     }
 
     @Override
-    public Channel.Message<?> get(long timeout, TimeUnit unit) throws  ExecutionException {
+    public Channel.Message<?> get(long timeout, TimeUnit unit) throws ExecutionException {
         try {
             return future.get(timeout, unit);
         } catch (Exception e) {
@@ -91,7 +96,7 @@ public class AsyncStreamHandler
 
     @Override
     public void setField(String name, Object value) throws ExecutionException {
-        throw new ExecutionException("You cannot set a field on an asynch object");
+        throw new ExecutionException("You cannot set a field on an async object");
     }
 
     @Override
@@ -102,6 +107,7 @@ public class AsyncStreamHandler
             case "is_cancelled" -> new TuriMethod<>(future::isCancelled);
             case "stop" -> new TuriMethod<>(x -> {
                 future.cancel(true);
+                threadContext.abort();
                 toParent().close();
                 toChild().close();
                 return null;
@@ -144,7 +150,7 @@ public class AsyncStreamHandler
             });
             case "set_name" -> new TuriMethod<>((args) -> {
                 for (final var arg : args) {
-                    this.name = ""+ arg;
+                    this.name = "" + arg;
                 }
                 return null;
             });

@@ -9,13 +9,20 @@ import java.util.Set;
 public class Lex implements HasFields {
     Type type;
     String text;
-    String lexeme; // the original a of the token including ", spaces, escapes etc.
-    final Pos position;
+    String lexeme; // the original a of the token, including ", spaces, escapes, etc.
+    final Pos startPosition;
+
+    final Pos endPosition;
+
     boolean atLineStart;
     final public boolean interpolated;
 
-    public Pos position() {
-        return position;
+    public Pos startPosition() {
+        return startPosition;
+    }
+
+    public Pos endPosition() {
+        return endPosition;
     }
 
     public boolean atLineStart() {
@@ -35,16 +42,19 @@ public class Lex implements HasFields {
     }
 
     public static Lex string(String text, String lexeme, boolean atLineStart, Pos position) {
-        return new Lex(Type.STRING, text, lexeme, atLineStart, position, lexeme.startsWith("$"));
+        return new Lex(Type.STRING, text, lexeme, atLineStart, position,
+                position.offset(lexeme),
+                lexeme.startsWith("$"));
     }
 
 
     public static Lex character(Input in, boolean atLineStart, Pos position) {
-        return new Lex(Lex.Type.CHARACTER, in.substring(0, 1), atLineStart, position);
+        final var ch = in.substring(0, 1);
+        return new Lex(Lex.Type.CHARACTER, ch, atLineStart, position,position.offset(ch));
     }
 
     public static Lex reserved(String text, boolean atLineStart, Pos position) {
-        return new Lex(Type.RESERVED, text, atLineStart, position);
+        return new Lex(Type.RESERVED, text, atLineStart, position,position.offset(text));
     }
 
     public static Lex identifier(String text, boolean atLineStart, Pos position) {
@@ -52,24 +62,28 @@ public class Lex implements HasFields {
     }
 
     public static Lex identifier(String text, String lexeme, boolean atLineStart, Pos position) {
-        return new Lex(Type.IDENTIFIER, text, lexeme, atLineStart, position);
+        return new Lex(Type.IDENTIFIER, text, lexeme, atLineStart, position,position.offset(lexeme));
     }
 
-    public Lex(Type type, String text, String lexeme, boolean atLineStart, Pos position, boolean interpolated) {
+    public Lex(Type type, String text, String lexeme,
+               boolean atLineStart,
+               Pos startPosition, Pos endPosition,
+               boolean interpolated) {
         this.type = type;
         this.text = text;
         this.lexeme = lexeme;
         this.atLineStart = atLineStart;
-        this.position = position.clone();
+        this.startPosition = startPosition.clone();
+        this.endPosition = endPosition.clone();
         this.interpolated = interpolated;
     }
 
-    public Lex(Type type, String text, String lexeme, boolean atLineStart, Pos position) {
-        this(type, text, lexeme, atLineStart, position, false);
+    public Lex(Type type, String text, String lexeme, boolean atLineStart, Pos startPosition, Pos endPosition) {
+        this(type, text, lexeme, atLineStart, startPosition, endPosition, false);
     }
 
-    public Lex(Type type, String text, boolean atLineStart, Pos position) {
-        this(type, text, text, atLineStart, position, false);
+    public Lex(Type type, String text, boolean atLineStart, Pos startPosition, Pos endPosition) {
+        this(type, text, text, atLineStart, startPosition, endPosition, false);
     }
 
     @Override

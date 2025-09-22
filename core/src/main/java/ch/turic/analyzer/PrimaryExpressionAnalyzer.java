@@ -127,10 +127,10 @@ public class PrimaryExpressionAnalyzer extends AbstractAnalyzer {
         final var lex = lexes.next();
         try{
         return switch (lex.type()) {
-            case IDENTIFIER -> getAccessOrCall(lexes, new Identifier(lex.text()), false);
-            case STRING -> getAccessOrCall(lexes, new StringConstant(lex.text(), lex.interpolated), false);
-            case INTEGER -> getAccessOrCall(lexes, new IntegerConstant(lex.text()), false);
-            case FLOAT -> getAccessOrCall(lexes, new FloatConstant(lex.text()), false);
+            case IDENTIFIER -> getAccessOrCall(lexes, new Identifier(lex.text()).fixPosition(lex), false);
+            case STRING -> getAccessOrCall(lexes, new StringConstant(lex.text, lex.interpolated).fixPosition(lex), false);
+            case INTEGER -> getAccessOrCall(lexes, new IntegerConstant(lex.text()).fixPosition(lex), false);
+            case FLOAT -> getAccessOrCall(lexes, new FloatConstant(lex.text()).fixPosition(lex), false);
             default -> throw lexes.syntaxError("Expression: expected identifier, or constant, got '%s'", lex.text());
         };}catch(ExecutionException ee){
             throw lexes.syntaxError(ee.getMessage());
@@ -138,7 +138,7 @@ public class PrimaryExpressionAnalyzer extends AbstractAnalyzer {
     }
 
     /**
-     * Get the array of filters and mappers until some stops the parsing.
+     * Get the array of filters and mappers until one stops the parsing.
      * <p>
      * The current lexical element should be the first '{@code ?}' or '{@code ->}'.
      *

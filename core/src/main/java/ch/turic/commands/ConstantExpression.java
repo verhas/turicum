@@ -11,8 +11,7 @@ public class ConstantExpression extends AbstractCommand {
 
 
     public static ConstantExpression factory(final Unmarshaller.Args args) {
-        final var value = args.get("value", Object.class);
-        return new ConstantExpression(value);
+        return new ConstantExpression(args.get("value", Object.class)).fixPosition(args);
     }
 
     public ConstantExpression(Object value) {

@@ -27,9 +27,9 @@ public class BlockingQueueChannel<T> implements Channel<T> {
             if (isClosed()) {
                 throw new ExecutionException("Channel is closed");
             }
-            if (message.isCloseMessage() ) {
+            if (message.isCloseMessage()) {
                 // we do not block for closing messages, it may never be read
-                Thread.startVirtualThread(()-> {
+                Thread.startVirtualThread(() -> {
                     try {
                         queue.put(message);
                     } catch (InterruptedException ignore) {
@@ -66,7 +66,7 @@ public class BlockingQueueChannel<T> implements Channel<T> {
     @Override
     public Message<T> receive() throws ExecutionException {
         try {
-            return queue.take();
+            return nonNullOrEmpty(queue.take());
         } catch (InterruptedException e) {
             throw new ExecutionException(e);
         }
@@ -74,13 +74,13 @@ public class BlockingQueueChannel<T> implements Channel<T> {
 
     @Override
     public Message<T> tryReceive() throws ExecutionException {
-        return queue.poll();
+        return nonNullOrEmpty(queue.poll());
     }
 
     @Override
     public Message<T> tryReceive(long time, TimeUnit unit) throws ExecutionException {
         try {
-            return queue.poll(time, unit);
+            return nonNullOrEmpty(queue.poll(time, unit));
         } catch (InterruptedException e) {
             throw new ExecutionException(e);
         }
@@ -97,5 +97,12 @@ public class BlockingQueueChannel<T> implements Channel<T> {
     @Override
     public boolean isClosed() {
         return closed;
+    }
+
+    private static <T> Message<T> nonNullOrEmpty(Message<T> msg) {
+        if (msg == null) {
+            return Message.empty();
+        }
+        return msg;
     }
 }

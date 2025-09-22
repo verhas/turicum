@@ -1,10 +1,15 @@
 package ch.turic.memory.debugger;
 
 import ch.turic.analyzer.Pos;
+import ch.turic.memory.ThreadContext;
 
-import java.util.Set;
+import java.util.Map;
 
 public class DebuggerCommand {
+    public DebuggerCommand(ThreadContext threadContext) {
+        this.threadContext = threadContext;
+    }
+
     public enum Command {
         STEP_INTO,
         STEP_OVER,
@@ -13,17 +18,12 @@ public class DebuggerCommand {
         POS, // answer the position of the current execution point
         LOCALS, // list the local variable names
         GLOBALS, // list the global variable names
-        VAR, // get the value of a variable
         SET, // set the value of a variable
+        COMMAND, // get the current command
+        WAITING, // sent by the debugged process signalling that it is ready to receive commands
     }
 
     private Command command;
-
-    public static DebuggerCommand of(Command command) {
-        DebuggerCommand dc = new DebuggerCommand();
-        dc.command = command;
-        return dc;
-    }
 
     public void setCommand(Command command) {
         this.command = command;
@@ -33,6 +33,12 @@ public class DebuggerCommand {
         return command;
     }
 
+    private final ThreadContext threadContext;
+
+    public ThreadContext threadContext() {
+        return threadContext;
+    }
+
     public interface RequestParameters {
     }
 
@@ -40,9 +46,6 @@ public class DebuggerCommand {
 
     public void setRequestParameters(RequestParameters requestParameters) {
         this.requestParameters = requestParameters;
-    }
-
-    public record VarRequestParameters(String variableName) implements RequestParameters {
     }
 
     public record SetRequestParameters(String variableName, Object value) implements RequestParameters {
@@ -56,6 +59,9 @@ public class DebuggerCommand {
     public record PosResponse(Pos startPosition, Pos endPosition) implements Response {
     }
 
-    public record VarResponse(Set<String> variables) implements Response {
+    public record VarResponse(Map<String, Object> variables) implements Response {
+    }
+
+    public record CommandResponse(ch.turic.Command command) implements Response {
     }
 }

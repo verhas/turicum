@@ -57,6 +57,7 @@ ch.turic.builtins.functions.MathFunctions$NextDown
 ch.turic.builtins.functions.MathFunctions$SigNum
 ch.turic.builtins.functions.MathFunctions$Random
 ch.turic.builtins.functions.MathFunctions$ToInt
+ch.turic.builtins.functions.MathFunctions$ToNumber
 ch.turic.builtins.functions.MathFunctions$ToFloat
 ch.turic.builtins.functions.MathFunctions$Round
 ch.turic.builtins.functions.MathFunctions$Ulp
@@ -83,6 +84,5 @@ ch.turic.builtins.functions.CurriedArity
 ch.turic.builtins.functions.Enumerate
 ch.turic.builtins.functions.JavaClass
 ch.turic.builtins.functions.Chr
-ch.turic.builtins.functions.debugger.DebugSession
-ch.turic.builtins.functions.debugger.StepInto
+ch.turic.builtins.functions.debugger.DebugSessionFactory
 

@@ -34,7 +34,7 @@ public class FunctionCall extends FunctionCallOrCurry {
     public static FunctionCall factory(final Unmarshaller.Args args) {
         return new FunctionCall(
                 args.command("object"),
-                args.get("arguments", Argument[].class));
+                args.get("arguments", Argument[].class)).fixPosition(args);
     }
 
     @Override

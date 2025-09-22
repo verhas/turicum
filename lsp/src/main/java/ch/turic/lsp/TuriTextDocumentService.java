@@ -341,7 +341,7 @@ class TuriTextDocumentService implements TextDocumentService {
                 final var lex = lexes.next();
                 if (lex.type() == Lex.Type.COMMENT && lex.text().startsWith("/**")) {
                     FoldingRange range = new FoldingRange();
-                    range.setStartLine(lex.position().line - 1);
+                    range.setStartLine(lex.startPosition().line - 1);
 
                     int newLines = 0;
                     final var text = lex.text().toCharArray();
@@ -350,7 +350,7 @@ class TuriTextDocumentService implements TextDocumentService {
                             newLines++;
                         }
                     }
-                    range.setEndLine(lex.position().line - 1 + newLines);
+                    range.setEndLine(lex.startPosition().line - 1 + newLines);
                     range.setKind(FoldingRangeKind.Comment);
                     ranges.add(range);
                 }
@@ -377,7 +377,7 @@ class TuriTextDocumentService implements TextDocumentService {
                     if (lexes.hasNext() && lexes.peek().type() == Lex.Type.IDENTIFIER) {
                         final var fn = lexes.next();
                         CodeLens lens = new CodeLens();
-                        lens.setRange(new Range(new Position(fn.position().line - 1, fn.position().column), new Position(fn.position().line - 1, fn.position().column + fn.text().length())));
+                        lens.setRange(new Range(new Position(fn.startPosition().line - 1, fn.startPosition().column), new Position(fn.startPosition().line - 1, fn.startPosition().column + fn.text().length())));
 
                         Command command = new Command();
                         command.setTitle("📖"); // Documentation icon
@@ -423,8 +423,8 @@ class TuriTextDocumentService implements TextDocumentService {
                         } else if (prior.is(Keywords.CLASS)) {
                             symbol.setKind(SymbolKind.Class);
                         }
-                        symbol.setRange(new Range(new Position(prior.position().line - 1, prior.position().column), new Position(lex.position().line - 1, lex.position().column + 1)));
-                        symbol.setSelectionRange(new Range(new Position(prior.position().line - 1, prior.position().column), new Position(lex.position().line - 1, lex.position().column + lex.text().length())));
+                        symbol.setRange(new Range(new Position(prior.startPosition().line - 1, prior.startPosition().column), new Position(lex.startPosition().line - 1, lex.startPosition().column + 1)));
+                        symbol.setSelectionRange(new Range(new Position(prior.startPosition().line - 1, prior.startPosition().column), new Position(lex.startPosition().line - 1, lex.startPosition().column + lex.text().length())));
                     }
                     symbols.add(Either.forRight(symbol));
                 }
@@ -465,14 +465,14 @@ class TuriTextDocumentService implements TextDocumentService {
                 if (lex.type() == Lex.Type.SPACES) {
                     continue;
                 }
-                final var pos = lex.position();
+                final var pos = lex.startPosition();
                 if (lex.type() == Lex.Type.IDENTIFIER) {
                     id = lex.text();
                 } else {
                     prior = lex;
                     id = null;
                 }
-                if (srcLine == pos.line - 1 && lex.position().column - 1 <= srcCharacter && srcCharacter <= pos.column + lex.lexeme().length()) {
+                if (srcLine == pos.line - 1 && lex.startPosition().column - 1 <= srcCharacter && srcCharacter <= pos.column + lex.lexeme().length()) {
                     break;
                 }
                 prior = lex;
@@ -482,7 +482,7 @@ class TuriTextDocumentService implements TextDocumentService {
                 while (lexes.hasNext()) {
                     final var ref = lexes.next();
                     if (lex != ref && ref.text().equals(id)) {
-                        final var pos = ref.position();
+                        final var pos = ref.startPosition();
                         final var location = new Location();
                         location.setUri(uri);
                         location.setRange(new Range(new Position(pos.line - 1, pos.column), new Position(pos.line - 1, pos.column + ref.lexeme().length())));
@@ -512,14 +512,14 @@ class TuriTextDocumentService implements TextDocumentService {
                 if (lex.type() == Lex.Type.SPACES) {
                     continue;
                 }
-                final var pos = lex.position();
+                final var pos = lex.startPosition();
                 if (lex.type() == Lex.Type.IDENTIFIER) {
                     id = lex.text();
                 } else {
                     prior = lex;
                     id = null;
                 }
-                if (srcLine == pos.line - 1 && lex.position().column - 1 <= srcCharacter && srcCharacter <= pos.column + lex.lexeme().length()) {
+                if (srcLine == pos.line - 1 && lex.startPosition().column - 1 <= srcCharacter && srcCharacter <= pos.column + lex.lexeme().length()) {
                     break;
                 }
                 prior = lex;
@@ -530,7 +530,7 @@ class TuriTextDocumentService implements TextDocumentService {
                 while (lexes.hasNext()) {
                     final var lex = lexes.next();
                     if (lex.text().equals(id)) {
-                        final var pos = lex.position();
+                        final var pos = lex.startPosition();
                         final var location = new Location();
                         location.setUri(uri);
                         location.setRange(new Range(new Position(pos.line - 1, pos.column), new Position(pos.line - 1, pos.column + lex.lexeme().length())));
