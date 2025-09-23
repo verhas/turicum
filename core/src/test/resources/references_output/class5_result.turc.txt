@@ -1,1 +1,1 @@
-null
+Variable 'cls' is pinned.

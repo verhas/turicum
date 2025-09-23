@@ -1332,7 +1332,7 @@ fn q(){
 
 // snippet fnDecorator3
 mut fun_decorator={|^closure|
-        set(closure.name,
+        set_force(closure.name,
             {|| println("We start the fun"); closure(); println("The fun is over")}
            )
     }
@@ -1361,7 +1361,7 @@ q()
 
 // snippet fnDecorator5
 fn fun_decorator(^closure){
-        set_caller(closure.name,
+        set_caller_force(closure.name,
             {|| println("We start the fun"); closure(); println("The fun is over")}
            )
     }
@@ -2879,24 +2879,28 @@ with x as a {
 class A {
     fn init(a=1,b=2);
     fn entry {
-        println "entry to A"
+        println "entry to A";
         { a: 7, b:8 }
     }
     fn exit e:err|none {
-        println "exit fom A"
+        println "exit from A";
+        none
     }
 }
 class B {
     fn init(a=4,c=5);
     fn entry {
-        println "entry to B"
+        println "entry to B";
+        none
     }
     fn exit (e){
-        println "exit fom B"
+        println "exit from B";
+        none
     }
 }
 with A() as x, B() as y {
-  println x.a,x.b,y.c
+  println x.a,x.b,y.c;
+  none
 }
 // end snippet
 // snippet withAs

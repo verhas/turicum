@@ -1,1 +1,1 @@
-null
+[apple, 1, 2, 3, 4, banana, cherry]

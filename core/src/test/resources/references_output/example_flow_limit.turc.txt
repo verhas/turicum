@@ -5,4 +5,5 @@ x =5
 x =6
 x =7
 Task limit has been reached in flow '#unnamed' command after 5 tasks.
-Final x = none
+Final x = Task limit has been reached in flow '#unnamed' command after 5 tasks.
+

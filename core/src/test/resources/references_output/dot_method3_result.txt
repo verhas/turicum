@@ -1,1 +1,1 @@
-null
+ch.turic.commands.Closure

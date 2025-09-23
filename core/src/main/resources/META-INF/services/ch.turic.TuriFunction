@@ -7,9 +7,11 @@ ch.turic.builtins.functions.Keys
 ch.turic.builtins.functions.JavaObject
 ch.turic.builtins.functions.JavaCall
 ch.turic.builtins.functions.Sleep
-ch.turic.builtins.functions.Set
+ch.turic.builtins.functions.SetSymbol
+ch.turic.builtins.functions.SetSymbolForce
 ch.turic.builtins.functions.SetGlobal
 ch.turic.builtins.functions.SetCaller
+ch.turic.builtins.functions.SetCallerForce
 ch.turic.builtins.functions.Que
 ch.turic.builtins.functions.TryYield
 ch.turic.builtins.functions.YieldIsClosed

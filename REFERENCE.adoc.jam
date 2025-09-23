@@ -1318,11 +1318,13 @@ When the `+{%@snip PRINT_TARGET%}+` is an object the method `+{%@snip PRINT_TARG
 `+{%@snip PRINT_TARGET_FLUSH%}+` is called to close every print statement.
 `+{%@snip PRINT_TARGET_WRITE%}+` has to be defined, `+{%@snip PRINT_TARGET_FLUSH%}+` is optional, but when defined it has to be a method.
 
-When the `+{%@snip PRINT_TARGET%}+` is a closure it is used to send the strings and flushing is ignored.
+When the `+{%@snip PRINT_TARGET%}+` is a closure, it is used to send the strings, and flushing is ignored.
 
 The following example shows how to use this feature:
 
 {%S print_redirect%}
+
+The value of the command is the string sent to the output.
 
 == Control Flow
 
@@ -3320,13 +3322,13 @@ Here is a complex example using this function:
 
 Currently, there are three 'set' functions to update the value of a variable when the name of the variable is available in a string.
 
-* `set`
+* `set`, `set_force`
 * `set_global`
-* `set_caller`
+* `set_caller`, `set_caller_force`
 
 The use of these functions should be considered only for special meta-programming cases like writing decorators.
 
-==== `set`
+==== `set`, `set_force`
 
 Set the value of a variable in the local context.
 This function is useful for meta-programming when the name of the variable is available in a string.
@@ -3336,17 +3338,23 @@ An example is in the sample:
 
 uses this function to decorate a function and then set the variable of the same name, overwriting the definition with a new, decorated closure.
 
+{%@def FORCE=The `*_force` version overwrites the value even when the variable is pinned.%}
+
 ==== `set_global`
 
-It is simlar to `set()` but it sets the value of a global variable.
+It is similar to `set()`, but it sets the value of a global variable.
+Note that there is no `*_force` version of this function.
+Pinning is always local, and this method works directly on the global variables.
 
-==== `set_caller`
+==== `set_caller`, `set_caller_force`
 
 This function sets the variable in the caller context.
 This comes in handy when you implement a decorator that wants to redefine a function or class, and the decorator is in a different context than the decorated function.
-You can set the name as a global name, but that will define the name globally, and if the function is in a local context, it may not exactly work as expected.
+You can set the name as a global name, but that will define the name globally.
+If the function is in a local context, it may not exactly work as expected.
 
-Calling this function from inside a function can redefine a variable in the context of the code that is calling the function or closure.
+Calling this function from inside another function can redefine a variable in the context of the code that calls the function or the closure.
+{%FORCE%}
 
 {%S fnDecorator5%}
 

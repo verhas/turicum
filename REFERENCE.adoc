@@ -1656,15 +1656,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=2E1792E7
+h id=17D238B1
 h after post increment: 1
 k: 0
-h id=6719A5B8
-k id=2E1792E7
+h id=3D7CC3CB
+k id=17D238B1
 h after pre increment: 2
 z: 2
-h id=3EB631B8
-z id=3EB631B8
+h id=35E478F
+z id=35E478F
 
 ----
 
@@ -1709,15 +1709,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=6BFF19FF
+h id=6B7D1DF8
 h after post increment: 1
 k: 1
-h id=6BFF19FF
-k id=6BFF19FF
+h id=6B7D1DF8
+k id=6B7D1DF8
 h after pre increment: 2
 z: 2
-h id=6BFF19FF
-z id=6BFF19FF
+h id=6B7D1DF8
+z id=6B7D1DF8
 
 ----
 
@@ -1765,15 +1765,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=4E558728
+h id=41D7B27F
 h after post decrement: -1
 k: 0
-h id=5ECCD3B9
-k id=4E558728
+h id=49096B06
+k id=41D7B27F
 h after pre decrement: -2
 z: -2
-h id=4D6F197E
-z id=4D6F197E
+h id=4A183D02
+z id=4A183D02
 
 ----
 
@@ -1815,15 +1815,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=64E1DD11
+h id=213DEAC2
 h after post decrement: -1
 k: -1
-h id=64E1DD11
-k id=64E1DD11
+h id=213DEAC2
+k id=213DEAC2
 h after pre decrement: -2
 z: -2
-h id=64E1DD11
-z id=64E1DD11
+h id=213DEAC2
+z id=213DEAC2
 
 ----
 
@@ -3154,7 +3154,7 @@ print z.z, " already changed"
 .output of snippet `update_forbiden4`
 [source]
 ----
-Assigned value changed while calculating new value z[ch.turic.commands.StringConstant@36c54a56]
+Assigned value changed while calculating new value z[z]
 12 already changed
 ----
 
@@ -3478,7 +3478,7 @@ When the `+print_target+` is an object the method `+write+` is used to send the 
 `+flush+` is called to close every print statement.
 `+write+` has to be defined, `+flush+` is optional, but when defined it has to be a method.
 
-When the `+print_target+` is a closure it is used to send the strings and flushing is ignored.
+When the `+print_target+` is a closure, it is used to send the strings, and flushing is ignored.
 
 The following example shows how to use this feature:
 
@@ -3544,6 +3544,8 @@ Said the raven:
 ----
 
 
+
+The value of the command is the string sent to the output.
 
 == Control Flow
 
@@ -4350,7 +4352,8 @@ however
 1
 2
 3
-none
+3
+
 
 ----
 
@@ -4897,13 +4900,13 @@ Thread 1 generated 19
 Thread 1 generated 23
 stopping
 exception Task stopped.
- prime read 2
 Thread 2 generated 3
+ prime read 2
  prime read 3
 Thread 2 generated 5
  prime read 5
-Thread 2 generated  prime read 7
-7
+Thread 2 generated 7
+ prime read 7
 Thread 2 generated 11
 Thread 2 generated 13
 stopping
@@ -4962,9 +4965,9 @@ println( (end-start)/1000000, "ms")
 [source]
 ----
 [1, 2, 3]
-310.228667ms
+312.716291ms
 []
-311.927959ms
+316.786167ms
 
 ----
 
@@ -5211,7 +5214,8 @@ println("Final counter = ", result);
 counter =1
 counter =2
 Flow '#unnamed' timed out after 10 ms
-Final counter = none
+Final counter = Flow '#unnamed' timed out after 10 ms
+
 
 ----
 
@@ -5251,7 +5255,8 @@ x =5
 x =6
 x =7
 Task limit has been reached in flow '#unnamed' command after 5 tasks.
-Final x = none
+Final x = Task limit has been reached in flow '#unnamed' command after 5 tasks.
+
 
 ----
 
@@ -7297,7 +7302,7 @@ They can also modify the existing definition.
 [source]
 ----
 mut fun_decorator={|^closure|
-        set(closure.name,
+        set_force(closure.name,
             {|| println("We start the fun"); closure(); println("The fun is over")}
            )
     }
@@ -10146,7 +10151,7 @@ println m.absExact(int(-5))
 .output of snippet `java_class1`
 [source]
 ----
-5.0
+5
 5
 
 ----
@@ -10169,7 +10174,7 @@ println $"h is ${h} of ${type(h)}"
 .output of snippet `java_class2`
 [source]
 ----
-h is 10.50 of java.java.math.BigDecimal
+h is 10.50 of num
 
 ----
 
@@ -10395,7 +10400,7 @@ println env().JAVA_HOME
 .output of snippet `env1`
 [source]
 ----
-/Users/verhasp/.sdkman/candidates/java/24-open
+/Users/verhasp/.sdkman/candidates/java/21.0.7-tem
 
 ----
 
@@ -10414,7 +10419,7 @@ println env("JAVA_HOME")
 .output of snippet `env2`
 [source]
 ----
-/Users/verhasp/.sdkman/candidates/java/24-open
+/Users/verhasp/.sdkman/candidates/java/21.0.7-tem
 
 ----
 
@@ -10433,7 +10438,7 @@ println env("JAVA_*")
 .output of snippet `env3`
 [source]
 ----
-{JAVA_HOME: /Users/verhasp/.sdkman/candidates/java/24-open}
+{JAVA_HOME: /Users/verhasp/.sdkman/candidates/java/21.0.7-tem}
 
 ----
 
@@ -10561,7 +10566,7 @@ println nano_time()
 .output of snippet `nano_time`
 [source]
 ----
-2132950685959208
+2466987316588458
 
 ----
 
@@ -10722,6 +10727,7 @@ println jsonify_beauty(glob("**/test-classes/**/*.class", recursive=true))
     "target/test-classes/ch/turic/utils/TestStringUtils.class",
     "target/test-classes/ch/turic/utils/ReflectionTest$ParameterTypeMatchingTests.class",
     "target/test-classes/ch/turic/TestInterpreter.class",
+    "target/test-classes/ch/turic/AdHoc.class",
     "target/test-classes/ch/turic/ParameterDefinitionTest.class",
     "target/test-classes/ch/turic/TestCompilation$ProgramSnippet.class",
     "target/test-classes/ch/turic/TestBasic.class",
@@ -10732,8 +10738,7 @@ println jsonify_beauty(glob("**/test-classes/**/*.class", recursive=true))
     "target/test-classes/ch/turic/analyzer/StringFetcherTest$MultilineStringTests.class",
     "target/test-classes/ch/turic/analyzer/StringFetcherTest$EdgeCases.class",
     "target/test-classes/ch/turic/analyzer/StringFetcherTest.class",
-    "target/test-classes/ch/turic/analyzer/StringFetcherTest$SimpleStringTests.class",
-    "target/test-classes/ch/turic/AdHocTest.class"
+    "target/test-classes/ch/turic/analyzer/StringFetcherTest$SimpleStringTests.class"
 ]
 
 ----
@@ -11087,77 +11092,78 @@ task2 is ready 1
 task2 is not ready 0
 task1 is not ready 1
 task2 is not ready 1
-task2 is not ready 2
 task1 is not ready 2
+task2 is not ready 2
 task1 is not ready 3
 task2 is not ready 3
-task2 is not ready 4
 task1 is ready 2
 task1 is not ready 0
-task2 is not ready 5
+task2 is not ready 4
 task1 is not ready 1
-task2 is not ready 6
+task2 is not ready 5
 task1 is not ready 2
+task2 is not ready 6
 task1 is ready 3
 task2 is not ready 7
 task1 is not ready 0
-task1 is not ready 1
 task2 is not ready 8
+task1 is not ready 1
+task1 is not ready 2
 task2 is not ready 9
+task1 is ready 4
+task2 is not ready 10
+task1 is not ready 0
+task1 is not ready 1
+task2 is not ready 11
+task2 is not ready 12
 task1 is not ready 2
 task1 is not ready 3
-task2 is ready 4
-task2 is not ready 0
-task1 is not ready 4
-task2 is not ready 1
-task2 is not ready 2
-task1 is not ready 5
-task2 is ready 5
-task1 is not ready 6
-task2 is not ready 0
-task2 is not ready 1
-task1 is not ready 7
-task1 is not ready 8
-task2 is not ready 2
-task1 is ready 6
+task2 is not ready 13
+task1 is ready 5
+task2 is not ready 14
 task1 is not ready 0
-task2 is not ready 3
+task2 is not ready 15
 task1 is not ready 1
-task2 is not ready 4
-task2 is not ready 5
+task1 is not ready 2task2 is not ready 16
+
+task2 is not ready 17task1 is ready 6
+task1 is not ready 0
+
+task2 is not ready 18
+task1 is not ready 1
+task2 is not ready 19
 task1 is not ready 2
-task2 is not ready 6
 task1 is not ready 3
 task2 is ready 7
 task2 is not ready 0
 task1 is not ready 4
 task2 is not ready 1
-task1 is not ready 5
 task2 is not ready 2
+task1 is not ready 5
 task1 is not ready 6
-task1 is not ready 7
 task2 is ready 8
 task2 is not ready 0
+task1 is not ready 7
+task2 is not ready 1
 task1 is not ready 8
-task2 is not ready 1
 task2 is not ready 2
-task1 is not ready 9
 task2 is ready 9
-task1 is not ready 10
+task1 is not ready 9
 task2 is not ready 0
-task1 is not ready 11
+task1 is not ready 10
 task2 is not ready 1
+task1 is not ready 11
 task2 is not ready 2
+task2 is not ready 3
 task1 is not ready 12
 closing the channel
-task2 is not ready 3
 channel is closed
-task1 is done
 1 is done false
 2 is done false
 we start to wait the first time
 task2 is done
-task1 done true
+task1 is done
+task1 done false
 task2 done true
 We start to wait the second time
 task1 done true
@@ -11171,13 +11177,13 @@ task2 done true
 
 Currently, there are three 'set' functions to update the value of a variable when the name of the variable is available in a string.
 
-* `set`
+* `set`, `set_force`
 * `set_global`
-* `set_caller`
+* `set_caller`, `set_caller_force`
 
 The use of these functions should be considered only for special meta-programming cases like writing decorators.
 
-==== `set`
+==== `set`, `set_force`
 
 Set the value of a variable in the local context.
 This function is useful for meta-programming when the name of the variable is available in a string.
@@ -11188,7 +11194,7 @@ An example is in the sample:
 [source]
 ----
 mut fun_decorator={|^closure|
-        set(closure.name,
+        set_force(closure.name,
             {|| println("We start the fun"); closure(); println("The fun is over")}
            )
     }
@@ -11215,24 +11221,30 @@ The fun is over
 
 uses this function to decorate a function and then set the variable of the same name, overwriting the definition with a new, decorated closure.
 
+The `*_force` version overwrites the value even when the variable is pinned.
+
 ==== `set_global`
 
-It is simlar to `set()` but it sets the value of a global variable.
+It is similar to `set()`, but it sets the value of a global variable.
+Note that there is no `*_force` version of this function.
+Pinning is always local, and this method works directly on the global variables.
 
-==== `set_caller`
+==== `set_caller`, `set_caller_force`
 
 This function sets the variable in the caller context.
 This comes in handy when you implement a decorator that wants to redefine a function or class, and the decorator is in a different context than the decorated function.
-You can set the name as a global name, but that will define the name globally, and if the function is in a local context, it may not exactly work as expected.
+You can set the name as a global name, but that will define the name globally.
+If the function is in a local context, it may not exactly work as expected.
 
-Calling this function from inside a function can redefine a variable in the context of the code that is calling the function or closure.
+Calling this function from inside another function can redefine a variable in the context of the code that calls the function or the closure.
+The `*_force` version overwrites the value even when the variable is pinned.
 
 .source of snippet `fnDecorator5`
 
 [source]
 ----
 fn fun_decorator(^closure){
-        set_caller(closure.name,
+        set_caller_force(closure.name,
             {|| println("We start the fun"); closure(); println("The fun is over")}
            )
     }
@@ -11305,7 +11317,7 @@ println "java object ", type(java_object("java.lang.Object"))
 [source]
 ----
 "13" str
-13 num
+13 int
 3.14 float
 err err
 A() A
@@ -11410,11 +11422,10 @@ none
 [source]
 ----
 sending 1
+not ready 0
 received 1
 not ready 0
 not ready 1
-not ready 2
-not ready 3
 sending 2
 received 2
 not ready 0
@@ -11424,8 +11435,8 @@ sending 3
 received 3
 not ready 0
 not ready 1
-closing the channel
 not ready 2
+closing the channel
 channel is closed
 is done false
 we are done

@@ -1,1 +1,1 @@
-null
+ch.turic.memory.Channel$SimpleMessage@

@@ -1,1 +1,2 @@
-result{null}
+result{not possible to change loop variable in the loop it remained 2
+}

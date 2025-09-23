@@ -70,6 +70,7 @@ public class Print extends AbstractCommand {
         if (printTarget != null && !(printTarget instanceof LngObject) && !(printTarget instanceof Closure)) {
             throw new ExecutionException("Output must be an object or closure");
         }
+        final var sb = new StringBuilder();
         for (final var cmd : commands) {
             final var arg = cmd.execute(ctx);
             final var str = switch (arg) {
@@ -77,11 +78,13 @@ public class Print extends AbstractCommand {
                 default -> "" + arg;
             };
             out(str, ctx, printTarget);
+            sb.append(str);
         }
         if (nl) {
             out("\n", ctx, printTarget);
+            sb.append("\n");
         }
         flush(ctx, printTarget);
-        return null;
+        return sb.toString();
     }
 }

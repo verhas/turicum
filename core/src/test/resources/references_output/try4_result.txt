@@ -1,1 +1,2 @@
-result{null}
+result{source: try{
+}

@@ -1,1 +1,16 @@
-null
+{
+    "return_type": [ "any"],
+    "rest": "reliquum",
+    "meta": "nominati",
+    "name": "f",
+    "closure": "clausura",
+    "parameters": [
+                      {
+                          "identifier": "a",
+                          "default": 53,
+                          "types": [ "num"],
+                          "named": true,
+                          "positional": true
+                      }
+                  ]
+}

@@ -1,0 +1,150 @@
+/**
+ * Implement functions to help with debugging from the REPL application.
+ */
+
+// usually, you do not debug more than one program interactively
+// This is the global variable holding the debug session
+global debugger_global_session ;
+
+fn debug(file_name : str , @timeout  = 1000 /*one sec*/ ){
+    global debugger_global_session  = debug_session(file_name);
+    mut i  = 0 ;
+    while !debugger_global_session.is_started() && !debugger_global_session.is_finished(){
+        sleep 0.01
+        i ++
+    }until i  > timeout ;
+    die "not started in a second" if i  > timeout
+    if "main" in threads(){
+        thread "main"
+        println "Thread main is automatically selected"
+    }
+    println $"debugging of ${file_name} started" ;
+    none
+}
+
+global debugger_global_timeout  = 100_000 ; // 100 sec
+fn wait(){
+    global debugger_global_session ;
+    global debugger_global_timeout ;
+    mut i  = 0 ;
+    while !debugger_global_session.is_paused() && !debugger_global_session.is_finished(){
+        sleep 0.01 ;
+        i ++;
+    }until i  > debugger_global_timeout ;
+    die "not paused in a second" if i  > debugger_global_timeout
+}
+
+fn command(){
+    global debugger_global_session
+    debugger_global_session.fetch_command();
+    wait();
+    println "Command: " , debugger_global_session.command_str();
+    "" ;
+}
+
+fn pos(){
+    global debugger_global_session
+    debugger_global_session.fetch_pos();
+    wait();
+    
+    let sp  = debugger_global_session.start_pos();
+    let ep  = debugger_global_session.end_pos();
+    if sp  != none  && ep  != none :
+        println $"[${sp.line}:${sp.column} - ${ep.line}:${ep.column}]" ;
+    else :
+        println "no line information for the command"
+    
+    "" ;
+}
+
+fn line(start  = none , end  = none){
+    global debugger_global_session
+    debugger_global_session.fetch_pos()
+    wait()
+    let sp  = debugger_global_session.start_pos();
+    let ep  = debugger_global_session.end_pos();
+    if sp  != none  && ep  != none{
+        let lines  = sp.lines ;
+        if start  != none  || end  != none{
+            let s  = start ;
+            let e  = if end  == none : start else end ;
+            for i  = s -1 ; i  < e  && i  < len(lines); i ++{
+                println +(i +1), ". " , lines[i]
+            }
+        }
+        else{
+            println sp.line , ". " , lines[sp.line -1].substring(num(sp.column -1))
+            for i  = sp.line ; i  < ep.line -1 ; i ++{
+                println +(i +1), ". " , sp.lines[i]
+            }
+            if ep.line  > sp.line :
+                println +(ep.line), ". " , sp.lines[ep.line -1].substring(0 , ep.column)
+        }
+    }
+    else{
+        println "no source information in the command"
+    }
+}
+
+fn threads(){
+    global debugger_global_timeout
+    println debugger_global_session.threads()
+}
+
+fn thread(name : str){
+    global debugger_global_session ;
+    debugger_global_session.set_thread(name);
+    // fun fact: ${name} is filtered by maven to be 'turicum'
+    println $"Thread $(name) selected" ;
+}
+
+fn finished(){
+    global debugger_global_session ;
+    println if(let f  = debugger_global_session.is_finished()): "FINISHED" else "RUNNING"
+    f ;
+}
+
+fn globals(){
+    global debugger_global_session ;
+    debugger_global_session.fetch_globals()
+    wait()
+    let g  = {}
+    for each v with i in debugger_global_session.globals():
+        g[v.name] = v.value ;
+    g ;
+}
+
+fn locals(@no_globals  = false){
+    global debugger_global_session ;
+    debugger_global_session.fetch_locals()
+    wait()
+    let l  = {}
+    let g  = if no_globals : keys(globals())else[];
+    for each v with i in debugger_global_session.locals():
+        if !(v.name in g):
+            l[v.name] = v.value ;
+    l ;
+}
+
+fn step_into(){
+    global debugger_global_session ;
+    debugger_global_session.step_into()
+    wait();
+    println "done"
+}
+
+fn step_over(){
+    global debugger_global_session ;
+    debugger_global_session.step_over()
+    wait();
+    println "done"
+}
+
+
+fn run(){
+    global debugger_global_session ;
+    debugger_global_session.run()
+    wait();
+    println "done"
+}
+export_all();

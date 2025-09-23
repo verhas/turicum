@@ -1,1 +1,1 @@
-null
+ch.turic.builtins.functions.Len

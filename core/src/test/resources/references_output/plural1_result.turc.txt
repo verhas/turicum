@@ -1,1 +1,26 @@
-null
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project>
+    <dependencies>
+        <dependency>
+            <groupId>ch.turic</groupId>
+            <artifactId>habakuk</artifactId>
+            <version>1.0.7</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.turic</groupId>
+            <artifactId>habakak</artifactId>
+            <version>1.0.8</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.turic</groupId>
+            <artifactId>hababab</artifactId>
+            <version>1.0.5</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.turic</groupId>
+            <artifactId>haraluk</artifactId>
+            <version>1.4.7</version>
+        </dependency>
+    </dependencies>
+</project>
+

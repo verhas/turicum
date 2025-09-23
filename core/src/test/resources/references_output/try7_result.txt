@@ -1,1 +1,1 @@
-null
+Do we have b? false

@@ -1,1 +1,1 @@
-null
+Variable 'k' is undefined.

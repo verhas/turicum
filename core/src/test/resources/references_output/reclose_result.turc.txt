@@ -1,1 +1,1 @@
-null
+s = closure 2

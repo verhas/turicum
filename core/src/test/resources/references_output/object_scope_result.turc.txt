@@ -1,1 +1,1 @@
-null
+s=class field

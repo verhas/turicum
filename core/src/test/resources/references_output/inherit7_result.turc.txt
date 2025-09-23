@@ -1,1 +1,1 @@
-null
+{a: 3, b: 4, c: 2, cls: class C}

@@ -1,61 +1,22 @@
-let k : float  = float(13.2)
+sys_import turi.debug
+debug("./src/test/resources/debugged.turi");
+threads();
+thread("main")// <- selected automatically
 
-let timeout : int  = int(1000);
 
-fn wait(ds){
-    mut i  = 0 ;
-    while !ds.is_paused() && !ds.is_finished(){
-        sleep 0.01
-        i ++
-    }until i  > timeout ;
-    die "not paused in a second" if i  > timeout
-}
-fn wait_start(ds){
-    mut i  = 0 ;
-    
-    while !ds.is_started() && !ds.is_finished(){
-        sleep 0.01
-        i ++
-    }until i  > timeout ;
-    die "not started in a second" if i  > timeout
-}
-let ds  = debug_session("./src/test/resources/debugged.turi")
-println "waiting for the session"
-wait_start(ds)
-let threads  = ds.threads()
-die $"the threads list is ${len(threads)} long" if len(threads) != 1
-println $"[INFOOOOOO] threads are ${threads}"
-ds.set_thread(threads[0])
-while !ds.is_finished(){
-    ds.fetch_command()
-    wait(ds)
-    println ds.command_str()
-    println ds.command()
-    ds.fetch_pos()
-    wait(ds)
-    //    ds.fetch_globals()
-    //    wait(ds)
-    //    println "GLOBALS:"
-    //    for each g with i in ds.globals():
-    //        println{i +1}, ". " , g.name , " = " , g.value ;
-    //    ds.fetch_locals()
-    //    println "Waiting for locals"
-    //    wait(ds)
-    //    println "LOCALS:"
-    //    for each g with i in ds.locals():
-    //        println{i +1}, ". " , g.name , " = " , g.value ;
-    if ds.start_pos() != none  && ds.end_pos() != none{
-        println $"line number [${ds.start_pos().line}:${ds.start_pos().column} - ${ds.end_pos().line}:${ds.end_pos().column}]"
-        println ds.start_pos().line , ". " , ds.start_pos().lines[ds.start_pos().line -1].substring(num(ds.start_pos().column -1))
-        for i  = ds.start_pos().line ; i  < ds.end_pos().line -1 ; i ++{
-            println +(i +1), ". " , ds.start_pos().lines[i]
-        }
-        if ds.end_pos().line  > ds.start_pos().line :
-            println +(ds.end_pos().line), ". " , ds.start_pos().lines[ds.end_pos().line -1].substring(0 , ds.end_pos().column)
-    }
-    wait(ds);
-    ds.step_into()
-    wait(ds)
+while !finished(){
+    command()
+    pos()
+    line()
+    let g  = globals()
+    println "GLOBALS: " , g
+    let l  = locals(no_globals  = true)
+    println "LOCALS: " , l
+    //    let al  = locals()
+    //    println "ALL LOCALS: " , al
+    step_into();
     println "-" *80
 }
+
+
 println "we are done"

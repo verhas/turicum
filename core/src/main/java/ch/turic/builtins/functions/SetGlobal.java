@@ -5,7 +5,7 @@ import ch.turic.ExecutionException;
 import ch.turic.TuriFunction;
 
 /**
- * Set the value of a variable. It is the same as the function {@link Set} but it does set a global variable.
+ * Set the value of a variable. It is the same as the function {@link SetSymbol} but it does set a global variable.
  */
 public class SetGlobal implements TuriFunction {
 

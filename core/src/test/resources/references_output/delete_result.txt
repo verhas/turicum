@@ -1,1 +1,1 @@
-null
+'[]' is not a valid object

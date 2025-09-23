@@ -1,1 +1,1 @@
-null
+uncurry(be10,curried_arity(be10))(6,6) 12

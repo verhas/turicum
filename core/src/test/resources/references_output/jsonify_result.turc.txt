@@ -1,1 +1,17 @@
-null
+object beauty={
+  "a": 1,
+  "b": [ 1, 2, 3],
+  "pi": 3.1415926,
+  "location": {
+                "the_dude": "Peter Verhas",
+                "longidude": 17.935398980291257,
+                "latidude": 16.990635373109665,
+                "altidude": [
+                              2000,
+                              1000,
+                              -3,
+                              false,
+                              "karma"
+                            ]
+              }
+}

@@ -1,1 +1,1 @@
-null
+Variable 'a' is already defined.

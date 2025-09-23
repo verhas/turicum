@@ -1,1 +1,1 @@
-null
+You cannot 'continue' with a value in a non-list resulting loop.

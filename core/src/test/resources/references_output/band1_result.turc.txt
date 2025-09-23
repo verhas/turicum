@@ -1,1 +1,1 @@
-null
+Cannot calculate '3.0' & '3.14'

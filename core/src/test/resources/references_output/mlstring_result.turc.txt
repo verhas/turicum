@@ -1,1 +1,5 @@
-null
+
+Hello,
+  This is a multiline string.
+Goodbye.
+

@@ -40,6 +40,7 @@ public class FunctionDefinition extends AbstractCommand {
         final var closure = new Closure(functionName, arguments, null, FunctionCall.calculateTypeNames(context, returnType), body);
         if (functionName != null) {
             context.local(functionName, closure);
+            context.freeze(functionName);
         }
         return closure;
     }

@@ -1,1 +1,1 @@
-null
+Variable 'this' is pinned.

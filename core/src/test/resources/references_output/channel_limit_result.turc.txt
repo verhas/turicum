@@ -1,1 +1,1 @@
-null
+exception Task stopped.

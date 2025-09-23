@@ -476,6 +476,11 @@ public class LocalContext implements Context, AutoCloseable {
      * @param value the value of the local whatnot
      */
     public void update(final String key, final Object value) {
+        for (final var ctx : wrappingContexts()) {
+            if (ctx.frozen.contains(key)) {
+                throw new ExecutionException("Variable '%s' is pinned.", key);
+            }
+        }
         if (globals.contains(key)) {
             // when we set a global value, it does not matter if it is already defined because it is declared or
             // was already declared as 'global'
@@ -484,9 +489,6 @@ public class LocalContext implements Context, AutoCloseable {
         }
 
         for (final var ctx : wrappingContexts()) {
-            if (ctx.frozen.contains(key)) {
-                throw new ExecutionException("Variable '%s' is pinned.", key);
-            }
             if (ctx.frame.containsKey(key)) {
                 if (ctx.pinned) {
                     throw new ExecutionException("Variable '%s' is in a pinned context.", key);
@@ -502,6 +504,44 @@ public class LocalContext implements Context, AutoCloseable {
         throw new ExecutionException("Variable '%s' is not defined.", key);
     }
 
+
+    /**
+     * Updates the value of a variable identified by the given key.
+     * If the key exists in the global context, the value is updated directly in the global heap.
+     * If the key exists in one of the wrapping contexts, its value is updated in the respective context.
+     * Throws an exception if attempting to modify a variable that is either undeclared or treated as non-local
+     * but not globally declared.
+     * <p>
+     * The variable is updated even if it was pinned.
+     *
+     * @param key   The identifier of the variable whose value needs to be updated.
+     * @param value The new value to be assigned to the variable.
+     */
+    public void updateForce(final String key, final Object value) {
+        if (globals.contains(key)) {
+            globalContext.heap.set(key, value);
+            return;
+        }
+
+        for (final var ctx : wrappingContexts()) {
+            if (ctx.frame.containsKey(key)) {
+                if (ctx != this) {
+                    nonlocal.add(key);
+                }
+                ctx.frame.set(key, value);
+                return;
+            }
+        }
+        ExecutionException.when(nonlocal.contains(key), "Variable '%s' was used as global, but is not declared, cannot be changed.", key);
+        throw new ExecutionException("Variable '%s' is not defined.", key);
+    }
+
+    /**
+     * Returns a list of {@code LocalContext} instances representing the current context
+     * and all wrapped contexts recursively.
+     *
+     * @return a list of {@code LocalContext} objects, including the current context and all wrapped contexts
+     */
     public List<LocalContext> wrappingContexts() {
         final var ctxList = new ArrayList<LocalContext>();
         ctxList.add(this);

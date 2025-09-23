@@ -1,1 +1,1 @@
-null
+{a: {B: abraka}, c: , cls: class Z}

@@ -1,1 +1,1 @@
-null
+Cannot set variable 'b' to value 'none' because it does not fit any of the declared types of the variable (num|str)
