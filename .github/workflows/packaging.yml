@@ -26,16 +26,27 @@ jobs:
       - name: Package Application
         run: python cli/package.py
 
-      # Linux upload
-      - name: Upload Linux Package
+      - name: Package Language Server
+        run: python lsp/package.py
+
+      # Linux upload Application
+      - name: Upload Linux Package Application
         if: matrix.os == 'ubuntu-latest'
         uses: actions/upload-artifact@v4.6.2
         with:
           name: linux-x64
           path: ./cli/output/*.deb
 
-      # Windows upload
-      - name: Upload Windows Package
+      # Linux upload Language Server
+      - name: Upload Linux Package Language Server
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: linux-x64
+          path: ./lsp/output/*.deb
+
+      # Windows upload Application
+      - name: Upload Windows Package Application
         if: matrix.os == 'windows-latest'
         uses: actions/upload-artifact@v4.6.2
         with:
@@ -44,18 +55,44 @@ jobs:
             ./cli/output/*.exe
             ./cli/output/*.msi
 
-      # macOS upload
-      - name: Upload macOS Package
+      # Windows upload Language Server
+      - name: Upload Windows Package Language Server
+        if: matrix.os == 'windows-latest'
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: windows-x64
+          path: |
+            ./lsp/output/*.exe
+            ./lsp/output/*.msi
+
+      # macOS upload Application
+      - name: Upload macOS Package Application
         if: matrix.os == 'macos-latest'
         uses: actions/upload-artifact@v4.6.2
         with:
           name: macos-arm64
           path: ./cli/output/*.pkg
 
-      # macOS Intel upload
-      - name: Upload macOS Package
+      # macOS upload Language Server
+      - name: Upload macOS Package Language Server
+        if: matrix.os == 'macos-latest'
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: macos-arm64
+          path: ./lsp/output/*.pkg
+
+      # macOS Intel upload Application
+      - name: Upload macOS Package Application
         if: matrix.os == 'macos-13'
         uses: actions/upload-artifact@v4.6.2
         with:
           name: macos-x64
           path: ./cli/output/*.pkg
+
+      # macOS Intel upload Language Server
+      - name: Upload macOS Package Language Server
+        if: matrix.os == 'macos-13'
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: macos-x64
+          path: ./lsp/output/*.pkg

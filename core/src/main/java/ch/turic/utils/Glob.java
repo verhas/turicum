@@ -37,7 +37,6 @@ public class Glob {
      */
     private static DirNPath splitToDirAndPattern(String pattern) {
         final String baseDir;
-        final Predicate<String> matcher;
 
         if (pattern.contains("/")) {
             int lastSlash = getLastSlashBeforeWildCard(pattern);
@@ -47,11 +46,10 @@ public class Glob {
                 baseDir = Path.of(pattern.substring(0, lastSlash)).normalize().toAbsolutePath().toString();
                 pattern = pattern.substring(lastSlash + 1);
             }
-            matcher = new Matcher(pattern, baseDir);
         } else {
             baseDir = CURR_DIR;
-            matcher = new Matcher(pattern, baseDir);
         }
+        final Predicate<String> matcher = new Matcher(pattern, baseDir);
         return new DirNPath(baseDir, matcher);
     }
 

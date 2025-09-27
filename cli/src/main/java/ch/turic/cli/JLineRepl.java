@@ -6,6 +6,8 @@ import ch.turic.analyzer.Lexer;
 import ch.turic.commands.Closure;
 import ch.turic.commands.Macro;
 import ch.turic.memory.LocalContext;
+import ch.turic.utils.StringNotTerminated;
+import ch.turic.utils.UnexpectedCharacter;
 import org.jline.reader.*;
 import org.jline.reader.impl.DefaultParser;
 import org.jline.reader.impl.completer.StringsCompleter;
@@ -49,7 +51,12 @@ public class JLineRepl {
     public static void execute() throws IOException {
         final var interpreter = new Repl();
         Terminal terminal = TerminalBuilder.builder().system(true).build();
-        Parser parser = new DefaultParser();
+        Parser parser = new DefaultParser() {
+            @Override
+            public boolean isEscapeChar(char c) {
+                return false;
+            }
+        };
         final var history = new DefaultHistory();
         LineReader reader = LineReaderBuilder.builder()
                 .appName("Turicum")
@@ -253,8 +260,10 @@ public class JLineRepl {
                 }
             }
             return braces.isEmpty() ? SyntaxState.OK : SyntaxState.NOT_READY;
+        } catch (StringNotTerminated | UnexpectedCharacter snt) {
+            return SyntaxState.DROP_DEAD;// we will see how to handle this
         } catch (BadSyntax e) {
-            return SyntaxState.NOT_READY;// we will see how to handle this
+            return SyntaxState.NOT_READY;
         }
     }
 }

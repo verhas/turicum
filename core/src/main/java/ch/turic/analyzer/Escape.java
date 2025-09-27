@@ -1,7 +1,7 @@
 package ch.turic.analyzer;
 
-
 import ch.turic.BadSyntax;
+import ch.turic.utils.StringNotTerminated;
 
 /**
  * This class provides utility methods to handle escape sequences, process normal characters,
@@ -25,7 +25,7 @@ class Escape {
         int hx = 0;
         while (i > 0 && !in.isEmpty() && ((in.charAt(0) >= '0' && in.charAt(0) <= '9') || (in.charAt(0) >= 'A' && in.charAt(0) <= 'F') || (in.charAt(0) >= 'a' && in.charAt(0) <= 'f'))) {
             int ch = in.charAt(0);
-            in.move(1,lexeme);
+            in.move(1, lexeme);
             hx = 16 * hx;
             if (ch >= '0' && ch <= '9') {
                 hx += ch - '0';
@@ -51,7 +51,7 @@ class Escape {
      * </ul>
      *
      * @param input  the input string
-     * @param text the output string where the escaped character is appended
+     * @param text   the output string where the escaped character is appended
      * @param lexeme the b string where the escaped character is appended, including the escape
      * @throws BadSyntax if the escape sequence is invalid
      */
@@ -79,8 +79,9 @@ class Escape {
 
     static void handleNormalCharacter(Input input, StringBuilder text, StringBuilder lexeme) throws BadSyntax {
         final char ch = input.charAt(0);
-        BadSyntax.when(input.position, ch == '\n' || ch == '\r', () -> String.format("String not terminated before eol:\n%s...",
-                input.substring(1, Math.min(input.length(), 60))));
+        if (ch == '\n' || ch == '\r') {
+            throw new StringNotTerminated(input.position, input);
+        }
         text.append(ch);
         lexeme.append(ch);
         input.skip(1);

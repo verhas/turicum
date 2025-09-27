@@ -64,7 +64,7 @@ public class AllParents implements TuriFunction {
     }
 
     private static void parentClosure(List<LngClass> parentList, LngClass lngClass) {
-        for (final var p : List.of(((ClassContext) lngClass.context()).parents())) {
+        for (final var p : ((ClassContext) lngClass.context()).parents()) {
             if (!parentList.contains(p)) {
                 parentList.add(p);
                 parentClosure(parentList, p);

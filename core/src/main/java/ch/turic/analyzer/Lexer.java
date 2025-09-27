@@ -2,6 +2,7 @@ package ch.turic.analyzer;
 
 
 import ch.turic.BadSyntax;
+import ch.turic.utils.UnexpectedCharacter;
 
 import java.util.*;
 
@@ -189,7 +190,7 @@ public class Lexer {
             if (in.startsWith("//")) {
                 final var comment = fetchComment(in);
                 if (collectAll) {
-                    list.add(new Lex(Lex.Type.COMMENT, comment, atLineStart, position,position.offset(comment)));
+                    list.add(new Lex(Lex.Type.COMMENT, comment, atLineStart, position, position.offset(comment)));
                 }
                 continue;
             }
@@ -242,7 +243,7 @@ public class Lexer {
                 in.move(2, str);
                 str.append(in.fetchHexNumber());
                 final var s = str.toString();
-                final var lex = new Lex(Lex.Type.INTEGER, s, atLineStart, position,position.offset(s));
+                final var lex = new Lex(Lex.Type.INTEGER, s, atLineStart, position, position.offset(s));
                 list.add(lex);
                 continue;
             }
@@ -267,7 +268,7 @@ public class Lexer {
                     type = Lex.Type.INTEGER;
                 }
                 final var s = str.toString();
-                final var lex = new Lex(type, s, atLineStart, position,position.offset(s));
+                final var lex = new Lex(type, s, atLineStart, position, position.offset(s));
                 list.add(lex);
                 continue;
             }
@@ -282,10 +283,10 @@ public class Lexer {
                 list.add(Lex.character(in, atLineStart, position));
                 in.skip(1);
                 if (bs == null) {
-                    bs = new BadSyntax(in.position, "Unexpected character '" + in.charAt(0) + "' in the input");
+                    bs = new UnexpectedCharacter(in.position, in);
                 }
             } else {
-                throw new BadSyntax(in.position, "Unexpected character '" + in.charAt(0) + "' in the input");
+                throw new UnexpectedCharacter(in.position, in);
             }
         }
         if (bs != null) {
