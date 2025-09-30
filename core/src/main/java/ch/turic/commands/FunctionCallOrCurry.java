@@ -245,7 +245,7 @@ public abstract class FunctionCallOrCurry extends AbstractCommand {
             for (int index = 0; true; index++) {
                 if (index >= pList.parameters().length) {
                     if (pList.rest() == null) {
-                        throw new ExecutionException("Too many parameters and there is no [rest] specified");
+                        throw new ExecutionException("Too many parameters, and there is no [rest] specified");
                     }
                     rest.array.add(argValue.value);
                     break;

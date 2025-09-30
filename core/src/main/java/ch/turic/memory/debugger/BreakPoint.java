@@ -3,7 +3,7 @@ package ch.turic.memory.debugger;
 import java.util.Objects;
 
 public final class BreakPoint {
-    final int line;
+    public final int line;
 
     public BreakPoint(int line) {
         this.line = line;

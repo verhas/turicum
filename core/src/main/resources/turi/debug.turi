@@ -5,7 +5,9 @@
 // usually, you do not debug more than one program interactively
 // This is the global variable holding the debug session
 global debugger_global_session ;
+mut help : str  = "DEBUGGER COMMANDS:\n"
 
+help +="debug(file_name, @timeout)     to open a file for debugging\n"
 fn debug(file_name : str , @timeout  = 1000 /*one sec*/ ){
     global debugger_global_session  = debug_session(file_name);
     mut i  = 0 ;
@@ -23,6 +25,30 @@ fn debug(file_name : str , @timeout  = 1000 /*one sec*/ ){
 }
 
 global debugger_global_timeout  = 100_000 ; // 100 sec
+/**
+ * ### wait()
+ * 
+ * Waits for the debugger session to either pause or finish, with a timeout mechanism.
+ * 
+ * #### Description
+ * This function polls the debugger session's state until either:
+ * - The session is paused (`is_paused()` returns true)
+ * - The session is finished (`is_finished()` returns true)
+ * - A timeout is reached
+ * 
+ * #### Global Dependencies
+ * - `debugger_global_session`: Global variable holding the debug session instance
+ * - `debugger_global_timeout`: Global variable defining the timeout threshold
+ * 
+ * #### Behavior
+ * - Checks the session state every 10 milliseconds (0.01 seconds)
+ * - If neither the paused nor the finished state is reached within the timeout period, the function terminates with an error
+ * 
+ * #### Error Handling
+ * Throws an error with message "not paused in a second" if the timeout threshold is exceeded before the session enters either a paused or finished state.
+ * 
+ * #### Example Usage
+ */
 fn wait(){
     global debugger_global_session ;
     global debugger_global_timeout ;
@@ -34,6 +60,7 @@ fn wait(){
     die "not paused in a second" if i  > debugger_global_timeout
 }
 
+help +="command                        display the command currently being executed\n"
 fn command(){
     global debugger_global_session
     debugger_global_session.fetch_command();
@@ -42,6 +69,27 @@ fn command(){
     "" ;
 }
 
+help +="breakpoints                    display the breakpoints currently set\n"
+fn breakpoints(){
+    global debugger_global_session
+    debugger_global_session.fetch_breakpoints();
+    wait();
+    let bps  = debugger_global_session.breakpoints()
+    println "Thread breakpoints: " , bps ;
+    bps ;
+}
+
+help +="global_breakpoints             display the global breakpoints currently set\n"
+fn global_breakpoints(){
+    global debugger_global_session
+    debugger_global_session.fetch_global_breakpoints();
+    wait();
+    let bps  = debugger_global_session.breakpoints()
+    println "Global breakpoints: " , bps ;
+    bps ;
+}
+
+help +="pos                            display the current position in the source code\n"
 fn pos(){
     global debugger_global_session
     debugger_global_session.fetch_pos();
@@ -49,14 +97,19 @@ fn pos(){
     
     let sp  = debugger_global_session.start_pos();
     let ep  = debugger_global_session.end_pos();
-    if sp  != none  && ep  != none :
+    if sp  != none  && ep  != none{
         println $"[${sp.line}:${sp.column} - ${ep.line}:${ep.column}]" ;
-    else :
+        {
+            start :{line : sp.line , column : sp.column},
+            end :{line : ep.line , column : ep.column}
+        }
+        }else{
         println "no line information for the command"
-    
-    "" ;
+        none
+    }
 }
-
+help +="line(start, end)               display the source code at the given line(s)\n"
+help +="line                           display the lines of the current command\n"
 fn line(start  = none , end  = none){
     global debugger_global_session
     debugger_global_session.fetch_pos()
@@ -75,22 +128,26 @@ fn line(start  = none , end  = none){
         else{
             println sp.line , ". " , lines[sp.line -1].substring(num(sp.column -1))
             for i  = sp.line ; i  < ep.line -1 ; i ++{
-                println +(i +1), ". " , sp.lines[i]
+                println +(i +1), ". -" , sp.lines[i]
             }
-            if ep.line  > sp.line :
-                println +(ep.line), ". " , sp.lines[ep.line -1].substring(0 , ep.column)
+            if ep.line  > sp.line{
+                println $"$(ep.line). ? $(sp.lines[ep.line -1].substring(0 , ep.column))"
+            }
         }
     }
     else{
         println "no source information in the command"
     }
+    ""
 }
 
+help +="threads                        display the threads currently running\n"
 fn threads(){
     global debugger_global_timeout
     println debugger_global_session.threads()
 }
 
+help +="thread(name)                   select the thread with the given name\n"
 fn thread(name : str){
     global debugger_global_session ;
     debugger_global_session.set_thread(name);
@@ -98,12 +155,14 @@ fn thread(name : str){
     println $"Thread $(name) selected" ;
 }
 
+help +="finished                       display whether the program is finished or not\n"
 fn finished(){
     global debugger_global_session ;
     println if(let f  = debugger_global_session.is_finished()): "FINISHED" else "RUNNING"
     f ;
 }
 
+help +="globals                        display the global variables\n"
 fn globals(){
     global debugger_global_session ;
     debugger_global_session.fetch_globals()
@@ -114,6 +173,7 @@ fn globals(){
     g ;
 }
 
+help +="locals                         display the local variables\n"
 fn locals(@no_globals  = false){
     global debugger_global_session ;
     debugger_global_session.fetch_locals()
@@ -126,6 +186,7 @@ fn locals(@no_globals  = false){
     l ;
 }
 
+help +="step_into                      step into the next statement\n"
 fn step_into(){
     global debugger_global_session ;
     debugger_global_session.step_into()
@@ -133,6 +194,7 @@ fn step_into(){
     println "done"
 }
 
+help +="step_over                      step over the next statement\n"
 fn step_over(){
     global debugger_global_session ;
     debugger_global_session.step_over()
@@ -140,11 +202,44 @@ fn step_over(){
     println "done"
 }
 
-
+help +="run                            run the program until the next breakpoint\n"
 fn run(){
     global debugger_global_session ;
     debugger_global_session.run()
     wait();
     println "done"
 }
+
+help +="add_breakpoint(line)           add a breakpoint at the given line\n"
+fn add_breakpoint(line : int){
+    global debugger_global_session ;
+    debugger_global_session.add_breakpoint(int(line))
+    wait();
+    println "done"
+}
+
+help +="remove_breakpoint(line)        remove the breakpoint at the given line\n"
+fn remove_breakpoint(line : int){
+    global debugger_global_session ;
+    debugger_global_session.remove_breakpoint(int(line))
+    wait();
+    println "done"
+}
+
+help +="add_global_breakpoint(line)    add a global breakpoint at the given line\n"
+fn add_global_breakpoint(line : int){
+    global debugger_global_session ;
+    debugger_global_session.add_global_breakpoint(int(line))
+    wait();
+    println "done"
+}
+
+help +="remove_global_breakpoint(line) remove the global breakpoint at the given line\n"
+fn remove_global_breakpoint(line : int){
+    global debugger_global_session ;
+    debugger_global_session.remove_global_breakpoint(int(line))
+    wait();
+    println "done"
+}
+
 export_all();

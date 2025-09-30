@@ -1,0 +1,30 @@
+sys_import turi.debug
+debug("./src/test/resources/debugged.turi");
+threads();
+thread("main")// <- selected automatically
+
+step_into(); // stepping into the program, otherwise all breakpoints count
+add_breakpoint(8);
+add_breakpoint(3000);
+add_global_breakpoint(50_000_000);
+run();
+breakpoints()
+global_breakpoints();
+
+while !finished(){
+    command()
+    let position  = pos()
+    println "line Number: " , position ?.start ?.line
+    line()
+    let g  = globals()
+    println "GLOBALS: " , g
+    let l  = locals(no_globals  = true)
+    println "LOCALS: " , l
+    //    let al  = locals()
+    //    println "ALL LOCALS: " , al
+    step_into();
+    println "-" *80
+}
+
+
+println "we are done"

@@ -4,6 +4,7 @@ import ch.turic.analyzer.Pos;
 import ch.turic.memory.ThreadContext;
 
 import java.util.Map;
+import java.util.Set;
 
 public class DebuggerCommand {
     public DebuggerCommand(ThreadContext threadContext) {
@@ -20,10 +21,25 @@ public class DebuggerCommand {
         GLOBALS, // list the global variable names
         SET, // set the value of a variable
         COMMAND, // get the current command
-        WAITING, // sent by the debugged process signalling that it is ready to receive commands
+        BREAKPOINTS, // get the list of the thread-specific breakpoints
+        GLOBAL_BREAKPOINTS, // get the list of the global breakpoints
+        ADD_BREAKPOINT, // add a breakpoint affecting only this thread
+        REMOVE_BREAKPOINT, // remove a breakpoint affecting only this thread
+        ADD_GLOBAL_BREAKPOINT, // add a breakpoint affecting all threads
+        REMOVE_GLOBAL_BREAKPOINT, // remove a breakpoint from the global set
     }
 
     private Command command;
+
+    public int breakPointLine() {
+        return breakPointLine;
+    }
+
+    public void setBreakPointLine(int breakPointLine) {
+        this.breakPointLine = breakPointLine;
+    }
+
+    private int breakPointLine;
 
     public void setCommand(Command command) {
         this.command = command;
@@ -63,5 +79,8 @@ public class DebuggerCommand {
     }
 
     public record CommandResponse(ch.turic.Command command) implements Response {
+    }
+
+    public record BreakpointsResponse(Set<BreakPoint> breakPoints) implements Response {
     }
 }

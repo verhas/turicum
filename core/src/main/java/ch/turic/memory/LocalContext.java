@@ -7,10 +7,7 @@ import ch.turic.memory.debugger.ConcurrentWorkItem;
 import ch.turic.memory.debugger.DebuggerContext;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Keep a context of the current thread's executing environment.

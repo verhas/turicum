@@ -161,7 +161,7 @@ let project = maven_project({
             {
                 groupId: "org.jline",
                 artifactId: "jline",
-                version: "3.30.0"
+                version: "3.30.6"
             }
 
         ]

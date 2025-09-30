@@ -16,12 +16,10 @@ public class Export implements TuriMacro {
     public Object call(Context context, Object[] arguments) throws ExecutionException {
         final var ctx = FunUtils.ctx(context);
         for (final var arg : arguments) {
-            if (arg instanceof Identifier id) {
-                ctx.addExport(id.name());
-            } else if (arg instanceof Command command) {
-                ctx.addExport(command.execute(ctx).toString());
-            } else {
-                throw new ExecutionException("Unknown argument type '%s' to %s", arg, name());
+            switch (arg) {
+                case Identifier id -> ctx.addExport(id.name());
+                case Command command -> ctx.addExport(command.execute(ctx).toString());
+                default -> throw new ExecutionException("Unknown argument type '%s' to %s", arg, name());
             }
         }
         return null;

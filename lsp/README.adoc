@@ -1,1 +1,55 @@
-= Turicum LSP Server
+= Turicum Language Server
+
+Turicum LSP server is a standard Language Server Processor (LSP) supporting
+
+* completion,
+* formatting,
+* syntax checking, and
+* referencing.
+
+It means that when you install it with your editor supporting LSP you can easily
+
+* reformat the code,
+* use code completion,
+* see when there is some syntax error in the code while you edit, and
+* you can use the editor to jump to the definition to functions, closures, variables.
+
+NOTE: Due to the dynamic nature of the language, some of the features, like jumping to definition, are heuristic.
+
+The actual use of the LSP after it is installed and configured is straight forward.
+You will just use the functions of your IDE as you use for other languages.
+
+The installation may be different for different editors.
+In this document I will describe how to install it for IntelliJ, because that is what I use.
+VSCode supports LSP out of the box, but I have no idea how to configure it.
+
+If you use some editor where you have no Java installed, you can download the packaged version of the LSP.
+After installing it, you will have an executable version that will contain all the environment the LSP needs.
+
+If you have Java installed on your system, it is recommended that you use the `pass:[*-shaded.jar]` file.
+It contains all the dependent libraries that the LSP needs.
+
+NOTE: The LSP was developed using the Eclipse LSP library.
+
+== Installation IntelliJ
+
+To use any LSP, you first have to install the `LSP4J` plugin.
+
+After that, you have to add the Turicum LSP in the IntelliJ setting under
+
+    Languages & Frameworks > Language Servers
+
+Click the `+` to add a new Language server.
+You can name it "Turicum Language Server".
+The start command is
+
+    java <<full-path-to>>/turicum-lsp-server-*-shaded.jar
+
+You have to add it to the `Command` under the `Server` tab.
+
+Here, the `<<full-path-to>>` is the directory where you downloaded the LSP server file.
+You may need to use the actual version in place of the `pass:[*]`.
+
+On the `Mappings` tab add `*.turi` with the language Id `Turicum`.
+
+After finishing the configuration, you can open any file with the file extension `*.turi` and edit with the LSP support.

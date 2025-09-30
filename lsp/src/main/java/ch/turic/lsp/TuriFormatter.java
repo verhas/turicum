@@ -274,8 +274,8 @@ public class TuriFormatter {
     private static String lexToString(Lex lex, Lex next) {
         return switch (lex.type()) {
             case SPACES -> "";
-            case CHARACTER -> lex.text();
-            case IDENTIFIER, INTEGER, FLOAT -> lex.text() + spc(lex, next);
+            case CHARACTER -> lex.lexeme();
+            case IDENTIFIER, INTEGER, FLOAT -> lex.lexeme() + spc(lex, next);
             case STRING -> firstLine(lex.lexeme()) + spc(lex, next);
             case COMMENT -> firstLine(lex.text()) + spcOrEol(next);
             case RESERVED -> {

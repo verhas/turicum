@@ -71,9 +71,9 @@ public class BuiltIns {
      */
     private static void registerGlobalFunctionsAndMacros(LocalContext context) {
         TuriFunction.getInstances().forEach(
-                jif -> context.global(jif.name(), jif));
+                tf -> context.global(tf.name(), tf));
         TuriMacro.getInstances().forEach(
-                jif -> context.global(jif.name(), jif));
+                tm -> context.global(tm.name(), tm));
     }
 
     /**

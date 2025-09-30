@@ -55,6 +55,10 @@ public class DebuggerContext {
 
     final Set<BreakPoint> breakpoints = new HashSet<>();
 
+    public Set<BreakPoint> breakpoints() {
+        return breakpoints;
+    }
+
     public void addBreakPoint(BreakPoint bp) {
         //We want the new breakpoint in the list, and not two breakpoints with the same line number.
         breakpoints.remove(bp);

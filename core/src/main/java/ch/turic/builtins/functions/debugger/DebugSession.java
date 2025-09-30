@@ -36,6 +36,7 @@ public class DebugSession {
         DebuggerCommand.VarResponse localVarResponse;
         DebuggerCommand.VarResponse globalVarResponse;
         DebuggerCommand.CommandResponse commandResponse;
+        DebuggerCommand.BreakpointsResponse breakpointsResponse;
     }
 
     private final Set<ConcurrentWorkItem<?>> workItems = new HashSet<>();
@@ -73,9 +74,13 @@ public class DebugSession {
                 case COMMAND -> {
                     getThreadState(threadName).commandResponse = (DebuggerCommand.CommandResponse) dc.response;
                 }
-                case null -> {
+                case BREAKPOINTS -> {
+                    getThreadState(threadName).breakpointsResponse = (DebuggerCommand.BreakpointsResponse) dc.response;
                 }
-                default -> {
+                case GLOBAL_BREAKPOINTS -> {
+                    getThreadState(threadName).breakpointsResponse = (DebuggerCommand.BreakpointsResponse) dc.response;
+                }
+                case null, default -> {
                 }
             }
             workItems.add(wi);
@@ -204,6 +209,46 @@ public class DebugSession {
         wi.complete();
     }
 
+    public synchronized void fetch_breakpoints() {
+        final var wi = fetchWorkItem();
+        wi.payload().setCommand(DebuggerCommand.Command.BREAKPOINTS);
+        wi.complete();
+    }
+
+    public synchronized void fetch_global_breakpoints() {
+        final var wi = fetchWorkItem();
+        wi.payload().setCommand(DebuggerCommand.Command.GLOBAL_BREAKPOINTS);
+        wi.complete();
+    }
+
+    public synchronized void add_breakpoint(int line) {
+        final var wi = fetchWorkItem();
+        wi.payload().setCommand(DebuggerCommand.Command.ADD_BREAKPOINT);
+        wi.payload().setBreakPointLine(line);
+        wi.complete();
+    }
+
+    public synchronized void remove_breakpoint(int line) {
+        final var wi = fetchWorkItem();
+        wi.payload().setCommand(DebuggerCommand.Command.REMOVE_BREAKPOINT);
+        wi.payload().setBreakPointLine(line);
+        wi.complete();
+    }
+
+    public synchronized void add_global_breakpoint(int line) {
+        final var wi = fetchWorkItem();
+        wi.payload().setCommand(DebuggerCommand.Command.ADD_GLOBAL_BREAKPOINT);
+        wi.payload().setBreakPointLine(line);
+        wi.complete();
+    }
+
+    public synchronized void remove_global_breakpoint(int line) {
+        final var wi = fetchWorkItem();
+        wi.payload().setCommand(DebuggerCommand.Command.REMOVE_GLOBAL_BREAKPOINT);
+        wi.payload().setBreakPointLine(line);
+        wi.complete();
+    }
+
     public synchronized void fetch_locals() {
         final var wi = fetchWorkItem();
         wi.payload().setCommand(DebuggerCommand.Command.LOCALS);
@@ -248,6 +293,16 @@ public class DebugSession {
     public synchronized String command_str() {
         final var cmd = getThreadState(debuggedThreadName).commandResponse.command();
         return cmd.getClass().getSimpleName();
+    }
+
+    public synchronized LngList breakpoints() {
+        final var command = getThreadState(debuggedThreadName);
+        final var breakpoints = command.breakpointsResponse.breakPoints();
+        final var retval = LngList.of();
+        for (final var point : breakpoints) {
+            retval.array.add((long) point.line);
+        }
+        return retval;
     }
 
     public synchronized Pos start_pos() {

@@ -1,0 +1,272 @@
+= Debugging Turicum
+
+This document describes how you can debug a Turicum program.
+Later chapters also describe how the debugger is implemented.
+
+== Using the Debugger
+
+In the current version the debugger can be used, using the REPL command line version of Turicum.
+To start the REPL functionality, you can type at the command line:
+
+    turi -REPL
+
+What you will see will be something like
+
+[source]
+----
+$ turi -REPL
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by org.jline.nativ.JLineNativeLoader in an unnamed module (file:/Applications/turicum.app/Contents/app/jline-3.30.0.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+Turicum REPL with JLine (//help for more info)
+>>>
+----
+
+The `>>>` at the bottom of the screen is the input prompt, where you can type in commands.
+
+The first command to debug a program is
+
+    sys_import turi.debug
+
+This will import the helper functions that you can use while debugging the code.
+Instead, you can
+
+    sys_import turi.debug_short
+
+that will define the same functions and also abbreviation aliases, like `si` for `step_into`, `so` for `step_over` and so on.
+
+The second command you want to issue is
+
+    debug("debugged.turi");
+
+to load and start the file, you want to debug.
+This command will compile the Turicum code `debugged.turi` and start the execution stopping before the first command.
+
+The next command you may want to execute is `line()`
+
+[source]
+----
+>>> line()
+1. {
+2.     let k  = 13
+3.
+4.     global zummamma  = "harbaropi tukirrama"
+5.     fn sumabva(kirta : num , jurtka : str , zeruomo : any){
+6.         return str(kirta)+jurtka +str(zeruomo)
+7.     }
+8.     println "Hello, World!"
+9.     let muthafa  = "ka"
+10.     println $"Hello, ${sumabva(629541.3,\" jippieee \", muthafa)}"
+11. }
+>>>
+----
+
+The debugger will list the lines of the code of the current command.
+Since the first command is the whole program, that you can step into, it will list all the lines as in the example above.
+
+You can start the execution issueing the command `step_into()` to step into the program.
+In the example above the first command is a block, which includes the same lines as the whole program.
+In this example you also have to step into this one to get to the line 2.
+
+[source]
+----
+>>> step_into();
+done
+done
+
+>>> line()
+1. {
+2.     let k  = 13
+3.
+4.     global zummamma  = "harbaropi tukirrama"
+5.     fn sumabva(kirta : num , jurtka : str , zeruomo : any){
+6.         return str(kirta)+jurtka +str(zeruomo)
+7.     }
+8.     println "Hello, World!"
+9.     let muthafa  = "ka"
+10.     println $"Hello, ${sumabva(629541.3,\" jippieee \", muthafa)}"
+11. }
+11. }
+
+>>> step_into();
+done
+done
+
+>>> line()
+2.  let k  = 13
+none
+>>>
+----
+
+In the followings, this document lists all the commands that are available to debug the application.
+
+=== `debug(file_name : str , @timeout  = 1000 /*one sec*/ )`
+
+Open the file `file_name` for debugging.
+It should load and start in a second, unless the named `@timeout` parameters defines larger timeout.
+If the list of the threads after loading the application contains the thread `main`, it is automatically selected.
+
+The threads can be listed using the `threads()` function.
+A specific thread can be selected using the `thread(name)` function.
+
+The function prints out an error mesaage or that the debugging was started.
+The function returns `none`.
+
+
+=== `command()`
+
+This function prints out the current command, and it also returns the command.
+The function returns the command object itself and not a string.
+
+=== `breakpoints()`
+
+The function prints out and also returns a list containing the line numbers of the lines that have breakpoints on them.
+This function gives the list of the currently selected threads breakpoints.
+These breakpoints have only effect when the interpreter executes the thread they belong to.
+
+=== `global_breakpoints()`
+
+The function prints out and also returns a list containing the line numbers of the lines that have breakpoints on them.
+This function gives the list of the global breakpoints.
+These breakpoints have an effect when the interpreter executes any thread.
+
+
+=== `pos()`
+
+This command prints out the start and end position of the current command.
+This is in the format `[start_line:start_column - end_line:end_column]`.
+The function also returns an object
+
+[source]
+----
+{
+start :{line : start_line , column : start_column},
+end :{line : end_line , column : end_column}
+}
+----
+
+=== `line(start  = none , end  = none)`
+
+
+
+{
+global debugger_global_session
+debugger_global_session.fetch_pos()
+wait()
+let sp  = debugger_global_session.start_pos();
+let ep  = debugger_global_session.end_pos();
+if sp  != none  && ep  != none{
+let lines  = sp.lines ;
+if start  != none  || end  != none{
+let s  = start ;
+let e  = if end  == none : start else end ;
+for i  = s -1 ; i  < e  && i  < len(lines); i ++{
+                println +(i +1), ". " , lines[i]
+            }
+        }
+        else{
+            println sp.line , ". " , lines[sp.line -1].substring(num(sp.column -1))
+            for i  = sp.line ; i  < ep.line -1 ; i ++{
+println +(i +1), ". " , sp.lines[i]
+}
+if ep.line  > sp.line :
+println +(ep.line), ". " , sp.lines[ep.line -1].substring(0 , ep.column)
+}
+}
+else{
+println "no source information in the command"
+}
+}
+
+fn threads(){
+global debugger_global_timeout
+println debugger_global_session.threads()
+}
+
+fn thread(name : str){
+global debugger_global_session ;
+debugger_global_session.set_thread(name);
+// fun fact: ${name} is filtered by maven to be 'turicum'
+println $"Thread $(name) selected" ;
+}
+
+fn finished(){
+global debugger_global_session ;
+println if(let f  = debugger_global_session.is_finished()): "FINISHED" else "RUNNING"
+f ;
+}
+
+fn globals(){
+global debugger_global_session ;
+debugger_global_session.fetch_globals()
+wait()
+let g  = {}
+for each v with i in debugger_global_session.globals():
+g[v.name] = v.value ;
+g ;
+}
+
+fn locals(@no_globals  = false){
+global debugger_global_session ;
+debugger_global_session.fetch_locals()
+wait()
+let l  = {}
+let g  = if no_globals : keys(globals())else[];
+for each v with i in debugger_global_session.locals():
+if !(v.name in g):
+l[v.name] = v.value ;
+l ;
+}
+
+fn step_into(){
+global debugger_global_session ;
+debugger_global_session.step_into()
+wait();
+println "done"
+}
+
+fn step_over(){
+global debugger_global_session ;
+debugger_global_session.step_over()
+wait();
+println "done"
+}
+
+fn run(){
+global debugger_global_session ;
+debugger_global_session.run()
+wait();
+println "done"
+}
+
+fn add_breakpoint(line : int){
+global debugger_global_session ;
+debugger_global_session.add_breakpoint(int(line))
+wait();
+println "done"
+}
+
+fn remove_breakpoint(line : int){
+global debugger_global_session ;
+debugger_global_session.remove_breakpoint(int(line))
+wait();
+println "done"
+}
+
+fn add_global_breakpoint(line : int){
+global debugger_global_session ;
+debugger_global_session.add_global_breakpoint(int(line))
+wait();
+println "done"
+}
+
+fn remove_global_breakpoint(line : int){
+global debugger_global_session ;
+debugger_global_session.remove_global_breakpoint(int(line))
+wait();
+println "done"
+}
+
+export_all();

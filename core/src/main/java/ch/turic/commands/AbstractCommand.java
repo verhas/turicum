@@ -5,6 +5,7 @@ import ch.turic.ExecutionException;
 import ch.turic.analyzer.Lex;
 import ch.turic.analyzer.Pos;
 import ch.turic.memory.*;
+import ch.turic.memory.debugger.BreakPoint;
 import ch.turic.memory.debugger.DebuggerCommand;
 import ch.turic.memory.debugger.DebuggerContext;
 import ch.turic.utils.Unmarshaller;
@@ -206,6 +207,37 @@ public abstract class AbstractCommand implements Command, HasFields {
                             map.put(k, variable.get());
                         }
                         command.response = new DebuggerCommand.VarResponse(map);
+                        yield PAUSED;
+                    }
+                    case BREAKPOINTS -> {
+                        command.response = new DebuggerCommand.BreakpointsResponse(dc.breakpoints());
+                        yield PAUSED;
+                    }
+                    case GLOBAL_BREAKPOINTS -> {
+                        final var dbgCtx = ctx.globalContext.getDebuggerContext();
+                        command.response = new DebuggerCommand.BreakpointsResponse(dbgCtx.breakpoints());
+                        yield PAUSED;
+                    }
+                    case ADD_BREAKPOINT -> {
+                        final var bp = new BreakPoint(command.breakPointLine());
+                        dc.addBreakPoint(bp);
+                        yield PAUSED;
+                    }
+                    case REMOVE_BREAKPOINT -> {
+                        final var bp = new BreakPoint(command.breakPointLine());
+                        dc.removeBreakPoint(bp);
+                        yield PAUSED;
+                    }
+                    case ADD_GLOBAL_BREAKPOINT -> {
+                        final var bp = new BreakPoint(command.breakPointLine());
+                        final var dbgCtx = ctx.globalContext.getDebuggerContext();
+                        dbgCtx.addBreakPoint(bp);
+                        yield PAUSED;
+                    }
+                    case REMOVE_GLOBAL_BREAKPOINT -> {
+                        final var bp = new BreakPoint(command.breakPointLine());
+                        final var dbgCtx = ctx.globalContext.getDebuggerContext();
+                        dbgCtx.removeBreakPoint(bp);
                         yield PAUSED;
                     }
                     case COMMAND -> {

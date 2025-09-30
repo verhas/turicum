@@ -1,0 +1,42 @@
+sys_import turi.debug
+
+help += "\nDEBUGGER ABBREVIATIONS\n"
+
+help += "b -> add_breakpoint\n"
+let b = add_breakpoint
+help += "gbp -> global_breakpoints\n"
+let gbp = global_breakpoints
+help += "bp -> breakpoints\n"
+let bp = breakpoints
+help += "cmd -> command\n"
+let cmd = command
+help += "f -> finished\n"
+let f = finished
+help += "g -> globals\n"
+let g = globals
+help += "gb -> add_global_breakpoint\n"
+let gb = add_global_breakpoint
+help += "l -> locals\n"
+let l = locals
+help += "li -> line\n"
+let li = line
+help += "lines -> line\n"
+let lines = line
+help += "p -> pos\n"
+let p = pos
+help += "r -> run\n"
+let r = run
+help += "rb -> remove breakpoint\n"
+let rb = remove_breakpoint
+help += "rgbp -> remove global breakpoint\n"
+let rgb = remove_global_breakpoint
+help += "si -> step_into\n"
+let si = step_into
+help += "so -> step_over\n"
+let so = step_over
+help += "ts -> threads\n"
+let ts = threads
+help += "th -> thread\n"
+let th = thread
+
+export_all()

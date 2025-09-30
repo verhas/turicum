@@ -29,6 +29,10 @@ public class GlobalContext {
         this.stepLimit = stepLimit;
     }
 
+    public DebuggerContext getDebuggerContext() {
+        return debuggerContext;
+    }
+
     /**
      * Retrieves the {@code TuriClass} object associated with the given class. If the exact class is not found
      * in the internal mapping, it attempts to find the superclass or implemented interface

@@ -19,7 +19,7 @@ import ch.turic.TuriFunction;
  * and types as required by this function.
  * <p>
  * Key Responsibilities:
- * - Validating the arguments count and their types
+ * - Validating the argument count and their types
  * - Extracting and processing the input arguments
  * - Updating the caller's state with the provided name-value pair
  * - Returning the value that was set in the caller's state

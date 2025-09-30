@@ -10,7 +10,7 @@ import ch.turic.memory.LocalContext;
  * The evaluate function evaluates its argument.
  * This is typically used in a macro, that gets the arguments unevaluated, and the macro code can decide when to
  * evaluate the individual arguments.
- *
+ * <p>
  * The function evaluates the arguments in the caller environment, and if it is invoked from a code that does not have that
  * (nothing like a macro) then it will throw an exception.
  *
@@ -18,7 +18,7 @@ import ch.turic.memory.LocalContext;
  * mut twice = macro(fn (arg){ evaluate(arg); evaluate(arg);});
  * twice( {println("Hello")} )
  * }</pre>
- *
+ * <p>
  * will print {@code Hello} twice.
  *
  */
