@@ -65,7 +65,12 @@ public class PrimaryExpressionAnalyzer extends AbstractAnalyzer {
         }
         if (lexes.is(Keywords.IF)) {
             lexes.next();
-            return IfAnalyzer.INSTANCE.analyze(lexes);
+            final var ifExpression = IfAnalyzer.INSTANCE.analyze(lexes);
+            final int index = lexes.getIndex()-1;
+            if( lexes.lexAt(index).is(";") ){
+                lexes.setIndex(index);
+            }
+            return ifExpression;
         }
         if (lexes.is(Keywords.FN)) {
             lexes.next();
@@ -86,7 +91,7 @@ public class PrimaryExpressionAnalyzer extends AbstractAnalyzer {
             if (lexes.isAt(1, "}")) {
                 lexes.next();
                 lexes.next();
-                return getAccessOrCall(lexes, new EmptyObject(), false);
+                return getAccessOrCall(lexes, EmptyObject.INSTANCE, false);
             }
             if ((lexes.isAt(1, Lex.Type.IDENTIFIER) || lexes.isAt(1, Lex.Type.STRING)) &&
                     lexes.isAt(2, ":")) {

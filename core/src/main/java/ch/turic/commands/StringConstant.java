@@ -6,13 +6,14 @@ import ch.turic.ExecutionException;
 import ch.turic.Input;
 import ch.turic.analyzer.BlockAnalyzer;
 import ch.turic.analyzer.Lexer;
+import ch.turic.memory.HasCommands;
 import ch.turic.memory.LocalContext;
 import ch.turic.utils.Unmarshaller;
 
 import java.util.ArrayList;
 import java.util.Objects;
 
-public class StringConstant extends AbstractCommand {
+public class StringConstant extends AbstractCommand implements HasCommands {
     final private String value;
     final private Command[] commands;
 
@@ -25,7 +26,12 @@ public class StringConstant extends AbstractCommand {
         return value;
     }
 
-    private StringConstant(final String value, final Command[] commands) {
+    @Override
+    public Command[] commands() {
+        return commands;
+    }
+
+    public StringConstant(final String value, final Command[] commands) {
         this.value = value;
         this.commands = commands;
     }

@@ -29,33 +29,33 @@ import java.util.stream.Collectors;
  * let BigDecimal = java_class("java.math.BigDecimal")
  * let bd1 = BigDecimal("10.50");
  * // BigDecimal extends the Number class
- * die "wrong type" if type(bd1) != "num";
+ * die "wrong type" when type(bd1) != "num";
  *
  * let bd2 = BigDecimal("3.25");
  * // that is bd1.add(bd2)
  * let result = java_call(bd1, "add", bd2);
- * die "wrong type" if type(result) != "num";
+ * die "wrong type" when type(result) != "num";
  *
  * // automatically adds, because the class implements "add"
  * let result2 = bd1 + bd2
- * die "wrong type" if type(result) != "num";
- * die "add differs from +" if result != result2
+ * die "wrong type" when type(result) != "num";
+ * die "add differs from +" when result != result2
  *
  * let formatted = result.toString()
- * die "formatted" if formatted != "13.75";
+ * die "formatted" when formatted != "13.75";
  *
  * // we can call math utilities
  * let square_root = java_call("java.lang.Math", "sqrt", 16.0);
  * // which are also provided in the language anyway
- * die "wrong square root value" if square_root != sqrt(16.0);
+ * die "wrong square root value" when square_root != sqrt(16.0);
  *
  * // Create deterministic UUID for testing
  * let sample_uuid_str = "550e8400-e29b-41d4-a716-446655440000";
  * let uuid = java_call("java.util.UUID", "fromString", sample_uuid_str)
  * // name starts with an extra "java." prefix to separate from turicum types
- * die "" if type(uuid) != "java.java.util.UUID"
+ * die "" when type(uuid) != "java.java.util.UUID"
  * let string_repr = java_call(uuid, "toString")
- * die "" if string_repr != sample_uuid_str
+ * die "" when string_repr != sample_uuid_str
  * }</pre>
  */
 public class JavaCall implements TuriFunction {
@@ -98,7 +98,7 @@ public class JavaCall implements TuriFunction {
         }
         if (method == null) {
             throw new ExecutionException("Cannot find method '" + methodName + "' for class '" + klass.getName() + "' with arguments (" +
-                    Arrays.stream(params).map(obj -> obj.getClass().getName() + ":" + obj.toString()).collect(Collectors.joining(",")) + ")");
+                    Arrays.stream(params).map(obj -> obj.getClass().getName() + ":" + obj).collect(Collectors.joining(",")) + ")");
         }
         try {
             return Reflection.invoke(method, object, params);

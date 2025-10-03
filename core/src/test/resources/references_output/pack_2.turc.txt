@@ -1,0 +1,6 @@
+x.h = 10
+y.h = 10
+AFTER x.h = 100
+x.h = 100
+y.h = 100
+are they the same? false

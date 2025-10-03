@@ -7,7 +7,7 @@ import ch.turic.commands.Operation;
 public class UnaryExpressionAnalyzer extends AbstractAnalyzer {
     static final Analyzer INSTANCE = new UnaryExpressionAnalyzer();
 
-    static final String[] unaryOperators = {"+", "-", "~", "!", "..", "?"};
+    static final String[] unaryOperators = {"+", "-", "~", "!", "..", "?", "'"};
 
     public Command _analyze(LexList lexes) throws BadSyntax {
         if (lexes.is(unaryOperators)) {

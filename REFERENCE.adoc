@@ -326,7 +326,7 @@ The primary use of this feature is to override operators, such as `+`==`+`.
 Many languages allow operator overloading through specially named methods.
 For example, in Python, you can override the `+` operator by defining a method named `pass:[__plus__]`.
 Turicum does not require such special naming conventions.
-You can simply define a method with the name `pass:[`+`]`.
+You can define a method with the name `pass:[`+`]`.
 ====
 
 ==== Reserved Words
@@ -1001,8 +1001,8 @@ Operators are tokenized with priority for the **longest matching operator**.
 Recognized symbols are:
 
 
-"---", "+++", "--", "++", "pass:[->]", "pass:[<-]", "(", ")", ",", ".(", ".", "?.",
-"&{", "{", "}", "[", "]", ";", ":", "|", "?", "@", "^", "##", "#", "**"
+`---`, `pass:[+++]`, `--`, `++`, `pass:[->]`, `pass:[<-]`, `(`, `)`, `,`, `.(`, `.`, `?.`,
+`&{`, `{`, `}`, `[`, `]`, `;`, `:`, `|`, `?`, `@`, `^`, `pass:[##]`, `pass:[#]`, `**`, `'`
  
 
 === Field Access
@@ -1020,7 +1020,7 @@ They are accessed
 let a = {}
 a.k = 55
 a["z"] = a["k"]
-die if a.z != 55
+die when a.z != 55
 println "it is ok"
 
 ----
@@ -1124,11 +1124,11 @@ println a
 
 
 
-You do not need to create `b`,`c`,`d`, and `e` one by one.
-They will become automatically an `+{}+` classless object.
+You do not need to create `b`, `c`, d`, and `e` one by one.
+They will automatically become an `+{}+` classless object.
 
-Accessing a field on the right-hand side of an assignment, or in any expression is more restrictive.
-You can still access a field that is nonexistent, and the value will be `none`, but you cannot access a field on `none`.
+Accessing a field on the right-hand side of an assignment, or in any expression, is more restrictive.
+You can still access a nonexistent field, and the value will be `none`, but you cannot access a field on `none`.
 To overcome this, you can use the `or` operator as in the example, or use can use the `?.` field access.
 
 .source of snippet `field_none_access`
@@ -1194,8 +1194,8 @@ Operators have precedence and are evaluated from left to right.
 You can use `(` and `)` to change the evaluation order.
 The operators are the following in order of growing precedence:
 
-* `or` results the left side expression if it is defined and the right side if the left side value is `none` (undefined).
-The operator does short-cut evaluation.
+* `or` results in the left side expression if it is defined, and the right side if the left side value is `none` (undefined).
+The operator does a shortcut evaluation.
 The right side is only evaluated if the left side is `none`.
 
 .source of snippet `oror`
@@ -1261,7 +1261,7 @@ dandy
 
 ----
 
- Note, that you cannot divide by zero, the result is an error and not `inf`.
+ Note that you cannot divide by zero, the result is an error and not `inf`.
 
 * `..` range operator. `start..end`` will result a range to index a list.
 The first index is `start`, the last is `end-1`.
@@ -1277,7 +1277,6 @@ The operator works the conventional ways on integers.
 The operator is also defined for lists.
 The result is the union of the two lists with the unique elements.
 That way you can also create a "set" from a list `|`-ing it with an empty list, as in the example below:
-+
 +
 The operator is further defined for objects.
 The result is a merged object that includes all fields from both operands.
@@ -1485,8 +1484,24 @@ a.r.t.a.n.y. ...
 
 
 * `+`, `-` binary and unary plus and minus.
-
-Unary `+` does not check anything; it works on all objects and just returns the object itself.
++
+The unary `+` operator does not perform any checks; it operates on all objects and returns the object itself.
++
+** The binary `+` operator
++
+*** concatenates strings (second argument will be converted to string if not string already),
+*** concatenates unevaluated (quoted, as `'$"${a}" +'$"${a}"`) strings
+*** concatenates unevaluated (quoted, as `'$"${a}" +"a"`) strings with evaluated string
+*** concatenates quoted blocks and quotes list expressions,
+*** concatenates lists
+*** merges objects, and
+*** eventually, works on numerical values.
++
+** The binary `-` works
++
+*** on strings, removing all occurrences of the second argument from the first,
+*** on lists, removing the elements of the second argument from the first, and
+*** eventually, it also works on numerical values.
 
 * `pass:[*]`, `/`, `%` binary multiply, divide, and remainder operators.
 The `pass:[*]` and `%` are also used in the case of strings and lists.
@@ -1656,15 +1671,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=17D238B1
+h id=5E81E5AC
 h after post increment: 1
 k: 0
-h id=3D7CC3CB
-k id=17D238B1
+h id=4189D70B
+k id=5E81E5AC
 h after pre increment: 2
 z: 2
-h id=35E478F
-z id=35E478F
+h id=3FA2213
+z id=3FA2213
 
 ----
 
@@ -1709,25 +1724,25 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=6B7D1DF8
+h id=6F0B0A5E
 h after post increment: 1
 k: 1
-h id=6B7D1DF8
-k id=6B7D1DF8
+h id=6F0B0A5E
+k id=6F0B0A5E
 h after pre increment: 2
 z: 2
-h id=6B7D1DF8
-z id=6B7D1DF8
+h id=6F0B0A5E
+z id=6F0B0A5E
 
 ----
 
 
 
-In this example the identity of the object remains the same, all the identity hex codes are the same.
+In this example, the identity of the object remains the same; all the identity hex codes are the same.
 There is only one object created.
 It also means that there is not much difference between pre-, and post-increment.
 
-The next two example implements the same functionality for the `--` operator.
+The next two examples implement the same functionality for the `--` operator.
 
 .source of snippet `decrementable1`
 
@@ -1765,15 +1780,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=41D7B27F
+h id=320DE594
 h after post decrement: -1
 k: 0
-h id=49096B06
-k id=41D7B27F
+h id=ABF688E
+k id=320DE594
 h after pre decrement: -2
 z: -2
-h id=4A183D02
-z id=4A183D02
+h id=478EE483
+z id=478EE483
 
 ----
 
@@ -1815,15 +1830,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=213DEAC2
+h id=2974F221
 h after post decrement: -1
 k: -1
-h id=213DEAC2
-k id=213DEAC2
+h id=2974F221
+k id=2974F221
 h after pre decrement: -2
 z: -2
-h id=213DEAC2
-z id=213DEAC2
+h id=2974F221
+z id=2974F221
 
 ----
 
@@ -1833,23 +1848,28 @@ See also the next section about operator overloading.
 
 === Operator Overloading
 
-Operators work for numerical types, string types as usually, and they can also work on any object that defines them.
+Operators work for numerical types, string types, as usual, and they can also work on any object that defines them.
 The name of the method implementing the operator should be the operator itself.
 There is not any name association, like in Python dunder plus.
 Instead, you can use it, for example, `pass:[`+`]` as an operator identifier.
 
 The operator methods must have one single positional argument, usually named `other`.
 The functionality should implement the operation and return the result of "`this` operation `other`".
-When an operation is used as prefix unary operator the value of other will be `none` and `this` will hold the value on the right of the operator.
+When an operation is used as a prefix unary operator, the value of the other will be `none`, and `this` will hold the value on the right of the operator.
 
-Only `+`, `-`, `~`, `!`, `..`, `?` can be used as unary operators.
+Only `+`, `-`, `~`, `!`, `..`, `?`, and `pass:[']` can be used as unary operators.
 
-As mentioned above `+`, `-`, and `..` are binary as well as unary operators.
+As mentioned above, `+`, `-`, and `..` are binary as well as unary operators.
 
-The unary operator `!` is logical negation.
-The unary operator `~` is bitwise negation.
-The unary operator `?` returns the original value without any modification or `none` if the calculation of the argument resulted in an error.
-The original value can also be `none`.
+* The unary operator `!` is logical negation.
+* The unary operator `~` is bitwise negation.
+* The unary operator `?` returns the original value without any modification or `none` if the calculation of the argument resulted in an error.
+  The original value can also be `none`, that way you cannot distinguish from the value if it is a genuine `none` or the result of an error.
+* The unary `pass:[']` quotes the right-hand side, and has the same effect as the `quote` or `thunk` built-in functions.
+  When you `'{}` you get an empty block.
+  On the other hand, `thunk({})` will be an empty **object**, resulting in `{}` when executed.
+  If you execute `('{}).execute` you will execute an empty **block**.
+  The result in this case is `none`.
 
 .source of snippet `bnot`
 
@@ -1874,7 +1894,7 @@ negating all bits in 3 -4
 
 
 
-NOTE: The character `?` can have different meaning based on the context.
+NOTE: The character `?` can have a different meaning based on the context.
 It can be part of conditional field access, when used as `a?.b` returning `none` when `a` is `none` or has no field `b`.
 It can also signal the start of a filter in a list literal.
 
@@ -1963,7 +1983,7 @@ If we modify the equality check to consider the classes, we get a different resu
 ----
 class A {
   fn `==`(other) : bool {
-    return false if cls != other.cls
+    return false when cls != other.cls
     a == other.a
   }
 }
@@ -2367,7 +2387,7 @@ Macros are closures that get their arguments unevaluated.
 You can create a macro using the built-in global function `macro` with a closure or function as an argument.
 Code inside macros can call the global function `evaluate` on the arguments.
 
-This way macros can decide which arguments to evaluate and what order, or how many times.
+This way, macros can decide which arguments to evaluate and in what order, or how many times.
 The following simple macro reimplements the `if` command's functionality using it:
 
 .source of snippet `macro_example`
@@ -2396,7 +2416,7 @@ yes, it is true
 
 
 When a macro calls the function `evaluate` the evaluation happens in the caller context.
-This ensures the same context and variable visibility like calling a function or closure.
+This ensures the same context and variable visibility as calling a function or closure.
 The caller does not need to know that the implementation of the something it calls is a function, closure, or macro.
 
 === Variable Declaration
@@ -2687,7 +2707,7 @@ If you have too few you can extend the list:
 [source]
 ----
 fn adjust(_x, @to){
-    mut x = _x
+    mut x = _x;
     if len(x) < to :
         while len(x) < to :
             x = [..x, none]
@@ -2722,7 +2742,7 @@ or even
 [source]
 ----
 fn adjust(@to,[_x]){
-    mut x = _x
+    mut x = _x;
     if len(x) < to :
         while len(x) < to :
             x = [..x, none]
@@ -3577,7 +3597,7 @@ If the condition is `false` and there is no "else" block or command, then the re
 
 [source]
 ----
-mut a= 13
+mut a= 13;
 if a%2 == 0: println("even") else: println("odd")
 a = {if a%2 == 0: "even" else: "odd"}
 print("again ",a)
@@ -3594,9 +3614,82 @@ again odd
 
 
 The `if` command does not open a new context.
-The condition, and the commands following it, and the optional one after the `else` keyword evaluated and executed in the context the `if` statement is.
+The condition, the commands following it, and the optional one after the `else` keyword are evaluated and executed in the context of the `if` statement.
 
-If, however, the "then" or "else" commands are block commands, then they themselves execute in a new context wrapping the actual context.
+If, however, the "then" or "else" commands are block commands, they execute in a new context that wraps the actual context.
+
+=== Conditional expression
+
+`if` statements can be used inside expressions.
+When you use `{}` or `()` parentheses, you can use any statement in an expression, but `if` statements do not need parentheses.
+An `if` statement can be placed on "top-level" in an expression and can occupy a place that is for a whole expression inside another one.
+
+.source of snippet `if_expression_1`
+
+[source]
+----
+print 5 + if 5 > 4 : 1 else 2
+
+----
+
+.output of snippet `if_expression_1`
+[source]
+----
+6
+----
+
+
+
+The `if` statement in this example serves as the second argument for the `+` operator.
+
+The keyword can also be used following the syntax
+
+    expression_2 if condition else expression_2
+
+This structure resembles how Python uses conditional expressions.
+The following example gives this variant for the previous calculation:
+
+.source of snippet `if_expression_2`
+
+[source]
+----
+print 5 + 1 if 5 > 4 else 2
+
+----
+
+.output of snippet `if_expression_2`
+[source]
+----
+6
+----
+
+
+
+Note, however, that you may need parentheses when using this form:
+
+.source of snippet `if_expression_3`
+
+[source]
+----
+println 5 + 1 if 5 < 4 else 2
+println (5 + 1) if 5 < 4 else 2
+println 5 + (1 if 5 < 4 else 2)
+
+----
+
+.output of snippet `if_expression_3`
+[source]
+----
+7
+2
+7
+
+----
+
+
+
+The `if` in the expression stands on the highest level in precedence.
+Since the `if` "operator" and its precedence is not so obvious as the usual numerical operators, it is recommended to use parentheses for readability.
 
 === Loops
 
@@ -4170,23 +4263,24 @@ The command can break the execution of the loop and can also specify the value o
 
 Will continue the execution of the loop starting the body of the loop again without executing the rest of the commands in the loop body.
 
-=== Returning, Breaking, Continue, and Yielding
+=== Returning, Breaking, Continuing, and Yielding
 
 These three commands are in one family.
-each of them can pass a value, and each can have a conditionality following the expression.
+Each of them can pass a value, and each can have a conditionality following the expression.
 The syntax is
 
 [source]
 ----
-break [expression] [if condition]
-return [expression] [if condition]
-yield expression [if condition]
+break [expression] [when condition]
+return [expression] [when condition]
+yield expression [when condition]
 ----
 
-The expression and the `if condition` parts are optional, except for the `yield`.
-When the conditional part is missing, the command is executed like if it was `if true`.
+The expression and the ``when condition`` parts are optional, except for the `yield`.
+`yield` must have the expression.
+When the conditional part is missing, the command is executed as if it were `when true`.
 
-You can interchangeably use the `when` keyword instead of `if` in this case.
+NOTE: Earlier versions permitted the use of the `if` keyword, but it became ambiguous when the `pass:[x if condition else y]` expression syntax was introduced.
 
 ==== `break`
 
@@ -4207,7 +4301,7 @@ The following samples demonstrate these cases.
 println {
     for i=0 ; i < 10 ; i++ {
       println ".. ",i;
-      break if i == 2
+      break when i == 2
     }
 }
 
@@ -4232,7 +4326,7 @@ none
 println {
     for i=0 ; i < 10 ; i++ {
       println ".. ",i;
-      break -2 if i == 2
+      break -2 when i == 2
     }
 }
 
@@ -4256,7 +4350,7 @@ println {
 ----
 println {
     for i=0 ; i < 10 ; i++ list{
-      break if i == 2
+      break when i == 2
       i;
     }
 }
@@ -4278,7 +4372,7 @@ println {
 ----
 println {
     for i=0 ; i < 10 ; i++ list{
-      break -2 if i == 2
+      break -2 when i == 2
       i;
     }
 }
@@ -4300,7 +4394,7 @@ println {
 ----
 println {
     for i=0 ; i < 10 ; i++ list{
-      break none if i == 2
+      break none when i == 2
       i;
     }
 }
@@ -4317,9 +4411,9 @@ println {
 
 
 The last example shows the difference between using the break statement following an `if` condition.
-In the first case the statement executes in the context of the loop and the `break` aborts the execution of the loop.
+In the first case, the statement executes within the loop, and the `break` statement aborts the loop's execution.
 
-In the second case the `break` is inside a block, and it aborts the execution of the block itself, the loop is not disturbed.
+In the second case, the `break` is inside a block, and it aborts the execution of the block itself; the loop is not disturbed.
 
 .source of snippet `break6`
 
@@ -4359,7 +4453,7 @@ however
 
 
 
-When the expression following the `break` keyword starts with the `if` keyword the expression has to be enclosed between `()` parentheses.
+When the expression following the `break` keyword starts with the `if` keyword, the expression has to be enclosed between `()` parentheses.
 
 .source of snippet `break7`
 
@@ -4367,7 +4461,7 @@ When the expression following the `break` keyword starts with the `if` keyword t
 ----
 println {
     for i=0 ; i < 4 ; i++ {
-      break (if i == 2 : 3 else : 4) if i == 2;
+      break if i == 2 : 3 else : 4 when i == 2;
       println i;
     }
 }
@@ -4390,7 +4484,7 @@ println {
 The continue command will "break" the current loop execution and start the loop over for the next iteration.
 In the case of a for loop, the step command will be executed, and the exit condition will also be evaluated.
 
-The `continue` command can have an expression, but it is only allowed if the loop is a list-producing loop.
+The `continue` command can have an expression, but it is only allowed if the loop is list-producing.
 In this case, the value of the expression will be appended to the resulting list.
 If the value of the expression is `none`, then `none` as a value will be appended to the list.
 If there is no expression after the `continue` keyword, then the resulting list will remain untouched for the actual execution.
@@ -4426,7 +4520,7 @@ You cannot use `continue` with a value in a loop that does not result a list:
 [source]
 ----
 try: let k = {for each z in [1,2,3] {
-    continue z/2 if z % 2 == 0;
+    continue z/2 when z % 2 == 0;
     continue z;
     }
 }catch e: println e
@@ -4841,10 +4935,10 @@ The generator will stop when it has generated enough numbers and starts when som
   * a very simple prime number filter
   */
 fn is_prime(x:num):bool {
-    return true if x == 2;
-    return false if x % 2 == 0;
+    return true when x == 2;
+    return false when x % 2 == 0;
     for n = 3 ; n*n <= x ; n = n + 2 :
-        return false if x % n == 0
+        return false when x % n == 0
     true
 }
 /**
@@ -4900,8 +4994,8 @@ Thread 1 generated 19
 Thread 1 generated 23
 stopping
 exception Task stopped.
-Thread 2 generated 3
  prime read 2
+Thread 2 generated 3
  prime read 3
 Thread 2 generated 5
  prime read 5
@@ -4965,9 +5059,9 @@ println( (end-start)/1000000, "ms")
 [source]
 ----
 [1, 2, 3]
-312.716291ms
+307.194417ms
 []
-316.786167ms
+307.532292ms
 
 ----
 
@@ -5176,9 +5270,10 @@ a =3.6820276497695854
 a =3.6063454894655185
 a =3.6055513629176015
 a =3.6055512754639905
-sqrt(13) ≈ 3.6055513629176015
+a =3.6055512754639896
+sqrt(13) ≈ 3.6055512754639905
 sqrt(13) ≈ 3.605551275463989 calculated by java Math
-square ≈ 13.000000630636974
+square ≈ 13.000000000000009
 
 ----
 
@@ -5468,8 +5563,8 @@ The type of the returned value is checked against the declared types upon return
 
 [source]
 ----
-fn concat(a:str, b:str):str = a + b
-println concat("ab","ba")
+fn concatenate(a:str, b:str):str = a + b
+println concatenate("ab","ba")
 
 ----
 
@@ -5486,9 +5581,9 @@ abba
 
 [source]
 ----
-fn concat(a:str, b:str):str = 13
+fn concatenate(a:str, b:str):str = 13
 try:
-    println concat("ab","ba")
+    println concatenate("ab","ba")
 catch err: println err
 
 ----
@@ -5496,7 +5591,7 @@ catch err: println err
 .output of snippet `fun8`
 [source]
 ----
-Cannot return from 'concat' the value '13' as it does not fit any of the accepted type of the macro (str)
+Cannot return from 'concatenate' the value '13' as it does not fit any of the accepted type of the macro (str)
 
 ----
 
@@ -5509,10 +5604,10 @@ The types are evaluated when the function is defined.
 [source]
 ----
 mut myString="num"
-fn concat(a:str, b:str):(myString) = 13
+fn concatenate(a:str, b:str):(myString) = 13
 myString = "str"
 try:
-    println concat("ab","ba")
+    println concatenate("ab","ba")
 catch err: println err
 
 ----
@@ -7655,7 +7750,7 @@ mut fib = {
     {|x|
         if x == 1 || x == 0 : 1
         else{
-            return cache[x] if cache[x] != none;
+            return cache[x] when cache[x] != none;
             cache[x] = me(x - 1) + me(x - 2);
         }
     }
@@ -7686,7 +7781,7 @@ class FibCalculator {
     fn fib(x) {
         if x == 1 || x == 0 : start
         else{
-            return cache[x] if cache[x] != none;
+            return cache[x] when cache[x] != none;
             cache[x] = fib(x - 1) + fib(x - 2);
         }
     }
@@ -7925,6 +8020,75 @@ println j;
 4
 5
 
+----
+
+
+            * `compile` 
+Compile a string and return the compiled code as a program.
+You can use the returned object the same way as you would use a macro argument, or the return value of `thunk`.
+The block is wrapping the commands.
+It means that the commands are executed in a local context when you call `unthunk` and not in the context where the `compile` was used.
+If the code you compile is a code block, you can use the function `unwrap` to unwrap it.
++
+A straightforward example of the use is:
+
++
+.source of snippet `compile1`
+[source]
+----
+mut z = "println 1+1".compile()
+z.execute()
+
+----
++
+.output of snippet `compile1`
+[source]
+----
+2
+
+----
+
+
++
+The following example demonstrates that the block is wrapping.
+The variable `x` not defined after the execution of the block.
+
++
+.source of snippet `compile2`
+[source]
+----
+// the program contains one command, which is a block
+mut z = "{let x = 1}".compile()[0] // get the block
+z.execute()
+print is_defined(x)
+
+----
++
+.output of snippet `compile2`
+[source]
+----
+false
+----
+
+
++
+In the following example, we `unwrap` the compilation result.
+Executing the block will define the variable `x`.
+
++
+.source of snippet `compile3`
+[source]
+----
+mut z = "{let x = 1}".compile()[0]
+unwrap(z).execute()
+print is_defined(x)," and it is ", x
+
+----
++
+.output of snippet `compile3`
+[source]
+----
+true and it is 1
 ----
 
 
@@ -9767,7 +9931,10 @@ don't die
 
 === `evaluate`
 
-Macro implementations use this function.
+Evaluate the function argument as a command in the caller environment.
+If you want to evaluate a string containing Turicum code, you have to use `compile()`.
+
+Usually, macro implementations use this function.
 Macros get their arguments unevaluated and can use this function to evaluate them.
 If you try to evaluate anything other than a macro argument, you will get an error.
 
@@ -9850,7 +10017,7 @@ Hello
 
 
 
-Note, however that the code starts with a `(`.
+Note, however, that the code starts with a `(`.
 That will make the function definition be part of an expression and process the following `(fn () {println("Hello")})` as an argument.
 Without that we would have two unnamed function definitions, one after the other.
 
@@ -9867,7 +10034,7 @@ Omitting the requirement around a `fn` (or for that matter a `class`) definition
 
 These are two functions to be used in files imported.
 The macro `export` will export the variables listed as arguments.
-That way these variables will be copied into the context of the importing code.
+That way, these variables will be copied into the context of the importing code.
 
 You can specify identifiers and expressions resulting in strings as arguments.
 
@@ -10400,7 +10567,7 @@ println env().JAVA_HOME
 .output of snippet `env1`
 [source]
 ----
-/Users/verhasp/.sdkman/candidates/java/21.0.7-tem
+/Users/verhasp/.sdkman/candidates/java/current
 
 ----
 
@@ -10419,7 +10586,7 @@ println env("JAVA_HOME")
 .output of snippet `env2`
 [source]
 ----
-/Users/verhasp/.sdkman/candidates/java/21.0.7-tem
+/Users/verhasp/.sdkman/candidates/java/current
 
 ----
 
@@ -10438,7 +10605,7 @@ println env("JAVA_*")
 .output of snippet `env3`
 [source]
 ----
-{JAVA_HOME: /Users/verhasp/.sdkman/candidates/java/21.0.7-tem}
+{JAVA_HOME: /Users/verhasp/.sdkman/candidates/java/current}
 
 ----
 
@@ -10566,7 +10733,7 @@ println nano_time()
 .output of snippet `nano_time`
 [source]
 ----
-2466987316588458
+681556291193083
 
 ----
 
@@ -10659,6 +10826,111 @@ s = closure 2
 
 The function opens and "recloses" the closure in the context of the function call.
 It will see and alter the `s` in that context of the re-closing, while the original closure alters and sees the global `s`.
+
+=== `_pack`
+
+This function creates an object with the actual local context as the object context.
+It does not copy the context.
+If the local context changes, the object changes accordingly.
+The following example shows how a function can return its local context, essentially the set of local variables, as an object.
+
+.source of snippet `pack_1`
+
+[source]
+----
+fn a {
+    let h = 10
+    let i = 20
+    let j = 30
+    let k = 40
+    let l = 50
+    let m = 60
+    let n = 70
+    let o = 80
+    let p = 90
+    let q = 100
+    let r = pack()
+    let s = 110
+    return r
+}
+let h = a()
+println $" $(h.h) $(h.i) $(h.j) $(h.k) $(h.l) $(h.m) $(h.n) $(h.o) $(h.p) $(h.q) $(h.s)"
+
+----
+
+.output of snippet `pack_1`
+[source]
+----
+ 10 20 30 40 50 60 70 80 90 100 110
+
+----
+
+
+
+The following example returns two different objects that share the same context.
+It means that their fields are not only identical, but they are the same.
+Changing a field in one will change the field in the other, even though the two objects are not the same.
+
+.source of snippet `pack_2`
+
+[source]
+----
+fn a {
+    mut h = 10
+    return [pack(),pack()]
+}
+let [x,y] = a()
+println $"x.h = $(x.h)"
+println $"y.h = $(y.h)"
+x.h = 100
+println "AFTER x.h = 100"
+println $"x.h = $(x.h)"
+println $"y.h = $(y.h)"
+println $"are they the same? $(x === y)"
+
+----
+
+.output of snippet `pack_2`
+[source]
+----
+x.h = 10
+y.h = 10
+AFTER x.h = 100
+x.h = 100
+y.h = 100
+are they the same? false
+
+----
+
+
+
+The following example demonstrates that context wrapping persists even after the context has been packed.
+Through the returned object, you can access the closure's wrapped context, in this case, the variable `b`, even though this is not a field in the object.
+
+.source of snippet `pack_3`
+
+[source]
+----
+let b=55
+let a = {||
+    let h = 10
+    return pack()
+}
+let h = a()
+println $"$(h.h) $(h.b)"
+println keys(h)
+
+----
+
+.output of snippet `pack_3`
+[source]
+----
+10 55
+[me, h, .]
+
+----
+
+
 
 === `source_directory`
 
@@ -10991,14 +11263,14 @@ println q.receive()
 // println q.receive() // this would wait infinitely, there is nothing in the queue
 // or until some other thread puts something into the queue
 
-// try_receive() returns none if there is nothing in the queue
+// try_receive() returns none when there is nothing in the queue
 println q.try_receive()," return none, there is nothing in the queue"
 
-// it also returns none if there is a none in the queue
+// it also returns none when there is a none in the queue
 q.send(none)
 println q.receive(), " was received... how do we know?"
 // we send again a none
-q.send(none)
+q.send(none);
 // check that there is something in the queue
 if q.has_next() : print "has_next() is true: it has value and it is "
 // we can be sure the 'none' was coming as a message from the queue
@@ -11037,7 +11309,7 @@ fn printer(q,@name){
     mut n = 0 // counts the number of not-ready que attempts
     while {
         mut s = q.try_receive(); // try to receive one or get none if there is nothing in the queue
-        return { println "%s is done" % name } if q.is_closed(); // return when the que is closed
+        return { println "%s is done" % name } when q.is_closed(); // return when the que is closed
         if s == none {
             println "%s is not ready %s" % [name,n]
             n++ // count the attempts
@@ -11087,30 +11359,39 @@ none
 .output of snippet `que`
 [source]
 ----
-task1 is not ready 0
-task2 is ready 1
 task2 is not ready 0
-task1 is not ready 1
-task2 is not ready 1
-task1 is not ready 2
-task2 is not ready 2
-task1 is not ready 3
-task2 is not ready 3
-task1 is ready 2
+task1 is ready 1
 task1 is not ready 0
-task2 is not ready 4
+task2 is not ready 1
 task1 is not ready 1
+task2 is not ready 2task1 is not ready 2
+
+task2 is not ready 3
+task1 is not ready 3
+task1 is not ready 4
+task2 is ready 2
+task2 is not ready 0
+task1 is not ready 5
+task2 is not ready 1
+task1 is not ready 6
+task2 is not ready 2
+task2 is not ready 3
+task1 is ready 3
+task1 is not ready 0
+task1 is not ready 1
+task2 is not ready 4
 task2 is not ready 5
 task1 is not ready 2
 task2 is not ready 6
-task1 is ready 3
-task2 is not ready 7
-task1 is not ready 0
-task2 is not ready 8
-task1 is not ready 1
-task1 is not ready 2
-task2 is not ready 9
 task1 is ready 4
+task1 is not ready 0
+task2 is not ready 7
+task1 is not ready 1
+task2 is not ready 8
+task1 is not ready 2
+task1 is not ready 3task2 is not ready 9
+
+task1 is ready 5
 task2 is not ready 10
 task1 is not ready 0
 task1 is not ready 1
@@ -11118,44 +11399,35 @@ task2 is not ready 11
 task2 is not ready 12
 task1 is not ready 2
 task1 is not ready 3
-task2 is not ready 13
-task1 is ready 5
-task2 is not ready 14
-task1 is not ready 0
-task2 is not ready 15
-task1 is not ready 1
-task1 is not ready 2task2 is not ready 16
-
-task2 is not ready 17task1 is ready 6
-task1 is not ready 0
-
-task2 is not ready 18
-task1 is not ready 1
-task2 is not ready 19
-task1 is not ready 2
-task1 is not ready 3
-task2 is ready 7
+task2 is ready 6
 task2 is not ready 0
-task1 is not ready 4
 task2 is not ready 1
-task2 is not ready 2
-task1 is not ready 5
+task1 is not ready 4
+task1 is not ready 5task2 is not ready 2
+
 task1 is not ready 6
-task2 is ready 8
+task2 is ready 7
 task2 is not ready 0
 task1 is not ready 7
 task2 is not ready 1
+task2 is not ready 2
 task1 is not ready 8
-task2 is not ready 2
-task2 is ready 9
-task1 is not ready 9
-task2 is not ready 0
-task1 is not ready 10
-task2 is not ready 1
-task1 is not ready 11
-task2 is not ready 2
+task1 is ready 8
 task2 is not ready 3
-task1 is not ready 12
+task1 is not ready 0
+task1 is not ready 1
+task2 is not ready 4
+task1 is not ready 2
+task2 is not ready 5
+task1 is ready 9task2 is not ready 6
+
+task1 is not ready 0
+task2 is not ready 7
+task1 is not ready 1
+task2 is not ready 8
+task1 is not ready 2
+task2 is not ready 9
+task1 is not ready 3
 closing the channel
 channel is closed
 1 is done false
@@ -11389,7 +11661,7 @@ fn printer(){
     mut n = 0
     while {
         mut s = try_yield();
-        return { println "we are done" } if yield_is_closed();
+        return { println "we are done" } when yield_is_closed();
         if s == none {
             println "not ready %s" % n
             n++
@@ -11480,7 +11752,7 @@ m = rx.match(s);
 if m.group == none :
     println "does not match because of xxx and yyy"
 println m, " is an empty object"
-m = rx.find(s)
+m = rx.find(s);
 if m.group != none :
     println "matches because we find and not match"
 print_match(m);
@@ -11702,23 +11974,24 @@ This is a function that returns `true` if the argument is an object.
 ==== `thunk`
 
 The `thunk` macro returns its argument unevaluated, preserving it as a command or expression.
-This deferred computation can later be executed using `unthunk`.
+You can also use the macro `quote`, which is an alias and does the same as `thunk`, or use the `'` (single apostrophe) operator.
+This deferred computation can later be executed using the function `unthunk` or the `execute` method defined on the resulting command object.
 
-`unthunk` evaluates the stored command in the **context where `unthunk` is called**, not the context where the thunk was created.
+`unthunk` and `execute` evaluate the stored command in the **context where `unthunk` is called**, not the context where the thunk was created.
 
 .difference from `evaluate`
 [NOTE]
 ====
 Although `evaluate` provides similar functionality, it differs in two key ways:
 
-- `evaluate` can only be used **inside a macro**.
+- `evaluate` can only be used **inside a macro**, or in a function or closure.
 
 - It evaluates the argument in the **caller’s context**, i.e., the context of the macro's caller.
 ====
 
-Note also that the argument to `thunk` can only be an expression and not an arbitrary command.
-That is a restriction that comes from Turicum syntax.
-However, you can enclose any command into a block, and then you can use the block as an expression or part of an expression.
+Note also that the argument to `thunk`, `quote`, or the operator `pass:[']` can only be an expression and not an arbitrary command.
+That is a restriction imposed by Turicum syntax.
+However, you can enclose any command in a block, and then you can use the block as an expression or part of an expression.
 
 ==== `unthunk`
 
@@ -11796,9 +12069,12 @@ mut i = 1;
 for each command in commands {
     mut suss;
     println "%s. before is_defined(x) = %s" % [i,is_defined(x)]
-    if i == 1 {
+    if i == 1 {// k is not defined, no assignable
         try: unthunk(command) catch e: println "ERROR: %s" % [e];
     } else {
+        // 2 can assign value to 'suss'
+        // 3 can define 'x'
+        // 4 prints 'hello'
         unthunk(command)
         println "%s. after is_defined(x) = %s" % [i,is_defined(x)]
     }
@@ -11824,6 +12100,19 @@ hello
 ----
 
 
+
+The counter `i` is used to display which command we execute in the loop.
+It is also used to execute the first command in a `try-catch` block.
+`k` is not defined; therefore, unthunking this command will not work.
+
+The second command updates a declared variable.
+It does not need to be in `try-catch` block.
+
+The third command defines the variable `x`.
+In this execution, the variable `x` after the ``unthunk``ing is defined.
+
+`x` becomes a normal local variable in the loop, which is defined for the execution of the loop core only.
+When the next execution starts the variable `x` is undefined again.
 
 ==== `as_object`
 
@@ -12025,12 +12314,12 @@ It is the __result__ of the command.
 ----
 
 
-If the condition expression is missing after 'for' or 'while' it is `true`.
+If the condition expression is missing after 'for' or 'while', it is `true`.
 The expression following the 'until' keyword is not optional, but the whole `until` `EXPRESSION` part is.
 The value of a loop is the last __executed__ command, or a list if the `list` keyword was specified.
 The elements of the list are the last __executed__ commands for each iteration.
 
-The value of an `IF` command is the value of the first or the second block, whichever is executed.
+The value of an `if` command is the value of the first or the second block, whichever is executed.
 If the condition expression is false and there is no second block, then the value is `none`.
 
 

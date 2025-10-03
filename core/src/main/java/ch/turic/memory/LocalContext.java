@@ -20,7 +20,7 @@ public class LocalContext implements Context, AutoCloseable {
     private final LocalContext wrapped;
     public final GlobalContext globalContext;
     public final ThreadContext threadContext;
-    public LocalContext caller = null;
+    private LocalContext caller = null;
     private final List<String> exporting = new ArrayList<>();
     private final boolean shadow;
     private final boolean with;
@@ -479,8 +479,8 @@ public class LocalContext implements Context, AutoCloseable {
             }
         }
         if (globals.contains(key)) {
-            // when we set a global value, it does not matter if it is already defined because it is declared or
-            // was already declared as 'global'
+            //When we set a global value, it does not matter if it is already defined
+            // because it is either declared or was already declared as 'global'
             globalContext.heap.set(key, value);
             return;
         }

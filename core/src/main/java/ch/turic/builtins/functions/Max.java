@@ -10,11 +10,11 @@ import ch.turic.commands.operators.Compare;
  *
  * <pre>{@code
  * // return none if there are no arguments
- * die "" if max() != none
+ * die "" when max() != none
  * // return the largest argument
- * die "" if max(1,2,3) != 3
+ * die "" when max(1,2,3) != 3
  * // it also works on lists
- * die "" if max([1,2,3]) != 3
+ * die "" when max([1,2,3]) != 3
  * class SORTED {
  *     fn init(value:num);
  *     fn `<`(b:SORTED):bool{
@@ -25,8 +25,8 @@ import ch.turic.commands.operators.Compare;
  *     }
  * }
  *
- * die "" if max( SORTED(1), SORTED(2), SORTED(3) ) != SORTED(3)
- * die "" if max( SORTED(1), SORTED(2), SORTED(3) ) === SORTED(3)
+ * die "" when max( SORTED(1), SORTED(2), SORTED(3) ) != SORTED(3)
+ * die "" when max( SORTED(1), SORTED(2), SORTED(3) ) === SORTED(3)
  * }</pre>
  */
 public class Max implements TuriFunction {

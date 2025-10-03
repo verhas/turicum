@@ -1,6 +1,10 @@
+let packaga = macro( fn(){
+    evaluate(thunk(package()))
+})
 
+let baba= 54
 
-let baba kiku = 54
+println packaga()
 
 // println 6.13E52;
 

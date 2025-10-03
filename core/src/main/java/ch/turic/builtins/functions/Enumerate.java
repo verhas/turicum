@@ -17,14 +17,14 @@ import java.util.Iterator;
  * <h3>Usage Examples:</h3>
  * <pre>{@code
  * // Returns an iterable object that you can iterate through
- * die "" if str(enumerate(["a","b","c"])) != "EnumeratorIterable[iterable=[a, b, c]]"
+ * die "" when str(enumerate(["a","b","c"])) != "EnumeratorIterable[iterable=[a, b, c]]"
  *
  * // Iterate through enumerated pairs
  * let z = {for each k in enumerate(["a","b","c"]) list:
  *   k}
- * die "" if str(z) != "[[0, a], [1, b], [2, c]]"
+ * die "" when str(z) != "[[0, a], [1, b], [2, c]]"
  * // you can also create a list from the iterable, if you must
- * die "" if str([..enumerate(["a","b","c"])]) != "[[0, a], [1, b], [2, c]]"
+ * die "" when str([..enumerate(["a","b","c"])]) != "[[0, a], [1, b], [2, c]]"
  * }</pre>
  */
 public class Enumerate implements TuriFunction {

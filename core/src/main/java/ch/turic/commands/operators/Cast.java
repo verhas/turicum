@@ -147,6 +147,13 @@ public class Cast {
         throw new ExecutionException("Value '" + test + "' cannot be used as a boolean");
     }
 
+    public static String toString(Object obj) {
+        if(obj == null ) {
+            return "none";
+        }
+        return obj.toString();
+    }
+
     public static Long toLong(Object obj) throws ExecutionException {
         return switch (obj) {
             case Long l -> l;

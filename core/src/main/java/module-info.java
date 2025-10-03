@@ -30,7 +30,7 @@ module ch.turic {
             Unthunk, Unwrap, BlockList, Command, Min, Max, MathFunctions.Pow, MathFunctions.Scalb, Env,
             TuriHttpClient, Jsonify, JsonifyBeauty, Str, Glob, SourceDirectory, Arity, Signature,
             Uncurry, IsCurried, CurriedArity, Enumerate, JavaClass,
-            DebugSessionFactory;
-    provides ch.turic.TuriMacro with Export, IsDefined, Unlet, Thunk, Import, SysImport, Delete;
+            DebugSessionFactory, Pack;
+    provides ch.turic.TuriMacro with Export, IsDefined, Unlet, Thunk, Quote, Import, SysImport, Delete;
     provides ch.turic.TuriClass with TuriString, TuriLong, TuriDouble, TuriIterator, TuriChannel, TuriInputStream, TuriInputStreamReader;
 }

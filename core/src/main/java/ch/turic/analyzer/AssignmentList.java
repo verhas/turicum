@@ -1,12 +1,13 @@
 package ch.turic.analyzer;
 
 import ch.turic.BadSyntax;
-import ch.turic.ExecutionException;
 import ch.turic.Command;
 import ch.turic.commands.TypeDeclaration;
 import ch.turic.utils.Unmarshaller;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 /**
  * The AssignmentList class provides methods to analyze and parse sequences of tokens related
@@ -24,6 +25,16 @@ public class AssignmentList {
                     args.get("types", TypeDeclaration[].class),
                     args.command("expression")
             );
+        }
+
+        @Override
+        public String toString() {
+            return identifier +
+                    (types() == null || types().length == 0 ?
+                            ""
+                            :
+                            ":" + Arrays.stream(types).map(TypeDeclaration::toString).collect(Collectors.joining("|")))
+                    + " = " + expression;
         }
     }
 

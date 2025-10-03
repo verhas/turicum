@@ -35,14 +35,27 @@ Instead, you can
 
     sys_import turi.debug_short
 
-that will define the same functions and also abbreviation aliases, like `si` for `step_into`, `so` for `step_over` and so on.
+that will define the same functions and also abbreviation aliases, like `si` for `step_into`, `so` for `step_over`, and so on.
+
+It is usually a good practice to put one of these commands into the `.repl.turi` file along with a command mode setting:
+
+..repl.turi
+[source]
+----
+sys_import turi.debug_short;""
+// set command_mode=on
+----
+
+The second line will tell the REPL application to call commands that have no arguments automatically.
+With that, you can type `line` and you do not need to type `line()` to call the function.
+Without setting command mode on, typing `line` just prints `fn()`, which is the string representation of the value held by the variable `line`.
 
 The second command you want to issue is
 
-    debug("debugged.turi");
+    debug "debugged.turi"
 
 to load and start the file, you want to debug.
-This command will compile the Turicum code `debugged.turi` and start the execution stopping before the first command.
+This command will compile the Turicum code `debugged.turi` and execute it, stopping before the first command.
 
 The next command you may want to execute is `line()`
 
@@ -149,124 +162,93 @@ end :{line : end_line , column : end_column}
 
 === `line(start  = none , end  = none)`
 
+List the lines of the code between `start` and `end`.
+If the parameters are missing, then the lines of the current command are printed.
 
 
-{
-global debugger_global_session
-debugger_global_session.fetch_pos()
-wait()
-let sp  = debugger_global_session.start_pos();
-let ep  = debugger_global_session.end_pos();
-if sp  != none  && ep  != none{
-let lines  = sp.lines ;
-if start  != none  || end  != none{
-let s  = start ;
-let e  = if end  == none : start else end ;
-for i  = s -1 ; i  < e  && i  < len(lines); i ++{
-                println +(i +1), ". " , lines[i]
-            }
-        }
-        else{
-            println sp.line , ". " , lines[sp.line -1].substring(num(sp.column -1))
-            for i  = sp.line ; i  < ep.line -1 ; i ++{
-println +(i +1), ". " , sp.lines[i]
-}
-if ep.line  > sp.line :
-println +(ep.line), ". " , sp.lines[ep.line -1].substring(0 , ep.column)
-}
-}
-else{
-println "no source information in the command"
-}
-}
+=== `threads`
 
-fn threads(){
-global debugger_global_timeout
-println debugger_global_session.threads()
-}
+Print the names of the threads running.
 
-fn thread(name : str){
-global debugger_global_session ;
-debugger_global_session.set_thread(name);
-// fun fact: ${name} is filtered by maven to be 'turicum'
-println $"Thread $(name) selected" ;
-}
+=== `thread(name : str)`
 
-fn finished(){
-global debugger_global_session ;
-println if(let f  = debugger_global_session.is_finished()): "FINISHED" else "RUNNING"
-f ;
-}
+Select the named thread.
+Subsequent commands, such as setting a breakpoint, stepping, and running, will be performed on this thread.
 
-fn globals(){
-global debugger_global_session ;
-debugger_global_session.fetch_globals()
-wait()
-let g  = {}
-for each v with i in debugger_global_session.globals():
-g[v.name] = v.value ;
-g ;
-}
+=== `finished`
 
-fn locals(@no_globals  = false){
-global debugger_global_session ;
-debugger_global_session.fetch_locals()
-wait()
-let l  = {}
-let g  = if no_globals : keys(globals())else[];
-for each v with i in debugger_global_session.locals():
-if !(v.name in g):
-l[v.name] = v.value ;
-l ;
-}
+Prints `FINISHED` or `RUNNING` to see if the debugged program has terminated.
+It also returns a boolean value `true` when the program has finished.
 
-fn step_into(){
-global debugger_global_session ;
-debugger_global_session.step_into()
-wait();
-println "done"
-}
 
-fn step_over(){
-global debugger_global_session ;
-debugger_global_session.step_over()
-wait();
-println "done"
-}
+=== `globals`
 
-fn run(){
-global debugger_global_session ;
-debugger_global_session.run()
-wait();
-println "done"
-}
+It lists, and it also returns the global variables.
 
-fn add_breakpoint(line : int){
-global debugger_global_session ;
-debugger_global_session.add_breakpoint(int(line))
-wait();
-println "done"
-}
+=== `locals(@no_globals  = false)`
 
-fn remove_breakpoint(line : int){
-global debugger_global_session ;
-debugger_global_session.remove_breakpoint(int(line))
-wait();
-println "done"
-}
+This command lists the local variables.
+These are the variables in the local context and all the wrapping contexts.
+The `no_globals` option can instruct the command not to list the global variables.
+It makes sense when we are in a context that directly or transitively wraps the global context.
 
-fn add_global_breakpoint(line : int){
-global debugger_global_session ;
-debugger_global_session.add_global_breakpoint(int(line))
-wait();
-println "done"
-}
 
-fn remove_global_breakpoint(line : int){
-global debugger_global_session ;
-debugger_global_session.remove_global_breakpoint(int(line))
-wait();
-println "done"
-}
 
-export_all();
+=== `step_into``
+
+Step into the current command.
+It is not only to step into a function or closure call, but also to execute the command step by step individually, executing the subcommands.
+For example, a whole program is a command consisting of a list of subcommands.
+
+Another example can be a `print` command with a string.
+`step_into` will step to evaluate the string argument first, and then it stops for further debugger instructions.
+
+=== `step_over`
+
+Execute the current command and step over it to the next command.
+
+=== `run`
+
+Execute the commands till the next break point.
+
+=== `add_breakpoint(line : int)`
+
+Add a breakpoint to the line with the line number as an argument.
+Line numbers start at 1.
+Adding a breakpoint with this function will stop the execution only of the currently selected thread.
+
+=== `remove_breakpoint(line : int)`
+
+Remove the breakpoint from the currently selected thread's breakpoints.
+
+=== `add_global_breakpoint(line : int)`
+
+Add a breakpoint that affects every thread.
+
+=== `remove_global_breakpoint(line : int)`
+
+Remove the global breakpoint for the line.
+
+=== `help`
+
+Will print a short help text with up-to-date, but short command descriptions.
+
+== Debugger Architecture
+
+When you start a program using the debugger, it starts a new interpreter in the same process in a separate thread in debug mode.
+When an interpreter starts in debug mode, it stops it
+
+* has a non-blocking channel to communicate with the debugger thread, and
+* the interpreter will stop the execution before each command.
+
+When the interpreter stops in any thread, it sends a debug command object (DCO) to the channel.
+The debugger gets the DCO, and with that, it knows that there is a thread waiting for a debugger command.
+When a debugger command is executed, the debugger modifies the DCO, filling in the command parameters, and decrements a counter signalling the thread that the DCO now contains a command ready for the thread to execute.
+
+The thread executes the command and sends the result back in a new DCO to the debugger.
+
+The debugger communication is implemented in Java and is callable from Turicum.
+The `DebugSessionFactory` class is a `TuriFunction` that creates a `DebugSession` object.
+This class implements various methods for communicating with debugged threads.
+
+When you issue `list`, `step_into`, and other commands in the REPL application, you essentially run Turicum code executing debugging functions debugging a different application.

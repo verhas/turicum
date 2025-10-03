@@ -23,7 +23,7 @@ public record TypeDeclaration(String identifier, Command expression) {
     }
 
     /**
-     * Calculate the type name. If the type is given by a name, it is just the name give, otherwise call the expression,
+     * Calculate the type name. If a name gives the type, it is just the name given; otherwise, call the expression.
      * evaluate it and return the result as a string.
      *
      * @param context the context used to execute the expression in
@@ -36,5 +36,10 @@ public record TypeDeclaration(String identifier, Command expression) {
             final var tValue = expression.execute(context);
             return tValue == null ? "none" : tValue.toString();
         }
+    }
+
+    @Override
+    public String toString() {
+        return expression == null ? identifier : "(" + expression + ")";
     }
 }

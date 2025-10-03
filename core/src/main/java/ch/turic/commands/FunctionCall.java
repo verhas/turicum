@@ -54,7 +54,7 @@ public class FunctionCall extends FunctionCallOrCurry {
             }
             if (obj instanceof JavaObject jo) {
                 if (jo.object() == null) {
-                    // if we somehow get a JavaObject that is 'null' we can still invoke 'to_string'
+                    // if we somehow get a JavaObject that is 'null', we can still invoke 'to_string' for 'none'
                     function = TuriNone.INSTANCE.getMethod(null, fieldAccess.identifier());
                 } else {
                     final var turi = getTuriClass(context, jo);

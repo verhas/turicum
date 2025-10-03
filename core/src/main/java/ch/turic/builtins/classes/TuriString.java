@@ -146,20 +146,41 @@ public class TuriString implements TuriClass {
             case "turi_lex" ->
                 // returns a list containing the tokens of the string matching the tokenization of the language (Turicum).
                 // {%S string_turi_lex%}
-                    new TuriMethod<>((args) -> Lexer.analyze((ch.turic.analyzer.Input) Input.fromString(string)));
+                    new TuriMethod<>((args) -> Lexer.analyze(Input.fromString(string)));
             case "execute" -> (LngCallable.LngCallableClosure)// do not remove, it is NOT redundant! I do not know why.
                     // executes the string as Turicum code.
                     // {%S string_execute%}
                     (context, args) -> {
                         final var ctx = FunUtils.ctx(context);
                         final var analyzer = new ProgramAnalyzer();
-                        Command code = analyzer.analyze(Lexer.analyze((ch.turic.analyzer.Input) Input.fromString(string)));
+                        Command code = analyzer.analyze(Lexer.analyze(Input.fromString(string)));
                         final var result = code.execute(ctx);
                         if (result instanceof Conditional.Result res) {
                             return res.result();
                         } else {
                             return result;
                         }
+                    };
+            case "compile" -> (LngCallable.LngCallableClosure)// do not remove, it is NOT redundant! I do not know why.
+                    //Compile a string and return the compiled code as a program.
+                    //You can use the returned object the same way as you would use a macro argument, or the return value of `thunk`.
+                    //The block is wrapping the commands.
+                    //It means that the commands are executed in a local context when you call `unthunk` and not in the context where the `compile` was used.
+                    //If the code you compile is a code block, you can use the function `unwrap` to unwrap it.
+                    //+
+                    //A straightforward example of the use is:
+                    //{%S compile1%}
+                    //+
+                    //The following example demonstrates that the block is wrapping.
+                    //The variable `x` not defined after the execution of the block.
+                    //{%S compile2%}
+                    //+
+                    //In the following example, we `unwrap` the compilation result.
+                    //Executing the block will define the variable `x`.
+                    //{%S compile3%}
+                    (context, args) -> {
+                        final var analyzer = new ProgramAnalyzer();
+                        return analyzer.analyze(Lexer.analyze(Input.fromString(string)));
                     };
             case "url_encode" ->
                 // encode the string for URL

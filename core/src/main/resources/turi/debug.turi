@@ -15,7 +15,7 @@ fn debug(file_name : str , @timeout  = 1000 /*one sec*/ ){
         sleep 0.01
         i ++
     }until i  > timeout ;
-    die "not started in a second" if i  > timeout
+    die "not started in a second" when i  > timeout
     if "main" in threads(){
         thread "main"
         println "Thread main is automatically selected"
@@ -57,7 +57,7 @@ fn wait(){
         sleep 0.01 ;
         i ++;
     }until i  > debugger_global_timeout ;
-    die "not paused in a second" if i  > debugger_global_timeout
+    die "not paused in a second" when i  > debugger_global_timeout
 }
 
 help +="command                        display the command currently being executed\n"

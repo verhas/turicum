@@ -48,7 +48,7 @@ import java.util.List;
  * class A {}
  * class B : A {}
  * let K = class : B {}
- * die "all parents is wrong" if all_parents(K) != [B, A]
+ * die "all parents is wrong" when all_parents(K) != [B, A]
  * }</pre>
  */
 public class AllParents implements TuriFunction {

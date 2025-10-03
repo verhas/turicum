@@ -14,7 +14,7 @@ import ch.turic.commands.ClosureLike;
  * <pre>{@code
  * let m = macro({|a,b| if evaluate(a) : evaluate(b) else: none})
  * // will not throw an exception because 1 / 0 is not evaluated
- * die "" if m( false ,  1 / 0)
+ * die "" when m( false ,  1 / 0)
  * }</pre>
  *
  */

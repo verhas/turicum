@@ -29,10 +29,10 @@ import ch.turic.commands.ClosureLike;
  *
  * <pre>{@code
  * fn x(a,b,c){}
- * die $"x arity is not three" if arity(x) != 3
+ * die $"x arity is not three" when arity(x) != 3
  * // map, rest, and closure parameters do not count in arity
  * fn y(!a,{map}){}
- * die $"y arity is not one" if arity(y) != 1
+ * die $"y arity is not one" when arity(y) != 1
  * }</pre>
  */
 public class Arity implements TuriFunction {

@@ -13,8 +13,8 @@ import java.util.Collection;
  * <p>
  * For any Java collection, it will also return the size.
  * <pre>{@code
- * die "" if len([1,2,3]) != 3
- * die "" if len("abraka") != 6
+ * die "" when len([1,2,3]) != 3
+ * die "" when len("abraka") != 6
  * }</pre>
  *
  */

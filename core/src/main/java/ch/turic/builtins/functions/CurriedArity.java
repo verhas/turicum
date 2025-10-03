@@ -12,8 +12,8 @@ import ch.turic.commands.ClosureLike;
  *<pre>{@code
  * fn x(a,b,c){}
  * let k = x.(13)
- * die "" if curried_arity(k) != 1
- * die "" if arity(k) != 3
+ * die "" when curried_arity(k) != 1
+ * die "" when arity(k) != 3
  * }</pre>
  *
  * In the above example {@code k} is a function created currying the first argument of the function {@code x}.

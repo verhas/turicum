@@ -2,8 +2,10 @@ package ch.turic.commands;
 
 import ch.turic.Command;
 import ch.turic.ExecutionException;
+import ch.turic.LngCallable;
 import ch.turic.analyzer.Lex;
 import ch.turic.analyzer.Pos;
+import ch.turic.commands.operators.Cast;
 import ch.turic.memory.*;
 import ch.turic.memory.debugger.BreakPoint;
 import ch.turic.memory.debugger.DebuggerCommand;
@@ -12,7 +14,10 @@ import ch.turic.utils.Unmarshaller;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Modifier;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import static ch.turic.memory.debugger.DebuggerContext.State.PAUSED;
 
@@ -95,7 +100,7 @@ public abstract class AbstractCommand implements Command, HasFields {
             case Long s -> s;
             case Double s -> s;
             case Boolean s -> s;
-            case Map<?, ?> m -> castMap(context, (Map<?, ?>) m);
+            case Map<?, ?> m -> castMap(context, m);
             default -> _toLngObject(command, context);
         };
     }
@@ -262,7 +267,7 @@ public abstract class AbstractCommand implements Command, HasFields {
 
     /**
      * Retrieves the value of a specified field by its name.
-     * Special handling is provided for array fields which are converted into a list.
+     * Special handling is provided for array fields, which are converted into a list.
      * If the field name is "java$canonicalName", the canonical name of the class is returned.
      * Throws an {@link ExecutionException} if the field does not exist or cannot be accessed.
      *
@@ -274,6 +279,7 @@ public abstract class AbstractCommand implements Command, HasFields {
     public Object getField(String name) throws ExecutionException {
         return switch (name) {
             case "java$canonicalName" -> this.getClass().getCanonicalName();
+            case "execute" -> (LngCallable.LngCallableClosure) (ctx, args) -> this.execute((LocalContext) ctx);
             default -> {
                 try {
                     final var f = this.getClass().getDeclaredField(name);
@@ -293,7 +299,7 @@ public abstract class AbstractCommand implements Command, HasFields {
                     }
 
                 } catch (NoSuchFieldException | IllegalAccessException e) {
-                    throw new ExecutionException("There is no such field: " + name);
+                    yield null;
                 }
             }
         };
@@ -320,6 +326,21 @@ public abstract class AbstractCommand implements Command, HasFields {
             }
         }
         return fieldSet;
+    }
+
+    protected static Command getIndexedCommand(final Command[] commands, final Object index) {
+        if (Cast.isLong(index)) {
+            int i = Cast.toLong(index).intValue();
+            if (i < 0) {
+                throw new ExecutionException("Index to fetch a command from a program object must be non-negative.");
+            }
+            if (i >= commands.length) {
+                throw new ExecutionException("Index to fetch a command from a program object must be less than the number of commands.");
+            }
+            return commands[i];
+        } else {
+            throw new ExecutionException("Index to fetch a command from a program object must be a numerical and integer value.");
+        }
     }
 
 }

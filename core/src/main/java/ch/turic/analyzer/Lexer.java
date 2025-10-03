@@ -17,7 +17,7 @@ public class Lexer {
     final static private ArrayList<String> _OPERANDS = new ArrayList<>(Arrays.asList(
             // snippet OPERANDS
             "---", "+++", "--", "++", "->", "<-", "(", ")", ",", ".(", ".", "?.",
-            "&{", "{", "}", "[", "]", ";", ":", "|", "?", "@", "^", "##", "#", "**"
+            "&{", "{", "}", "[", "]", ";", ":", "|", "?", "@", "^", "##", "#", "**", "'"
             // end snippet
     ));
     final static public String[] ASSIGNMENT_OPERATORS = {
@@ -138,7 +138,7 @@ public class Lexer {
         if (in.startsWith("#!")) {
             final var p = in.position.clone();
             final var sheBangLine = new StringBuilder();
-            while (in.startsWith("\n")) {
+            while (!in.isEmpty() && !in.startsWith("\n")) {
                 in.move(1, sheBangLine);
             }
             if (collectAll) {

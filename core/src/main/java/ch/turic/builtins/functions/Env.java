@@ -16,7 +16,7 @@ import ch.turic.utils.StringUtils;
  *
  * <pre>{@code
  * // TUricum is implemented in Java, so this env variable is probably defined
- * die "" if env("JAVA_HOME") == none
+ * die "" when env("JAVA_HOME") == none
  * }</pre>
  */
 public class Env implements TuriFunction {

@@ -1,4 +1,46 @@
-
+// snippet pack_1
+fn a {
+    let h = 10
+    let i = 20
+    let j = 30
+    let k = 40
+    let l = 50
+    let m = 60
+    let n = 70
+    let o = 80
+    let p = 90
+    let q = 100
+    let r = pack()
+    let s = 110
+    return r
+}
+let h = a()
+println $" $(h.h) $(h.i) $(h.j) $(h.k) $(h.l) $(h.m) $(h.n) $(h.o) $(h.p) $(h.q) $(h.s)"
+// end snippet
+// snippet pack_2
+fn a {
+    mut h = 10
+    return [pack(),pack()]
+}
+let [x,y] = a()
+println $"x.h = $(x.h)"
+println $"y.h = $(y.h)"
+x.h = 100
+println "AFTER x.h = 100"
+println $"x.h = $(x.h)"
+println $"y.h = $(y.h)"
+println $"are they the same? $(x === y)"
+// end snippet
+// snippet pack_3
+let b=55
+let a = {||
+    let h = 10
+    return pack()
+}
+let h = a()
+println $"$(h.h) $(h.b)"
+println keys(h)
+// end snippet
 // snippet uncurry1
 fn add(a,b)=a + b
 let add5 = add.(5)
@@ -16,7 +58,6 @@ println be10()
 let unc = uncurry(be10)
 println unc(6,6)
 // end snippet
-
 // snippet uncurry3
 fn add(a,b)=a + b
 let be10 = add.(5).(5)
@@ -754,7 +795,7 @@ try: pin [b]; catch e2: println e2
 let a = {}
 a.k = 55
 a["z"] = a["k"]
-die if a.z != 55
+die when a.z != 55
 println "it is ok"
 // end snippet
 
@@ -842,7 +883,7 @@ println {for each z in [1, 2, 3, 4, 5, 10, 11, 12] list {
 
 // snippet bad_continue
 try: let k = {for each z in [1,2,3] {
-    continue z/2 if z % 2 == 0;
+    continue z/2 when z % 2 == 0;
     continue z;
     }
 }catch e: println e
@@ -900,6 +941,21 @@ print "Hello,";
 println " World"
 for i=1 ; i < 3 ; i = i+1 : println(i)
 // end snippet
+
+// snippet if_expression_1
+print 5 + if 5 > 4 : 1 else 2
+// end snippet
+
+// snippet if_expression_2
+print 5 + 1 if 5 > 4 else 2
+// end snippet
+
+// snippet if_expression_3
+println 5 + 1 if 5 < 4 else 2
+println (5 + 1) if 5 < 4 else 2
+println 5 + (1 if 5 < 4 else 2)
+// end snippet
+
 
 // snippet if_value
 mut z : num = {if 232 % 2 == 0 : 1 else: 2 }
@@ -1063,7 +1119,7 @@ println("variable 'object' still can be changed: ", object)
 // end snippet
 
 // snippet ifCommand
-mut a= 13
+mut a= 13;
 if a%2 == 0: println("even") else: println("odd")
 a = {if a%2 == 0: "even" else: "odd"}
 print("again ",a)
@@ -1466,7 +1522,7 @@ mut fib = {
     {|x|
         if x == 1 || x == 0 : 1
         else{
-            return cache[x] if cache[x] != none;
+            return cache[x] when cache[x] != none;
             cache[x] = me(x - 1) + me(x - 2);
         }
     }
@@ -1482,7 +1538,7 @@ class FibCalculator {
     fn fib(x) {
         if x == 1 || x == 0 : start
         else{
-            return cache[x] if cache[x] != none;
+            return cache[x] when cache[x] != none;
             cache[x] = fib(x - 1) + fib(x - 2);
         }
     }
@@ -1883,14 +1939,14 @@ println q.receive()
 // println q.receive() // this would wait infinitely, there is nothing in the queue
 // or until some other thread puts something into the queue
 
-// try_receive() returns none if there is nothing in the queue
+// try_receive() returns none when there is nothing in the queue
 println q.try_receive()," return none, there is nothing in the queue"
 
-// it also returns none if there is a none in the queue
+// it also returns none when there is a none in the queue
 q.send(none)
 println q.receive(), " was received... how do we know?"
 // we send again a none
-q.send(none)
+q.send(none);
 // check that there is something in the queue
 if q.has_next() : print "has_next() is true: it has value and it is "
 // we can be sure the 'none' was coming as a message from the queue
@@ -1905,7 +1961,7 @@ fn printer(q,@name){
     mut n = 0 // counts the number of not-ready que attempts
     while {
         mut s = q.try_receive(); // try to receive one or get none if there is nothing in the queue
-        return { println "%s is done" % name } if q.is_closed(); // return when the que is closed
+        return { println "%s is done" % name } when q.is_closed(); // return when the que is closed
         if s == none {
             println "%s is not ready %s" % [name,n]
             n++ // count the attempts
@@ -1963,7 +2019,7 @@ fn printer(){
     mut n = 0
     while {
         mut s = try_yield();
-        return { println "we are done" } if yield_is_closed();
+        return { println "we are done" } when yield_is_closed();
         if s == none {
             println "not ready %s" % n
             n++
@@ -2012,10 +2068,10 @@ println(await t)
   * a very simple prime number filter
   */
 fn is_prime(x:num):bool {
-    return true if x == 2;
-    return false if x % 2 == 0;
+    return true when x == 2;
+    return false when x % 2 == 0;
     for n = 3 ; n*n <= x ; n = n + 2 :
-        return false if x % n == 0
+        return false when x % n == 0
     true
 }
 /**
@@ -2100,7 +2156,7 @@ println b
 
 // snippet flat_let_list5
 fn adjust(_x, @to){
-    mut x = _x
+    mut x = _x;
     if len(x) < to :
         while len(x) < to :
             x = [..x, none]
@@ -2117,7 +2173,7 @@ println d
 
 // snippet flat_let_list6
 fn adjust(@to,[_x]){
-    mut x = _x
+    mut x = _x;
     if len(x) < to :
         while len(x) < to :
             x = [..x, none]
@@ -2205,7 +2261,7 @@ m = rx.match(s);
 if m.group == none :
     println "does not match because of xxx and yyy"
 println m, " is an empty object"
-m = rx.find(s)
+m = rx.find(s);
 if m.group != none :
     println "matches because we find and not match"
 print_match(m);
@@ -2374,24 +2430,24 @@ catch e: println e; // we should see in the error
 // end snippet
 
 // snippet fun7
-fn concat(a:str, b:str):str = a + b
-println concat("ab","ba")
+fn concatenate(a:str, b:str):str = a + b
+println concatenate("ab","ba")
 // end snippet
 
 // snippet fun8
-fn concat(a:str, b:str):str = 13
+fn concatenate(a:str, b:str):str = 13
 try:
-    println concat("ab","ba")
+    println concatenate("ab","ba")
 catch err: println err
 // end snippet
 
 
 // snippet fun9
 mut myString="num"
-fn concat(a:str, b:str):(myString) = 13
+fn concatenate(a:str, b:str):(myString) = 13
 myString = "str"
 try:
-    println concat("ab","ba")
+    println concatenate("ab","ba")
 catch err: println err
 // end snippet
 
@@ -2488,7 +2544,7 @@ println "y == z is %s" % (y == z)
 // snippet myEqual2
 class A {
   fn `==`(other) : bool {
-    return false if cls != other.cls
+    return false when cls != other.cls
     a == other.a
   }
 }
@@ -2605,7 +2661,7 @@ println([1,2,3] >> [-1,-2,-3])
 // end snippet
 
 // snippet power
-die "** failed" if 2 * 3 ** 3 != 2* (3 ** 3)
+die "** failed" when 2 * 3 ** 3 != 2* (3 ** 3)
 // end snippet
 
 // snippet equal1
@@ -3234,6 +3290,32 @@ println as_object(z)
 println nano_time()
 // end snippet
 
+// snippet concat
+mut dwarf_printer = thunk({println "bashful"})
+dwarf_printer += thunk({println "sleepy"})
+dwarf_printer += thunk({println "dopey"})
+dwarf_printer += thunk({println "grumpy"})
+unthunk(dwarf_printer)
+// end snippet
+
+// snippet compile1
+mut z = "println 1+1".compile()
+z.execute()
+// end snippet
+
+// snippet compile2
+// the program contains one command, which is a block
+mut z = "{let x = 1}".compile()[0] // get the block
+z.execute()
+print is_defined(x)
+// end snippet
+
+// snippet compile3
+mut z = "{let x = 1}".compile()[0]
+unwrap(z).execute()
+print is_defined(x)," and it is ", x
+// end snippet
+
 // snippet block_list
 mut commands = block_list(thunk({k = 13; suss = "huss"; mut x = 3; println "hello"}))
 println "before execution"
@@ -3241,9 +3323,12 @@ mut i = 1;
 for each command in commands {
     mut suss;
     println "%s. before is_defined(x) = %s" % [i,is_defined(x)]
-    if i == 1 {
+    if i == 1 {// k is not defined, no assignable
         try: unthunk(command) catch e: println "ERROR: %s" % [e];
     } else {
+        // 2 can assign value to 'suss'
+        // 3 can define 'x'
+        // 4 prints 'hello'
         unthunk(command)
         println "%s. after is_defined(x) = %s" % [i,is_defined(x)]
     }
@@ -3295,7 +3380,7 @@ println{ while k < 5 list{
 println {
     for i=0 ; i < 10 ; i++ {
       println ".. ",i;
-      break if i == 2
+      break when i == 2
     }
 }
 // end snippet
@@ -3304,7 +3389,7 @@ println {
 println {
     for i=0 ; i < 10 ; i++ {
       println ".. ",i;
-      break -2 if i == 2
+      break -2 when i == 2
     }
 }
 // end snippet
@@ -3312,7 +3397,7 @@ println {
 // snippet break3
 println {
     for i=0 ; i < 10 ; i++ list{
-      break if i == 2
+      break when i == 2
       i;
     }
 }
@@ -3321,7 +3406,7 @@ println {
 // snippet break4
 println {
     for i=0 ; i < 10 ; i++ list{
-      break -2 if i == 2
+      break -2 when i == 2
       i;
     }
 }
@@ -3330,7 +3415,7 @@ println {
 // snippet break5
 println {
     for i=0 ; i < 10 ; i++ list{
-      break none if i == 2
+      break none when i == 2
       i;
     }
 }
@@ -3482,7 +3567,7 @@ println "z id=%X" % id_hash(z);
 // snippet break7
 println {
     for i=0 ; i < 4 ; i++ {
-      break (if i == 2 : 3 else : 4) if i == 2;
+      break if i == 2 : 3 else : 4 when i == 2;
       println i;
     }
 }
@@ -3512,7 +3597,7 @@ for each i in range(start=0, end=5) list{
 // snippet math_functions
 println "Testing math functions:"
 println "sin(1) = ", sin(1)
-println "cos(1) = ", cos(1) 
+println "cos(1) = ", cos(1)
 println "acos(0.5) = ", acos(0.5)
 println "asin(0.5) = ", asin(0.5)
 println "atan(1) = ", atan(1)

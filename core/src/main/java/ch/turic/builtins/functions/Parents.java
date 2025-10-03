@@ -16,7 +16,7 @@ import java.util.Arrays;
  * class A {}
  * class B : A {}
  * mut K = class : B {}
- * die "" if [ ..parents(K) -> type(it()) ] != ["B"]
+ * die "" when [ ..parents(K) -> type(it()) ] != ["B"]
  * }</pre>
  */
 public class Parents implements TuriFunction {

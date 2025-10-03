@@ -10,13 +10,13 @@ public class BrReYiAnalyzer {
 
     static Command analyze(LexList lexes, BiFunction<Command, Command, Command> breyiCommandFunction) throws BadSyntax {
         final Command expression;
-        if (lexes.is(Keywords.IF, Keywords.WHEN, ";" , "}")) {
+        if (lexes.is(Keywords.WHEN, ";" , "}")) {
             expression = null;
         } else {
             expression = ExpressionAnalyzer.INSTANCE.analyze(lexes);
         }
         final Command condition;
-        if (lexes.is(Keywords.IF, Keywords.WHEN)) {
+        if (lexes.is(Keywords.WHEN)) {
             lexes.next();
             condition = ExpressionAnalyzer.INSTANCE.analyze(lexes);
         } else {

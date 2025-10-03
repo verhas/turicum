@@ -1,45 +1,45 @@
 -- TEST multi_let1
 // a simple test that assigns values to listed variables
 let [a,b,c] = [1,2,3]
-die if a != 1
-die if b != 2
-die if c != 3
+die when a != 1
+die when b != 2
+die when c != 3
 try {
     a = 3
 }catch e: none;
-die "reassigned" if a == 3
+die "reassigned" when a == 3
 
 -- TEST multi_let2
 // a simple test that assigns values to field-named variables
 let {a,b,c} = { c: 3, "a":1, b:2}
-die if a != 1
-die if b != 2
-die if c != 3
+die when a != 1
+die when b != 2
+die when c != 3
 try {
     a = 3
 }catch e: none;
-die "reassigned" if a == 3
+die "reassigned" when a == 3
 
 -- TEST multi_let3
 // a simple test that assigns values to field-specified variables
 let {ac->a, bc->b, cc->c} = { cc: 3, "ac":1, bc:2}
-die if a != 1
-die if b != 2
-die if c != 3
+die when a != 1
+die when b != 2
+die when c != 3
 try {
     a = 3
 }catch e: none
-die "reassigned" if a == 3
+die "reassigned" when a == 3
 
 -- TEST multi_let4
 // assign value to left value
 let a = {}
 mut { ac->a.a, bc->b, cc->c } = { cc: 3, "ac":1, bc:2}
-die if a.a != 1
-die if b != 2
-die if c != 3
+die when a.a != 1
+die when b != 2
+die when c != 3
 a.a = 3
-die "reassigned" if a.a != 3
+die "reassigned" when a.a != 3
 
 -- TEST multi_let5
 mut a = 7
@@ -48,25 +48,25 @@ try {
     let {ac->a, bc->b, cc->c} = {cc: 3, "ac":1, bc: 2 }
     SENTINEL = 1
 }catch e: none
-die if SENTINEL == none
+die when SENTINEL == none
 
 -- TEST multi_let6
 mut {cc->a, ac -> {b,c}} = {cc: 3, "ac": {b:1, c: 2 }}
-die if a != 3
-die if b != 1
-die if c != 2
+die when a != 3
+die when b != 1
+die when c != 2
 
 -- TEST multi_let7
 mut {cc->a, ac -> { h -> [b,c]}} = {cc: 3, "ac": {h: [1, 2] }}
-die if a != 3
-die if b != 1
-die if c != 2
+die when a != 3
+die when b != 1
+die when c != 2
 
 -- TEST multi_let8
 mut {cc->a, ac -> [ [b,c]]} = {cc: 3, "ac": [ [1, 2]] }
-die if a != 3
-die if b != 1
-die if c != 2
+die when a != 3
+die when b != 1
+die when c != 2
 
 -- TEST curry_chained_macro
     fn a(a,y,c){
@@ -78,7 +78,7 @@ die if c != 2
 
     let c = a##b;
 
-    die if 12 != macro(c.(1,2))(3)
+    die when 12 != macro(c.(1,2))(3)
 
 -- TEST curry_chained_closure
     fn a(a,b,c){
@@ -90,7 +90,7 @@ die if c != 2
 
     let c = a##b;
 
-    die if c.(1,2)(3) != 12
+    die when c.(1,2)(3) != 12
 
 -- TEST curry_macro_method
     class A {
@@ -103,7 +103,7 @@ die if c != 2
     let a = A(1)
 
     let b = macro(a.a.(1,1))
-    die if b(1) != 4
+    die when b(1) != 4
 
 -- TEST curry_macro
 let a = macro(fn (x,y,z){
@@ -112,7 +112,7 @@ let a = macro(fn (x,y,z){
 
 let b = a.(1)
 
-die "not 3" if b(1,1) != 3
+die "not 3" when b(1,1) != 3
 
 -- TEST curry_function
 fn a(x,y,z){
@@ -121,7 +121,7 @@ fn a(x,y,z){
 
 let b = a.(1)
 
-die "not 3" if b(1,1) != 3
+die "not 3" when b(1,1) != 3
 
 -- TEST curry_curry_curry
 fn a(x,y,z){
@@ -129,7 +129,7 @@ fn a(x,y,z){
 }
 
 let b = a.(1).(1).(1)()
-die "not 3" if b != 3
+die "not 3" when b != 3
 
 
 -- TEST curry_method1
@@ -146,8 +146,8 @@ let a2 = A(2)
 let b1 = a1.a.()
 let b2 = a2.a.()
 
-die if b1(1,1,1) != 4
-die if b2(1,1,1) != 5
+die when b1(1,1,1) != 4
+die when b2(1,1,1) != 5
 
 -- TEST curry_method2
 class A {
@@ -163,8 +163,8 @@ let a2 = A(2)
 let b1 = a1.a.()
 let b2 = a2.a.()
 
-die if b1(1,1,1) != 4
-die if b2(1,1,1) != 5
+die when b1(1,1,1) != 4
+die when b2(1,1,1) != 5
 
 -- TEST signature1
 fn f (a:num=53,[reliquum],{nominati},^clausura):any {
@@ -172,18 +172,18 @@ fn f (a:num=53,[reliquum],{nominati},^clausura):any {
 }
 
 let s = signature(f)
-die "wrong name" if s.name != "f"
-die "number of return types is not one" if len(s.return_type) != 1
-die "wrong return type" if s.return_type[0] != "any"
-die "wrong rest name" if s.rest != "reliquum"
-die "wrong meta name" if s.meta != "nominati"
-die "wrong closure name" if s.closure != "clausura"
-die "number of parameters is not one" if len(s.parameters) != 1
-die "wrong parameter name" if s.parameters[0].identifier != "a"
-die "wring default value type" if str(type(s.parameters[0].default)) != "java.ch.turic.commands.IntegerConstant"
-die "wrong default value" if str(s.parameters[0].default) != "53"
-die "not named" if ! s.parameters[0].named
-die "not positional" if ! s.parameters[0].positional
+die "wrong name" when s.name != "f"
+die "number of return types is not one" when len(s.return_type) != 1
+die "wrong return type" when s.return_type[0] != "any"
+die "wrong rest name" when s.rest != "reliquum"
+die "wrong meta name" when s.meta != "nominati"
+die "wrong closure name" when s.closure != "clausura"
+die "number of parameters is not one" when len(s.parameters) != 1
+die "wrong parameter name" when s.parameters[0].identifier != "a"
+die "wring default value type" when str(type(s.parameters[0].default)) != "java.ch.turic.commands.IntegerConstant"
+die "wrong default value" when str(s.parameters[0].default) != "53"
+die "not named" when ! s.parameters[0].named
+die "not positional" when ! s.parameters[0].positional
 
 
 
@@ -195,27 +195,27 @@ fn g(x):num{
     return x+1
 }
 let z =  (f ## g)(1,1,c=1)
-die if z != 4
+die when z != 4
 
 -- TEST none_or_Object
 let splt = str({none or "a,b,c"}.split(","))
-die $"none or object resulted what? ${splt}" if splt != "[a, b, c]"
+die $"none or object resulted what? ${splt}" when splt != "[a, b, c]"
 
 -- TEST for_loop_return
 
 fn less_than_3(x:num):bool {
     for i = 0 ; i < 3 ; i++ {
-        return false if i == x
+        return false when i == x
     }
     // no need for explicit 'return'
     true
 }
 
 for each i in [1..3] :
-    die $"for loop failure ${i}" if less_than_3(i)
+    die $"for loop failure ${i}" when less_than_3(i)
 
 for each i in [3..11] :
-    die $"for loop failure ${i}" if !less_than_3(i)
+    die $"for loop failure ${i}" when !less_than_3(i)
 
 -- TEST expression
 // expressions can contain commands between ( and )
@@ -227,9 +227,9 @@ if true : (mut k = 1; mut p = 3;) else: (mut k=2 ; mut p = 7;)
 //      if true : {mut k = 1; mut p = 3;} else: {mut k=2 ; mut p = 7;}
 // would defined them in a local context and then the value is not available anymore
 
-die if !is_defined(k) || !is_defined(p)
-die if k != 1
-die if p != 3
+die when !is_defined(k) || !is_defined(p)
+die when k != 1
+die when p != 3
 
 -- TEST parents
 // Tests how classes and parents are defined
@@ -239,9 +239,9 @@ class Child : Father {}
 mut Onkel = class {}
 class UrKind : Grandfather ,Child, Onkel {}
 
-die "wrong parents list" if ""+parents(UrKind) != "[class Grandfather, class Child, class #undefined]"
+die "wrong parents list" when ""+parents(UrKind) != "[class Grandfather, class Child, class #undefined]"
 
-die "wrong all parents list %s != %s" % [all_parents(UrKind),none] if ""+all_parents(UrKind) != "[class Grandfather, class Child, class Father, class #undefined]"
+die "wrong all parents list %s != %s" % [all_parents(UrKind),none] when ""+all_parents(UrKind) != "[class Grandfather, class Child, class Father, class #undefined]"
 
 -- TEST java_call
 
@@ -249,11 +249,11 @@ die "wrong all parents list %s != %s" % [all_parents(UrKind),none] if ""+all_par
 // this way you can call static methods
 fn sqrtt(x:float) = java_call("java.lang.Math","sqrt", x);
 let k = ""+sqrtt(3.0)
-die k if !k.starts_with("1.73205080756")
+die k when !k.starts_with("1.73205080756")
 
 // now let's use it to create a time unit: nano seconds
 let java_unit = java_call("java.time.temporal.ChronoUnit","valueOf", "NANOS")
-die if type(java_unit) != "java.java.time.temporal.ChronoUnit"
+die when type(java_unit) != "java.java.time.temporal.ChronoUnit"
 // we can use that object, and create a 63ms duration
 let duration = java_call("java.time.Duration","of",63_000_000,java_unit);
 
@@ -262,10 +262,10 @@ let duration = java_call("java.time.Duration","of",63_000_000,java_unit);
 let fraction = java_call(duration,"dividedBy",10);
 // you cannot call methods on a string that way... sorry.. but you have more than ample string methods in Turicum instead
 
-die ""+fraction if ""+fraction != "PT0.0063S"
+die ""+fraction when ""+fraction != "PT0.0063S"
 
 let f = java_call("java.lang.String","format", "an unlucky number is %s", 13)
-die if f != "an unlucky number is 13"
+die when f != "an unlucky number is 13"
 
 
 -- TEST try1
@@ -291,10 +291,10 @@ try:
         [b,c,D]
     }
 catch:;
-die "b" if is_defined(b)
-die "c" if is_defined(c)
-die "d" if is_defined(d)
-die "D" if is_defined(D)
+die "b" when is_defined(b)
+die "c" when is_defined(c)
+die "d" when is_defined(d)
+die "D" when is_defined(D)
 
 try:
     mut [b,c,d] = {
@@ -304,11 +304,11 @@ try:
         [b,c,D]
     }
 catch:;
-die "!b" if ! is_defined(b)
-die "!c" if ! is_defined(c)
-die "!d" if ! is_defined(d)
+die "!b" when ! is_defined(b)
+die "!c" when ! is_defined(c)
+die "!d" when ! is_defined(d)
 // D is still not defined
-die "D" if is_defined(D)
+die "D" when is_defined(D)
 
 -- TEST EmptyBlockIsObject
 
@@ -959,7 +959,7 @@ y.`print`("segithet huhu")
 for i=0 ; i < 10 ; i = i + 1 {
     try{
         i = i + 1;
-        die "modifying loop variable did not throw up"
+        die "modwhenying loop variable did not throw up"
     } catch {
         none
     }
@@ -1411,5 +1411,5 @@ mut t:fn = {
 class K {fn p(){global MSG; MSG += "overwritten K - " }}
 h().p()
 t().p()
-die "bad typeRdefinition" if MSG != "overwritten K - original K"
+die "bad typeRdefinition" when MSG != "overwritten K - original K"
 none

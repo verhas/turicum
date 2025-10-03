@@ -62,7 +62,7 @@ public abstract class FunctionCallOrCurry extends AbstractCommand {
     /**
      * Extracts the values from an array of evaluated arguments. Converts the evaluated arguments to an object array
      * that contains only the values and not the argument names.
-     *
+     * <p>
      * Evaluated arguments contain optional names when arguments are passed by name. This method strips these names off
      * to call methods of types that do not feature named arguments.
      *
@@ -290,7 +290,7 @@ public abstract class FunctionCallOrCurry extends AbstractCommand {
      * Get the method from the object. If it is a JavaObject, but the contained object has a TuriClass implementing
      * functionality, then get that functionality instead.
      *
-     * @param context    the context to get access to the interpreter and through that to the registered TuriClasses
+     * @param context    the context to get access to the interpreter and, through that, to the registered TuriClasses
      * @param obj        the object for which we are searching the method
      * @param identifier the name of the method
      * @return the method object that can be a closure

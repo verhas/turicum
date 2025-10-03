@@ -31,7 +31,7 @@ public class TestJavaFields {
         final String input = """
                 let miserably = none
                 let k = java_object("ch.turic.TestJavaFields")
-                die miserably if k.testField2 != 2
+                die miserably when k.testField2 != 2
                 k.testField2 = 3
                 k
                 """;

@@ -12,9 +12,9 @@ import ch.turic.memory.LngObject;
  * let a = 13
  * let b = "string"
  * let k = { a: a , b: b}
- * die "" if is_obj(a)
- * die "" if is_obj(b)
- * die "" if !is_obj(k)
+ * die "" when is_obj(a)
+ * die "" when is_obj(b)
+ * die "" when !is_obj(k)
  *
  * }</pre>
  *

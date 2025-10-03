@@ -2,6 +2,7 @@ package ch.turic.analyzer;
 
 import ch.turic.BadSyntax;
 import ch.turic.Command;
+import ch.turic.commands.If;
 import ch.turic.commands.Operation;
 
 import java.util.Arrays;
@@ -34,7 +35,8 @@ public class BinaryExpressionAnalyzer extends AbstractAnalyzer {
             {"<<", ">>", ">>>"},
             {"+", "-"},
             {"*", "/", "%"},
-            {"**", "##"}
+            {"**", "##"},
+            {"'"}
             // end snippet
     };
     static final BinaryExpressionAnalyzer INSTANCE = new BinaryExpressionAnalyzer(binaryOperators);
@@ -62,10 +64,29 @@ public class BinaryExpressionAnalyzer extends AbstractAnalyzer {
         }
 
         var left = analyze(precedenceLevel + 1, lexes);
-        while (lexes.is(binops[precedenceLevel])) {
-            final var op = lexes.next().text();
-            final var right = analyze(precedenceLevel + 1, lexes);
-            left = new Operation(op, left, right);
+        while (lexes.is(binops[precedenceLevel]) || lexes.is(Keywords.IF)) {
+            if (lexes.is(Keywords.IF)) {
+                final int startIndex = lexes.getIndex();
+                final var kw = lexes.next();
+                final var condition = ExpressionAnalyzer.INSTANCE.analyze(lexes);
+                final Command elseExpression;
+                if (lexes.is(Keywords.ELSE)) {
+                    lexes.next();
+                    elseExpression = ExpressionAnalyzer.INSTANCE.analyze(lexes);
+                } else {
+                    if (lexes.is(":", "{") && kw.atLineStart()) {
+                        // this was just a sloppy missing ';' at the end of the previous line
+                        lexes.setIndex(startIndex);
+                        return left;
+                    }
+                    throw lexes.syntaxError("Expected 'else' after 'if' in expression");
+                }
+                left = new If(condition, left, elseExpression);
+            } else {
+                final var op = lexes.next().text();
+                final var right = analyze(precedenceLevel + 1, lexes);
+                left = new Operation(op, left, right);
+            }
         }
         return left;
     }

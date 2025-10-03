@@ -2,16 +2,16 @@ fn basic(lexes){
     mut turi_code = {
         for each lex in lexes list {
             if lex.atLineStart {
-                continue "\nmut" if lex.text == "LET";
-                continue "\nwhile" if lex.text == "WHILE";
-                continue "\n}" if lex.text == "WEND";
-                continue "\nif" if lex.text == "IF";
-                continue "\n}" if lex.text == "ENDIF";
-                continue "\nprintln" if lex.text == "PRINT";
+                continue "\nmut" when lex.text == "LET";
+                continue "\nwhile" when lex.text == "WHILE";
+                continue "\n}" when lex.text == "WEND";
+                continue "\nif" when lex.text == "IF";
+                continue "\n}" when lex.text == "ENDIF";
+                continue "\nprintln" when lex.text == "PRINT";
             }
-            continue "{\n" if lex.text == "DO";
-            continue "} else {\n" if lex.text == "ELSE";
-            continue "{\n" if lex.text == "THEN";
+            continue "{\n" when lex.text == "DO";
+            continue "} else {\n" when lex.text == "ELSE";
+            continue "{\n" when lex.text == "THEN";
             
             lex;
         }

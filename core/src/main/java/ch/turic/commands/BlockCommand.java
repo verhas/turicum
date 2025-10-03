@@ -3,10 +3,11 @@ package ch.turic.commands;
 
 import ch.turic.Command;
 import ch.turic.ExecutionException;
+import ch.turic.memory.HasCommands;
 import ch.turic.memory.LocalContext;
 import ch.turic.utils.Unmarshaller;
 
-public class BlockCommand extends AbstractCommand {
+public class BlockCommand extends AbstractCommand implements HasCommands {
     public static final BlockCommand EMPTY_BLOCK = new BlockCommand(new Command[0], true);
     final Command[] commands;
 
@@ -15,6 +16,7 @@ public class BlockCommand extends AbstractCommand {
      *
      * @return array of commands to be executed
      */
+    @Override
     public Command[] commands() {
         return commands;
     }
@@ -67,8 +69,8 @@ public class BlockCommand extends AbstractCommand {
      * Same as execute, but it returns a record that also tells if the block executed a 'break' command.
      * It is used in the main implementation of the block command above.
      *
-     * @param context the contex to execute the commands in
-     * @return the Loop result including the break flag and the result
+     * @param context the context to execute the commands in
+     * @return the Loop result, including the break flag and the result
      */
     private Conditional loop(final LocalContext context) {
         Object result = null;
@@ -85,5 +87,11 @@ public class BlockCommand extends AbstractCommand {
         }
         return Conditional.result(result);
     }
+
+    @Override
+    public Command getIndex(Object index) {
+        return getIndexedCommand(commands,index);
+    }
+
 }
 

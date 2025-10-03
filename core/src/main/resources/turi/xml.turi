@@ -12,7 +12,7 @@ fn to_xml(object, @top, @plurals= {}) : str {
         plurals[s] or if len(s) >= 3 && s[len(s)-3..inf] == "ies" : s[0..-3] + "y" else: s[0..-1];
     }
     
-    return  $"<${top}>${object}</${top}>" if !is_obj(object);
+    return  $"<${top}>${object}</${top}>" when !is_obj(object);
     
     mut XML = $"<${top}";
     for each tag in keys(object){
@@ -31,11 +31,11 @@ fn to_xml(object, @top, @plurals= {}) : str {
                         XML += me(item,top=singular or top,plurals=plurals);
                     }
                     XML += $"</${tag}>";
-                } if type(object[tag]) == "lst";
+                } when type(object[tag]) == "lst";
                 
-                break { XML += me(object[tag], top=tag, plurals=plurals) } if is_obj(object[tag]);
+                break { XML += me(object[tag], top=tag, plurals=plurals) } when is_obj(object[tag]);
                 
-                break { XML += $"<${tag}/>" } if len(""+object[tag]) == 0;
+                break { XML += $"<${tag}/>" } when len(""+object[tag]) == 0;
                 
                 XML += $"<${tag}>${object[tag]}</${tag}>";
             }

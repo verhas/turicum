@@ -27,13 +27,13 @@ import java.util.ArrayList;
  * let h:D = D()
  *
  * // 'h' is directly type 'D'
- * die "" if !is_type(h,D)
+ * die "" when !is_type(h,D)
  * // 'A' is inherited, so 'h' is an instance of 'A'
- * die "" if !is_type(h,A)
+ * die "" when !is_type(h,A)
  * // 'C' is also extended so again it is true
- * die "" if !is_type(h,C)
+ * die "" when !is_type(h,C)
  * // 'B' has nothinf to do with the type, 'is_type" here returns false
- * die "" if is_type(h,B)
+ * die "" when is_type(h,B)
  *
  * }</pre>
  *

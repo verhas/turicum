@@ -15,8 +15,8 @@ import ch.turic.commands.ClosureLike;
  * <pre>{@code
  * fn x(a,b){}
  * let k = x.()
- * die "" if ! is_curried(k) || curried_arity(k) != 0
- * die "" if is_curried(x) || curried_arity(x) != 0
+ * die "" when ! is_curried(k) || curried_arity(k) != 0
+ * die "" when is_curried(x) || curried_arity(x) != 0
  * }</pre>
  *
  * {@code k} is a curried function even though zero arguments are curried. You cannot simply rely on the number

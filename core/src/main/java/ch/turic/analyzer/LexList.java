@@ -37,7 +37,7 @@ public class LexList extends LngList {
         index = 0;
     }
 
-    private Lex lexAt(int index) {
+    Lex lexAt(int index) {
         return (Lex) array.get(index);
     }
 

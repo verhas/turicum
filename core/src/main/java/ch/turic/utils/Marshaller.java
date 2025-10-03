@@ -39,7 +39,7 @@ public class Marshaller {
     public static final short NULL_SIGN = 0;
 
     /**
-     * Magic number used to identify serialized data format.
+     * Magic number used to identify the serialized data format.
      */
     public static final int MAGIC = 0xCADAFABE;
 

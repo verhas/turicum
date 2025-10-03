@@ -15,7 +15,7 @@ import java.util.List;
  * This function operates under the name "{@code block_list}" within the Turi environment and handles
  * one argument which is expected to be a BlockCommand instance. The individual commands from
  * the BlockCommand are added to a newly created LngList.
- *
+ * <p>
  * You cannot just write a block as an argument to this function, because that would mean the execution and then
  * the result of the block execution. The expression passed as argument has to be the block itself.
  * This can be achieved using, for example, the {@code thunk} macro (See {@link ch.turic.builtins.macros.Thunk}).
@@ -50,7 +50,7 @@ import java.util.List;
  *     }
  *     i++
  * }
- * die "" if OUTPUT != """before execution
+ * die "" when OUTPUT != """before execution
  * 1. before is_defined(x) = false
  * ERROR: Variable 'k' is undefined.
  * 2. before is_defined(x) = false

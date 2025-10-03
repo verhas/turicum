@@ -401,7 +401,7 @@ public class FunUtils {
                 break;
             }
         }
-        final int maxArgs = types[types.length - 1] == Object[].class ? Integer.MAX_VALUE : types.length;
+        final int maxArgs = types.length > 0 && types[types.length - 1] == Object[].class || types.length == 0 ? Integer.MAX_VALUE : types.length;
 
         if (args.length < minArgs || args.length > maxArgs) {
             if (minArgs == maxArgs) {

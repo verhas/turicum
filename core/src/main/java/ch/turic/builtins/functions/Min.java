@@ -10,11 +10,11 @@ import ch.turic.commands.operators.Compare;
  *
  * <pre>{@code
  * // return none if there are no arguments
- * die "" if min() != none
+ * die "" when min() != none
  * // return the smallest argument
- * die "" if min(1,2,3) != 1
+ * die "" when min(1,2,3) != 1
  * // it also works on lists
- * die "" if min([1,2,3]) != 1
+ * die "" when min([1,2,3]) != 1
  * class SORTED {
  *     fn init(value:num);
  *     fn `<`(b:SORTED):bool{
@@ -25,8 +25,8 @@ import ch.turic.commands.operators.Compare;
  *     }
  * }
  *
- * die "" if min( SORTED(1), SORTED(2), SORTED(3) ) != SORTED(1)
- * die "" if min( SORTED(1), SORTED(2), SORTED(3) ) === SORTED(1)
+ * die "" when min( SORTED(1), SORTED(2), SORTED(3) ) != SORTED(1)
+ * die "" when min( SORTED(1), SORTED(2), SORTED(3) ) === SORTED(1)
  * }</pre> */
 public class Min implements TuriFunction {
     @Override

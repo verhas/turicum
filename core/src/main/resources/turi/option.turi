@@ -1,6 +1,6 @@
 /**
  * A container object which may or may not contain a non-null value.
- * If a value is present, is_present() returns true. If no value is present, the object is considered empty.
+ * If a value is present, is_present() returns true. when no value is present, the object is considered empty.
  */
 class option {
     /**

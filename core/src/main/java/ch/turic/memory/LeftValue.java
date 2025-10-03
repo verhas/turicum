@@ -106,6 +106,7 @@ public interface LeftValue {
             case LngList arr -> arr;
             case Object[] arr -> new JavaArray(arr);
             case List<?> list -> new JavaArray(list.toArray(Object[]::new));
+            case HasIndex indexable -> indexable;
             default -> throw new ExecutionException("Unknown list types %s", existing);
         };
     }

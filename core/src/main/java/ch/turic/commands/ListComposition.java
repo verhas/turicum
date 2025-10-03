@@ -9,11 +9,14 @@ import ch.turic.utils.Unmarshaller;
 import java.util.Objects;
 import java.util.function.Function;
 
-public class ListComposition extends AbstractCommand {
+public class ListComposition extends AbstractCommand implements HasCommands{
     final Command[] array;
     final CompositionModifier[] modifiers;
 
     public Command[] array() {
+        return array;
+    }
+    public Command[] commands() {
         return array;
     }
 
@@ -26,6 +29,10 @@ public class ListComposition extends AbstractCommand {
     public ListComposition(Command[] array, CompositionModifier[] modifiers) {
         this.array = array;
         this.modifiers = modifiers;
+    }
+
+    public CompositionModifier[] modifiers() {
+        return modifiers;
     }
 
     @Override
@@ -135,4 +142,8 @@ public class ListComposition extends AbstractCommand {
         }
     }
 
+    @Override
+    public Command getIndex(Object index) {
+        return getIndexedCommand(array,index);
+    }
 }

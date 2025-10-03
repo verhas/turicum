@@ -2,7 +2,6 @@ package ch.turic.builtins.functions;
 
 import ch.turic.Context;
 import ch.turic.ExecutionException;
-import ch.turic.SnakeNamed;
 import ch.turic.SnakeNamed.Name;
 import ch.turic.TuriFunction;
 import ch.turic.memory.LngList;
@@ -21,13 +20,13 @@ import static ch.turic.builtins.functions.FunUtils.ArgumentsHolder.optional;
  *
  * // 'file_list' will contain all the files without recursion
  * let file_list = glob("*")
- * die "" if type(file_list) != "lst"
- * die "" if len(file_list) == 0
+ * die "" when type(file_list) != "lst"
+ * die "" when len(file_list) == 0
  *
  * // get all the files recursively
  * let all_files = glob("*",recursive=true)
  * // it has to be at least the same number of files, presumably more
- * die "" if len(file_list) > len(all_files)
+ * die "" when len(file_list) > len(all_files)
  * }</pre>
  */
 @Name("_glob")

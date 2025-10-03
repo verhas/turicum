@@ -2,14 +2,15 @@ package ch.turic.commands;
 
 import ch.turic.Command;
 import ch.turic.ExecutionException;
-import ch.turic.memory.LocalContext;
+import ch.turic.memory.HasCommands;
 import ch.turic.memory.LngObject;
+import ch.turic.memory.LocalContext;
 import ch.turic.utils.Unmarshaller;
 
 /**
  * Evaluate a Command
  */
-public class Print extends AbstractCommand {
+public class Print extends AbstractCommand implements HasCommands {
 
     // snipline PRINT_TARGET filter=.*"(.*?)"
     private static final String PRINT_TARGET = "print_target";
@@ -27,6 +28,12 @@ public class Print extends AbstractCommand {
     public Print(Command[] commands, boolean nl) {
         this.commands = commands;
         this.nl = nl;
+    }
+
+
+    @Override
+    public Command[] commands() {
+        return commands;
     }
 
     private static void out(String str, LocalContext ctx, Object outputHandle) {

@@ -6,6 +6,10 @@ import ch.turic.analyzer.AssignmentList;
 import ch.turic.memory.LocalContext;
 import ch.turic.utils.Unmarshaller;
 
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
 public class LetAssignment extends AbstractCommand {
     final AssignmentList.Assignment[] assignments;
     final boolean mut;
@@ -56,5 +60,10 @@ public class LetAssignment extends AbstractCommand {
             }
         }
         return value;
+    }
+
+    @Override
+    public String toString() {
+        return mut ? "mut " : "let " + Arrays.stream(assignments).map(Objects::toString).collect(Collectors.joining(", "));
     }
 }

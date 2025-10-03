@@ -251,7 +251,7 @@ The primary use of this feature is to override operators, such as `+`==`+`.
 Many languages allow operator overloading through specially named methods.
 For example, in Python, you can override the `+` operator by defining a method named `pass:[__plus__]`.
 Turicum does not require such special naming conventions.
-You can simply define a method with the name `pass:[`+`]`.
+You can define a method with the name `pass:[`+`]`.
 ====
 
 ==== Reserved Words
@@ -517,7 +517,7 @@ Recognized symbols are:
 
 {%#replace (regex) /
 {%#trimLines
-{%@snip OPERANDS%} %} /`(.*?)`/`$1` /->/pass:[->]/<-/pass:[<-]/%}
+{%@snip OPERANDS%} %} /`(.*?)`/`$1` /->/pass:[->]/<-/pass:[<-]/"/`/\+\+\+/pass:[+++]/(#+)/pass:[$1]/%}
 
 === Field Access
 
@@ -552,11 +552,11 @@ The automatic creation of the fields is transitive.
 
 {%S field_transitive_creation%}
 
-You do not need to create `b`,`c`,`d`, and `e` one by one.
-They will become automatically an `+{}+` classless object.
+You do not need to create `b`, `c`, d`, and `e` one by one.
+They will automatically become an `+{}+` classless object.
 
-Accessing a field on the right-hand side of an assignment, or in any expression is more restrictive.
-You can still access a field that is nonexistent, and the value will be `none`, but you cannot access a field on `none`.
+Accessing a field on the right-hand side of an assignment, or in any expression, is more restrictive.
+You can still access a nonexistent field, and the value will be `none`, but you cannot access a field on `none`.
 To overcome this, you can use the `or` operator as in the example, or use can use the `?.` field access.
 
 {%S field_none_access%}
@@ -578,8 +578,8 @@ Operators have precedence and are evaluated from left to right.
 You can use `(` and `)` to change the evaluation order.
 The operators are the following in order of growing precedence:
 
-* `or` results the left side expression if it is defined and the right side if the left side value is `none` (undefined).
-The operator does short-cut evaluation.
+* `or` results in the left side expression if it is defined, and the right side if the left side value is `none` (undefined).
+The operator does a shortcut evaluation.
 The right side is only evaluated if the left side is `none`.
 
 {%S oror%}
@@ -592,7 +592,7 @@ The right side is only evaluated if the left side is `none`.
 * `&&` logical AND operation, shortcut evaluated.
 {%EX%}
 
-{%S and%} Note, that you cannot divide by zero, the result is an error and not `inf`.
+{%S and%} Note that you cannot divide by zero, the result is an error and not `inf`.
 
 * `..` range operator. `start..end`` will result a range to index a list.
 The first index is `start`, the last is `end-1`.
@@ -608,7 +608,6 @@ The operator works the conventional ways on integers.
 The operator is also defined for lists.
 The result is the union of the two lists with the unique elements.
 That way you can also create a "set" from a list `|`-ing it with an empty list, as in the example below:
-+
 +
 The operator is further defined for objects.
 The result is a merged object that includes all fields from both operands.
@@ -659,8 +658,24 @@ It merges the characters/elements of the two operands:
 {%S shr1%}
 
 * `+`, `-` binary and unary plus and minus.
-
-Unary `+` does not check anything; it works on all objects and just returns the object itself.
++
+The unary `+` operator does not perform any checks; it operates on all objects and returns the object itself.
++
+** The binary `+` operator
++
+*** concatenates strings (second argument will be converted to string if not string already),
+*** concatenates unevaluated (quoted, as `'$"${a}" +'$"${a}"`) strings
+*** concatenates unevaluated (quoted, as `'$"${a}" +"a"`) strings with evaluated string
+*** concatenates quoted blocks and quotes list expressions,
+*** concatenates lists
+*** merges objects, and
+*** eventually, works on numerical values.
++
+** The binary `-` works
++
+*** on strings, removing all occurrences of the second argument from the first,
+*** on lists, removing the elements of the second argument from the first, and
+*** eventually, it also works on numerical values.
 
 * `pass:[*]`, `/`, `%` binary multiply, divide, and remainder operators.
 The `pass:[*]` and `%` are also used in the case of strings and lists.
@@ -728,11 +743,11 @@ You can track the different object instances using the hex output from the `id_h
 
 {%S incrementable2%}
 
-In this example the identity of the object remains the same, all the identity hex codes are the same.
+In this example, the identity of the object remains the same; all the identity hex codes are the same.
 There is only one object created.
 It also means that there is not much difference between pre-, and post-increment.
 
-The next two example implements the same functionality for the `--` operator.
+The next two examples implement the same functionality for the `--` operator.
 
 {%S decrementable1%}
 {%S decrementable2%}
@@ -741,27 +756,32 @@ See also the next section about operator overloading.
 
 === Operator Overloading
 
-Operators work for numerical types, string types as usually, and they can also work on any object that defines them.
+Operators work for numerical types, string types, as usual, and they can also work on any object that defines them.
 The name of the method implementing the operator should be the operator itself.
 There is not any name association, like in Python dunder plus.
 Instead, you can use it, for example, `pass:[`+`]` as an operator identifier.
 
 The operator methods must have one single positional argument, usually named `other`.
 The functionality should implement the operation and return the result of "`this` operation `other`".
-When an operation is used as prefix unary operator the value of other will be `none` and `this` will hold the value on the right of the operator.
+When an operation is used as a prefix unary operator, the value of the other will be `none`, and `this` will hold the value on the right of the operator.
 
-Only `+`, `-`, `~`, `!`, `..`, `?` can be used as unary operators.
+Only `+`, `-`, `~`, `!`, `..`, `?`, and `pass:[']` can be used as unary operators.
 
-As mentioned above `+`, `-`, and `..` are binary as well as unary operators.
+As mentioned above, `+`, `-`, and `..` are binary as well as unary operators.
 
-The unary operator `!` is logical negation.
-The unary operator `~` is bitwise negation.
-The unary operator `?` returns the original value without any modification or `none` if the calculation of the argument resulted in an error.
-The original value can also be `none`.
+* The unary operator `!` is logical negation.
+* The unary operator `~` is bitwise negation.
+* The unary operator `?` returns the original value without any modification or `none` if the calculation of the argument resulted in an error.
+  The original value can also be `none`, that way you cannot distinguish from the value if it is a genuine `none` or the result of an error.
+* The unary `pass:[']` quotes the right-hand side, and has the same effect as the `quote` or `thunk` built-in functions.
+  When you `'{}` you get an empty block.
+  On the other hand, `thunk({})` will be an empty **object**, resulting in `{}` when executed.
+  If you execute `('{}).execute` you will execute an empty **block**.
+  The result in this case is `none`.
 
 {%S bnot%}
 
-NOTE: The character `?` can have different meaning based on the context.
+NOTE: The character `?` can have a different meaning based on the context.
 It can be part of conditional field access, when used as `a?.b` returning `none` when `a` is `none` or has no field `b`.
 It can also signal the start of a filter in a list literal.
 
@@ -792,7 +812,7 @@ If we modify the equality check to consider the classes, we get a different resu
 
 === Using parentheses
 
-{%@snip:check hash="9cafadec" id=operators message="check the operator table for change"%}
+{%@snip:check hash="4279718e" id=operators message="check the operator table for change"%}
 
 The different operators have their precedences as in most of the programming languages.
 
@@ -961,13 +981,13 @@ Macros are closures that get their arguments unevaluated.
 You can create a macro using the built-in global function `macro` with a closure or function as an argument.
 Code inside macros can call the global function `evaluate` on the arguments.
 
-This way macros can decide which arguments to evaluate and what order, or how many times.
+This way, macros can decide which arguments to evaluate and in what order, or how many times.
 The following simple macro reimplements the `if` command's functionality using it:
 
 {%S macro_example%}
 
 When a macro calls the function `evaluate` the evaluation happens in the caller context.
-This ensures the same context and variable visibility like calling a function or closure.
+This ensures the same context and variable visibility as calling a function or closure.
 The caller does not need to know that the implementation of the something it calls is a function, closure, or macro.
 
 === Variable Declaration
@@ -1355,9 +1375,35 @@ If the condition is `false` and there is no "else" block or command, then the re
 {%S ifCommand%}
 
 The `if` command does not open a new context.
-The condition, and the commands following it, and the optional one after the `else` keyword evaluated and executed in the context the `if` statement is.
+The condition, the commands following it, and the optional one after the `else` keyword are evaluated and executed in the context of the `if` statement.
 
-If, however, the "then" or "else" commands are block commands, then they themselves execute in a new context wrapping the actual context.
+If, however, the "then" or "else" commands are block commands, they execute in a new context that wraps the actual context.
+
+=== Conditional expression
+
+`if` statements can be used inside expressions.
+When you use `{}` or `()` parentheses, you can use any statement in an expression, but `if` statements do not need parentheses.
+An `if` statement can be placed on "top-level" in an expression and can occupy a place that is for a whole expression inside another one.
+
+{%S if_expression_1%}
+
+The `if` statement in this example serves as the second argument for the `+` operator.
+
+The keyword can also be used following the syntax
+
+    expression_2 if condition else expression_2
+
+This structure resembles how Python uses conditional expressions.
+The following example gives this variant for the previous calculation:
+
+{%S if_expression_2%}
+
+Note, however, that you may need parentheses when using this form:
+
+{%S if_expression_3%}
+
+The `if` in the expression stands on the highest level in precedence.
+Since the `if` "operator" and its precedence is not so obvious as the usual numerical operators, it is recommended to use parentheses for readability.
 
 === Loops
 
@@ -1565,23 +1611,24 @@ The command can break the execution of the loop and can also specify the value o
 
 Will continue the execution of the loop starting the body of the loop again without executing the rest of the commands in the loop body.
 
-=== Returning, Breaking, Continue, and Yielding
+=== Returning, Breaking, Continuing, and Yielding
 
 These three commands are in one family.
-each of them can pass a value, and each can have a conditionality following the expression.
+Each of them can pass a value, and each can have a conditionality following the expression.
 The syntax is
 
 [source]
 ----
-break [expression] [if condition]
-return [expression] [if condition]
-yield expression [if condition]
+break [expression] [when condition]
+return [expression] [when condition]
+yield expression [when condition]
 ----
 
-The expression and the `if condition` parts are optional, except for the `yield`.
-When the conditional part is missing, the command is executed like if it was `if true`.
+The expression and the ``when condition`` parts are optional, except for the `yield`.
+`yield` must have the expression.
+When the conditional part is missing, the command is executed as if it were `when true`.
 
-You can interchangeably use the `when` keyword instead of `if` in this case.
+NOTE: Earlier versions permitted the use of the `if` keyword, but it became ambiguous when the `pass:[x if condition else y]` expression syntax was introduced.
 
 ==== `break`
 
@@ -1606,13 +1653,13 @@ The following samples demonstrate these cases.
 {%S break5%}
 
 The last example shows the difference between using the break statement following an `if` condition.
-In the first case the statement executes in the context of the loop and the `break` aborts the execution of the loop.
+In the first case, the statement executes within the loop, and the `break` statement aborts the loop's execution.
 
-In the second case the `break` is inside a block, and it aborts the execution of the block itself, the loop is not disturbed.
+In the second case, the `break` is inside a block, and it aborts the execution of the block itself; the loop is not disturbed.
 
 {%S break6%}
 
-When the expression following the `break` keyword starts with the `if` keyword the expression has to be enclosed between `()` parentheses.
+When the expression following the `break` keyword starts with the `if` keyword, the expression has to be enclosed between `()` parentheses.
 
 {%S break7%}
 
@@ -1621,7 +1668,7 @@ When the expression following the `break` keyword starts with the `if` keyword t
 The continue command will "break" the current loop execution and start the loop over for the next iteration.
 In the case of a for loop, the step command will be executed, and the exit condition will also be evaluated.
 
-The `continue` command can have an expression, but it is only allowed if the loop is a list-producing loop.
+The `continue` command can have an expression, but it is only allowed if the loop is list-producing.
 In this case, the value of the expression will be appended to the resulting list.
 If the value of the expression is `none`, then `none` as a value will be appended to the list.
 If there is no expression after the `continue` keyword, then the resulting list will remain untouched for the actual execution.
@@ -2864,7 +2911,10 @@ If you feel the naming offensive, you can use the lame `throw` form after import
 
 === `evaluate`
 
-Macro implementations use this function.
+Evaluate the function argument as a command in the caller environment.
+If you want to evaluate a string containing Turicum code, you have to use `compile()`.
+
+Usually, macro implementations use this function.
 Macros get their arguments unevaluated and can use this function to evaluate them.
 If you try to evaluate anything other than a macro argument, you will get an error.
 
@@ -2896,7 +2946,7 @@ It could be shortened as
 
 {%S evaluate3%}
 
-Note, however that the code starts with a `(`.
+Note, however, that the code starts with a `(`.
 That will make the function definition be part of an expression and process the following `(fn () {println("Hello")})` as an argument.
 Without that we would have two unnamed function definitions, one after the other.
 
@@ -2913,7 +2963,7 @@ Omitting the requirement around a `fn` (or for that matter a `class`) definition
 
 These are two functions to be used in files imported.
 The macro `export` will export the variables listed as arguments.
-That way these variables will be copied into the context of the importing code.
+That way, these variables will be copied into the context of the importing code.
 
 You can specify identifiers and expressions resulting in strings as arguments.
 
@@ -3200,6 +3250,26 @@ This function will "open" and reclose a closure in the current environment.
 
 The function opens and "recloses" the closure in the context of the function call.
 It will see and alter the `s` in that context of the re-closing, while the original closure alters and sees the global `s`.
+
+=== `_pack`
+
+This function creates an object with the actual local context as the object context.
+It does not copy the context.
+If the local context changes, the object changes accordingly.
+The following example shows how a function can return its local context, essentially the set of local variables, as an object.
+
+{%S pack_1%}
+
+The following example returns two different objects that share the same context.
+It means that their fields are not only identical, but they are the same.
+Changing a field in one will change the field in the other, even though the two objects are not the same.
+
+{%S pack_2%}
+
+The following example demonstrates that context wrapping persists even after the context has been packed.
+Through the returned object, you can access the closure's wrapped context, in this case, the variable `b`, even though this is not a field in the object.
+
+{%S pack_3%}
 
 === `source_directory`
 
@@ -3508,23 +3578,24 @@ This is a function that returns `true` if the argument is an object.
 ==== `thunk`
 
 The `thunk` macro returns its argument unevaluated, preserving it as a command or expression.
-This deferred computation can later be executed using `unthunk`.
+You can also use the macro `quote`, which is an alias and does the same as `thunk`, or use the `'` (single apostrophe) operator.
+This deferred computation can later be executed using the function `unthunk` or the `execute` method defined on the resulting command object.
 
-`unthunk` evaluates the stored command in the **context where `unthunk` is called**, not the context where the thunk was created.
+`unthunk` and `execute` evaluate the stored command in the **context where `unthunk` is called**, not the context where the thunk was created.
 
 .difference from `evaluate`
 [NOTE]
 ====
 Although `evaluate` provides similar functionality, it differs in two key ways:
 
-- `evaluate` can only be used **inside a macro**.
+- `evaluate` can only be used **inside a macro**, or in a function or closure.
 
 - It evaluates the argument in the **caller’s context**, i.e., the context of the macro's caller.
 ====
 
-Note also that the argument to `thunk` can only be an expression and not an arbitrary command.
-That is a restriction that comes from Turicum syntax.
-However, you can enclose any command into a block, and then you can use the block as an expression or part of an expression.
+Note also that the argument to `thunk`, `quote`, or the operator `pass:[']` can only be an expression and not an arbitrary command.
+That is a restriction imposed by Turicum syntax.
+However, you can enclose any command in a block, and then you can use the block as an expression or part of an expression.
 
 ==== `unthunk`
 
@@ -3560,6 +3631,19 @@ The function `block_list` will return a list containing the commands in a comman
 The following example shows you how it can be used together with `thunk` and `unthunk`.
 
 {%S block_list%}
+
+The counter `i` is used to display which command we execute in the loop.
+It is also used to execute the first command in a `try-catch` block.
+`k` is not defined; therefore, unthunking this command will not work.
+
+The second command updates a declared variable.
+It does not need to be in `try-catch` block.
+
+The third command defines the variable `x`.
+In this execution, the variable `x` after the ``unthunk``ing is defined.
+
+`x` becomes a normal local variable in the loop, which is defined for the execution of the loop core only.
+When the next execution starts the variable `x` is undefined again.
 
 ==== `as_object`
 
@@ -3653,12 +3737,12 @@ It is the __result__ of the command.
 
 {%EBNF FOR_EACH%}
 
-If the condition expression is missing after 'for' or 'while' it is `true`.
+If the condition expression is missing after 'for' or 'while', it is `true`.
 The expression following the 'until' keyword is not optional, but the whole `until` `EXPRESSION` part is.
 The value of a loop is the last __executed__ command, or a list if the `list` keyword was specified.
 The elements of the list are the last __executed__ commands for each iteration.
 
-The value of an `IF` command is the value of the first or the second block, whichever is executed.
+The value of an `if` command is the value of the first or the second block, whichever is executed.
 If the condition expression is false and there is no second block, then the value is `none`.
 
 {%EBNF IF%}

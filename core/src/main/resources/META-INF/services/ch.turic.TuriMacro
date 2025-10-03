@@ -2,6 +2,7 @@ ch.turic.builtins.macros.Export
 ch.turic.builtins.macros.IsDefined
 ch.turic.builtins.macros.Unlet
 ch.turic.builtins.macros.Thunk
+ch.turic.builtins.macros.Quote
 ch.turic.builtins.macros.Import
 ch.turic.builtins.macros.SysImport
 ch.turic.builtins.macros.Delete
