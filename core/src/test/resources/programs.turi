@@ -1,3 +1,7 @@
+-- TEST none_to_declared
+mut d:float = 1.0
+try: d = none; catch e {}
+
 -- TEST multi_let1
 // a simple test that assigns values to listed variables
 let [a,b,c] = [1,2,3]

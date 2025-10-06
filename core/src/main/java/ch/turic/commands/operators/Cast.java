@@ -30,7 +30,7 @@ public class Cast {
                 }
                 yield true;
             }
-            default -> false;
+            case null, default -> false;
         };
     }
 
@@ -88,10 +88,24 @@ public class Cast {
                 }
                 yield true;
             }
-            default -> false;
+            case null, default -> false;
         };
     }
 
+    /**
+     * Determines whether the provided object can be interpreted as a Boolean value.
+     * The method supports various primitive types and their wrappers that can be logically
+     * considered as boolean values in specific contexts, along with strings.
+     * <p>
+     * The implementation has to be consistent with the {@link #toBoolean(Object)} method.
+     * If this method {@code returns true} for a given object, the method {@code toBoolean} must convert and
+     * do not throw an exception.
+     *
+     * @param test The object to be evaluated for its boolean nature.
+     * @return {@code true} if the object can be logically interpreted as a boolean,
+     * otherwise {@code false}.
+     * @throws ExecutionException If an error occurs during the evaluation process.
+     */
     public static boolean isBoolean(final Object test) throws ExecutionException {
         return switch (test) {
             case null -> true;
@@ -108,6 +122,23 @@ public class Cast {
         };
     }
 
+    /**
+     * Converts the provided object to a boolean value if possible.
+     * The method supports several types such as `Boolean`, `Long`, `Integer`,
+     * `Short`, `Byte`, `Character`, `Double`, `Float`, and `String`.
+     * <p>
+     * Specific handling includes:
+     * - Numbers (Long, Integer, Short, Byte, Character, Double, Float) are treated as `false` if zero.
+     * - Strings are interpreted as `true` if they equal "true" (case-sensitive).
+     * - Null values are always interpreted as `false`.
+     * <p>
+     * If the object type is unsupported or cannot be converted to a boolean,
+     * an `ExecutionException` is thrown.
+     *
+     * @param test The object to be converted to a boolean value.
+     * @return The converted boolean value of the object.
+     * @throws ExecutionException If the object's type cannot be converted to a boolean.
+     */
     public static boolean toBoolean(final Object test) throws ExecutionException {
         switch (test) {
             case null -> {
@@ -148,7 +179,7 @@ public class Cast {
     }
 
     public static String toString(Object obj) {
-        if(obj == null ) {
+        if (obj == null) {
             return "none";
         }
         return obj.toString();
@@ -163,7 +194,7 @@ public class Cast {
             case Character c -> Long.valueOf(c);
             case Double d -> {
                 ExecutionException.when(d > Long.MAX_VALUE || d < Long.MIN_VALUE,
-                        "Value '%s' cannot be used as a long, too %s", d,d > 0 ? "large" : "small");
+                        "Value '%s' cannot be used as a long, too %s", d, d > 0 ? "large" : "small");
                 ExecutionException.when(d % 1 != 0, "Value '%s' cannot be used as a long, it has fractions", d);
                 yield d.longValue();
             }
@@ -184,7 +215,7 @@ public class Cast {
 
     public static Double toDouble(Object obj) throws ExecutionException {
         return switch (obj) {
-            case null -> throw  new ExecutionException("Cannot cast null to number");
+            case null -> throw new ExecutionException("Cannot cast null to number");
             case Long l -> Double.valueOf(l);
             case Integer i -> Double.valueOf(i);
             case Short sh -> Double.valueOf(sh);
