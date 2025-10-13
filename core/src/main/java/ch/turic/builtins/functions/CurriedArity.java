@@ -4,7 +4,24 @@ import ch.turic.Context;
 import ch.turic.ExecutionException;
 import ch.turic.TuriFunction;
 import ch.turic.commands.ClosureLike;
+/*snippet builtin0060
 
+=== `curried_arity`
+
+The built-in function `curried_arity()` returns the number of curried arguments.
+
+When you curry a function, then the arity of the resulting function decreases by the number of curried arguments.
+The function `arity()` returns the full arity of the function.
+
+{%S curried_arity%}
+
+The function `add()` in the example adds two numbers.
+The arity of the function is two, as it has two arguments.
+The function `add5()` curries one of the arguments.
+The arity of this new function is still two in Turicum, but one argument is now curried.
+The number of the curried arguments is returned by `curried_arity()`.
+
+end snippet */
 /**
  *
  * The built-in function `curried_arity()` returns the number of curried arguments.

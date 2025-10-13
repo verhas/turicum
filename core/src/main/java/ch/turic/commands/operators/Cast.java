@@ -140,42 +140,21 @@ public class Cast {
      * @throws ExecutionException If the object's type cannot be converted to a boolean.
      */
     public static boolean toBoolean(final Object test) throws ExecutionException {
-        switch (test) {
-            case null -> {
-                return false;
-            }
-            case Boolean b -> {
-                return b;
-            }
-            case Long l -> {
-                return l != 0;
-            }
-            case Integer i -> {
-                return i != 0;
-            }
-            case Short s -> {
-                return s != 0;
-            }
-            case Byte b -> {
-                return b != 0;
-            }
-            case Character c -> {
-                return c != 0;
-            }
-            case Double d -> {
-                return d != 0;
-            }
-            case Float f -> {
-                return f != 0;
-            }
-            case String s -> {
-                return s.equals("true");
-            }
-            default -> {
-                // roll over and handle special cases
-            }
-        }
-        throw new ExecutionException("Value '" + test + "' cannot be used as a boolean");
+        return switch (test) {
+            case null -> false;
+
+            case Boolean b -> b;
+            case Long l -> l != 0;
+            case Integer i -> i != 0;
+            case Short s -> s != 0;
+            case Byte b -> b != 0;
+            case Character c -> c != 0;
+            case Double d -> d != 0;
+            case Float f -> f != 0;
+            case String s -> s.equals("true");
+
+            default -> throw new ExecutionException("Value '" + test + "' cannot be used as a boolean");
+        };
     }
 
     public static String toString(Object obj) {
@@ -236,6 +215,4 @@ public class Cast {
                     throw new ExecutionException("Cannot cast object of types '" + obj.getClass().getName() + "' to number");
         };
     }
-
-
 }

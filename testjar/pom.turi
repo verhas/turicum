@@ -1,0 +1,41 @@
+global APPIA = ?(env("APPIA")?.split("\\|")) or [ source_directory() + "/.." ];
+sys_import "turi.maven"
+import "turicum_versions"
+
+let project = maven_project({
+        name: "Turicum-TEST-JAR",
+        artifactId: "turicum-test-jar"
+        version: VERSION,
+        description: "A test extension for Turicum to be loaded dynamically",
+        parent: {
+            groupId: groupId,
+            artifactId: "turicum-parent",
+            version: VERSION
+        },
+        build: {
+            plugins: [
+                maven_plugin("source"),
+                maven_plugin("javadoc"),
+                maven_plugin("compiler"),
+                maven_plugin("resources")
+                    ]
+        },
+        dependencies: [
+            {
+                groupId: "ch.turic",
+                artifactId: "turicum",
+                version: VERSION,
+                scope: "provided" // the JAR is loaded by the interpreter, so the interpreter must be there already
+            },
+            {
+                groupId: "org.junit.jupiter",
+                artifactId: "junit-jupiter-api",
+            },
+            {
+                groupId: "org.junit.jupiter",
+                artifactId: "junit-jupiter-engine",
+            }
+        ]
+});
+project.properties = import("properties").properties;
+project.done();

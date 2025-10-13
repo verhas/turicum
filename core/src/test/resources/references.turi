@@ -69,6 +69,25 @@ println "uncurry(be10,2)(6,6) ", uncurry(be10,2)(6,6)
 println "uncurry(be10,curried_arity(be10))(6,6) ", uncurry(be10,curried_arity(be10))(6,6)
 // end snippet
 
+// snippet arity
+fn a(x,z,h){}
+fn b(x,z,{h}){}
+println arity(a)
+println arity(b)
+// end snippet
+
+// snippet curried_arity
+fn add(a,b)=a + b
+let add5 = add.(5)
+fn test(s){ println s," = ", s.execute() }
+test "add5(5)"
+test "curried_arity(add5)"
+test "arity(add5)"
+test "curried_arity(add)"
+test "arity(add)"
+// end snippet
+
+
 // snippet uncurry4
 class CurriedAway {
     fn init(spice);
@@ -249,15 +268,26 @@ println z
 // end snippet
 
 // snippet string_after
-println "alma ata".after("ma ")
+println "abraka badraka".after("ra")
+// end snippet
+
+// snippet string_after_last
+println "abraka badraka".after_last("ra")
 // end snippet
 
 // snippet string_before
-println "alma ata".before(" ata")
+println "abraka badraka".before("ra")
+// end snippet
+
+// snippet string_before_last
+println "abraka badraka".before_last("ra")
 // end snippet
 
 // snippet string_between
 println "alma ata".between("al","ta")
+// is the same as
+println "alma ata".after("al").before("al","ta")
+
 // end snippet
 
 // snippet string_lines
@@ -432,6 +462,39 @@ println "632".int()
 println "3.1415929".float()
 // end snippet
 
+// snippet string_bigi
+print "11111111111111111111111111111111111111111111111111111111111".big_int() +
+      "11111111111111111111111111111111111111111111111111111111111".big_int()
+// end snippet
+// snippet string_bigd
+print "0.11111111111111111111111111111111111111111111111111111111111".big_decimal() +
+      "0.11111111111111111111111111111111111111111111111111111111111".big_decimal()
+// end snippet
+
+// snippet string_bool
+fn p(s:str){
+    println s, " is ", s.bool()
+}
+p "true"
+p "no"
+p "" // empty string
+p "nominative"
+p "false"
+p "0"
+p "1"
+p "1.0"
+p "0.0"
+// end snippet
+
+// snippet string_path
+println type("C:\\Users\\user\\Documents\\my_file.txt".path())
+// end snippet
+// snippet string_uri
+println type("http://cnn.com".uri())
+// end snippet
+// snippet string_url
+println type("http://cnn.com".url())
+// end snippet
 // snippet string_number
 println "61".number(7)
 // end snippet
@@ -491,8 +554,14 @@ println $"${q} len q=${len(q)} len s=${len(s)}"
 println "alma ata".reverse()
 // end snippet
 
+// snippet string_chars
+println jsonify("Hello, World!".chars())
+// end snippet
+
 // snippet string_times
 println "alma ".times(5)
+// same as
+println "alma "*5
 // end snippet
 
 // snippet string_lower_case
@@ -597,6 +666,7 @@ println jsonify("gropeId:artichokId:varsio,mersio,mubakka|abraka:debarbara,mucik
 
 // snippet string_bytes
 println "alma ata".bytes()
+println "alma ata".bytes("Cp037") // EBCDIC encoding
 // end snippet
 
 // snippet string_join
@@ -1191,6 +1261,10 @@ for each z with i in ["apple", "banana", "orange", "peach"] {
 for each [fruit, origin ] in [ ["apple","Ukraine"], ["banana","Brasil"], ["orange","Spain"], ["peach","Hungary"]] {
 println "Fruit %s comes from %s" % [fruit, origin]
 }
+// end snippet
+
+// snippet enumerate
+println enumerate(["Mozart", "Bach", "Tschaikovsky"])
 // end snippet
 
 // snippet foreach5
@@ -1843,13 +1917,13 @@ println result
 // snippet java_object2
 let sb = java_object("java.lang.StringBuilder", "xBruhahha");
 try: sb.deleteCharAt(0) catch e: println e
-sb.deleteCharAt(int(0))
+sb.deleteCharAt(java_int(0))
 println sb
 // end snippet
 
 // snippet java_call1
 let sb = java_object("java.lang.StringBuilder", "xBruhahha");
-java_call sb,"deleteCharAt",int(0)
+java_call sb,"deleteCharAt",java_int(0)
 println sb
 // end snippet
 
@@ -3283,7 +3357,7 @@ println x             // then the value
 
 // snippet as_object
 let z = thunk({let k = 5})
-println as_object(z)
+println jsonify_beauty(as_object(z))
 // end snippet
 
 // snippet nano_time

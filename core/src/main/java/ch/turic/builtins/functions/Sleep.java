@@ -4,6 +4,9 @@ import ch.turic.Context;
 import ch.turic.ExecutionException;
 import ch.turic.TuriFunction;
 import ch.turic.commands.operators.Cast;
+/*snippet builtin0420
+
+end snippet */
 
 /**
  * Sleep pauses the execution.

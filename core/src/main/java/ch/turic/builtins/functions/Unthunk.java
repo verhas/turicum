@@ -4,6 +4,9 @@ import ch.turic.Context;
 import ch.turic.ExecutionException;
 import ch.turic.TuriFunction;
 import ch.turic.Command;
+/*snippet builtin0510
+
+end snippet */
 
 /**
  * Executes a previously deferred command produced by {@code thunk()}.

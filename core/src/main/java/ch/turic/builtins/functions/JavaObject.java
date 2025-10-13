@@ -6,6 +6,9 @@ import ch.turic.TuriFunction;
 import ch.turic.utils.Reflection;
 
 import java.lang.reflect.InvocationTargetException;
+/*snippet builtin0180
+
+end snippet */
 
 /**
  * The JavaObject class implements the TuriFunction interface to provide the ability
@@ -34,12 +37,14 @@ import java.lang.reflect.InvocationTargetException;
 public class JavaObject implements TuriFunction {
 
     @Override
-    public Object call(Context ctx, Object[] arguments) throws ExecutionException {
+    public Object call(Context context, Object[] arguments) throws ExecutionException {
         final var args = FunUtils.args(name(), arguments, String.class, Object[].class);
+        final var ctx = FunUtils.ctx(context);
         final var className = args.at(0).as(String.class);
         final var javaArgs = args.tail(1);
         try {
-            final var constructor = Reflection.getConstructorForArgs(Class.forName(className), javaArgs);
+            final var klass = ctx.globalContext.classLoader.loadClass(className);
+            final var constructor = Reflection.getConstructorForArgs(klass, javaArgs);
             return constructor.newInstance(javaArgs);
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException |
                  InvocationTargetException e) {

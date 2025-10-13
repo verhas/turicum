@@ -11,7 +11,7 @@ public class Reflection {
      * method name and argument types. The argument types are inferred from the provided arguments,
      * including handling of null values.
      *
-     * @param object     the object whose class will be searched for the method, must not be null
+     * @param object     the object whose class will be searched for the method. It must not be null.
      * @param methodName the name of the method to retrieve must not be null
      * @param args       an array of objects representing the arguments to the method; the types
      *                   of these objects are used to infer the method's parameter types

@@ -79,7 +79,7 @@ public interface ServiceLoaded {
                 try (var is = url.openStream()) {
                     for (final var className : new String(is.readAllBytes(), StandardCharsets.UTF_8).split("[\n\r]+")) {
                         try {
-                            final var providerKlass = (Class<T>) Class.forName(className);
+                            final var providerKlass = (Class<T>) cl.loadClass(className);
                             if (!classes.contains(providerKlass)) {
                                 classes.add(providerKlass);
                                 final Method providerMethod = getProvider(providerKlass);

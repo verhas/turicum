@@ -5,6 +5,9 @@ import ch.turic.ExecutionException;
 import ch.turic.TuriFunction;
 
 import java.util.Objects;
+/*snippet builtin0440
+
+end snippet */
 
 /**
  * Represents the implementation of a TuriFunction named "str".

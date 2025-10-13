@@ -4,6 +4,9 @@ import ch.turic.Context;
 import ch.turic.ExecutionException;
 import ch.turic.SnakeNamed.Name;
 import ch.turic.TuriFunction;
+/*snippet builtin0400
+
+end snippet */
 
 /**
  * Set the value of a variable, and go on even if it is pinned.

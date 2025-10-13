@@ -17,6 +17,9 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.Set;
+/*snippet builtin0470
+
+end snippet */
 
 /**
  * Perform a http request to a remote (or not so remote) server.

@@ -6,6 +6,9 @@ import ch.turic.ExecutionException;
 import ch.turic.memory.LngList;
 
 import java.util.Collection;
+/*snippet builtin0240
+
+end snippet */
 
 /**
  * The {@code len()} function returns the len of a collection or a string. It is similar to the implementation of

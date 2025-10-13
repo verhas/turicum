@@ -7,6 +7,9 @@ import ch.turic.commands.Closure;
 import ch.turic.ExecutionException;
 import ch.turic.commands.Macro;
 import ch.turic.memory.*;
+/*snippet builtin0490
+
+end snippet */
 
 /**
  * Return the type of the argument as a string.

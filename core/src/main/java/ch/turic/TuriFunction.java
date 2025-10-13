@@ -20,4 +20,13 @@ public interface TuriFunction extends LngCallable.LngCallableClosure, ServiceLoa
         return ServiceLoaded.getInstances(TuriFunction.class);
     }
 
+    /**
+     * Similar to {@link #getInstances()}, but uses the specified class loader.
+     *
+     * @param cl the class loader to use for loading the service implementations
+     * @return a list of instances of classes implementing the {@code TuriClass} interface
+     */
+    static List<TuriFunction> getInstances(ClassLoader cl) {
+        return ServiceLoaded.getInstances(TuriFunction.class, cl);
+    }
 }

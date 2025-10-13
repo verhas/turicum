@@ -5,6 +5,9 @@ import ch.turic.ExecutionException;
 import ch.turic.TuriFunction;
 import ch.turic.memory.LngList;
 import ch.turic.memory.LngObject;
+/*snippet builtin0210
+
+end snippet */
 
 /**
  * This function converts a Turicum value to JSON string.

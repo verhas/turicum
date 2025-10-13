@@ -131,7 +131,7 @@ public class Main {
             System.setProperty("APPIA", params.get("APPIA").get());
         }
 
-        try( final Interpreter interpreter = getInterpreter(inputFile, params)){
+        try (final Interpreter interpreter = getInterpreter(inputFile, params)) {
             if (params.get("compile").isPresent()) {
                 interpreter.compile();
                 final var bytes = interpreter.serialize();

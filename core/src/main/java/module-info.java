@@ -8,6 +8,9 @@ module ch.turic {
     requires jdk.httpserver;
     requires java.net.http;
     exports ch.turic;
+    exports ch. turic.builtins.functions;
+    exports ch. turic.builtins.macros;
+    exports ch. turic.builtins.classes;
     exports ch.turic.memory;
     exports ch.turic.memory.debugger;
     opens turi; // needed to read the sysimport files as resources
@@ -30,7 +33,9 @@ module ch.turic {
             Unthunk, Unwrap, BlockList, Command, Min, Max, MathFunctions.Pow, MathFunctions.Scalb, Env,
             TuriHttpClient, Jsonify, JsonifyBeauty, Str, Glob, SourceDirectory, Arity, Signature,
             Uncurry, IsCurried, CurriedArity, Enumerate, JavaClass,
-            DebugSessionFactory, Pack;
+            DebugSessionFactory, Pack, MathFunctions.ToJavaFloat, MathFunctions.ToJavaInt, MathFunctions.ToJavaShort,
+            MathFunctions.ToJavaChar, MathFunctions.ToJavaLong,JavaType, MathFunctions.ToJavaByte, MathFunctions.ToJavaDouble,
+            AddJavaClasses,JavaResources;
     provides ch.turic.TuriMacro with Export, IsDefined, Unlet, Thunk, Quote, Import, SysImport, Delete;
     provides ch.turic.TuriClass with TuriString, TuriLong, TuriDouble, TuriIterator, TuriChannel, TuriInputStream, TuriInputStreamReader;
 }

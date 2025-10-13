@@ -5,6 +5,9 @@ import ch.turic.ExecutionException;
 import ch.turic.TuriFunction;
 import ch.turic.memory.BlockingQueueChannel;
 import ch.turic.memory.ChannelIterator;
+/*snippet builtin0310
+
+end snippet */
 
 /**
  * Create a Queue to communicate between threads.

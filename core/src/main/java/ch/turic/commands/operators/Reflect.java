@@ -5,6 +5,7 @@ import ch.turic.ExecutionException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Arrays;
 import java.util.Optional;
 
 /**
@@ -48,15 +49,40 @@ class Reflect {
      * @return an {@link Optional} containing a callable {@link Op} if a suitable method is found, otherwise empty
      */
     static Optional<Reflect.Op> getBinaryMethod(String name, Object op1, Object op2) {
-        try {
-            final var method = op1.getClass().getMethod(name, op2.getClass());
-            if (method.isSynthetic() || Modifier.isStatic(method.getModifiers())) {
-                return Optional.empty();
+        final var methods = Arrays.stream(op1.getClass().getMethods())
+                .filter(m -> !m.isSynthetic())
+                .filter(m -> !Modifier.isStatic(m.getModifiers()))
+                .filter(m -> m.getName().equals(name))
+                .filter(m -> m.getParameterCount() == 1)
+                .filter(m -> m.getParameterTypes()[0].isAssignableFrom(op2.getClass()))
+                .toArray(Method[]::new);
+        final var klass = op2.getClass();
+        Method method = null;
+        int distance = Integer.MAX_VALUE;
+        for (final var m : methods) {
+            final int d = distance(klass,m.getParameterTypes()[0]);
+            if (d < distance) {
+                distance = d;
+                method = m;
             }
-            return Optional.of(new Reflect(method, op1, op2, name).new Binary());
-        } catch (NoSuchMethodException e) {
+        }
+        if (method == null ) {
             return Optional.empty();
         }
+        return Optional.of(new Reflect(method, op1, op2, name).new Binary());
+    }
+
+    private static int distance(Class<?> klass, Class<?> other) {
+        if (klass.equals(other)) {
+            return 0;
+        }
+        if (Arrays.asList(klass.getInterfaces()).contains(other)) {
+            return 1;
+        }
+        if (klass.isInterface() || klass.getSuperclass() == null) {
+            return Integer.MAX_VALUE;
+        }
+        return 1 + distance(klass.getSuperclass(), other);
     }
 
     /**
@@ -91,7 +117,7 @@ class Reflect {
     /**
      * Represents a binary operation (a method with one parameter).
      */
-    class Binary implements Op{
+    class Binary implements Op {
         public Object callMethod() throws ExecutionException {
             try {
                 return method.invoke(op1, op2);
@@ -100,10 +126,11 @@ class Reflect {
             }
         }
     }
+
     /**
      * Represents a unary operation (a method with no parameters).
      */
-    class Unary implements Op{
+    class Unary implements Op {
         public Object callMethod() throws ExecutionException {
             try {
                 return method.invoke(op1);

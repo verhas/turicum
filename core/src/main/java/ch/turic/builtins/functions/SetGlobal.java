@@ -3,6 +3,9 @@ package ch.turic.builtins.functions;
 import ch.turic.Context;
 import ch.turic.ExecutionException;
 import ch.turic.TuriFunction;
+/*snippet builtin0380
+
+end snippet */
 
 /**
  * Set the value of a variable. It is the same as the function {@link SetSymbol} but it does set a global variable.

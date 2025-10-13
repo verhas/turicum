@@ -66,12 +66,20 @@ ch.turic.builtins.functions.MathFunctions$Ulp
 ch.turic.builtins.functions.MathFunctions$NextAfter
 ch.turic.builtins.functions.MathFunctions$NextUp
 ch.turic.builtins.functions.MathFunctions$Hypot
-ch.turic.builtins.functions.MathFunctions$IEEEremainder
+ch.turic.builtins.functions.MathFunctions$IEEERemainder
 ch.turic.builtins.functions.MathFunctions$Rint
 ch.turic.builtins.functions.MathFunctions$CopySign
 ch.turic.builtins.functions.MathFunctions$Atan2
 ch.turic.builtins.functions.MathFunctions$Cosh
+ch.turic.builtins.functions.MathFunctions$ToJavaFloat
+ch.turic.builtins.functions.MathFunctions$ToJavaDouble
+ch.turic.builtins.functions.MathFunctions$ToJavaInt
+ch.turic.builtins.functions.MathFunctions$ToJavaShort
+ch.turic.builtins.functions.MathFunctions$ToJavaChar
+ch.turic.builtins.functions.MathFunctions$ToJavaLong
+ch.turic.builtins.functions.MathFunctions$ToJavaByte
 ch.turic.builtins.functions.TuriHttpClient
+ch.turic.builtins.functions.JavaType
 ch.turic.builtins.functions.Jsonify
 ch.turic.builtins.functions.JsonifyBeauty
 ch.turic.builtins.functions.Env
@@ -88,4 +96,6 @@ ch.turic.builtins.functions.JavaClass
 ch.turic.builtins.functions.Chr
 ch.turic.builtins.functions.debugger.DebugSessionFactory
 ch.turic.builtins.functions.Pack
+ch.turic.builtins.functions.AddJavaClasses
+ch.turic.builtins.functions.JavaResources
 

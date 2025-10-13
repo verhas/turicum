@@ -29,7 +29,7 @@ public class SysImport implements TuriMacro {
         }
         final var resourceName = sys_name.replace(".", "/") + ".turi";
 
-        try (final var is = this.getClass().getClassLoader().getResourceAsStream(resourceName)) {
+        try (final var is = ctx.globalContext.classLoader.getResourceAsStream(resourceName)) {
             if (is == null) {
                 throw new ExecutionException("Could not find sys import " + sys_name + " in " + resourceName);
             }

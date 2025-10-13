@@ -8,6 +8,30 @@ import ch.turic.memory.LngList;
 
 import java.util.List;
 
+/*snippet builtin0040
+
+==== `block_list`
+
+The function `block_list` will return a list containing the commands in a command block.
+The following example shows you how it can be used together with `thunk` and `unthunk`.
+
+{%S block_list%}
+
+The counter `i` is used to display which command we execute in the loop.
+It is also used to execute the first command in a `try-catch` block.
+`k` is not defined; therefore, unthunking this command will not work.
+
+The second command updates a declared variable.
+It does not need to be in a `try-catch` block.
+
+The third command defines the variable `x`.
+In this execution, the variable `x` after the ``unthunk``ing is defined.
+
+`x` becomes a normal local variable in the loop, which is defined for the execution of the loop core only.
+When the next execution starts the variable `x` is undefined again.
+
+end snippet */
+
 /**
  * The BlockList class represents a function implementation for the Turi language system
  * that processes a single argument of type BlockCommand and converts it into a LngList object.

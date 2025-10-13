@@ -2515,18 +2515,18 @@ Classes can be nested and defined inside other classes.
 When calling the constructor of the class to create a new instance then the variable `this` would be ambigous.
 
 For `a.Z()` it usually points to `a`, but if `Z` is a class, and we called the constructor, than `this` should be the new instance.
-In this situation a special variable called `that` will point to `a`.
+In this situation, a special variable called `that` will point to `a.
 
 {%S class8%}
 
 === Class inheritance
 
 Classes can inherit in Turicum.
-When you declare a class the parent class or classes are specified by the name after a `:`.
+When you declare a class, the parent class or classes are specified by the name after a `:`.
 
 {%S inherit1%}
 
-You can use the methods or fields declared in the class as well as any other method and fields defined in the parent classes.
+You can use the methods or fields declared in the class, as well as any other methods and fields defined in the parent classes.
 You can inherit from multiple parent classes:
 
 {%S inherit2%}
@@ -2755,11 +2755,11 @@ Hence, the special variable `that` was introduced.
 You will hardly ever need it.
 
 * `me` it always points to the currently executing function or closure.
-You can use it to furnish recursive calls.
-It is necessary when a function is defined in a local context it does not capture.
-For more read the next section {%@def FUNC=Function scopes and `me`%}.
+You can use it to make recursive calls.
+It is necessary that when a function is defined in a local context, it does not capture.
+For more, read the next section.
 
-=== {%FUNC%}
+=== Function scopes and `me`
 
 Functions are usually defined in the global context or as methods inside classes.
 In both cases there is a wrapped context that contains the name of the function defined.
@@ -2853,61 +2853,19 @@ Built-in functions are functions provided by the interpreter, which extend the f
 
 === Mathematical Functions
 
-All mathematical functions from Java's Math class are available in Turicum:
+Turicum implements many mathematical functions.
+All mathematical functions from Java's Math class are available in Turicum.
+In addition to that, there are some Turicum-specific ones also.
 
-* `acos(x)` - Returns the arc cosine of a value
-* `asin(x)` - Returns the arc sine of a value
-* `atan(x)` - Returns the arc tangent of a value
-* `atan2(y,x)` - Returns the angle theta from the conversion of rectangular coordinates (x,y) to polar coordinates
-* `cbrt(x)` - Returns the cube root of a value
-* `ceil(x)` - Returns the smallest integer greater than or equal to the argument
-* `copy_sign(magnitude,sign)` - Returns first argument with the sign of the second argument
-* `cos(x)` - Returns the trigonometric cosine of an angle
-* `cosh(x)` - Returns the hyperbolic cosine of x
-* `exp(x)` - Returns Euler's number e raised to the power of x
-* `floor(x)` - Returns the largest integer less than or equal to the argument
-* `get_exponent(x)` - Returns the unbiased exponent used in the representation of a floating point number
-* `hypot(x,y)` - Returns sqrt(x^2 + y^2) without intermediate overflow or underflow
-* `ieee_remainder(x,y)` - Returns the IEEE 754 floating-point remainder of division
-* `log(x)` - Returns the natural logarithm (base e) of x
-* `log10(x)` - Returns the base 10 logarithm of x
-* `next_after(start,direction)` - Returns the floating-point number adjacent to start in the direction of direction
-* `next_down(x)` - Returns the floating-point value adjacent to x in the direction of negative infinity
-* `next_up(x)` - Returns the floating-point value adjacent to x in the direction of positive infinity
-* `pow(x,y)` - Returns the value of x raised to the power of y
-* `random()` - Returns a random number between 0.0 and 1.0
-* `rint(x)` - Returns the closest integer to x (as a double)
-* `round(x)` - Returns the closest integer to x (as a long)
-* `scalb(x,scaleFactor)` - Returns x * 2^scaleFactor
-* `sig_num(x)` - Returns the signum function of x
-* `sin(x)` - Returns the trigonometric sine of an angle
-* `sinh(x)` - Returns the hyperbolic sine of x
-* `sqrt(x)` - Returns the square root of x
-* `tan(x)` - Returns the trigonometric tangent of an angle
-* `tanh(x)` - Returns the hyperbolic tangent of x
-* `to_degrees(x)` - Converts an angle measured in radians to degrees
-* `to_radians(x)` - Converts an angle measured in degrees to radians
-* `ulp(x)` - Returns the size of an ulp (unit in last place) of x
+The functions implemented are the following:
+
+{%!#replaceLines replace="~^\\s*\\*\\s\\.~"
+{%#killLines keep pattern="\\*\\s\\.\\s"
+{%@snip math_functions_doc%}%}%}
 
 {%S math_functions%}
 
-=== `all_parents`
-
-Returns a list of classes that are the parent classes of the argument with a transitive closure.
-It means that all classes, including the parents of the parents and so on, recursively.
-
-{%S all_parents%}
-
-The classes are ordered in inheritance order.
-
-=== `die`
-
-This function will throw an exception.
-The argument is the message of the exception.
-The naming of the function is a tribute to the programming language Perl.
-If you feel the naming offensive, you can use the lame `throw` form after importing it:
-
-{%S die%}
+{%!@snip (poly) builtin\d+%}
 
 === `evaluate`
 
@@ -2993,19 +2951,22 @@ Handling the `.env` file is implemented in the code, there is no need to use ext
 
 [NOTE]
 ====
-JavaScipt and Python and some other scripting languages differentiate between static and dynamic importing.
-Due to it's fully dynamic nature all imports are dynamic in Turicum.
+JavaScript, Python, and some other scripting languages differentiate between static and dynamic importing.
+Due to its fully dynamic nature, all imports are dynamic in Turicum.
 ====
 
 `APPIA` is a string that lists the directories where the imported files may be.
 The individual directories are separated using `|` characters.
 
-NOTE: The character `|` was selected because it works on Windows as well as on Linux or other unix-based operating systems.
-The drawback is that it may be interpreted by the shell, but the value of `APPIA` is rarely defined on the comand line.
+[NOTE]
+====
+The character `|` was selected because it works on Windows as well as on Linux or other Unix-based operating systems.
+The drawback is that the shell may interpret it, but the value of `APPIA` is rarely defined on the command line.
+====
 
-When the import function sees a request to import the file `a.b.c.d` it will look at the subdirectory `a/b/c` for each `APPIA` directory.
+When the import function sees a request to import the file `a.b.c.d`, it will look at the subdirectory `a/b/c` for each `APPIA` directory.
 The search is left to right as the directories are defined in the variable.
-The first location when the  `d.turi` file is found "wins" and the file is loaded.
+The first location where the  `d.turi` file is found "wins" and the file is loaded.
 
 Technically, the function
 
@@ -3015,9 +2976,9 @@ Technically, the function
 
 If you have function or class definitions in the imported file, they will be fields in the new object.
 
-You can assign the returned object to a variable or use it right away cherry-picking certain field from it.
+You can assign the returned object to a variable or use it right away, cherry-picking certain fields from it.
 
-If you want a specific class or function in your name space you can simply `let` assign it to a variable.
+If you want a specific class or function in your namespace, you can simply `let` assign it to a variable.
 
 .file `import_this.turi`
 [source]
@@ -3070,7 +3031,7 @@ The rest of the arguments should be the constructor arguments.
 NOTE: Since Turicum stores numbers as `Double` and `Long`, strings as `Strings`, and boolean values as `Boolean` without any wrapping class.
 Calling this function is straightforward when the constructor arguments are one of these primitive values.
 If the parameter type is something else, then you have to use `java_object()` to create that object.
-If some of the parameters are `Integer` or `int`, you can use the built-in function `int()` that converts a numeric value to an `Integer` Java object.
+If some of the parameters are `Integer` or `int`, you can use the built-in function `java_int()` that converts a numeric value to an `Integer` Java object.
 Similarly, if the argument is a `Float` or `float`, you can use the built-in function `float()` that converts a numeric value to a `Float` Java object.
 
 {%S java_object1%}
@@ -3079,7 +3040,7 @@ As you can see in the example above, you can invoke the Java methods on the obje
 
 {%S java_object2%}
 
-The example shows that you may need to convert the argument calling `int()` when invoking methods that do not work with a `Long` value.
+The example shows that you may need to convert the argument calling `java_int()` when invoking methods that do not work with a `Long` value.
 
 ==== `java_call`
 
@@ -3120,11 +3081,7 @@ The constructor can also be vararg:
 {%S java_class3%}
 
 
-=== `arity`
 
-The built-in function `arity` returns the number of parameters of the argument function.
-You pass a function, macro, or closure to this function, and the return value is the number of arguments.
-The arguments `[rest]`, `{meta}`, and `^closure` do ot count into the arity.
 
 === `signature`
 
@@ -3170,30 +3127,10 @@ This function uses three parameters:
 
 {%S jsonify%}
 
-=== `env`
-
-This function returns the value of the environment variable.
-
-Without argument, it returns an object that contains all the environment variables as fields.
-
-{%S env1%}
-
-With a given string argument without `*` or `?` wild card characters the return value is the value of the environment variable.
-
-{%S env2%}
-
-If the argument contains some wild card characters, then the result will be an object containing all the environment variables as fields that match the argument.
-
-{%S env3%}
-
 === `str`
 
 Converts the argument to a string.
 Similar to the `to_string()` method, but it works safely on any value and in some situations it may be more readable.
-
-=== `chr`
-
-Converts a number interpreted as a Unicode code point to a one-character string.
 
 === `len`
 
@@ -3460,25 +3397,6 @@ It is the same as the argument or a bit more.
 No sleep call will be executed in the underlying system if the time is negative.
 In all other cases, a `Thread.sleep()` call is invoked, giving all multi-thread synchronization effects of such a call.
 
-=== `yield()`, `try_yield()`, `yield_is_close()`
-
-In an asynchronous thread, you can get objects sent by the parent thread by using `yield()`.
-It will wait for an object and return it.
-If the queue from the parent thread is already closed, then `yield()` will throw an exception.
-
-NOTE: `yield` is an operator and not a function and it is used in other context with slightly different semantics also.
-
-`try_yield()` is more lenient.
-It does not wait and returns `none` if there is no message or the channel is closed.
-
-`yield_is_close()` can be used to test of the que is open from the parent to the child thread.
-
-{%S try_yield%}
-
-Note that the output of this sample is not deterministic.
-The sending happens __approximately__ every 9ms, and the reading is retried __approximately__ every 3ms.
-
-
 === Regular Expressions
 
 Regular expression handling is implemented with two primitive functions `pass:[_rx()]` and `pass:[_rx_match()]`.
@@ -3624,33 +3542,6 @@ Any local variable defined in the `init` method becomes a field.
 The following example shows how these functions work.
 
 {%S thunk_unthunk%}
-
-==== `block_list`
-
-The function `block_list` will return a list containing the commands in a command block.
-The following example shows you how it can be used together with `thunk` and `unthunk`.
-
-{%S block_list%}
-
-The counter `i` is used to display which command we execute in the loop.
-It is also used to execute the first command in a `try-catch` block.
-`k` is not defined; therefore, unthunking this command will not work.
-
-The second command updates a declared variable.
-It does not need to be in `try-catch` block.
-
-The third command defines the variable `x`.
-In this execution, the variable `x` after the ``unthunk``ing is defined.
-
-`x` becomes a normal local variable in the loop, which is defined for the execution of the loop core only.
-When the next execution starts the variable `x` is undefined again.
-
-==== `as_object`
-
-This function converts a command into an object.
-This function supports reflective programming and is likely used together with the `thunk`, `unthunk` and inside macros.
-
-{%S as_object%}
 
 == Preprocessing
 

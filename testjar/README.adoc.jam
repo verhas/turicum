@@ -1,0 +1,4 @@
+= Turicum Test JAR
+
+This is a project implementing sample Java classes to demonstrate how to load them in Turicum using `add_java_classes`.
+

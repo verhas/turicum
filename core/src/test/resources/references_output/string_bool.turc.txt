@@ -1,0 +1,9 @@
+true is true
+no is false
+ is false
+nominative is false
+false is false
+0 is false
+1 is false
+1.0 is false
+0.0 is false

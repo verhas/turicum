@@ -35,7 +35,7 @@ public class FunUtils {
      * @throws ExecutionException if there is more than one argument
      */
     public static void noArg(final String name, Object[] args) {
-        ExecutionException.when(args.length > 1, "Built-in function %s needs no arguments", name);
+        ExecutionException.when(args.length > 0, "Built-in function %s needs no arguments", name);
     }
 
     /**

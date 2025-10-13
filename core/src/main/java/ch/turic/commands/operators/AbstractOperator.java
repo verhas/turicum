@@ -3,8 +3,8 @@ package ch.turic.commands.operators;
 import ch.turic.Command;
 import ch.turic.ExecutionException;
 import ch.turic.commands.*;
-import ch.turic.memory.LocalContext;
 import ch.turic.memory.LngObject;
+import ch.turic.memory.LocalContext;
 
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
@@ -19,8 +19,8 @@ public abstract class AbstractOperator implements Operator {
      * Handles context shadowing and exception propagation. Operator methods must accept exactly one argument.
      *
      * @param context the execution context
-     * @param left the left operand command, or null for unary operations
-     * @param right the right operand command
+     * @param left    the left operand command, or null for unary operations
+     * @param right   the right operand command
      * @return the result of the operator execution
      * @throws ExecutionException if execution fails or operator dispatch is invalid
      */
@@ -116,10 +116,10 @@ public abstract class AbstractOperator implements Operator {
      * <p>
      * If both operands are longs and a long operation is provided, applies it. If either operand is a double and a double operation is provided, applies it. Otherwise, attempts to invoke a binary method reflectively using the provided operator name. Throws an exception if operands are null or if no suitable operation is found.
      *
-     * @param name the operator method name for reflective lookup
-     * @param op1 the left operand
-     * @param op2 the right operand
-     * @param longOp the operation to apply if both operands are longs
+     * @param name     the operator method name for reflective lookup
+     * @param op1      the left operand
+     * @param op2      the right operand
+     * @param longOp   the operation to apply if both operands are longs
      * @param doubleOp the operation to apply if either operand is a double
      * @return the result of the binary operation
      * @throws ExecutionException if operands are null or no suitable operation is found
@@ -134,7 +134,7 @@ public abstract class AbstractOperator implements Operator {
         if (longOp != null && Cast.isLong(op1) && Cast.isLong(op2)) {
             return longOp.apply(Cast.toLong(op1), Cast.toLong(op2));
         }
-        if (doubleOp != null && (Cast.isDouble(op1) || Cast.isDouble(op2))) {
+        if (doubleOp != null && Cast.isDouble(op1) && Cast.isDouble(op2)) {
             return doubleOp.apply(Cast.toDouble(op1), Cast.toDouble(op2));
         }
 

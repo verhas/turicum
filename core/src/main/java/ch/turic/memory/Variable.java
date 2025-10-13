@@ -5,6 +5,7 @@ import ch.turic.commands.Closure;
 import ch.turic.commands.Identifier;
 import ch.turic.commands.Macro;
 import ch.turic.commands.operators.Cast;
+import ch.turic.utils.JdkTypePredicate;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -129,17 +130,17 @@ public class Variable {
      * <ul>
      * <li> {@code bool} boolean type
      * <li> {@code str} string
-     * <li> {@code num} any numeric type, integer or float
+     * <li> {@code num} any numeric type, integer, or float
      * <li> {@code int} any integer type
      * <li> {@code float} float type
      * <li> {@code any} the variable can hold any value
-     * <li> {@code obj} the variable can hols any object without restriction on the class of that object
+     * <li> {@code obj} the variable can hold any object without restriction on the class of that object
      * <li> {@code lst} the variable has to be a list
      * <li> {@code que} the variable has to be a queue
      * <li> {@code task} the variable has to be an asynchronous task
      * <li> {@code err} the variable has to be an asynchronous task
      * <li> {@code cls} the variable has to be a class
-     * <li> {@code fn} the variable value has to be a function of closure
+     * <li> {@code fn} the variable value has to be a function or closure
      * <li> {@code macro} the variable value has to be a macro
      * <li> {@code none} the variable can hold the value {@code none}
      * <li> {@code some} the variable can hold any value, except {@code none}
@@ -149,13 +150,13 @@ public class Variable {
      * using reflection. If the type name is not one of the above and doesn't start with {@code "java."},
      * the method looks it up in the given context and expects it to be an instance of {@link LngClass}.
      *
-     * @param context the current execution context in which user-defined classes are stored
-     * @param name    the string representation of the types to resolve
+     * @param ctx  the current execution context in which user-defined classes are stored
+     * @param name the string representation of the types to resolve
      * @return a {@link Variable.Type} object representing the resolved types
      * @throws ExecutionException if the types cannot be found, is not defined in the context,
      *                            or is not a class when expected
      */
-    public static Type getTypeFromName(LocalContext context, String name) {
+    public static Type getTypeFromName(LocalContext ctx, String name) {
         return switch (name) {
             // snippet types
             case "bool" -> new Variable.Type(Boolean.class, null, new Identifier(name));
@@ -193,17 +194,24 @@ public class Variable {
             // end snippet
             default -> {
                 if (name.startsWith("java.")) {
+                    final String klassName;
+                    if (JdkTypePredicate.INSTANCE.test(name)) {
+                        klassName = name;
+                    } else {
+                        klassName = name.substring(5);
+                    }
                     try {
-                        yield new Variable.Type(Class.forName(name.substring(5)), null, new Identifier(name));
+                        final var klass = ctx.globalContext.classLoader.loadClass(klassName);
+                        yield new Variable.Type(klass, null, new Identifier(name));
                     } catch (ClassNotFoundException e) {
                         throw new ExecutionException("Type '%s' could not be found.", name);
                     }
                 }
-                if (context == null) {
+                if (ctx == null) {
                     throw new RuntimeException("Null context, internal error.");
                 }
-                ExecutionException.when(!context.contains(name), "Type '%s' is not defined.", name);
-                final var classObject = context.get(name);
+                ExecutionException.when(!ctx.contains(name), "Type '%s' is not defined.", name);
+                final var classObject = ctx.get(name);
                 if (classObject instanceof LngClass lngClass) {
                     yield new Variable.Type(LngObject.class, lngClass, new Identifier(name));
                 } else {

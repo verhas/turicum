@@ -10,5 +10,5 @@ public interface LngCallable {
     interface LngCallableMacro extends LngCallable {
     }
 
-    Object call(Context ctx, Object[] arguments) throws ExecutionException;
+    Object call(Context context, Object[] arguments) throws ExecutionException;
 }

@@ -4,6 +4,9 @@ import ch.turic.Context;
 import ch.turic.ExecutionException;
 import ch.turic.TuriFunction;
 import ch.turic.commands.ClosureLike;
+/*snippet builtin0130
+
+end snippet */
 
 /**
  * The IsCurried class implements the TuriFunction interface and provides a function

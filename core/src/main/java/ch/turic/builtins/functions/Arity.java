@@ -5,13 +5,25 @@ import ch.turic.ExecutionException;
 import ch.turic.TuriFunction;
 import ch.turic.commands.ClosureLike;
 
+/*snippet builtin0030
+
+=== `arity`
+
+The built-in function `arity` returns the number of parameters of the argument function.
+You pass a function, macro, or closure to this function, and the return value is the number of arguments.
+The arguments `[rest]`, `{meta}`, and `^closure` do ot count into the arity.
+
+
+{%S arity%}
+end snippet */
+
 /**
  * The Arity class implements the TuriFunction interface and is responsible for
  * determining the arity (number of parameters) of functions or closures.
  * It invokes the functionality and returns the number of formal parameters
  * of the provided closure-like entity.
  * <p>
- * This function operates within the Turi language system and its execution
+ * This function operates within the Turi language system, and its execution
  * is contextualized using the provided context and argument parameters. If
  * the input argument is null or of an unsupported type, an exception is thrown.
  * <p>

@@ -11,6 +11,10 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 
+/*snippet builtin0230
+
+end snippet */
+
 /**
  * The function `keys()` returns a string list containing the keys of the argument.
  * <p>

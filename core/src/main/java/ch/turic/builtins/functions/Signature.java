@@ -6,6 +6,9 @@ import ch.turic.TuriFunction;
 import ch.turic.commands.ClosureLike;
 import ch.turic.memory.LngList;
 import ch.turic.memory.LngObject;
+/*snippet builtin0410
+
+end snippet */
 
 /**
  * Return the signature of a macro, function, or closure.

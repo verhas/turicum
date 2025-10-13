@@ -27,4 +27,13 @@ public interface TuriMacro extends LngCallable.LngCallableMacro, ServiceLoaded, 
         return ServiceLoaded.getInstances(TuriMacro.class);
     }
 
+    /**
+     * Similar to {@link #getInstances()}, but uses the specified class loader.
+     *
+     * @param cl the class loader to use for loading the service implementations
+     * @return a list of instances of classes implementing the {@code TuriClass} interface
+     */
+    static List<TuriMacro> getInstances(ClassLoader cl) {
+        return ServiceLoaded.getInstances(TuriMacro.class, cl);
+    }
 }

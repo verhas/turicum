@@ -8,6 +8,9 @@ import ch.turic.memory.LngClass;
 import ch.turic.memory.LngList;
 
 import java.util.Arrays;
+/*snippet builtin0300
+
+end snippet */
 
 /**
  * Returns the list of the direct parents.

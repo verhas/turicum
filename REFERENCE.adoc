@@ -1671,15 +1671,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=5E81E5AC
+h id=4A8AB068
 h after post increment: 1
 k: 0
-h id=4189D70B
-k id=5E81E5AC
+h id=1922E6D
+k id=4A8AB068
 h after pre increment: 2
 z: 2
-h id=3FA2213
-z id=3FA2213
+h id=76A82F33
+z id=76A82F33
 
 ----
 
@@ -1724,15 +1724,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=6F0B0A5E
+h id=532A02D9
 h after post increment: 1
 k: 1
-h id=6F0B0A5E
-k id=6F0B0A5E
+h id=532A02D9
+k id=532A02D9
 h after pre increment: 2
 z: 2
-h id=6F0B0A5E
-z id=6F0B0A5E
+h id=532A02D9
+z id=532A02D9
 
 ----
 
@@ -1780,15 +1780,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=320DE594
+h id=7F811D00
 h after post decrement: -1
 k: 0
-h id=ABF688E
-k id=320DE594
+h id=4089713
+k id=7F811D00
 h after pre decrement: -2
 z: -2
-h id=478EE483
-z id=478EE483
+h id=F19C9D2
+z id=F19C9D2
 
 ----
 
@@ -1830,15 +1830,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=2974F221
+h id=A77614D
 h after post decrement: -1
 k: -1
-h id=2974F221
-k id=2974F221
+h id=A77614D
+k id=A77614D
 h after pre decrement: -2
 z: -2
-h id=2974F221
-z id=2974F221
+h id=A77614D
+z id=A77614D
 
 ----
 
@@ -5059,9 +5059,9 @@ println( (end-start)/1000000, "ms")
 [source]
 ----
 [1, 2, 3]
-307.194417ms
+319.773542ms
 []
-307.532292ms
+313.582041ms
 
 ----
 
@@ -5271,9 +5271,10 @@ a =3.6063454894655185
 a =3.6055513629176015
 a =3.6055512754639905
 a =3.6055512754639896
-sqrt(13) ≈ 3.6055512754639905
+a =3.6055512754639896
+sqrt(13) ≈ 3.6055512754639896
 sqrt(13) ≈ 3.605551275463989 calculated by java Math
-square ≈ 13.000000000000009
+square ≈ 13.000000000000002
 
 ----
 
@@ -6752,7 +6753,7 @@ Classes can be nested and defined inside other classes.
 When calling the constructor of the class to create a new instance then the variable `this` would be ambigous.
 
 For `a.Z()` it usually points to `a`, but if `Z` is a class, and we called the constructor, than `this` should be the new instance.
-In this situation a special variable called `that` will point to `a`.
+In this situation, a special variable called `that` will point to `a.
 
 .source of snippet `class8`
 
@@ -6787,7 +6788,7 @@ that {cls: class A}
 === Class inheritance
 
 Classes can inherit in Turicum.
-When you declare a class the parent class or classes are specified by the name after a `:`.
+When you declare a class, the parent class or classes are specified by the name after a `:`.
 
 .source of snippet `inherit1`
 
@@ -6815,7 +6816,7 @@ println o.a(),o.v,o.b(),o.z;
 
 
 
-You can use the methods or fields declared in the class as well as any other method and fields defined in the parent classes.
+You can use the methods or fields declared in the class, as well as any other methods and fields defined in the parent classes.
 You can inherit from multiple parent classes:
 
 .source of snippet `inherit2`
@@ -7559,9 +7560,9 @@ Hence, the special variable `that` was introduced.
 You will hardly ever need it.
 
 * `me` it always points to the currently executing function or closure.
-You can use it to furnish recursive calls.
-It is necessary when a function is defined in a local context it does not capture.
-For more read the next section Function scopes and `me`.
+You can use it to make recursive calls.
+It is necessary that when a function is defined in a local context, it does not capture.
+For more, read the next section.
 
 === Function scopes and `me`
 
@@ -7835,20 +7836,40 @@ true
 
             * `after` 
  returns the part of the string that follows the argument string.
- If the argument string is not in the string, then it returns an empty string.
+ If the argument string is not found, then it returns an empty string.
  
 +
 .source of snippet `string_after`
 [source]
 ----
-println "alma ata".after("ma ")
+println "abraka badraka".after("ra")
 
 ----
 +
 .output of snippet `string_after`
 [source]
 ----
-ata
+ka badraka
+
+----
+
+
+            * `after_last` 
+ returns the part of the string that follows the last occurrence of the argument string.
+ If the argument string is not found, then it returns an empty string.
+ 
++
+.source of snippet `string_after_last`
+[source]
+----
+println "abraka badraka".after_last("ra")
+
+----
++
+.output of snippet `string_after_last`
+[source]
+----
+ka
 
 ----
 
@@ -7861,14 +7882,34 @@ ata
 .source of snippet `string_before`
 [source]
 ----
-println "alma ata".before(" ata")
+println "abraka badraka".before("ra")
 
 ----
 +
 .output of snippet `string_before`
 [source]
 ----
-alma
+ab
+
+----
+
+
+            * `before_last` 
+ returns the part of the string that is before the argument string.
+ If the argument string is not in the string, then it returns an empty string.
+ 
++
+.source of snippet `string_before_last`
+[source]
+----
+println "abraka badraka".before_last("ra")
+
+----
++
+.output of snippet `string_before_last`
+[source]
+----
+abraka bad
 
 ----
 
@@ -7929,6 +7970,9 @@ avalanche......<<
 [source]
 ----
 println "alma ata".between("al","ta")
+// is the same as
+println "alma ata".after("al").before("al","ta")
+
 
 ----
 +
@@ -7936,6 +7980,7 @@ println "alma ata".between("al","ta")
 [source]
 ----
 ma a
+
 
 ----
 
@@ -8708,6 +8753,141 @@ println "632".int()
 ----
 
 
+            * `bool` 
+ returns the boolean value of the string.
+ The method works the same as the automatic conversion, and thus there is no need to use it
+ when the string is in an environment that expects a boolean value.
+ 
++
+.source of snippet `string_bool`
+[source]
+----
+fn p(s:str){
+    println s, " is ", s.bool()
+}
+p "true"
+p "no"
+p "" // empty string
+p "nominative"
+p "false"
+p "0"
+p "1"
+p "1.0"
+p "0.0"
+
+----
++
+.output of snippet `string_bool`
+[source]
+----
+true is true
+no is false
+ is false
+nominative is false
+false is false
+0 is false
+1 is false
+1.0 is false
+0.0 is false
+
+----
+
+
+            * `big_int` 
+ returns the BigInteger value of the string.
+ 
++
+.source of snippet `string_bigi`
+[source]
+----
+print "11111111111111111111111111111111111111111111111111111111111".big_int() +
+      "11111111111111111111111111111111111111111111111111111111111".big_int()
+
+----
++
+.output of snippet `string_bigi`
+[source]
+----
+22222222222222222222222222222222222222222222222222222222222
+----
+
+
+            * `big_decimal` 
+ returns the BigDecimal value of the string.
+ 
++
+.source of snippet `string_bigd`
+[source]
+----
+print "0.11111111111111111111111111111111111111111111111111111111111".big_decimal() +
+      "0.11111111111111111111111111111111111111111111111111111111111".big_decimal()
+
+----
++
+.output of snippet `string_bigd`
+[source]
+----
+0.22222222222222222222222222222222222222222222222222222222222
+----
+
+
+            * `path` 
+ returns the Java path object created from the string.
+ 
++
+.source of snippet `string_path`
+[source]
+----
+println type("C:\\Users\\user\\Documents\\my_file.txt".path())
+
+----
++
+.output of snippet `string_path`
+[source]
+----
+java.sun.nio.fs.UnixPath
+
+----
+
+
+            * `uri` 
+ returns the URI created from the string.
+ 
++
+.source of snippet `string_uri`
+[source]
+----
+println type("http://cnn.com".uri())
+
+----
++
+.output of snippet `string_uri`
+[source]
+----
+java.java.net.URI
+
+----
+
+
+            * `url` 
+ returns the URL created from the string.
+ 
++
+.source of snippet `string_url`
+[source]
+----
+println type("http://cnn.com".url())
+
+----
++
+.output of snippet `string_url`
+[source]
+----
+java.java.net.URL
+
+----
+
+
             * `float` 
  returns the floating number contained in the string
  
@@ -8728,7 +8908,7 @@ println "3.1415929".float()
 
 
             * `number` 
- returns the number contained in the string encoded with the argument radix
+ returns the int number contained in the string encoded with the argument radix
  
 +
 .source of snippet `string_number`
@@ -8769,7 +8949,7 @@ println "0x2F".hex()
 
 
             * `substring` 
- retruns a substring of the string.
+returns a substring of the string.
  There has to be at least one (`a`), and there can be at most two (`a`,`b`) integer arguments.
  The substring starts at the character indexed `a` and finishes before the character `b`.
  If there is no `b`, the substring lasts till the end of the string.
@@ -8799,6 +8979,7 @@ at
 
             * `remove_prefix` 
  removes the argument from the start of the string if that is a prefix of the string.
+ If the string does not start with the prefix, it just returns the original string.
  
 +
 .source of snippet `string_remove_prefix`
@@ -8820,6 +9001,7 @@ alma ata
 
             * `remove_postfix` 
  removes the argument from the end of the string if that is a postfix of the string.
+ If the string does not end with the postfix, it just returns the original string.
  
 +
 .source of snippet `string_remove_postfix`
@@ -8841,7 +9023,7 @@ alma ata
 
             * `count_substring` 
  counts the occurrences of the argument string.
- Note that when an occurrence is found the other occurrences are sought for after that occurrence.
+ Note that when an occurrence is found, the other occurrences are sought for after that occurrence.
  It means that, for example, `("a"*6).count_substring("aa")` is 3 and not 5.
  
 +
@@ -9051,18 +9233,22 @@ alma ata
 
             * `times` 
  repeat the string as specified by the argument.
+ This is same as multiplying a string by an integer number.
  
 +
 .source of snippet `string_times`
 [source]
 ----
 println "alma ".times(5)
+// same as
+println "alma "*5
 
 ----
 +
 .output of snippet `string_times`
 [source]
 ----
+alma alma alma alma alma 
 alma alma alma alma alma 
 
 ----
@@ -9107,7 +9293,7 @@ ALMA ATTA
 
 
             * `swap_case` 
- swaps case of each letter.
+ swaps the case of each letter.
  
 +
 .source of snippet `string_swap_case`
@@ -9166,8 +9352,8 @@ Alma Atta
 
             * `casefold` 
  return the string with cases folded to the lower case.
- This transformation is aggressive and to be used for case-insensitive comparison.
- For most of the characters it is the same as `lower_case`, but it also converts many Unicode characters, like `ß` to `ss`.
+ This transformation is aggressive and is to be used for case-insensitive comparison.
+ For most of the characters, it is the same as `lower_case`, but it also converts many Unicode characters, like `ß` to `ss`.
  
 +
 .source of snippet `string_casefold`
@@ -9355,7 +9541,7 @@ true
 
 
             * `partition` 
- Splits a string into three parts and retuns a three-element list.
+ Splits a string into three parts and returns a three-element list.
  If the string has the format `xxxZZZyyy` where `ZZZ` is the partitioning element, then
  the list will be `["xxx", "ZZZ", "yyy"]`.
  If `ZZZ` is not found in the string, then the first element of the list will contain the whole string, and the second and last elements will be empty strings.
@@ -9384,7 +9570,7 @@ kalifa
 
 
             * `partition_regex` 
- Splits a string into three parts and retuns a three-element list.
+ Splits a string into three parts and returns a three-element list.
  If the string has the format `xxxZZZyyy` where `ZZZ` is a substring that matches the partitioning regular expression, then
  the list will be `["xxx", "ZZZ", "yyy"]`.
  If `ZZZ` is not found in the string, then the first element of the list will contain the whole string, and the second and last elements will be empty strings.
@@ -9439,9 +9625,9 @@ println jsonify("abraka, muhaha dabra, mutabor; kalifa".split("[ ,;]+",3));
 
 
             * `msplit` 
- split the string into a list of list of list... using the characters of the argument.
+ split the string into a list of lists of... using the characters of the argument.
  There is no default splitter character(s) in the case of msplit.
- Optionally, there is a second, third and so on arguments that can limit how many pieces the strings are split.
+ Optionally, there are second, third, and so on arguments that can limit how many pieces the strings are split.
  If it is `0` then there is no limit, but the trailing empty strings are discarded.
  If the limit is -1, the trailing empty elements are kept.
  
@@ -9462,13 +9648,16 @@ println jsonify("gropeId:artichokId:varsio,mersio,mubakka|abraka:debarbara,mucik
 
 
             * `bytes` 
- return a list that contains the bytes of the string using UTF-8 character encoding.
+ return a list that contains the bytes of the string using the given character encoding.
+ The character coding is UTF-8 by default.
+ In other cases, it has to be defined by name as a string.
  
 +
 .source of snippet `string_bytes`
 [source]
 ----
 println "alma ata".bytes()
+println "alma ata".bytes("Cp037") // EBCDIC encoding
 
 ----
 +
@@ -9476,6 +9665,26 @@ println "alma ata".bytes()
 [source]
 ----
 [97, 108, 109, 97, 32, 97, 116, 97]
+[-127, -109, -108, -127, 64, -127, -93, -127]
+
+----
+
+
+            * `chars` 
+ return a list that contains the characters of the string, each as a string.
+ 
++
+.source of snippet `string_chars`
+[source]
+----
+println jsonify("Hello, World!".chars())
+
+----
++
+.output of snippet `string_chars`
+[source]
+----
+["H","e","l","l","o",","," ","W","o","r","l","d","!"]
 
 ----
 
@@ -9500,7 +9709,7 @@ println ":".join([".","/usr/bin","usr/local/bin"])
 
 
             * `char_at` 
- get the character at the given position.
+ get the character at the given position as a single character string.
  
 +
 .source of snippet `string_char_at`
@@ -9520,6 +9729,7 @@ alma ata
 
             * `safe_char_at` 
  get the character at the given position or an empty string if the index is out of range.
+ The return value is a single character string or an empty string.
  
 +
 .source of snippet `string_safe_char_at`
@@ -9752,41 +9962,74 @@ Built-in functions are functions provided by the interpreter, which extend the f
 
 === Mathematical Functions
 
-All mathematical functions from Java's Math class are available in Turicum:
+Turicum implements many mathematical functions.
+All mathematical functions from Java's Math class are available in Turicum.
+In addition to that, there are some Turicum-specific ones also.
 
-* `acos(x)` - Returns the arc cosine of a value
-* `asin(x)` - Returns the arc sine of a value
-* `atan(x)` - Returns the arc tangent of a value
-* `atan2(y,x)` - Returns the angle theta from the conversion of rectangular coordinates (x,y) to polar coordinates
-* `cbrt(x)` - Returns the cube root of a value
-* `ceil(x)` - Returns the smallest integer greater than or equal to the argument
-* `copy_sign(magnitude,sign)` - Returns first argument with the sign of the second argument
-* `cos(x)` - Returns the trigonometric cosine of an angle
-* `cosh(x)` - Returns the hyperbolic cosine of x
-* `exp(x)` - Returns Euler's number e raised to the power of x
-* `floor(x)` - Returns the largest integer less than or equal to the argument
-* `get_exponent(x)` - Returns the unbiased exponent used in the representation of a floating point number
-* `hypot(x,y)` - Returns sqrt(x^2 + y^2) without intermediate overflow or underflow
-* `ieee_remainder(x,y)` - Returns the IEEE 754 floating-point remainder of division
-* `log(x)` - Returns the natural logarithm (base e) of x
-* `log10(x)` - Returns the base 10 logarithm of x
-* `next_after(start,direction)` - Returns the floating-point number adjacent to start in the direction of direction
-* `next_down(x)` - Returns the floating-point value adjacent to x in the direction of negative infinity
-* `next_up(x)` - Returns the floating-point value adjacent to x in the direction of positive infinity
-* `pow(x,y)` - Returns the value of x raised to the power of y
-* `random()` - Returns a random number between 0.0 and 1.0
-* `rint(x)` - Returns the closest integer to x (as a double)
-* `round(x)` - Returns the closest integer to x (as a long)
-* `scalb(x,scaleFactor)` - Returns x * 2^scaleFactor
-* `sig_num(x)` - Returns the signum function of x
-* `sin(x)` - Returns the trigonometric sine of an angle
-* `sinh(x)` - Returns the hyperbolic sine of x
-* `sqrt(x)` - Returns the square root of x
-* `tan(x)` - Returns the trigonometric tangent of an angle
-* `tanh(x)` - Returns the hyperbolic tangent of x
-* `to_degrees(x)` - Converts an angle measured in radians to degrees
-* `to_radians(x)` - Converts an angle measured in degrees to radians
-* `ulp(x)` - Returns the size of an ulp (unit in last place) of x
+The functions implemented are the following:
+
+ * `random()` Returns a random number between 0 and 1.
+ * `java_long(x)` Converts the argument to a Java long.
+ Technically, this is the same function as `int` because Turicum stores integer numbers as longs.
+ The use of this function is recommended over `int` when the argument is used to pass to a Java method that expects a long argument.
+ * `int(x)` Converts the argument to an integer.
+ * `java_int(x)` Converts the argument to a Java Integer.
+ Use this function when the argument is used to pass to a Java method that expects an int or Integer argument.
+ * `java_short(x)` Converts the argument to a Java Short.
+ Use this function when the argument is used to pass to a Java method that expects a short or Short argument.
+ * `java_char(x)` Converts the argument to a Java Character.
+ Use this function when the argument is used to pass to a Java method that expects a char or Character argument.
+ Note that some of the numerical values interpreted as code points may not be valid characters.
+ Multiple Java characters may represent them.
+ In such cases, an error is thrown.
+ * `java_byte(x)` Converts the argument to a Java Byte.
+ Use this function when the argument is used to pass to a Java method that expects a byte or Byte argument.
+ * `float(x)` Converts the argument to a float.
+ The actual value is represented as a double.
+ Turicum stores floating numbers internally as doubles.
+ * `java_double(x)` Converts the argument to a Java double.
+ Use this function when the argument is used to pass to a Java method that expects a double or Double argument.
+ Turicum stores floating numbers internally as doubles.
+ So technically this function is the same as `float`.
+ * `java_float(x)` Converts the argument to a Java float.
+ Use this function when the argument is used to pass to a Java method that expects a float or Float argument.
+ * `num(x)` Converts the argument to a number.
+ The result will either be a float or an int (Java double or long).
+ * `scalb(d,s)` returns `d` times `2` to the power of `s`.
+ *`sin` returns the trigonometric sine of an angle.
+ * `cos(x)` returns the trigonometric cosine of an angle.
+ * `acos(x)` returns the trigonometric arc cosine of a value.
+ * `asin(x)` returns the trigonometric arc sine of a value.
+ * `atan(x)` returns the trigonometric arc tangent of a value.
+ * `cbrt(x)` returns the cube root of a value.
+ * `ceil(x)` returns the smallest integer value that is greater than or equal to the argument and is equal to a mathematical integer.
+ * `abs(x)` returns the absolute value of a number.
+ * `exp(x)` returns the value `e` raised to the power of a value.
+ * `floor(x)` returns the largest integer value that is less than or equal to the argument and is equal to a mathematical integer.
+ * `log(x)` returns the natural logarithm (base `e`) of a value.
+ * `log10(x)` returns the base-10 logarithm of a value.
+ * `sqrt(x)` returns the positive square root of a value.
+ * `tan(x)` returns the trigonometric tangent of an angle.
+ * `tanh(x)` returns the hyperbolic tangent of a value.
+ * `sinh(x)` returns the hyperbolic sine of a value.
+ * `cosh(x)` returns the hyperbolic cosine of a value.
+ * `get_exponent(x)` returns the exponent used in the representation of a number.
+ * `round(x)` rounds a number to the nearest integer.
+ * `signum(x)` returns the sign of a number.
+ * `next_down(x)` returns the next representable floating-point value after a given number towards negative infinity.
+ * `ulp(x)` returns the size of an ulp of the argument.
+ An ulp, unit in the last place, of a double value is the positive distance between this floating-point value and the double value next larger in magnitude.
+ * `rint(x)` returns the floating-point value that is closest in value to the argument and is equal to a mathematical integer.
+ * `to_degrees(x)` converts an angle measured in radians to an approximately equivalent angle measured in degrees.
+ * `to_radians(x)` converts an angle measured in degrees to an approximately equivalent angle measured in radians.
+ * `pow(x,y)` returns the first argument raised to the power of the second argument.
+ * `atan2(x,y)` returns the angle theta from the conversion of rectangular coordinates (x, y) to polar coordinates (r, theta).
+ * `ieee_remainder(x,y)` returns the remainder operation on floating-point values according to IEEE 754.
+ * `copy_sign(x,y)` returns a value with the magnitude of the first argument and the sign of the second argument.
+ * `hypot(x,y)` returns the hypotenuse of a right triangle with sides of length a and b.
+ * `next_after(x,y)` returns the next representable floating-point value after a given number towards positive infinity.
+ * `next_up(x)` returns the next representable floating-point value after a given number towards positive infinity.
+
 
 .source of snippet `math_functions`
 
@@ -9871,10 +10114,24 @@ scalb(2.0,3) = 16.0
 
 
 
+
+=== `add_java_classes`
+
+Adds a jar file or location to the Turi environment.
+
+The argument of the function is a string that is the name of a JAR file.
+The function searches the `APPIA` directories for the JAR file and loads it into the Turi environment.
+The argument should specify the full name, including the `.jar` extension.
+If the name contains a partial path, it will be tried for each of the `APPIA` directories.
+
+After the JAR file is loaded, the application can use the classes defined in the JAR file.
+It means that `java_class` can reference the classes defined in the JAR file, and all the defined functions, macros, and class extensions will be available for the application.
+You can also `sys_import` turicum files from the JAR, and you can call `java_resources()` to access the resources defined in the JAR.
+
 === `all_parents`
 
 Returns a list of classes that are the parent classes of the argument with a transitive closure.
-It means that all classes, including the parents of the parents and so on, recursively.
+It means that all classes, including the parents of the parents and so on, are recursively included in the list.
 
 .source of snippet `all_parents`
 
@@ -9900,32 +10157,432 @@ println([ ..all_parents(K) -> type(it()) ])
 
 The classes are ordered in inheritance order.
 
-=== `die`
 
-This function will throw an exception.
-The argument is the message of the exception.
-The naming of the function is a tribute to the programming language Perl.
-If you feel the naming offensive, you can use the lame `throw` form after importing it:
+==== `as_object`
 
-.source of snippet `die`
+This function converts a command into an object.
+This function supports reflective programming and is likely used together with the `thunk`, `unthunk`, inside macros.
+
+.source of snippet `as_object`
 
 [source]
 ----
-
-sys_import "turi.throw"
-
-try:
-    throw "wuff"
-catch ex:
-    print "don't die"
+let z = thunk({let k = 5})
+println jsonify_beauty(as_object(z))
 
 ----
 
-.output of snippet `die`
+.output of snippet `as_object`
 [source]
 ----
-don't die
+{
+    "java$canonicalName": "ch.turic.commands.BlockCommand",
+    "wrap": true,
+    "commands": [
+                    {
+                        "assignments": [
+                                           {
+                                               "identifier": "k",
+                                               "types": [ ],
+                                               "expression": {
+                                                                 "java$canonicalName": "ch.turic.commands.IntegerConstant",
+                                                                 "value": 5
+                                                             },
+                                               "java$canonicalName": "ch.turic.analyzer.AssignmentList.Assignment"
+                                           }
+                                       ],
+                        "java$canonicalName": "ch.turic.commands.LetAssignment",
+                        "mut": false
+                    }
+                ]
+}
+
 ----
+
+
+
+The field `java$canonicalName` contains the canonical name of the class that implements the command.
+The other fields are the fields of the command implementation.
+In the example above, the command is a block command.
+It is a wrapping command (it sees the variables defined before it outside of the block) and contains an array of commands.
+This array has one element, which is an assignment (`LetAssignment`).
+One assignment command may contain multiple assignments; hence, the field `assignments` is named plural and is an array.
+In this case, it has one element.
+It has an identifier, `k`, a types array, and an expression, which is an integer constant with the value `5`.
+The assignment uses the `let` keyword; therefore, the `mut` field is set to `false`.
+
+
+=== `arity`
+
+The built-in function `arity` returns the number of parameters of the argument function.
+You pass a function, macro, or closure to this function, and the return value is the number of arguments.
+The arguments `[rest]`, `{meta}`, and `^closure` do ot count into the arity.
+
+
+.source of snippet `arity`
+
+[source]
+----
+fn a(x,z,h){}
+fn b(x,z,{h}){}
+println arity(a)
+println arity(b)
+
+----
+
+.output of snippet `arity`
+[source]
+----
+3
+2
+
+----
+
+
+
+==== `block_list`
+
+The function `block_list` will return a list containing the commands in a command block.
+The following example shows you how it can be used together with `thunk` and `unthunk`.
+
+.source of snippet `block_list`
+
+[source]
+----
+mut commands = block_list(thunk({k = 13; suss = "huss"; mut x = 3; println "hello"}))
+println "before execution"
+mut i = 1;
+for each command in commands {
+    mut suss;
+    println "%s. before is_defined(x) = %s" % [i,is_defined(x)]
+    if i == 1 {// k is not defined, no assignable
+        try: unthunk(command) catch e: println "ERROR: %s" % [e];
+    } else {
+        // 2 can assign value to 'suss'
+        // 3 can define 'x'
+        // 4 prints 'hello'
+        unthunk(command)
+        println "%s. after is_defined(x) = %s" % [i,is_defined(x)]
+    }
+    i++
+}
+
+----
+
+.output of snippet `block_list`
+[source]
+----
+before execution
+1. before is_defined(x) = false
+ERROR: Variable 'k' is undefined.
+2. before is_defined(x) = false
+2. after is_defined(x) = false
+3. before is_defined(x) = false
+3. after is_defined(x) = true
+4. before is_defined(x) = false
+hello
+4. after is_defined(x) = false
+
+----
+
+
+
+The counter `i` is used to display which command we execute in the loop.
+It is also used to execute the first command in a `try-catch` block.
+`k` is not defined; therefore, unthunking this command will not work.
+
+The second command updates a declared variable.
+It does not need to be in a `try-catch` block.
+
+The third command defines the variable `x`.
+In this execution, the variable `x` after the ``unthunk``ing is defined.
+
+`x` becomes a normal local variable in the loop, which is defined for the execution of the loop core only.
+When the next execution starts the variable `x` is undefined again.
+
+
+=== `chr`
+
+Converts a number interpreted as a Unicode code point to a one-character string.
+
+
+=== `curried_arity`
+
+The built-in function `curried_arity()` returns the number of curried arguments.
+
+When you curry a function, then the arity of the resulting function decreases by the number of curried arguments.
+The function `arity()` returns the full arity of the function.
+
+.source of snippet `curried_arity`
+
+[source]
+----
+fn add(a,b)=a + b
+let add5 = add.(5)
+fn test(s){ println s," = ", s.execute() }
+test "add5(5)"
+test "curried_arity(add5)"
+test "arity(add5)"
+test "curried_arity(add)"
+test "arity(add)"
+
+----
+
+.output of snippet `curried_arity`
+[source]
+----
+add5(5) = 10
+curried_arity(add5) = 1
+arity(add5) = 2
+curried_arity(add) = 0
+arity(add) = 2
+
+----
+
+
+
+The function `add()` in the example adds two numbers.
+The arity of the function is two, as it has two arguments.
+The function `add5()` curries one of the arguments.
+The arity of this new function is still two in Turicum, but one argument is now curried.
+The number of the curried arguments is returned by `curried_arity()`.
+
+
+=== `enumerate()`
+
+The enumerate function is included, although Turicum already provides this capability through the `with` keyword in loops.
+Its presence is mainly a courtesy to those who might otherwise feel deprived after growing accustomed to it in Python.
+
+As you can see, the elements of the list are enumerated, and the index is stored in the first element of the pair.
+Note that this function works on anything that you can use in a `for each` loop.
+
+The result of the `enumerate()` function is an iterable object, which creates the next element only when it is requested.
+It means that you can use it to loop through possibly extremely large iterables without consuming excessive memory.
+
+.source of snippet `foreach5`
+
+[source]
+----
+for each [ j, z ] with i in enumerate(["apple", "banana", "orange", "peach"]) {
+println "%s.%s. %s" % [i, j, z]
+}
+
+----
+
+.output of snippet `foreach5`
+[source]
+----
+0.0. apple
+1.1. banana
+2.2. orange
+3.3. peach
+
+----
+
+
+
+In the example above, the elements of the `enumerate()` are stored in `j` and `z`.
+The variable `j` holds the index of the element, and `z` holds the element itself.
+The example demonstrates that this is the same as the index value, stored in the variable `i` provided through the `with` keyword.
+
+
+
+=== `env`
+
+This function returns the value of the environment variable.
+
+Without argument, it returns an object containing all environment variables as fields.
+
+.source of snippet `env1`
+
+[source]
+----
+println env().JAVA_HOME
+
+----
+
+.output of snippet `env1`
+[source]
+----
+/Users/verhasp/.sdkman/candidates/java/current
+
+----
+
+
+
+With a given string argument without `*` or `?` wild card characters, the return value is the value of the environment variable.
+
+.source of snippet `env2`
+
+[source]
+----
+println env("JAVA_HOME")
+
+----
+
+.output of snippet `env2`
+[source]
+----
+/Users/verhasp/.sdkman/candidates/java/current
+
+----
+
+
+
+If the argument contains wild card characters, the result will be an object containing all environment variables as fields that match the argument.
+
+.source of snippet `env3`
+
+[source]
+----
+println env("JAVA_*")
+
+----
+
+.output of snippet `env3`
+[source]
+----
+{JAVA_HOME: /Users/verhasp/.sdkman/candidates/java/current}
+
+----
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+=== `yield()`, `try_yield()`, `yield_is_closed()`
+
+When a task is started asynchronously, there is always a channel between the parent thread and the child thread.
+You can create multiple channels (`que` objects), and different threads can read and write them, creating a complex mesh of messaging.
+However, one channel is always created when a task is started asynchronously, and this channel is tied to the task.
+
+The parent task starting thread can send objects into this channel using the `send()` method on the task object,
+and the asynchronous thread can get the objects sent by the parent thread by using `yield()`.
+
+`yield()` will wait infinitely for an object and return one when one arrives.
+If the queue from the parent thread is already closed, then `yield()` will throw an exception.
+
+NOTE: `yield` is an operator and not a function, and it is used in other contexts with slightly different semantics also.
+
+`try_yield()` is more lenient.
+It does not wait.
+It returns `none` if there is no message or the channel is closed.
+
+`yield_is_closed()` can be used to test whether the queue is open from the parent to the child thread.
+
+.source of snippet `try_yield`
+
+[source]
+----
+fn printer(){
+    mut n = 0
+    while {
+        mut s = try_yield();
+        return { println "we are done" } when yield_is_closed();
+        if s == none {
+            println "not ready %s" % n
+            n++
+            sleep 0.003
+        } else {
+            n = 0
+            println "received %s" % s;
+        }
+    }
+}
+
+mut task : task = async printer()
+for i=1 ; i < 4 ; i++ {
+ println "sending ",i
+ task.send(i);
+ sleep 0.009
+ }
+println "closing the channel"
+task.close();
+println "channel is closed"
+println "is done %s" % task.is_done()
+await task
+println "is done %s" % task.is_done()
+
+none
+
+----
+
+.output of snippet `try_yield`
+[source]
+----
+sending 1
+not ready 0
+received 1
+not ready 0
+not ready 1
+not ready 2
+sending 2
+received 2
+not ready 0
+not ready 1
+sending 3
+received 3
+not ready 0
+not ready 1
+not ready 2
+closing the channel
+not ready 3
+channel is closed
+is done false
+we are done
+is done true
+
+----
+
+
+
+Note that the output of this sample is not deterministic.
+The sending happens __approximately__ every 9ms, and the reading is retried __approximately__ every 3ms.
+
 
 
 
@@ -10064,19 +10721,22 @@ Handling the `.env` file is implemented in the code, there is no need to use ext
 
 [NOTE]
 ====
-JavaScipt and Python and some other scripting languages differentiate between static and dynamic importing.
-Due to it's fully dynamic nature all imports are dynamic in Turicum.
+JavaScript, Python, and some other scripting languages differentiate between static and dynamic importing.
+Due to its fully dynamic nature, all imports are dynamic in Turicum.
 ====
 
 `APPIA` is a string that lists the directories where the imported files may be.
 The individual directories are separated using `|` characters.
 
-NOTE: The character `|` was selected because it works on Windows as well as on Linux or other unix-based operating systems.
-The drawback is that it may be interpreted by the shell, but the value of `APPIA` is rarely defined on the comand line.
+[NOTE]
+====
+The character `|` was selected because it works on Windows as well as on Linux or other Unix-based operating systems.
+The drawback is that the shell may interpret it, but the value of `APPIA` is rarely defined on the command line.
+====
 
-When the import function sees a request to import the file `a.b.c.d` it will look at the subdirectory `a/b/c` for each `APPIA` directory.
+When the import function sees a request to import the file `a.b.c.d`, it will look at the subdirectory `a/b/c` for each `APPIA` directory.
 The search is left to right as the directories are defined in the variable.
-The first location when the  `d.turi` file is found "wins" and the file is loaded.
+The first location where the  `d.turi` file is found "wins" and the file is loaded.
 
 Technically, the function
 
@@ -10086,9 +10746,9 @@ Technically, the function
 
 If you have function or class definitions in the imported file, they will be fields in the new object.
 
-You can assign the returned object to a variable or use it right away cherry-picking certain field from it.
+You can assign the returned object to a variable or use it right away, cherry-picking certain fields from it.
 
-If you want a specific class or function in your name space you can simply `let` assign it to a variable.
+If you want a specific class or function in your namespace, you can simply `let` assign it to a variable.
 
 .file `import_this.turi`
 [source]
@@ -10213,7 +10873,7 @@ The rest of the arguments should be the constructor arguments.
 NOTE: Since Turicum stores numbers as `Double` and `Long`, strings as `Strings`, and boolean values as `Boolean` without any wrapping class.
 Calling this function is straightforward when the constructor arguments are one of these primitive values.
 If the parameter type is something else, then you have to use `java_object()` to create that object.
-If some of the parameters are `Integer` or `int`, you can use the built-in function `int()` that converts a numeric value to an `Integer` Java object.
+If some of the parameters are `Integer` or `int`, you can use the built-in function `java_int()` that converts a numeric value to an `Integer` Java object.
 Similarly, if the argument is a `Float` or `float`, you can use the built-in function `float()` that converts a numeric value to a `Float` Java object.
 
 .source of snippet `java_object1`
@@ -10244,7 +10904,7 @@ As you can see in the example above, you can invoke the Java methods on the obje
 ----
 let sb = java_object("java.lang.StringBuilder", "xBruhahha");
 try: sb.deleteCharAt(0) catch e: println e
-sb.deleteCharAt(int(0))
+sb.deleteCharAt(java_int(0))
 println sb
 
 ----
@@ -10259,7 +10919,7 @@ Bruhahha
 
 
 
-The example shows that you may need to convert the argument calling `int()` when invoking methods that do not work with a `Long` value.
+The example shows that you may need to convert the argument calling `java_int()` when invoking methods that do not work with a `Long` value.
 
 ==== `java_call`
 
@@ -10284,7 +10944,7 @@ Use this method only when the name of the method is known only at run-time.
 [source]
 ----
 let sb = java_object("java.lang.StringBuilder", "xBruhahha");
-java_call sb,"deleteCharAt",int(0)
+java_call sb,"deleteCharAt",java_int(0)
 println sb
 
 ----
@@ -10318,7 +10978,7 @@ println m.absExact(int(-5))
 .output of snippet `java_class1`
 [source]
 ----
-5
+5.0
 5
 
 ----
@@ -10371,11 +11031,7 @@ en_US en_US_POSIX
 
 
 
-=== `arity`
 
-The built-in function `arity` returns the number of parameters of the argument function.
-You pass a function, macro, or closure to this function, and the return value is the number of arguments.
-The arguments `[rest]`, `{meta}`, and `^closure` do ot count into the arity.
 
 === `signature`
 
@@ -10550,75 +11206,10 @@ object beauty={
 
 
 
-=== `env`
-
-This function returns the value of the environment variable.
-
-Without argument, it returns an object that contains all the environment variables as fields.
-
-.source of snippet `env1`
-
-[source]
-----
-println env().JAVA_HOME
-
-----
-
-.output of snippet `env1`
-[source]
-----
-/Users/verhasp/.sdkman/candidates/java/current
-
-----
-
-
-
-With a given string argument without `*` or `?` wild card characters the return value is the value of the environment variable.
-
-.source of snippet `env2`
-
-[source]
-----
-println env("JAVA_HOME")
-
-----
-
-.output of snippet `env2`
-[source]
-----
-/Users/verhasp/.sdkman/candidates/java/current
-
-----
-
-
-
-If the argument contains some wild card characters, then the result will be an object containing all the environment variables as fields that match the argument.
-
-.source of snippet `env3`
-
-[source]
-----
-println env("JAVA_*")
-
-----
-
-.output of snippet `env3`
-[source]
-----
-{JAVA_HOME: /Users/verhasp/.sdkman/candidates/java/current}
-
-----
-
-
-
 === `str`
 
 Converts the argument to a string.
 Similar to the `to_string()` method, but it works safely on any value and in some situations it may be more readable.
-
-=== `chr`
-
-Converts a number interpreted as a Unicode code point to a one-character string.
 
 === `len`
 
@@ -10733,7 +11324,7 @@ println nano_time()
 .output of snippet `nano_time`
 [source]
 ----
-681556291193083
+1455302134314541
 
 ----
 
@@ -11359,84 +11950,78 @@ none
 .output of snippet `que`
 [source]
 ----
-task2 is not ready 0
-task1 is ready 1
 task1 is not ready 0
+task2 is ready 1
+task2 is not ready 0
 task2 is not ready 1
 task1 is not ready 1
-task2 is not ready 2task1 is not ready 2
+task1 is not ready 2
+task2 is not ready 2
+task2 is not ready 3task1 is not ready 3
 
-task2 is not ready 3
-task1 is not ready 3
-task1 is not ready 4
 task2 is ready 2
 task2 is not ready 0
-task1 is not ready 5
+task1 is not ready 4
 task2 is not ready 1
-task1 is not ready 6
-task2 is not ready 2
-task2 is not ready 3
-task1 is ready 3
+task1 is not ready 5
+task1 is not ready 6task2 is not ready 2
+
+task1 is ready 3task2 is not ready 3
+
 task1 is not ready 0
+task1 is not ready 1task2 is not ready 4
+
+task2 is not ready 5
+task1 is ready 4
+task1 is not ready 0
+task1 is not ready 1
+task2 is not ready 6
+task2 is not ready 7
+task1 is not ready 2
+task2 is ready 5
+task2 is not ready 0
+task1 is not ready 3
+task2 is not ready 1
+task1 is not ready 4
+task1 is not ready 5
+task2 is not ready 2
+task1 is ready 6
+task1 is not ready 0
+task2 is not ready 3
 task1 is not ready 1
 task2 is not ready 4
 task2 is not ready 5
 task1 is not ready 2
-task2 is not ready 6
-task1 is ready 4
-task1 is not ready 0
-task2 is not ready 7
-task1 is not ready 1
-task2 is not ready 8
-task1 is not ready 2
-task1 is not ready 3task2 is not ready 9
-
-task1 is ready 5
-task2 is not ready 10
-task1 is not ready 0
-task1 is not ready 1
-task2 is not ready 11
-task2 is not ready 12
-task1 is not ready 2
-task1 is not ready 3
-task2 is ready 6
+task2 is ready 7
 task2 is not ready 0
+task1 is not ready 3
 task2 is not ready 1
 task1 is not ready 4
-task1 is not ready 5task2 is not ready 2
-
+task2 is not ready 2
+task1 is not ready 5
+task2 is ready 8
 task1 is not ready 6
-task2 is ready 7
 task2 is not ready 0
 task1 is not ready 7
 task2 is not ready 1
+task1 is ready 9
+task1 is not ready 0
 task2 is not ready 2
-task1 is not ready 8
-task1 is ready 8
+task1 is not ready 1
 task2 is not ready 3
-task1 is not ready 0
-task1 is not ready 1
+task1 is not ready 2
 task2 is not ready 4
-task1 is not ready 2
-task2 is not ready 5
-task1 is ready 9task2 is not ready 6
-
-task1 is not ready 0
-task2 is not ready 7
-task1 is not ready 1
-task2 is not ready 8
-task1 is not ready 2
-task2 is not ready 9
 task1 is not ready 3
+task2 is not ready 5
 closing the channel
 channel is closed
 1 is done false
 2 is done false
 we start to wait the first time
-task2 is done
 task1 is done
-task1 done false
-task2 done true
+task2 is done
+task1 done true
+task2 done false
 We start to wait the second time
 task1 done true
 task2 done true
@@ -11639,88 +12224,6 @@ println sleep(0.001) // sleep one milli
 
 No sleep call will be executed in the underlying system if the time is negative.
 In all other cases, a `Thread.sleep()` call is invoked, giving all multi-thread synchronization effects of such a call.
-
-=== `yield()`, `try_yield()`, `yield_is_close()`
-
-In an asynchronous thread, you can get objects sent by the parent thread by using `yield()`.
-It will wait for an object and return it.
-If the queue from the parent thread is already closed, then `yield()` will throw an exception.
-
-NOTE: `yield` is an operator and not a function and it is used in other context with slightly different semantics also.
-
-`try_yield()` is more lenient.
-It does not wait and returns `none` if there is no message or the channel is closed.
-
-`yield_is_close()` can be used to test of the que is open from the parent to the child thread.
-
-.source of snippet `try_yield`
-
-[source]
-----
-fn printer(){
-    mut n = 0
-    while {
-        mut s = try_yield();
-        return { println "we are done" } when yield_is_closed();
-        if s == none {
-            println "not ready %s" % n
-            n++
-            sleep 0.003
-        } else {
-            n = 0
-            println "received %s" % s;
-        }
-    }
-}
-
-mut task : task = async printer()
-for i=1 ; i < 4 ; i++ {
- println "sending ",i
- task.send(i);
- sleep 0.009
- }
-println "closing the channel"
-task.close();
-println "channel is closed"
-println "is done %s" % task.is_done()
-await task
-println "is done %s" % task.is_done()
-
-none
-
-----
-
-.output of snippet `try_yield`
-[source]
-----
-sending 1
-not ready 0
-received 1
-not ready 0
-not ready 1
-sending 2
-received 2
-not ready 0
-not ready 1
-not ready 2
-sending 3
-received 3
-not ready 0
-not ready 1
-not ready 2
-closing the channel
-channel is closed
-is done false
-we are done
-is done true
-
-----
-
-
-
-Note that the output of this sample is not deterministic.
-The sending happens __approximately__ every 9ms, and the reading is retried __approximately__ every 3ms.
-
 
 === Regular Expressions
 
@@ -12049,89 +12552,6 @@ false
 hello
 true
 3
-
-----
-
-
-
-==== `block_list`
-
-The function `block_list` will return a list containing the commands in a command block.
-The following example shows you how it can be used together with `thunk` and `unthunk`.
-
-.source of snippet `block_list`
-
-[source]
-----
-mut commands = block_list(thunk({k = 13; suss = "huss"; mut x = 3; println "hello"}))
-println "before execution"
-mut i = 1;
-for each command in commands {
-    mut suss;
-    println "%s. before is_defined(x) = %s" % [i,is_defined(x)]
-    if i == 1 {// k is not defined, no assignable
-        try: unthunk(command) catch e: println "ERROR: %s" % [e];
-    } else {
-        // 2 can assign value to 'suss'
-        // 3 can define 'x'
-        // 4 prints 'hello'
-        unthunk(command)
-        println "%s. after is_defined(x) = %s" % [i,is_defined(x)]
-    }
-    i++
-}
-
-----
-
-.output of snippet `block_list`
-[source]
-----
-before execution
-1. before is_defined(x) = false
-ERROR: Variable 'k' is undefined.
-2. before is_defined(x) = false
-2. after is_defined(x) = false
-3. before is_defined(x) = false
-3. after is_defined(x) = true
-4. before is_defined(x) = false
-hello
-4. after is_defined(x) = false
-
-----
-
-
-
-The counter `i` is used to display which command we execute in the loop.
-It is also used to execute the first command in a `try-catch` block.
-`k` is not defined; therefore, unthunking this command will not work.
-
-The second command updates a declared variable.
-It does not need to be in `try-catch` block.
-
-The third command defines the variable `x`.
-In this execution, the variable `x` after the ``unthunk``ing is defined.
-
-`x` becomes a normal local variable in the loop, which is defined for the execution of the loop core only.
-When the next execution starts the variable `x` is undefined again.
-
-==== `as_object`
-
-This function converts a command into an object.
-This function supports reflective programming and is likely used together with the `thunk`, `unthunk` and inside macros.
-
-.source of snippet `as_object`
-
-[source]
-----
-let z = thunk({let k = 5})
-println as_object(z)
-
-----
-
-.output of snippet `as_object`
-[source]
-----
-{java$canonicalName: ch.turic.commands.BlockCommand, wrap: true, commands: [{assignments: [{identifier: k, types: [], expression: {java$canonicalName: ch.turic.commands.IntegerConstant, value: 5}, java$canonicalName: ch.turic.analyzer.AssignmentList.Assignment}], java$canonicalName: ch.turic.commands.LetAssignment, mut: false}]}
 
 ----
 

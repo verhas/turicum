@@ -29,6 +29,11 @@
                 <version>1.4.1</version>
             </dependency>
             <dependency>
+                <groupId>ch.turic</groupId>
+                <artifactId>testjar</artifactId>
+                <version>1.4.1</version>
+            </dependency>
+            <dependency>
                 <scope>test</scope>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-api</artifactId>
@@ -100,6 +105,7 @@
         <module>maven</module>
         <module>cli</module>
         <module>lsp</module>
+        <module>testjar</module>
     </modules>
     <url>https://github.com/verhas/turicum</url>
     <licenses>

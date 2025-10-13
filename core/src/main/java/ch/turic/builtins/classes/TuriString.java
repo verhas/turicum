@@ -10,9 +10,14 @@ import ch.turic.memory.LngList;
 import ch.turic.utils.CaseFolder;
 import ch.turic.utils.StringUtils;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.net.URI;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
@@ -53,11 +58,23 @@ public class TuriString implements TuriClass {
                     new TuriMethod<>((args) -> (long) string.length());
             case "after" ->
                 // returns the part of the string that follows the argument string.
-                // If the argument string is not in the string, then it returns an empty string.
+                // If the argument string is not found, then it returns an empty string.
                 // {%S string_after%}
                     new TuriMethod<>((args) -> {
                         final var afterWhat = "" + args[0];
                         final var pos = string.indexOf(afterWhat);
+                        if (pos < 0) {
+                            return "";
+                        }
+                        return string.substring(pos + afterWhat.length());
+                    });
+            case "after_last" ->
+                // returns the part of the string that follows the last occurrence of the argument string.
+                // If the argument string is not found, then it returns an empty string.
+                // {%S string_after_last%}
+                    new TuriMethod<>((args) -> {
+                        final var afterWhat = "" + args[0];
+                        final var pos = string.lastIndexOf(afterWhat);
                         if (pos < 0) {
                             return "";
                         }
@@ -70,6 +87,18 @@ public class TuriString implements TuriClass {
                     new TuriMethod<>((args) -> {
                         final var beforeWhat = "" + args[0];
                         final var pos = string.indexOf(beforeWhat);
+                        if (pos < 0) {
+                            return "";
+                        }
+                        return string.substring(0, pos);
+                    });
+            case "before_last" ->
+                // returns the part of the string that is before the argument string.
+                // If the argument string is not in the string, then it returns an empty string.
+                // {%S string_before_last%}
+                    new TuriMethod<>((args) -> {
+                        final var beforeWhat = "" + args[0];
+                        final var pos = string.lastIndexOf(beforeWhat);
                         if (pos < 0) {
                             return "";
                         }
@@ -327,12 +356,38 @@ public class TuriString implements TuriClass {
                 // returns the integer value of the string
                 // {%S string_int%}
                     new TuriMethod<>((args) -> Long.parseLong(string.strip()));
+            case "bool" ->
+                // returns the boolean value of the string.
+                // The method works the same as the automatic conversion, and thus there is no need to use it
+                // when the string is in an environment that expects a boolean value.
+                // {%S string_bool%}
+                new TuriMethod<>((args) -> Cast.toBoolean(string));
+            case "big_int" ->
+                // returns the BigInteger value of the string.
+                // {%S string_bigi%}
+                new TuriMethod<>((args) -> new BigInteger(string));
+            case "big_decimal" ->
+                // returns the BigDecimal value of the string.
+                // {%S string_bigd%}
+                new TuriMethod<>((args) -> new BigDecimal(string));
+            case "path" ->
+                // returns the Java path object created from the string.
+                // {%S string_path%}
+                new TuriMethod<>((args) -> Path.of(string));
+            case "uri" ->
+                // returns the URI created from the string.
+                // {%S string_uri%}
+                new TuriMethod<>((args) -> new URI(string));
+            case "url" ->
+                // returns the URL created from the string.
+                // {%S string_url%}
+                new TuriMethod<>((args) -> new URI(string).toURL());
             case "float" ->
                 // returns the floating number contained in the string
                 // {%S string_float%}
                     new TuriMethod<>((args) -> Double.parseDouble(string.strip()));
             case "number" ->
-                // returns the number contained in the string encoded with the argument radix
+                // returns the int number contained in the string encoded with the argument radix
                 // {%S string_number%}
                     new TuriMethod<>((args) -> {
                         final var number = FunUtils.arg("number", args);
@@ -351,7 +406,7 @@ public class TuriString implements TuriClass {
                         return Long.parseLong(hexString, 16);
                     });
             case "substring" ->
-                // retruns a substring of the string.
+                //returns a substring of the string.
                 // There has to be at least one (`a`), and there can be at most two (`a`,`b`) integer arguments.
                 // The substring starts at the character indexed `a` and finishes before the character `b`.
                 // If there is no `b`, the substring lasts till the end of the string.
@@ -385,6 +440,7 @@ public class TuriString implements TuriClass {
                     });
             case "remove_prefix" ->
                 // removes the argument from the start of the string if that is a prefix of the string.
+                // If the string does not start with the prefix, it just returns the original string.
                 // {%S string_remove_prefix%}
                     new TuriMethod<>((args) -> {
                         final var prefix = "" + args[0];
@@ -396,6 +452,7 @@ public class TuriString implements TuriClass {
                     });
             case "remove_postfix" ->
                 // removes the argument from the end of the string if that is a postfix of the string.
+                // If the string does not end with the postfix, it just returns the original string.
                 // {%S string_remove_postfix%}
                     new TuriMethod<>((args) -> {
                         final var postfix = "" + args[0];
@@ -407,7 +464,7 @@ public class TuriString implements TuriClass {
                     });
             case "count_substring" ->
                 // counts the occurrences of the argument string.
-                // Note that when an occurrence is found the other occurrences are sought for after that occurrence.
+                // Note that when an occurrence is found, the other occurrences are sought for after that occurrence.
                 // It means that, for example, `("a"*6).count_substring("aa")` is 3 and not 5.
                 // {%S string_count_substring%}
                     new TuriMethod<>((args) -> {
@@ -495,6 +552,7 @@ public class TuriString implements TuriClass {
                     new TuriMethod<>((args) -> string.endsWith("\n") ? string.substring(0, string.length() - 1) : string);
             case "times" ->
                 // repeat the string as specified by the argument.
+                // This is same as multiplying a string by an integer number.
                 // {%S string_times%}
                     new TuriMethod<>((args) -> string.repeat(Cast.toLong(args[0]).intValue()));
             case "lower_case" ->
@@ -506,7 +564,7 @@ public class TuriString implements TuriClass {
                 // {%S string_upper_case%}
                     new TuriMethod<>((args) -> string.toUpperCase());
             case "swap_case" ->
-                // swaps case of each letter.
+                // swaps the case of each letter.
                 // {%S string_swap_case%}
                     new TuriMethod<>((args) -> StringUtils.swapCase(string));
             case "capitalize" ->
@@ -529,8 +587,8 @@ public class TuriString implements TuriClass {
                     new TuriMethod<>((args) -> StringUtils.toTitleCase(string));
             case "casefold" ->
                 // return the string with cases folded to the lower case.
-                // This transformation is aggressive and to be used for case-insensitive comparison.
-                // For most of the characters it is the same as `lower_case`, but it also converts many Unicode characters, like `ß` to `ss`.
+                // This transformation is aggressive and is to be used for case-insensitive comparison.
+                // For most of the characters, it is the same as `lower_case`, but it also converts many Unicode characters, like `ß` to `ss`.
                 // {%S string_casefold%}
                     new TuriMethod<>((args) -> CaseFolder.casefold(string));
             case "trim" ->
@@ -573,7 +631,7 @@ public class TuriString implements TuriClass {
                 // {%S string_ends_with%}
                     new TuriMethod<>((args) -> string.endsWith(args[0].toString()));
             case "partition" ->
-                // Splits a string into three parts and retuns a three-element list.
+                // Splits a string into three parts and returns a three-element list.
                 // If the string has the format `xxxZZZyyy` where `ZZZ` is the partitioning element, then
                 // the list will be `["xxx", "ZZZ", "yyy"]`.
                 // If `ZZZ` is not found in the string, then the first element of the list will contain the whole string, and the second and last elements will be empty strings.
@@ -585,7 +643,7 @@ public class TuriString implements TuriClass {
                         return result;
                     });
             case "partition_regex" ->
-                // Splits a string into three parts and retuns a three-element list.
+                // Splits a string into three parts and returns a three-element list.
                 // If the string has the format `xxxZZZyyy` where `ZZZ` is a substring that matches the partitioning regular expression, then
                 // the list will be `["xxx", "ZZZ", "yyy"]`.
                 // If `ZZZ` is not found in the string, then the first element of the list will contain the whole string, and the second and last elements will be empty strings.
@@ -623,9 +681,9 @@ public class TuriString implements TuriClass {
                         return list;
                     });
             case "msplit" ->
-                // split the string into a list of list of list... using the characters of the argument.
+                // split the string into a list of lists of... using the characters of the argument.
                 // There is no default splitter character(s) in the case of msplit.
-                // Optionally, there is a second, third and so on arguments that can limit how many pieces the strings are split.
+                // Optionally, there are second, third, and so on arguments that can limit how many pieces the strings are split.
                 // If it is `0` then there is no limit, but the trailing empty strings are discarded.
                 // If the limit is -1, the trailing empty elements are kept.
                 // {%S string_msplit%}
@@ -643,13 +701,36 @@ public class TuriString implements TuriClass {
                         return StringUtils.msplit(string, 0, splitter, limits);
                     });
             case "bytes" ->
-                // return a list that contains the bytes of the string using UTF-8 character encoding.
+                // return a list that contains the bytes of the string using the given character encoding.
+                // The character coding is UTF-8 by default.
+                // In other cases, it has to be defined by name as a string.
                 // {%S string_bytes%}
                     new TuriMethod<>((args) -> {
                         final var list = new LngList();
-                        final var bytes = string.getBytes(StandardCharsets.UTF_8);
+                        final Charset charset;
+                        if( args == null || args.length == 0 ) {
+                            charset = StandardCharsets.UTF_8;
+                        }else{
+                            if( args.length == 1 ) {
+                                charset = Charset.forName(FunUtils.arg("bytes", args, String.class));
+                            }else{
+                                throw new ExecutionException("bytes() needs at most one argument, the name of the character encoding");
+                            }
+                        }
+                        final var bytes = string.getBytes(charset);
                         for (byte b : bytes) {
                             list.array.add(b);
+                        }
+                        return list;
+                    });
+            case "chars" ->
+                // return a list that contains the characters of the string, each as a string.
+                // {%S string_chars%}
+                    new TuriMethod<>((args) -> {
+                        final var list = new LngList();
+                        final var chars = string.toCharArray();
+                        for (char ch : chars) {
+                            list.array.add(""+ch);
                         }
                         return list;
                     });
@@ -667,11 +748,12 @@ public class TuriString implements TuriClass {
                         }
                     });
             case "char_at" ->
-                // get the character at the given position.
+                // get the character at the given position as a single character string.
                 // {%S string_char_at%}
                     new TuriMethod<>((args) -> "" + string.charAt(Cast.toLong(args[0]).intValue()));
             case "safe_char_at" ->
                 // get the character at the given position or an empty string if the index is out of range.
+                // The return value is a single character string or an empty string.
                 // {%S string_safe_char_at%}
                     new TuriMethod<>((args) -> {
                         final var arg = FunUtils.arg("safe_char_at", args, Long.class);

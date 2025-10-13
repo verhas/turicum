@@ -4,6 +4,9 @@ import ch.turic.Context;
 import ch.turic.ExecutionException;
 import ch.turic.TuriFunction;
 import ch.turic.commands.BlockCommand;
+/*snippet builtin0520
+
+end snippet */
 
 /**
  * Takes a block command as input and returns an unwrapped version that will execute in the caller's context rather than

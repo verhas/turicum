@@ -41,6 +41,16 @@ public abstract class AbstractCommand implements Command, HasFields {
         return _toLngObject(this, context);
     }
 
+    /**
+     * Converts a given Java object into a {@code LngObject} representation within the provided local context.
+     * The resulting {@code LngObject} includes all non-synthetic, {@code final}, and non-{@code static} fields
+     * of the original object. Array fields are converted into {@code LngList}.
+     *
+     * @param object  The object to be converted into a {@code LngObject}.
+     * @param context The {@code LocalContext} used for managing the conversion process.
+     * @return A {@code LngObject} representing the given Java object.
+     * @throws ExecutionException If there is an error accessing the object's fields.
+     */
     private LngObject _toLngObject(Object object, LocalContext context) throws ExecutionException {
         try {
             final var lngObject = LngObject.newEmpty(context);

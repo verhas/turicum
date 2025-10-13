@@ -6,14 +6,16 @@ import ch.turic.TuriFunction;
 import ch.turic.memory.ClassContext;
 import ch.turic.memory.LngClass;
 import ch.turic.memory.LngObject;
+import ch.turic.utils.JdkTypePredicate;
+/*snippet builtin0150
 
-import java.util.ArrayList;
+end snippet */
 
 /**
  * {@code is_type(o,t)} checks that the object {@code o} is of type {@code t}.
  * <p>
  * It is not an alternative using the function {@code type()} implemented in {@link Type}.
- * That function returns the string representation of the type and that works for all types.
+ * That function returns the string representation of the type, and that works for all types.
  * This function
  * <ul>
  *     <li>works only on object and will result in {@code false} for non-object first arguments</li>
@@ -32,7 +34,7 @@ import java.util.ArrayList;
  * die "" when !is_type(h,A)
  * // 'C' is also extended so again it is true
  * die "" when !is_type(h,C)
- * // 'B' has nothinf to do with the type, 'is_type" here returns false
+ * // 'B' has nothing to do with the type, 'is_type" here returns false
  * die "" when is_type(h,B)
  *
  * }</pre>
@@ -60,43 +62,29 @@ public class IsType implements TuriFunction {
         }
     }
 
-    private static final String[] packages;
-
-    static {
-        final var list = new ArrayList<String>();
-        for (Package p : Package.getPackages()) {
-            if (p.getName().startsWith("java.")) {
-                list.add(p.getName() + ".");
-            }
-        }
-        packages = list.toArray(String[]::new);
-    }
-
-    private static boolean isJdkType(String typeName) {
-        for (final var p : packages) {
-            if (typeName.startsWith(p)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     private static boolean isJavaType(Object obs, Object type) {
         if (type instanceof String typeName) {
             try {
-                // in Turicum java types have a 'java.' prefix,
+                // in Turicum, java types have a 'java.' prefix,
                 // but we allow sloppily without this if it is a JDK class because
                 // 'java.java.lang.'... would seem excessive and easy to forget in a source to add the extra prefix
-                if (typeName.startsWith("java.") && !isJdkType(typeName)) {
-                    typeName = typeName.substring(5);
+                if (typeName.startsWith("java.") && !JdkTypePredicate.INSTANCE.test(typeName)) {
+                    typeName = typeName.substring(5);// after 'java.'
                 }
-                final var klass = Class.forName(typeName);
+                // use the same class loader as the object, do not assume all are loaded by the application class loader
+                final ClassLoader cl = obs.getClass().getClassLoader();
+                final Class<?> klass;
+                if (cl != null) {
+                    klass = cl.loadClass(typeName);
+                } else {
+                    klass = Class.forName(typeName);
+                }
                 return klass.isInstance(obs);
             } catch (ClassNotFoundException e) {
                 throw new ExecutionException("'%s' is not a valid Java type", typeName);
             }
         }
-        throw new ExecutionException("Type " + type + " is not a string");
+        throw new ExecutionException("Type " + type + " is not a string. 'is_type()' expects a string second argument for Java objects.");
     }
 
     /**
@@ -127,7 +115,7 @@ public class IsType implements TuriFunction {
      * @return true if `lngClass` matches or derives from the given type name, false otherwise.
      */
     private static boolean isType(LngClass lngClass, String type) {
-        if( lngClass == null ) {
+        if (lngClass == null) {
             return false;
         }
         if (lngClass.name().equals(type)) {

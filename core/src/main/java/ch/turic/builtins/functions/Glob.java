@@ -7,6 +7,9 @@ import ch.turic.TuriFunction;
 import ch.turic.memory.LngList;
 
 import static ch.turic.builtins.functions.FunUtils.ArgumentsHolder.optional;
+/*snippet builtin0110
+
+end snippet */
 
 /**
  * This function is used to list file names in a directory, possibly using recursion.

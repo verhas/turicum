@@ -30,6 +30,7 @@ public class TestMarshalling {
         final var unmarshaller = new Unmarshaller();
         final var descode = unmarshaller.deserialize(bytes);
         final var ctx = new LocalContext();
+        BuiltIns.registerGlobalConstants(ctx);
         BuiltIns.register(ctx);
         descode.execute(ctx);
     }

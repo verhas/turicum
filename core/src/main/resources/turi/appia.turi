@@ -1,0 +1,26 @@
+/**
+ * Provide functions to programmatically modify the appia path.
+ */
+class appia{
+    /**
+     * Get the appia path in the global variable APPIA.
+     * If the variable is not defined yet, then take the value from the environment variable APPIA.
+     * If there is no environment variable, then set APPIA to an empty array.
+     *
+     * if APPIA as a global variable was already defined, then do nothing.
+     */
+    fn global_appia() {
+        global APPIA;
+        APPIA = APPIA if is_defined(APPIA) else ?(env("APPIA")?.split("\\|")) or [];
+    }
+
+    /**
+     * Append the given path to the appia path.
+     */
+    fn append(path : str){
+        global APPIA = global_appia();
+        APPIA  += [source_directory()+"/"+path];
+    }
+}
+
+export appia;

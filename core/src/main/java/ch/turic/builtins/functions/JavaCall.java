@@ -8,6 +8,9 @@ import ch.turic.utils.Reflection;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.stream.Collectors;
+/*snippet builtin0160
+
+end snippet */
 
 /**
  * {@code java_call()} can call a Java method.
@@ -64,28 +67,29 @@ public class JavaCall implements TuriFunction {
      * Invokes a method dynamically using reflection based on the provided arguments.
      * This method supports both static and instance method calls.
      *
-     * @param ctx The execution context in which the method call is performed.
+     * @param context   The execution context in which the method call is performed.
      * @param arguments An array of arguments where:
      *                  - arguments[0] is either a class name (for static calls) or an instance of the object.
      *                  - arguments[1] is the name of the method to invoke.
      *                  - arguments[2] and beyond are the parameters to pass to the method.
      * @return The result of the invoked method.
      * @throws ExecutionException If:
-     *         - The specified class cannot be found.
-     *         - The method cannot be located with the given parameters.
-     *         - An error occurs during the invocation of the method.
+     *                            - The specified class cannot be found.
+     *                            - The method cannot be located with the given parameters.
+     *                            - An error occurs during the invocation of the method.
      */
     @Override
-    public Object call(Context ctx, Object[] arguments) throws ExecutionException {
+    public Object call(Context context, Object[] arguments) throws ExecutionException {
         final var args = FunUtils.args(name(), arguments, Object.class, String.class, Object[].class);
         final var methodName = args.at(1).as(String.class);
+        final var ctx = FunUtils.ctx(context);
         final var params = args.tail(2);
         final Method method;
         final Object object;
         final Class<?> klass;
         if (args.at(0).is_a(String.class)) { // static call
             try {
-                klass = Class.forName(args.at(0).as(String.class));
+                klass = ctx.globalContext.classLoader.loadClass(args.at(0).as(String.class));
             } catch (ClassNotFoundException e) {
                 throw new ExecutionException("Cannot find class '" + args.at(0).as(String.class) + "'.", e);
             }

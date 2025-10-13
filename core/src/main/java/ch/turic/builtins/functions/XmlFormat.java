@@ -23,6 +23,9 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
+/*snippet builtin0530
+
+end snippet */
 
 /**
  * Format an XML string.

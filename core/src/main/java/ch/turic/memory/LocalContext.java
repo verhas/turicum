@@ -370,9 +370,9 @@ public class LocalContext implements Context, AutoCloseable {
         frame.set(key, value);
     }
 
-    public void global(String global) throws ExecutionException {
-        ExecutionException.when(frame != globalContext.heap && frame.containsKey(global), "Global variable '%s' is already defined as local.", global);
-        globals.add(global);
+    public void global(String name) throws ExecutionException {
+        ExecutionException.when(frame != globalContext.heap && frame.containsKey(name), "Global variable '%s' is already defined as local.", name);
+        globals.add(name);
     }
 
     public void global(String global, Object value) throws ExecutionException {

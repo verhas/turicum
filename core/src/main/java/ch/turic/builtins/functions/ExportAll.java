@@ -3,6 +3,9 @@ package ch.turic.builtins.functions;
 import ch.turic.Context;
 import ch.turic.ExecutionException;
 import ch.turic.TuriFunction;
+/*snippet builtin0100
+
+end snippet */
 
 /**
  * Export all is the function that exports all symbols form the current context to the parent context.

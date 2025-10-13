@@ -5,7 +5,7 @@ import "turicum_versions"
 println "Turicum STARTED"
 
 
-let modules =  [ "core", "maven", "cli", "lsp" ];
+let modules =  [ "core", "maven", "cli", "lsp" , "testjar"];
 
 let project = maven_project({
     name: $"${groupId}:turicum-parent",

@@ -7,6 +7,7 @@ import ch.turic.memory.Channel;
 import ch.turic.memory.LocalContext;
 import ch.turic.memory.debugger.ConcurrentWorkItem;
 import ch.turic.utils.Marshaller;
+import ch.turic.utils.TuricumClassLoader;
 import ch.turic.utils.Unmarshaller;
 
 import java.io.IOException;
@@ -76,6 +77,7 @@ public class Interpreter implements AutoCloseable {
             this.code = unmarshaller.deserialize(bytes);
             this.ctx = new LocalContext();
             this.ctx.sourcePath(path);
+            BuiltIns.registerGlobalConstants(ctx);
             BuiltIns.register(ctx);
         } else {
             throw new RuntimeException("Unsupported file type");
@@ -107,13 +109,14 @@ public class Interpreter implements AutoCloseable {
         return execute(localCode);
     }
 
-    public Object executeNotify(Command code, Runnable callback) {
+    public void executeNotify(Command code, Runnable callback) {
         try {
-            return execute(code);
+            execute(code);
         } finally {
             callback.run();
         }
     }
+
     /**
      * Executes the provided command within the current execution context.
      * If an execution error occurs, it adapts the stack trace to include
@@ -179,6 +182,7 @@ public class Interpreter implements AutoCloseable {
         }
 
         ctx = new LocalContext();
+        BuiltIns.registerGlobalConstants(ctx);
         BuiltIns.register(ctx);
         return (Program) localCode;
     }

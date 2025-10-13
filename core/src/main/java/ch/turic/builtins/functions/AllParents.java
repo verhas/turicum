@@ -9,7 +9,18 @@ import ch.turic.memory.LngList;
 
 import java.util.ArrayList;
 import java.util.List;
+/*snippet builtin0020
 
+=== `all_parents`
+
+Returns a list of classes that are the parent classes of the argument with a transitive closure.
+It means that all classes, including the parents of the parents and so on, are recursively included in the list.
+
+{%S all_parents%}
+
+The classes are ordered in inheritance order.
+
+end snippet */
 /**
  * The AllParents class implements the TuriFunction interface and provides
  * functionality to compute the transitive closure of parent classes for a

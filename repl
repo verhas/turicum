@@ -1,0 +1,2 @@
+#!/bin/sh
+java -cp ./cli/target/classes:./core/target/classes:$HOME/.m2/repository/org/jline/jline/3.30.6/jline-3.30.6.jar ch.turic.cli.Main -REPL

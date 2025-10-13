@@ -3,6 +3,7 @@ package ch.turic.memory;
 import ch.turic.ExecutionException;
 import ch.turic.TuriClass;
 import ch.turic.memory.debugger.DebuggerContext;
+import ch.turic.utils.TuricumClassLoader;
 
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -24,6 +25,7 @@ public class GlobalContext {
     private boolean debugMode = false; // true when the interpreter is in debug mode
     final DebuggerContext debuggerContext = new DebuggerContext(null, null);
     private final Map<ThreadContext, AtomicInteger> contexts = new ConcurrentHashMap<>();
+    public final TuricumClassLoader classLoader = new TuricumClassLoader(getClass().getClassLoader());
 
     public GlobalContext(int stepLimit) {
         this.stepLimit = stepLimit;
@@ -64,8 +66,11 @@ public class GlobalContext {
      * @throws ExecutionException if the provided class is already registered as a Turi class
      */
     public void addTuriClass(Class<?> clazz, TuriClass turiClass) throws ExecutionException {
-        ExecutionException.when(turiClasses.containsKey(clazz), "Class " + clazz.getName() + " already exists as a turi class.");
-        turiClasses.put(clazz, turiClass);
+        if (turiClasses.containsKey(clazz)) {
+            ExecutionException.when(turiClasses.get(clazz).getClass() != turiClass.getClass(), "Class " + clazz.getName() + " already exists as a turi class, cannot be redefined.");
+        } else {
+            turiClasses.put(clazz, turiClass);
+        }
     }
 
     /**

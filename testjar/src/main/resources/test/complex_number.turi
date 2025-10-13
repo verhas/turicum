@@ -1,0 +1,3 @@
+let complex_number  = java_class("ch.turic.testjar.ComplexNumber");
+let i  = complex_number(0 , 1);
+export complex_number , i ;

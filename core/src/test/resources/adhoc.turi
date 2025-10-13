@@ -1,0 +1,8 @@
+sys_import turi.appia
+
+
+appia.append(".")
+
+global APPIA
+
+println APPIA

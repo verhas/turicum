@@ -26,6 +26,16 @@ public interface TuriClass extends ServiceLoaded {
     }
 
     /**
+     * Similar to {@link #getInstances()}, but uses the specified class loader.
+     *
+     * @param cl the class loader to use for loading the service implementations
+     * @return a list of instances of classes implementing the {@code TuriClass} interface
+     */
+    static List<TuriClass> getInstances(ClassLoader cl) {
+        return ServiceLoaded.getInstances(TuriClass.class, cl);
+    }
+
+    /**
      * @return the class on which works
      */
     Class<?> forClass();

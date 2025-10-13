@@ -4,6 +4,9 @@ import ch.turic.Context;
 import ch.turic.ExecutionException;
 import ch.turic.TuriFunction;
 import ch.turic.memory.LngObject;
+/*snippet builtin0140
+
+end snippet */
 
 /**
  * The function {@code is_obj()} returns {@code true} if the argument is an object.

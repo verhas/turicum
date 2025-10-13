@@ -4,6 +4,9 @@ import ch.turic.Context;
 import ch.turic.ExecutionException;
 import ch.turic.SnakeNamed;
 import ch.turic.TuriFunction;
+/*snippet builtin0370
+
+end snippet */
 
 /**
  * The SetCallerForce class represents a Turi function implementation for updating

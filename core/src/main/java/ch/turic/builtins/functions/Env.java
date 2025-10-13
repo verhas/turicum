@@ -5,6 +5,25 @@ import ch.turic.ExecutionException;
 import ch.turic.TuriFunction;
 import ch.turic.memory.LngObject;
 import ch.turic.utils.StringUtils;
+/*snippet builtin0080
+
+=== `env`
+
+This function returns the value of the environment variable.
+
+Without argument, it returns an object containing all environment variables as fields.
+
+{%S env1%}
+
+With a given string argument without `*` or `?` wild card characters, the return value is the value of the environment variable.
+
+{%S env2%}
+
+If the argument contains wild card characters, the result will be an object containing all environment variables as fields that match the argument.
+
+{%S env3%}
+
+end snippet */
 
 /**
  * The {@code Env} class implements the {@code TuriFunction} interface, providing

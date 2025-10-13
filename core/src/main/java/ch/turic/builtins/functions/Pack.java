@@ -4,6 +4,9 @@ import ch.turic.Context;
 import ch.turic.ExecutionException;
 import ch.turic.TuriFunction;
 import ch.turic.memory.LngObject;
+/*snippet builtin0290
+
+end snippet */
 
 /**
  * The function {@code pack()} returns an object that encompasses the current local context.

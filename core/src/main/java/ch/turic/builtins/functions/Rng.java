@@ -8,6 +8,9 @@ import ch.turic.memory.LngList;
 import ch.turic.memory.Range;
 
 import java.util.Iterator;
+/*snippet builtin0330
+
+end snippet */
 
 /**
  * Return a range of numbers.

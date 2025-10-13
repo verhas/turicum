@@ -16,6 +16,9 @@ import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.Semaphore;
+/*snippet builtin0480
+
+end snippet */
 
 /**
  * Start an HTTP server

@@ -37,6 +37,7 @@ public class ProgramAnalyzer extends AbstractAnalyzer {
                 final var preprocessor = CommandAnalyzer.INSTANCE.analyze(lexes);
                 if (preprocessorContext == null) {
                     preprocessorContext = new LocalContext();
+                    BuiltIns.registerGlobalConstants(preprocessorContext);
                     BuiltIns.register(preprocessorContext);
                 }
                 preprocess(lexes, preprocessor, commands);

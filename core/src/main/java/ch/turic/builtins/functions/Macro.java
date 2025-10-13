@@ -7,6 +7,9 @@ import ch.turic.commands.ChainedClosure;
 import ch.turic.commands.ChainedMacro;
 import ch.turic.commands.Closure;
 import ch.turic.commands.ClosureLike;
+/*snippet builtin0250
+
+end snippet */
 
 /**
  * Convert the argument to a macro from a closure

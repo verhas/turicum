@@ -7,6 +7,9 @@ import ch.turic.commands.ClosureLike;
 import ch.turic.commands.FunctionCallOrCurry;
 
 import static ch.turic.builtins.functions.FunUtils.ArgumentsHolder.optional;
+/*snippet builtin0500
+
+end snippet */
 
 /**
  * The Uncurry class implements the TuriFunction interface and provides functionality

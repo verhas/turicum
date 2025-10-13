@@ -1,12 +1,15 @@
 package ch.turic;
 
-import ch.turic.memory.LocalContext;
-import ch.turic.memory.Sentinel;
+import ch.turic.builtins.functions.FunUtils;
 import ch.turic.memory.GlobalContext;
 import ch.turic.memory.InfiniteValue;
+import ch.turic.memory.LocalContext;
+import ch.turic.memory.Sentinel;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * The BuiltIns class manages registration of built-in constants, functions, macros and classes
+ * The BuiltIns class manages registration of built-in constants, functions, macros, and classes
  * that are available globally in the Turi language runtime.
  */
 public class BuiltIns {
@@ -46,13 +49,9 @@ public class BuiltIns {
      * @throws IllegalArgumentException if the provided context is not an instance of ch.turic.memory.Context
      */
     public static void register(Context context) {
-        if (context instanceof LocalContext ctx) {
-            registerGlobalConstants(ctx);
-            registerGlobalFunctionsAndMacros(ctx);
-            registerTuriClasses(ctx.globalContext);
-        } else {
-            throw new IllegalArgumentException("Expected ch.turic.memory.Context but got " + context.getClass());
-        }
+        final var ctx = FunUtils.ctx(context);
+        registerGlobalFunctionsAndMacros(ctx);
+        registerTuriClasses(ctx.globalContext);
     }
 
     /**
@@ -61,7 +60,7 @@ public class BuiltIns {
      * @param globalContext The global context where classes should be registered
      */
     private static void registerTuriClasses(GlobalContext globalContext) {
-        TuriClass.getInstances().forEach(turiClass -> globalContext.addTuriClass(turiClass.forClass(), turiClass));
+        TuriClass.getInstances(globalContext.classLoader).forEach(turiClass -> globalContext.addTuriClass(turiClass.forClass(), turiClass));
     }
 
     /**
@@ -70,11 +69,13 @@ public class BuiltIns {
      * @param context The context where functions and macros should be registered
      */
     private static void registerGlobalFunctionsAndMacros(LocalContext context) {
-        TuriFunction.getInstances().forEach(
+        TuriFunction.getInstances(context.globalContext.classLoader).forEach(
                 tf -> context.global(tf.name(), tf));
-        TuriMacro.getInstances().forEach(
+        TuriMacro.getInstances(context.globalContext.classLoader).forEach(
                 tm -> context.global(tm.name(), tm));
     }
+
+
 
     /**
      * Registers all built-in constants defined in the values array to the given context
@@ -82,7 +83,7 @@ public class BuiltIns {
      *
      * @param context The context where constants should be registered
      */
-    static void registerGlobalConstants(LocalContext context) {
+    public static void registerGlobalConstants(LocalContext context) {
         for (int i = 0; i < values.length; i += 2) {
             context.global((String) values[i], values[i + 1]);
             context.freeze((String) values[i]);

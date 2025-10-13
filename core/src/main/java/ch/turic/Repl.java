@@ -29,6 +29,7 @@ public class Repl {
 
     public Repl() {
         ctx = new LocalContext();
+        BuiltIns.registerGlobalConstants(ctx);
         BuiltIns.register(ctx);
     }
 

@@ -3,6 +3,9 @@ package ch.turic.builtins.functions;
 import ch.turic.Context;
 import ch.turic.ExecutionException;
 import ch.turic.TuriFunction;
+/*snippet builtin0360
+
+end snippet */
 
 /**
  * Set the value of a variable in the caller's context.

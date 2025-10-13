@@ -5,6 +5,9 @@ import ch.turic.ExecutionException;
 import ch.turic.TuriFunction;
 import ch.turic.memory.LngList;
 import ch.turic.memory.LngObject;
+/*snippet builtin0120
+
+end snippet */
 
 /**
  * The function {@code id_hash} returns the identity hash of an object.

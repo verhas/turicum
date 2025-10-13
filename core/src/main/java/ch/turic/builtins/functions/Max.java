@@ -4,6 +4,9 @@ import ch.turic.Context;
 import ch.turic.ExecutionException;
 import ch.turic.TuriFunction;
 import ch.turic.commands.operators.Compare;
+/*snippet builtin0260
+
+end snippet */
 
 /**
  * Get the max value of the arguments. If there are no arguments, the function returns {@code none}.

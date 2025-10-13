@@ -6,6 +6,9 @@ import ch.turic.TuriFunction;
 import ch.turic.commands.Closure;
 import ch.turic.commands.Macro;
 import ch.turic.memory.LocalContext;
+/*snippet builtin0320
+
+end snippet */
 
 /**
  * Recloses a closure in the current environment. Reclosing means that the new closure

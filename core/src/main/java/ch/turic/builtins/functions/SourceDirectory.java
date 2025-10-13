@@ -3,6 +3,9 @@ package ch.turic.builtins.functions;
 import ch.turic.Context;
 import ch.turic.ExecutionException;
 import ch.turic.TuriFunction;
+/*snippet builtin0430
+
+end snippet */
 
 /**
  * Returns the the source directory of the currently running code as a string.
