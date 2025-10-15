@@ -13,6 +13,7 @@ module ch.turic {
     exports ch. turic.builtins.classes;
     exports ch.turic.memory;
     exports ch.turic.memory.debugger;
+    exports ch.turic.utils;
     opens turi; // needed to read the sysimport files as resources
 
     provides ch.turic.TuriFunction with Len, Type, Macro, Evaluate,

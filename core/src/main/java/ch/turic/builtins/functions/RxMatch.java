@@ -9,9 +9,6 @@ import ch.turic.memory.LngList;
 import ch.turic.memory.LngObject;
 
 import java.util.regex.Pattern;
-/*snippet builtin0350
-
-end snippet */
 
 /**
  * Match a regular expression against a pattern and create a regex matcher.

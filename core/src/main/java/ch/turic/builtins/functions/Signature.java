@@ -8,6 +8,19 @@ import ch.turic.memory.LngList;
 import ch.turic.memory.LngObject;
 /*snippet builtin0410
 
+
+=== `signature`
+
+The built-in function `signature` returns an object that describes the signature of the argument function.
+You pass a function, macro, or closure to this function, and the return value is the signature object.
+The object is classless and has the following fields:
+
+{%#replaceLines replace="~^\\s*\\s?//\\s+~~"
+        {%#killLines keep pattern="//"
+        {%@snip signature_doc%}%}%}
+
+{%S signatura1%}
+
 end snippet */
 
 /**

@@ -6,7 +6,8 @@ import ch.turic.TuriMacro;
 import ch.turic.builtins.functions.FunUtils;
 import ch.turic.Command;
 import ch.turic.commands.Identifier;
-
+/*snippet builtin0095
+end snippet*/
 /**
  * sets one name as exported
  */

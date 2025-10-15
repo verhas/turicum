@@ -20,6 +20,10 @@ public class LngList implements HasIndex, HasFields {
         this.fieldProvider = fieldProvider;
     }
 
+    public long size(){
+        return array.size();
+    }
+
     public HasFields getFieldProvider() {
         return fieldProvider;
     }

@@ -6,6 +6,14 @@ import ch.turic.TuriFunction;
 import ch.turic.Command;
 /*snippet builtin0510
 
+
+=== `unthunk`
+
+Execute a command object in the current context.
+The command object is probably the result of a `thunk()` call.
+
+{%S thunk_unthunk%}
+
 end snippet */
 
 /**

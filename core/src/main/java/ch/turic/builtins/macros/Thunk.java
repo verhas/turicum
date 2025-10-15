@@ -4,7 +4,16 @@ import ch.turic.Context;
 import ch.turic.ExecutionException;
 import ch.turic.TuriMacro;
 import ch.turic.builtins.functions.FunUtils;
+/*snippet builtin0445
 
+=== `thunk`
+
+This macro simply returns it's argument.
+Because this is a macro, it means that the argument is NOT evaluated.
+
+The name is the past tense o
+
+end snippet */
 /**
  * A class representing the "thunk" macro in the Turi language.
  * <p>

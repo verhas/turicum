@@ -25,10 +25,26 @@ import java.io.StringWriter;
 import java.io.Writer;
 /*snippet builtin0530
 
+=== `xml_format`
+
+Format an XML document.
+
+The argument of the function must be a string representing the XML document to be formatted.
+The function returns a formatted XML string with proper indentation and structure.
+
+The indentation is set to 4 spaces.
+The character encoding is set to UTF-8.
+
+If the argument is not a valid XML document, the function will raise an error.
+
+{%S xml_format%}
+
 end snippet */
 
 /**
- * Format an XML string.
+ * The XmlFormat class implements the TuriFunction interface and is responsible for processing
+ * and formatting XML documents. It provides a mechanism to parse XML input, format it with proper
+ * indentation, and handle errors appropriately during the formatting process.
  */
 public class XmlFormat implements TuriFunction {
 
@@ -60,9 +76,7 @@ public class XmlFormat implements TuriFunction {
 
     @Override
     public Object call(Context context, Object[] arguments) throws ExecutionException {
-        final var arg = FunUtils.arg(name(), arguments);
-
-        final var input = "" + arg;
+        final var input = FunUtils.arg(name(), arguments, String.class);
 
         try {
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();

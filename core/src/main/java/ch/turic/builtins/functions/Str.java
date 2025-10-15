@@ -7,6 +7,12 @@ import ch.turic.TuriFunction;
 import java.util.Objects;
 /*snippet builtin0440
 
+=== `str`
+
+Converts the argument to a string.
+
+Similar to the `to_string()` method, but it works safely on any value, and in some situations, it may be more readable.
+This function converts the value `none` to `pass:["none"]`.
 end snippet */
 
 /**

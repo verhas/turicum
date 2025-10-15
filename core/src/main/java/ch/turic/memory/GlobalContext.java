@@ -7,7 +7,9 @@ import ch.turic.utils.TuricumClassLoader;
 
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -26,6 +28,8 @@ public class GlobalContext {
     final DebuggerContext debuggerContext = new DebuggerContext(null, null);
     private final Map<ThreadContext, AtomicInteger> contexts = new ConcurrentHashMap<>();
     public final TuricumClassLoader classLoader = new TuricumClassLoader(getClass().getClassLoader());
+    // stores all predefined global symbols, so they do not get exported using export_all()
+    public final Set<String> predefinedGlobals = new HashSet<>();
 
     public GlobalContext(int stepLimit) {
         this.stepLimit = stepLimit;

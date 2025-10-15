@@ -9,6 +9,43 @@ import ch.turic.memory.LngList;
 import static ch.turic.builtins.functions.FunUtils.ArgumentsHolder.optional;
 /*snippet builtin0110
 
+=== `glob`
+
+`_glob` is a built-in function to list files.
+The name starts with a `_` character because you are not supposed to call it directly.
+To ease the use, there is a function called `glob` in the Turicum system library.
+You can import it from the `+"turi.io"+` package.
+
+   fn glob(pattern: str,@path: str|none=none,@recursive: bool=false)
+
+The function has one mandatory and two optional parameters.
+
+* `patter` is a mandatory string parameter.
+  It has to define the file name pattern.
+  The list matches the usual "glob" patterns, which means
+
+** `pass:[*]` matches zero or more characters, except `/`,
+** `pass:[**]` matches zero or more any characters, and
+** `pass:[?]` matches exactly one any character.
+
+* `path` optional, named, string parameter.
+If not specified, the current working directory will be used.
+
+* `recursive` optional, named, boolean parameter.
+Default value is `false`.
+
+The following example lists the first three class files in the test target directory:
+
+{%S glob1%}
+
+The second example lists the files in the current working directory only.
+It is also an example that shows how to import only one function from the import library,
+which otherwise exports multiple functions and classes.
+
+{%S glob2%}
+
+The directories in the result list have a trailing `/` at the end of their names (it is guaranteed).
+
 end snippet */
 
 /**

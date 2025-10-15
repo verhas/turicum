@@ -8,7 +8,43 @@ import ch.turic.builtins.functions.FunUtils;
 import ch.turic.commands.FieldAccess;
 import ch.turic.commands.Identifier;
 import ch.turic.memory.LngObject;
+/*snippet builtin0065
 
+=== `delete`
+
+`delete` is a macro to delete a field from an object.
+The macro should have one or two arguments.
+
+When it has two arguments, the first argument is an object and the second argument is a field name.
+That way, you can delete the field named `pass:[b]` of object `pass:[a]` as
+
+[source]
+----
+    delete a,b
+----
+
+You can also use the form:
+
+[source]
+----
+    delete a.b
+----
+
+In this case, there is only one argument: an expression resulting from accessing an object field.
+The field of the object is deleted.
+
+Although you can access a field using the `a["b"]` format, this format is not usable in the delete command.
+Instead, you can use the two-argument version with a string as the second argument.
+
+[source]
+----
+    delete a, "b"
+----
+It is an error if there is no such field in the object or if the first argument is not an object.
+
+{%S delete%}
+
+end snippet*/
 /**
  * A macro that removes a field from a language object.
  * <p>
@@ -26,8 +62,7 @@ import ch.turic.memory.LngObject;
  * The macro will undefine the specified field from the object's context. If the target is not a valid
  * {@link LngObject} or if any other error occurs during execution, an {@link ExecutionException} will be thrown.
  * <p>
- * Note that this differs from {@link Unlet} which removes variables from the current execution context,
- * while this macro removes fields from object instances.
+ * Note that this differs from {@link Unlet} which removes variables from the current execution context, while this macro removes fields from object instances.
  *
  * @throws ExecutionException if the first argument does not evaluate to an {@link LngObject} or if any other error
  *                           occurs during execution

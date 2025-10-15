@@ -8,6 +8,15 @@ import ch.turic.commands.Macro;
 import ch.turic.memory.LocalContext;
 /*snippet builtin0320
 
+=== `reclose`
+
+This function will "open" and reclose a closure in the current environment.
+
+{%S reclose%}
+
+The function opens and "recloses" the closure in the context of the function call.
+It will see and alter the `s` in that context of the re-closing, while the original closure alters and sees the global `s`.
+
 end snippet */
 
 /**

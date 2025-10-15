@@ -6,7 +6,25 @@ import ch.turic.TuriFunction;
 import ch.turic.memory.LngList;
 import ch.turic.memory.LngObject;
 /*snippet builtin0210
+=== `jsonify`, `jsonify_beauty`
 
+`jsonify` will accept one argument and convert it to a string that is the JSON representation of the argument.
+Note that this is not exactly the same as the string produced by `to_sting()` on an object.
+
+* The resulting string will enclose the keys and string value between `pass:["]`.
+* All the special characters in the strings will be escaped.
+* `none` values are represented as `null`.
+
+This encoding is for machine consumption, without formatting, and without any unnecessary spaces.
+
+If you need a human-readable version of the JSON, you can use the `jsonify_beauty`.
+This function uses three parameters:
+
+* the object to jsonify,
+* the tab size (how many characters indented structures should be moved to the right),
+* desired maximum margin.
+
+{%S jsonify%}
 end snippet */
 
 /**

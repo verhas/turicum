@@ -6,6 +6,13 @@ import ch.turic.TuriFunction;
 import ch.turic.commands.ClosureLike;
 /*snippet builtin0130
 
+=== `is_curried`
+
+The function `is_curried()` returns `true` if the argument is in a curried function.
+
+{%S is_curried%}
+
+
 end snippet */
 
 /**

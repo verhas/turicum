@@ -5,6 +5,16 @@ import ch.turic.ExecutionException;
 import ch.turic.TuriFunction;
 /*snippet builtin0280
 
+=== `nano_time`
+
+The `nano_time` function in Turicum returns the current value of the most precise available system timer, expressed in nanoseconds.
+It is a direct wrapper around Java’s `+System.nanoTime()+` method.
+It is typically used for measuring elapsed time with high resolution.
+
+Unlike timestamps, the returned value has no absolute meaning but is strictly monotonic, making it ideal for performance profiling and timing operations.
+
+{%S nano_time%}
+
 end snippet */
 
 /**

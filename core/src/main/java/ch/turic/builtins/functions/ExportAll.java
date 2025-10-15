@@ -5,6 +5,21 @@ import ch.turic.ExecutionException;
 import ch.turic.TuriFunction;
 /*snippet builtin0100
 
+=== `export`, `export_all`
+
+These are two functions to be used in files imported.
+The macro `export` will export the variables listed as arguments.
+That way, these variables will be copied into the context of the importing code.
+
+You can specify identifiers and/or expressions resulting in strings as arguments.
+
+NOTE: Technically, `export` is a macro, recognizing variables instead of their values as arguments.
+If you have a variable that contains the name of the symbol you want to export use `export (variable)` to force the evaluation
+instead of `export variable`, exporting the variable itself.
+
+`export_all()` will export all the variables from the importing context.
+Note that in the case of `export_all()`, you cannot omit the `(` and `)`.
+
 end snippet */
 
 /**
@@ -18,7 +33,9 @@ public class ExportAll implements TuriFunction {
         final var ctx = FunUtils.ctx(context);
         FunUtils.noArg(name(), arguments);
         for (final var key : ctx.keys()) {
-            ctx.addExport(key);
+            if (!ctx.globalContext.predefinedGlobals.contains(key)) {
+                ctx.addExport(key);
+            }
         }
         return null;
     }

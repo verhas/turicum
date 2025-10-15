@@ -9,11 +9,10 @@ import ch.turic.TuriFunction;
 === `yield()`, `try_yield()`, `yield_is_closed()`
 
 When a task is started asynchronously, there is always a channel between the parent thread and the child thread.
-You can create multiple channels (`que` objects), and different threads can read and write them, creating a complex mesh of messaging.
+You can create multiple channels (`que` objects), allowing different threads to read and write them, which creates a complex mesh of messaging.
 However, one channel is always created when a task is started asynchronously, and this channel is tied to the task.
 
-The parent task starting thread can send objects into this channel using the `send()` method on the task object,
-and the asynchronous thread can get the objects sent by the parent thread by using `yield()`.
+The parent task starting thread can send objects into this channel using the `send()` method on the task object, and the asynchronous thread can get the objects sent by the parent thread by using `yield()`.
 
 `yield()` will wait infinitely for an object and return one when one arrives.
 If the queue from the parent thread is already closed, then `yield()` will throw an exception.
@@ -35,7 +34,7 @@ The sending happens __approximately__ every 9ms, and the reading is retried __ap
 end snippet */
 
 /**
- * Returns true if the yield channel is closed
+ * Returns {@code true} if the yield channel is closed
  */
 public class YieldIsClosed implements TuriFunction {
     @Override

@@ -7,6 +7,11 @@ import ch.turic.memory.LngList;
 import ch.turic.memory.LngObject;
 /*snippet builtin0120
 
+=== `id_hash`
+
+The function `id_hash()` returns the identity hash of an object or a list.
+For other arguments, it returns `none`.
+
 end snippet */
 
 /**

@@ -6,6 +6,12 @@ import ch.turic.TuriFunction;
 import ch.turic.memory.LngObject;
 /*snippet builtin0140
 
+=== `is_obj`
+
+This is a function that returns `true` if the argument is an object.
+
+{%S is_obj%}
+
 end snippet */
 
 /**

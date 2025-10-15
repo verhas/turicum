@@ -6,6 +6,23 @@ import ch.turic.TuriFunction;
 import ch.turic.commands.operators.Cast;
 /*snippet builtin0420
 
+=== `sleep`
+
+Sleep pauses the execution.
+
+`sleep(N)` will sleep approximately `N` seconds.
+`N` is an integer or a floating point value.
+The sleep time does not need to be whole seconds, but the precision is not finer than 0.001 seconds.
+
+The return value is the actual number of seconds spent with millisecond precision.
+It is the same as the argument or a bit more.
+
+{%S sleep%}
+
+This function is implemented by calling the Java JDK method `Thread.sleep()`.
+If the specified time is negative, the function does not call the JDK sleep method.
+In all other cases, a `Thread.sleep()` call is invoked, with all multi-thread synchronization effects.
+
 end snippet */
 
 /**

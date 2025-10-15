@@ -8,6 +8,26 @@ import ch.turic.utils.Reflection;
 import java.lang.reflect.InvocationTargetException;
 /*snippet builtin0180
 
+=== `java_object`
+
+This function can be used to create new instances of any Java class.
+The first argument to the function is the binary name of the class.
+The rest of the arguments should be the constructor arguments.
+
+NOTE: Since Turicum stores numbers as `Double` and `Long`, strings as `Strings`, and boolean values as `Boolean` without any wrapping class.
+Calling this function is straightforward when the constructor arguments are one of these primitive values.
+If the parameter type is something else, then you have to use `java_object()` to create that object.
+If some of the parameters are `Integer` or `int`, you can use the built-in function `java_int()` that converts a numeric value to an `Integer` Java object.
+Similarly, if the argument is a `Float` or `float`, you can use the built-in function `float()` that converts a numeric value to a `Float` Java object.
+
+{%S java_object1%}
+
+As you can see in the example above, you can invoke the Java methods on the object directly.
+
+{%S java_object2%}
+
+The example shows that you may need to convert the argument calling `java_int()` when invoking methods that do not work with a `Long` value.
+
 end snippet */
 
 /**

@@ -7,6 +7,18 @@ import ch.turic.memory.BlockingQueueChannel;
 import ch.turic.memory.ChannelIterator;
 /*snippet builtin0310
 
+=== `que`
+
+Create a Queue to communicate between threads.
+
+This function will create a FIFO queue that different code fragments can write to and read from.
+These fragments will probably run in different threads.
+
+{%S que1%}
+
+Here is a complex example using this function:
+
+{%S que%}
 end snippet */
 
 /**

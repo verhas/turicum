@@ -9,6 +9,18 @@ import ch.turic.memory.LngObject;
 import ch.turic.utils.JdkTypePredicate;
 /*snippet builtin0150
 
+=== `is_type`
+
+The return value is true if the object is an instance of the class or is an instance of a child class of the named class.
+
+This function accepts two arguments:
+
+* and object, and
+* a string naming a class or the class itself.
+
+
+{%S is_type%}
+
 end snippet */
 
 /**

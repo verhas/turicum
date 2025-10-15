@@ -102,9 +102,9 @@ public class StringFetcher {
      */
     public static String fetchId(Input in) {
         Require.require(!in.isEmpty(), "Input must be at least one character long.");
-        Require.require(Input.validId1stChar(in.charAt(0)), "Input must start with a valid identifier character.");
+        Require.require(ch.turic.Input.validId1stChar(in.charAt(0)), "Input must start with a valid identifier character.");
         final var id = new StringBuilder();
-        while (!in.isEmpty() && Input.validIdChar(in.charAt(0))) {
+        while (!in.isEmpty() && ch.turic.Input.validIdChar(in.charAt(0))) {
             in.move(1, id);
         }
         return id.toString();

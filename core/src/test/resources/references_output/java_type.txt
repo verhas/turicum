@@ -1,0 +1,5 @@
+java.lang.Long int
+java.lang.Integer num
+ch.turic.commands.BlockCommand java.ch.turic.commands.BlockCommand
+ch.turic.memory.JavaClass fn
+java.math.BigInteger num

@@ -22,7 +22,7 @@ public class TestCompilation {
 
     /**
      * Generates a stream of dynamic tests based on program snippets defined in an input file.
-     * Each snippet is compiled, executed, and compared for consistency between its original
+     * Each snippet is compiled, executed, and compared for consistency with its original
      * and serialized versions. Both the output and execution results are verified to ensure
      * correctness and consistency under different conditions.
      * <p>

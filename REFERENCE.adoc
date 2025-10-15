@@ -6,6 +6,7 @@
 
 
 
+
 == Introduction
 
 === What is Turicum?
@@ -476,13 +477,15 @@ Goodbye.
 
 A string literal starting with `$"` or `$"""` is interpolated every time it is used.
 Interpolation means that the parts of the string enclosed between `${}` and `$()` are executed as command blocks and their result takes their place in the string.
+You can also omit the `(` and `)` characters if the expression is a single variable.
 
 .source of snippet `istring1`
 
 [source]
 ----
 let a = 3;
-println $"a is ${a}"
+println $"a is $(a)"
+println $"a is also $a"
 
 ----
 
@@ -490,6 +493,7 @@ println $"a is ${a}"
 [source]
 ----
 a is 3
+a is also 3
 
 ----
 
@@ -498,7 +502,7 @@ a is 3
 The blocks are executed in the same context as the string.
 The `${}` being a wrapping block opens a new local context.
 On the other hand, `$()` does not open a new local context.
-That way any declaration inside the `$()` will happen in the surrounding context.
+That way, any declaration inside the `$()` will happen in the surrounding context.
 
 .source of snippet `istring2`
 
@@ -1671,15 +1675,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=4A8AB068
+h id=4715AE33
 h after post increment: 1
 k: 0
-h id=1922E6D
-k id=4A8AB068
+h id=9FC9F91
+k id=4715AE33
 h after pre increment: 2
 z: 2
-h id=76A82F33
-z id=76A82F33
+h id=1FAC1D5C
+z id=1FAC1D5C
 
 ----
 
@@ -1724,15 +1728,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=532A02D9
+h id=6850B758
 h after post increment: 1
 k: 1
-h id=532A02D9
-k id=532A02D9
+h id=6850B758
+k id=6850B758
 h after pre increment: 2
 z: 2
-h id=532A02D9
-z id=532A02D9
+h id=6850B758
+z id=6850B758
 
 ----
 
@@ -1780,15 +1784,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=7F811D00
+h id=4207609E
 h after post decrement: -1
 k: 0
-h id=4089713
-k id=7F811D00
+h id=1F77B5CC
+k id=4207609E
 h after pre decrement: -2
 z: -2
-h id=F19C9D2
-z id=F19C9D2
+h id=5D7CA698
+z id=5D7CA698
 
 ----
 
@@ -1830,15 +1834,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=A77614D
+h id=16E7B402
 h after post decrement: -1
 k: -1
-h id=A77614D
-k id=A77614D
+h id=16E7B402
+k id=16E7B402
 h after pre decrement: -2
 z: -2
-h id=A77614D
-z id=A77614D
+h id=16E7B402
+z id=16E7B402
 
 ----
 
@@ -2395,15 +2399,11 @@ The following simple macro reimplements the `if` command's functionality using i
 [source]
 ----
 mut c = macro(
-    {|condition,then,`else`|
+    fn(condition,then,`else`){
         if evaluate(condition) : evaluate(then) else: evaluate(`else`)
-    })
+    });
 
-print(
-
-    c(true,"yes, it is true",{ println("this will never be printed") })
-
-    );
+print c(true,"yes, it is true",{ println("this will never be printed") })
 
 ----
 
@@ -5059,9 +5059,9 @@ println( (end-start)/1000000, "ms")
 [source]
 ----
 [1, 2, 3]
-319.773542ms
+307.490208ms
 []
-313.582041ms
+315.037833ms
 
 ----
 
@@ -5270,11 +5270,9 @@ a =3.6820276497695854
 a =3.6063454894655185
 a =3.6055513629176015
 a =3.6055512754639905
-a =3.6055512754639896
-a =3.6055512754639896
-sqrt(13) ≈ 3.6055512754639896
+sqrt(13) ≈ 3.6055513629176015
 sqrt(13) ≈ 3.605551275463989 calculated by java Math
-square ≈ 13.000000000000002
+square ≈ 13.000000630636974
 
 ----
 
@@ -10348,6 +10346,76 @@ The arity of this new function is still two in Turicum, but one argument is now 
 The number of the curried arguments is returned by `curried_arity()`.
 
 
+=== `delete`
+
+`delete` is a macro to delete a field from an object.
+The macro should have one or two arguments.
+
+When it has two arguments, the first argument is an object and the second argument is a field name.
+That way, you can delete the field named `pass:[b]` of object `pass:[a]` as
+
+[source]
+----
+    delete a,b
+----
+
+You can also use the form:
+
+[source]
+----
+    delete a.b
+----
+
+In this case, there is only one argument: an expression resulting from accessing an object field.
+The field of the object is deleted.
+
+Although you can access a field using the `a["b"]` format, this format is not usable in the delete command.
+Instead, you can use the two-argument version with a string as the second argument.
+
+[source]
+----
+    delete a, "b"
+----
+It is an error if there is no such field in the object or if the first argument is not an object.
+
+.source of snippet `delete`
+
+[source]
+----
+let a = { a: 1 , b: 2, c: ["kedavra"], d:"avraka" , h: none}
+a.a = none // this does not delete the field
+println "'a' set to none ", jsonify(a)
+delete a, a // delete the field a
+println "deleted field 'a' ", jsonify(a)
+delete a.h
+println "deleted field 'h' via field access", jsonify(a)
+delete {13; 55; a }, b // the object is calculated
+delete a, "c" // string name for the field
+println "deleted field 'c' using a string ", jsonify(a)
+delete a, chr("c".ord()+1) // string calculated name
+println "deleted field 'd' using calculated string ", a
+try delete a, d catch e1 println e1  // was already deleted
+a.c = []
+try delete a.c, h catch e2 println e2
+
+----
+
+.output of snippet `delete`
+[source]
+----
+'a' set to none {"a":null,"b":2,"c":["kedavra"],"d":"avraka","h":null}
+deleted field 'a' {"b":2,"c":["kedavra"],"d":"avraka","h":null}
+deleted field 'h' via field access{"b":2,"c":["kedavra"],"d":"avraka"}
+deleted field 'c' using a string {"d":"avraka"}
+deleted field 'd' using calculated string {}
+Variable 'd' is not defined in the local context, you cannot unlet it.
+'[]' is not a valid object
+
+----
+
+
+
+
 === `enumerate()`
 
 The enumerate function is included, although Turicum already provides this capability through the `with` keyword in loops.
@@ -10449,151 +10517,15 @@ println env("JAVA_*")
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-=== `yield()`, `try_yield()`, `yield_is_closed()`
-
-When a task is started asynchronously, there is always a channel between the parent thread and the child thread.
-You can create multiple channels (`que` objects), and different threads can read and write them, creating a complex mesh of messaging.
-However, one channel is always created when a task is started asynchronously, and this channel is tied to the task.
-
-The parent task starting thread can send objects into this channel using the `send()` method on the task object,
-and the asynchronous thread can get the objects sent by the parent thread by using `yield()`.
-
-`yield()` will wait infinitely for an object and return one when one arrives.
-If the queue from the parent thread is already closed, then `yield()` will throw an exception.
-
-NOTE: `yield` is an operator and not a function, and it is used in other contexts with slightly different semantics also.
-
-`try_yield()` is more lenient.
-It does not wait.
-It returns `none` if there is no message or the channel is closed.
-
-`yield_is_closed()` can be used to test whether the queue is open from the parent to the child thread.
-
-.source of snippet `try_yield`
-
-[source]
-----
-fn printer(){
-    mut n = 0
-    while {
-        mut s = try_yield();
-        return { println "we are done" } when yield_is_closed();
-        if s == none {
-            println "not ready %s" % n
-            n++
-            sleep 0.003
-        } else {
-            n = 0
-            println "received %s" % s;
-        }
-    }
-}
-
-mut task : task = async printer()
-for i=1 ; i < 4 ; i++ {
- println "sending ",i
- task.send(i);
- sleep 0.009
- }
-println "closing the channel"
-task.close();
-println "channel is closed"
-println "is done %s" % task.is_done()
-await task
-println "is done %s" % task.is_done()
-
-none
-
-----
-
-.output of snippet `try_yield`
-[source]
-----
-sending 1
-not ready 0
-received 1
-not ready 0
-not ready 1
-not ready 2
-sending 2
-received 2
-not ready 0
-not ready 1
-sending 3
-received 3
-not ready 0
-not ready 1
-not ready 2
-closing the channel
-not ready 3
-channel is closed
-is done false
-we are done
-is done true
-
-----
-
-
-
-Note that the output of this sample is not deterministic.
-The sending happens __approximately__ every 9ms, and the reading is retried __approximately__ every 3ms.
-
-
-
-
 === `evaluate`
 
-Evaluate the function argument as a command in the caller environment.
-If you want to evaluate a string containing Turicum code, you have to use `compile()`.
+Evaluate a command object in the caller environment.
+It is not to evaluate a string.
+If you want to evaluate a string containing Turicum code, you have to use `compile()` or `execute()` string methods.
 
 Usually, macro implementations use this function.
 Macros get their arguments unevaluated and can use this function to evaluate them.
-If you try to evaluate anything other than a macro argument, you will get an error.
+If you try to evaluate anything other than a macro argument, you likely will get an error.
 
 .source of snippet `evaluate1`
 
@@ -10614,9 +10546,12 @@ Hello
 
 
 
+The specific requirement to use this function is that the argument is a command object and that there is a caller environment.
+If you pass a `thunk`-ed command to a function (non-macro) you can also use this function to evaluate.
+
 The following example uses all the possible tools that can appear in a macro and a function.
 The actual functionality is basic: it just invokes the closure or function provided as the first argument with the rest of the arguments passed on.
-In real life you could just call the function itself without making it through a macro, but in this case we focus on doing that and how.
+In real life, you could just call the function itself without making it through a macro, but in this case, we focus on doing that and how.
 
 The unnamed function, which is the argument of the macro, has a mandatory, position-only argument and all the three extra arguments.
 The first argument will be the function or closure we will call.
@@ -10624,8 +10559,8 @@ The function first called `evaluate` to get the function or closure.
 Since this function is never called as a function, only after it is converted to be a macro, the argument is never a function, but a function definition.
 Evaluating it will result in the function.
 
-When we call this function adding `(..rest,..meta,..closure)` after it, we spread the extra parameters.
-In this example the three argument values for these parameters are
+When we call this function, adding `(..rest,..meta,..closure)` after it, we spread the extra parameters.
+In this example, the three argument values for these parameters are
 
 * `+{}+` empty object,
 * `[]` empty list, and
@@ -10687,25 +10622,113 @@ The philosophy of Turicum is to be dense and use extra characters where it helps
 Omitting the requirement around a `fn` (or for that matter a `class`) definition inside an expression make the language leaner, but this does not make a function or class definition to be an expression itself.
 ====
 
+
 === `export`, `export_all`
 
 These are two functions to be used in files imported.
 The macro `export` will export the variables listed as arguments.
 That way, these variables will be copied into the context of the importing code.
 
-You can specify identifiers and expressions resulting in strings as arguments.
+You can specify identifiers and/or expressions resulting in strings as arguments.
+
+NOTE: Technically, `export` is a macro, recognizing variables instead of their values as arguments.
+If you have a variable that contains the name of the symbol you want to export use `export (variable)` to force the evaluation
+instead of `export variable`, exporting the variable itself.
 
 `export_all()` will export all the variables from the importing context.
-Note that in the case of `export_all()` you cannot omit the `(` and `)`.
+Note that in the case of `export_all()`, you cannot omit the `(` and `)`.
+
+
+=== `glob`
+
+`_glob` is a built-in function to list files.
+The name starts with a `_` character because you are not supposed to call it directly.
+To ease the use, there is a function called `glob` in the Turicum system library.
+You can import it from the `+"turi.io"+` package.
+
+   fn glob(pattern: str,@path: str|none=none,@recursive: bool=false)
+
+The function has one mandatory and two optional parameters.
+
+* `patter` is a mandatory string parameter.
+  It has to define the file name pattern.
+  The list matches the usual "glob" patterns, which means
+
+** `pass:[*]` matches zero or more characters, except `/`,
+** `pass:[**]` matches zero or more any characters, and
+** `pass:[?]` matches exactly one any character.
+
+* `path` optional, named, string parameter.
+If not specified, the current working directory will be used.
+
+* `recursive` optional, named, boolean parameter.
+Default value is `false`.
+
+The following example lists the first three class files in the test target directory:
+
+.source of snippet `glob1`
+
+[source]
+----
+sys_import "turi.io"
+
+println jsonify_beauty(glob("**/test-classes/**/*.class", recursive=true)[0..3])
+
+----
+
+.output of snippet `glob1`
+[source]
+----
+[
+    "target/test-classes/ch/turic/TestJavaDocSnippets.class",
+    "target/test-classes/ch/turic/TestJavaFields.class",
+    "target/test-classes/ch/turic/TestRun.class"
+]
+
+----
+
+
+
+The second example lists the files in the current working directory only.
+It is also an example that shows how to import only one function from the import library,
+which otherwise exports multiple functions and classes.
+
+.source of snippet `glob2`
+
+[source]
+----
+sys_import "turi.io", "glob"
+
+println jsonify_beauty(glob("*"))
+
+----
+
+.output of snippet `glob2`
+[source]
+----
+[ "target/", "pom.xml", "pom.turi", ".env", "src/"]
+
+----
+
+
+
+The directories in the result list have a trailing `/` at the end of their names (it is guaranteed).
+
+
+=== `id_hash`
+
+The function `id_hash()` returns the identity hash of an object or a list.
+For other arguments, it returns `none`.
+
 
 === `import`
 
 Import allows you to get definitions from external files into your code.
 
-When you have a large application, you can separate some of the function definitions or classes into separate files.
-These separate files can be referenced, and the definitions from these can be loaded into the currently running interpreter.
+When you have an extensive application, you can separate some of the function definitions or classes into separate files.
+These separate files can be referenced, and their definitions can be loaded into the currently running interpreter.
 
-The function `import` searches the file looking at each directory listed in the environment variable `APPIA`.
+The function `import` searches the file, looking at each directory listed in the environment variable `APPIA`.
 
 [NOTE]
 ====
@@ -10716,7 +10739,7 @@ The application
 * then the environment variable, and finally
 * it tries to load the search path from the local directory `.env` file.
 
-Handling the `.env` file is implemented in the code, there is no need to use external helper tools.
+Handling the `.env` file is implemented in the code; there is no need to use external helper tools.
 ====
 
 [NOTE]
@@ -10730,12 +10753,12 @@ The individual directories are separated using `|` characters.
 
 [NOTE]
 ====
-The character `|` was selected because it works on Windows as well as on Linux or other Unix-based operating systems.
+The character `|` was selected because it works on Windows as well as on Linux and on other Unix-based operating systems.
 The drawback is that the shell may interpret it, but the value of `APPIA` is rarely defined on the command line.
 ====
 
-When the import function sees a request to import the file `a.b.c.d`, it will look at the subdirectory `a/b/c` for each `APPIA` directory.
-The search is left to right as the directories are defined in the variable.
+When the import function encounters a request to import the file `a.b.c.d`, it will examine the subdirectory `a/b/c` for each `APPIA` directory.
+The search is performed from left to right, as defined by the directories in `APPIA`.
 The first location where the  `d.turi` file is found "wins" and the file is loaded.
 
 Technically, the function
@@ -10744,11 +10767,11 @@ Technically, the function
 * executes using a separate interpreter, and
 * returns the global context of the interpreter as a class-less object.
 
-If you have function or class definitions in the imported file, they will be fields in the new object.
+If you have function or class definitions in the imported file, they will be fields in the returned object.
+You can assign the returned object to a variable or use it immediately, selecting specific fields as needed.
+If you want a specific class or function in your namespace, you can `let` assign it to a variable.
 
-You can assign the returned object to a variable or use it right away, cherry-picking certain fields from it.
-
-If you want a specific class or function in your namespace, you can simply `let` assign it to a variable.
+The following is a file that is imported by the sample after it.
 
 .file `import_this.turi`
 [source]
@@ -10780,12 +10803,19 @@ fluffy dog
 
 
 
-There are two pairs to the function `import`: `export()` and `export_all()`.
+There are two functions related to the macro `import`:
+
+* `export()`, and
+* `export_all()`.
+
 When these are used in an imported file, the variables from the imported file are copied automatically to the importing context.
+With `export()` you can list the symbols that you want to be exported.
+The function `export_all()` will export all the global symbols from the imported file, except the predefined ones.
+Those are defined already in the importing context, and it would be dangerous to redefine things like `true`, `false`, and built-in functions using an import; hence, it is not done.
 
 Specifying extra arguments after the imported file name can define the symbols you want to import.
-These arguments can be identifiers or expressions resulting in a string.
-If there is such a list in the import function the `export()` or `export_all()` in the imported file is ignored.
+These arguments can be identifiers and/or expressions resulting in a string.
+If there is such a list in the import function, the `export()` or `export_all()` in the imported file is ignored.
 
 .source of snippet `limited_import`
 
@@ -10810,18 +10840,112 @@ Variable 'github' is undefined.
 
 
 
-The list can contain strings and identifiers.
+Also, when you specify the name of the imported program, you can specify it as a string or as a series of identifiers with dots.
 
-Also, when you specify the name of the imported program you can specify it as a string or as a series of identifiers with dots.
+
+
+=== `is_curried`
+
+The function `is_curried()` returns `true` if the argument is in a curried function.
+
+.source of snippet `is_curried`
+
+[source]
+----
+fn add(a,b)=a + b
+let add5 = add.(5)
+let unc = uncurry(add5)
+println is_curried(add)
+println is_curried(add5)
+println is_curried(unc)
+
+----
+
+.output of snippet `is_curried`
+[source]
+----
+false
+true
+false
+
+----
+
+
+
+
+
+=== `is_defined`
+
+This macro accepts an identifier and returns `true` if the identifier is defined in the current context.
+
+.source of snippet `is_defined`
+
+[source]
+----
+if is_defined(z) : println "defined" else: println "not defined";
+mut z = 1
+if is_defined(z) : println "defined" else: println "not defined";
+try:
+    println {if is_defined(z+2) : "defined" else: "not defined"}
+catch: println "no way"
+
+----
+
+.output of snippet `is_defined`
+[source]
+----
+not defined
+defined
+no way
+
+----
+
+
+
+
+=== `is_obj`
+
+This is a function that returns `true` if the argument is an object.
+
+.source of snippet `is_obj`
+
+[source]
+----
+fn test(s){println jsonify(s), "=" , "is object" if is_obj(s) else "is not object"}
+
+test "hello"
+test 1
+test {}
+test {a:1}
+test( [3,2,1] )
+test none
+
+----
+
+.output of snippet `is_obj`
+[source]
+----
+"hello"=is not object
+1=is not object
+{}=is object
+{"a":1}=is object
+[3,2,1]=is not object
+null=is not object
+
+----
+
+
+
 
 === `is_type`
+
+The return value is true if the object is an instance of the class or is an instance of a child class of the named class.
 
 This function accepts two arguments:
 
 * and object, and
 * a string naming a class or the class itself.
 
-The return value is true if the object is an instance of the class or is an instance of a child class of the named class.
 
 .source of snippet `is_type`
 
@@ -10831,40 +10955,144 @@ class A {}
 class B : A {}
 mut K = class : B {}
 mut z = K()
-println is_type(z,"A")," yes"
-println is_type(z,"H")," no"
-println is_type(z,"K")," no" // it is a no named class
-println is_type(z,K)," yes"
-println is_type(z,A)," yes"
-println is_type(z,"#undefined")," yes" // bit strange, but actually
+println is_type(z,"A"),""" "A" yes, it is the root class"""
+println is_type(z,A)," A yes, when referencing the class itself"
+println is_type(z,"H"),""" "H" no, there is not even defined"""
+try: is_type(z,H) catch e: println $"H is not defined: ${e}"
+println is_type(z,"K"),""" "K" no, it is not the name of the klass, only a variable"""
+println is_type(z,K)," K yes, it is the class itself"
+println is_type(z,"#undefined")," #ndefined yes, it is also has a class type that is unnamed"
 
 ----
 
 .output of snippet `is_type`
 [source]
 ----
-true yes
-false no
-false no
-true yes
-true yes
-true yes
+true "A" yes, it is the root class
+true A yes, when referencing the class itself
+false "H" no, there is not even defined
+H is not defined: Variable 'H' is undefined.
+false "K" no, it is not the name of the klass, only a variable
+true K yes, it is the class itself
+true #ndefined yes, it is also has a class type that is unnamed
 
 ----
 
 
 
-=== `java_...`
 
-There are three functions in this group:
+=== `java_call`
 
-* `java_object`,
+This function calls a Java method.
 
-* `java_call`, and
+The first argument is either
 
-* `java_class`
+* the object on which we want to call a method, or
 
-==== `java_object`
+* the name of the class to call a static method on.
+
+The second argument is the name of the method.
+The rest of the arguments are passed to the Java method.
+The return value is the value returned by the Java method.
+
+This method works with a fixed number of argument functions as well as with vararg methods.
+Note that you can call the Java methods on Java objects or on Java class objects directly, like they were Turicum methods.
+Use this method only when the name of the method is known only at run-time.
+
+.source of snippet `java_call1`
+
+[source]
+----
+let sb = java_object("java.lang.StringBuilder", "xBruhahha");
+java_call sb,"deleteCharAt",java_int(0)
+println sb
+
+----
+
+.output of snippet `java_call1`
+[source]
+----
+Bruhahha
+
+----
+
+
+
+The example above performs the same call as in the `java_object` example, but using a string to specify the name of the Java method.
+
+
+=== `java_class`
+
+Create a Turicum object that is a Java class itself.
+This object can be used as a constructor to create instances of the class and to invoke static methods.
+
+.source of snippet `java_class1`
+
+[source]
+----
+let m = java_class("java.lang.Math");
+println m.abs(-5)
+println m.absExact(int(-5))
+
+----
+
+.output of snippet `java_class1`
+[source]
+----
+5
+5
+
+----
+
+
+
+You can also use these objects to create a new instance of the Java class.
+These objects are callable, so you can call them to get a new instance of the underlying Java class:
+
+.source of snippet `java_class2`
+
+[source]
+----
+let BigDecimal = java_class("java.math.BigDecimal")
+let h = BigDecimal("10.50")
+println $"h is ${h} of ${type(h)}"
+
+----
+
+.output of snippet `java_class2`
+[source]
+----
+h is 10.50 of num
+
+----
+
+
+
+The constructor can also be vararg:
+
+.source of snippet `java_class3`
+
+[source]
+----
+let Locale = java_class("java.util.Locale")
+// Locale constructor is vararg
+let l1 = Locale("en", "US");
+let l2 = Locale("en", "US", "POSIX");
+println "%s %s" % [l1, l2]
+
+----
+
+.output of snippet `java_class3`
+[source]
+----
+en_US en_US_POSIX
+
+----
+
+
+
+
+=== `java_object`
 
 This function can be used to create new instances of any Java class.
 The first argument to the function is the binary name of the class.
@@ -10921,215 +11149,66 @@ Bruhahha
 
 The example shows that you may need to convert the argument calling `java_int()` when invoking methods that do not work with a `Long` value.
 
-==== `java_call`
 
-This function calls a Java method.
+=== `java_resources`
 
-The first argument is either
+Load the named Java resource or resources and return the strings in a list.
 
-* the object on which we want to call a method, or
+The function takes a string argument and loads the corresponding Java resources.
+Java resources are usually in the `resources` directory in the Java project source,
+and their content gets into the JAR file together with the binary class files.
 
-* the name of the class to call a static method on.
+There can be multiple resources in the different JAR files and in directories with the same name.
+A typical example is the `META-INF/services/...` files that list the classes implementing a service interface.
 
-The second argument is the name of the method.
-The rest of the arguments are passed to the Java method.
-The return value is the value returned by the Java method.
+This function loads all those files and returns all the strings in a list.
+If there is only one file for a given name, then the list will only have one element.
 
-This method works with a fixed number of argument functions as well as with vararg methods.
-Note that you can call the Java methods on Java objects or on Java class objects directly, like they were Turicum methods.
-Use this method only when the name of the method is known only at run-time.
-
-.source of snippet `java_call1`
+.source of snippet `java_resources`
 
 [source]
 ----
-let sb = java_object("java.lang.StringBuilder", "xBruhahha");
-java_call sb,"deleteCharAt",java_int(0)
-println sb
+let appia_handlers = java_resources("turi/appia.turi")
+println $"There is ${len(appia_handlers)} appia handler sys import file."
+println $"It contains ${len(appia_handlers[0])} characters."
 
 ----
 
-.output of snippet `java_call1`
+.output of snippet `java_resources`
 [source]
 ----
-Bruhahha
+There is 1 appia handler sys import file.
+It contains 756 characters.
 
 ----
 
 
 
-The example above performs the same call as in the `java_object` example, but using a string to specify the name of the Java method.
 
-==== `java_class`
+=== `java_type`
 
-It can be used to create a special object that encapsulates a Java class.
-This object can be used to call the static method of that class.
+Returns the canonical name of the Java class of the argument.
 
-.source of snippet `java_class1`
-
-[source]
-----
-let m = java_class("java.lang.Math");
-println m.abs(-5)
-println m.absExact(int(-5))
-
-----
-
-.output of snippet `java_class1`
-[source]
-----
-5.0
-5
-
-----
-
-
-
-You can also use these objects to create a new instance of the Java class.
-These objects are callable, so you can just call them to get a new instance of the underlying Java class:
-
-.source of snippet `java_class2`
+.source of snippet `java_type`
 
 [source]
 ----
-let BigDecimal = java_class("java.math.BigDecimal")
-let h = BigDecimal("10.50")
-println $"h is ${h} of ${type(h)}"
+println java_type(42), " ", type(42)
+println java_type(java_int(42)), " ", type(java_int(42))
+println java_type(thunk({let z=2}))," ",type(thunk({let z=2}))
+println java_type(java_class("java.math.BigInteger"))," ",type(java_class("java.math.BigInteger"))
+println java_type(java_class("java.math.BigInteger")("42"))," ",type(java_class("java.math.BigInteger")("42"))
 
 ----
 
-.output of snippet `java_class2`
+.output of snippet `java_type`
 [source]
 ----
-h is 10.50 of num
-
-----
-
-
-
-The constructor can also be vararg:
-
-.source of snippet `java_class3`
-
-[source]
-----
-let Locale = java_class("java.util.Locale")
-// Locale constructor is vararg
-let l1 = Locale("en", "US");
-let l2 = Locale("en", "US", "POSIX");
-println "%s %s" % [l1, l2]
-
-----
-
-.output of snippet `java_class3`
-[source]
-----
-en_US en_US_POSIX
-
-----
-
-
-
-
-
-
-=== `signature`
-
-The built-in function `signature` returns an object that describes the signature of the argument function.
-You pass a function, macro, or closure to this function, and the return value is the signature object.
-The object is classless and has the following fields:
-
-* `name` is the name of the function, closure, macro or `none` if it has no name
-* `return_type` is a list of return type strings
-* `parameters` is a list of parameters. Each element is an object with the following fields:
-** `identifier` is the name of the parameter
-** `named` is `true` if the parameter can be specified by name, `false` otherwise
-** `positional` is `true` if the parameter can be specified by position, `false` otherwise
-* `types` is a list of types. Each element is a string or a command object
-* `default` is the default value expression command object or `none`.
-* `rest` is the name of the `[rest]` parameter or `none`
-* `meta` is the name of the `{meta}` parameter or `none`
-* `closure` is the name of the `^closure` parameter or `none`
-
-
-.source of snippet `signatura1`
-
-[source]
-----
-fn f (a:num=53,[reliquum],{nominati},^clausura):any {
-    return a + b + c
-}
-
-println jsonify_beauty(signature(f))
-
-----
-
-.output of snippet `signatura1`
-[source]
-----
-{
-    "return_type": [ "any"],
-    "rest": "reliquum",
-    "meta": "nominati",
-    "name": "f",
-    "closure": "clausura",
-    "parameters": [
-                      {
-                          "identifier": "a",
-                          "default": 53,
-                          "types": [ "num"],
-                          "named": true,
-                          "positional": true
-                      }
-                  ]
-}
-
-----
-
-
-
-=== `keys`
-
-The function `keys()` returns a string list containing the keys of the argument.
-
-* If it is a class, then the keys are the class-level fields, including those that have closure value, hence are class methods.
-
-* If it is an object, then the list contains the fields.
-
-* If it is a macro, a closure, or a function, then it will return the parameter names.
-
-.source of snippet `keys1`
-
-[source]
-----
-class A {
-    mut z:num = 1
-    let k:str = "two"
-    fn zibabwa(a,b,@shia,[ta]){}
-}
-let k = A()
-let uu = {|f,y,z| none}
-
-println keys(A), " of A"
-println keys(A.zibabwa), " of A.zibabwa"
-println keys(k), " of k"
-println keys(uu), " of uu"
-
-let BigDecimal = java_class("java.math.BigDecimal")
-println keys(BigDecimal)
-println keys(BigDecimal("0"))
-
-----
-
-.output of snippet `keys1`
-[source]
-----
-[zibabwa, z, cls, k] of A
-[a, b, shia] of A.zibabwa
-[this, cls] of k
-[f, y, z] of uu
-[ZERO, ROUND_DOWN, ROUND_UNNECESSARY, ROUND_CEILING, ROUND_HALF_DOWN, ROUND_HALF_UP, ONE, ROUND_UP, ROUND_FLOOR, ROUND_HALF_EVEN, TEN, TWO]
-[]
+java.lang.Long int
+java.lang.Integer num
+ch.turic.commands.BlockCommand java.ch.turic.commands.BlockCommand
+ch.turic.memory.JavaClass fn
+java.math.BigInteger num
 
 ----
 
@@ -11146,7 +11225,7 @@ Note that this is not exactly the same as the string produced by `to_sting()` on
 
 This encoding is for machine consumption, without formatting, and without any unnecessary spaces.
 
-If you need a human readable version of the json, you can use the `jsonify_beauty`.
+If you need a human-readable version of the JSON, you can use the `jsonify_beauty`.
 This function uses three parameters:
 
 * the object to jsonify,
@@ -11206,23 +11285,90 @@ object beauty={
 
 
 
-=== `str`
+=== `keys`
 
-Converts the argument to a string.
-Similar to the `to_string()` method, but it works safely on any value and in some situations it may be more readable.
+The function `keys()` returns a list containing the keys (strings) of the argument.
+
+* If it is a class, then the keys are the class-level fields, including those that have closure value, hence are class methods.
+
+* If it is an object, then the list contains the object fields.
+
+* If it is a macro, a closure, or a function, then it will return the parameter names.
+
+.source of snippet `keys1`
+
+[source]
+----
+class A {
+    mut z:num = 1
+    let k:str = "two"
+    fn zibabwa(a,b,@shia,[ta]){}
+}
+let k = A()
+let uu = {|f,y,z| none}
+
+println keys(A), " of A"
+println keys(A.zibabwa), " of A.zibabwa"
+println keys(k), " of k"
+println keys(uu), " of uu"
+
+let BigDecimal = java_class("java.math.BigDecimal")
+println keys(BigDecimal)
+println keys(BigDecimal("0"))
+
+----
+
+.output of snippet `keys1`
+[source]
+----
+[zibabwa, z, cls, k] of A
+[a, b, shia] of A.zibabwa
+[this, cls] of k
+[f, y, z] of uu
+[ZERO, ROUND_DOWN, ROUND_UNNECESSARY, ROUND_CEILING, ROUND_HALF_DOWN, ROUND_HALF_UP, ONE, ROUND_UP, ROUND_FLOOR, ROUND_HALF_EVEN, TEN, TWO]
+[]
+
+----
+
+
+
+Note that the return value contains the special fields, like `cls`, `this` and so on.
+
 
 === `len`
 
 This function returns the length of the argument.
+
 The argument can be:
 
-* string
+* string, the value is the length of the string.
 
-* list
+* list, the value is the number of elements in the list.
 
-* Java array
+* Java array, the value is the array length.
 
-* Java collection
+* Java collection, the value is the size of the collection.
+
+.source of snippet `len`
+
+[source]
+----
+
+println len("abc")
+println len([1,2,3])
+
+----
+
+.output of snippet `len`
+[source]
+----
+3
+3
+
+----
+
+
+
 
 === `macro`
 
@@ -11233,15 +11379,11 @@ This function converts a closure or a function into a macro.
 [source]
 ----
 mut c = macro(
-    {|condition,then,`else`|
+    fn(condition,then,`else`){
         if evaluate(condition) : evaluate(then) else: evaluate(`else`)
-    })
+    });
 
-print(
-
-    c(true,"yes, it is true",{ println("this will never be printed") })
-
-    );
+print c(true,"yes, it is true",{ println("this will never be printed") })
 
 ----
 
@@ -11255,11 +11397,11 @@ yes, it is true
 
 === `min`, `max`
 
-These functions return the minium and the maximum value of their arguments.
+These functions return the minimum and the maximum value of their arguments.
 If there is only one argument and that argument is a list, then the functions return the extreme element of the list.
 
-The elements can be anything that is comparable, numbers, string.
-If the arguments are objects they must have the `pass:[`<`]` method defined.
+The elements can be anything comparable, such as numbers or strings.
+If the arguments are objects, they must have the `pass:[`<`]` method defined.
 
 .source of snippet `min_max`
 
@@ -11305,12 +11447,14 @@ Cannot set variable 'other' to value 'Donald' because it does not fit the declar
 
 ----
 
-}
+
 
 === `nano_time`
 
 The `nano_time` function in Turicum returns the current value of the most precise available system timer, expressed in nanoseconds.
-It is a direct wrapper around Java’s `+System.nanoTime()+` method and is typically used for measuring elapsed time with high resolution.
+It is a direct wrapper around Java’s `+System.nanoTime()+` method.
+It is typically used for measuring elapsed time with high resolution.
+
 Unlike timestamps, the returned value has no absolute meaning but is strictly monotonic, making it ideal for performance profiling and timing operations.
 
 .source of snippet `nano_time`
@@ -11324,105 +11468,17 @@ println nano_time()
 .output of snippet `nano_time`
 [source]
 ----
-1455302134314541
+1593868280050625
 
 ----
 
 
 
-=== `parents`
-
-Returns a list of the classes that are the direct parent classes of the argument.
-
-.source of snippet `parents`
-
-[source]
-----
-class A {}
-class B : A {}
-mut K = class : B {}
-println([ ..parents(K) -> type(it()) ])
-
-----
-
-.output of snippet `parents`
-[source]
-----
-[B]
-
-----
-
-
-
-Note that although `B` is a child class of `A`, the variable `K` contains an anonymous class that has only `B` as parent.
-The function `parent()` lists only `B` as a direct parent and does not contain `A`.
-If you need all the parents you have to use the function `all_parents()`.
-
-=== `reclose`
-
-This function will "open" and reclose a closure in the current environment.
-
-.source of snippet `reclose`
-
-[source]
-----
-fn my_fun(@close_it) {
-  mut s: str = "in function";
-  return reclose(close_it)
-}
-
-mut s:str ="outer";
-// this closure has a reference to 's' that contains "outer"
-// it prints the value of the enclosed variable and then
-// changes to a new value passed as argument
-let closure = {|x| println s; s = x};
-// after reclosing the new closure stored in 'reclosure' refers to the
-//variable 's' in the 'my_fun' function
-let reclosure = my_fun(close_it=closure);
-// another reclosure will reference another 's'
-// local variables are allocated dynamically
-let rereclosure = my_fun(close_it=closure);
-
-// prints the original "outer" and sets the variable to "closure 1"
-closure("closure 1")
-// prints "in function" and sets the 's' inside the function
-reclosure("reclosure 1")
-// prints "in function" and sets the 's' inside the second function
-rereclosure("rereclosure 1")
-println "s = %s" % s // prints "closure 1"
-
-// we repeat the call sequence
-closure("closure 2") // output is "closure 1"
-reclosure("reclosure 2") // and "reclosure 1"
-rereclosure("rereclosure 2") // and "rereclosure 1"
-println "s = %s" % s // the new value is "closure 2"
-
-----
-
-.output of snippet `reclose`
-[source]
-----
-outer
-in function
-in function
-s = closure 1
-closure 1
-reclosure 1
-rereclosure 1
-s = closure 2
-
-----
-
-
-
-The function opens and "recloses" the closure in the context of the function call.
-It will see and alter the `s` in that context of the re-closing, while the original closure alters and sees the global `s`.
-
-=== `_pack`
+=== `pack`
 
 This function creates an object with the actual local context as the object context.
 It does not copy the context.
-If the local context changes, the object changes accordingly.
+If the local context changes after the object creation, the object changes accordingly.
 The following example shows how a function can return its local context, essentially the set of local variables, as an object.
 
 .source of snippet `pack_1`
@@ -11460,7 +11516,7 @@ println $" $(h.h) $(h.i) $(h.j) $(h.k) $(h.l) $(h.m) $(h.n) $(h.o) $(h.p) $(h.q)
 
 The following example returns two different objects that share the same context.
 It means that their fields are not only identical, but they are the same.
-Changing a field in one will change the field in the other, even though the two objects are not the same.
+Changing a field in one will change the field in the other, even though the two objects are not the same, but their fields are.
 
 .source of snippet `pack_2`
 
@@ -11479,6 +11535,13 @@ println $"x.h = $(x.h)"
 println $"y.h = $(y.h)"
 println $"are they the same? $(x === y)"
 
+// field w is defined anew, not shared, inserted into x and y separately
+x.w = "x.w"
+y.w = "y.w"
+println $"x.w = $(x.w)"
+println $"y.w = $(y.w)"
+
+
 ----
 
 .output of snippet `pack_2`
@@ -11490,13 +11553,16 @@ AFTER x.h = 100
 x.h = 100
 y.h = 100
 are they the same? false
+x.w = y.w
+y.w = y.w
 
 ----
 
 
 
 The following example demonstrates that context wrapping persists even after the context has been packed.
-Through the returned object, you can access the closure's wrapped context, in this case, the variable `b`, even though this is not a field in the object.
+Through the returned object, you can access the closure's wrapped context, in this case, the variable `b`,
+even though this is not a field in the object.
 
 .source of snippet `pack_3`
 
@@ -11523,311 +11589,38 @@ println keys(h)
 
 
 
-=== `source_directory`
+=== `parents`
 
-The built-in function `source_directory()` returns the directory of the source file or the compiled file that is currently being executed.
-It may return `none` if the environment executes some script that has no specified file.
+Returns a list of the classes that are the direct parent classes of the argument.
 
-=== `_glob`
-
-`_glob` is a buit-in function to list files.
-The name starts with a `_` character, because you are not supposed to call it directly.
-To ease the use, there is a function called `glob` in the Turicum system library you can import from the ``"turi.io"`` package.
-
-The function has one mandatory and two optional parameters.
-
-* `patter` is a mandatory string parameter.
-It has to define the file name pattern.
-The list matches the usual "glob" patterns, which means
-
-** `pass:[*]` macthes zero or more characters, except `/`,
-** `pass:[**]` matches zero or more any characters, and
-** `pass:[?]` matches exactly one any character.
-
-* `path` optional, named, string parameter.
-If not specified, the current working directory will be used.
-
-* `recursive` optional, named, boolean parameter.
-Default value is `false`.
-
-The following example lists all the class files in the test target directory:
-
-.source of snippet `glob1`
+.source of snippet `parents`
 
 [source]
 ----
-sys_import "turi.io"
-
-println jsonify_beauty(glob("**/test-classes/**/*.class", recursive=true))
+class A {}
+class B : A {}
+mut K = class : B {}
+println([ ..parents(K) -> type(it()) ])
 
 ----
 
-.output of snippet `glob1`
+.output of snippet `parents`
 [source]
 ----
-[
-    "target/test-classes/ch/turic/TestJavaDocSnippets.class",
-    "target/test-classes/ch/turic/TestJavaFields.class",
-    "target/test-classes/ch/turic/TestRun.class",
-    "target/test-classes/ch/turic/memory/RangeTest.class",
-    "target/test-classes/ch/turic/TestInterpreter$Snippet.class",
-    "target/test-classes/ch/turic/TestExpression.class",
-    "target/test-classes/ch/turic/TestCompilation.class",
-    "target/test-classes/ch/turic/utils/ReflectionTest$PublicTestClass.class",
-    "target/test-classes/ch/turic/utils/ReflectionTest$InnerTestClass.class",
-    "target/test-classes/ch/turic/utils/ReflectionTest$VarargMethodTests.class",
-    "target/test-classes/ch/turic/utils/ReflectionTest$1LocalTestClass.class",
-    "target/test-classes/ch/turic/utils/ReflectionTest$PublicInterface.class",
-    "target/test-classes/ch/turic/utils/ReflectionTest$JdkApiAccessibilityTests.class",
-    "target/test-classes/ch/turic/utils/ReflectionTest$NullParameterValidationTests.class",
-    "target/test-classes/ch/turic/utils/TestMarshalling.class",
-    "target/test-classes/ch/turic/utils/ReflectionTest$GetMethodBasicTests.class",
-    "target/test-classes/ch/turic/utils/ReflectionTest$PrivateInterface.class",
-    "target/test-classes/ch/turic/utils/ReflectionTest$InterfaceAccessibilityTests.class",
-    "target/test-classes/ch/turic/utils/ReflectionTest$PrivateTestClass.class",
-    "target/test-classes/ch/turic/utils/ReflectionTest.class",
-    "target/test-classes/ch/turic/utils/ReflectionTest$EdgeCasesTests.class",
-    "target/test-classes/ch/turic/utils/TestStringUtils.class",
-    "target/test-classes/ch/turic/utils/ReflectionTest$ParameterTypeMatchingTests.class",
-    "target/test-classes/ch/turic/TestInterpreter.class",
-    "target/test-classes/ch/turic/AdHoc.class",
-    "target/test-classes/ch/turic/ParameterDefinitionTest.class",
-    "target/test-classes/ch/turic/TestCompilation$ProgramSnippet.class",
-    "target/test-classes/ch/turic/TestBasic.class",
-    "target/test-classes/ch/turic/TestReferenceSnippets.class",
-    "target/test-classes/ch/turic/TestJavaDocSnippets$JavaDocSnippet.class",
-    "target/test-classes/ch/turic/TestReferenceSnippets$ProgramSnippet.class",
-    "target/test-classes/ch/turic/analyzer/StringFetcherTest$EscapeSequenceTests.class",
-    "target/test-classes/ch/turic/analyzer/StringFetcherTest$MultilineStringTests.class",
-    "target/test-classes/ch/turic/analyzer/StringFetcherTest$EdgeCases.class",
-    "target/test-classes/ch/turic/analyzer/StringFetcherTest.class",
-    "target/test-classes/ch/turic/analyzer/StringFetcherTest$SimpleStringTests.class"
-]
+[B]
 
 ----
 
 
 
-The second example lists the files in the current working directory only.
-It is also an example that shows how to import only one function from the import library, that otherwise exports multiple functions and classes.
-
-.source of snippet `glob2`
-
-[source]
-----
-sys_import "turi.io", "glob"
-
-println jsonify_beauty(glob("*"))
-
-----
-
-.output of snippet `glob2`
-[source]
-----
-[ "target/", "pom.xml", "pom.turi", ".env", "src/"]
-
-----
-
-
-
-The directories have a trailing `/` at the end of their name in the list.
-
-=== `rng`
-
-Returns a number range.
-
-[source]
-----
-rng(start, end, step)
-----
-or
-
-[source]
-----
-rng(start, end)
-----
-
-It is a read-only list that contains all the numbers from the start (inclusive) to the end (exclusive) with the given step.
-It does not create an actual list, but rather provides access to the numbers in the range by index.
-You can also iterate through the elements.
-
-The following example demonstrates that you can have extensive ranges.
-
-.source of snippet `rng`
-
-[source]
-----
-let z = rng(0,9223372036854775807)
-mut i = 0
-for each k in z {
-  print k, " "
-  i++
-} until i > 5
-
-----
-
-.output of snippet `rng`
-[source]
-----
-0 1 2 3 4 5 
-----
-
-
-
-If you want a physical list with the elements, you can create it using the `..` spread operator:
-
-.source of snippet `rngThousand`
-
-[source]
-----
-mut z = rng(0,1000)
-mut array = [ ..z ] // this creates an array of 1000 elements
-println len(array)
-print( [..array[0 .. 5], "...", ..array[-5 .. len(array)]])
-
-----
-
-.output of snippet `rngThousand`
-[source]
-----
-1000
-[0, 1, 2, 3, 4, ..., 995, 996, 997, 998, 999]
-----
-
-
-
-In this case, `array` will be a list that contains the elements that we print out.
-Do not try this with too large numbers unless you want to test out of memory errors.
-
-You can index a number range, and you can also use a range to index another range:
-
-.source of snippet `rngRange`
-
-[source]
-----
-// a range does not store the numbers only where to start, end, and the step
-mut z = rng(100,9223372036854775807,100)
-// a range indexed is still only a range with a minimal memory footprint
-mut range = z[20..2000000]
-// the values come from the sub-range
-print( [..range[0 .. 5], "...", ..range[-5 .. len(range)]])
-
-----
-
-.output of snippet `rngRange`
-[source]
-----
-[2100, 2200, 2300, 2400, 2500, ...]
-----
-
-
-
-In this case, you index the range and do not spread it into a list.
-We only spread the new range for printing.
-The `range` object does not allocate nearly two million elements.
-It is simply another number range.
-At the end, the code allocates a list of ten elements for the printout.
-
-The third parameter `step` is optional.
-If not specified, it will be `+1`, `0`, or `-1` depending on the start and the end value.
-
-If `start` is larger than `end`, the step value must be negative.
-The default value is `-1` in this case.
-
-If `start` is smaller than `end`, the step value must be positive.
-The default value is `+1` in this case.
-
-When the `start` and `end` values are the same, the range will
-
-* be empty if the step is specified and is not zero (positive or negative), and
-* contain the one single `start`/`end` value if the step is zero.
-
-The default value for `step` is `0` in this case.
-
-
-If specified, it must not be zero, and it has to be positive or negative based on the relations between the start and end value.
-Essentially, stepping has to approach the end value.
-
-.source of snippet `rngErrs`
-
-[source]
-----
-try:
-    rng(1,10,-1)
-catch e1:
-    println e1.message
-try:
-    rng(10,1,+1)
-catch e2:
-    println e2.message
-try:
-    rng(10,11,0)
-catch e3:
-    println e3.message
-
-println "Special zero element range can have zero as step %s" % [rng(10,10,0)]
-println "but it is just the same as %s" % [rng(10,10)]
-
-
-----
-
-.output of snippet `rngErrs`
-[source]
-----
-rng(1,10,-1) would never end
-rng(10,1,1) would never end
-rng(10,11,0) has zero step size
-Special zero element range can have zero as step [10]
-but it is just the same as [10]
-
-----
-
-
-
-It is recommended not to use the `rng()` function directly.
-You can import the system module `range` that defines a more flexible name:
-
-.source of snippet `range`
-
-[source]
-----
-// import the Turicum range function to get named parameters for range
-sys_import turi.range
-
-// start from zero
-// also note ranges print wisely, when they are long
-println range(end=10)
-// all elements are printed when not more than five
-println range(end=5)
-println range(start=100, 200, 50)
-println range(end=200, 100, 50)
-// range object has one field: 'length'
-println "length=",range(end=200, 100, 50).length
-// you can also index a range object, it will not allocate memory
-println "r[1]=",range(end=200, 100, 50)[1]
-println range(100,100)
-println range(100,100,step=0)
-
-----
-
-.output of snippet `range`
-[source]
-----
-[0, 1, 2,..., 8, 9]
-[0, 1, 2, 3, 4]
-[100, 150]
-[100, 150]
-length=2
-r[1]=150
-[100]
-[100]
-
-----
-
-
+Note that although `B` is a child class of `A`, the variable `K` contains an anonymous class that has only `B` as a parent.
+The function `parent()` lists only `B` as a direct parent, and the list does not contain `A`.
+If you need all the parents, you have to use the function `all_parents()`.
 
 
 === `que`
+
+Create a Queue to communicate between threads.
 
 This function will create a FIFO queue that different code fragments can write to and read from.
 These fragments will probably run in different threads.
@@ -11953,66 +11746,68 @@ none
 task1 is not ready 0
 task2 is ready 1
 task2 is not ready 0
-task2 is not ready 1
 task1 is not ready 1
-task1 is not ready 2
+task2 is not ready 1
 task2 is not ready 2
-task2 is not ready 3task1 is not ready 3
-
+task1 is not ready 2
 task2 is ready 2
 task2 is not ready 0
-task1 is not ready 4
-task2 is not ready 1
-task1 is not ready 5
-task1 is not ready 6task2 is not ready 2
-
-task1 is ready 3task2 is not ready 3
-
-task1 is not ready 0
-task1 is not ready 1task2 is not ready 4
-
-task2 is not ready 5
-task1 is ready 4
-task1 is not ready 0
-task1 is not ready 1
-task2 is not ready 6
-task2 is not ready 7
-task1 is not ready 2
-task2 is ready 5
-task2 is not ready 0
 task1 is not ready 3
 task2 is not ready 1
 task1 is not ready 4
-task1 is not ready 5
-task2 is not ready 2
-task1 is ready 6
-task1 is not ready 0
+task2 is not ready 2task1 is not ready 5
+
 task2 is not ready 3
-task1 is not ready 1
+task1 is not ready 6
+task2 is ready 3
+task1 is not ready 7
+task2 is not ready 0
+task2 is not ready 1
+task1 is not ready 8
+task2 is not ready 2
+task1 is not ready 9
+task2 is ready 4
+task1 is not ready 10
+task2 is not ready 0
+task2 is not ready 1
+task1 is not ready 11
+task1 is not ready 12
+task2 is not ready 2
+task1 is ready 5task2 is not ready 3
+
+task1 is not ready 0
 task2 is not ready 4
+task1 is not ready 1
 task2 is not ready 5
 task1 is not ready 2
-task2 is ready 7
-task2 is not ready 0
 task1 is not ready 3
+task2 is ready 6
+task2 is not ready 0
 task2 is not ready 1
 task1 is not ready 4
 task2 is not ready 2
 task1 is not ready 5
-task2 is ready 8
-task1 is not ready 6
+task1 is ready 7
+task2 is not ready 3
+task1 is not ready 0
+task2 is not ready 4task1 is not ready 1
+
+task2 is not ready 5
+task1 is not ready 2
+task1 is not ready 3task2 is ready 8
+
+task2 is not ready 0
+task2 is not ready 1
+task1 is not ready 4
+task2 is not ready 2
+task1 is not ready 5
+task1 is not ready 6task2 is ready 9
+
 task2 is not ready 0
 task1 is not ready 7
 task2 is not ready 1
-task1 is ready 9
-task1 is not ready 0
+task1 is not ready 8
 task2 is not ready 2
-task1 is not ready 1
-task2 is not ready 3
-task1 is not ready 2
-task2 is not ready 4
-task1 is not ready 3
-task2 is not ready 5
 closing the channel
 channel is closed
 1 is done false
@@ -12030,200 +11825,268 @@ task2 done true
 
 
 
-=== Setting values in Contexts
+=== `quote`
 
-Currently, there are three 'set' functions to update the value of a variable when the name of the variable is available in a string.
+The macro `quote` is an alias for the macro `thunk`.
+The name is a complimentary addition to honour the functionality from LISP.
 
-* `set`, `set_force`
-* `set_global`
-* `set_caller`, `set_caller_force`
 
-The use of these functions should be considered only for special meta-programming cases like writing decorators.
+=== `reclose`
 
-==== `set`, `set_force`
+This function will "open" and reclose a closure in the current environment.
 
-Set the value of a variable in the local context.
-This function is useful for meta-programming when the name of the variable is available in a string.
-An example is in the sample:
-
-.source of snippet `fnDecorator3`
+.source of snippet `reclose`
 
 [source]
 ----
-mut fun_decorator={|^closure|
-        set_force(closure.name,
-            {|| println("We start the fun"); closure(); println("The fun is over")}
-           )
-    }
-
-@fun_decorator()
-fn q(){
-  println("We function");
+fn my_fun(@close_it) {
+  mut s: str = "in function";
+  return reclose(close_it)
 }
 
-q()
+mut s:str ="outer";
+// this closure has a reference to 's' that contains "outer"
+// it prints the value of the enclosed variable and then
+// changes to a new value passed as argument
+let closure = {|x| println s; s = x};
+// after reclosing the new closure stored in 'reclosure' refers to the
+//variable 's' in the 'my_fun' function
+let reclosure = my_fun(close_it=closure);
+// another reclosure will reference another 's'
+// local variables are allocated dynamically
+let rereclosure = my_fun(close_it=closure);
+
+// prints the original "outer" and sets the variable to "closure 1"
+closure("closure 1")
+// prints "in function" and sets the 's' inside the function
+reclosure("reclosure 1")
+// prints "in function" and sets the 's' inside the second function
+rereclosure("rereclosure 1")
+println "s = %s" % s // prints "closure 1"
+
+// we repeat the call sequence
+closure("closure 2") // output is "closure 1"
+reclosure("reclosure 2") // and "reclosure 1"
+rereclosure("rereclosure 2") // and "rereclosure 1"
+println "s = %s" % s // the new value is "closure 2"
 
 ----
 
-.output of snippet `fnDecorator3`
+.output of snippet `reclose`
 [source]
 ----
-We start the fun
-We function
-The fun is over
+outer
+in function
+in function
+s = closure 1
+closure 1
+reclosure 1
+rereclosure 1
+s = closure 2
 
 ----
 
 
 
-uses this function to decorate a function and then set the variable of the same name, overwriting the definition with a new, decorated closure.
-
-The `*_force` version overwrites the value even when the variable is pinned.
-
-==== `set_global`
-
-It is similar to `set()`, but it sets the value of a global variable.
-Note that there is no `*_force` version of this function.
-Pinning is always local, and this method works directly on the global variables.
-
-==== `set_caller`, `set_caller_force`
-
-This function sets the variable in the caller context.
-This comes in handy when you implement a decorator that wants to redefine a function or class, and the decorator is in a different context than the decorated function.
-You can set the name as a global name, but that will define the name globally.
-If the function is in a local context, it may not exactly work as expected.
-
-Calling this function from inside another function can redefine a variable in the context of the code that calls the function or the closure.
-The `*_force` version overwrites the value even when the variable is pinned.
-
-.source of snippet `fnDecorator5`
-
-[source]
-----
-fn fun_decorator(^closure){
-        set_caller_force(closure.name,
-            {|| println("We start the fun"); closure(); println("The fun is over")}
-           )
-    }
-
-{
-    @fun_decorator()
-    fn q(){
-      println("We function");
-    }
-
-    q()
-}
-
-----
-
-.output of snippet `fnDecorator5`
-[source]
-----
-We start the fun
-We function
-The fun is over
-
-----
+The function opens and "recloses" the closure in the context of the function call.
+It will see and alter the `s` in that context of the re-closing, while the original closure alters and sees the global `s`.
 
 
+=== `rng`
 
-=== `sys_import`
-
-This command can be used to import Turicum system files.
-These are classes and functions that give an interface to the surrounding environment through the Java VM.
-Although Turicum can call any Java method using the functions `java_object`, and `java_call` there are not meant to be used in application code.
-They are primitives and are used as part of the system library part of the run-time.
-When you use `sys_import`, you import the file from the Java resource path, which delivers more Turicum idiomatic API.
-
-=== `type`
-
-This method returns the type of the argument as a string.
-
-.source of snippet `type1`
+Returns a number range.
 
 [source]
 ----
-
-mut s = "13"; mut i = 13; mut d = 3.14;
-
-mut err
-try: z = 6.55
-catch ex: err=ex
-class A {}
-
-println "\"13\" ", type("13")
-println "13 ", type(13)
-println "3.14 ", type(3.14)
-println "err ",type(err)
-println "A() ",type(A())
-println "[1,2,3] ",type([1,2,3])
-println "A ",type(A)
-println "fn()=3 ",type(fn()=3)
-println "{|| 3} ",type({|| 3})
-println "que(1) ",type(que(1))
-println "async ",type(async 1)
-println "macro ",type(macro(fn()=3))
-println "none ",type(none)
-println "java object ", type(java_object("java.lang.Object"))
-
-
+rng(start, end, step)
 ----
-
-.output of snippet `type1`
-[source]
-----
-"13" str
-13 int
-3.14 float
-err err
-A() A
-[1,2,3] lst
-A cls
-fn()=3 fn
-{|| 3} fn
-que(1) que
-async task
-macro macro
-none none
-java object java.java.lang.Object
-
-----
-
-
-
-When the argument is a Java object then the type is `java.` + the canonical name of the class.
-
-=== `sleep`
-
-Sleep pauses the execution.
-
-`sleep(N)` will sleep approximately `N` seconds.
-It can be a floating point value, does not need to sleep in round seconds, but the precision is not finer than
-0.001 seconds.
-
-The return value is the actual number of seconds spent with millisecond precision.
-It is the same as the argument or a bit more.
-
-.source of snippet `sleep`
+or
 
 [source]
 ----
-println sleep(0.001) // sleep one milli
-
+rng(start, end)
 ----
 
-.output of snippet `sleep`
+It is a read-only list containing all numbers from the start (inclusive) to the end (exclusive) with the given step.
+It does not create an actual list, but instead provides access to the numbers in the range by index.
+You can also iterate through the elements.
+
+The following example demonstrates that you can have extensive ranges.
+
+.source of snippet `rng`
+
 [source]
 ----
-0.001
+let z = rng(0,9223372036854775807)
+mut i = 0
+for each k in z {
+  print k, " "
+  i++
+} until i > 5
+
+----
+
+.output of snippet `rng`
+[source]
+----
+0 1 2 3 4 5 
+----
+
+
+
+If you want a physical list with the elements, you can create it using the `..` spread operator:
+
+.source of snippet `rngThousand`
+
+[source]
+----
+mut z = rng(0,1000)
+mut array = [ ..z ] // this creates an array of 1000 elements
+println len(array)
+println [..array[0 .. 5], "...", ..array[-5 .. inf]]
+
+----
+
+.output of snippet `rngThousand`
+[source]
+----
+1000
+[0, 1, 2, 3, 4, ..., 995, 996, 997, 998, 999]
 
 ----
 
 
 
-No sleep call will be executed in the underlying system if the time is negative.
-In all other cases, a `Thread.sleep()` call is invoked, giving all multi-thread synchronization effects of such a call.
+In this case, `array` will be a list containing the elements we print out.
+Avoid using this with too large numbers unless you want to test for out-of-memory errors.
+
+You can index a number range, and you can also use a range to index another range:
+
+.source of snippet `rngRange`
+
+[source]
+----
+// a range does not store the numbers only where to start, end, and the step
+mut z = rng(100,9223372036854775807,100)
+// a range indexed is still only a range with a minimal memory footprint
+mut range = z[20..2000000]
+// the values come from the sub-range
+print( [..range[0 .. 5], "...", ..range[-5 .. len(range)]])
+
+----
+
+.output of snippet `rngRange`
+[source]
+----
+[2100, 2200, 2300, 2400, 2500, ..., 199999600, 199999700, 199999800, 199999900, 200000000]
+----
+
+
+
+In this case, you index the range without spreading it into a list.
+We only spread the new range for printing.
+The `range` object does not allocate nearly two million elements.
+It is simply another number range.
+At the end, the code allocates a list of ten elements for the printout.
+
+The third parameter `step` is optional.
+If not specified, it will be `+1`, `0`, or `-1` depending on the start and the end value.
+
+If `start` is larger than `end`, the step value must be negative.
+The default value is `-1` in this case.
+
+If `start` is smaller than `end`, the step value must be positive.
+The default value is `+1` in this case.
+
+When the `start` and `end` values are the same, the range will
+
+* be empty if the step is specified and is not zero (positive or negative), and
+* contain the one single `start`/`end` value if the step is zero.
+
+The default value for `step` is `0` in this case.
+
+
+If specified, it must not be zero, and it has to be positive or negative based on the relations between the start and end value.
+Essentially, stepping has to approach the end value.
+
+.source of snippet `rngErrs`
+
+[source]
+----
+try:
+    rng(1,10,-1)
+catch e1:
+    println e1.message
+try:
+    rng(10,1,+1)
+catch e2:
+    println e2.message
+try:
+    rng(10,11,0)
+catch e3:
+    println e3.message
+
+println "Special zero element range can have zero as step %s" % [rng(10,10,0)]
+println "but it is just the same as %s" % [rng(10,10)]
+
+
+----
+
+.output of snippet `rngErrs`
+[source]
+----
+rng(1,10,-1) would never end
+rng(10,1,1) would never end
+rng(10,11,0) has zero step size
+Special zero element range can have zero as step [10]
+but it is just the same as [10]
+
+----
+
+
+
+It is recommended not to use the `rng()` function directly.
+You can import the system module `range` that defines a more flexible name:
+
+.source of snippet `range`
+
+[source]
+----
+// import the Turicum range function to get named parameters for range
+sys_import turi.range
+
+// start from zero
+// also note ranges print wisely, when they are long
+println range(end=10)
+// all elements are printed when not more than five
+println range(end=5)
+println range(start=100, 200, 50)
+println range(end=200, 100, 50)
+// range object has one field: 'length'
+println "length=",range(end=200, 100, 50).length
+// you can also index a range object, it will not allocate memory
+println "r[1]=",range(end=200, 100, 50)[1]
+println range(100,100)
+println range(100,100,step=0)
+
+----
+
+.output of snippet `range`
+[source]
+----
+[0, 1, 2,..., 8, 9]
+[0, 1, 2, 3, 4]
+[100, 150]
+[100, 150]
+length=2
+r[1]=150
+[100]
+[100]
+
+----
+
+
+
 
 === Regular Expressions
 
@@ -12318,33 +12181,342 @@ the ks is '{start: 6, index: 3, end: 11}'
 
 Each named argument contains the start, end, and the index of the named group.
 
-=== `is_defined`
+=== `set_caller`, `set_caller_force`
 
-This macro accepts an identifier and returns `true` if the identifier is defined in the current context.
+This function sets the variable in the caller context.
 
-.source of snippet `is_defined`
+This is particularly useful when implementing a decorator that redefines a function or class,
+especially when the decorator operates in a different context than the decorated function.
+
+Calling this function from inside another function can redefine a variable in the context of the calling function or its closure.
+
+The `*_force` version overwrites the value even when the variable is pinned.
+
+.source of snippet `fnDecorator5`
 
 [source]
 ----
-if is_defined(z) : println "defined" else: println "not defined";
-mut z = 1
-if is_defined(z) : println "defined" else: println "not defined";
-try:
-    println {if is_defined(z+2) : "defined" else: "not defined"}
-catch: println "no way"
+fn fun_decorator(^closure){
+        set_caller_force(closure.name,
+            {|| println("We start the fun"); closure(); println("The fun is over")}
+           )
+    }
+
+{
+    @fun_decorator()
+    fn q(){
+      println("We function");
+    }
+
+    q()
+}
 
 ----
 
-.output of snippet `is_defined`
+.output of snippet `fnDecorator5`
 [source]
 ----
-not defined
-defined
-no way
+We start the fun
+We function
+The fun is over
 
 ----
 
 
+
+Note that the example uses the `_force` version of the function.
+Named functions assign the function to a symbol, such as `q` in this example, and then pin these symbols.
+It is an error to define a function in a context where it was already defined.
+
+=== `set`, `set_force`
+
+Set the value of a variable in the local context.
+This function is handy for meta-programming when the variable's name is available as a string.
+An example is in the sample:
+
+.source of snippet `fnDecorator3`
+
+[source]
+----
+mut fun_decorator={|^closure|
+        set_force(closure.name,
+            {|| println("We start the fun"); closure(); println("The fun is over")}
+           )
+    }
+
+@fun_decorator()
+fn q(){
+  println("We function");
+}
+
+q()
+
+----
+
+.output of snippet `fnDecorator3`
+[source]
+----
+We start the fun
+We function
+The fun is over
+
+----
+
+
+
+It uses this function to decorate a function and then set the variable of the same name, overwriting the definition with a new, decorated closure.
+
+Note that the example that way works only when the decorating closure is defined in the same context as the decorated function or in a subcontext.
+This way, the closure sees the function symbol `q` and it can redefine it.
+A more robust approach to creating decorators involves calling `set_caller_force`.
+
+The `*_force` version overwrites the value even when the variable is pinned.
+
+
+
+=== `set_global`
+
+It is similar to `set()`, but it sets the value of a global variable.
+Note that there is no `*_force` version of this function.
+Pinning is always local, and this method works directly on the global variables.
+
+
+
+=== `signature`
+
+The built-in function `signature` returns an object that describes the signature of the argument function.
+You pass a function, macro, or closure to this function, and the return value is the signature object.
+The object is classless and has the following fields:
+
+* `name` is the name of the function, closure, macro or `none` if it has no name
+* `return_type` is a list of return type strings
+* `parameters` is a list of parameters. Each element is an object with the following fields:
+** `identifier` is the name of the parameter
+** `named` is `true` if the parameter can be specified by name, `false` otherwise
+** `positional` is `true` if the parameter can be specified by position, `false` otherwise
+* `types` is a list of types. Each element is a string or a command object
+* `default` is the default value expression command object or `none`.
+* `rest` is the name of the `[rest]` parameter or `none`
+* `meta` is the name of the `{meta}` parameter or `none`
+* `closure` is the name of the `^closure` parameter or `none`
+
+
+.source of snippet `signatura1`
+
+[source]
+----
+fn f (a:num=53,[reliquum],{nominati},^clausura):any {
+    return a + b + c
+}
+
+println jsonify_beauty(signature(f))
+
+----
+
+.output of snippet `signatura1`
+[source]
+----
+{
+    "return_type": [ "any"],
+    "rest": "reliquum",
+    "meta": "nominati",
+    "name": "f",
+    "closure": "clausura",
+    "parameters": [
+                      {
+                          "identifier": "a",
+                          "default": 53,
+                          "types": [ "num"],
+                          "named": true,
+                          "positional": true
+                      }
+                  ]
+}
+
+----
+
+
+
+
+=== `sleep`
+
+Sleep pauses the execution.
+
+`sleep(N)` will sleep approximately `N` seconds.
+`N` is an integer or a floating point value.
+The sleep time does not need to be whole seconds, but the precision is not finer than 0.001 seconds.
+
+The return value is the actual number of seconds spent with millisecond precision.
+It is the same as the argument or a bit more.
+
+.source of snippet `sleep`
+
+[source]
+----
+println sleep(0.001) // sleep one milli
+
+----
+
+.output of snippet `sleep`
+[source]
+----
+0.002
+
+----
+
+
+
+This function is implemented by calling the Java JDK method `Thread.sleep()`.
+If the specified time is negative, the function does not call the JDK sleep method.
+In all other cases, a `Thread.sleep()` call is invoked, with all multi-thread synchronization effects.
+
+
+=== `source_directory`
+
+This function returns the directory as a string of the source file or the compiled file that is currently being executed.
+It may return `none` if the environment executes a script that lacks a specified file.
+
+It is NOT the script name.
+It is not the current working directory.
+This is the directory where the Turicum program is located.
+
+
+=== `str`
+
+Converts the argument to a string.
+
+Similar to the `to_string()` method, but it works safely on any value, and in some situations, it may be more readable.
+This function converts the value `none` to `pass:["none"]`.
+
+=== `sys_import`
+
+This command can be used to import Turicum system files.
+
+The Turicum run-time and other libraries supporting a Turicum program can deliver Turicum source code files in the Java resource path.
+Using this macro, you can import those files as if they were in a directory listed in the APPIA path.
+
+The Turicum run-time itself provides such files
+
+* to handle Maven POM files when Turicum is used for Maven projects,
+* support debugging Turicum programs,
+* io support,
+* measurement units,
+
+and some others.
+
+You can use `sys_import` in the same way as `import`,
+either specifying only the name of the import resource,
+or specifying the name and the list of imported symbols.
+
+Use `.` as a separator when importing from a package.
+For example, the Turicum run-time in the Turicum JAR file is in the directory `classes/turi`.
+If you want to import the resource from the file `appia.turi` you can do it as
+
+    sys_import turi.appia
+
+In this case, `turi` at the start is the directory name inside the JAR file under `classes`, and `appia` is the file name.
+The extension `.turi` is appended automatically in the same way as for the `import` command.
+
+
+=== `thunk`
+
+This macro simply returns it's argument.
+Because this is a macro, it means that the argument is NOT evaluated.
+
+The name is the past tense o
+
+
+=== `time`
+
+Returns the current time in milliseconds,
+the difference, measured in milliseconds, between the current time and midnight, January 1, 1970 UTC.
+
+Note that while the unit of time of the return value is a millisecond,
+the granularity of the value depends on the underlying operating system and may be larger.
+For example, many operating systems measure time in units of tens of milliseconds.
+
+
+=== `try_yield`
+
+Try to get an object from the task's que.
+It returns `none` if currently there is no receivable object, the object is `none` or the que is closed.
+
+
+=== `http_client`
+
+
+=== `http_server`
+
+
+
+=== `type`
+
+This method returns the type of the argument as a string.
+
+.source of snippet `type1`
+
+[source]
+----
+
+mut s = "13"; mut i = 13; mut d = 3.14;
+
+mut err
+try: z = 6.55
+catch ex: err=ex
+class A {}
+
+println "\"13\" ", type("13")
+println "13 ", type(13)
+println "3.14 ", type(3.14)
+println "err ",type(err)
+println "A() ",type(A())
+println "[1,2,3] ",type([1,2,3])
+println "A ",type(A)
+println "fn()=3 ",type(fn()=3)
+println "{|| 3} ",type({|| 3})
+println "que(1) ",type(que(1))
+println "async ",type(async 1)
+println "macro ",type(macro(fn()=3))
+println "none ",type(none)
+println "java object ", type(java_object("java.lang.Object"))
+
+
+----
+
+.output of snippet `type1`
+[source]
+----
+"13" str
+13 int
+3.14 float
+err err
+A() A
+[1,2,3] lst
+A cls
+fn()=3 fn
+{|| 3} fn
+que(1) que
+async task
+macro macro
+none none
+java object java.java.lang.Object
+
+----
+
+
+
+When the argument is a Java object, then the type is `java.` + the canonical name of the class.
+
+
+=== `uncurry`
+
+Uncurries a curried function or closure.
+The return value is the original function, closure, or a less curried version of that.
+
+The first argument of the function is the curried function or closure.
+If there is no second argument, then all curried parameters will be removed.
+
+If there is a numerical second argument, then that many arguments will be uncurried as specified.
 
 === `unlet`
 
@@ -12396,81 +12568,272 @@ println z
 
 Without the call to `unlet`, the class would also have the variable `obj` as a field.
 
-=== `delete`
 
-`delete` is a macro to delete a field from an object.
-The macro should have exactly one or two arguments.
 
-* The first argument is evaluated, and it has to be an object.
 
-* The second argument has to be an identifier or a string that results in a field name.
 
-That way you can delete the field named `b` of object `a` as
+=== `unthunk`
 
-[source]
-----
-    delete a,b
-----
+Execute a command object in the current context.
+The command object is probably the result of a `thunk()` call.
 
-You can also use the form:
+.source of snippet `thunk_unthunk`
 
 [source]
 ----
-    delete a.b
+// thunk is a macro, gets the block before it evaluates, and it does not evaluate it
+mut z = thunk({mut x = 3; println "hello"})
+println "before eval"
+// unthunking will evaluate the block, as a block
+unthunk(z)
+println "after eval"
+// 'x' was defined as a mutable variable inside the block, so here it is undefined
+println is_defined(x) // will print false
+// this will evaluate the block unwrapped
+unthunk(unwrap(z))
+// the block was unwrapped, so 'x' is defined in this context
+println is_defined(x) // will print true and
+println x             // then the value
+
 ----
 
-In this case, there is only one argument: an expression resulting from accessing an object field.
-The field of the object is deleted.
+.output of snippet `thunk_unthunk`
+[source]
+----
+before eval
+hello
+after eval
+false
+hello
+true
+3
 
-Although you can access a field using the `a["b"]` format, this format is not usable in the delete command.
-Instead, you can use the two-argument version with a string as the second argument.
+----
+
+
+
+
+=== `unwrap`
+
+Unwrap a block command.
+
+When a block command (commands between `{` and `}`) is executed it opens a new context for the execution.
+The new context wraps the surrounding context.
+Any symbol defining and altering command, like `let`, `mut`, `global`, `pin` are executed in this new wrapping context.
+It also means, that these changes are local for the command block.
+Variables pinned are not pinned outside, variables defined in it are not defined outside (or they have their wrapped old definition).
+
+The function `unwrap` returns a block of commands that is unwrapped.
+
+.source of snippet `unwrap1`
 
 [source]
 ----
-    delete a, "b"
-----
-It is an error if there is no such field in the object or if the first argument is not an object.
+let a = 1; // defined 'a' outside
 
-.source of snippet `delete`
+// wrapping block
+{
+    let a = 12; // redefining 'a'  for the local use
+    let b = 77; // defining 'b' valid only  inside
+}
+
+println "AFTER THE WRAPPING BLOCK"
+println $"a is $a"
+println $"b is not defined is_defined(b) is ${is_defined(b)}"
+
+unwrap(thunk({
+    try: let a = 12; // redefining 'a' will raise error
+    catch e: println "redefinition is not possible non-wrapped"
+    let b = 77; // defining 'b' valid outside when unwrapped
+})).execute()
+
+println "AFTER THE UNWRAPPING BLOCK"
+println $"a is $a"
+println $"b is not defined is_defined(b) is ${is_defined(b)}"
+println $"b is $b"
+
+// you can get the same result using an expression with a non-wrapping part
+!(
+    try: let a = 12; // redefining 'a'  will raise error
+    catch e1: println "redefinition is not possible non-wrapped"
+    let k = 78; // defining 'k' valid also outside
+)
+
+println "AFTER THE UNWRAPPING EXPRESSION"
+println $"a is $a"
+println $"k is $k"
+
+
+----
+
+.output of snippet `unwrap1`
+[source]
+----
+AFTER THE WRAPPING BLOCK
+a is 1
+b is not defined is_defined(b) is false
+redefinition is not possible non-wrapped
+AFTER THE UNWRAPPING BLOCK
+a is 1
+b is not defined is_defined(b) is true
+b is 77
+redefinition is not possible non-wrapped
+AFTER THE UNWRAPPING EXPRESSION
+a is 1
+k is 78
+
+----
+
+
+
+
+
+=== `xml_format`
+
+Format an XML document.
+
+The argument of the function must be a string representing the XML document to be formatted.
+The function returns a formatted XML string with proper indentation and structure.
+
+The indentation is set to 4 spaces.
+The character encoding is set to UTF-8.
+
+If the argument is not a valid XML document, the function will raise an error.
+
+.source of snippet `xml_format`
 
 [source]
 ----
-let a = { a: 1 , b: 2, c: ["kedavra"], d:"avraka" , h: none}
-a.a = none // this does not delete the field
-println "'a' set to none ", jsonify(a)
-delete a, a // delete the field a
-println "deleted field 'a' ", jsonify(a)
-delete a.h
-println "deleted field 'h' via field access", jsonify(a)
-delete {13; 55; a }, b // the object is calculated
-delete a, "c" // string name for the field
-println "deleted field 'c' using a string ", jsonify(a)
-delete a, chr("c".ord()+1) // string calculated name
-println "deleted field 'd' using calculated string ", a
-try delete a, d catch e1 println e1  // was already deleted
-a.c = []
-try delete a.c, h catch e2 println e2
+println xml_format("""<a>b<marnacle xmlns="hupsi"></marnacle> </a>""")
+
+try xml_format("<a>b<") catch e: println e
 
 ----
 
-.output of snippet `delete`
+.output of snippet `xml_format`
 [source]
 ----
-'a' set to none {"a":null,"b":2,"c":["kedavra"],"d":"avraka","h":null}
-deleted field 'a' {"b":2,"c":["kedavra"],"d":"avraka","h":null}
-deleted field 'h' via field access{"b":2,"c":["kedavra"],"d":"avraka"}
-deleted field 'c' using a string {"d":"avraka"}
-deleted field 'd' using calculated string {}
-Variable 'd' is not defined in the local context, you cannot unlet it.
-'[]' is not a valid object
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<a>
+    b
+    <marnacle xmlns="hupsi"/>
+</a>
+
+There was an XML exception formatting XML
 
 ----
 
 
 
-=== `is_obj`
 
-This is a function that returns `true` if the argument is an object.
+=== `yield()`, `try_yield()`, `yield_is_closed()`
+
+When a task is started asynchronously, there is always a channel between the parent thread and the child thread.
+You can create multiple channels (`que` objects), allowing different threads to read and write them, which creates a complex mesh of messaging.
+However, one channel is always created when a task is started asynchronously, and this channel is tied to the task.
+
+The parent task starting thread can send objects into this channel using the `send()` method on the task object, and the asynchronous thread can get the objects sent by the parent thread by using `yield()`.
+
+`yield()` will wait infinitely for an object and return one when one arrives.
+If the queue from the parent thread is already closed, then `yield()` will throw an exception.
+
+NOTE: `yield` is an operator and not a function, and it is used in other contexts with slightly different semantics also.
+
+`try_yield()` is more lenient.
+It does not wait.
+It returns `none` if there is no message or the channel is closed.
+
+`yield_is_closed()` can be used to test whether the queue is open from the parent to the child thread.
+
+.source of snippet `try_yield`
+
+[source]
+----
+fn printer(){
+    mut n = 0
+    while {
+        mut s = try_yield();
+        return { println "we are done" } when yield_is_closed();
+        if s == none {
+            println "not ready %s" % n
+            n++
+            sleep 0.003
+        } else {
+            n = 0
+            println "received %s" % s;
+        }
+    }
+}
+
+mut task : task = async printer()
+for i=1 ; i < 4 ; i++ {
+ println "sending ",i
+ task.send(i);
+ sleep 0.009
+ }
+println "closing the channel"
+task.close();
+println "channel is closed"
+println "is done %s" % task.is_done()
+await task
+println "is done %s" % task.is_done()
+
+none
+
+----
+
+.output of snippet `try_yield`
+[source]
+----
+sending 1
+received 1
+not ready 0
+not ready 1
+not ready 2
+sending 2
+received 2
+not ready 0
+not ready 1
+not ready 2
+sending 3
+received 3
+not ready 0
+not ready 1
+closing the channel
+channel is closed
+is done false
+we are done
+is done true
+
+----
+
+
+
+Note that the output of this sample is not deterministic.
+The sending happens __approximately__ every 9ms, and the reading is retried __approximately__ every 3ms.
+
+
+
+
+
+
+
+
+=== Setting values in Contexts
+
+Currently, there are three 'set' functions to update the value of a variable when the name of the variable is available in a string.
+
+* `set`, `set_force`
+* `set_global`
+* `set_caller`, `set_caller_force`
+
+The use of these functions should be considered only for special meta-programming cases like writing decorators.
+
+
+
+
+
+
 
 === Elephant functions: `thunk`, `unthunk`, `unwrap`, `block_list`
 

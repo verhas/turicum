@@ -5,7 +5,15 @@ import ch.turic.ExecutionException;
 import ch.turic.TuriFunction;
 import ch.turic.commands.operators.Compare;
 /*snippet builtin0260
+=== `min`, `max`
 
+These functions return the minimum and the maximum value of their arguments.
+If there is only one argument and that argument is a list, then the functions return the extreme element of the list.
+
+The elements can be anything comparable, such as numbers or strings.
+If the arguments are objects, they must have the `pass:[`<`]` method defined.
+
+{%S min_max%}
 end snippet */
 
 /**

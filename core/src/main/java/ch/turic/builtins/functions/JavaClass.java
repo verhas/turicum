@@ -6,6 +6,22 @@ import ch.turic.TuriFunction;
 
 /*snippet builtin0170
 
+=== `java_class`
+
+Create a Turicum object that is a Java class itself.
+This object can be used as a constructor to create instances of the class and to invoke static methods.
+
+{%S java_class1%}
+
+You can also use these objects to create a new instance of the Java class.
+These objects are callable, so you can call them to get a new instance of the underlying Java class:
+
+{%S java_class2%}
+
+The constructor can also be vararg:
+
+{%S java_class3%}
+
 end snippet */
 
 /**

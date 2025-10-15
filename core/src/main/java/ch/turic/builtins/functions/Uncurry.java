@@ -9,6 +9,15 @@ import ch.turic.commands.FunctionCallOrCurry;
 import static ch.turic.builtins.functions.FunUtils.ArgumentsHolder.optional;
 /*snippet builtin0500
 
+=== `uncurry`
+
+Uncurries a curried function or closure.
+The return value is the original function, closure, or a less curried version of that.
+
+The first argument of the function is the curried function or closure.
+If there is no second argument, then all curried parameters will be removed.
+
+If there is a numerical second argument, then that many arguments will be uncurried as specified.
 end snippet */
 
 /**

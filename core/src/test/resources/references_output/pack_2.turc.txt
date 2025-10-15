@@ -4,3 +4,5 @@ AFTER x.h = 100
 x.h = 100
 y.h = 100
 are they the same? false
+x.w = y.w
+y.w = y.w

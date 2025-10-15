@@ -5,6 +5,15 @@ import ch.turic.ExecutionException;
 import ch.turic.TuriFunction;
 /*snippet builtin0450
 
+=== `time`
+
+Returns the current time in milliseconds,
+the difference, measured in milliseconds, between the current time and midnight, January 1, 1970 UTC.
+
+Note that while the unit of time of the return value is a millisecond,
+the granularity of the value depends on the underlying operating system and may be larger.
+For example, many operating systems measure time in units of tens of milliseconds.
+
 end snippet */
 
 /**

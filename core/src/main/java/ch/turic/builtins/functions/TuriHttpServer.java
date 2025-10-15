@@ -18,6 +18,8 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.Semaphore;
 /*snippet builtin0480
 
+=== `http_server`
+
 end snippet */
 
 /**

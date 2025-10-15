@@ -8,6 +8,34 @@ import ch.turic.TuriFunction;
 import java.util.regex.Pattern;
 /*snippet builtin0340
 
+=== Regular Expressions
+
+Regular expression handling is implemented with two primitive functions `pass:[_rx()]` and `pass:[_rx_match()]`.
+They start with the `pass:[_]` character to signal that they are not to be used directly.
+Instead, the code has to import the system file `re`:
+
+{%S re%}
+
+You can create a regular expression object using `Re()`.
+It has two methods:
+
+* `match()` to match the whole string passed as argument, and
+
+* `find()` to find a matching string in the string.
+
+If there is no match, the return value is an empty object.
+If there is a match, then the return value is an object containing the matching groups.
+
+Even if there are no matching groups the object is not empty as it will have an empty list field named `group`.
+
+You can also use named arguments, that will get into the field `name`.
+In the example above that field was empty.
+In the following example we have named arguments:
+
+{%S re2%}
+
+Each named argument contains the start, end, and the index of the named group.
+
 end snippet */
 
 /**

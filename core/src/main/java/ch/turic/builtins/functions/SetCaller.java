@@ -4,7 +4,22 @@ import ch.turic.Context;
 import ch.turic.ExecutionException;
 import ch.turic.TuriFunction;
 /*snippet builtin0360
+=== `set_caller`, `set_caller_force`
 
+This function sets the variable in the caller context.
+
+This is particularly useful when implementing a decorator that redefines a function or class,
+especially when the decorator operates in a different context than the decorated function.
+
+Calling this function from inside another function can redefine a variable in the context of the calling function or its closure.
+
+{%FORCE%}
+
+{%S fnDecorator5%}
+
+Note that the example uses the `_force` version of the function.
+Named functions assign the function to a symbol, such as `q` in this example, and then pin these symbols.
+It is an error to define a function in a context where it was already defined.
 end snippet */
 
 /**

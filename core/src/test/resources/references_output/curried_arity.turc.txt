@@ -1,0 +1,5 @@
+add5(5) = 10
+curried_arity(add5) = 1
+arity(add5) = 2
+curried_arity(add) = 0
+arity(add) = 2

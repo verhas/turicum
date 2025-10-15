@@ -5,6 +5,11 @@ import ch.turic.ExecutionException;
 import ch.turic.TuriFunction;
 /*snippet builtin0460
 
+=== `try_yield`
+
+Try to get an object from the task's que.
+It returns `none` if currently there is no receivable object, the object is `none` or the que is closed.
+
 end snippet */
 
 /**

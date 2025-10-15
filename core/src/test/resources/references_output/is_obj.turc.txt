@@ -1,0 +1,6 @@
+"hello"=is not object
+1=is not object
+{}=is object
+{"a":1}=is object
+[3,2,1]=is not object
+null=is not object

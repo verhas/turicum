@@ -5,8 +5,15 @@ import ch.turic.ExecutionException;
 import ch.turic.TuriMacro;
 import ch.turic.builtins.functions.FunUtils;
 import ch.turic.commands.Identifier;
+/*snippet builtin0135
 
-/**
+=== `is_defined`
+
+This macro accepts an identifier and returns `true` if the identifier is defined in the current context.
+
+{%S is_defined%}
+
+end snippet*//**
  * returns true if the argument is defined
  */
 public class IsDefined implements TuriMacro {

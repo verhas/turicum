@@ -9,6 +9,12 @@ import ch.turic.commands.Closure;
 import ch.turic.commands.ClosureLike;
 /*snippet builtin0250
 
+=== `macro`
+
+This function converts a closure or a function into a macro.
+
+{%S macro_example%}
+
 end snippet */
 
 /**

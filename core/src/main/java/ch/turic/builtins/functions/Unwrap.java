@@ -6,6 +6,21 @@ import ch.turic.TuriFunction;
 import ch.turic.commands.BlockCommand;
 /*snippet builtin0520
 
+=== `unwrap`
+
+Unwrap a block command.
+
+When a block command (commands between `{` and `}`) is executed it opens a new context for the execution.
+The new context wraps the surrounding context.
+Any symbol defining and altering command, like `let`, `mut`, `global`, `pin` are executed in this new wrapping context.
+It also means, that these changes are local for the command block.
+Variables pinned are not pinned outside, variables defined in it are not defined outside (or they have their wrapped old definition).
+
+The function `unwrap` returns a block of commands that is unwrapped.
+
+{%S unwrap1%}
+
+
 end snippet */
 
 /**

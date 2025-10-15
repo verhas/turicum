@@ -370,14 +370,34 @@ public class LocalContext implements Context, AutoCloseable {
         frame.set(key, value);
     }
 
+    /**
+     * Defines a global variable by adding its name to the list of global variables.
+     * Throws an exception if a global variable with the same name is already defined locally.
+     *
+     * @param name the name of the variable to be defined as global
+     * @throws ExecutionException if the variable name conflicts with an existing local variable
+     */
     public void global(String name) throws ExecutionException {
         ExecutionException.when(frame != globalContext.heap && frame.containsKey(name), "Global variable '%s' is already defined as local.", name);
         globals.add(name);
     }
 
-    public void global(String global, Object value) throws ExecutionException {
-        global(global);
-        globalContext.heap.set(global, value);
+    /**
+     * Sets a global variable in the global context heap.
+     *
+     * @param name the name of the global variable to be set
+     * @param value the value to associate with the specified global variable
+     * @throws ExecutionException if an error occurs during execution
+     */
+    public void global(String name, Object value) throws ExecutionException {
+        global(name);
+        globalContext.heap.set(name, value);
+    }
+
+    public void predefine(String name, Object value) throws ExecutionException {
+        global(name,value);
+        globalContext.predefinedGlobals.add(name);
+        freeze(name);
     }
 
     /**
@@ -594,7 +614,7 @@ public class LocalContext implements Context, AutoCloseable {
     }
 
     /**
-     * Retrieve the object associated with the key. It is either on the local stack or a global whatever.
+     * Retrieve the object associated with the key. It is either on the local stack or a global, whatever.
      *
      * @param key the identifier.
      * @return the object or null if not defined

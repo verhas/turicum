@@ -1,0 +1,12 @@
+AFTER THE WRAPPING BLOCK
+a is 1
+b is not defined is_defined(b) is false
+redefinition is not possible non-wrapped
+AFTER THE UNWRAPPING BLOCK
+a is 1
+b is not defined is_defined(b) is true
+b is 77
+redefinition is not possible non-wrapped
+AFTER THE UNWRAPPING EXPRESSION
+a is 1
+k is 78

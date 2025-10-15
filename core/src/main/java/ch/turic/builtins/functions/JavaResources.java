@@ -9,6 +9,22 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 /*snippet builtin0190
 
+=== `java_resources`
+
+Load the named Java resource or resources and return the strings in a list.
+
+The function takes a string argument and loads the corresponding Java resources.
+Java resources are usually in the `resources` directory in the Java project source,
+and their content gets into the JAR file together with the binary class files.
+
+There can be multiple resources in the different JAR files and in directories with the same name.
+A typical example is the `META-INF/services/...` files that list the classes implementing a service interface.
+
+This function loads all those files and returns all the strings in a list.
+If there is only one file for a given name, then the list will only have one element.
+
+{%S java_resources%}
+
 end snippet */
 
 /**

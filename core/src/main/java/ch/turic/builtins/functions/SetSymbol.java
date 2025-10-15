@@ -4,7 +4,25 @@ import ch.turic.Context;
 import ch.turic.ExecutionException;
 import ch.turic.SnakeNamed.Name;
 import ch.turic.TuriFunction;
-/*snippet builtin0390
+/*snippet builtin0370
+
+=== `set`, `set_force`
+
+Set the value of a variable in the local context.
+This function is handy for meta-programming when the variable's name is available as a string.
+An example is in the sample:
+
+{%S fnDecorator3%}
+
+It uses this function to decorate a function and then set the variable of the same name, overwriting the definition with a new, decorated closure.
+
+Note that the example that way works only when the decorating closure is defined in the same context as the decorated function or in a subcontext.
+This way, the closure sees the function symbol `q` and it can redefine it.
+A more robust approach to creating decorators involves calling `set_caller_force`.
+
+{%FORCE%}
+
+
 
 end snippet */
 

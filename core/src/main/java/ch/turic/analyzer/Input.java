@@ -160,25 +160,4 @@ public final class Input implements ch.turic.Input, CharSequence {
         }
     }
 
-    /**
-     * Checks if the given character is a valid first character for a Java identifier.
-     * <p>
-     * It is the same as in Java, with the exception that '$' is not a valid identifier start character.
-     *
-     * @param c the character to check
-     * @return {@code true} if the character is a valid starting character for a Java identifier,
-     * {@code false} otherwise
-     */
-    static boolean validId1stChar(char c) {
-        return Character.isJavaIdentifierStart(c) && c != '$';
-    }
-
-    /**
-     * @param c the character to check
-     * @return {@code true} if the character can be used in a lazy identifier. These are the same characters that can
-     * be used as first characters (see {@link #validId1stChar(char)}) and also digits.
-     */
-    static boolean validIdChar(char c) {
-        return Character.isJavaIdentifierPart(c);
-    }
 }

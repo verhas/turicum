@@ -9,6 +9,12 @@ import ch.turic.commands.Macro;
 import ch.turic.memory.*;
 /*snippet builtin0200
 
+=== `java_type`
+
+Returns the canonical name of the Java class of the argument.
+
+{%S java_type%}
+
 end snippet */
 
 /**

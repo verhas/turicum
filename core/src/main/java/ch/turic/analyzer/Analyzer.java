@@ -2,6 +2,7 @@ package ch.turic.analyzer;
 
 import ch.turic.BadSyntax;
 import ch.turic.Command;
+import ch.turic.Input;
 
 /**
  * An analyzer reads the lexical elements, advances the {@link LexList} removing from the start the consumed elements
@@ -10,7 +11,7 @@ import ch.turic.Command;
  * Analyzers are usually singletons containing an {@code INSTANCE} field that can be used to invoke the method
  * {@link #analyze(LexList)}.
  * <p>
- * Analyzers can eventually invoke each others following the syntax descriptions.
+ * Analyzers can eventually invoke each other following the syntax descriptions.
  */
 
 public interface Analyzer {

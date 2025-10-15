@@ -10,6 +10,73 @@ import ch.turic.memory.Range;
 import java.util.Iterator;
 /*snippet builtin0330
 
+=== `rng`
+
+Returns a number range.
+
+[source]
+----
+rng(start, end, step)
+----
+or
+
+[source]
+----
+rng(start, end)
+----
+
+It is a read-only list containing all numbers from the start (inclusive) to the end (exclusive) with the given step.
+It does not create an actual list, but instead provides access to the numbers in the range by index.
+You can also iterate through the elements.
+
+The following example demonstrates that you can have extensive ranges.
+
+{%S rng%}
+
+If you want a physical list with the elements, you can create it using the `..` spread operator:
+
+{%S rngThousand%}
+
+In this case, `array` will be a list containing the elements we print out.
+Avoid using this with too large numbers unless you want to test for out-of-memory errors.
+
+You can index a number range, and you can also use a range to index another range:
+
+{%S rngRange%}
+
+In this case, you index the range without spreading it into a list.
+We only spread the new range for printing.
+The `range` object does not allocate nearly two million elements.
+It is simply another number range.
+At the end, the code allocates a list of ten elements for the printout.
+
+The third parameter `step` is optional.
+If not specified, it will be `+1`, `0`, or `-1` depending on the start and the end value.
+
+If `start` is larger than `end`, the step value must be negative.
+The default value is `-1` in this case.
+
+If `start` is smaller than `end`, the step value must be positive.
+The default value is `+1` in this case.
+
+When the `start` and `end` values are the same, the range will
+
+* be empty if the step is specified and is not zero (positive or negative), and
+* contain the one single `start`/`end` value if the step is zero.
+
+The default value for `step` is `0` in this case.
+
+
+If specified, it must not be zero, and it has to be positive or negative based on the relations between the start and end value.
+Essentially, stepping has to approach the end value.
+
+{%S rngErrs%}
+
+It is recommended not to use the `rng()` function directly.
+You can import the system module `range` that defines a more flexible name:
+
+{%S range%}
+
 end snippet */
 
 /**
@@ -43,6 +110,11 @@ public class Rng implements TuriFunction {
             this.end = end;
             this.step = step;
             length = (end - start) / step;
+        }
+
+        @Override
+        public long size(){
+            return length;
         }
 
         @Override

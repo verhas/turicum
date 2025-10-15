@@ -1,6 +1,7 @@
-true yes
-false no
-false no
-true yes
-true yes
-true yes
+true "A" yes, it is the root class
+true A yes, when referencing the class itself
+false "H" no, there is not even defined
+H is not defined: Variable 'H' is undefined.
+false "K" no, it is not the name of the klass, only a variable
+true K yes, it is the class itself
+true #ndefined yes, it is also has a class type that is unnamed

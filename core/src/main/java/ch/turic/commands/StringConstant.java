@@ -55,12 +55,22 @@ public class StringConstant extends AbstractCommand implements HasCommands {
         }
     }
 
+    /**
+     * Splits a given string into an array of substrings based on certain delimiters and syntax rules.
+     * Supports processing of literal segments and interpolated expressions within the string.
+     * Throws exceptions for unbalanced or invalid syntax, such as unmatched parentheses or braces.
+     *
+     * @param str The input string to be split, which may contain literal text and embedded expressions.
+     * @return An array of substrings resulting from splitting the input string.
+     * @throws ExecutionException If the input string contains unbalanced parentheses or braces,
+     *                            or if an interpolated expression is not closed correctly.
+     */
     private static String[] split(final String str) {
         int start = 0, end = 0;
         final var parts = new ArrayList<String>();
         boolean inLiteral = true;
         int pCounter = 0, bCounter = 0;
-        int terminator = 0;
+        char terminator = 0;
         while (end < str.length()) {
             if (inLiteral) {
                 if (str.charAt(end) == '$' && (end + 1) < str.length()) {
@@ -76,6 +86,26 @@ public class StringConstant extends AbstractCommand implements HasCommands {
                             pCounter--;
                             terminator = ')';
                         }
+                        continue;
+                    }
+                    if (Input.validId1stChar(terminator) || terminator == '`') {
+                        parts.add(str.substring(start, end));
+                        start = end + 1;
+                        // just go ahead and fetch the rest of the identifier
+                        for (end = end + 2; end < str.length(); end++) {
+                            if (terminator == '`') {
+                                if (str.charAt(end) == '`') {
+                                    end++;
+                                    break;
+                                }
+                            } else {
+                                if (!Input.validIdChar(str.charAt(end))) {
+                                    break;
+                                }
+                            }
+                        }
+                        parts.add("(" + str.substring(start, end) + ")");
+                        start = end;
                         continue;
                     }
                 }

@@ -216,7 +216,7 @@ public class Lexer {
                 in.skip(OPERANDS[operandIndex].length());
                 continue;
             }
-            if (Input.validId1stChar(in.charAt(0))) {
+            if (ch.turic.Input.validId1stChar(in.charAt(0))) {
                 final var id = StringFetcher.fetchId(in);
                 if (RESERVED.contains(id)) {
                     list.add(Lex.reserved(id, atLineStart, position));

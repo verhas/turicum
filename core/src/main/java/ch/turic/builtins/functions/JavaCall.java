@@ -10,6 +10,28 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 /*snippet builtin0160
 
+=== `java_call`
+
+This function calls a Java method.
+
+The first argument is either
+
+* the object on which we want to call a method, or
+
+* the name of the class to call a static method on.
+
+The second argument is the name of the method.
+The rest of the arguments are passed to the Java method.
+The return value is the value returned by the Java method.
+
+This method works with a fixed number of argument functions as well as with vararg methods.
+Note that you can call the Java methods on Java objects or on Java class objects directly, like they were Turicum methods.
+Use this method only when the name of the method is known only at run-time.
+
+{%S java_call1%}
+
+The example above performs the same call as in the `java_object` example, but using a string to specify the name of the Java method.
+
 end snippet */
 
 /**

@@ -7,10 +7,6 @@ import ch.turic.memory.LngList;
 import ch.turic.memory.LngObject;
 
 import static ch.turic.builtins.functions.FunUtils.ArgumentsHolder.optional;
-/*snippet builtin0220
-
-end snippet */
-
 /**
  * This function converts a Turicum value to JSON string like {@link Jsonify}, but also formats it.
  *

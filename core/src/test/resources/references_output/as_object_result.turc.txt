@@ -1,1 +1,21 @@
-{java$canonicalName: ch.turic.commands.BlockCommand, wrap: true, commands: [{assignments: [{identifier: k, types: [], expression: {java$canonicalName: ch.turic.commands.IntegerConstant, value: 5}, java$canonicalName: ch.turic.analyzer.AssignmentList.Assignment}], java$canonicalName: ch.turic.commands.LetAssignment, mut: false}]}
+{
+    "java$canonicalName": "ch.turic.commands.BlockCommand",
+    "wrap": true,
+    "commands": [
+                    {
+                        "assignments": [
+                                           {
+                                               "identifier": "k",
+                                               "types": [ ],
+                                               "expression": {
+                                                                 "java$canonicalName": "ch.turic.commands.IntegerConstant",
+                                                                 "value": 5
+                                                             },
+                                               "java$canonicalName": "ch.turic.analyzer.AssignmentList.Assignment"
+                                           }
+                                       ],
+                        "java$canonicalName": "ch.turic.commands.LetAssignment",
+                        "mut": false
+                    }
+                ]
+}

@@ -10,6 +10,16 @@ import ch.turic.memory.LngList;
 import java.util.Arrays;
 /*snippet builtin0300
 
+=== `parents`
+
+Returns a list of the classes that are the direct parent classes of the argument.
+
+{%S parents%}
+
+Note that although `B` is a child class of `A`, the variable `K` contains an anonymous class that has only `B` as a parent.
+The function `parent()` lists only `B` as a direct parent, and the list does not contain `A`.
+If you need all the parents, you have to use the function `all_parents()`.
+
 end snippet */
 
 /**

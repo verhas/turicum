@@ -9,6 +9,15 @@ import ch.turic.commands.Macro;
 import ch.turic.memory.*;
 /*snippet builtin0490
 
+
+=== `type`
+
+This method returns the type of the argument as a string.
+
+{%S type1%}
+
+When the argument is a Java object, then the type is `java.` + the canonical name of the class.
+
 end snippet */
 
 /**

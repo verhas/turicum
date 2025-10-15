@@ -17,6 +17,7 @@ fn a {
 let h = a()
 println $" $(h.h) $(h.i) $(h.j) $(h.k) $(h.l) $(h.m) $(h.n) $(h.o) $(h.p) $(h.q) $(h.s)"
 // end snippet
+
 // snippet pack_2
 fn a {
     mut h = 10
@@ -30,6 +31,13 @@ println "AFTER x.h = 100"
 println $"x.h = $(x.h)"
 println $"y.h = $(y.h)"
 println $"are they the same? $(x === y)"
+
+// field w is defined anew, not shared, inserted into x and y separately
+x.w = "x.w"
+y.w = "y.w"
+println $"x.w = $(x.w)"
+println $"y.w = $(y.w)"
+
 // end snippet
 // snippet pack_3
 let b=55
@@ -41,6 +49,27 @@ let h = a()
 println $"$(h.h) $(h.b)"
 println keys(h)
 // end snippet
+
+// snippet is_obj
+fn test(s){println jsonify(s), "=" , "is object" if is_obj(s) else "is not object"}
+
+test "hello"
+test 1
+test {}
+test {a:1}
+test( [3,2,1] )
+test none
+// end snippet
+
+// snippet is_curried
+fn add(a,b)=a + b
+let add5 = add.(5)
+let unc = uncurry(add5)
+println is_curried(add)
+println is_curried(add5)
+println is_curried(unc)
+// end snippet
+
 // snippet uncurry1
 fn add(a,b)=a + b
 let add5 = add.(5)
@@ -799,6 +828,12 @@ println xml_format(to_xml(project, top="project"))
 
 // end snippet
 
+// snippet xml_format
+println xml_format("""<a>b<marnacle xmlns="hupsi"></marnacle> </a>""")
+
+try xml_format("<a>b<") catch e: println e
+// end snippet
+
 // snippet keys1
 class A {
     mut z:num = 1
@@ -923,7 +958,8 @@ println a.b
 
 // snippet istring1
 let a = 3;
-println $"a is ${a}"
+println $"a is $(a)"
+println $"a is also $a"
 // end snippet
 
 // snippet istring2
@@ -1147,15 +1183,17 @@ c("Hi, ")
 
 // snippet macro_example
 mut c = macro(
-    {|condition,then,`else`|
+    fn(condition,then,`else`){
         if evaluate(condition) : evaluate(then) else: evaluate(`else`)
-    })
+    });
 
-print(
+print c(true,"yes, it is true",{ println("this will never be printed") })
+// end snippet
 
-    c(true,"yes, it is true",{ println("this will never be printed") })
+// snippet len
 
-    );
+println len("abc")
+println len([1,2,3])
 // end snippet
 
 // snippet let_with_types_example
@@ -3075,17 +3113,32 @@ with ResourceManager() as r {
 println "did not die"
 // end snippet
 
+// snippet java_type
+println java_type(42), " ", type(42)
+println java_type(java_int(42)), " ", type(java_int(42))
+println java_type(thunk({let z=2}))," ",type(thunk({let z=2}))
+println java_type(java_class("java.math.BigInteger"))," ",type(java_class("java.math.BigInteger"))
+println java_type(java_class("java.math.BigInteger")("42"))," ",type(java_class("java.math.BigInteger")("42"))
+// end snippet
+
+// snippet java_resources
+let appia_handlers = java_resources("turi/appia.turi")
+println $"There is ${len(appia_handlers)} appia handler sys import file."
+println $"It contains ${len(appia_handlers[0])} characters."
+// end snippet
+
 // snippet is_type
 class A {}
 class B : A {}
 mut K = class : B {}
 mut z = K()
-println is_type(z,"A")," yes"
-println is_type(z,"H")," no"
-println is_type(z,"K")," no" // it is a no named class
-println is_type(z,K)," yes"
-println is_type(z,A)," yes"
-println is_type(z,"#undefined")," yes" // bit strange, but actually
+println is_type(z,"A"),""" "A" yes, it is the root class"""
+println is_type(z,A)," A yes, when referencing the class itself"
+println is_type(z,"H"),""" "H" no, there is not even defined"""
+try: is_type(z,H) catch e: println $"H is not defined: ${e}"
+println is_type(z,"K"),""" "K" no, it is not the name of the klass, only a variable"""
+println is_type(z,K)," K yes, it is the class itself"
+println is_type(z,"#undefined")," #ndefined yes, it is also has a class type that is unnamed"
 // end snippet
 
 // snippet parents
@@ -3116,7 +3169,7 @@ for each k in z {
 mut z = rng(0,1000)
 mut array = [ ..z ] // this creates an array of 1000 elements
 println len(array)
-print( [..array[0 .. 5], "...", ..array[-5 .. len(array)]])
+println [..array[0 .. 5], "...", ..array[-5 .. inf]]
 // end snippet
 
 // snippet objectAttachment
@@ -3233,7 +3286,7 @@ println("square ≈ ", _sqrt * _sqrt);
 // snippet glob1
 sys_import "turi.io"
 
-println jsonify_beauty(glob("**/test-classes/**/*.class", recursive=true))
+println jsonify_beauty(glob("**/test-classes/**/*.class", recursive=true)[0..3])
 // end snippet
 
 // snippet glob2
@@ -3388,6 +3441,43 @@ print is_defined(x)
 mut z = "{let x = 1}".compile()[0]
 unwrap(z).execute()
 print is_defined(x)," and it is ", x
+// end snippet
+
+// snippet unwrap1
+let a = 1; // defined 'a' outside
+
+// wrapping block
+{
+    let a = 12; // redefining 'a'  for the local use
+    let b = 77; // defining 'b' valid only  inside
+}
+
+println "AFTER THE WRAPPING BLOCK"
+println $"a is $a"
+println $"b is not defined is_defined(b) is ${is_defined(b)}"
+
+unwrap(thunk({
+    try: let a = 12; // redefining 'a' will raise error
+    catch e: println "redefinition is not possible non-wrapped"
+    let b = 77; // defining 'b' valid outside when unwrapped
+})).execute()
+
+println "AFTER THE UNWRAPPING BLOCK"
+println $"a is $a"
+println $"b is not defined is_defined(b) is ${is_defined(b)}"
+println $"b is $b"
+
+// you can get the same result using an expression with a non-wrapping part
+!(
+    try: let a = 12; // redefining 'a'  will raise error
+    catch e1: println "redefinition is not possible non-wrapped"
+    let k = 78; // defining 'k' valid also outside
+)
+
+println "AFTER THE UNWRAPPING EXPRESSION"
+println $"a is $a"
+println $"k is $k"
+
 // end snippet
 
 // snippet block_list

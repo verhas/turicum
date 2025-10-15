@@ -4,18 +4,18 @@ import ch.turic.ExecutionException;
 import ch.turic.commands.operators.Cast;
 
 /**
- * An object describing a range of lists, strings or anything indexable. The interpretation of the range is up to the
+ * An object describing a range of lists, strings, or anything indexable. The interpretation of the range is up to the
  * caller, but it generally is assumed that the {@code start} and {@code end} values are either {@link Long}
  * (something that can be cast to long) or {@link InfiniteValue#INF_POSITIVE} or }{@link InfiniteValue#INF_NEGATIVE}.
  * <p>
  * Caller may interpret the range as descending if the {@code end} value is smaller than {@code start}. In this case,
- * reasonably the indexes in the range will be indexed as
+ * reasonably, the indexes in the range will be indexed as
  * {@code start}, {@code start}-1, {@code start}-2, ... , {@code end}+1.
  *
- * @param start the start of the range inclusive.
- *              If {@code start} is larger than the index of the last element then the range should be interpreted as
+ * @param start the start of the range, inclusive.
+ *              If {@code start} is larger than the index of the last element, then the range should be interpreted as
  *              empty.
- * @param end   the end of the range exclusive. The last element of the range is indexed by {@code end -1}
+ * @param end   the end of the range, exclusive. The last element of the range is indexed by {@code end -1}
  */
 public record Range(Object start, Object end) {
 
@@ -47,10 +47,10 @@ public record Range(Object start, Object end) {
     }
 
     /**
-     * Resolve the integer index value from the specified range endpoint object.
+     * Resolve the integer index value from the specified range object.
      * <p>
      * The index can be a {@link Long}, or one of the special values {@link InfiniteValue#INF_POSITIVE} or
-     * {@link InfiniteValue#INF_NEGATIVE}. The interpretation depends on whether the index is the start or end
+     * {@link InfiniteValue#INF_NEGATIVE}. The interpretation depends on whether the index is the start or the end
      * of the range.
      * <ul>
      *     <li>If the index is {@link InfiniteValue#INF_NEGATIVE}, it resolves to {@code 0} when resolving the start,
@@ -59,7 +59,7 @@ public record Range(Object start, Object end) {
      *     <li>If the index is a numeric value:
      *         <ul>
      *             <li>If the value is negative, it is interpreted as {@code index + size} (i.e., indexing from the end).</li>
-     *             <li>If the resulting index is out of bounds (less than 0 or greater than allowed), an {@link ExecutionException} is thrown.</li>
+     *             <li>If the resulting index is out of bounds (less than zero, or greater than allowed), an {@link ExecutionException} is thrown.</li>
      *             <li>For start indices, the upper bound is {@code size}; for end indices, it is {@code size + 1}.</li>
      *         </ul>
      *     </li>

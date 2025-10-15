@@ -1,8 +1,8 @@
-sys_import turi.appia
+let ripe = {}
+ripe.a = "license"
 
+sys_import turi.maven , ripe.a
 
-appia.append(".")
-
-global APPIA
-
-println APPIA
+println license.apache2_0.name
+println "The next printout is the error message, because github() is exported but we do not import it."
+try : println github("verhas", "turicum"); catch e: println e

@@ -43,7 +43,7 @@ public class BuiltIns {
     };
 
     /**
-     * Registers all built-in elements (constants, functions, macros and classes) into the given context.
+     * Registers all built-in elements (constants, functions, macros, and classes) into the given context.
      *
      * @param context The context where built-ins should be registered
      * @throws IllegalArgumentException if the provided context is not an instance of ch.turic.memory.Context
@@ -70,9 +70,9 @@ public class BuiltIns {
      */
     private static void registerGlobalFunctionsAndMacros(LocalContext context) {
         TuriFunction.getInstances(context.globalContext.classLoader).forEach(
-                tf -> context.global(tf.name(), tf));
+                tf -> context.predefine(tf.name(), tf));
         TuriMacro.getInstances(context.globalContext.classLoader).forEach(
-                tm -> context.global(tm.name(), tm));
+                tm -> context.predefine(tm.name(), tm));
     }
 
 
@@ -85,8 +85,7 @@ public class BuiltIns {
      */
     public static void registerGlobalConstants(LocalContext context) {
         for (int i = 0; i < values.length; i += 2) {
-            context.global((String) values[i], values[i + 1]);
-            context.freeze((String) values[i]);
+            context.predefine((String) values[i], values[i + 1]);
         }
     }
 

@@ -13,6 +13,20 @@ import java.util.Arrays;
 
 /*snippet builtin0230
 
+=== `keys`
+
+The function `keys()` returns a list containing the keys (strings) of the argument.
+
+* If it is a class, then the keys are the class-level fields, including those that have closure value, hence are class methods.
+
+* If it is an object, then the list contains the object fields.
+
+* If it is a macro, a closure, or a function, then it will return the parameter names.
+
+{%S keys1%}
+
+Note that the return value contains the special fields, like `cls`, `this` and so on.
+
 end snippet */
 
 /**

@@ -4,6 +4,11 @@ import ch.turic.Context;
 import ch.turic.ExecutionException;
 import ch.turic.TuriFunction;
 /*snippet builtin0380
+=== `set_global`
+
+It is similar to `set()`, but it sets the value of a global variable.
+Note that there is no `*_force` version of this function.
+Pinning is always local, and this method works directly on the global variables.
 
 end snippet */
 

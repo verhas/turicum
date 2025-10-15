@@ -19,6 +19,8 @@ import java.time.Duration;
 import java.util.Set;
 /*snippet builtin0470
 
+=== `http_client`
+
 end snippet */
 
 /**
