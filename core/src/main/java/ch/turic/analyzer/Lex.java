@@ -1,7 +1,7 @@
 package ch.turic.analyzer;
 
 
-import ch.turic.ExecutionException;
+import ch.turic.exceptions.ExecutionException;
 import ch.turic.memory.HasFields;
 
 import java.util.Set;

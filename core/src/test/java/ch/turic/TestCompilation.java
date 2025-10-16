@@ -1,6 +1,7 @@
 package ch.turic;
 
 import ch.turic.analyzer.Input;
+import ch.turic.exceptions.ExecutionException;
 import ch.turic.utils.Marshaller;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DynamicTest;

@@ -1,6 +1,6 @@
 package ch.turic.memory;
 
-import ch.turic.ExecutionException;
+import ch.turic.exceptions.ExecutionException;
 
 import java.util.NoSuchElementException;
 import java.util.concurrent.TimeUnit;

@@ -1,7 +1,7 @@
 package ch.turic.analyzer;
 
 
-import ch.turic.BadSyntax;
+import ch.turic.exceptions.BadSyntax;
 import ch.turic.commands.BlockCommand;
 import ch.turic.Command;
 import ch.turic.commands.TryCatch;

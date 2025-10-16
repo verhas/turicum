@@ -1,6 +1,6 @@
 package ch.turic.analyzer;
 
-import ch.turic.BadSyntax;
+import ch.turic.exceptions.BadSyntax;
 import ch.turic.commands.BlockCommand;
 import ch.turic.commands.ClassDefinition;
 import ch.turic.Command;

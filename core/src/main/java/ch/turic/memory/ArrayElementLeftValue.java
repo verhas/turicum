@@ -1,7 +1,7 @@
 package ch.turic.memory;
 
 import ch.turic.Command;
-import ch.turic.ExecutionException;
+import ch.turic.exceptions.ExecutionException;
 import ch.turic.utils.Unmarshaller;
 
 import java.util.Iterator;

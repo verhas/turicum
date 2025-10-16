@@ -2,7 +2,7 @@ package ch.turic.builtins.functions;
 
 import ch.turic.BuiltIns;
 import ch.turic.Context;
-import ch.turic.ExecutionException;
+import ch.turic.exceptions.ExecutionException;
 import ch.turic.TuriFunction;
 import ch.turic.utils.AppiaHandler;
 

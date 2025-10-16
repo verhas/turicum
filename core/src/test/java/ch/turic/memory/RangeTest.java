@@ -1,6 +1,6 @@
 package ch.turic.memory;
 
-import ch.turic.ExecutionException;
+import ch.turic.exceptions.ExecutionException;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 

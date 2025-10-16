@@ -2,7 +2,7 @@ package ch.turic.memory;
 
 
 import ch.turic.Context;
-import ch.turic.ExecutionException;
+import ch.turic.exceptions.ExecutionException;
 import ch.turic.memory.debugger.ConcurrentWorkItem;
 import ch.turic.memory.debugger.DebuggerContext;
 

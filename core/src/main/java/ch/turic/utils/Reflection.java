@@ -189,10 +189,30 @@ public class Reflection {
         return null;
     }
 
+    /**
+     * Retrieves a constructor from the specified class that matches the provided arguments.
+     * The types of the arguments are fetched as the class of the argument objects.
+     * This method gets the actual <i>values</i> that are to be passed to the constructor.
+     * <p>
+     * The argument types are inferred from the runtime types of the elements in the provided array.
+     * If an argument is null, its type is considered as null.
+     *
+     * @param klass the Class object representing the class from which the constructor is to be retrieved
+     * @param args an array of objects representing the arguments to be used for inferring the parameter types of the constructor
+     * @return the Constructor<?> instance that matches the specified arguments, or null if no matching constructor is found
+     */
     public static Constructor<?> getConstructorForArgs(final Class<?> klass, final Object[] args) {
         return getConstructor(klass, Arrays.stream(args).map(o -> o == null ? null : o.getClass()).toArray(Class[]::new));
     }
 
+    /**
+     * Retrieves a constructor from the specified class that matches the given parameter types.
+     *
+     * @param klass the class from which to retrieve the constructor
+     * @param args an array of parameter types to match the desired constructor
+     * @return the matching constructor if found, or null if no matching constructor is available
+     * @throws IllegalStateException if a non-constructor executable is unexpectedly returned
+     */
     public static Constructor<?> getConstructor(final Class<?> klass, final Class<?>[] args) {
         final var constructors = preselectConstructors(klass.getConstructors(), args);
         final var executable = selectFitting(args, constructors.stream().map(c -> (Executable) c).toList());
@@ -505,5 +525,18 @@ public class Reflection {
             case "java.lang.Double" -> double.class;
             default -> null; // Not a wrapper type
         };
+    }
+
+    public static int distance(Class<?> klass, Class<?> other) {
+        if (klass.equals(other)) {
+            return 0;
+        }
+        if (Arrays.asList(klass.getInterfaces()).contains(other)) {
+            return 1;
+        }
+        if (klass.isInterface() || klass.getSuperclass() == null) {
+            return Integer.MAX_VALUE;
+        }
+        return 1 + distance(klass.getSuperclass(), other);
     }
 }

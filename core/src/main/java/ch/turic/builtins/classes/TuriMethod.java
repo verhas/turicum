@@ -1,7 +1,7 @@
 package ch.turic.builtins.classes;
 
 import ch.turic.Context;
-import ch.turic.ExecutionException;
+import ch.turic.exceptions.ExecutionException;
 import ch.turic.LngCallable;
 
 import java.util.function.Supplier;

@@ -1,7 +1,6 @@
 package ch.turic.memory;
 
-import ch.turic.ExecutionException;
-import ch.turic.analyzer.Pos;
+import ch.turic.exceptions.ExecutionException;
 import ch.turic.commands.AbstractCommand;
 
 import java.util.List;

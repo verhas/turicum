@@ -1,6 +1,6 @@
 package ch.turic.utils;
 
-import ch.turic.ExecutionException;
+import ch.turic.exceptions.ExecutionException;
 
 import java.io.IOException;
 import java.nio.file.Files;

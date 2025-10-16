@@ -6,6 +6,7 @@ import ch.turic.analyzer.ProgramAnalyzer;
 import ch.turic.builtins.functions.FunUtils;
 import ch.turic.commands.Conditional;
 import ch.turic.commands.operators.Cast;
+import ch.turic.exceptions.ExecutionException;
 import ch.turic.memory.LngList;
 import ch.turic.utils.CaseFolder;
 import ch.turic.utils.StringUtils;

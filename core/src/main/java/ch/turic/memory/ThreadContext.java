@@ -1,6 +1,6 @@
 package ch.turic.memory;
 
-import ch.turic.ExecutionException;
+import ch.turic.exceptions.ExecutionException;
 import ch.turic.memory.debugger.DebuggerContext;
 
 import java.util.ArrayList;

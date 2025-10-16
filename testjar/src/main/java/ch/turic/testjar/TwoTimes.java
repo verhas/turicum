@@ -2,7 +2,7 @@ package ch.turic.testjar;
 
 import ch.turic.Command;
 import ch.turic.Context;
-import ch.turic.ExecutionException;
+import ch.turic.exceptions.ExecutionException;
 import ch.turic.TuriMacro;
 import ch.turic.builtins.functions.FunUtils;
 

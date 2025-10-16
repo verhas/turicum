@@ -1,7 +1,7 @@
 package ch.turic.commands;
 
 import ch.turic.Command;
-import ch.turic.ExecutionException;
+import ch.turic.exceptions.ExecutionException;
 import ch.turic.LngCallable;
 import ch.turic.builtins.classes.TuriNone;
 import ch.turic.memory.*;

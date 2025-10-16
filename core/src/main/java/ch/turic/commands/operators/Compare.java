@@ -1,6 +1,6 @@
 package ch.turic.commands.operators;
 
-import ch.turic.ExecutionException;
+import ch.turic.exceptions.ExecutionException;
 import ch.turic.commands.Closure;
 import ch.turic.Command;
 import ch.turic.memory.LocalContext;

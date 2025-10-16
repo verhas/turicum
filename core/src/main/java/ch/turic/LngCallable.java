@@ -1,6 +1,8 @@
 package ch.turic;
 
 
+import ch.turic.exceptions.ExecutionException;
+
 public interface LngCallable {
     @FunctionalInterface
     interface LngCallableClosure extends LngCallable {

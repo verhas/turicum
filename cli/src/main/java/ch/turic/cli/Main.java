@@ -1,6 +1,6 @@
 package ch.turic.cli;
 
-import ch.turic.ExecutionException;
+import ch.turic.exceptions.ExecutionException;
 import ch.turic.Input;
 import ch.turic.Interpreter;
 import ch.turic.commands.operators.Cast;

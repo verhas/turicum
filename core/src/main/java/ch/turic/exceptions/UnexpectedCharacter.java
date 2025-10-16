@@ -1,6 +1,5 @@
-package ch.turic.utils;
+package ch.turic.exceptions;
 
-import ch.turic.BadSyntax;
 import ch.turic.analyzer.Input;
 import ch.turic.analyzer.Pos;
 

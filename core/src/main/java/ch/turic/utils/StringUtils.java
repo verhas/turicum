@@ -1,6 +1,6 @@
 package ch.turic.utils;
 
-import ch.turic.ExecutionException;
+import ch.turic.exceptions.ExecutionException;
 import ch.turic.memory.LngList;
 
 import java.nio.charset.StandardCharsets;

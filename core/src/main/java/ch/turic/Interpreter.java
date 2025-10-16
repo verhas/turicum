@@ -3,11 +3,12 @@ package ch.turic;
 import ch.turic.analyzer.LexList;
 import ch.turic.analyzer.Lexer;
 import ch.turic.analyzer.ProgramAnalyzer;
+import ch.turic.exceptions.BadSyntax;
+import ch.turic.exceptions.ExecutionException;
 import ch.turic.memory.Channel;
 import ch.turic.memory.LocalContext;
 import ch.turic.memory.debugger.ConcurrentWorkItem;
 import ch.turic.utils.Marshaller;
-import ch.turic.utils.TuricumClassLoader;
 import ch.turic.utils.Unmarshaller;
 
 import java.io.IOException;

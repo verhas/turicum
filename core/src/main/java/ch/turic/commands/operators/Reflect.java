@@ -1,6 +1,7 @@
 package ch.turic.commands.operators;
 
-import ch.turic.ExecutionException;
+import ch.turic.exceptions.ExecutionException;
+import ch.turic.utils.Reflection;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -60,7 +61,7 @@ class Reflect {
         Method method = null;
         int distance = Integer.MAX_VALUE;
         for (final var m : methods) {
-            final int d = distance(klass,m.getParameterTypes()[0]);
+            final int d = Reflection.distance(klass,m.getParameterTypes()[0]);
             if (d < distance) {
                 distance = d;
                 method = m;
@@ -70,19 +71,6 @@ class Reflect {
             return Optional.empty();
         }
         return Optional.of(new Reflect(method, op1, op2, name).new Binary());
-    }
-
-    private static int distance(Class<?> klass, Class<?> other) {
-        if (klass.equals(other)) {
-            return 0;
-        }
-        if (Arrays.asList(klass.getInterfaces()).contains(other)) {
-            return 1;
-        }
-        if (klass.isInterface() || klass.getSuperclass() == null) {
-            return Integer.MAX_VALUE;
-        }
-        return 1 + distance(klass.getSuperclass(), other);
     }
 
     /**

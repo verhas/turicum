@@ -1,6 +1,6 @@
 package ch.turic.builtins.classes;
 
-import ch.turic.ExecutionException;
+import ch.turic.exceptions.ExecutionException;
 import ch.turic.TuriClass;
 import ch.turic.commands.operators.Cast;
 import ch.turic.LngCallable;

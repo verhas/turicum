@@ -1,8 +1,8 @@
 package ch.turic.analyzer;
 
-import ch.turic.BadSyntax;
+import ch.turic.exceptions.BadSyntax;
 import ch.turic.BuiltIns;
-import ch.turic.ExecutionException;
+import ch.turic.exceptions.ExecutionException;
 import ch.turic.Input;
 import ch.turic.commands.Closure;
 import ch.turic.Command;

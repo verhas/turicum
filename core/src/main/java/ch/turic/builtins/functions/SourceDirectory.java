@@ -1,7 +1,7 @@
 package ch.turic.builtins.functions;
 
 import ch.turic.Context;
-import ch.turic.ExecutionException;
+import ch.turic.exceptions.ExecutionException;
 import ch.turic.TuriFunction;
 /*snippet builtin0430
 

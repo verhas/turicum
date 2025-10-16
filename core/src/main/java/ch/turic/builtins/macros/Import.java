@@ -4,6 +4,7 @@ import ch.turic.*;
 import ch.turic.builtins.functions.FunUtils;
 import ch.turic.commands.FieldAccess;
 import ch.turic.commands.Identifier;
+import ch.turic.exceptions.ExecutionException;
 import ch.turic.memory.LngObject;
 import ch.turic.memory.LocalContext;
 import ch.turic.utils.AppiaHandler;

@@ -1,6 +1,6 @@
 package ch.turic.memory;
 
-import ch.turic.ExecutionException;
+import ch.turic.exceptions.ExecutionException;
 import ch.turic.builtins.classes.TuriMethod;
 
 import java.util.Iterator;
@@ -100,7 +100,7 @@ public class AsyncStreamHandler
     }
 
     @Override
-    public Object getField(String name) throws ch.turic.ExecutionException {
+    public Object getField(String name) throws ExecutionException {
         return switch (name) {
             case "name" -> new TuriMethod<>(() -> this.name);
             case "is_done" -> new TuriMethod<>(future::isDone);

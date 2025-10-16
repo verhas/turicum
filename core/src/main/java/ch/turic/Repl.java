@@ -4,6 +4,8 @@ import ch.turic.analyzer.LexList;
 import ch.turic.analyzer.Lexer;
 import ch.turic.analyzer.ProgramAnalyzer;
 import ch.turic.commands.BlockCommand;
+import ch.turic.exceptions.BadSyntax;
+import ch.turic.exceptions.ExecutionException;
 import ch.turic.memory.LocalContext;
 
 import java.util.ArrayList;

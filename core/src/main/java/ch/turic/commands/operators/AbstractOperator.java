@@ -1,7 +1,7 @@
 package ch.turic.commands.operators;
 
 import ch.turic.Command;
-import ch.turic.ExecutionException;
+import ch.turic.exceptions.ExecutionException;
 import ch.turic.commands.*;
 import ch.turic.memory.LngObject;
 import ch.turic.memory.LocalContext;

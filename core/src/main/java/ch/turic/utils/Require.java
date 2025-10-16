@@ -6,9 +6,18 @@ import java.util.function.Supplier;
  * Utility class that provides methods for validating conditions.
  * The methods in this class are used to enforce preconditions by checking
  * input arguments and throwing exceptions with custom error messages when conditions are not met.
- * <p>
+ * <pre>
+ * {@code
+ *      import static ch.turic.utils.Require.require;
+ *      ...
+ *      require(x > 0, "x must be greater than zero");
+ *      require(() -> y != null, "y cannot be null");
+ *
+ *      Require.off(); // no check for the rest of the application
+ * }
+ * </pre>
  * This class is supposed to be used to check conditions that are expected to be met.
- * In other words, when the condition is not met it means that there is some logical error in the code.
+ * In other words, when the condition is not met, it means that there is some logical error in the code.
  * Calling these methods is a kind of precondition declaration at the start of the method,
  * as well as defensive programming.
  * <p>

@@ -5,16 +5,15 @@ import ch.turic.analyzer.Lex;
 import ch.turic.analyzer.Lexer;
 import ch.turic.commands.Closure;
 import ch.turic.commands.Macro;
+import ch.turic.exceptions.BadSyntax;
 import ch.turic.memory.LocalContext;
-import ch.turic.utils.StringNotTerminated;
-import ch.turic.utils.UnexpectedCharacter;
+import ch.turic.exceptions.StringNotTerminated;
+import ch.turic.exceptions.UnexpectedCharacter;
 import org.jline.reader.*;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.regex.Pattern;
 
 /**

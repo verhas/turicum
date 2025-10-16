@@ -1,4 +1,4 @@
-package ch.turic;
+package ch.turic.exceptions;
 
 import ch.turic.analyzer.LexList;
 import ch.turic.analyzer.Pos;

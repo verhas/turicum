@@ -1,12 +1,8 @@
 package ch.turic.builtins.functions;
 
 import ch.turic.Context;
-import ch.turic.ExecutionException;
-import ch.turic.LngCallable;
+import ch.turic.exceptions.ExecutionException;
 import ch.turic.TuriFunction;
-import ch.turic.commands.Closure;
-import ch.turic.commands.Macro;
-import ch.turic.memory.*;
 /*snippet builtin0200
 
 === `java_type`

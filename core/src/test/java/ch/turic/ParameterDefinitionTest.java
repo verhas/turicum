@@ -4,6 +4,7 @@ import ch.turic.analyzer.Input;
 import ch.turic.analyzer.Lexer;
 import ch.turic.analyzer.ParameterDefinition;
 import ch.turic.commands.ParameterList;
+import ch.turic.exceptions.BadSyntax;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

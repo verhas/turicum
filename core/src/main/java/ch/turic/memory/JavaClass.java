@@ -1,9 +1,8 @@
 package ch.turic.memory;
 
 import ch.turic.Context;
-import ch.turic.ExecutionException;
+import ch.turic.exceptions.ExecutionException;
 import ch.turic.LngCallable;
-import ch.turic.commands.FunctionCall;
 import ch.turic.utils.Reflection;
 
 import java.lang.reflect.Field;

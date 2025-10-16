@@ -3,6 +3,7 @@ package ch.turic.builtins.functions.debugger;
 import ch.turic.*;
 import ch.turic.SnakeNamed.Name;
 import ch.turic.builtins.functions.FunUtils;
+import ch.turic.exceptions.ExecutionException;
 import ch.turic.memory.BlockingQueueChannel;
 import ch.turic.memory.Channel;
 import ch.turic.memory.ChannelIterator;

@@ -1,6 +1,6 @@
 package ch.turic.lsp;
 
-import ch.turic.BadSyntax;
+import ch.turic.exceptions.BadSyntax;
 import ch.turic.Interpreter;
 import org.eclipse.lsp4j.*;
 import org.eclipse.lsp4j.services.LanguageClient;

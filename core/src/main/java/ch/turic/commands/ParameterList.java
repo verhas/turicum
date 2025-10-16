@@ -1,6 +1,6 @@
 package ch.turic.commands;
 
-import ch.turic.BadSyntax;
+import ch.turic.exceptions.BadSyntax;
 import ch.turic.Command;
 import ch.turic.analyzer.Pos;
 import ch.turic.utils.Unmarshaller;

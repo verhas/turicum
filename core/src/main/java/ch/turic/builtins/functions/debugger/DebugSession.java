@@ -1,11 +1,10 @@
 package ch.turic.builtins.functions.debugger;
 
 import ch.turic.Command;
-import ch.turic.ExecutionException;
+import ch.turic.exceptions.ExecutionException;
 import ch.turic.analyzer.Pos;
 import ch.turic.memory.Channel;
 import ch.turic.memory.LngList;
-import ch.turic.memory.LngObject;
 import ch.turic.memory.ThreadContext;
 import ch.turic.memory.debugger.ConcurrentWorkItem;
 import ch.turic.memory.debugger.DebuggerCommand;
