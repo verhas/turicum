@@ -1,1 +1,1 @@
-/Users/verhasp/.sdkman/candidates/java/current
+/Users/verhasp/.sdkman/candidates/java/25-oracle

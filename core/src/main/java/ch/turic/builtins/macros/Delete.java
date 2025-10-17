@@ -2,11 +2,11 @@ package ch.turic.builtins.macros;
 
 import ch.turic.Command;
 import ch.turic.Context;
-import ch.turic.exceptions.ExecutionException;
 import ch.turic.TuriMacro;
 import ch.turic.builtins.functions.FunUtils;
 import ch.turic.commands.FieldAccess;
 import ch.turic.commands.Identifier;
+import ch.turic.exceptions.ExecutionException;
 import ch.turic.memory.LngObject;
 /*snippet builtin0065
 
@@ -45,6 +45,7 @@ It is an error if there is no such field in the object or if the first argument 
 {%S delete%}
 
 end snippet*/
+
 /**
  * A macro that removes a field from a language object.
  * <p>
@@ -62,10 +63,10 @@ end snippet*/
  * The macro will undefine the specified field from the object's context. If the target is not a valid
  * {@link LngObject} or if any other error occurs during execution, an {@link ExecutionException} will be thrown.
  * <p>
- * Note that this differs from {@link Unlet} which removes variables from the current execution context, while this macro removes fields from object instances.
- *
- * @throws ExecutionException if the first argument does not evaluate to an {@link LngObject} or if any other error
- *                           occurs during execution
+ * Note that this differs from {@link Unlet}, which removes variables from the current execution context, while this macro removes fields from object instances.
+ * <p>
+ * It throws ExecutionException if the first argument does not evaluate to an {@link LngObject} or if any other error
+ * occurs during execution
  */
 
 public class Delete implements TuriMacro {
@@ -75,14 +76,14 @@ public class Delete implements TuriMacro {
         final var ctx = FunUtils.ctx(context);
         final var args = FunUtils.args(name(), arguments, Command.class, Object[].class);
         if (args.N == 1) {
-            if( args.at(0).get() instanceof FieldAccess fa){
+            if (args.at(0).get() instanceof FieldAccess fa) {
                 final var obj = fa.object().execute(ctx);
-                if( obj instanceof LngObject lngObject) {
+                if (obj instanceof LngObject lngObject) {
                     lngObject.context().unlet(fa.identifier());
-                }else{
+                } else {
                     throw new ExecutionException("'%s' is not a valid object", obj);
                 }
-            }else{
+            } else {
                 throw new ExecutionException("'%s' is not a field of an object", args.at(0).get());
             }
             return null;

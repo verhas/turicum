@@ -199,7 +199,7 @@ public class Reflection {
      *
      * @param klass the Class object representing the class from which the constructor is to be retrieved
      * @param args an array of objects representing the arguments to be used for inferring the parameter types of the constructor
-     * @return the Constructor<?> instance that matches the specified arguments, or null if no matching constructor is found
+     * @return the Constructor instance that matches the specified arguments or null if no matching constructor is found
      */
     public static Constructor<?> getConstructorForArgs(final Class<?> klass, final Object[] args) {
         return getConstructor(klass, Arrays.stream(args).map(o -> o == null ? null : o.getClass()).toArray(Class[]::new));

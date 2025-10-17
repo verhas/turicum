@@ -30,18 +30,6 @@
             <plugin>
                 <executions>
                     <execution>
-                        <goals>
-                            <goal>generate-metadata</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <groupId>org.codehaus.plexus</groupId>
-                <artifactId>plexus-component-metadata</artifactId>
-                <version>2.2.0</version>
-            </plugin>
-            <plugin>
-                <executions>
-                    <execution>
                         <phase>package</phase>
                         <configuration>
                             <transformers>

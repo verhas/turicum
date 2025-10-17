@@ -1,17 +1,16 @@
 let VERSION = "1.4.1";
 
-let `maven-javadoc-plugin` = "3.11.2";
+let `maven-javadoc-plugin` = "3.12.0";
 let `maven-source-plugin` = "3.3.1";
-let `maven-compiler-plugin` = "3.13.0";
+let `maven-compiler-plugin` = "3.14.1";
 let `maven-dependency-plugin` = "3.8.1";
-let `maven-surefire-plugin` = "3.5.3";
-let `nexus-staging-maven-plugin` = "1.7.0";
-let `org.junit.jupiter` = "5.13.0-M2";
+let `maven-surefire-plugin` = "3.5.4";
+let `org.junit.jupiter` = "6.0.0";
 let `maven-assembly-plugin` = "3.7.1";
 let `org.mockito` = "5.17.0";
 let `maven-resources-plugin` = "3.3.1";
 let `maven-core` = "4.0.0-beta-4"; // "3.9.11"
-let JAVA_VERSION = 21;
+let JAVA_VERSION = 25;
 
 let groupId = "ch.turic";
 let groupIdMavenPlugin = "org.apache.maven.plugins";

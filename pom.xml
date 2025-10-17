@@ -37,19 +37,19 @@
                 <scope>test</scope>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-api</artifactId>
-                <version>5.13.0-M2</version>
+                <version>6.0.0</version>
             </dependency>
             <dependency>
                 <scope>test</scope>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-engine</artifactId>
-                <version>5.13.0-M2</version>
+                <version>6.0.0</version>
             </dependency>
             <dependency>
                 <scope>test</scope>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-params</artifactId>
-                <version>5.13.0-M2</version>
+                <version>6.0.0</version>
             </dependency>
             <dependency>
                 <scope>test</scope>
@@ -159,22 +159,22 @@
                     </executions>
                     <configuration>
                         <doclint>none</doclint>
-                        <source>21</source>
+                        <source>25</source>
                     </configuration>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>3.11.2</version>
+                    <version>3.12.0</version>
                 </plugin>
                 <plugin>
                     <configuration>
-                        <release>21</release>
-                        <source>21</source>
+                        <release>25</release>
+                        <source>25</source>
                         <encoding>UTF-8</encoding>
-                        <target>21</target>
+                        <target>25</target>
                     </configuration>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.13.0</version>
+                    <version>3.14.1</version>
                 </plugin>
                 <plugin>
                     <configuration>
@@ -203,7 +203,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>3.5.3</version>
+                    <version>3.5.4</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>

@@ -1,91 +1,104 @@
-global APPIA = ?(env("APPIA")?.split("\\|")) or [ source_directory() + "/.." ];
+global APPIA  = ?(env("APPIA")?.split("\\|"))or[source_directory()+"/.."];
 sys_import "turi.maven"
 import "turicum_versions"
 
-let project = maven_project({
-    name: "maven extension",
-    artifactId: "turicum-maven-extension"
-    version: VERSION,
-    description: "Turicum maven extension",
-    parent: {
-        groupId: groupId,
-        artifactId: "turicum-parent",
-        version: VERSION
-    },
-    build: {
-        plugins: [
-            maven_plugin("source"),
-            maven_plugin("javadoc"),
-            maven_plugin("compiler"),
-            maven_plugin("resources"),
-            {
-                groupId: "org.codehaus.plexus",
-                artifactId: "plexus-component-metadata",
-                version: "2.2.0",
-                executions: [
-                    {
-                        goals: [ "generate-metadata" ]
+unlet JAVA_VERSION ; let JAVA_VERSION  = 21 ;
+
+let project  = maven_project({
+        name : "maven extension" ,
+        artifactId : "turicum-maven-extension"
+        version : VERSION ,
+        description : "Turicum maven extension" ,
+        parent :{
+            groupId : groupId ,
+            artifactId : "turicum-parent" ,
+            version : VERSION
+        },
+        build :{
+            plugins :[
+                maven_plugin("source"),
+                maven_plugin("javadoc"),
+                {
+                    groupId : groupIdMavenPlugin ,
+                    artifactId : "maven-compiler-plugin" ,
+                    version : `maven-compiler-plugin` ,
+                    configuration :{
+                        encoding : "UTF-8" ,
+                        source : JAVA_VERSION.to_string(),
+                        target : JAVA_VERSION.to_string(),
+                        release : JAVA_VERSION.to_string()
                     }
-                ]
+                },
+                
+                maven_plugin("resources"),
+                {
+                    groupId : "org.codehaus.plexus" ,
+                    artifactId : "plexus-component-metadata" ,
+                    version : "2.2.0" ,
+                    executions :[
+                        {
+                            goals :["generate-metadata"]
+                        }
+                    ]
+                }
+            ]
+        },
+        dependencies :[
+            {
+                groupId : "ch.turic" ,
+                artifactId : "turicum" ,
+                version : VERSION
+            },
+            {
+                groupId : "org.junit.jupiter" ,
+                artifactId : "junit-jupiter-api" ,
+            },
+            {
+                groupId : "org.junit.jupiter" ,
+                artifactId : "junit-jupiter-engine" ,
+            },
+            {groupId : "org.apache.maven" ,
+                artifactId : "maven-api-spi" ,
+                version : `maven-core` ,
+                scope : "provided"
+            },
+            {
+                groupId : "org.apache.maven" ,
+                artifactId : "maven-api-model" ,
+                version : `maven-core` ,
+                scope : "provided"
+            },
+            {
+                groupId : "org.apache.maven" ,
+                artifactId : "maven-api-core" ,
+                version : `maven-core` ,
+                scope : "provided"
+            },
+            {
+                groupId : "org.apache.maven" ,
+                artifactId : "maven-api-di" ,
+                version : `maven-core` ,
+                scope : "provided"
+            },
+            {
+                groupId : "jakarta.inject" ,
+                artifactId : "jakarta.inject-api" ,
+                version : "2.0.1" ,
+                scope : "provided"
+            },
+            {
+                groupId : "org.apache.maven" ,
+                artifactId : "maven-core" ,
+                version : `maven-core` ,
+                scope : "provided" ,
+            },
+            {
+                groupId : "org.codehaus.plexus" ,
+                artifactId : "plexus-component-annotations" ,
+                version : "2.2.0" ,
+                scope : "provided" ,
             }
         ]
-    },
-    dependencies: [
-        {
-            groupId: "ch.turic",
-            artifactId: "turicum",
-            version: VERSION
-        },
-        {
-            groupId: "org.junit.jupiter",
-            artifactId: "junit-jupiter-api",
-        },
-        {
-            groupId: "org.junit.jupiter",
-            artifactId: "junit-jupiter-engine",
-        },
-        {              groupId: "org.apache.maven",
-        artifactId: "maven-api-spi",
-        version: `maven-core`,
-        scope: "provided"
-    },
-    {
-        groupId: "org.apache.maven",
-        artifactId: "maven-api-model",
-        version: `maven-core`,
-        scope: "provided"
-    },
-    {
-        groupId: "org.apache.maven",
-        artifactId: "maven-api-core",
-        version: `maven-core`,
-        scope: "provided"
-    },
-    {
-        groupId: "org.apache.maven",
-        artifactId: "maven-api-di",
-        version: `maven-core`,
-        scope: "provided"
-    },
-    {
-        groupId: "jakarta.inject",
-        artifactId: "jakarta.inject-api",
-        version: "2.0.1",
-        scope: "provided"
-    },
-    {
-        groupId: "org.apache.maven",
-        artifactId: "maven-core",
-        version: `maven-core`,
-        scope: "provided",
-    },
-    {
-        groupId: "org.codehaus.plexus",
-        artifactId: "plexus-component-annotations",
-        version: "2.2.0",
-        scope: "provided",
-    }
-]
 });
-project.properties = import("properties").properties;
+project.properties  = import("properties").properties ;
 project.done();

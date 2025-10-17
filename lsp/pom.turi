@@ -19,16 +19,6 @@ let project = maven_project({
                 maven_plugin("compiler"),
                 maven_plugin("resources"),
                 {
-                    groupId: "org.codehaus.plexus",
-                    artifactId: "plexus-component-metadata",
-                    version: "2.2.0",
-                    executions: [
-                        {
-                            goals: [ "generate-metadata" ]
-                        }
-                    ]
-                },
-                {
                     groupId: "org.apache.maven.plugins",
                     artifactId: "maven-shade-plugin",
                     version: "3.5.1",

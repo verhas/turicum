@@ -60,7 +60,7 @@ let project = maven_project({
                     artifactId: "maven-javadoc-plugin",
                     version: `maven-javadoc-plugin`
                     configuration: {
-                        source: "21",
+                        source: JAVA_VERSION.to_string(),
                         doclint: "none"
                     },
                     executions: [ {

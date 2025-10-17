@@ -18,9 +18,15 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
             </plugin>
             <plugin>
-                <executions/>
+                <configuration>
+                    <release>21</release>
+                    <source>21</source>
+                    <encoding>UTF-8</encoding>
+                    <target>21</target>
+                </configuration>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.14.1</version>
             </plugin>
             <plugin>
                 <executions/>
