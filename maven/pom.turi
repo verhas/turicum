@@ -2,8 +2,6 @@ global APPIA  = ?(env("APPIA")?.split("\\|"))or[source_directory()+"/.."];
 sys_import "turi.maven"
 import "turicum_versions"
 
-unlet JAVA_VERSION ; let JAVA_VERSION  = 21 ;
-
 let project  = maven_project({
         name : "maven extension" ,
         artifactId : "turicum-maven-extension"
@@ -18,29 +16,8 @@ let project  = maven_project({
             plugins :[
                 maven_plugin("source"),
                 maven_plugin("javadoc"),
-                {
-                    groupId : groupIdMavenPlugin ,
-                    artifactId : "maven-compiler-plugin" ,
-                    version : `maven-compiler-plugin` ,
-                    configuration :{
-                        encoding : "UTF-8" ,
-                        source : JAVA_VERSION.to_string(),
-                        target : JAVA_VERSION.to_string(),
-                        release : JAVA_VERSION.to_string()
-                    }
-                },
-                
-                maven_plugin("resources"),
-                {
-                    groupId : "org.codehaus.plexus" ,
-                    artifactId : "plexus-component-metadata" ,
-                    version : "2.2.0" ,
-                    executions :[
-                        {
-                            goals :["generate-metadata"]
-                        }
-                    ]
-                }
+                maven_plugin("compiler"),
+                maven_plugin("resources")
             ]
         },
         dependencies :[
@@ -50,6 +27,16 @@ let project  = maven_project({
                 version : VERSION
             },
             {
+                groupId : "javax.annotation" ,
+                artifactId: "javax.annotation-api" ,
+                scope : "provided"
+            },
+            {
+                groupId : "javax.inject" ,
+                artifactId: "javax.inject" ,
+                scope : "provided"
+            },
+            {
                 groupId : "org.junit.jupiter" ,
                 artifactId : "junit-jupiter-api" ,
             },
@@ -57,7 +44,8 @@ let project  = maven_project({
                 groupId : "org.junit.jupiter" ,
                 artifactId : "junit-jupiter-engine" ,
             },
-            {groupId : "org.apache.maven" ,
+            {
+                groupId : "org.apache.maven" ,
                 artifactId : "maven-api-spi" ,
                 version : `maven-core` ,
                 scope : "provided"
@@ -81,21 +69,9 @@ let project  = maven_project({
                 scope : "provided"
             },
             {
-                groupId : "jakarta.inject" ,
-                artifactId : "jakarta.inject-api" ,
-                version : "2.0.1" ,
-                scope : "provided"
-            },
-            {
                 groupId : "org.apache.maven" ,
                 artifactId : "maven-core" ,
                 version : `maven-core` ,
-                scope : "provided" ,
-            },
-            {
-                groupId : "org.codehaus.plexus" ,
-                artifactId : "plexus-component-annotations" ,
-                version : "2.2.0" ,
                 scope : "provided" ,
             }
         ]

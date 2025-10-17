@@ -18,32 +18,14 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
             </plugin>
             <plugin>
-                <configuration>
-                    <release>21</release>
-                    <source>21</source>
-                    <encoding>UTF-8</encoding>
-                    <target>21</target>
-                </configuration>
+                <executions/>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.14.1</version>
             </plugin>
             <plugin>
                 <executions/>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>generate-metadata</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <groupId>org.codehaus.plexus</groupId>
-                <artifactId>plexus-component-metadata</artifactId>
-                <version>2.2.0</version>
             </plugin>
         </plugins>
     </build>
@@ -66,6 +48,16 @@
             <version>1.4.1</version>
         </dependency>
         <dependency>
+            <scope>provided</scope>
+            <groupId>javax.annotation</groupId>
+            <artifactId>javax.annotation-api</artifactId>
+        </dependency>
+        <dependency>
+            <scope>provided</scope>
+            <groupId>javax.inject</groupId>
+            <artifactId>javax.inject</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
         </dependency>
@@ -77,43 +69,31 @@
             <scope>provided</scope>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-api-spi</artifactId>
-            <version>4.0.0-beta-4</version>
+            <version>4.0.0-rc-4</version>
         </dependency>
         <dependency>
             <scope>provided</scope>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-api-model</artifactId>
-            <version>4.0.0-beta-4</version>
+            <version>4.0.0-rc-4</version>
         </dependency>
         <dependency>
             <scope>provided</scope>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-api-core</artifactId>
-            <version>4.0.0-beta-4</version>
+            <version>4.0.0-rc-4</version>
         </dependency>
         <dependency>
             <scope>provided</scope>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-api-di</artifactId>
-            <version>4.0.0-beta-4</version>
-        </dependency>
-        <dependency>
-            <scope>provided</scope>
-            <groupId>jakarta.inject</groupId>
-            <artifactId>jakarta.inject-api</artifactId>
-            <version>2.0.1</version>
+            <version>4.0.0-rc-4</version>
         </dependency>
         <dependency>
             <scope>provided</scope>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-core</artifactId>
-            <version>4.0.0-beta-4</version>
-        </dependency>
-        <dependency>
-            <scope>provided</scope>
-            <groupId>org.codehaus.plexus</groupId>
-            <artifactId>plexus-component-annotations</artifactId>
-            <version>2.2.0</version>
+            <version>4.0.0-rc-4</version>
         </dependency>
     </dependencies>
 </project>

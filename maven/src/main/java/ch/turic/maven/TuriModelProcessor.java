@@ -5,12 +5,13 @@ import org.apache.maven.model.Model;
 import org.apache.maven.model.building.ModelProcessor;
 import org.apache.maven.model.io.ModelParseException;
 import org.apache.maven.model.io.ModelReader;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.util.ReaderFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
@@ -30,20 +31,19 @@ import java.util.stream.Collectors;
  * files into POM XML files. This class uses a {@code ModelReader} component for reading
  * models and implements additional processing for custom formats.
  * <p>
- * This class is annotated as a {@code @Component} and is intended for dependency injection scenarios.
+ * This class is invoked by Maven 3. x.x only and not by Maven 4.0.0
  */
-@Component(role = ModelProcessor.class)
-public class CustomModelProcessor implements ModelProcessor {
-    @Requirement
+@Named
+@Singleton
+public class TuriModelProcessor implements ModelProcessor {
+    @Inject
     private ModelReader modelReader;
 
-    @Override
     public Path locatePom(Path projectDirectory) {
         turi2Xml(projectDirectory.toFile());
         return projectDirectory.resolve("pom.xml").toAbsolutePath();
     }
 
-    @Override
     public Path locateExistingPom(Path project) {
         return locatePom(project);
     }
@@ -190,7 +190,6 @@ public class CustomModelProcessor implements ModelProcessor {
      * @throws IOException         if an I/O error occurs while reading the input
      * @throws ModelParseException if the model cannot be parsed
      */
-    @Override
     public Model read(Path input, Map<String, ?> options) throws IOException, ModelParseException {
         return read(input.toFile(), options);
     }

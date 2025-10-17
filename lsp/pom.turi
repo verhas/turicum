@@ -37,13 +37,6 @@ let project = maven_project({
                                     },
                                     {
                                         "@implementation": "org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"
-                                    },
-                                    {
-                                        "@implementation": "org.apache.maven.plugins.shade.resource.ApacheNoticeResourceTransformer",
-                                        addHeader: false
-                                    },
-                                    {
-                                        "@implementation": "org.apache.maven.plugins.shade.resource.ApacheLicenseResourceTransformer"
                                     }
                                 ],
                                 filters: [

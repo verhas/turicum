@@ -9,7 +9,10 @@ let `org.junit.jupiter` = "6.0.0";
 let `maven-assembly-plugin` = "3.7.1";
 let `org.mockito` = "5.17.0";
 let `maven-resources-plugin` = "3.3.1";
-let `maven-core` = "4.0.0-beta-4"; // "3.9.11"
+let `maven-core` = "4.0.0-rc-4";
+let `javax.annotation` = "1.3.2";
+let `javax.inject` = "1";
+let `sisu-maven-plugin` = "0.3.5";
 let JAVA_VERSION = 25;
 
 let groupId = "ch.turic";

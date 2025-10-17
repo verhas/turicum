@@ -34,6 +34,21 @@ fn github(user:str, repository:str) {
             }
 }
 
+/**
+ * GAV is a function that takes a Maven coordinate and returns a dictionary with the group ID, artifact ID, and version.
+ * Version is optional, but the trailing ':' must be present.
+ *
+ * @param coordinate The Maven coordinate in the format "groupId:artifactId:version"
+ * @returns A dictionary with the group ID, artifact ID, and version.
+*/
+fn GAV(coordinate:str){
+    let [groupId, artifactId, version ] = coordinate.split(":");
+    {
+        groupId : groupId,
+        artifactId : artifactId } +
+     ( { version : version } if version != "" else {})
+}
+
 fn maven_plugin(!plugin:str,@executions={},@configuration=none){
             {
                 groupId: "org.apache.maven.plugins",

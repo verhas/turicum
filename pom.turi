@@ -158,6 +158,21 @@ let project = maven_project({
                 version: `org.mockito`,
                 scope: "test"
             },
+
+            {
+                groupId: "javax.annotation",
+                artifactId: "javax.annotation-api",
+                version: `javax.annotation`,
+                scope: "provided",
+            },
+
+            {
+                groupId: "javax.inject",
+                artifactId: "javax.inject",
+                version: `javax.inject`,
+                scope: "provided",
+            },
+
             {
                 groupId: "org.jline",
                 artifactId: "jline",
