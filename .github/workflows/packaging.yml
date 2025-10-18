@@ -17,7 +17,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           java-version: '25'
-          distribution: temurin
+          distribution: oracle
 
       - name: Build with Maven
         shell: bash
