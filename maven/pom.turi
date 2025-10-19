@@ -6,7 +6,7 @@ let project  = maven_project({
         name : "maven extension" ,
         artifactId : "turicum-maven-extension"
         version : VERSION ,
-        description : "Turicum maven extension" ,
+        description: "Turicum maven extension" ,
         parent :{
             groupId : groupId ,
             artifactId : "turicum-parent" ,
@@ -27,13 +27,13 @@ let project  = maven_project({
                 version : VERSION
             },
             {
-                groupId : "javax.annotation" ,
-                artifactId: "javax.annotation-api" ,
+                groupId : "jakarta.annotation" ,
+                artifactId: "jakarta.annotation-api" ,
                 scope : "provided"
             },
             {
-                groupId : "javax.inject" ,
-                artifactId: "javax.inject" ,
+                groupId : "jakarta.inject" ,
+                artifactId: "jakarta.inject-api" ,
                 scope : "provided"
             },
             {

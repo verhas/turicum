@@ -34,14 +34,17 @@
 
 This module lets you maintain your `pom` structure files using the Turicum language.
 The Turicum language format is more flexible than XML, and it is a kind of programmable JSON.
-At the same time, the extension not only creates the Project Object Model but also saves it into the `pom.xml` file.
-That way, you can use any Maven integration relying on the XML format.
+At the same time, the extension not only creates the Project Object Model (POM)  in memory but also saves it to the `pom.xml` file.
+This gives you the advantage that you can use tools that rely on the XML-formatted POM.
+Having the latest POM in xml also means you can abandon the extension any time, you are not locked-in.
 
 [WARNING]
 ====
 This project is a Maven extension.
-Maven extensions run before Maven, and they are different from Maven plugins.
-The Turicum project supports Maven by providing an extension.
+Maven extensions run before Maven, and they are not the same thing as Maven plugins.
+There is no Turicum Maven plugin.
+
+This extension, Turicum version 1.4.1 and later was tested with Maven `3.9.11` and `4.0.0-rc-4`
 ====
 
 Create a `.mvn` in your project root to use this module.
@@ -115,15 +118,13 @@ IntelliJ recognizes and handles Maven extensions.
 
 When you want to convert a project to use the Turicum maven extension, you only have to
 
-. create the `.mvn` directory.
-It is enough to have a single `.mvn` directory at the top level in the project.
-
-. create the `extensions.xml` file
+. create the `.mvn/extensions.xml` file
 
 . convert the existing `pom.xml` files to `pom.turi`.
 
-The `pom.turi` should result in a formatted XML.
-To do this, there is a library file that you can `sys_import`:
+The `pom.turi` file should contain a Turicum program that results in a formatted XML.
+In Turicum, every command has a value, and the value of the program is the value of the last executed command.
+You are free to create the XML string in any way, but there is a Turicum library you can import that makes it easy.
 
     sys_import "turi.maven"
 
@@ -137,16 +138,23 @@ You create an instance of this class
     ...
 
 passing a JSON structure (or any classless Turicum object).
-You can also set, modify any of the fields of this object.
 
-At the end of the `pom.turi`, you should call
+For a simpler project, you can just use a JSON literal.
+When the structure is more complex, you can build the object in several steps.
+Turicum offers numerous language constructs to create a flexible POM build-up.
+
+At the end of the `pom.turi`, you can call
 
     project.done()
 
-It will convert the project structure to XML and return it formatted.
+It will convert the `project` structure to an XML string and return it formatted.
 This XML will be saved by the extension into the `pom.xml` and used to define the project structure.
 
 === Attributes and Singular Tags
+
+This section is about how to handle XML attributes that are only needed in POM files in exceptional cases.
+Some plugin configuration uses attributes.
+If you do not need it, you can skip this section.
 
 ==== Attributes
 
@@ -163,6 +171,9 @@ The following example shows how an object is converted to XML using this feature
 
 [NOTE]
 ====
+The example above does not use the Maven Turicum library and is not producing a `pom.xml`.
+It is an example of XML handling.
+
 `pom.xml` files rarely use XML attributes.
 This feature of the XML conversion provided by the Turicum library is for general use.
 ====

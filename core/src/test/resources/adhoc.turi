@@ -1,4 +1,25 @@
+// snippet pack_1
+fn a { 
+    let uuu:( "int" ) =77; 
+    let h=10 
+    let i=20 
+    let j=30 
+    let k=40 
+    let l=50 
+    let m=60 
+    let n=70 
+    let o=80 
+    let p=90 
+    let q=100 
+    let r=pack( ) 
+    let s=110 
+    return r 
+} 
 
+if ( a == 13 ) { 
+    z=2 
+} 
 
-//println jsonify_beauty(GAV("com.example:my-artifact:1.0.0"));
-println jsonify_beauty(GAV("com.example:my-artifact:"));
+let h=a( ) 
+println $" $(h.h) $(h.i) $(h.j) $(h.k) $(h.l) $(h.m) $(h.n) $(h.o) $(h.p) $(h.q) $(h.s)" 
+// end snippet

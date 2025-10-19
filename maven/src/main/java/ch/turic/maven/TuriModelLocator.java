@@ -2,10 +2,10 @@ package ch.turic.maven;
 
 import org.apache.maven.api.services.ModelSource;
 
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Singleton;
+import jakarta.annotation.PostConstruct;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
 import java.nio.file.Path;
 
 @Singleton

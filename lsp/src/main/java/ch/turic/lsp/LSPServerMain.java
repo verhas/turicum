@@ -10,7 +10,7 @@ import java.util.concurrent.Future;
 
 // Main class to start the server
 class LSPServerMain {
-    public static void main(String[] args) {
+    static void main(String[] args) {
         startServer(System.in, System.out);
     }
 
@@ -26,8 +26,8 @@ class LSPServerMain {
 
         try {
             listening.get();
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Throwable e) {
+            ExceptionXmlWriter.writeToXml(e, new java.io.File("/Users/verhasp/github/turicum/lsp-exception.xml"));
         }
     }
 }

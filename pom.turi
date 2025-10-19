@@ -160,16 +160,16 @@ let project = maven_project({
             },
 
             {
-                groupId: "javax.annotation",
-                artifactId: "javax.annotation-api",
-                version: `javax.annotation`,
+                groupId: "jakarta.annotation",
+                artifactId: "jakarta.annotation-api",
+                version: `jakarta.annotation`,
                 scope: "provided",
             },
 
             {
-                groupId: "javax.inject",
-                artifactId: "javax.inject",
-                version: `javax.inject`,
+                groupId: "jakarta.inject",
+                artifactId: "jakarta.inject-api",
+                version: `jakarta.inject`,
                 scope: "provided",
             },
 

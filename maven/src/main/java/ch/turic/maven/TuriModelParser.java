@@ -7,9 +7,9 @@ import org.apache.maven.api.services.xml.ModelXmlFactory;
 import org.apache.maven.api.spi.ModelParser;
 import org.apache.maven.api.spi.ModelParserException;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Singleton;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
 import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Path;

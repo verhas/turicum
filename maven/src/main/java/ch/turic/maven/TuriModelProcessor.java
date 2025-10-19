@@ -9,9 +9,9 @@ import org.codehaus.plexus.util.ReaderFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Singleton;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;

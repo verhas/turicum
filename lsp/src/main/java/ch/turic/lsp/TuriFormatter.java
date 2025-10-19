@@ -1,11 +1,11 @@
 package ch.turic.lsp;
 
 import ch.turic.Input;
-import ch.turic.analyzer.Keywords;
 import ch.turic.analyzer.Lex;
 import ch.turic.analyzer.LexList;
 import ch.turic.analyzer.Lexer;
 
+import java.util.Arrays;
 import java.util.regex.Pattern;
 
 public class TuriFormatter {
@@ -22,7 +22,7 @@ public class TuriFormatter {
         String[] lines = content.split("\n", -1); // -1 to preserve empty lines at the end
         StringBuilder result = new StringBuilder();
         int indentLevel = 0;
-        int colonLevel = 0; // Track if the next line should be indented due to colon
+        int colonLevel = 0; // Track if the next line should be indented due to a ':' at the end of the line
         boolean formattingIsOn = true;
         int index = 0;
         for (int i = 0; i < lines.length; i++) {
@@ -261,46 +261,150 @@ public class TuriFormatter {
         return lex;
     }
 
+    private static class Rule {
+        Lex.Type type1;
+        Lex.Type type2;
+        String symbol1;
+        String symbol2;
+        int spaces;
+
+        private Rule(Lex.Type type1, Lex.Type type2, String symbol1, String symbol2, int spaces) {
+            this.type1 = type1;
+            this.type2 = type2;
+            this.symbol1 = symbol1;
+            this.symbol2 = symbol2;
+            this.spaces = spaces;
+        }
+
+
+
+        boolean match(Lex lex, Lex next) {
+            if (type1 != null && lex.type() != null) {
+                if (lex.type() != type1) return false;
+            }
+            if (type2 != null && next != null && next.type() != null) {
+                if (next.type() != type2) return false;
+            }
+            if (symbol1 != null && lex.lexeme() != null) {
+                if (!symbol1.equals(lex.lexeme())) return false;
+            }
+            if (symbol2 != null && next != null && next.lexeme() != null) {
+                return symbol2.equals(next.lexeme());
+            }
+            return true;
+        }
+    }
+    static Rule between(Lex.Type type1, String symbol1, Lex.Type type2, String symbol2, int spaces) {
+        return new Rule(type1, type2, symbol1, symbol2, spaces);
+    }
+
+    static Rule after(String symbol1, int spaces) {
+        return new Rule(null, null, symbol1, null, spaces);
+    }
+
+    static Rule after(Lex.Type type1, int spaces) {
+        return new Rule(type1, null, null, null, spaces);
+    }
+
+    static Rule between(String symbol1, Lex.Type type2, int spaces) {
+        return new Rule(null, type2, symbol1, null, spaces);
+    }
+
+    static Rule between(Lex.Type type1, String symbol2, int spaces) {
+        return new Rule(type1, null, null, symbol2, spaces);
+    }
+
+    static Rule before(String symbol2, int spaces) {
+        return new Rule(null, null, null, symbol2, spaces);
+    }
+
+    static Rule between(Lex.Type type1, Lex.Type type2, int spaces) {
+        return new Rule(type1, type2, null, null, spaces);
+    }
+    private static final Rule[] rules = {
+            after(Lex.Type.CHARACTER, 0),
+            after(Lex.Type.SPACES, 0),
+            after(Lex.Type.COMMENT, 0),
+            between(Lex.Type.STRING, ":", 0),
+            after(Lex.Type.STRING, 1),
+            between(Lex.Type.IDENTIFIER, "=", 0),
+            between(Lex.Type.IDENTIFIER, "(", 0),
+            between(Lex.Type.IDENTIFIER, ":", 0),
+            between(Lex.Type.IDENTIFIER, ",", 0),
+            after(Lex.Type.IDENTIFIER, 1),
+            before(")",1),
+            after("&&", 1),
+            after("||", 1),
+            after("===", 1),
+            after("==", 1),
+            after("!=", 1),
+            after(">=", 1),
+            after("<=", 1),
+            after(">", 1),
+            after("<", 1),
+            after("=", 0),
+            after("##", 1),
+            after("->", 1),
+            between(",", Lex.Type.INTEGER, 1),
+            between(",", Lex.Type.FLOAT, 1),
+            between(",", Lex.Type.CHARACTER, 1),
+            between(",", Lex.Type.IDENTIFIER, 1),
+            between(",", Lex.Type.STRING, 1),
+            between(",", Lex.Type.COMMENT, 1),
+            after(",", 0),
+            between(":", Lex.Type.INTEGER, 1),
+            between(":", Lex.Type.FLOAT, 1),
+            between(":", Lex.Type.CHARACTER, 1),
+            between(":", Lex.Type.IDENTIFIER, 1),
+            between(":", Lex.Type.STRING, 1),
+            between(":", Lex.Type.COMMENT, 1),
+            between(":", Lex.Type.IDENTIFIER, 1),
+            after(":", 0),
+            after(";", 1),
+            after(Lex.Type.RESERVED, 1),
+    };
+
+    private static int spacesFor(Lex lex, Lex next) {
+        if (lex == null) return 0;
+        return Arrays.stream(rules).filter(rule -> rule.match(lex, next)).map(rule -> rule.spaces).findFirst().orElse(0);
+    }
+
     /**
      * Converts a lexical element (Lex) to its corresponding string representation based on its type.
      * Handles various types of lexical elements such as spaces, a, identifiers, integers, floats,
      * strings, comments, and reserved keywords. The method also considers the next lexical element
      * to determine accurate spacing or formatting.
+     * <p>
+     * When this is a comment or a string, then return only the part that is from the start til the new line if this is a
+     * multi-line string or comment.
      *
      * @param lex  the current lexical element to be converted to a string representation
      * @param next the next lexical element, used to determine spacing or additional formatting
      * @return the string representation of the current lexical element, formatted appropriately
      */
     private static String lexToString(Lex lex, Lex next) {
-        return switch (lex.type()) {
-            case SPACES -> "";
-            case CHARACTER -> lex.lexeme();
-            case IDENTIFIER, INTEGER, FLOAT -> lex.lexeme() + spc(lex, next);
-            case STRING -> firstLine(lex.lexeme()) + spc(lex, next);
-            case COMMENT -> firstLine(lex.text()) + spcOrEol(next);
-            case RESERVED -> {
-                if (lex.is(Keywords.RETURN)) {
-                    yield "return" + spcOrEol(next);
-                }
-                if (isKw(lex)) {
-                    yield lex.text() + spc(lex, next);
-                } else {
-                    if (next != null) {
-                        yield switch (lex.text()) {
-                            case "&&", "||", "===", "==", "!=", ">=", "<=", ">", "<", "=", "##", "->" ->
-                                    " " + lex.text() + spcOrEol(next);
-                            case "," -> "," + spc(lex, next);
-                            case ":" -> ":" + spc(lex, next);
-                            case ";" -> "; ";
-                            default -> lex.text();
-                        };
-                    } else
-                        yield lex.text();
-                }
-            }
-        };
+        if (lex == null) {
+            return "";
+        }
+        if (lex.type() == Lex.Type.SPACES) {
+            return "";
+        }
+
+        if (lex.type() == Lex.Type.STRING)
+            return firstLine(lex.lexeme()) + " ".repeat(spacesFor(lex, next));
+        if (lex.type() == Lex.Type.COMMENT)
+            return firstLine(lex.text()) + " ".repeat(spacesFor(lex, next));
+
+        return lex.lexeme() + " ".repeat(spacesFor(lex, next));
     }
 
+    /**
+     * Extracts the first line from the provided text. If the text does not contain a newline character, the entire
+     * text is returned.
+     *
+     * @param text the input string to process; must not be null
+     * @return the first line of the input text, or the entire text if no newline is found
+     */
     private static String firstLine(String text) {
         int i = text.indexOf('\n');
         if (i < 0) {
@@ -308,22 +412,6 @@ public class TuriFormatter {
         } else {
             return text.substring(0, i);
         }
-    }
-
-    private static String spcOrEol(Lex next) {
-        return next == null ? "" : " ";
-    }
-
-    private static String spc(Lex lex, Lex next) {
-        if (next == null) return "";
-        return switch (next.type()) {
-            case INTEGER, FLOAT, SPACES, CHARACTER, IDENTIFIER, STRING, COMMENT -> " ";
-            case RESERVED -> isKw(next) || !next.is(".", "[", "{", "(", ")", "}", "]") ? " " : "";
-        };
-    }
-
-    private static boolean isKw(Lex lex) {
-        return Character.isJavaIdentifierStart(lex.text().charAt(0));
     }
 
     private static String expandTabs(String line) {
