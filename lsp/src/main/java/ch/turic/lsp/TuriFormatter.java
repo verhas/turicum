@@ -1,6 +1,7 @@
 package ch.turic.lsp;
 
 import ch.turic.Input;
+import ch.turic.analyzer.Keywords;
 import ch.turic.analyzer.Lex;
 import ch.turic.analyzer.LexList;
 import ch.turic.analyzer.Lexer;
@@ -277,7 +278,6 @@ public class TuriFormatter {
         }
 
 
-
         boolean match(Lex lex, Lex next) {
             if (type1 != null && lex.type() != null) {
                 if (lex.type() != type1) return false;
@@ -294,6 +294,7 @@ public class TuriFormatter {
             return true;
         }
     }
+
     static Rule between(Lex.Type type1, String symbol1, Lex.Type type2, String symbol2, int spaces) {
         return new Rule(type1, type2, symbol1, symbol2, spaces);
     }
@@ -314,6 +315,10 @@ public class TuriFormatter {
         return new Rule(type1, null, null, symbol2, spaces);
     }
 
+    static Rule between(String symbol1, String symbol2, int spaces) {
+        return new Rule(null, null, symbol1, symbol2, spaces);
+    }
+
     static Rule before(String symbol2, int spaces) {
         return new Rule(null, null, null, symbol2, spaces);
     }
@@ -321,7 +326,14 @@ public class TuriFormatter {
     static Rule between(Lex.Type type1, Lex.Type type2, int spaces) {
         return new Rule(type1, type2, null, null, spaces);
     }
+
     private static final Rule[] rules = {
+            between(Lex.Type.STRING, ",", 0),
+            between("]", ",", 0),
+            between(":", "[", 1),
+            between(")", ",", 0),
+            between(")", "{", 0),
+            between(Keywords.IF, "(", 0),
             after(Lex.Type.CHARACTER, 0),
             after(Lex.Type.SPACES, 0),
             after(Lex.Type.COMMENT, 0),
@@ -332,7 +344,7 @@ public class TuriFormatter {
             between(Lex.Type.IDENTIFIER, ":", 0),
             between(Lex.Type.IDENTIFIER, ",", 0),
             after(Lex.Type.IDENTIFIER, 1),
-            before(")",1),
+            before(")", 1),
             after("&&", 1),
             after("||", 1),
             after("===", 1),
@@ -365,7 +377,7 @@ public class TuriFormatter {
     };
 
     private static int spacesFor(Lex lex, Lex next) {
-        if (lex == null) return 0;
+        if (next == null) return 0;
         return Arrays.stream(rules).filter(rule -> rule.match(lex, next)).map(rule -> rule.spaces).findFirst().orElse(0);
     }
 

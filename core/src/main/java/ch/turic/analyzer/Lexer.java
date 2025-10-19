@@ -162,7 +162,7 @@ public class Lexer {
 
             if (Character.isWhitespace(in.charAt(0))) {
                 final var sb = new StringBuilder();
-                while (!in.isEmpty() && Character.isWhitespace(in.charAt(0))) {
+                while (!in.isEmpty() && Character.isWhitespace(in.charAt(0)) && in.charAt(0) != '\n' && in.charAt(0) != '\r') {
                     in.move(1, sb);
                 }
                 if (collectAll) {
