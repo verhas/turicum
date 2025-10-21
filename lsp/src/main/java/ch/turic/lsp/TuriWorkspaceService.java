@@ -25,4 +25,8 @@ class TuriWorkspaceService implements WorkspaceService {
     public void didChangeWatchedFiles(DidChangeWatchedFilesParams params) {
         System.out.println("Watched files changed");
     }
+
+    public void shutdown(){
+
+    }
 }

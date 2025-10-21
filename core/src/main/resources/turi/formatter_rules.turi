@@ -1,0 +1,25 @@
+let t=java_class( "ch.turic.analyzer.Lex$Type" );
+let CHARACTER=t.CHARACTER;
+let IDENTIFIER=t.IDENTIFIER;
+let RESERVED=t.RESERVED;
+let STRING=t.STRING;
+let INTEGER=t.INTEGER;
+let FLOAT=t.FLOAT;
+let COMMENT=t.COMMENT;
+let SPACES=t.SPACES;
+
+fn after( token: str | `java.ch.turic.analyzer.Lex$Type`, spaces: int ){
+    [ token if type( token ) != "str" else none, token if type( token ) == "str" else none, none, none, spaces ]
+}
+fn before( token: str | `java.ch.turic.analyzer.Lex$Type`, spaces: int ){
+    let k = [ none, none, token if type( token ) != "str" else none, token if type( token ) == "str" else none, spaces ];
+    k
+}
+fn between( token1: str | `java.ch.turic.analyzer.Lex$Type`, token2: str | `java.ch.turic.analyzer.Lex$Type`, spaces: int ){
+    [ token1 if type( token1 ) != "str" else none, token1 if type( token1 ) == "str" else none,
+    token2 if type( token2 ) != "str" else none, token2 if type( token2 ) == "str" else none, spaces ]
+}
+
+unlet t;
+
+export_all();

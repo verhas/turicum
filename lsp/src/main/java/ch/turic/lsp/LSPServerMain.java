@@ -15,19 +15,19 @@ class LSPServerMain {
     }
 
     public static void startServer(InputStream in, OutputStream out) {
-        TuriLanguageServer server = new TuriLanguageServer();
-        Launcher<LanguageClient> launcher = LSPLauncher.createServerLauncher(server, in, out);
-
-        LanguageClient client = launcher.getRemoteProxy();
-        server.connect(client);
-
-        Future<?> listening = launcher.startListening();
-        System.out.println("Language server started. Listening for requests...");
-
+        Thread.setDefaultUncaughtExceptionHandler((thread, ex) -> {
+            System.err.println("=== UNCAUGHT EXCEPTION in thread " + thread.getName() + " ===");
+            ExceptionXmlWriter.writeToXml(ex);
+        });
         try {
+            TuriLanguageServer server = new TuriLanguageServer();
+            Launcher<LanguageClient> launcher = LSPLauncher.createServerLauncher(server, in, out);
+            LanguageClient client = launcher.getRemoteProxy();
+            server.connect(client);
+            Future<?> listening = launcher.startListening();
             listening.get();
         } catch (Throwable e) {
-            ExceptionXmlWriter.writeToXml(e, new java.io.File("/Users/verhasp/github/turicum/lsp-exception.xml"));
+            ExceptionXmlWriter.writeToXml(e);
         }
     }
 }

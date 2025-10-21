@@ -5,9 +5,7 @@ import org.eclipse.lsp4j.*;
 import org.eclipse.lsp4j.services.*;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
 // Main Language Server class
 public class TuriLanguageServer implements LanguageServer, LanguageClientAware {
@@ -18,8 +16,13 @@ public class TuriLanguageServer implements LanguageServer, LanguageClientAware {
     private int errorCode = 1;
 
     public TuriLanguageServer() {
-        this.textDocumentService = new TuriTextDocumentService();
-        this.workspaceService = new TuriWorkspaceService();
+        try {
+            this.textDocumentService = new TuriTextDocumentService();
+            this.workspaceService = new TuriWorkspaceService();
+        }catch (Throwable e) {
+            ExceptionXmlWriter.writeToXml(e);
+            System.exit(errorCode);
+        }
     }
 
     @Override
@@ -68,7 +71,6 @@ public class TuriLanguageServer implements LanguageServer, LanguageClientAware {
     }
 
     public static final Executor VIRTUAL_EXECUTOR = Executors.newThreadPerTaskExecutor(Thread.ofVirtual().factory());
-
 
     @Override
     public CompletableFuture<Object> shutdown() {

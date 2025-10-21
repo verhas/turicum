@@ -1,29 +1,29 @@
 = Turicum Language Server
 
-Turicum LSP server is a standard Language Server Processor (LSP) supporting
+The Turicum LSP server is a standard Language Server Processor (LSP) supporting
 
 * completion,
 * formatting,
 * syntax checking, and
 * referencing.
 
-It means that when you install it with your editor supporting LSP you can easily
+It means that when you install it with your editor supporting LSP, you can easily
 
 * reformat the code,
 * use code completion,
-* see when there is some syntax error in the code while you edit, and
-* you can use the editor to jump to the definition to functions, closures, variables.
+* see when there is a syntax error in the code while you edit, and
+* you can use the editor to jump to the definition of functions, closures, and variables.
 
-NOTE: Due to the dynamic nature of the language, some of the features, like jumping to definition, are heuristic.
+NOTE: Due to the dynamic nature of the language, some of the features, like jumping to the definition, are heuristic.
 
-The actual use of the LSP after it is installed and configured is straight forward.
-You will just use the functions of your IDE as you use for other languages.
+The actual use of the LSP after it is installed and configured is straightforward.
+You will use the functions of your IDE as you do for other languages.
 
 The installation may be different for different editors.
-In this document I will describe how to install it for IntelliJ, because that is what I use.
-VSCode supports LSP out of the box, but I have no idea how to configure it.
+In this document, we will describe how to install it for IntelliJ.
+VSCode supports LSP out of the box, but we have no local knowledge of how to configure it.
 
-If you use some editor where you have no Java installed, you can download the packaged version of the LSP.
+If you're using an editor without Java installed, you can download the packaged version of the LSP.
 After installing it, you will have an executable version that will contain all the environment the LSP needs.
 
 If you have Java installed on your system, it is recommended that you use the `pass:[*-shaded.jar]` file.
@@ -34,22 +34,173 @@ NOTE: The LSP was developed using the Eclipse LSP library.
 == Installation IntelliJ
 
 To use any LSP, you first have to install the `LSP4J` plugin.
+The installation steps of the plugin are documented on the plugin homepage, and it is straightforward and standard.
 
-After that, you have to add the Turicum LSP in the IntelliJ setting under
+Having the plugin installed, you have to add the Turicum LSP in the IntelliJ settings under
 
     Languages & Frameworks > Language Servers
 
 Click the `+` to add a new Language server.
 You can name it "Turicum Language Server".
+
+=== Start command
+
 The start command is
 
-    java <<full-path-to>>/turicum-lsp-server-*-shaded.jar
+    java -jar <<full-path-to>>/turicum-lsp-server-<<version>>-shaded.jar
 
 You have to add it to the `Command` under the `Server` tab.
 
 Here, the `<<full-path-to>>` is the directory where you downloaded the LSP server file.
-You may need to use the actual version in place of the `pass:[*]`.
+You may need to use the actual version in place of the `pass:[<<version>>]`,
+or you can use a literal `pass:[*]` character if you have only one version in the specified directory.
+(UNIX only)
 
-On the `Mappings` tab add `*.turi` with the language Id `Turicum`.
+On the `Mappings` tab, add `*.turi` with the language ID `Turicum`.
 
-After finishing the configuration, you can open any file with the file extension `*.turi` and edit with the LSP support.
+After finishing the configuration, you can open any file with the file extension `*.turi` and edit with LSP support.
+
+=== Alternative Start Commands
+
+The LSP server writes reports and errors to the standard error of the process.
+Since IntelliJ starts the process, this output is not visible by default.
+You can, however, redirect this output on UNIX if you use the command line:
+
+    java -jar <<full-path-to>>/turicum-lsp-server-<<version>>-shaded.jar 2>> lsp_err.txt
+
+If you also want to see the JSON-RPC commands that the LSP server sends to IntelliJ, you can also add
+
+               |tee -a lsp_out.txt
+
+to the end of the command line.
+You can use any file instead of `lsp_err.txt` and `lsp_out.txt`.
+It is recommended to use a full absolute path to the file.
+
+= Configuring Formatting
+
+The built-in formatting does not change the line breaks.
+The formatting it does is:
+
+* adding tabulation to the lines
+* add `pass:[*]` character to documentation comment lines, if missing
+* adds and removes spaces.
+
+The number of spaces to be used between different tokens is driven by a built-in rule table.
+You can override the rule table with `.turicum/formatter/rules.turi` in the
+
+* current working directory, or
+* the current user's home directory (a.k.a. `~/.turicum/formatter/rules.turi`)
+
+The rule file is a Turicum program that should result in a list of lists.
+Each list in the result list is a rule, containing five elements:
+
+. The first token's type, or `none`.
+. The first token's literal, or `none`.
+. The second token's type, or `none`.
+. The second token's literal, or `none`.
+. The number of spaces to be used between the two tokens.
+
+If a type or literal is not specified (it is `none`), it is ignored by the rule.
+For example, rule
+
+  [none, none, none, ",", 0 ]
+
+matches two tokens if the second token is a comma, and it instructs the formatted not to put any spaces between the two tokens.
+
+If you system import the library:
+
+    sys_import turi.formatter_rules;
+
+You will get the symbolic names:
+
+* `CHARACTER`
+* `IDENTIFIER`
+* `RESERVED`
+* `STRING`
+* `INTEGER`
+* `FLOAT`
+* `COMMENT`
+* `SPACES`
+
+for the token types.
+
+[NOTE]
+====
+`CHARACTER` and `SPACES` are special token names and will never appear in the tokenized version of a Turicum program.
+The lexical analyzer creates a `CHARACTER` token when it sees a single character that is not supposed to appear in the code.
+You can specify rules for it, and it will be applied when such a character appears in the source.
+Note, however, that such a source will also be erroneous.
+
+`SPACES` is used by the LSP formatter internally only, and it skips them.
+Such a token rule will not match any token pairs.
+====
+
+The library also defines three functions:
+
+* `before(t,N)`
+* `after(t,N)`, and
+* `between(t1,t2,N)`
+
+where `t`, `t1`, and `t2` are either a symbolic name for a token type or a string.
+A sample `rules.turi` file, which is more or less follows the built-in formatting rules, is:
+
+
+.sample rules file
+[source]
+----
+sys_import turi.formatter_rules;
+
+[
+    before( ",", 0 ),
+    between( STRING, ",", 0 ),
+    between( "]", ",", 0 ),
+    between( ":", "[", 1 ),
+    between( ")", ",", 0 ),
+    between( ")", "{", 0 ),
+    between( "if", "(", 0 ),
+    after( CHARACTER, 0 ),
+    after( SPACES, 0 ),
+    after( COMMENT, 0 ),
+    between( STRING, ":", 0 ),
+    after( STRING, 1 ),
+    between( IDENTIFIER, "=", 0 ),
+    between( IDENTIFIER, "(", 0 ),
+    between( IDENTIFIER, ":", 0 ),
+    between( IDENTIFIER, ",", 0 ),
+    between( IDENTIFIER, ".", 0 ),
+    between( IDENTIFIER, ";", 0 ),
+    after( IDENTIFIER, 1 ),
+    before( ")", 1 ),
+    before( ";", 0 ),
+    after( "&&", 1 ),
+    after( "||", 1 ),
+    after( "===", 1 ),
+    after( "==", 1 ),
+    after( "!=", 1 ),
+    after( ">=", 1 ),
+    after( "<=", 1 ),
+    after( ">", 1 ),
+    after( "<", 1 ),
+    after( "=", 0 ),
+    after( "##", 1 ),
+    after( "->", 1 ),
+    between( ".", IDENTIFIER, 0 ),
+    between( ",", INTEGER, 1 ),
+    between( ",", FLOAT, 1 ),
+    between( ",", CHARACTER, 1 ),
+    between( ",", IDENTIFIER, 1 ),
+    between( ",", STRING, 1 ),
+    between( ",", COMMENT, 1 ),
+    after( ",", 0 ),
+    between( ":", INTEGER, 1 ),
+    between( ":", FLOAT, 1 ),
+    between( ":", CHARACTER, 1 ),
+    between( ":", IDENTIFIER, 1 ),
+    between( ":", STRING, 1 ),
+    between( ":", COMMENT, 1 ),
+    between( ":", IDENTIFIER, 1 ),
+    after( ":", 0 ),
+    after( ";", 1 ),
+    after( RESERVED, 1 )
+];
+----

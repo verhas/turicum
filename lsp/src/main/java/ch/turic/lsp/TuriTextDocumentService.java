@@ -23,6 +23,7 @@ class TuriTextDocumentService implements TextDocumentService {
     private LanguageClient client;
     private TuriSyntaxErrorReporter errorReporter;
 
+    public void shutdown() {}
 
     public void connect(LanguageClient client) {
         this.client = client;

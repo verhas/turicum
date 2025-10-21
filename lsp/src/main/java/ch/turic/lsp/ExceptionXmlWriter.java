@@ -12,17 +12,15 @@ public class ExceptionXmlWriter {
      * into an XML file.
      *
      * @param throwable the throwable to serialize
-     * @param file      the file to write the XML into
      */
-    public static void writeToXml(Throwable throwable, File file) {
-        try (PrintWriter writer = new PrintWriter(new FileWriter(file))) {
+    public static void writeToXml(Throwable throwable){
+        try (PrintWriter writer = new PrintWriter(System.err)) {
             writer.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
             writer.println("<exception>");
             writeThrowable(writer, throwable, 1);
             writer.println("</exception>");
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to write exception XML", e);
         }
+        throw new RuntimeException(throwable);
     }
 
     private static void writeThrowable(PrintWriter writer, Throwable t, int indentLevel) {

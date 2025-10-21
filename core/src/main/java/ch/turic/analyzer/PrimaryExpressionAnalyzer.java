@@ -195,7 +195,7 @@ public class PrimaryExpressionAnalyzer extends AbstractAnalyzer {
                 case "?." -> new FieldAccess(left, lexes.next(Lex.Type.IDENTIFIER).text(), true);
                 case "[" -> {
                     final var indexExpression = new ArrayAccess(left, ExpressionAnalyzer.INSTANCE.analyze(lexes));
-                    lexes.next(Lex.Type.RESERVED, "]", "Array indexing is not close with ]");
+                    lexes.next(Lex.Type.RESERVED, "]", "Array indexing is not closed with ]");
                     yield indexExpression;
                 }
                 default -> throw new IllegalStateException("Unexpected value: " + lexes.next().text());

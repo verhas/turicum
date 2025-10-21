@@ -1,67 +1,73 @@
+task1 is not ready 0
+task2 is not ready 0
+task2 is not ready 1
 task1 is ready 1
 task1 is not ready 0
-task2 is not ready 0
 task1 is not ready 1
-task2 is not ready 1
+task2 is not ready 2
+task2 is not ready 3
 task1 is not ready 2
-task2 is not ready 2
-task1 is not ready 3
-task2 is not ready 3
-task1 is not ready 4task2 is ready 2
-task2 is not ready 0
-
-task2 is not ready 1
-task1 is not ready 5
-task2 is ready 3task1 is not ready 6
-
-task2 is not ready 0
-task1 is not ready 7
-task2 is not ready 1
-task1 is not ready 8task2 is not ready 2
-
-task1 is not ready 9task2 is ready 4
-
-task2 is not ready 0
-task2 is not ready 1task1 is not ready 10
-
-task1 is not ready 11
-task2 is not ready 2
-task1 is not ready 12task2 is ready 5
-
-task2 is not ready 0
-task2 is not ready 1task1 is not ready 13
-
-task1 is not ready 14task2 is not ready 2
-
-task2 is ready 6task1 is not ready 15
-
-task2 is not ready 0
-task2 is not ready 1
-task1 is not ready 16
-task1 is not ready 17
-task2 is not ready 2
-task1 is not ready 18
-task2 is ready 7
-task2 is not ready 0
-task1 is not ready 19task2 is not ready 1
-
-task1 is not ready 20task2 is not ready 2
-
-task1 is not ready 21task2 is ready 8
-
-task2 is not ready 0
-task2 is not ready 1
-task1 is not ready 22
-task1 is not ready 23
-task2 is not ready 2
-task1 is ready 9
-task1 is not ready 0
-task2 is not ready 3
-task1 is not ready 1
+task1 is ready 2
 task2 is not ready 4
+task1 is not ready 0
+task2 is not ready 5
+task1 is not ready 1
+task1 is not ready 2
+task2 is not ready 6
+task1 is ready 3
+task1 is not ready 0
+task2 is not ready 7
+task2 is not ready 8task1 is not ready 1
+
+task2 is not ready 9
+task1 is not ready 2
+task2 is ready 4
+task1 is not ready 3
+task2 is not ready 0
+task2 is not ready 1
+task1 is not ready 4
+task2 is not ready 2
+task1 is not ready 5
+task1 is ready 5
+task2 is not ready 3
+task1 is not ready 0
+task2 is not ready 4
+task1 is not ready 1
 task1 is not ready 2
 task2 is not ready 5
+task1 is not ready 3task2 is not ready 6
+
+task1 is ready 6
+task1 is not ready 0
+task2 is not ready 7
+task2 is not ready 8task1 is not ready 1
+
+task1 is not ready 2task2 is not ready 9
+
+task1 is ready 7task2 is not ready 10
+
+task1 is not ready 0
+task2 is not ready 11
+task1 is not ready 1
+task2 is not ready 12task1 is not ready 2
+
+task2 is ready 8
+task2 is not ready 0
+task1 is not ready 3
+task2 is not ready 1
+task1 is not ready 4
+task2 is not ready 2
+task1 is not ready 5
+task2 is ready 9
+task2 is not ready 0
+task1 is not ready 6
+task2 is not ready 1
+task1 is not ready 7
+task2 is not ready 2
+task1 is not ready 8
 closing the channel
+task2 is not ready 3
+task1 is not ready 9
 channel is closed
 1 is done false
 2 is done false

@@ -1,11 +1,18 @@
 package ch.turic.lsp;
 
 import ch.turic.Input;
+import ch.turic.Interpreter;
 import ch.turic.analyzer.Keywords;
 import ch.turic.analyzer.Lex;
 import ch.turic.analyzer.LexList;
 import ch.turic.analyzer.Lexer;
+import ch.turic.exceptions.BadSyntax;
+import ch.turic.exceptions.ExecutionException;
+import ch.turic.memory.LngList;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.regex.Pattern;
 
@@ -14,6 +21,15 @@ public class TuriFormatter {
     private static final Pattern SWITCH = Pattern.compile("//\\s*format:(on|off)");
 
     public static String formatDocument(String content) {
+        try {
+            return formatDocument_(content);
+        } catch (Throwable e) {
+            ExceptionXmlWriter.writeToXml(e);
+            return content;
+        }
+    }
+
+    private static String formatDocument_(String content) {
         if (content == null || content.isEmpty()) {
             return content;
         }
@@ -327,7 +343,11 @@ public class TuriFormatter {
         return new Rule(type1, type2, null, null, spaces);
     }
 
-    private static final Rule[] rules = {
+
+    /**
+     * Hardwired rules that can be overridden by the rule files.
+     */
+    private static Rule[] rules = {
             between(Lex.Type.STRING, ",", 0),
             between("]", ",", 0),
             between(":", "[", 1),
@@ -343,8 +363,11 @@ public class TuriFormatter {
             between(Lex.Type.IDENTIFIER, "(", 0),
             between(Lex.Type.IDENTIFIER, ":", 0),
             between(Lex.Type.IDENTIFIER, ",", 0),
+            between(Lex.Type.IDENTIFIER, ".", 0),
+            between(Lex.Type.IDENTIFIER, ";", 0),
             after(Lex.Type.IDENTIFIER, 1),
             before(")", 1),
+            before(";", 0),
             after("&&", 1),
             after("||", 1),
             after("===", 1),
@@ -357,6 +380,7 @@ public class TuriFormatter {
             after("=", 0),
             after("##", 1),
             after("->", 1),
+            between(".", Lex.Type.IDENTIFIER, 0),
             between(",", Lex.Type.INTEGER, 1),
             between(",", Lex.Type.FLOAT, 1),
             between(",", Lex.Type.CHARACTER, 1),
@@ -376,6 +400,71 @@ public class TuriFormatter {
             after(Lex.Type.RESERVED, 1),
     };
 
+    static {
+        final var userHome = System.getProperty("user.home");
+        final var globalRules = Path.of(userHome, ".turicum", "formatter", "rules.turi");
+        final var localRules = Path.of(".", ".turicum", "formatter", "rules.turi");
+        final Path rulesPath = localRules.toFile().exists() ? localRules : globalRules.toFile().exists() ? globalRules : null;
+        if (rulesPath == null) {
+            System.err.println("No rules file found. Using default rules.");
+        } else {
+            System.err.println("Rules are to be loaded from " + rulesPath);
+            FILL_IN_RULES:
+            try {
+                final var rulesTuriSource = Files.readString(rulesPath);
+                try (final var interpreter = new Interpreter(rulesTuriSource)) {
+                    final var ruleTable = interpreter.compileAndExecute();
+                    if (ruleTable instanceof LngList ruleList) {
+                        final var loadedRules = new Rule[(int) ruleList.size()];
+                        for (int i = 0; i < loadedRules.length; i++) {
+                            if (ruleList.array.get(i) instanceof LngList rule) {
+                                try {
+                                    final var type1 = (Lex.Type) rule.array.get(0);
+                                    final var symbol1 = (String) rule.array.get(1);
+                                    final var type2 = (Lex.Type) rule.array.get(2);
+                                    final var symbol2 = (String) rule.array.get(3);
+                                    final var spaces = (int)(long) rule.array.get(4);
+                                    loadedRules[i] = new Rule(type1, type2, symbol1, symbol2, spaces);
+                                } catch (ClassCastException e) {
+                                    System.err.println("Invalid rule in rules file: " + e.getMessage());
+                                    System.err.println("Rule is " + rule);
+                                    System.err.println("0: "+rule.array.get(0));
+                                    System.err.println("1: "+rule.array.get(1));
+                                    System.err.println("2: "+rule.array.get(2));
+                                    System.err.println("3: "+rule.array.get(3));
+                                    System.err.println("4: "+rule.array.get(4));
+                                    System.err.println("Rule list is " + ruleList.array);
+                                    System.err.println("Rule list index is " + i);
+                                    break FILL_IN_RULES;
+                                }
+                            } else {
+                                System.err.println("Rule line is not an aray.");
+                                System.err.println("Rule is " + ruleList.array + "[" + i + "]");
+                                break FILL_IN_RULES;
+                            }
+                        }
+                        // if it was filled successfully, overwrite the current rules with the loaded ones
+                        System.err.println("Loaded " + loadedRules.length + " rules from " + rulesPath);
+                        rules = loadedRules;
+                    }
+                } catch (BadSyntax | ExecutionException i) {
+                    ExceptionXmlWriter.writeToXml(i);
+                }
+            } catch (IOException g) {
+                ExceptionXmlWriter.writeToXml(g);
+            }
+        }
+    }
+
+    /**
+     * Determines the number of spaces to be inserted between the current lexical element and the next lexical element.
+     * This method uses predefined rules to decide the spacing based on the relationship between the two lexical elements.
+     * If no matching rule is found or the next lexical element is null, the method returns 0.
+     *
+     * @param lex  the current lexical element being analyzed
+     * @param next the next lexical element in the sequence; may be null
+     * @return the number of spaces to be inserted between the current and next lexical elements
+     */
     private static int spacesFor(Lex lex, Lex next) {
         if (next == null) return 0;
         return Arrays.stream(rules).filter(rule -> rule.match(lex, next)).map(rule -> rule.spaces).findFirst().orElse(0);
