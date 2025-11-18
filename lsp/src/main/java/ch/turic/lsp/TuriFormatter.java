@@ -279,40 +279,36 @@ public class TuriFormatter {
     }
 
     private static class Rule {
-        Lex.Type type1;
-        Lex.Type type2;
-        String symbol1;
-        String symbol2;
+        Lex.Type typeBefore;
+        Lex.Type typeAfter;
+        String symbolBefore;
+        String symbolAfter;
         int spaces;
 
-        private Rule(Lex.Type type1, Lex.Type type2, String symbol1, String symbol2, int spaces) {
-            this.type1 = type1;
-            this.type2 = type2;
-            this.symbol1 = symbol1;
-            this.symbol2 = symbol2;
+        private Rule(Lex.Type typeBefore, Lex.Type typeAfter, String symbolBefore, String symbolAfter, int spaces) {
+            this.typeBefore = typeBefore;
+            this.typeAfter = typeAfter;
+            this.symbolBefore = symbolBefore;
+            this.symbolAfter = symbolAfter;
             this.spaces = spaces;
         }
 
 
         boolean match(Lex lex, Lex next) {
-            if (type1 != null && lex.type() != null) {
-                if (lex.type() != type1) return false;
+            if (typeBefore != null && lex.type() != null) {
+                if (lex.type() != typeBefore) return false;
             }
-            if (type2 != null && next != null && next.type() != null) {
-                if (next.type() != type2) return false;
+            if (typeAfter != null && next != null && next.type() != null) {
+                if (next.type() != typeAfter) return false;
             }
-            if (symbol1 != null && lex.lexeme() != null) {
-                if (!symbol1.equals(lex.lexeme())) return false;
+            if (symbolBefore != null && lex.lexeme() != null) {
+                if (!symbolBefore.equals(lex.lexeme())) return false;
             }
-            if (symbol2 != null && next != null && next.lexeme() != null) {
-                return symbol2.equals(next.lexeme());
+            if (symbolAfter != null && next != null && next.lexeme() != null) {
+                return symbolAfter.equals(next.lexeme());
             }
             return true;
         }
-    }
-
-    static Rule between(Lex.Type type1, String symbol1, Lex.Type type2, String symbol2, int spaces) {
-        return new Rule(type1, type2, symbol1, symbol2, spaces);
     }
 
     static Rule after(String symbol1, int spaces) {
@@ -327,8 +323,8 @@ public class TuriFormatter {
         return new Rule(null, type2, symbol1, null, spaces);
     }
 
-    static Rule between(Lex.Type type1, String symbol2, int spaces) {
-        return new Rule(type1, null, null, symbol2, spaces);
+    static Rule between(Lex.Type type1, String symbol2) {
+        return new Rule(type1, null, null, symbol2, 0);
     }
 
     static Rule between(String symbol1, String symbol2, int spaces) {
@@ -339,16 +335,11 @@ public class TuriFormatter {
         return new Rule(null, null, null, symbol2, spaces);
     }
 
-    static Rule between(Lex.Type type1, Lex.Type type2, int spaces) {
-        return new Rule(type1, type2, null, null, spaces);
-    }
-
-
     /**
      * Hardwired rules that can be overridden by the rule files.
      */
     private static Rule[] rules = {
-            between(Lex.Type.STRING, ",", 0),
+            between(Lex.Type.STRING, ","),
             between("]", ",", 0),
             between(":", "[", 1),
             between(")", ",", 0),
@@ -357,14 +348,14 @@ public class TuriFormatter {
             after(Lex.Type.CHARACTER, 0),
             after(Lex.Type.SPACES, 0),
             after(Lex.Type.COMMENT, 0),
-            between(Lex.Type.STRING, ":", 0),
+            between(Lex.Type.STRING, ":"),
             after(Lex.Type.STRING, 1),
-            between(Lex.Type.IDENTIFIER, "=", 0),
-            between(Lex.Type.IDENTIFIER, "(", 0),
-            between(Lex.Type.IDENTIFIER, ":", 0),
-            between(Lex.Type.IDENTIFIER, ",", 0),
-            between(Lex.Type.IDENTIFIER, ".", 0),
-            between(Lex.Type.IDENTIFIER, ";", 0),
+            between(Lex.Type.IDENTIFIER, "="),
+            between(Lex.Type.IDENTIFIER, "("),
+            between(Lex.Type.IDENTIFIER, ":"),
+            between(Lex.Type.IDENTIFIER, ","),
+            between(Lex.Type.IDENTIFIER, "."),
+            between(Lex.Type.IDENTIFIER, ";"),
             after(Lex.Type.IDENTIFIER, 1),
             before(")", 1),
             before(";", 0),

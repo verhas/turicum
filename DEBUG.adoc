@@ -1,25 +1,21 @@
 = Debugging Turicum
 
 This document describes how you can debug a Turicum program.
-Later chapters also describe how the debugger is implemented.
+In the first chapter, we describe how to use the debugger.
+Later chapters describe how the debugger is implemented.
 
 == Using the Debugger
 
-In the current version the debugger can be used, using the REPL command line version of Turicum.
-To start the REPL functionality, you can type at the command line:
+You can use the REPL command line version of Turicum to debug a Turicum program.
+To start the REPL functionality, you type at the command line:
 
     turi -REPL
 
-What you will see will be something like
+You will see something like
 
 [source]
 ----
 $ turi -REPL
-WARNING: A restricted method in java.lang.System has been called
-WARNING: java.lang.System::load has been called by org.jline.nativ.JLineNativeLoader in an unnamed module (file:/Applications/turicum.app/Contents/app/jline-3.30.0.jar)
-WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
-WARNING: Restricted methods will be blocked in a future release unless native access is enabled
-
 Turicum REPL with JLine (//help for more info)
 >>>
 ----
@@ -31,11 +27,12 @@ The first command to debug a program is
     sys_import turi.debug
 
 This will import the helper functions that you can use while debugging the code.
-Instead, you can
+You can also
 
     sys_import turi.debug_short
 
-that will define the same functions and also abbreviation aliases, like `si` for `step_into`, `so` for `step_over`, and so on.
+instead of `turi.debug`.
+It will define the same functions and also abbreviation aliases, like `si` for `step_into`, `so` for `step_over`, and so on.
 
 It is usually a good practice to put one of these commands into the `.repl.turi` file along with a command mode setting:
 

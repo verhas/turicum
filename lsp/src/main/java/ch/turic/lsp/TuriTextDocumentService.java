@@ -16,17 +16,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-// Text Document Service - handles document-related operations
-
+/**
+ * Provides text-, document-related services for a language server protocol (LSP).
+ * This class extends the TextDocumentService and includes additional functionality
+ * required for managing text documents and responding to client interactions.
+ * Core services include handling document lifecycle events, completion suggestions,
+ * diagnostics, and other text-, document-related features.
+ */
 class TuriTextDocumentService implements TextDocumentService {
     final DocumentManager documentManager = new DocumentManager();
-    private LanguageClient client;
     private TuriSyntaxErrorReporter errorReporter;
 
-    public void shutdown() {}
-
     public void connect(LanguageClient client) {
-        this.client = client;
         errorReporter = new TuriSyntaxErrorReporter(client, documentManager);
     }
 
@@ -42,10 +43,7 @@ class TuriTextDocumentService implements TextDocumentService {
     @Override
     public void didChange(DidChangeTextDocumentParams params) {
         String uri = params.getTextDocument().getUri();
-        for (TextDocumentContentChangeEvent change : params.getContentChanges()) {
-            // Apply incremental or full changes
-            documentManager.applyChange(uri, change);
-        }
+        params.getContentChanges().forEach(change -> documentManager.applyChange(uri, change));
         errorReporter.analyzeAndReportErrors(uri);
     }
 
@@ -58,8 +56,7 @@ class TuriTextDocumentService implements TextDocumentService {
 
     @Override
     public void didSave(DidSaveTextDocumentParams params) {
-        String uri = params.getTextDocument().getUri();
-        errorReporter.analyzeAndReportErrors(uri);
+        errorReporter.analyzeAndReportErrors(params.getTextDocument().getUri());
     }
 
     @Override
@@ -116,7 +113,12 @@ class TuriTextDocumentService implements TextDocumentService {
     }
 
     /**
-     * Resolve details for function/method completions
+     * Resolves detailed information for a given function completion item.
+     * This method updates the provided {@code CompletionItem} with the function's signature
+     * and documentation, if available. It retrieves the necessary data from the document
+     * source and extracts relevant details utilizing an internal function database.
+     *
+     * @param item the completion item representing a function for which details are to be resolved
      */
     private void resolveFunctionDetails(CompletionItem item) {
         String functionName = item.getLabel();
@@ -144,55 +146,57 @@ class TuriTextDocumentService implements TextDocumentService {
         // Look up variable information
         VariableInfo varInfo = getVariableInfo(varName);
 
-        if (varInfo != null) {
-            // Set type information
-            item.setDetail(varInfo.type);
+        // Set type information
+        item.setDetail(varInfo.type);
 
-            // Set documentation
-            MarkupContent docs = new MarkupContent();
-            docs.setKind(MarkupKind.MARKDOWN);
+        // Set documentation
+        MarkupContent docs = new MarkupContent();
+        docs.setKind(MarkupKind.MARKDOWN);
 
-            StringBuilder docBuilder = new StringBuilder();
-            docBuilder.append("**").append(varName).append("** : `").append(varInfo.type).append("`\n\n");
-            docBuilder.append(varInfo.description);
+        StringBuilder docBuilder = new StringBuilder();
+        docBuilder.append("**").append(varName).append("** : `").append(varInfo.type).append("`\n\n");
+        docBuilder.append(varInfo.description);
 
-            if (varInfo.scope != null) {
-                docBuilder.append("\n\n*Scope: ").append(varInfo.scope).append("*");
-            }
-
-            docs.setValue(docBuilder.toString());
-            item.setDocumentation(docs);
+        if (varInfo.scope != null) {
+            docBuilder.append("\n\n*Scope: ").append(varInfo.scope).append("*");
         }
+
+        docs.setValue(docBuilder.toString());
+        item.setDocumentation(docs);
     }
 
     /**
-     * Resolve details for class/interface completions
+     * Resolves detailed type information for a given completion item.
+     * This method populates the completion item with details such as the type
+     * kind (e.g., class, interface), its description, and a list of methods
+     * if applicable. The type information is retrieved from the internal type
+     * database using the provided type name.
+     *
+     * @param item the completion item whose type-related details are to be resolved
      */
     private void resolveTypeDetails(CompletionItem item) {
         String typeName = item.getLabel();
 
         TypeInfo typeInfo = getTypeInfo(typeName);
 
-        if (typeInfo != null) {
-            item.setDetail(typeInfo.kind + " " + typeName);
+        item.setDetail(typeInfo.kind + " " + typeName);
 
-            MarkupContent docs = new MarkupContent();
-            docs.setKind(MarkupKind.MARKDOWN);
+        MarkupContent docs = new MarkupContent();
+        docs.setKind(MarkupKind.MARKDOWN);
 
-            StringBuilder docBuilder = new StringBuilder();
-            docBuilder.append("**").append(typeInfo.kind).append(" ").append(typeName).append("**\n\n");
-            docBuilder.append(typeInfo.description);
+        StringBuilder docBuilder = new StringBuilder();
+        docBuilder.append("**").append(typeInfo.kind).append(" ").append(typeName).append("**\n\n");
+        docBuilder.append(typeInfo.description);
 
-            if (typeInfo.methods != null && !typeInfo.methods.isEmpty()) {
-                docBuilder.append("\n\n**Methods:**\n");
-                for (String method : typeInfo.methods) {
-                    docBuilder.append("- `").append(method).append("`\n");
-                }
+        if (typeInfo.methods != null && !typeInfo.methods.isEmpty()) {
+            docBuilder.append("\n\n**Methods:**\n");
+            for (String method : typeInfo.methods) {
+                docBuilder.append("- `").append(method).append("`\n");
             }
-
-            docs.setValue(docBuilder.toString());
-            item.setDocumentation(docs);
         }
+
+        docs.setValue(docBuilder.toString());
+        item.setDocumentation(docs);
     }
 
     /**
@@ -224,12 +228,11 @@ class TuriTextDocumentService implements TextDocumentService {
         MarkupContent docs = new MarkupContent();
         docs.setKind(MarkupKind.MARKDOWN);
 
-        StringBuilder docBuilder = new StringBuilder();
-        docBuilder.append("**").append(snippetName).append("** (snippet)\n\n");
-        docBuilder.append("```\n").append(item.getInsertText()).append("\n```\n\n");
-        docBuilder.append("Code snippet that expands to the above template.");
+        String docBuilder = "**" + snippetName + "** (snippet)\n\n" +
+                "```\n" + item.getInsertText() + "\n```\n\n" +
+                "Code snippet that expands to the above template.";
 
-        docs.setValue(docBuilder.toString());
+        docs.setValue(docBuilder);
         item.setDocumentation(docs);
     }
 
@@ -239,17 +242,16 @@ class TuriTextDocumentService implements TextDocumentService {
 
     }
 
-    private static class VariableInfo {
-        String type;
-        String description;
-        String scope;
-
+    private record VariableInfo(
+            String type,
+            String description,
+            String scope) {
     }
 
-    private static class TypeInfo {
-        String kind; // "class", "interface", etc.
-        String description;
-        java.util.List<String> methods;
+    private record TypeInfo(
+            String kind, // "class", "interface", etc.
+            String description,
+            java.util.List<String> methods) {
 
     }
     // Mock data methods - replace these with real data from your language
@@ -258,23 +260,23 @@ class TuriTextDocumentService implements TextDocumentService {
         Map<String, FunctionInfo> functions = new HashMap<>();
         try {
             final var lexer = Lexer.try_analyze(new Input(new StringBuilder(source), ""));
-            Lex prior = null;
+            Lex prior;
             if (lexer.hasNext()) {
                 prior = lexer.next();
-            }
-            while (lexer.hasNext()) {
-                final var lex = lexer.next();
-                if (prior.is("fn") && lex.type() == Lex.Type.IDENTIFIER && lex.text().equals(functionName)) {
-                    FunctionInfo func = new FunctionInfo();
-                    final var sb = new StringBuilder();
-                    while (lexer.hasNext() && lexer.isNot("=", "{")) {
-                        sb.append(lexer.next().text());
+                while (lexer.hasNext()) {
+                    final var lex = lexer.next();
+                    if (prior.is("fn") && lex.type() == Lex.Type.IDENTIFIER && lex.text().equals(functionName)) {
+                        FunctionInfo func = new FunctionInfo();
+                        final var sb = new StringBuilder();
+                        while (lexer.hasNext() && lexer.isNot("=", "{")) {
+                            sb.append(lexer.next().text());
+                        }
+                        func.signature = sb.toString();
+                        functions.put(functionName, func);
+                        break;
                     }
-                    func.signature = sb.toString();
-                    functions.put(functionName, func);
-                    break;
+                    prior = lex;
                 }
-                prior = lex;
             }
         } catch (Exception ignore) {
         }
@@ -286,43 +288,62 @@ class TuriTextDocumentService implements TextDocumentService {
     }
 
     private VariableInfo getVariableInfo(String varName) {
-        // Mock implementation - look up variable from symbol table
-        VariableInfo info = new VariableInfo();
-        info.type = "string"; // Example
-        info.description = "A variable of type string";
-        info.scope = "local";
-        return info;
+        return new VariableInfo("var", "variable", "local");
     }
 
     private TypeInfo getTypeInfo(String typeName) {
-        // Mock implementation - look up type information
-        TypeInfo info = new TypeInfo();
-        info.kind = "class";
-        info.description = "A user-defined class";
-        info.methods = java.util.Arrays.asList("toString()", "equals(obj)");
-        return info;
+        return new TypeInfo("class", "A user-defined class", java.util.Arrays.asList("toString()", "equals(obj)"));
     }
 
     private Map<String, String> getKeywordDocumentation() {
         Map<String, String> docs = new HashMap<>();
-        docs.put("if", "Conditional statement that executes code based on a boolean condition.");
-        docs.put("while", "Loop that continues executing while a condition is true.");
-        docs.put("for", "Loop that iterates over a sequence or range.");
-        docs.put("return", "Returns a value from a function and exits the function.");
+        docs.put(Keywords.AS, "define alias for an expression in a WITH command");
+        docs.put(Keywords.ASYNC, "execute the expression in a separate thread, returning the result asynchronously");
+        docs.put(Keywords.AWAIT, "wait for the result of an asynchronous expression to become available");
+        docs.put(Keywords.BREAK, "break out of a loop");
+        docs.put(Keywords.CATCH, "catch exceptions thrown by an expression");
+        docs.put(Keywords.CLASS, "define a class");
+        docs.put(Keywords.CONTINUE, "continue with the next iteration of a loop");
+        docs.put(Keywords.DIE, "die with an error message");
+        docs.put(Keywords.EACH, "each loop over a list of values");
+        docs.put(Keywords.ELSE, "alternative expression for an if-else statement");
+        docs.put(Keywords.ELSEIF, "elseif alternative expression for an if-else statement");
+        docs.put(Keywords.FINALLY, "finally block for an expression");
+        docs.put(Keywords.FLOW, "flow control statement");
+        docs.put(Keywords.FOR, "for loop over a range of values or conventional old C style loop");
+        docs.put(Keywords.FN, "function declaration");
+        docs.put(Keywords.GLOBAL, "declare a variable to be global");
+        docs.put(Keywords.IF, "conditional statement that executes code based on a boolean condition");
+        docs.put(Keywords.IN, "in operator for containment checks in strings and in lists");
+        docs.put(Keywords.LET, "let variable declaration, immutable");
+        docs.put(Keywords.LIST, "declare that the result of a loop is a list");
+        docs.put(Keywords.MUT, "mut variable declaration, mutable");
+        docs.put(Keywords.OR, "alternative execution of expression and commands");
+        docs.put(Keywords.PIN, "alter a variable to be immutable");
+        docs.put(Keywords.PRINT, "print the value of an expression to the console");
+        docs.put(Keywords.PRINTLN, "println prints the value of an expression to the console followed by a newline");
+        docs.put(Keywords.RETURN, "return from a function");
+        docs.put(Keywords.TRY, "try block for an expression");
+        docs.put(Keywords.UNTIL, "until exit condition at the tail of a loop");
+        docs.put(Keywords.WHEN, "when condition after the command die, return, continue, or break");
+        docs.put(Keywords.WHILE, "while loop over a boolean condition");
+        docs.put(Keywords.WITH, "execute a block with objects or with resources");
+        docs.put(Keywords.YIELD, "yield a value from an asynchronous expression");
+
         return docs;
     }
 
     @Override
     public CompletableFuture<Either<List<CompletionItem>, CompletionList>> completion(CompletionParams params) {
         return CompletableFuture.supplyAsync(() -> {
-            var list = new TuriCompletion(documentManager).completion_synch(params);
-            return Either.<List<CompletionItem>, CompletionList>forLeft(list);
+            var list = new TuriCompletion(documentManager).completion(params);
+            return Either.forLeft(list);
         }, TuriLanguageServer.VIRTUAL_EXECUTOR);
     }
 
     @Override
     public CompletableFuture<Hover> hover(HoverParams params) {
-        return CompletableFutures.computeAsync(TuriLanguageServer.VIRTUAL_EXECUTOR, cancelChecker -> new TuriHover(documentManager, cancelChecker).hover_synch(params));
+        return CompletableFutures.computeAsync(TuriLanguageServer.VIRTUAL_EXECUTOR, cancelChecker -> new TuriHover(documentManager, cancelChecker).hover(params));
     }
 
     @Override
@@ -363,7 +384,7 @@ class TuriTextDocumentService implements TextDocumentService {
 
     @Override
     public CompletableFuture<List<? extends CodeLens>> codeLens(CodeLensParams params) {
-        return CompletableFutures.computeAsync(cancelChecker -> {
+        return CompletableFutures.computeAsync(TuriLanguageServer.VIRTUAL_EXECUTOR, cancelChecker -> {
             final var uri = params.getTextDocument().getUri();
             final var content = documentManager.getContent(uri);
 
@@ -459,7 +480,6 @@ class TuriTextDocumentService implements TextDocumentService {
             final var srcCharacter = params.getPosition().getCharacter();
             // first find the thing that we want to find
             String id = null;
-            Lex prior = null;
             Lex lex = null;
             while (lexes.hasNext()) {
                 lex = lexes.next();
@@ -470,13 +490,11 @@ class TuriTextDocumentService implements TextDocumentService {
                 if (lex.type() == Lex.Type.IDENTIFIER) {
                     id = lex.text();
                 } else {
-                    prior = lex;
                     id = null;
                 }
                 if (srcLine == pos.line - 1 && lex.startPosition().column - 1 <= srcCharacter && srcCharacter <= pos.column + lex.lexeme().length()) {
                     break;
                 }
-                prior = lex;
             }
             if (id != null) {
                 lexes.setIndex(0);
@@ -491,8 +509,7 @@ class TuriTextDocumentService implements TextDocumentService {
                     }
                 }
             }
-            Either<List<? extends Location>, List<? extends LocationLink>> rv = Either.<List<? extends Location>, List<? extends LocationLink>>forLeft(locations);
-            return rv;
+            return Either.forLeft(locations);
         });
     }
 
@@ -584,27 +601,5 @@ class TuriTextDocumentService implements TextDocumentService {
         List<TextEdit> edits = createMinimalEdits(currentContent, formattedContent);
 
         return CompletableFuture.completedFuture(edits);
-    }
-
-    private void sendDiagnostics(TextDocumentItem document) {
-        if (client == null) return;
-
-        List<Diagnostic> diagnostics = new ArrayList<>();
-
-        // Example diagnostic - you'd implement actual analysis here
-        if (document.getText().contains("error")) {
-            Diagnostic diagnostic = new Diagnostic();
-            diagnostic.setRange(new Range(new Position(0, 0), new Position(0, 5)));
-            diagnostic.setSeverity(DiagnosticSeverity.Error);
-            diagnostic.setMessage("Example error found");
-            diagnostic.setSource("my-language-server");
-            diagnostics.add(diagnostic);
-        }
-
-        PublishDiagnosticsParams diagnosticsParams = new PublishDiagnosticsParams();
-        diagnosticsParams.setUri(document.getUri());
-        diagnosticsParams.setDiagnostics(diagnostics);
-
-        client.publishDiagnostics(diagnosticsParams);
     }
 }

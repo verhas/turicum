@@ -1,9 +1,10 @@
-#!/usr/local/bin/turi
 
-mut a = [1,2,3]
-a = a + 4 + 5 + 6
-println a
+fn karo (a,b,c) { println "hi"}
 
+let a=[ 1, 2, 3]
+a=a + 4+ 5+ 6
+println a, karo
+if a > 5:println "yes"
 
 
 

@@ -1,4 +1,5 @@
 counter =1
+counter =2
 Flow '#unnamed' timed out after 10 ms
 Final counter = Flow '#unnamed' timed out after 10 ms
 

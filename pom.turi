@@ -126,7 +126,7 @@ let project = maven_project({
           ..{
               for each m in modules list{
                   {
-                      groupId: "ch.turic",
+                      groupId: groupId,
                       artifactId: m,
                       version: VERSION
                   }

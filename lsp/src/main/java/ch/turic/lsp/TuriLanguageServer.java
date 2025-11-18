@@ -4,13 +4,13 @@ import ch.turic.analyzer.Lexer;
 import org.eclipse.lsp4j.*;
 import org.eclipse.lsp4j.services.*;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.concurrent.*;
 
 // Main Language Server class
 public class TuriLanguageServer implements LanguageServer, LanguageClientAware {
 
-    private LanguageClient client;
     private TuriTextDocumentService textDocumentService;
     private TuriWorkspaceService workspaceService;
     private int errorCode = 1;
@@ -21,8 +21,13 @@ public class TuriLanguageServer implements LanguageServer, LanguageClientAware {
             this.workspaceService = new TuriWorkspaceService();
         }catch (Throwable e) {
             ExceptionXmlWriter.writeToXml(e);
-            System.exit(errorCode);
         }
+    }
+
+    @Override
+    public void initialized(InitializedParams params) {
+        System.err.println("=== Initialized called ===");
+        System.err.flush();
     }
 
     @Override
@@ -54,7 +59,7 @@ public class TuriLanguageServer implements LanguageServer, LanguageClientAware {
         capabilities.setDocumentFormattingProvider(true);
 
         // Diagnostic support (error reporting)
-        capabilities.setDiagnosticProvider(new DiagnosticRegistrationOptions());
+//        capabilities.setDiagnosticProvider(new DiagnosticRegistrationOptions("Turi Di.agnostics"));
 
         // Semantic tokens for better syntax highlighting
         final var semanticTokens = new SemanticTokensWithRegistrationOptions();
@@ -80,6 +85,7 @@ public class TuriLanguageServer implements LanguageServer, LanguageClientAware {
 
     @Override
     public void exit() {
+        System.err.println("=== Turi Language Server Exiting " + OffsetDateTime.now() + " ===");
         System.exit(errorCode);
     }
 
@@ -95,7 +101,6 @@ public class TuriLanguageServer implements LanguageServer, LanguageClientAware {
 
     @Override
     public void connect(LanguageClient client) {
-        this.client = client;
         textDocumentService.connect(client);
     }
 }

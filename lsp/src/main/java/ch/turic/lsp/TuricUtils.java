@@ -6,7 +6,7 @@ import org.eclipse.lsp4j.Position;
 
 public class TuricUtils {
     /**
-     * Extracts a specific fraction of a line from the source a based on the given position.
+     * Extracts a specific fraction of a line from the source based on the given position.
      * The fraction typically corresponds to an identifier or a substring starting from a point
      * in the line to the end of the line.
      *

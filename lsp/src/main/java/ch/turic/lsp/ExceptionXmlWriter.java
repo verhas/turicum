@@ -1,8 +1,5 @@
 package ch.turic.lsp;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.io.PrintWriter;
 
 public class ExceptionXmlWriter {
@@ -13,13 +10,11 @@ public class ExceptionXmlWriter {
      *
      * @param throwable the throwable to serialize
      */
-    public static void writeToXml(Throwable throwable){
+    public static void writeToXml(Throwable throwable) {
         try (PrintWriter writer = new PrintWriter(System.err)) {
-            writer.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-            writer.println("<exception>");
             writeThrowable(writer, throwable, 1);
-            writer.println("</exception>");
         }
+        System.err.flush();
         throw new RuntimeException(throwable);
     }
 
@@ -29,47 +24,30 @@ public class ExceptionXmlWriter {
         }
         String indent = "    ".repeat(indentLevel);
 
-        writer.println(indent + "<throwable>");
-        writer.println(indent + "    <type>" + xmlEscape(t.getClass().getName()) + "</type>");
+        writer.println(indent + t.getClass().getName());
         if (t.getMessage() != null) {
-            writer.println(indent + "    <message>" + xmlEscape(t.getMessage()) + "</message>");
+            writer.println(indent + t.getMessage());
         }
 
         // Stack trace
-        writer.println(indent + "    <stack-trace>");
         for (StackTraceElement ste : t.getStackTrace()) {
-            writer.println(indent + "        <frame>" + xmlEscape(ste.toString()) + "</frame>");
+            writer.println(indent + "        " + ste.toString());
         }
-        writer.println(indent + "    </stack-trace>");
 
         // Suppressed
         Throwable[] suppressed = t.getSuppressed();
         if (suppressed != null && suppressed.length > 0) {
-            writer.println(indent + "    <suppressed>");
+            writer.println(indent + "    suppressed:");
             for (Throwable s : suppressed) {
                 writeThrowable(writer, s, indentLevel + 2);
             }
-            writer.println(indent + "    </suppressed>");
         }
 
         // Cause
         Throwable cause = t.getCause();
         if (cause != null && cause != t) {
-            writer.println(indent + "    <cause>");
+            writer.println(indent + "    cause:");
             writeThrowable(writer, cause, indentLevel + 2);
-            writer.println(indent + "    </cause>");
         }
-
-        writer.println(indent + "</throwable>");
-    }
-
-    private static String xmlEscape(String text) {
-        if (text == null) return "";
-        return text
-                .replace("&", "&amp;")
-                .replace("<", "&lt;")
-                .replace(">", "&gt;")
-                .replace("\"", "&quot;")
-                .replace("'", "&apos;");
     }
 }

@@ -1,11 +1,13 @@
 package ch.turic.lsp;
 
-import ch.turic.exceptions.BadSyntax;
 import ch.turic.Interpreter;
+import ch.turic.exceptions.BadSyntax;
 import org.eclipse.lsp4j.*;
 import org.eclipse.lsp4j.services.LanguageClient;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class TuriSyntaxErrorReporter {
     private final LanguageClient client;
@@ -25,8 +27,7 @@ public class TuriSyntaxErrorReporter {
             return;
         }
 
-        List<Diagnostic> diagnostics = syntaxAnalysis(content);
-        publishDiagnostics(uri, diagnostics);
+        publishDiagnostics(uri, syntaxAnalysis(content, uri));
     }
 
     /**
@@ -46,49 +47,70 @@ public class TuriSyntaxErrorReporter {
         publishDiagnostics(uri, Collections.emptyList());
     }
 
-    private List<Diagnostic> syntaxAnalysis(String content) {
-        List<Diagnostic> diagnostics = new ArrayList<>();
-        try {
-            // <editor-fold>
-            Interpreter interpreter = new Interpreter(content);
+    /**
+     * Analyzes a given content string for syntax errors and returns a list of diagnostics
+     * representing the errors found during the analysis.
+     *
+     * @param content The content to analyze for syntax errors.
+     * @param uri     The URI of the document being analyzed, used for context and error reporting.
+     * @return A list of {@code Diagnostic} objects representing the syntax errors found in the content.
+     * If no syntax errors are found, an empty list is returned.
+     */
+    private List<Diagnostic> syntaxAnalysis(String content, String uri) {
+        final var diagnostics = new ArrayList<Diagnostic>();
+        try (Interpreter interpreter = new Interpreter(ch.turic.Input.fromString(content, uri))) {
             interpreter.compile();
-            // </editor-fold>
         } catch (BadSyntax bs) {
-            final var line = bs.getPosition().line;
-            final var column = bs.getPosition().column;
-            int i = bs.getMessage().indexOf("\n");
-            if (i == -1) {
-                i = bs.getMessage().length();
-            }
-            diagnostics.add(createDiagnostic(
-                    line - 1, column, column + 2,
-                    bs.getMessage().substring(0, i),
-                    DiagnosticSeverity.Error
-            ));
+            final var pos = bs.getPosition();
+            final var msg = getTheFirstLineOfTheExceptionMessage(bs);
+            diagnostics.add(
+                    createDiagnostic(pos.line - 1, pos.column, pos.column + 2, msg)
+            );
         } catch (Exception e) {
-            diagnostics.add(createDiagnostic(
-                    1, 0, 2,
-                    e.getMessage(),
-                    DiagnosticSeverity.Error
-            ));
+            diagnostics.add(
+                    createDiagnostic(1, 0, 2, e.getMessage())
+            );
         }
 
         return diagnostics;
     }
 
+    /**
+     * Extracts the first line of the message from an {@code Exception} exception.
+     *
+     * @param bs The {@code BadSyntax} exception containing the message.
+     * @return The first line of the exception message. If the message contains no newline characters,
+     * the entire message is returned.
+     */
+    private static String getTheFirstLineOfTheExceptionMessage(Exception bs) {
+        final var msg = bs.getMessage();
+        int i = msg.indexOf("\n");
+        if (i == -1) {
+            i = msg.length();
+        }
+        return msg.substring(0, i);
+    }
+
 
     /**
-     * Helper method to create a diagnostic
+     * Creates a diagnostic object that represents a syntax-related issue in a document.
+     *
+     * @param line     The line number where the diagnostic should be reported (0-based index).
+     * @param startCol The start column of the error within the specified line (0-based index).
+     * @param endCol   The end column of the error within the specified line (0-based index).
+     * @param message  A descriptive message explaining the diagnostic.
+     * @return A {@code Diagnostic} object containing details of the issue including its location,
+     * message, severity, and source information.
      */
     private Diagnostic createDiagnostic(int line, int startCol, int endCol,
-                                        String message, DiagnosticSeverity severity) {
+                                        String message) {
         Diagnostic diagnostic = new Diagnostic();
         diagnostic.setRange(new Range(
                 new Position(line, startCol),
                 new Position(line, endCol)
         ));
         diagnostic.setMessage(message);
-        diagnostic.setSeverity(severity);
+        diagnostic.setSeverity(DiagnosticSeverity.Error);
         diagnostic.setSource("syntax-checker");
         return diagnostic;
     }

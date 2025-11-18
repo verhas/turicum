@@ -7,7 +7,11 @@ import org.eclipse.lsp4j.services.WorkspaceService;
 
 import java.util.concurrent.CompletableFuture;
 
-// Workspace Service - handles workspace-related operations
+/**
+ * TuriWorkspaceService is a concrete implementation of the WorkspaceService interface.
+ * This service handles workspace-related functionalities such as executing commands,
+ * responding to configuration changes, and monitoring changes in watched files.
+ */
 class TuriWorkspaceService implements WorkspaceService {
 
     @Override
@@ -24,9 +28,5 @@ class TuriWorkspaceService implements WorkspaceService {
     @Override
     public void didChangeWatchedFiles(DidChangeWatchedFilesParams params) {
         System.out.println("Watched files changed");
-    }
-
-    public void shutdown(){
-
     }
 }

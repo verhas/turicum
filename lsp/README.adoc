@@ -14,12 +14,12 @@ It means that when you install it with your editor supporting LSP, you can easil
 * see when there is a syntax error in the code while you edit, and
 * you can use the editor to jump to the definition of functions, closures, and variables.
 
-NOTE: Due to the dynamic nature of the language, some of the features, like jumping to the definition, are heuristic.
+NOTE: Due to the dynamic nature of the language, some features, such as jumping to the definition, are heuristic.
 
 The actual use of the LSP after it is installed and configured is straightforward.
 You will use the functions of your IDE as you do for other languages.
 
-The installation may be different for different editors.
+The installation process may vary depending on the editor.
 In this document, we will describe how to install it for IntelliJ.
 VSCode supports LSP out of the box, but we have no local knowledge of how to configure it.
 
@@ -29,7 +29,7 @@ After installing it, you will have an executable version that will contain all t
 If you have Java installed on your system, it is recommended that you use the `pass:[*-shaded.jar]` file.
 It contains all the dependent libraries that the LSP needs.
 
-NOTE: The LSP was developed using the Eclipse LSP library.
+NOTE: The Language Server Processor was developed using the Eclipse LSP library.
 
 == Installation IntelliJ
 
@@ -51,8 +51,8 @@ The start command is
 
 You have to add it to the `Command` under the `Server` tab.
 
-Here, the `<<full-path-to>>` is the directory where you downloaded the LSP server file.
-You may need to use the actual version in place of the `pass:[<<version>>]`,
+Here, the ``<<````full-path-to````>>`` is the directory where you downloaded the LSP server file.
+You may need to use the actual version in place of the ``<<````version````>>``,
 or you can use a literal `pass:[*]` character if you have only one version in the specified directory.
 (UNIX only)
 
@@ -60,9 +60,10 @@ On the `Mappings` tab, add `*.turi` with the language ID `Turicum`.
 
 After finishing the configuration, you can open any file with the file extension `*.turi` and edit with LSP support.
 
+[[AlternativeStartCommands]]
 === Alternative Start Commands
 
-The LSP server writes reports and errors to the standard error of the process.
+The LSP server writes reports and errors to the standard error output of the process.
 Since IntelliJ starts the process, this output is not visible by default.
 You can, however, redirect this output on UNIX if you use the command line:
 
@@ -76,22 +77,29 @@ to the end of the command line.
 You can use any file instead of `lsp_err.txt` and `lsp_out.txt`.
 It is recommended to use a full absolute path to the file.
 
-= Configuring Formatting
+Redirecting the standard output to a file may impact the processor's performance.
 
-The built-in formatting does not change the line breaks.
-The formatting it does is:
+== Configuring Formatting
 
-* adding tabulation to the lines
+The built-in formatting engine will not insert or delete line breaks.
+It focuses on tabulating the code and adding `*` characters to documentation comments.
+
+The formatting:
+
+* adds tabulation to the lines (in the form of spaces)
 * add `pass:[*]` character to documentation comment lines, if missing
 * adds and removes spaces.
 
 The number of spaces to be used between different tokens is driven by a built-in rule table.
-You can override the rule table with `.turicum/formatter/rules.turi` in the
+You can override the rule table by providing a Turicum program named `rules.turi` in the directory `.turicum/formatter`.
+This subdirectory and file should be in the
 
-* current working directory, or
+* current working directory, or if it is not there, then
 * the current user's home directory (a.k.a. `~/.turicum/formatter/rules.turi`)
 
-The rule file is a Turicum program that should result in a list of lists.
+If neither of those exists, the built-in formatting rules are used.
+
+The rule file is a Turicum program resulting in a list of lists.
 Each list in the result list is a rule, containing five elements:
 
 . The first token's type, or `none`.
@@ -100,50 +108,72 @@ Each list in the result list is a rule, containing five elements:
 . The second token's literal, or `none`.
 . The number of spaces to be used between the two tokens.
 
+
+[source]
+----
+   [ TYPE1, "literal1", TYPE2, "literal2", N_spces ]
+----
+
+This rule says that
+
+* __AFTER__ a token that has the type `TYPE1` and is literally `"literal1"`, and
+* __BEFORE__ a token that has the type `TYPE2` and is literally `"literal2"`,
+* __USE__ exactly `N_spaces` space characters.
+
 If a type or literal is not specified (it is `none`), it is ignored by the rule.
 For example, rule
 
   [none, none, none, ",", 0 ]
 
-matches two tokens if the second token is a comma, and it instructs the formatted not to put any spaces between the two tokens.
+Says that after __ANY__ token followed by a comma __USE__ zero spaces.
+This rule will remove any space before a `,` character in the source code (except in strings and comments).
 
-If you system import the library:
+You will write these rules in a readable manner using helper functions to avoid the repetitive listing of ``none``s.
+
+To write the formatting rule file it is recommended to `sys_import` the library:
 
     sys_import turi.formatter_rules;
 
-You will get the symbolic names:
+With this library you will get symbolic names, and helper functions.
+The token type symbolic names are :
 
-* `CHARACTER`
 * `IDENTIFIER`
 * `RESERVED`
 * `STRING`
 * `INTEGER`
 * `FLOAT`
 * `COMMENT`
-* `SPACES`
+* `CHARACTER`^*^
+* `SPACES`^*^
 
 for the token types.
 
+.Note on the types ^*^ `CHARACTER` and `SPACES`
 [NOTE]
 ====
-`CHARACTER` and `SPACES` are special token names and will never appear in the tokenized version of a Turicum program.
+These two are special token types and will never appear in the tokenized version of a correct Turicum program.
 The lexical analyzer creates a `CHARACTER` token when it sees a single character that is not supposed to appear in the code.
 You can specify rules for it, and it will be applied when such a character appears in the source.
 Note, however, that such a source will also be erroneous.
 
-`SPACES` is used by the LSP formatter internally only, and it skips them.
+`SPACES` is used by the Language Server Processor formatter internally only, and it skips them.
 Such a token rule will not match any token pairs.
 ====
 
-The library also defines three functions:
+The library also defines three functions, you can use to define the individual rules:
 
-* `before(t,N)`
-* `after(t,N)`, and
-* `between(t1,t2,N)`
+* `before(t,N)` to require `N` spaces before any `t`
+* `after(t,N)`, to require `N` spaces after any `t`
+* `between(t1,t2,N)` to require `N` after a `t1` and before a `t2`.
 
-where `t`, `t1`, and `t2` are either a symbolic name for a token type or a string.
-A sample `rules.turi` file, which is more or less follows the built-in formatting rules, is:
+`t`, `t1`, and `t2` are either a symbolic name for a token type or a string.
+Token types are the ones defined and listed above.
 
+The rules in the list are applied from the start towards the end of the list for every two consecutive tokens.
+The parsing of the rules stops when a rule matches the two tokens currently processed.
+If there is no rule matching the currently processed tokens, then the formatter will not put any spaces between the two tokens.
+
+A sample `rules.turi` file, which more or less follows the built-in formatting rules, is the following:
 
 .sample rules file
 [source]
@@ -204,3 +234,7 @@ sys_import turi.formatter_rules;
     after( RESERVED, 1 )
 ];
 ----
+
+When the formatter is started, it reads the file.
+If there is an error in the file, some rules are not properly formatted it will write an error to the error output.
+How to redirect the error output to a file, see the section <<AlternativeStartCommands>>.
