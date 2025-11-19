@@ -90,7 +90,7 @@ The formatting:
 * add `pass:[*]` character to documentation comment lines, if missing
 * adds and removes spaces.
 
-The number of spaces to be used between different tokens is driven by a built-in rule table.
+A built-in rule table determines the number of spaces between tokens.
 You can override the rule table by providing a Turicum program named `rules.turi` in the directory `.turicum/formatter`.
 This subdirectory and file should be in the
 
@@ -98,6 +98,7 @@ This subdirectory and file should be in the
 * the current user's home directory (a.k.a. `~/.turicum/formatter/rules.turi`)
 
 If neither of those exists, the built-in formatting rules are used.
+These built-in formatting rules are defined in the project resources.
 
 The rule file is a Turicum program resulting in a list of lists.
 Each list in the result list is a rule, containing five elements:
@@ -138,26 +139,33 @@ With this library you will get symbolic names, and helper functions.
 The token type symbolic names are :
 
 * `IDENTIFIER`
-* `RESERVED`
+* `RESERVED` will match non-keyword symbols
 * `STRING`
 * `INTEGER`
 * `FLOAT`
 * `COMMENT`
 * `CHARACTER`^*^
 * `SPACES`^*^
+* `KEYWORD`^*^ will match keywords
 
 for the token types.
 
-.Note on the types ^*^ `CHARACTER` and `SPACES`
+.Note on the types ^*^ `CHARACTER`, `SPACES`, and `KEYWORD`
 [NOTE]
 ====
-These two are special token types and will never appear in the tokenized version of a correct Turicum program.
+These three are special token types and will never appear in the tokenized version of a correct Turicum program.
+
 The lexical analyzer creates a `CHARACTER` token when it sees a single character that is not supposed to appear in the code.
 You can specify rules for it, and it will be applied when such a character appears in the source.
 Note, however, that such a source will also be erroneous.
 
-`SPACES` is used by the Language Server Processor formatter internally only, and it skips them.
+`SPACES` is used internally by the Language Server Processor formatter, and it skips them.
 Such a token rule will not match any token pairs.
+
+`KEYWORD` will match any token of the type `RESERVED` when it is a keyword, like `with`, `if`, and so on.
+`RESERVED`, on the other hand, will match a token only when it is `RESERVED` and not a keyword, like `===`, `:`, and so on.
+The lexical analyser sets the type of a token representing a keyword or a symbol to `RESERVED` and it does not uses the type `KEYWORD`.
+It is used only by the formatter to ease formatting rule maintenance.
 ====
 
 The library also defines three functions, you can use to define the individual rules:
@@ -170,71 +178,90 @@ The library also defines three functions, you can use to define the individual r
 Token types are the ones defined and listed above.
 
 The rules in the list are applied from the start towards the end of the list for every two consecutive tokens.
-The parsing of the rules stops when a rule matches the two tokens currently processed.
+Parsing stops when a rule matches the two tokens currently being processed.
 If there is no rule matching the currently processed tokens, then the formatter will not put any spaces between the two tokens.
 
-A sample `rules.turi` file, which more or less follows the built-in formatting rules, is the following:
+The default rule files used when there is no local formatting rules defined is the following:
 
-.sample rules file
+.default rules file
 [source]
 ----
 sys_import turi.formatter_rules;
 
 [
-    before( ",", 0 ),
-    between( STRING, ",", 0 ),
-    between( "]", ",", 0 ),
-    between( ":", "[", 1 ),
-    between( ")", ",", 0 ),
-    between( ")", "{", 0 ),
-    between( "if", "(", 0 ),
-    after( CHARACTER, 0 ),
-    after( SPACES, 0 ),
-    after( COMMENT, 0 ),
-    between( STRING, ":", 0 ),
-    after( STRING, 1 ),
-    between( IDENTIFIER, "=", 0 ),
-    between( IDENTIFIER, "(", 0 ),
-    between( IDENTIFIER, ":", 0 ),
-    between( IDENTIFIER, ",", 0 ),
-    between( IDENTIFIER, ".", 0 ),
-    between( IDENTIFIER, ";", 0 ),
-    after( IDENTIFIER, 1 ),
-    before( ")", 1 ),
-    before( ";", 0 ),
-    after( "&&", 1 ),
-    after( "||", 1 ),
-    after( "===", 1 ),
-    after( "==", 1 ),
-    after( "!=", 1 ),
-    after( ">=", 1 ),
-    after( "<=", 1 ),
-    after( ">", 1 ),
-    after( "<", 1 ),
-    after( "=", 0 ),
-    after( "##", 1 ),
-    after( "->", 1 ),
-    between( ".", IDENTIFIER, 0 ),
-    between( ",", INTEGER, 1 ),
-    between( ",", FLOAT, 1 ),
-    between( ",", CHARACTER, 1 ),
-    between( ",", IDENTIFIER, 1 ),
-    between( ",", STRING, 1 ),
-    between( ",", COMMENT, 1 ),
-    after( ",", 0 ),
-    between( ":", INTEGER, 1 ),
-    between( ":", FLOAT, 1 ),
-    between( ":", CHARACTER, 1 ),
-    between( ":", IDENTIFIER, 1 ),
-    between( ":", STRING, 1 ),
-    between( ":", COMMENT, 1 ),
-    between( ":", IDENTIFIER, 1 ),
-    after( ":", 0 ),
-    after( ";", 1 ),
-    after( RESERVED, 1 )
+            between(INTEGER, KEYWORD, 1),
+            between(FLOAT, KEYWORD, 1),
+            between(STRING, KEYWORD, 1),
+            between(KEYWORD, INTEGER, 1),
+            between(KEYWORD, FLOAT, 1),
+            between(KEYWORD, STRING, 1),
+            between(INTEGER, RESERVED, 1),
+            between(FLOAT, RESERVED, 1),
+            between(STRING, RESERVED, 1),
+            between(RESERVED, INTEGER, 1),
+            between(RESERVED, FLOAT, 1),
+            between(RESERVED, STRING, 1),
+            between(KEYWORD, "[", 1),
+            between("[", INTEGER, 0),
+            between("[", FLOAT, 0),
+            between("[", STRING, 0),
+            between(STRING, ",", 0),
+            between("]", ",", 0),
+            between(":", "[", 1),
+            between(")", ",", 0),
+            between(")", "{", 0),
+            between("if", "(", 0),
+            after(CHARACTER, 0),
+            after(SPACES, 0),
+            after(COMMENT, 0),
+            between(STRING, ":", 0),
+            after(STRING, 1),
+            between(IDENTIFIER, "=", 0),
+            between(IDENTIFIER, "(", 0),
+            between(IDENTIFIER, ":", 0),
+            between(IDENTIFIER, ",", 0),
+            between(IDENTIFIER, ".", 0),
+            between(IDENTIFIER, ";", 0),
+            after(IDENTIFIER, 1),
+            before(")", 1),
+            before(";", 0),
+            after("&&", 1),
+            after("||", 1),
+            after("===", 1),
+            after("!==", 1),
+            after("==", 1),
+            after("!=", 1),
+            after(">=", 1),
+            after("<=", 1),
+            after(">", 1),
+            after("<", 1),
+            after("=", 0),
+            after("##", 1),
+            after("->", 1),
+            between(".", IDENTIFIER, 0),
+            between(",", INTEGER, 1),
+            between(",", FLOAT, 1),
+            between(",", CHARACTER, 1),
+            between(",", IDENTIFIER, 1),
+            between(",", STRING, 1),
+            between(",", COMMENT, 1),
+            after(",", 0),
+            between(":", INTEGER, 1),
+            between(":", FLOAT, 1),
+            between(":", CHARACTER, 1),
+            between(":", IDENTIFIER, 1),
+            between(":", STRING, 1),
+            between(":", COMMENT, 1),
+            between(":", IDENTIFIER, 1),
+            after(":", 0),
+            after(";", 1),
+            after(RESERVED, 1)
 ];
+
+
+
 ----
 
 When the formatter is started, it reads the file.
-If there is an error in the file, some rules are not properly formatted it will write an error to the error output.
+If there is an error in the file, some rules are not correctly formatted, it will write an error to the error output.
 How to redirect the error output to a file, see the section <<AlternativeStartCommands>>.

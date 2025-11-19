@@ -2,7 +2,6 @@ package ch.turic.lsp;
 
 import ch.turic.Input;
 import ch.turic.Interpreter;
-import ch.turic.analyzer.Keywords;
 import ch.turic.analyzer.Lex;
 import ch.turic.analyzer.LexList;
 import ch.turic.analyzer.Lexer;
@@ -11,14 +10,20 @@ import ch.turic.exceptions.ExecutionException;
 import ch.turic.memory.LngList;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 public class TuriFormatter {
 
     private static final Pattern SWITCH = Pattern.compile("//\\s*format:(on|off)");
+    private static final String CONFIGURATION_DIRECTORY = ".turicum";
+    private static final String FORMATTER_SUBDIR = "formatter";
+    private static final String RULES_FILE_NAME = "rules.turi";
+    private static final String RULES_RESOURCE = CONFIGURATION_DIRECTORY + "/" + FORMATTER_SUBDIR + "/" + RULES_FILE_NAME;
+    private static final String INDENT_UNIT = "    ";
 
     public static String formatDocument(String content) {
         try {
@@ -49,8 +54,8 @@ public class TuriFormatter {
                 formattingIsOn = formatSwitch.group(1).equals("on");
             }
             index = lineIndex(lexes, i, index);
-            boolean inString = isInString(lexes, i, index);
-            boolean inComment = !inString && isInComment(lexes, i, index);
+            final var inString = isInString(lexes, i, index);
+            final var inComment = !inString && isInComment(lexes, i, index);
 
             final var newIndentLevel = calculateIndentLevel(lexes, i, indentLevel, index);
             // when we are stepping back with a closing '}', we already put that on the previous indent level
@@ -59,12 +64,12 @@ public class TuriFormatter {
             }
 
             if (formattingIsOn) {
-                var formattedLine = (inString ? "" : "    ".repeat(indentLevel + colonLevel))
-                        + formatLine(inString, inComment, line, lexes, index, i);
+                colonLevel = !inComment && lastNonSpaceChar(line) == ':' ? colonLevel + 1 : 0;
 
-                colonLevel = lastNonSpaceChar(line) == ':' && !inComment ? colonLevel + 1 : 0;
-
-                result.append(formattedLine);
+                if (!inString) {
+                    result.append(INDENT_UNIT.repeat(indentLevel + colonLevel));
+                }
+                result.append(formatLine(inString, inComment, line, lexes, index, i));
             } else {
                 result.append(line);
             }
@@ -79,7 +84,7 @@ public class TuriFormatter {
 
     /**
      * Returns the index of the lexical element that is the last lexical element BEFORE the specified line number.
-     * Since the code starts at index zero and steps only forward the argument 'index' returned from the last call
+     * Since the code starts at index zero and steps only forward, the argument 'index' returned from the last call
      * is used to continue the search.
      * This parameter is zero on the first call.
      *
@@ -278,173 +283,195 @@ public class TuriFormatter {
         return lex;
     }
 
-    private static class Rule {
-        Lex.Type typeBefore;
-        Lex.Type typeAfter;
-        String symbolBefore;
-        String symbolAfter;
-        int spaces;
-
-        private Rule(Lex.Type typeBefore, Lex.Type typeAfter, String symbolBefore, String symbolAfter, int spaces) {
-            this.typeBefore = typeBefore;
-            this.typeAfter = typeAfter;
-            this.symbolBefore = symbolBefore;
-            this.symbolAfter = symbolAfter;
-            this.spaces = spaces;
-        }
-
+    private record Rule(
+            Lex.Type typeBefore,
+            Lex.Type typeAfter,
+            String symbolBefore,
+            String symbolAfter,
+            int spaces) {
 
         boolean match(Lex lex, Lex next) {
-            if (typeBefore != null && lex.type() != null) {
-                if (lex.type() != typeBefore) return false;
-            }
-            if (typeAfter != null && next != null && next.type() != null) {
-                if (next.type() != typeAfter) return false;
-            }
-            if (symbolBefore != null && lex.lexeme() != null) {
-                if (!symbolBefore.equals(lex.lexeme())) return false;
-            }
-            if (symbolAfter != null && next != null && next.lexeme() != null) {
-                return symbolAfter.equals(next.lexeme());
-            }
-            return true;
+            return matchType(lex, typeBefore) &&
+                    matchType(next, typeAfter) &&
+                    matchText(lex, symbolBefore) &&
+                    matchText(next, symbolAfter);
         }
-    }
 
-    static Rule after(String symbol1, int spaces) {
-        return new Rule(null, null, symbol1, null, spaces);
-    }
+        /**
+         * Checks whether the lexeme of the given Lex object matches the specified text.
+         * If either the given text or the lexeme in the Lex object is null, the method
+         * returns true, signifying a match.
+         *
+         * @param lex  the Lex object whose lexeme is to be compared; must not be null
+         * @param text the text to compare against the lexeme; can be null
+         * @return true if the text and lexeme are equal, or if either is null; false otherwise
+         */
+        private boolean matchText(Lex lex, String text) {
+            if (text == null) return true;
+            if (lex.lexeme() == null) return true;
+            return lex.lexeme().equals(text);
+        }
 
-    static Rule after(Lex.Type type1, int spaces) {
-        return new Rule(type1, null, null, null, spaces);
-    }
-
-    static Rule between(String symbol1, Lex.Type type2, int spaces) {
-        return new Rule(null, type2, symbol1, null, spaces);
-    }
-
-    static Rule between(Lex.Type type1, String symbol2) {
-        return new Rule(type1, null, null, symbol2, 0);
-    }
-
-    static Rule between(String symbol1, String symbol2, int spaces) {
-        return new Rule(null, null, symbol1, symbol2, spaces);
-    }
-
-    static Rule before(String symbol2, int spaces) {
-        return new Rule(null, null, null, symbol2, spaces);
+        /**
+         * Checks whether the type of the given Lex object matches the specified type.
+         * If either the specified type or the Lex object's type is null, the method
+         * returns true, signifying a match.
+         *
+         * @param lex  the Lex object whose type is to be compared; must not be null
+         * @param type the type to compare against the Lex object's type; can be null
+         * @return true if the types match, or if either is null; false otherwise
+         */
+        private boolean matchType(Lex lex, Lex.Type type) {
+            // if there is no type defined, it matches
+            if (type == null) return true;
+            if (lex.type() == null) return true;
+            return switch (type) {
+                case KEYWORD -> lex.type() == Lex.Type.RESERVED && Character.isAlphabetic(lex.text().charAt(0));
+                case RESERVED -> lex.type() == Lex.Type.RESERVED && !Character.isAlphabetic(lex.text().charAt(0));
+                case IDENTIFIER -> lex.type() == Lex.Type.IDENTIFIER;
+                case INTEGER -> lex.type() == Lex.Type.INTEGER;
+                case STRING -> lex.type() == Lex.Type.STRING;
+                case FLOAT -> lex.type() == Lex.Type.FLOAT;
+                case COMMENT -> lex.type() == Lex.Type.COMMENT;
+                case CHARACTER -> lex.type() == Lex.Type.CHARACTER;
+                case SPACES -> lex.type() == Lex.Type.SPACES;
+            };
+        }
     }
 
     /**
-     * Hardwired rules that can be overridden by the rule files.
+     * An array of rules used to define formatting specifications.
+     * The rules in this array specify how lexical elements should be formatted,
+     * including the spacing.
+     * <p>
+     * These rules are applied throughout the formatting process to ensure consistent
+     * structure and readability of the formatted content. The rules can be loaded
+     * from an external configuration file or resource.
+     * <p>
+     * There are no built-in rules. Rules are defined using a simple Turicum program.
+     * It can be placed under the local directory or in the user's home directory under
+     * {@code .turicum/formatter/rules.turi}. If none of these two are defined then the
+     * rules file supplied in the LSP JAR is used.
      */
-    private static Rule[] rules = {
-            between(Lex.Type.STRING, ","),
-            between("]", ",", 0),
-            between(":", "[", 1),
-            between(")", ",", 0),
-            between(")", "{", 0),
-            between(Keywords.IF, "(", 0),
-            after(Lex.Type.CHARACTER, 0),
-            after(Lex.Type.SPACES, 0),
-            after(Lex.Type.COMMENT, 0),
-            between(Lex.Type.STRING, ":"),
-            after(Lex.Type.STRING, 1),
-            between(Lex.Type.IDENTIFIER, "="),
-            between(Lex.Type.IDENTIFIER, "("),
-            between(Lex.Type.IDENTIFIER, ":"),
-            between(Lex.Type.IDENTIFIER, ","),
-            between(Lex.Type.IDENTIFIER, "."),
-            between(Lex.Type.IDENTIFIER, ";"),
-            after(Lex.Type.IDENTIFIER, 1),
-            before(")", 1),
-            before(";", 0),
-            after("&&", 1),
-            after("||", 1),
-            after("===", 1),
-            after("==", 1),
-            after("!=", 1),
-            after(">=", 1),
-            after("<=", 1),
-            after(">", 1),
-            after("<", 1),
-            after("=", 0),
-            after("##", 1),
-            after("->", 1),
-            between(".", Lex.Type.IDENTIFIER, 0),
-            between(",", Lex.Type.INTEGER, 1),
-            between(",", Lex.Type.FLOAT, 1),
-            between(",", Lex.Type.CHARACTER, 1),
-            between(",", Lex.Type.IDENTIFIER, 1),
-            between(",", Lex.Type.STRING, 1),
-            between(",", Lex.Type.COMMENT, 1),
-            after(",", 0),
-            between(":", Lex.Type.INTEGER, 1),
-            between(":", Lex.Type.FLOAT, 1),
-            between(":", Lex.Type.CHARACTER, 1),
-            between(":", Lex.Type.IDENTIFIER, 1),
-            between(":", Lex.Type.STRING, 1),
-            between(":", Lex.Type.COMMENT, 1),
-            between(":", Lex.Type.IDENTIFIER, 1),
-            after(":", 0),
-            after(";", 1),
-            after(Lex.Type.RESERVED, 1),
-    };
+    private static final Rule[] rules = loadRulesFromFileSystem();
 
-    static {
-        final var userHome = System.getProperty("user.home");
-        final var globalRules = Path.of(userHome, ".turicum", "formatter", "rules.turi");
-        final var localRules = Path.of(".", ".turicum", "formatter", "rules.turi");
-        final Path rulesPath = localRules.toFile().exists() ? localRules : globalRules.toFile().exists() ? globalRules : null;
-        if (rulesPath == null) {
-            System.err.println("No rules file found. Using default rules.");
-        } else {
-            System.err.println("Rules are to be loaded from " + rulesPath);
-            FILL_IN_RULES:
-            try {
-                final var rulesTuriSource = Files.readString(rulesPath);
-                try (final var interpreter = new Interpreter(rulesTuriSource)) {
-                    final var ruleTable = interpreter.compileAndExecute();
-                    if (ruleTable instanceof LngList ruleList) {
-                        final var loadedRules = new Rule[(int) ruleList.size()];
-                        for (int i = 0; i < loadedRules.length; i++) {
-                            if (ruleList.array.get(i) instanceof LngList rule) {
-                                try {
-                                    final var type1 = (Lex.Type) rule.array.get(0);
-                                    final var symbol1 = (String) rule.array.get(1);
-                                    final var type2 = (Lex.Type) rule.array.get(2);
-                                    final var symbol2 = (String) rule.array.get(3);
-                                    final var spaces = (int)(long) rule.array.get(4);
-                                    loadedRules[i] = new Rule(type1, type2, symbol1, symbol2, spaces);
-                                } catch (ClassCastException e) {
-                                    System.err.println("Invalid rule in rules file: " + e.getMessage());
-                                    System.err.println("Rule is " + rule);
-                                    System.err.println("0: "+rule.array.get(0));
-                                    System.err.println("1: "+rule.array.get(1));
-                                    System.err.println("2: "+rule.array.get(2));
-                                    System.err.println("3: "+rule.array.get(3));
-                                    System.err.println("4: "+rule.array.get(4));
-                                    System.err.println("Rule list is " + ruleList.array);
-                                    System.err.println("Rule list index is " + i);
-                                    break FILL_IN_RULES;
-                                }
-                            } else {
-                                System.err.println("Rule line is not an aray.");
-                                System.err.println("Rule is " + ruleList.array + "[" + i + "]");
-                                break FILL_IN_RULES;
-                            }
-                        }
-                        // if it was filled successfully, overwrite the current rules with the loaded ones
-                        System.err.println("Loaded " + loadedRules.length + " rules from " + rulesPath);
-                        rules = loadedRules;
-                    }
-                } catch (BadSyntax | ExecutionException i) {
-                    ExceptionXmlWriter.writeToXml(i);
+
+    /**
+     * Loads formatting rules for the application from the file system or bundled resources.
+     * <p>
+     * This method attempts to load rules from an external file specified by the path
+     * resolved via the `getRulesPath` method. If a valid path is not found or the file cannot
+     * be accessed, it falls back to loading a default set of rules embedded within the
+     * application's resources.
+     * <p>
+     * Behavior:
+     * - If a file path is resolved:
+     * - Attempts to read the file content.
+     * - Calls `loadRulesFile` to process the file.
+     * - Handles potential `IOException` during file reading and logs the exception.
+     * - If no valid file path is resolved:
+     * - Attempts to load rules from a bundled resource stream.
+     * - Calls `loadRulesFile` to process the resource content.
+     * - Logs an error and terminates the application if the resource cannot be accessed.
+     * - Logs progress and errors to the standard error stream.
+     * <p>
+     * Dependencies:
+     * - Uses the `getRulesPath` method to determine the rules file location.
+     * - Processes the rules using the `loadRulesFile` method.
+     * <p>
+     * This method is critical for initializing the application's rule set, either from an
+     * external configuration or embedded defaults.
+     */
+    private static Rule[] loadRulesFromFileSystem() {
+        System.err.println("Loading default rules.");
+        final Optional<Path> rulesPath = getRulesPath();
+        if (rulesPath.isEmpty()) {
+            try (final var is = TuriFormatter.class.getClassLoader().getResourceAsStream(RULES_RESOURCE)) {
+                if (is != null) {
+                    final String rulesTuriSource = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+                    return loadRulesFile(rulesTuriSource, "resource(" + RULES_RESOURCE + ")");
+                } else {
+                    System.err.println("Error loading default rules from resource.");
+                    return null;
                 }
+            } catch (IOException e) {
+                System.err.println("Error loading default rules from resources.");
+                ExceptionXmlWriter.writeToXml(e);
+                return null;
+            }
+        } else {
+            System.err.println("Rules are to be loaded from " + rulesPath.get());
+            final String rulesTuriSource;
+            try {
+                rulesTuriSource = Files.readString(rulesPath.get());
+                return loadRulesFile(rulesTuriSource, rulesPath.get().toString());
             } catch (IOException g) {
                 ExceptionXmlWriter.writeToXml(g);
+                return null;
             }
         }
+    }
+
+    private static Rule[] loadRulesFile(String rulesTuriSource, String rulesPath) {
+        try {
+            try (final var interpreter = new Interpreter(rulesTuriSource)) {
+                final var ruleTable = interpreter.compileAndExecute();
+                if (ruleTable instanceof LngList ruleList) {
+                    final var loadedRules = new Rule[(int) ruleList.size()];
+                    for (int i = 0; i < loadedRules.length; i++) {
+                        if (ruleList.array.get(i) instanceof LngList rule) {
+                            try {
+                                final var type1 = (Lex.Type) rule.array.get(0);
+                                final var symbol1 = (String) rule.array.get(1);
+                                final var type2 = (Lex.Type) rule.array.get(2);
+                                final var symbol2 = (String) rule.array.get(3);
+                                final var spaces = (int) (long) rule.array.get(4);
+                                loadedRules[i] = new Rule(type1, type2, symbol1, symbol2, spaces);
+                            } catch (ClassCastException e) {
+                                System.err.println("Invalid rule in rules file: " + e.getMessage());
+                                System.err.println("Rule is " + rule);
+                                System.err.println("0: " + rule.array.get(0));
+                                System.err.println("1: " + rule.array.get(1));
+                                System.err.println("2: " + rule.array.get(2));
+                                System.err.println("3: " + rule.array.get(3));
+                                System.err.println("4: " + rule.array.get(4));
+                                System.err.println("Rule list is " + ruleList.array);
+                                System.err.println("Rule list index is " + i);
+                                return null;
+                            }
+                        } else {
+                            System.err.println("Rule line is not an aray.");
+                            System.err.println("Rule is " + ruleList.array + "[" + i + "]");
+                            return null;
+                        }
+                    }
+                    // if it was filled successfully, overwrite the current rules with the loaded ones
+                    System.err.println("Loaded " + loadedRules.length + " rules from " + rulesPath);
+                    return loadedRules;
+                }
+                System.err.println("The result of the rule file is not a list.");
+                return null;
+            }
+        } catch (BadSyntax | ExecutionException i) {
+            System.err.println("Error loading rules from " + rulesPath);
+            ExceptionXmlWriter.writeToXml(i);
+            return null;
+        }
+    }
+
+
+    /**
+     * Resolves the path to the configuration file containing formatting rules.
+     * It first checks for the existence of the rules file in the local directory
+     * and, if not found, falls back to the user's home directory.
+     *
+     * @return an Optional containing the path to the rules file if it exists, or an empty Optional if no rules file is found
+     */
+    private static Optional<Path> getRulesPath() {
+        final var userHome = System.getProperty("user.home");
+        final var globalRules = Path.of(userHome, CONFIGURATION_DIRECTORY, FORMATTER_SUBDIR, RULES_FILE_NAME);
+        final var localRules = Path.of(".", CONFIGURATION_DIRECTORY, FORMATTER_SUBDIR, RULES_FILE_NAME);
+        return Optional.of(localRules).filter(p -> p.toFile().exists()).or(() -> Optional.of(globalRules).filter(p -> p.toFile().exists()));
     }
 
     /**
@@ -457,8 +484,13 @@ public class TuriFormatter {
      * @return the number of spaces to be inserted between the current and next lexical elements
      */
     private static int spacesFor(Lex lex, Lex next) {
-        if (next == null) return 0;
-        return Arrays.stream(rules).filter(rule -> rule.match(lex, next)).map(rule -> rule.spaces).findFirst().orElse(0);
+        if (rules == null || next == null) return 0;
+        for (final var rule : rules) {
+            if (rule.match(lex, next)) {
+                return rule.spaces;
+            }
+        }
+        return 0;
     }
 
     /**
@@ -467,7 +499,7 @@ public class TuriFormatter {
      * strings, comments, and reserved keywords. The method also considers the next lexical element
      * to determine accurate spacing or formatting.
      * <p>
-     * When this is a comment or a string, then return only the part that is from the start til the new line if this is a
+     * When this is a comment or a string, then return only the part from the start till the new line if this is a
      * multi-line string or comment.
      *
      * @param lex  the current lexical element to be converted to a string representation
@@ -575,12 +607,12 @@ public class TuriFormatter {
                     continue;
                 }
             } else {
-                // Check for start of line comment
+                // Check for the start of line comment
                 if (current == '/' && next == '/') {
                     comment = line.substring(i);
                     break;
                 }
-                // Check for start of block comment
+                // Check for the start of block comment
                 else if (current == '/' && next == '*') {
                     inBlockComment = true;
                     blockCommentDepth = 1;
@@ -600,16 +632,27 @@ public class TuriFormatter {
         return new LineContent(code.toString(), comment);
     }
 
+    /**
+     * Finds and returns the last non-space character from the code portion of the given input line.
+     * Spaces and tab characters are ignored during the search. If no non-space character is found,
+     * a null character ('\0') is returned.
+     *
+     * @param line the input string to analyze, containing both code and optional comments
+     * @return the last non-space character from the code portion of the input, or '\0' if none exists
+     */
     private static char lastNonSpaceChar(String line) {
-        // Parse to get only the code part (excluding line comments)
         LineContent parsed = parseLineContent(line);
-        String codePart = parsed.code.replaceAll("\\s+$", ""); // Remove trailing spaces
+        String codePart = parsed.code;
 
-        if (codePart.isEmpty()) {
-            return '\0';
+        // Find the last non-space character without creating new strings
+        for (int i = codePart.length() - 1; i >= 0; i--) {
+            char c = codePart.charAt(i);
+            if (c != ' ' && c != '\t') {
+                return c;
+            }
         }
 
-        return codePart.charAt(codePart.length() - 1);
+        return '\0';
     }
 
 }

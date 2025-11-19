@@ -2,9 +2,6 @@ global APPIA = ?(env("APPIA")?.split("\\|")) or [ source_directory() ];
 sys_import "turi.maven"
 import "turicum_versions"
 
-println "Turicum STARTED"
-
-
 let modules =  [ "core", "maven", "cli", "lsp" , "testjar"];
 
 let project = maven_project({

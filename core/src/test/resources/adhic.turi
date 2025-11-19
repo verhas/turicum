@@ -1,11 +1,7 @@
-let packaga = macro( fn(){
-    evaluate(thunk(package()))
-})
-
-let baba= 54
-
-println packaga()
-
-// println 6.13E52;
-
-
+println "raka" in "avraka dabra" , " there is 'raka' in 'avraka dabra'"
+println "raka" in "evreke debre" , " there is no raka in 'evreke debre'"
+println 3 in [ 1 , 2 , 3 ], " 3 is in [1,2,3]"
+println 3 in [ 1 , 2 , 4 ], " 3 is not in [1,2,4]"
+// checks member not sublist
+println [ 1 , 2 ] in [ 1 , 2 , 3 ], " [1, 2] is not in [ 1, 2, 3]"
+println [ 1 , 2 ] in [ 1 ,[ 1 , 2 ], 3 ], " [1, 2] is in [ 1, [1, 2], 3]"

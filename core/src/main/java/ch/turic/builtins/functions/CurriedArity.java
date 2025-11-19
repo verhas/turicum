@@ -29,8 +29,8 @@ end snippet */
  *<pre>{@code
  * fn x(a,b,c){}
  * let k = x.(13)
- * die "" when curried_arity(k) != 1
- * die "" when arity(k) != 3
+ * die $"curried_arity(k) is $(curried_arity(k)) not 1" when curried_arity(k) != 1
+ * die $"arity(k) os $(arity(k)) not 3" when arity(k) != 3
  * }</pre>
  *
  * In the above example {@code k} is a function created currying the first argument of the function {@code x}.

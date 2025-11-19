@@ -34,8 +34,8 @@ end snippet */
  * by passing the variable name as an argument.
  *
  * <pre>{@code
- * // TUricum is implemented in Java, so this env variable is probably defined
- * die "" when env("JAVA_HOME") == none
+ * // Turicum is implemented in Java, so this env variable is probably defined
+ * die "JAVA_HOME is none" when env("JAVA_HOME") == none
  * }</pre>
  */
 public class Env implements TuriFunction {

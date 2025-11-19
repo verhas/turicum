@@ -2,3 +2,5 @@ true there is 'raka' in 'avraka dabra'
 false there is no raka in 'evreke debre'
 true 3 is in [1,2,3]
 false 3 is not in [1,2,4]
+false [1, 2] is not in [ 1, 2, 3]
+true [1, 2] is in [ 1, [1, 2], 3]

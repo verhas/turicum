@@ -152,6 +152,22 @@ public abstract class Compare implements Operator {
         }
     }
 
+    @Operator.Symbol("!==")
+    public static class NotSame extends Compare {
+        @Override
+        public Object execute(LocalContext ctx, Command left, Command right) throws ExecutionException {
+            final var op1 = left.execute(ctx);
+            final var op2 = right.execute(ctx);
+            if (Cast.isLong(op1) || Cast.isLong(op2)) {
+                return !op1.equals(op2);
+            }
+            if (Cast.isDouble(op1) || Cast.isDouble(op2)) {
+                return !op1.equals(op2);
+            }
+            return op1 != op2;
+        }
+    }
+
     @Operator.Symbol("!=")
     public static class NotEqual extends Compare {
         @Override

@@ -128,7 +128,8 @@ public class Lex implements HasFields {
         // these are only collected when parsing for all
         COMMENT, // the comment
         SPACES, // white spaces between tokens, if any
-        CHARACTER // general character that is not defined in any way, an error when it happens
+        CHARACTER, // general character that is not defined in any way, an error when it happens
+        KEYWORD // used only in the formater rules, keywords are RESERVED
     }
 
     public boolean is(String... textAlternatives) {

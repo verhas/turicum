@@ -12,9 +12,15 @@ import java.util.concurrent.Future;
 // Main class to start the server
 class LSPServerMain {
     static void main(String[] args) {
-        System.err.println("=== Turi Language Server Started " + OffsetDateTime.now() + " ===");
-        System.err.flush();
-        startServer(new ErrLogging.InputStream(System.in), new ErrLogging.PrintStream(System.out));
+        try {
+            System.err.println("=== Turi Language Server Started " + OffsetDateTime.now() + " ===");
+            System.err.flush();
+            startServer(new ErrLogging.InputStream(System.in), new ErrLogging.PrintStream(System.out));
+        }catch(Throwable e) {
+            System.err.println("=== MAIN THREAD EXCEPTION ===");
+            ExceptionXmlWriter.writeToXml(e);
+            System.err.flush();
+        }
     }
 
     /**

@@ -7,6 +7,7 @@ let INTEGER=t.INTEGER;
 let FLOAT=t.FLOAT;
 let COMMENT=t.COMMENT;
 let SPACES=t.SPACES;
+let KEYWORD=t.KEYWORD;
 
 fn after( token: str | `java.ch.turic.analyzer.Lex$Type`, spaces: int ){
     [ token if type( token ) != "str" else none, token if type( token ) == "str" else none, none, none, spaces ]

@@ -72,8 +72,15 @@ public class TestJavaDocSnippets {
     }
 
     /**
-     * Extracts JavaDoc code snippets from a Java file.
-     * Looks for snippets between <pre>{@code // comment and }</pre> tags.
+     * Extracts JavaDoc code snippets from a given Java source file. This method scans the contents of the file,
+     * identifies JavaDoc blocks containing code snippets defined in
+     * {@code <}{@code pre>}{@code {@code ... }}{@code <}{@code /pre>}, and collects into {@code JavaDocSnippet} objects.
+     *
+     * @param javaFile the file path to the Java source file from which the JavaDoc snippets should be extracted.
+     *                 The file should be encoded in UTF-8.
+     * @return a list of {@code JavaDocSnippet} objects representing the extracted code snippets along with
+     *         their associated metadata, such as the snippet name, program code, file path, and line number.
+     * @throws IOException if there is an I/O error reading the specified file.
      */
     private List<JavaDocSnippet> extractJavaDocSnippets(final Path javaFile) throws IOException {
         final var lines = Files.readAllLines(javaFile, StandardCharsets.UTF_8);

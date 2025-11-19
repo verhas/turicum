@@ -90,13 +90,6 @@ The Turicum project configuration is
         <artifactId>turicum-maven-extension</artifactId>
         <version>1.4.0</version>
     </extension>
-    <!--
-    <extension>
-            <groupId>eu.maveniverse.maven.mason</groupId>
-            <artifactId>mason</artifactId>
-            <version>0.2.1</version>
-        </extension>
-        -->
 </extensions>
 
 ----
@@ -1371,7 +1364,7 @@ Cannot calculate '3.0' & '3.14'
 
 
 
-* `===`, ==`, `!=`, `in` are "the same", equal, not equal, and part-of operators.
+* `!==`, `===`, ==`, `!=`, `in` are __not-the-same__, __the-same__, __equal__, __not-equal__, and __part-of__ operators.
 The `in` operator works on a list to check if an element is in that list, or on strings to check the existence of a substring.
 
 .source of snippet `equal1`
@@ -1411,7 +1404,10 @@ false w is not that 'ohmy'
 The operator `===` tests that the two objects are the same.
 Numerical values are compared by value, but all other objects are tested for being the same, even strings.
 
-The `in` operation works for strings checking if a string is part of another, as well as for lists.
+The operator `!==` tests that the two objects are not the same.
+This operator is the negated version of `===`.
+
+The `in` operation works for strings, checking if a string is part of another, as well as for lists.
 
 .source of snippet `inop`
 
@@ -1419,8 +1415,11 @@ The `in` operation works for strings checking if a string is part of another, as
 ----
 println "raka" in "avraka dabra", " there is 'raka' in 'avraka dabra'"
 println "raka" in "evreke debre", " there is no raka in 'evreke debre'"
-println 3 in [1,2,3], " 3 is in [1,2,3]"
-println 3 in [1,2,4], " 3 is not in [1,2,4]"
+println 3in [ 1, 2, 3], " 3 is in [1,2,3]"
+println 3in [ 1, 2, 4], " 3 is not in [1,2,4]"
+// checks member not sublist
+println [ 1, 2] in [ 1, 2, 3], " [1, 2] is not in [ 1, 2, 3]"
+println [ 1, 2] in [ 1,[ 1, 2], 3], " [1, 2] is in [ 1, [1, 2], 3]"
 
 ----
 
@@ -1431,6 +1430,8 @@ true there is 'raka' in 'avraka dabra'
 false there is no raka in 'evreke debre'
 true 3 is in [1,2,3]
 false 3 is not in [1,2,4]
+false [1, 2, 3] is not in [ 1, 2, 3]
+true [1, 2] is in [ 1, [1, 2], 3]
 
 ----
 
@@ -1675,15 +1676,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=4715AE33
+h id=4940809C
 h after post increment: 1
 k: 0
-h id=9FC9F91
-k id=4715AE33
+h id=16423501
+k id=4940809C
 h after pre increment: 2
 z: 2
-h id=1FAC1D5C
-z id=1FAC1D5C
+h id=4EFCF8A
+z id=4EFCF8A
 
 ----
 
@@ -1728,15 +1729,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=6850B758
+h id=4A9E6FAF
 h after post increment: 1
 k: 1
-h id=6850B758
-k id=6850B758
+h id=4A9E6FAF
+k id=4A9E6FAF
 h after pre increment: 2
 z: 2
-h id=6850B758
-z id=6850B758
+h id=4A9E6FAF
+z id=4A9E6FAF
 
 ----
 
@@ -1784,15 +1785,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=4207609E
+h id=7CC586A8
 h after post decrement: -1
 k: 0
-h id=1F77B5CC
-k id=4207609E
+h id=44A2B17B
+k id=7CC586A8
 h after pre decrement: -2
 z: -2
-h id=5D7CA698
-z id=5D7CA698
+h id=7A56812E
+z id=7A56812E
 
 ----
 
@@ -1834,15 +1835,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=16E7B402
+h id=61D9EFE0
 h after post decrement: -1
 k: -1
-h id=16E7B402
-k id=16E7B402
+h id=61D9EFE0
+k id=61D9EFE0
 h after pre decrement: -2
 z: -2
-h id=16E7B402
-z id=16E7B402
+h id=61D9EFE0
+z id=61D9EFE0
 
 ----
 
@@ -2044,7 +2045,7 @@ The operator's table is defined in the source file `BinaryExpressionAnalyzer.jav
 |`&`
 
 |7
-|`===`, `==`, `!=`, `in`
+|`!==`, ===`, `==`, `!=`, `in`
 
 |8
 | `<`, `<=`, `>`, `>=`
@@ -4986,8 +4987,8 @@ Thread 1 generated 3
 Thread 1 generated 5
  prime read 5
 Thread 1 generated 7
- prime read 7
-Thread 1 generated 11
+ prime read Thread 1 generated 11
+7
 Thread 1 generated 13
 Thread 1 generated 17
 Thread 1 generated 19
@@ -4998,8 +4999,8 @@ exception Task stopped.
 Thread 2 generated 3
  prime read 3
 Thread 2 generated 5
- prime read 5
-Thread 2 generated 7
+ prime read Thread 2 generated 7
+5
  prime read 7
 Thread 2 generated 11
 Thread 2 generated 13
@@ -5059,9 +5060,9 @@ println( (end-start)/1000000, "ms")
 [source]
 ----
 [1, 2, 3]
-307.490208ms
+308.1205ms
 []
-315.037833ms
+305.424792ms
 
 ----
 
@@ -11039,7 +11040,7 @@ println m.absExact(int(-5))
 .output of snippet `java_class1`
 [source]
 ----
-5
+5.0
 5
 
 ----
@@ -11468,7 +11469,7 @@ println nano_time()
 .output of snippet `nano_time`
 [source]
 ----
-1593868280050625
+622610383640333
 
 ----
 
@@ -11743,80 +11744,80 @@ none
 .output of snippet `que`
 [source]
 ----
-task1 is not ready 0
-task2 is ready 1
+task1 is ready 1
 task2 is not ready 0
-task1 is not ready 1
-task2 is not ready 1
-task2 is not ready 2
+task1 is not ready 0
+task2 is not ready 1task1 is not ready 1
+
 task1 is not ready 2
+task2 is not ready 2
+task1 is not ready 3
 task2 is ready 2
 task2 is not ready 0
-task1 is not ready 3
+task2 is not ready 1task1 is not ready 4
+
+task1 is not ready 5
+task2 is not ready 2
+task1 is not ready 6task2 is not ready 3
+
+task1 is ready 3task2 is not ready 4
+
+task1 is not ready 0
+task1 is not ready 1task2 is not ready 5
+
+task1 is not ready 2
+task2 is not ready 6
+task1 is ready 4
+task1 is not ready 0
+task2 is not ready 7
+task1 is not ready 1task2 is not ready 8
+
+task2 is not ready 9task1 is not ready 2
+
+task1 is ready 5task2 is not ready 10
+
+task1 is not ready 0
+task1 is not ready 1task2 is not ready 11
+
+task2 is not ready 12task1 is not ready 2
+
+task2 is not ready 13task1 is ready 6
+
+task1 is not ready 0
+task1 is not ready 1task2 is not ready 14
+
+task2 is not ready 15task1 is not ready 2
+
+task1 is not ready 3task2 is ready 7
+
+task2 is not ready 0
 task2 is not ready 1
 task1 is not ready 4
 task2 is not ready 2task1 is not ready 5
 
-task2 is not ready 3
-task1 is not ready 6
-task2 is ready 3
+task2 is ready 8task1 is not ready 6
+
+task2 is not ready 0
 task1 is not ready 7
-task2 is not ready 0
 task2 is not ready 1
+task2 is not ready 2
 task1 is not ready 8
-task2 is not ready 2
-task1 is not ready 9
-task2 is ready 4
-task1 is not ready 10
-task2 is not ready 0
-task2 is not ready 1
-task1 is not ready 11
-task1 is not ready 12
-task2 is not ready 2
-task1 is ready 5task2 is not ready 3
+task1 is ready 9task2 is not ready 3
 
 task1 is not ready 0
-task2 is not ready 4
 task1 is not ready 1
-task2 is not ready 5
+task2 is not ready 4
 task1 is not ready 2
-task1 is not ready 3
-task2 is ready 6
-task2 is not ready 0
-task2 is not ready 1
-task1 is not ready 4
-task2 is not ready 2
-task1 is not ready 5
-task1 is ready 7
-task2 is not ready 3
-task1 is not ready 0
-task2 is not ready 4task1 is not ready 1
-
 task2 is not ready 5
-task1 is not ready 2
-task1 is not ready 3task2 is ready 8
-
-task2 is not ready 0
-task2 is not ready 1
-task1 is not ready 4
-task2 is not ready 2
-task1 is not ready 5
-task1 is not ready 6task2 is ready 9
-
-task2 is not ready 0
-task1 is not ready 7
-task2 is not ready 1
-task1 is not ready 8
-task2 is not ready 2
 closing the channel
 channel is closed
 1 is done false
 2 is done false
 we start to wait the first time
-task1 is done
 task2 is done
-task1 done true
-task2 done false
+task1 is done
+task1 done false
+task2 done true
 We start to wait the second time
 task1 done true
 task2 done true
@@ -12360,7 +12361,7 @@ println sleep(0.001) // sleep one milli
 .output of snippet `sleep`
 [source]
 ----
-0.002
+0.001
 
 ----
 
@@ -12786,10 +12787,10 @@ none
 [source]
 ----
 sending 1
+not ready 0
 received 1
 not ready 0
 not ready 1
-not ready 2
 sending 2
 received 2
 not ready 0
@@ -12799,6 +12800,7 @@ sending 3
 received 3
 not ready 0
 not ready 1
+not ready 2
 closing the channel
 channel is closed
 is done false

@@ -10,11 +10,11 @@ import ch.turic.commands.operators.Compare;
  *
  * <pre>{@code
  * // return none if there are no arguments
- * die "" when min() != none
+ * die $"min() returned $(min()) and not none " when min() != none
  * // return the smallest argument
- * die "" when min(1,2,3) != 1
+ * die $"min(1,2,3) returned $(min(1,2,3)) not 1" when min(1,2,3) != 1
  * // it also works on lists
- * die "" when min([1,2,3]) != 1
+ * die $"min([1,2,3]) returned $(min([1,2,3])) not 1" when min([1,2,3]) != 1
  * class SORTED {
  *     fn init(value:num);
  *     fn `<`(b:SORTED):bool{
@@ -26,6 +26,7 @@ import ch.turic.commands.operators.Compare;
  * }
  *
  * die "" when min( SORTED(1), SORTED(2), SORTED(3) ) != SORTED(1)
+ * // eventually SORTED(1) at the end of the line is a new object, that is not what is returned
  * die "" when min( SORTED(1), SORTED(2), SORTED(3) ) === SORTED(1)
  * }</pre> */
 public class Min implements TuriFunction {

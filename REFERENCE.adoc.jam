@@ -636,7 +636,7 @@ The `+&+` operator is not defined for floating-point numbers.
 
 {%S band1%}
 
-* `===`, ==`, `!=`, `in` are "the same", equal, not equal, and part-of operators.
+* `!==`, `===`, ==`, `!=`, `in` are __not-the-same__, __the-same__, __equal__, __not-equal__, and __part-of__ operators.
 The `in` operator works on a list to check if an element is in that list, or on strings to check the existence of a substring.
 
 {%S equal1%}
@@ -644,7 +644,10 @@ The `in` operator works on a list to check if an element is in that list, or on 
 The operator `===` tests that the two objects are the same.
 Numerical values are compared by value, but all other objects are tested for being the same, even strings.
 
-The `in` operation works for strings checking if a string is part of another, as well as for lists.
+The operator `!==` tests that the two objects are not the same.
+This operator is the negated version of `===`.
+
+The `in` operation works for strings, checking if a string is part of another, as well as for lists.
 
 {%S inop%}
 
@@ -814,7 +817,7 @@ If we modify the equality check to consider the classes, we get a different resu
 
 === Using parentheses
 
-{%@snip:check hash="4279718e" id=operators message="check the operator table for change"%}
+{%@snip:check hash="cde966cb" id=operators message="check the operator table for change"%}
 
 The different operators have their precedences as in most of the programming languages.
 
@@ -845,7 +848,7 @@ The operator's table is defined in the source file {%#file (format="`$simpleName
 |`&`
 
 |7
-|`===`, `==`, `!=`, `in`
+|`!==`, ===`, `==`, `!=`, `in`
 
 |8
 | `<`, `<=`, `>`, `>=`
