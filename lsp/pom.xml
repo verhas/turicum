@@ -3,7 +3,7 @@
     <parent>
         <groupId>ch.turic</groupId>
         <artifactId>turicum-parent</artifactId>
-        <version>1.4.1</version>
+        <version>1.4.2</version>
     </parent>
     <build>
         <plugins>
@@ -67,7 +67,7 @@
     <name>Turicum-LSP</name>
     <description>Turicum LSP server</description>
     <artifactId>turicum-lsp-server</artifactId>
-    <version>1.4.1</version>
+    <version>1.4.2</version>
     <properties>
         <maven.plugin.validation>VERBOSE</maven.plugin.validation>
         <maven.compiler.target>21</maven.compiler.target>
@@ -79,7 +79,7 @@
         <dependency>
             <groupId>ch.turic</groupId>
             <artifactId>turicum</artifactId>
-            <version>1.4.1</version>
+            <version>1.4.2</version>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -88,12 +88,6 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
-        </dependency>
-        <dependency>
-            <scope>provided</scope>
-            <groupId>org.apache.maven</groupId>
-            <artifactId>maven-core</artifactId>
-            <version>4.0.0-rc-4</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.lsp4j</groupId>

@@ -70,12 +70,6 @@ let project=maven_project( {
                 artifactId: "junit-jupiter-engine",
             } ,
             {
-                groupId: "org.apache.maven",
-                artifactId: "maven-core",
-                version: `maven-core`,
-                scope: "provided",
-            } ,
-            {
                 groupId: "org.eclipse.lsp4j",
                 artifactId: "org.eclipse.lsp4j",
                 version: "0.24.0"

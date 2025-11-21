@@ -1,70 +1,71 @@
-global APPIA = ?(env("APPIA")?.split("\\|")) or [ source_directory() + "/.." ];
+global APPIA=? ( env("APPIA") ?. split("\\|") ) or [ source_directory( ) + "/.." ];
 sys_import "turi.maven"
 import "turicum_versions"
 
-let project = maven_project({
-    name: "turicum",
-    artifactId : "turicum",
-    version : VERSION,
-    description : "Turicum programming language core implementation",
-    packaging : "jar",
-    parent : {
-        groupId: groupId,
-        artifactId: "turicum-parent",
-        version: VERSION
-    }
-
-    build : {
-        resources : [
-            { directory : "src/main/resources", filtering: true }
-
-        ],
-        plugins : [
+let project=maven_project( {
+        name: "turicum",
+        artifactId: "turicum",
+        version: VERSION,
+        description: "Turicum programming language core implementation",
+        packaging: "jar",
+        parent:{
+            groupId: groupId,
+            artifactId: "turicum-parent",
+            version: VERSION
+        }
+        
+        build:{
+            resources: [
+                { directory: "src/main/resources", filtering: true }
+                
+            ],
+            plugins: [
                 maven_plugin("source"),
                 maven_plugin("javadoc"),
                 maven_plugin("compiler"),
                 maven_plugin("resources"),
-                maven_plugin("surefire")
-        ]
-    }
-    dependencies:[
-        {
-            groupId: "org.junit.jupiter",
-            artifactId: "junit-jupiter-api",
-            version: "5.12.0",
-            scope: "test"
-        },
-        {
-            groupId: "org.junit.jupiter",
-            artifactId: "junit-jupiter-engine",
-            version: "5.12.0",
-            scope: "test"
-        },
-        {
-            groupId: "org.junit.jupiter",
-            artifactId: "junit-jupiter-params",
-            version: "5.12.0",
-            scope: "test"
+                maven_plugin("surefire"),
+                maven_plugin("jar")
+            ]
         }
-    ],
-        profiles : [ {
-            id : "release",
-            build : {
-                plugins : [
-                    maven_plugin("gpg"),
-                    {
-                        groupId : "org.sonatype.central",
-                        artifactId : "central-publishing-maven-plugin",
-                        extensions : true,
-                        configuration : {
+        dependencies: [
+            {
+                groupId: "org.junit.jupiter",
+                artifactId: "junit-jupiter-api",
+                version: "5.12.0",
+                scope: "test"
+            } ,
+            {
+                groupId: "org.junit.jupiter",
+                artifactId: "junit-jupiter-engine",
+                version: "5.12.0",
+                scope: "test"
+            } ,
+            {
+                groupId: "org.junit.jupiter",
+                artifactId: "junit-jupiter-params",
+                version: "5.12.0",
+                scope: "test"
+            }
+        ],
+        profiles: [ {
+                id: "release",
+                build:{
+                    plugins: [
+                        maven_plugin("gpg"),
+                        {
+                            groupId: "org.sonatype.central",
+                            artifactId: "central-publishing-maven-plugin",
+                            extensions: true,
+                            configuration:{
                                 publishingServerId: "central",
                                 autoPublish: true
-                              }
-                    }
-               ]
-            }
+                            }
+                        }
+                    ]
+                }
         } ]
-})
-project.properties = import("properties").properties;
+} )
+project.properties=import("properties") .properties;
 
-project.done()
+project.done( ) 

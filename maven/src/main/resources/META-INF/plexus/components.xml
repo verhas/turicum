@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component-set>
+  <components>
+    <component>
+      <role>org.apache.maven.model.building.ModelProcessor</role>
+      <role-hint>default</role-hint>
+      <implementation>ch.turic.maven.TuricumModelParser</implementation>
+      <description />
+      <isolated-realm>false</isolated-realm>
+      <requirements>
+        <requirement>
+          <role>org.apache.maven.model.io.ModelReader</role>
+          <field-name>modelReader</field-name>
+        </requirement>
+      </requirements>
+    </component>
+  </components>
+</component-set>

@@ -1,6 +1,9 @@
 package ch.turic.builtins.macros;
 
-import ch.turic.*;
+import ch.turic.Command;
+import ch.turic.Context;
+import ch.turic.Interpreter;
+import ch.turic.TuriMacro;
 import ch.turic.builtins.functions.FunUtils;
 import ch.turic.commands.FieldAccess;
 import ch.turic.commands.Identifier;
@@ -152,6 +155,7 @@ public class Import implements TuriMacro {
         final var program = interpreter.compile();
         final var importedContext = (LocalContext) interpreter.getImportContext();
         importedContext.globalContext.classLoader.inherit(ctx.globalContext.classLoader);
+        importedContext.sourcePath(sourceFile);
         interpreter.execute(program);
         final var set = new HashSet<String>();
         for (final var exported : (imports == null || imports.isEmpty()) ? importedContext.exporting() : imports) {
@@ -162,7 +166,7 @@ public class Import implements TuriMacro {
             }
         }
         for (final var exported : set) {
-            if(ctx.contains( exported)){
+            if (ctx.contains(exported)) {
                 throw new ExecutionException("Variable '%s' is already defined, while importing from %s", exported, sourceFile.toString());
             }
             ctx.let0(exported, importedContext.get(exported));
@@ -175,7 +179,7 @@ public class Import implements TuriMacro {
      * Constructs an import string representation for the given command.
      * Converts the command to an appropriate import string by extracting identifiers
      * or field access paths, or by invoking the execution of the command within the provided context.
-     *
+     * <p>
      * The return value will be a string representing the identifier or field access structure as in the source code.
      * In a way, this code disassembles the field access, for example
      *

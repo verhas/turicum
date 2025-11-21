@@ -16,10 +16,10 @@ import java.nio.file.Path;
 import java.util.Map;
 import java.util.Optional;
 
-import static ch.turic.maven.TuriModelProcessor.turi2Xml;
+import static ch.turic.maven.PomXmlCreator.turi2Xml;
 
 @Singleton
-@Named("turicum-maven-extension")
+@Named("turicum")
 public class TuriModelParser implements ModelParser {
 
     @Inject
@@ -29,6 +29,16 @@ public class TuriModelParser implements ModelParser {
         this.xmlFactory = xmlFactory;
     }
 
+    /**
+     * Locates a specific file named 'pom.turi' within the given directory.
+     * If the file exists, it triggers the conversion of 'pom.turi' to 'pom.xml'
+     * using the {@code turi2Xml} method and wraps the {@code pom.turi} file path
+     * in an {@code Optional}. If the file does not exist, it returns an empty {@code Optional}.
+     *
+     * @param dir the directory in which to search for the 'pom.turi' file; must not be null
+     * @return an {@code Optional} containing the located {@code Source} object if the 'pom.turi' file exists,
+     *         or an empty {@code Optional} if the file is not found
+     */
     @Override
     public Optional<Source> locate(Path dir) {
         final var path = dir.resolve("pom.turi");

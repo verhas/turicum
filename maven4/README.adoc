@@ -1,0 +1,317 @@
+= Turicum Maven Extension
+
+
+
+
+
+This module lets you maintain your `pom` structure files using the Turicum language.
+The Turicum language format is more flexible than XML, and it is a kind of programmable JSON.
+At the same time, the extension not only creates the Project Object Model (POM)  in memory but also saves it to the `pom.xml` file.
+This gives you the advantage that you can use tools that rely on the XML-formatted POM.
+Having the latest POM in xml also means you can abandon the extension any time, you are not locked-in.
+
+[WARNING]
+====
+This project is a Maven extension.
+Maven extensions run before Maven, and they are not the same thing as Maven plugins.
+There is no Turicum Maven plugin.
+
+This extension, Turicum version 1.4.1 and later was tested with Maven `3.9.11` and `4.0.0-rc-4`
+====
+
+Create a `.mvn` in your project root to use this module.
+This directory will contain the file `extensions.xml` with the content:
+
+[source,xml]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<extensions>
+    <extension>
+        <groupId>ch.turicch.turic</groupId>
+        <artifactId>turicum-maven-extension</artifactId>
+        <version>1.4.1</version>
+    </extension>
+</extensions>
+----
+
+When you start Maven, it will read the `pom.turi` file, convert it using Turicum, and create the `pom.xml` file.
+
+[NOTE]
+====
+The actual process is the following.
+When a user invokes Maven, it looks at the `.mvn/extensions.xml` file, and it sees that the Turicum Maven Extension is configured there.
+It loads the Turicum Maven Extension and invokes it to locate the POM file.
+This call assumes that a POM file is already present, and at this point, the extension is supposed to locate it.
+
+The Turicum Maven Extension cheats a bit.
+First, it reads the Turicum source files, and it creates the `pom.xml` file.
+The processing includes program execution and formatting the final XML result.
+Once this step is completed, the extension writes the `pom.xml` file and returns a Java `File` object referencing the file.
+
+Maven later requests the extension to load the project object model from this file.
+The extension knows at this point that the generated `pom.xml` file is already a standard XML-formatted pom,
+and it simply asks the standard Maven Platform Reader to read it.
+When the Maven Platform Reader returns with the object model, the extension passes it back to Maven, and the rest is standard Maven business as usual.
+
+NOTE: This way you can have the `pom.xml` file and the implementation of the extension was also simpler.
+
+
+image::call-sequence.svg[]
+====
+
+== Using the Generated `pom.xml`
+
+The created `pom.xml` is saved to the directory and not removed after it has been processed.
+It is also available for the IDE, which may not be able to read the Turicum POM file.
+You can add it to your source control if you wish.
+
+IntelliJ recognizes and handles Maven extensions.
+
+== Converting Your Project to Use `pom.turi`
+
+When you want to convert a project to use the Turicum maven extension, you only have to
+
+. create the `.mvn/extensions.xml` file
+
+. convert the existing `pom.xml` files to `pom.turi`.
+
+The `pom.turi` file should contain a Turicum program that results in a formatted XML.
+In Turicum, every command has a value, and the value of the program is the value of the last executed command.
+You are free to create the XML string in any way, but there is a Turicum library you can import that makes it easy.
+
+    sys_import "turi.maven"
+
+This file defines and exports a class called `maven_project`.
+You create an instance of this class
+
+  let project = maven_project({
+    name : "maven extension",
+    artifactId : "turicum-maven-extension"
+    version : VERSION,
+    ...
+
+passing a JSON structure (or any classless Turicum object).
+
+For a simpler project, you can just use a JSON literal.
+When the structure is more complex, you can build the object in several steps.
+Turicum offers numerous language constructs to create a flexible POM build-up.
+
+At the end of the `pom.turi`, you can call
+
+    project.done()
+
+It will convert the `project` structure to an XML string and return it formatted.
+This XML will be saved by the extension into the `pom.xml` and used to define the project structure.
+
+=== Attributes and Singular Tags
+
+This section is about how to handle XML attributes that are only needed in POM files in exceptional cases.
+Some plugin configuration uses attributes.
+If you do not need it, you can skip this section.
+
+==== Attributes
+
+XML tags can have attributes.
+JSON does not have such a feature.
+
+On the other hand, JSON names can start with the `@` character.
+XML tags cannot.
+
+Every JSON field in the Turicum project object starting with a `@` character will be converted to an attribute.
+The following example shows how an object is converted to XML using this feature:
+
+
+.source of snippet `to_xml`
+[source]
+----
+sys_import "turi.xml";
+
+let h = {
+    name : "Pinco Palino",
+    age : 32,
+    sex : "sometimes"
+}
+
+h.`@cahe` = true;
+
+println xml_format(to_xml(h, top="h"))
+
+
+
+----
+
+
+
+
+.output of snippet `to_xml`
+[source]
+----
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<h cahe="true">
+    <sex>sometimes</sex>
+    <name>Pinco Palino</name>
+    <age>32</age>
+</h>
+
+
+----
+
+
+
+[NOTE]
+====
+The example above does not use the Maven Turicum library and is not producing a `pom.xml`.
+It is an example of XML handling.
+
+`pom.xml` files rarely use XML attributes.
+This feature of the XML conversion provided by the Turicum library is for general use.
+====
+
+==== Lists, Singular Tags
+
+Another difference between XML and JSON is that XML does not have lists.
+In a POM file, you usually have a tag, which is the plural form of a noun, and then the subtags are the singular version.
+
+The converter automatically detects this.
+When you have a list and the name ends with `ies` or `s`.
+`dependencies`, for example, will be paired with `dependency` automatically.
+
+
+.source of snippet `plural1`
+[source]
+----
+sys_import "turi.xml";
+
+let project = {
+    dependencies : [
+    { groupId : "ch.turic", artifactId: "habakuk", version: "1.0.7" },
+    { groupId : "ch.turic", artifactId: "habakak", version: "1.0.8" },
+    { groupId : "ch.turic", artifactId: "hababab", version: "1.0.5" },
+    { groupId : "ch.turic", artifactId: "haraluk", version: "1.4.7" }
+] };
+
+println xml_format(to_xml(project, top="project"))
+
+
+
+----
+
+
+
+
+.output of snippet `plural1`
+[source]
+----
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project>
+    <dependencies>
+        <dependency>
+            <groupId>ch.turic</groupId>
+            <artifactId>habakuk</artifactId>
+            <version>1.0.7</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.turic</groupId>
+            <artifactId>habakak</artifactId>
+            <version>1.0.8</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.turic</groupId>
+            <artifactId>hababab</artifactId>
+            <version>1.0.5</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.turic</groupId>
+            <artifactId>haraluk</artifactId>
+            <version>1.4.7</version>
+        </dependency>
+    </dependencies>
+</project>
+
+
+----
+
+
+
+In some rare cases, this may not work.
+In that case, you can define a field named "!" (a single character, exclamation mark) in the first element of the list to specify the name of the singular tag.
+
+
+.source of snippet `plural2`
+[source]
+----
+sys_import "turi.xml";
+
+let project = {
+    dependencies : [
+    { "!": "dependentia", groupId : "ch.turic", artifactId: "habakuk", version: "1.0.7" },
+    { groupId : "ch.turic", artifactId: "habakak", version: "1.0.8" },
+    { groupId : "ch.turic", artifactId: "hababab", version: "1.0.5" },
+    { groupId : "ch.turic", artifactId: "haraluk", version: "1.4.7" }
+] };
+
+println xml_format(to_xml(project, top="project"))
+
+
+
+----
+
+
+
+
+.output of snippet `plural2`
+[source]
+----
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project>
+    <dependencies>
+        <dependentia>
+            <groupId>ch.turic</groupId>
+            <artifactId>habakuk</artifactId>
+            <version>1.0.7</version>
+        </dependentia>
+        <dependentia>
+            <groupId>ch.turic</groupId>
+            <artifactId>habakak</artifactId>
+            <version>1.0.8</version>
+        </dependentia>
+        <dependentia>
+            <groupId>ch.turic</groupId>
+            <artifactId>hababab</artifactId>
+            <version>1.0.5</version>
+        </dependentia>
+        <dependentia>
+            <groupId>ch.turic</groupId>
+            <artifactId>haraluk</artifactId>
+            <version>1.4.7</version>
+        </dependentia>
+    </dependencies>
+</project>
+
+
+----
+
+
+
+== Getting Rid of the Extension
+
+.TLDR;
+[NOTE]
+====
+Remove the `.mvn` directory and the Turicum source files, while keeping the generated `pom.xml` files.
+However, just don't do it!
+It is a fantastic tool.
+====
+
+It may happen that, for some reason, you want to remove the extension.
+The reasons can be various.
+The maintenance of the project is passed on to a team that is not knowledgeable about Turicum.
+A new corporate policy may exclude external tools or restrict the extensions and plugins you can use with Maven.
+You may run into some unforeseen complexity problems using Turicum, and you may not have time to debug your Turicum code.
+It is straightforward to revert the operation to standard Maven compilation temporarily or finally in any of those cases.
+
+This extension retains the XML format as opposed to other Maven extensions.
+You do not need any conversion step from DSL to XML; the `pom.xml` is always there.
+What you have to do to revert the operation to standard Maven and `pom.xml` based compilation is to remove the `.mvn` directory.
+
+If reverting to standard `pom.xml` based compilation is final, then do not forget to remove the `.mvn` directory from the source control.

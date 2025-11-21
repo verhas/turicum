@@ -3,7 +3,7 @@
     <parent>
         <groupId>ch.turic</groupId>
         <artifactId>turicum-parent</artifactId>
-        <version>1.4.1</version>
+        <version>1.4.2</version>
     </parent>
     <build>
         <plugins>
@@ -27,25 +27,40 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
             </plugin>
+            <plugin>
+                <executions>
+                    <execution>
+                        <id>index-project</id>
+                        <goals>
+                            <goal>main-index</goal>
+                            <goal>test-index</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <groupId>org.eclipse.sisu</groupId>
+                <artifactId>sisu-maven-plugin</artifactId>
+                <version>0.9.0.M4</version>
+            </plugin>
         </plugins>
     </build>
     <modelVersion>4.0.0</modelVersion>
-    <name>maven extension</name>
+    <name>maven 3 extension</name>
     <description>Turicum maven extension</description>
     <artifactId>turicum-maven-extension</artifactId>
-    <version>1.4.1</version>
+    <version>1.4.2</version>
     <properties>
         <maven.plugin.validation>VERBOSE</maven.plugin.validation>
         <maven.compiler.target>21</maven.compiler.target>
-        <maven.compiler.source>21</maven.compiler.source>
         <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ssZ</maven.build.timestamp.format>
+        <maven.compiler.source>21</maven.compiler.source>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <time>2025-11-21 19:17:40</time>
     </properties>
     <dependencies>
         <dependency>
             <groupId>ch.turic</groupId>
             <artifactId>turicum</artifactId>
-            <version>1.4.1</version>
+            <version>1.4.2</version>
         </dependency>
         <dependency>
             <scope>provided</scope>
@@ -68,32 +83,8 @@
         <dependency>
             <scope>provided</scope>
             <groupId>org.apache.maven</groupId>
-            <artifactId>maven-api-spi</artifactId>
-            <version>4.0.0-rc-4</version>
-        </dependency>
-        <dependency>
-            <scope>provided</scope>
-            <groupId>org.apache.maven</groupId>
-            <artifactId>maven-api-model</artifactId>
-            <version>4.0.0-rc-4</version>
-        </dependency>
-        <dependency>
-            <scope>provided</scope>
-            <groupId>org.apache.maven</groupId>
-            <artifactId>maven-api-core</artifactId>
-            <version>4.0.0-rc-4</version>
-        </dependency>
-        <dependency>
-            <scope>provided</scope>
-            <groupId>org.apache.maven</groupId>
-            <artifactId>maven-api-di</artifactId>
-            <version>4.0.0-rc-4</version>
-        </dependency>
-        <dependency>
-            <scope>provided</scope>
-            <groupId>org.apache.maven</groupId>
             <artifactId>maven-core</artifactId>
-            <version>4.0.0-rc-4</version>
+            <version>3.9.8</version>
         </dependency>
     </dependencies>
 </project>

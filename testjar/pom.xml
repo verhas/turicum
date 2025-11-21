@@ -3,7 +3,7 @@
     <parent>
         <groupId>ch.turic</groupId>
         <artifactId>turicum-parent</artifactId>
-        <version>1.4.1</version>
+        <version>1.4.2</version>
     </parent>
     <build>
         <plugins>
@@ -33,7 +33,7 @@
     <name>Turicum-TEST-JAR</name>
     <description>A test extension for Turicum to be loaded dynamically</description>
     <artifactId>turicum-test-jar</artifactId>
-    <version>1.4.1</version>
+    <version>1.4.2</version>
     <properties>
         <maven.plugin.validation>VERBOSE</maven.plugin.validation>
         <maven.compiler.target>21</maven.compiler.target>
@@ -46,7 +46,7 @@
             <scope>provided</scope>
             <groupId>ch.turic</groupId>
             <artifactId>turicum</artifactId>
-            <version>1.4.1</version>
+            <version>1.4.2</version>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>

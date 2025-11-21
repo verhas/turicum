@@ -70,6 +70,14 @@ public class AppiaHandler {
         return locateSource(context, arg, relativePath);
     }
 
+    /**
+     * Locates a source file based on the specified context and argument.
+     * The function replaces the dots in the import specification with the file separator.
+     *
+     * @param context the local context used for resolving the source path
+     * @param arg the argument specifying the source file, typically represented as a string
+     * @return the path to the located source file
+     */
     public Path locateSource(LocalContext context, String arg) {
         final var relativePath = Path.of(arg.replace('.', File.separatorChar) + ".turi");
         return locateSource(context, arg, relativePath);

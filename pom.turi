@@ -2,7 +2,7 @@ global APPIA = ?(env("APPIA")?.split("\\|")) or [ source_directory() ];
 sys_import "turi.maven"
 import "turicum_versions"
 
-let modules =  [ "core", "maven", "cli", "lsp" , "testjar"];
+let modules =  [ "core", "maven", "maven4", "cli", "lsp" , "testjar"];
 
 let project = maven_project({
     name: $"${groupId}:turicum-parent",
@@ -79,6 +79,11 @@ let project = maven_project({
                 },
                 {
                     groupId: groupIdMavenPlugin,
+                    artifactId: "maven-clean-plugin",
+                    version: `maven-clean-plugin`,
+                },
+                {
+                    groupId: groupIdMavenPlugin,
                     artifactId: "maven-resources-plugin",
                     version: `maven-resources-plugin`,
                     configuration: {encoding: "UTF-8", delimiters: ["@"] }
@@ -114,7 +119,14 @@ let project = maven_project({
                           }
                 }
             ]
-        }// end of plugin management
+        },// end of plugin management
+        testResources: [ {
+                directory: "src/test/resources",
+                // binary files cause issues with the resources copying,
+                // these files are not needed to run the tests from prior runs, they are re-created
+                // they are kept here to make documentation editing easier
+                excludes: [ "references_output/**" ]
+            } ]
 },
         
     
@@ -206,7 +218,8 @@ let project = maven_project({
 });
 
 project.properties = import("properties").properties;
-
+let fmt = java_object("java.text.SimpleDateFormat","yyyy-MM-dd HH:mm:ss");
+project.properties += {"time": java_call(fmt, "format",time()) };
 project.done()
             
         

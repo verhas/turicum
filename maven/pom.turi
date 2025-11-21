@@ -1,80 +1,74 @@
-global APPIA  = ?(env("APPIA")?.split("\\|"))or[source_directory()+"/.."];
+global APPIA=? ( env("APPIA" ) ?. split("\\|" ) ) or [ source_directory( ) + "/../" ];
+println $"APPIA=$(APPIA)"
 sys_import "turi.maven"
+println "sysimport is okay"
 import "turicum_versions"
+//let VERSION=import("core.src.main.resources.turi.version") .`turicum.version`;
 
-let project  = maven_project({
-        name : "maven extension" ,
-        artifactId : "turicum-maven-extension"
-        version : VERSION ,
-        description: "Turicum maven extension" ,
-        parent :{
-            groupId : groupId ,
-            artifactId : "turicum-parent" ,
-            version : VERSION
-        },
-        build :{
-            plugins :[
-                maven_plugin("source"),
-                maven_plugin("javadoc"),
-                maven_plugin("compiler"),
-                maven_plugin("resources")
+println "maven3 extension pom.turi processing has started"
+
+let project=maven_project( {
+        name: "maven 3 extension",
+        artifactId: "turicum-maven-extension"
+        version: VERSION,
+        description: "Turicum maven extension",
+        parent:{
+            groupId: groupId,
+            artifactId: "turicum-parent",
+            version: VERSION
+        } ,
+        build:{
+            plugins: [
+                maven_plugin("source" ),
+                maven_plugin("javadoc" ),
+                maven_plugin("compiler" ),
+                maven_plugin("resources" ),
+                {
+                    groupId: "org.eclipse.sisu",
+                    artifactId: "sisu-maven-plugin",
+                    version: "0.9.0.M4",
+                    executions: [
+                        {
+                            id: "index-project",
+                            goals: [ "main-index", "test-index" ]
+                        }
+                    ]
+                }
             ]
-        },
-        dependencies :[
+        } ,
+        dependencies: [
             {
-                groupId : "ch.turic" ,
-                artifactId : "turicum" ,
-                version : VERSION
-            },
+                groupId: "ch.turic",
+                artifactId: "turicum",
+                version: VERSION
+            } ,
             {
-                groupId : "jakarta.annotation" ,
-                artifactId: "jakarta.annotation-api" ,
-                scope : "provided"
-            },
+                groupId: "jakarta.annotation",
+                artifactId: "jakarta.annotation-api",
+                scope: "provided"
+            } ,
             {
-                groupId : "jakarta.inject" ,
-                artifactId: "jakarta.inject-api" ,
-                scope : "provided"
-            },
+                groupId: "jakarta.inject",
+                artifactId: "jakarta.inject-api",
+                scope: "provided"
+            } ,
             {
-                groupId : "org.junit.jupiter" ,
-                artifactId : "junit-jupiter-api" ,
-            },
+                groupId: "org.junit.jupiter",
+                artifactId: "junit-jupiter-api",
+            } ,
             {
-                groupId : "org.junit.jupiter" ,
-                artifactId : "junit-jupiter-engine" ,
-            },
+                groupId: "org.junit.jupiter",
+                artifactId: "junit-jupiter-engine",
+            } ,
             {
-                groupId : "org.apache.maven" ,
-                artifactId : "maven-api-spi" ,
-                version : `maven-core` ,
-                scope : "provided"
-            },
-            {
-                groupId : "org.apache.maven" ,
-                artifactId : "maven-api-model" ,
-                version : `maven-core` ,
-                scope : "provided"
-            },
-            {
-                groupId : "org.apache.maven" ,
-                artifactId : "maven-api-core" ,
-                version : `maven-core` ,
-                scope : "provided"
-            },
-            {
-                groupId : "org.apache.maven" ,
-                artifactId : "maven-api-di" ,
-                version : `maven-core` ,
-                scope : "provided"
-            },
-            {
-                groupId : "org.apache.maven" ,
-                artifactId : "maven-core" ,
-                version : `maven-core` ,
-                scope : "provided" ,
+                groupId: "org.apache.maven",
+                artifactId: "maven-core",
+                version: `maven3-core`,
+                scope: "provided",
             }
         ]
-});
-project.properties  = import("properties").properties ;
-project.done();
+} );
+project.properties=import("properties" ) .properties;
+let fmt = java_object("java.text.SimpleDateFormat","yyyy-MM-dd HH:mm:ss");
+project.properties += {"time": java_call(fmt, "format",time()) };
+project.done( );

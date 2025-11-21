@@ -1,8 +1,8 @@
 package ch.turic.builtins.functions;
 
 import ch.turic.Context;
-import ch.turic.exceptions.ExecutionException;
 import ch.turic.TuriFunction;
+import ch.turic.exceptions.ExecutionException;
 /*snippet builtin0430
 
 === `source_directory`
@@ -27,9 +27,11 @@ public class SourceDirectory implements TuriFunction {
         final var ctx = FunUtils.ctx(context);
         final var path = ctx.sourcePath();
         if (path != null) {
-            return path.getParent().toFile().getAbsolutePath();
-        } else {
-            return null;
+            final var parent = path.getParent();
+            if (parent != null) {
+                return parent.toFile().getAbsolutePath();
+            }
         }
+        return null;
     }
 }

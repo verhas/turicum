@@ -1,105 +1,100 @@
-global APPIA = ?(env("APPIA")?.split("\\|")) or [ source_directory() + "/.." ];
+global APPIA=? ( env("APPIA" ) ?. split("\\|" ) ) or [ source_directory( ) + "/.." ];
 sys_import "turi.maven"
 import "turicum_versions"
 
-let project = maven_project({
-    name : "Command Line Turicum",
-    artifactId : "turicum-cli",
-    version : VERSION,
-    description : "Turicum programming language CLI",
-    parent : {
-        groupId: groupId,
-        artifactId: "turicum-parent",
-        version: VERSION
-    }
-
-
-    build: {
-        plugins: [
-            maven_plugin("source"),
-            maven_plugin("javadoc"),
-            maven_plugin("compiler"),
-            {
-                groupId: "org.apache.maven.plugins",
-                artifactId: "maven-jar-plugin",
-            },
-            {
-                groupId: "org.apache.maven.plugins",
-                artifactId: "maven-assembly-plugin",
-                executions : [
-                    {
-                        id: "dist",
-                        phase: "package",
-                        goals : [ "single"] ,
-                        configuration : {
-                            descriptors : {
-                                descriptor: "src/main/assembly/bin.xml",
-                            }
-                            archive: {
-                                manifest:{
-                                    addDefaultImplementationEntries: "true",
-                                    addDefaultSpecificationEntries: "true",
+let project=maven_project( {
+        name: "Command Line Turicum",
+        artifactId: "turicum-cli",
+        version: VERSION,
+        description: "Turicum programming language CLI",
+        parent:{
+            groupId: groupId,
+            artifactId: "turicum-parent",
+            version: VERSION
+        }
+        
+        
+        build:{
+            plugins: [
+                maven_plugin("source" ),
+                maven_plugin("javadoc" ),
+                maven_plugin("compiler" ),
+                maven_plugin("jar" ),
+                maven_plugin("assembly",
+                    executions=[
+                        {
+                            id: "dist",
+                            phase: "package",
+                            goals: [ "single" ],
+                            configuration:{
+                                descriptors:{
+                                    descriptor: "src/main/assembly/bin.xml",
+                                }
+                                archive:{
+                                    manifest:{
+                                        addDefaultImplementationEntries: "true",
+                                        addDefaultSpecificationEntries: "true",
+                                    }
                                 }
                             }
                         }
-                    }
-                ]
+                    ]
+                )
+            ],
+        } ,
+        dependencies: [
+            {
+                groupId: "ch.turic",
+                artifactId: "turicum",
+                version: VERSION,
+            } ,
+            {
+                groupId: "org.jline",
+                artifactId: "jline"
+            } ,
+            {
+                groupId: "org.junit.jupiter",
+                artifactId: "junit-jupiter-api",
+            } ,
+            {
+                groupId: "org.junit.jupiter",
+                artifactId: "junit-jupiter-engine",
+            } ,
+            {
+                groupId: "org.apache.maven",
+                artifactId: "maven-core",
+                version: "3.9.8",
+                scope: "provided",
             }
         ],
-    },
-    dependencies : [
-        {
-            groupId: "ch.turic",
-            artifactId: "turicum",
-            version: VERSION,
-        },
-        {
-            groupId: "org.jline",
-            artifactId: "jline"
-        },
-        {
-            groupId: "org.junit.jupiter",
-            artifactId: "junit-jupiter-api",
-        },
-        {
-            groupId: "org.junit.jupiter",
-            artifactId: "junit-jupiter-engine",
-        },
-        {
-            groupId: "org.apache.maven",
-            artifactId: "maven-core",
-            version: "3.9.8",
-            scope: "provided",
-        }
-        ],
-        profiles : [ {
-            id : "release",
-            build : {
-                plugins : [ {
-                        groupId : "org.apache.maven.plugins",
-                        artifactId : "maven-gpg-plugin",
-                        executions : [ {
-                                id : "sign-artifacts",
-                                phase : "verify",
-                                goals : [ "sign" ]
-                                } ]
-                        },
+        profiles: [ {
+                id: "release",
+                build:{
+                    plugins: [ {
+                            groupId: "org.apache.maven.plugins",
+                            artifactId: "maven-gpg-plugin",
+                            executions: [ {
+                                    id: "sign-artifacts",
+                                    phase: "verify",
+                                    goals: [ "sign" ]
+                            } ]
+                        } ,
                         {
-                            groupId : "org.sonatype.central",
-                            artifactId : "central-publishing-maven-plugin",
-                            extensions : true,
-                            configuration : {
-                                    publishingServerId: "central",
-                                    autoPublish: true
-                                  }
+                            groupId: "org.sonatype.central",
+                            artifactId: "central-publishing-maven-plugin",
+                            extensions: true,
+                            configuration:{
+                                publishingServerId: "central",
+                                autoPublish: true
+                            }
                         }
-               ]
-            }
+                    ]
+                }
         } ]
     }
 );
 
-project.properties = import("properties").properties;
+project.properties=import("properties" ) .properties;
 
-project.done()
-            
+project.done( )
+

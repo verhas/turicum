@@ -8,6 +8,8 @@ import jakarta.inject.Named;
 import jakarta.inject.Singleton;
 import java.nio.file.Path;
 
+import static ch.turic.maven.FileDebugLogger.debug;
+
 @Singleton
 @Named
 public class TuriModelLocator implements ModelSource.ModelLocator {
@@ -18,7 +20,9 @@ public class TuriModelLocator implements ModelSource.ModelLocator {
 
     @Override
     public Path locateExistingPom(Path project) {
-        return project.resolve("pom.xml");
+        debug("Locating existing pom for project: " + project);
+        debug("Returning null");
+        return null;//project.resolve("pom.xml");
     }
 
     @PostConstruct
