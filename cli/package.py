@@ -8,7 +8,7 @@ from pathlib import Path
 import time
 
 ROOT = Path(__file__).resolve().parent
-VERSION_FILE = ROOT.parent / "turicum_versions.turi"
+VERSION_FILE = ROOT.parent / "core" / "src" / "main" / "resources" / "turi" / "version.turi"
 JARS_DIR = ROOT / "target" / "JARS"
 OUTPUT_DIR = ROOT / "output"
 RESOURCE_DIR = ROOT / "src" / "packaging-resources"
@@ -18,9 +18,9 @@ CLI_TARGET = ROOT / "target"
 with open(VERSION_FILE, encoding="utf-8") as f:
     text = f.read()
 
-match = re.search(r'let VERSION\s*=\s*"([^"]+)"\s*;', text)
+match = re.search(r'let `turicum.version`\s*=\s*"([^"]+)"\s*;', text)
 if not match:
-    print("ERROR: Could not extract VERSION from turicum_versions.turi", file=sys.stderr)
+    print("ERROR: Could not extract VERSION from " + VERSION_FILE, file=sys.stderr)
     sys.exit(1)
 
 ts = int(time.time())
