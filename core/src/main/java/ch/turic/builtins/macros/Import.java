@@ -1,9 +1,6 @@
 package ch.turic.builtins.macros;
 
-import ch.turic.Command;
-import ch.turic.Context;
-import ch.turic.Interpreter;
-import ch.turic.TuriMacro;
+import ch.turic.*;
 import ch.turic.builtins.functions.FunUtils;
 import ch.turic.commands.FieldAccess;
 import ch.turic.commands.Identifier;
@@ -151,11 +148,10 @@ public class Import implements TuriMacro {
     }
 
     static Object doImportExport(LocalContext ctx, String source, List<String> imports, final Path sourceFile) {
-        final var interpreter = new Interpreter(source);
+        final var interpreter = new Interpreter(Input.fromString(source, sourceFile.toString()));
         final var program = interpreter.compile();
         final var importedContext = (LocalContext) interpreter.getImportContext();
         importedContext.globalContext.classLoader.inherit(ctx.globalContext.classLoader);
-        importedContext.sourcePath(sourceFile);
         interpreter.execute(program);
         final var set = new HashSet<String>();
         for (final var exported : (imports == null || imports.isEmpty()) ? importedContext.exporting() : imports) {

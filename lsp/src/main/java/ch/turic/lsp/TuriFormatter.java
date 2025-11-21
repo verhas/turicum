@@ -414,7 +414,7 @@ public class TuriFormatter {
 
     private static Rule[] loadRulesFile(String rulesTuriSource, String rulesPath) {
         try {
-            try (final var interpreter = new Interpreter(rulesTuriSource)) {
+            try (final var interpreter = new Interpreter(Input.fromString(rulesTuriSource,rulesPath))) {
                 final var ruleTable = interpreter.compileAndExecute();
                 if (ruleTable instanceof LngList ruleList) {
                     final var loadedRules = new Rule[(int) ruleList.size()];
