@@ -98,12 +98,15 @@ public interface ServiceLoaded {
                                  InstantiationException |
                                  IllegalAccessException e) {
                             // ignored, here we try our best
+                            // this unused assignment is here to help with debugging in the IDE
+                            final var reason = e.getMessage();
                         }
                     }
                 }
             }
         } catch (IOException e) {
-            //ignored
+            //ignored, this unused assignment is here to help with debugging in the IDE
+            final var reason = e.getMessage();
         }
     }
 

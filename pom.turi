@@ -2,7 +2,7 @@ global APPIA = ?(env("APPIA")?.split("\\|")) or [ source_directory() ];
 sys_import "turi.maven"
 import "turicum_versions"
 
-let modules =  [ "core", "maven", "maven4", "cli", "lsp" , "testjar"];
+let modules =  [ "core", "maven", "maven4", "cli", "clifx", "lsp" , "testjar"];
 
 let project = maven_project({
     name: $"${groupId}:turicum-parent",
@@ -141,6 +141,15 @@ let project = maven_project({
                   }
               }
             },
+          .. {
+              for each javafx_module in [ "base", "controls", "fxml" ] list{
+                  {
+                      groupId: "org.openjfx",
+                      artifactId: "javafx-" + javafx_module,
+                      version: `org.openjfx`
+                  }
+              }
+                        },
             {
                 groupId: "org.junit.jupiter",
                 artifactId: "junit-jupiter-api",

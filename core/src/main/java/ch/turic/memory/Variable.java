@@ -65,7 +65,7 @@ public class Variable {
     Type[] types;
 
     /**
-     * Set the value of the variable. Setting also checks that the value is assignable to this variable.
+     * Set the value of the variable. The setter also checks that the value is assignable to this variable.
      * It is assignable if there is a type for this variable that is okay with this value.
      *
      * @param newValue the value to be assigned to the variable

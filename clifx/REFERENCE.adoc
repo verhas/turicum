@@ -1,0 +1,81 @@
+= Turicum Programming Language CLI Reference
+
+This document is the reference document for the Turicum programming language Command Line Interface.
+
+== Installation
+
+You can find the installation kits at
+
+    https://github.com/turicum-pl/turicum-pl.github.io/tree/main/download
+
+
+The kit ``turicum-``__os__``-``__platform__``+-+``__version__``.zip`` is the installation kit, where
+
+* __os__ operating system, `linux`, `windows` or `macos`,
+
+* __platform__ is `x64` for Intel architecture, `arm64` for arm architecture,
+
+* __version__ is the version of the software.
+
+== Executing a script
+
+After the installation you can execute any script using the `turi` command.
+You can also add
+
+    #!/usr/local/bin/turi
+
+shebang line to the start of the script file.
+The extension of the script file containing the Turicum source code has to have `.turi` extension.
+
+To import files, you have to
+
+* define the environment variable `APPIA`, or
+* create an `.env` file or
+* use the command line option `-APPIA`.
+
+== REPL functionality
+
+To start the interpreter in REPL mode use the option
+
+    -REPL
+
+like
+
+    $ turi -REPL
+    Turicum REPL with JLine (//help for more info)
+    >>>
+
+The prompt `>>>` is the REPL prompt.
+You can enter any Turicum code or REPL commands.
+REPL commands start with double `//`, which is a comment in Turicum.
+The most important REPL commands are `//help` and `//exit`.
+
+When the REPL application feels that you need to provide more code after the end of the line, it will prompt it with `...`.
+
+== Compiling and Saving binaries
+
+You can create a binary version of the code using the command line option `-compile`.
+
+In the cli source code directory there is a file `test.turi`.
+
+    println "Hello, World!"
+
+The command line
+
+    turi -compile test.turi
+
+will create the file `test.turc`.
+Executing this file with the command
+
+    turi test.turc
+
+will skip the source code compilation phase and will start the execution of the program.
+
+    $ cat test.turi
+    println "Hello, World!"
+    $ turi -compile test.turi
+    $ turi test.turi
+    Hello, World!
+    $ turi test.turc
+    Hello, World!
+    $

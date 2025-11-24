@@ -30,6 +30,11 @@
             </dependency>
             <dependency>
                 <groupId>ch.turic</groupId>
+                <artifactId>clifx</artifactId>
+                <version>1.4.2</version>
+            </dependency>
+            <dependency>
+                <groupId>ch.turic</groupId>
                 <artifactId>lsp</artifactId>
                 <version>1.4.2</version>
             </dependency>
@@ -37,6 +42,21 @@
                 <groupId>ch.turic</groupId>
                 <artifactId>testjar</artifactId>
                 <version>1.4.2</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-base</artifactId>
+                <version>25.0.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-controls</artifactId>
+                <version>25.0.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-fxml</artifactId>
+                <version>25.0.1</version>
             </dependency>
             <dependency>
                 <scope>test</scope>
@@ -122,6 +142,7 @@
         <module>maven</module>
         <module>maven4</module>
         <module>cli</module>
+        <module>clifx</module>
         <module>lsp</module>
         <module>testjar</module>
     </modules>
@@ -267,6 +288,6 @@
         <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ssZ</maven.build.timestamp.format>
         <maven.compiler.source>21</maven.compiler.source>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <time>2025-11-21 19:44:22</time>
+        <time>2025-11-23 12:01:19</time>
     </properties>
 </project>

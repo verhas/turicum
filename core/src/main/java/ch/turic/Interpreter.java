@@ -7,6 +7,7 @@ import ch.turic.exceptions.BadSyntax;
 import ch.turic.exceptions.ExecutionException;
 import ch.turic.memory.Channel;
 import ch.turic.memory.LocalContext;
+import ch.turic.memory.Variable;
 import ch.turic.memory.debugger.ConcurrentWorkItem;
 import ch.turic.utils.Marshaller;
 import ch.turic.utils.Unmarshaller;
@@ -16,6 +17,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * Interprets and executes source code written in the Turicum programming language.
@@ -106,10 +108,20 @@ public class Interpreter implements AutoCloseable {
      * @throws ExecutionException if an error occurs during execution
      */
     public Object compileAndExecute() throws BadSyntax, ExecutionException {
-        Command localCode = compile();
-        return execute(localCode);
+        return execute(compile());
     }
 
+    public Object compileAndExecute(Map<String, Object> injectedVariables) throws BadSyntax, ExecutionException {
+        return execute(compile(), injectedVariables);
+    }
+
+    /**
+     * Executes the given command and immediately invokes the specified callback after execution,
+     * regardless of whether the execution succeeds or fails.
+     *
+     * @param code     the command to be executed
+     * @param callback the callback function to be executed after the command execution
+     */
     public void executeNotify(Command code, Runnable callback) {
         try {
             execute(code);
@@ -129,9 +141,19 @@ public class Interpreter implements AutoCloseable {
      *                            with an adapted stack trace for better debugging
      */
     public Object execute(Command code) {
+        return execute(code, null);
+    }
+
+    public Object execute(Command code, Map<String, Object> injectedVariables) {
         try {
             if (source != null && source.position != null && source.position.file != null) {
                 ctx.sourcePath(Path.of(source.position.file));
+            }
+            if( injectedVariables != null ){
+                for( final var injectedVariable : injectedVariables.entrySet()){
+                    ctx.global( injectedVariable.getKey(), injectedVariable.getValue());
+                    ctx.freeze( injectedVariable.getKey());
+                }
             }
             return code.execute(ctx);
         } catch (ExecutionException e) {

@@ -1,0 +1,45 @@
+sys_import turi.fx.base
+
+// Create toolbar at top
+let toolbar = hbox(5);
+toolbar.setStyle("-fx-padding: 5; -fx-border-bottom: 1 solid #cccccc;");
+toolbar.getChildren().add(create_button("Step", fn(e) { println("Step"); }));
+toolbar.getChildren().add(create_button("Continue", fn(e) { println("Continue"); }));
+toolbar.getChildren().add(create_button("Stop", fn(e) { println("Stop"); }));
+
+
+// Create tabbed text areas in center
+let tab_pane = java_class("javafx.scene.control.TabPane");
+let tab = java_class("javafx.scene.control.Tab");
+
+let code_pane = tab_pane()
+
+let code_tab = tab();
+code_tab.setText("Code");
+code_tab.setContent(text_area());
+
+let output_tab = tab();
+output_tab.setText("Output");
+output_tab.setContent(text_area());
+
+code_pane.getTabs().add(code_tab);
+code_pane.getTabs().add(output_tab);
+
+// Create key-value pairs list at bottom
+let bottom_container = vbox(5);
+bottom_container.setStyle("-fx-border-top: 1 solid #cccccc; -fx-padding: 5;");
+bottom_container.getChildren().add(label("Variables:"));
+
+let table_view = java_class("javafx.scene.control.TableView")();
+bottom_container.getChildren().add(table_view);
+println "1111"
+// Main layout with BorderPane
+let root = java_class("javafx.scene.layout.BorderPane")();
+root.setTop(toolbar);
+root.setCenter(code_pane);
+root.setBottom(bottom_container);
+
+let my_scene = scene(root, 800, 600);
+fx_stage.setTitle("Turicum Debugger");
+fx_stage.setScene(my_scene);
+fx_stage.show();

@@ -51,7 +51,7 @@ public class Main {
     );
 
     /**
-     * Entry point for the application. This method interprets command-line
+     * Entry point for the application. This method interprets the command-line
      * arguments and executes the desired functionality, such as displaying
      * version information, starting a REPL session, compiling a program,
      * or running a program file. It handles various options and input files

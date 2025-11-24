@@ -15,7 +15,14 @@ module ch.turic {
     exports ch.turic.memory.debugger;
     exports ch.turic.utils;
     exports ch.turic.exceptions;
+    exports ch.turic.analyzer;
+    exports ch.turic.commands;
+    exports ch.turic.commands.operators;
     opens turi; // needed to read the sysimport files as resources
+
+    uses ch.turic.TuriFunction;
+    uses ch.turic.TuriMacro;
+    uses ch.turic.TuriClass;
 
     provides ch.turic.TuriFunction with Len, Type, Macro, Evaluate,
             Reclose, Keys, JavaObject, JavaCall,

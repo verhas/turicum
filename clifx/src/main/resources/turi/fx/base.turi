@@ -1,0 +1,168 @@
+// JavaFX Class Wrappers
+let _stage=java_class("javafx.stage.Stage");
+let _modality=java_class("javafx.stage.Modality");
+
+fn stage( modality=none ){
+    let s=_stage( );
+    if modality == "application" : s.initModality( _modality.APPLICATION_MODAL );
+    if modality == "window" : s.initModality( _modality.WINDOW_MODAL )
+    s
+}
+
+let label=java_class("javafx.scene.control.Label");
+let button=java_class("javafx.scene.control.Button");
+let text_field=java_class("javafx.scene.control.TextField");
+let text_area=java_class("javafx.scene.control.TextArea");
+let check_box=java_class("javafx.scene.control.CheckBox");
+let combo_box=java_class("javafx.scene.control.ComboBox");
+let spinner=java_class("javafx.scene.control.Spinner");
+
+let stack_pane=java_class("javafx.scene.layout.StackPane");
+let hbox=java_class("javafx.scene.layout.HBox");
+let vbox=java_class("javafx.scene.layout.VBox");
+let border_pane=java_class("javafx.scene.layout.BorderPane");
+let grid_pane=java_class("javafx.scene.layout.GridPane");
+let flow_pane=java_class("javafx.scene.layout.FlowPane");
+let anchor_pane=java_class("javafx.scene.layout.AnchorPane");
+
+let scene=java_class("javafx.scene.Scene");
+let color=java_class("javafx.scene.paint.Color");
+let font=java_class("javafx.scene.text.Font");
+
+let observable_list=java_class("javafx.collections.FXCollections");
+let insets=java_class("javafx.geometry.Insets");
+
+/**
+ * Creates a button with the specified text and action handler.
+ * 
+ * @param text the text to display on the button
+ * @param on_action a callable that will be invoked when the button is clicked
+ * @return the created button
+ */
+fn create_button( text, on_action ){
+    let btn=button( text );
+    btn.setOnAction( event_handler( on_action ) );
+    btn;
+}
+
+/**
+ * Creates a text field with a change listener.
+ * 
+ * @param on_change a callable that will be invoked when the text changes
+ * @return the created text field
+ */
+fn create_text_field( on_change ){
+    let tf=text_field( );
+    tf.textProperty( ) .addListener( event_handler( on_change ) );
+    tf;
+}
+
+/**
+ * Creates a checkbox with the specified text and change listener.
+ * 
+ * @param text the text to display next to the checkbox
+ * @param on_change a callable that will be invoked when the checkbox state changes
+ * @return the created checkbox
+ */
+fn create_check_box( text, on_change ){
+    let cb=check_box( text );
+    cb.selectedProperty( ) .addListener( event_handler( on_change ) );
+    cb;
+}
+
+/**
+ * Creates a horizontal container with a label and a control.
+ * 
+ * The label is set to a minimum width of 100 and both are added to an HBox with 10px spacing.
+ * 
+ * @param label_text the text for the label
+ * @param control the control to place next to the label
+ * @return an HBox containing the label and control
+ */
+fn create_labeled_control( label_text, control ){
+    let container=hbox( 10);
+    let lbl=label( label_text );
+    lbl.setMinWidth( 100);
+    container.getChildren( ) .add( lbl );
+    container.getChildren( ) .add( control );
+    container;
+}
+
+/**
+ * Sets the padding on a pane.
+ * 
+ * @param pane the pane to set padding on
+ * @param top the top padding in pixels
+ * @param right the right padding in pixels
+ * @param bottom the bottom padding in pixels
+ * @param left the left padding in pixels
+ */
+fn set_padding( pane, top, right, bottom, left ){
+    pane.setPadding( insets( top, right, bottom, left ) );
+}
+
+/**
+ * Sets the spacing between children in a container.
+ * 
+ * @param container the container to set spacing on
+ * @param spacing the spacing in pixels
+ */
+fn set_spacing( container, spacing ){
+    container.setSpacing( spacing );
+}
+
+/**
+ * Displays an information alert dialog.
+ * 
+ * @param title the title of the alert window
+ * @param header the header text (or null for none)
+ * @param content the content text of the alert
+ */
+fn show_alert( title, header, content ){
+    let alert=java_class("javafx.scene.control.Alert");
+    let alert_type=java_class("javafx.scene.control.Alert$AlertType");
+    let dialog=alert( alert_type.INFORMATION );
+    dialog.setTitle( title );
+    dialog.setHeaderText( header );
+    dialog.setContentText( content );
+    dialog.showAndWait( );
+}
+
+/**
+ * Applies CSS styling to a control.
+ * 
+ * @param control the control to style
+ * @param css the CSS style string
+ * @return the styled control
+ */
+fn style( control, css ){
+    control.setStyle( css );
+    control;
+}
+
+/**
+ * Sets the font size for a control.
+ * 
+ * @param control the control to set the font on
+ * @param size the font size
+ * @return the control with the updated font
+ */
+fn set_font_size( control, size ){
+    let f=font( size );
+    control.setFont( f );
+    control;
+}
+
+/**
+ * Creates an observable list from an array of items.
+ * 
+ * Observable lists can be used with combo boxes, list views, and other dynamic controls.
+ * 
+ * @param items the items to add to the observable list
+ * @return an observable list containing the items
+ */
+fn observable_array( items ){
+    observable_list.observableArrayList( items );
+}
+
+export_all( );

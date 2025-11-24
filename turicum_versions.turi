@@ -7,6 +7,7 @@ let VERSION={ try{ import("core.src.main.resources.turi.version") .`turicum.vers
         import("core.src.main.resources.turi.version") .`turicum.version`;
     }
 }
+let `org.openjfx`= "25.0.1" ;
 
 let `maven-javadoc-plugin`= "3.12.0" ;
 let `maven-source-plugin`= "3.3.1" ;
