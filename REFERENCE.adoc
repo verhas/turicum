@@ -108,7 +108,7 @@ If you want to embed the application into Java, or Kotlin application, you use t
 <dependency>
    <groupId>ch.turic</groupId>
    <artifactId>turicum-parent</artifactId>
-   <version>1.4.1</version>
+   <version>1.4.2</version>
 </dependency>
 ----
 
@@ -256,7 +256,7 @@ Expressions can contain:
 * Async expressions
 * block commands enclosed between `+{+` and `+}+` or `(` and `)`.
 
-Symbolic constants are the followings:
+Symbolic constants are the following:
 
 * `true`
  has the constant boolean __true__ value.
@@ -1010,6 +1010,9 @@ They are accessed
 * using the `.` operator followed by the identifier of the field, or
 * using the field identifier, as a string between `[`, and `]`.
 
+NOTE: You can also use a keyword as a field name or method name, either enclosed between `pass:[`]` or without.
+Turicum allows you to use a keyword like `as` without the backticks around it `pass:[`as`]` when they stand right after `.` or `?.`.
+
 .source of snippet `field_access`
 
 [source]
@@ -1415,8 +1418,8 @@ The `in` operation works for strings, checking if a string is part of another, a
 ----
 println "raka" in "avraka dabra", " there is 'raka' in 'avraka dabra'"
 println "raka" in "evreke debre", " there is no raka in 'evreke debre'"
-println 3in [ 1, 2, 3], " 3 is in [1,2,3]"
-println 3in [ 1, 2, 4], " 3 is not in [1,2,4]"
+println 3 in [ 1, 2, 3], " 3 is in [1,2,3]"
+println 3 in [ 1, 2, 4], " 3 is not in [1,2,4]"
 // checks member not sublist
 println [ 1, 2] in [ 1, 2, 3], " [1, 2] is not in [ 1, 2, 3]"
 println [ 1, 2] in [ 1,[ 1, 2], 3], " [1, 2] is in [ 1, [1, 2], 3]"
@@ -1430,7 +1433,7 @@ true there is 'raka' in 'avraka dabra'
 false there is no raka in 'evreke debre'
 true 3 is in [1,2,3]
 false 3 is not in [1,2,4]
-false [1, 2, 3] is not in [ 1, 2, 3]
+false [1, 2] is not in [ 1, 2, 3]
 true [1, 2] is in [ 1, [1, 2], 3]
 
 ----
@@ -1676,15 +1679,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=4940809C
+h id=2E5C7F0B
 h after post increment: 1
 k: 0
-h id=16423501
-k id=4940809C
+h id=21D5C1A0
+k id=2E5C7F0B
 h after pre increment: 2
 z: 2
-h id=4EFCF8A
-z id=4EFCF8A
+h id=4DE025BF
+z id=4DE025BF
 
 ----
 
@@ -1729,15 +1732,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=4A9E6FAF
+h id=5DB99216
 h after post increment: 1
 k: 1
-h id=4A9E6FAF
-k id=4A9E6FAF
+h id=5DB99216
+k id=5DB99216
 h after pre increment: 2
 z: 2
-h id=4A9E6FAF
-z id=4A9E6FAF
+h id=5DB99216
+z id=5DB99216
 
 ----
 
@@ -1785,15 +1788,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=7CC586A8
+h id=18CC679E
 h after post decrement: -1
 k: 0
-h id=44A2B17B
-k id=7CC586A8
+h id=2C4CA0F9
+k id=18CC679E
 h after pre decrement: -2
 z: -2
-h id=7A56812E
-z id=7A56812E
+h id=67EF029
+z id=67EF029
 
 ----
 
@@ -1835,15 +1838,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=61D9EFE0
+h id=56DB847E
 h after post decrement: -1
 k: -1
-h id=61D9EFE0
-k id=61D9EFE0
+h id=56DB847E
+k id=56DB847E
 h after pre decrement: -2
 z: -2
-h id=61D9EFE0
-z id=61D9EFE0
+h id=56DB847E
+z id=56DB847E
 
 ----
 
@@ -2192,11 +2195,14 @@ class A {
     println("You can read glb, which is a " + glb)
     try{
        // you cannot change it without declaring that it is global
-       glb = 5;
+       // you could write 'let/mut glb', then it is a local variable, or
+       // 'global glb', then it is a global variable
+       glb = 5; // this will create an error
     }catch(e1){
         println("exception 1:",e1)
     }
     try{
+       let h = glb // after the try it is a new scope
        // you touched it as global, you cannot declare it as local anymore
        mut glb = 5;
     }catch(e2){
@@ -2217,13 +2223,14 @@ println(obj.z())
 ----
 You can read glb, which is a global variable
 exception 1:Variable 'glb' was used as global, but is not declared, cannot be changed.
+exception 2:Variable cannot be local, it is already used as non-local 'glb'
 You can access glb here it is modified
 
 ----
 
 
 
-The methods, a.k.a. functions defined inside a class wrap the context of the class.
+The methods, a.k.a. functions defined inside a class, wrap the context of the class.
 Whenever a method is called its own context is created and the "local variables" `cls` and `this` are created.
 Unless the method is a constructor (named aptly as `constructor`) these variables are pinned, cannot be changed.
 
@@ -3087,7 +3094,7 @@ b ||=true :true
 
 While an assignment updates a variable, the variable is pinned.
 The expression can contain method calls, command blocks that may try to update the variable.
-It will fail.
+They will fail.
 
 .source of snippet `update_forbiden`
 
@@ -3133,8 +3140,8 @@ pinned variable cannot be altered 'z'
 
 
 
-In the case of array elements, the pinning it not possible for the individual elements.
-In that case the assignment recognizes if the left value was changed during the evaluation of the expression.
+In the case of array elements, pinning is not possible for the individual elements.
+In that case, the assignment recognizes if the left value was changed during the evaluation of the expression.
 
 .source of snippet `update_forbiden2`
 
@@ -3203,7 +3210,7 @@ apple juice
 
 
 
-When you do that, it is essentially the same as assitning a new value to the variable altogether:
+When you do that, it is essentially the same as assigning a new value to the variable altogether:
 
 .source of snippet `update_forbiden6`
 
@@ -4987,8 +4994,8 @@ Thread 1 generated 3
 Thread 1 generated 5
  prime read 5
 Thread 1 generated 7
- prime read Thread 1 generated 11
-7
+ prime read 7
+Thread 1 generated 11
 Thread 1 generated 13
 Thread 1 generated 17
 Thread 1 generated 19
@@ -4999,8 +5006,8 @@ exception Task stopped.
 Thread 2 generated 3
  prime read 3
 Thread 2 generated 5
- prime read Thread 2 generated 7
-5
+ prime read 5
+Thread 2 generated 7
  prime read 7
 Thread 2 generated 11
 Thread 2 generated 13
@@ -5060,9 +5067,9 @@ println( (end-start)/1000000, "ms")
 [source]
 ----
 [1, 2, 3]
-308.1205ms
+312.920833ms
 []
-305.424792ms
+314.685292ms
 
 ----
 
@@ -5271,9 +5278,11 @@ a =3.6820276497695854
 a =3.6063454894655185
 a =3.6055513629176015
 a =3.6055512754639905
-sqrt(13) ≈ 3.6055513629176015
+a =3.6055512754639896
+a =3.6055512754639896
+sqrt(13) ≈ 3.6055512754639896
 sqrt(13) ≈ 3.605551275463989 calculated by java Math
-square ≈ 13.000000630636974
+square ≈ 13.000000000000002
 
 ----
 
@@ -11022,6 +11031,83 @@ Bruhahha
 The example above performs the same call as in the `java_object` example, but using a string to specify the name of the Java method.
 
 
+=== `java_callback`
+
+This function creates a Java callback.
+A java_callback can be passed to Java methods as an argument where it expects a `java.util.function.*` type.
+
+To do the conversion, you have to supply a function, closure, or something callable to the function, and then apply
+`.as("...")` on the result to get the actual type. For example:
+
+.source of snippet `java_callback1`
+
+[source]
+----
+// note you can use the keyword 'as' without the backticks
+println java_callback(fn(x) = x*2).as("IntFunction").apply(java_int(2))
+
+----
+
+.output of snippet `java_callback1`
+[source]
+----
+4
+
+----
+
+
+
+Although this example is not the typical use of the function, it demonstrates the conversion.
+
+The parameter of the method `as()` is the simple name of the Java class to convert to.
+The implemented conversions are listed below.
+
+* `BiConsumer`
+* `BiFunction`
+* `BinaryOperator`
+* `BiPredicate`
+* `BooleanSupplier`
+* `Consumer`
+* `DoubleBinaryOperator`
+* `DoubleConsumer`
+* `DoubleFunction`
+* `DoublePredicate`
+* `DoubleSupplier`
+* `DoubleToIntFunction`
+* `DoubleToLongFunction`
+* `DoubleUnaryOperator`
+* `Function`
+* `IntBinaryOperator`
+* `IntConsumer`
+* `IntFunction`
+* `IntPredicate`
+* `IntSupplier`
+* `IntToDoubleFunction`
+* `IntToLongFunction`
+* `IntUnaryOperator`
+* `LongBinaryOperator`
+* `LongConsumer`
+* `LongFunction`
+* `LongPredicate`
+* `LongSupplier`
+* `LongToDoubleFunction`
+* `LongToIntFunction`
+* `LongUnaryOperator`
+* `ObjDoubleConsumer`
+* `ObjIntConsumer`
+* `ObjLongConsumer`
+* `Predicate`
+* `Supplier`
+* `ToDoubleBiFunction`
+* `ToDoubleFunction`
+* `ToIntBiFunction`
+* `ToIntFunction`
+* `ToLongBiFunction`
+* `ToLongFunction`
+* `UnaryOperator`
+
+
+
 === `java_class`
 
 Create a Turicum object that is a Java class itself.
@@ -11469,7 +11555,7 @@ println nano_time()
 .output of snippet `nano_time`
 [source]
 ----
-622610383640333
+1315836036758833
 
 ----
 
@@ -11744,80 +11830,82 @@ none
 .output of snippet `que`
 [source]
 ----
-task1 is ready 1
 task2 is not ready 0
 task1 is not ready 0
-task2 is not ready 1task1 is not ready 1
-
-task1 is not ready 2
-task2 is not ready 2
-task1 is not ready 3
-task2 is ready 2
+task2 is ready 1
+task1 is not ready 1
 task2 is not ready 0
-task2 is not ready 1task1 is not ready 4
+task2 is not ready 1task1 is not ready 2
 
-task1 is not ready 5
-task2 is not ready 2
-task1 is not ready 6task2 is not ready 3
+task1 is not ready 3task2 is not ready 2
 
-task1 is ready 3task2 is not ready 4
-
-task1 is not ready 0
-task1 is not ready 1task2 is not ready 5
-
-task1 is not ready 2
-task2 is not ready 6
-task1 is ready 4
-task1 is not ready 0
-task2 is not ready 7
-task1 is not ready 1task2 is not ready 8
-
-task2 is not ready 9task1 is not ready 2
-
-task1 is ready 5task2 is not ready 10
-
-task1 is not ready 0
-task1 is not ready 1task2 is not ready 11
-
-task2 is not ready 12task1 is not ready 2
-
-task2 is not ready 13task1 is ready 6
-
-task1 is not ready 0
-task1 is not ready 1task2 is not ready 14
-
-task2 is not ready 15task1 is not ready 2
-
-task1 is not ready 3task2 is ready 7
-
-task2 is not ready 0
-task2 is not ready 1
-task1 is not ready 4
-task2 is not ready 2task1 is not ready 5
-
-task2 is ready 8task1 is not ready 6
-
-task2 is not ready 0
-task1 is not ready 7
-task2 is not ready 1
-task2 is not ready 2
-task1 is not ready 8
-task1 is ready 9task2 is not ready 3
+task2 is not ready 3task1 is ready 2
 
 task1 is not ready 0
 task1 is not ready 1
 task2 is not ready 4
-task1 is not ready 2
 task2 is not ready 5
+task1 is not ready 2
+task2 is ready 3
+task1 is not ready 3
+task2 is not ready 0
+task1 is not ready 4
+task2 is not ready 1
+task2 is not ready 2task1 is not ready 5
+
+task1 is ready 4task2 is not ready 3
+
+task1 is not ready 0
+task2 is not ready 4
+task1 is not ready 1
+task2 is not ready 5
+task1 is not ready 2
+task1 is ready 5task2 is not ready 6
+
+task1 is not ready 0
+task2 is not ready 7
+task1 is not ready 1
+task1 is not ready 2
+task2 is not ready 8
+task1 is ready 6task2 is not ready 9
+
+task1 is not ready 0
+task1 is not ready 1task2 is not ready 10
+
+task1 is not ready 2
+task2 is not ready 11
+task1 is not ready 3
+task2 is ready 7
+task2 is not ready 0
+task1 is not ready 4task2 is not ready 1
+
+task2 is not ready 2
+task1 is not ready 5
+task1 is not ready 6task2 is ready 8
+
+task2 is not ready 0
+task2 is not ready 1task1 is not ready 7
+
+task2 is not ready 2
+task1 is not ready 8
+task2 is not ready 3task1 is not ready 9
+
+task2 is ready 9
+task1 is not ready 10task2 is not ready 0
+
+task1 is not ready 11
+task2 is not ready 1
+task1 is not ready 12
+task2 is not ready 2
 closing the channel
 channel is closed
 1 is done false
 2 is done false
 we start to wait the first time
-task2 is done
 task1 is done
-task1 done false
-task2 done true
+task2 is done
+task1 done true
+task2 done false
 We start to wait the second time
 task1 done true
 task2 done true
@@ -12802,6 +12890,7 @@ not ready 0
 not ready 1
 not ready 2
 closing the channel
+not ready 3
 channel is closed
 is done false
 we are done
@@ -13290,11 +13379,11 @@ Function call: name(params)
 
 Field access: obj.field
 
- FIELD_ACCESS: := PRIMARY_EXPRESSION '.' IDENTIFIER ;
+ FIELD_ACCESS: := PRIMARY_EXPRESSION ('.'|'?.') (IDENTIFIER | KEYWORD) ;
 
 Method call: obj.method(params)
 
- METHOD_CALL: := PRIMARY_EXPRESSION '.' IDENTIFIER '(' [ EXPRESSION { ',' EXPRESSION } ] ')' ;
+ METHOD_CALL: := PRIMARY_EXPRESSION ('.'|'?.') (IDENTIFIER | KEYWORD) '(' [ EXPRESSION { ',' EXPRESSION } ] ')' ;
 
 Block returning an expression value.
 The value of the block is always the last executed expression.

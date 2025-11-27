@@ -209,7 +209,7 @@ Expressions can contain:
 * Async expressions
 * block commands enclosed between `+{+` and `+}+` or `(` and `)`.
 
-Symbolic constants are the followings:
+Symbolic constants are the following:
 
 {%#trimLines
 {%#replaceLines replace="/\"(.*?)\",[^\"]+/* `$1`,/" replace=/,$// replace=~//~
@@ -528,6 +528,9 @@ They are accessed
 
 * using the `.` operator followed by the identifier of the field, or
 * using the field identifier, as a string between `[`, and `]`.
+
+NOTE: You can also use a keyword as a field name or method name, either enclosed between `pass:[`]` or without.
+Turicum allows you to use a keyword like `as` without the backticks around it `pass:[`as`]` when they stand right after `.` or `?.`.
 
 {%S field_access%}
 
@@ -912,7 +915,7 @@ The class and the function do not wrap the surrounding, global context.
 
 {%S function_scope%}
 
-The methods, a.k.a. functions defined inside a class wrap the context of the class.
+The methods, a.k.a. functions defined inside a class, wrap the context of the class.
 Whenever a method is called its own context is created and the "local variables" `cls` and `this` are created.
 Unless the method is a constructor (named aptly as `constructor`) these variables are pinned, cannot be changed.
 
@@ -1221,7 +1224,7 @@ This temporary command returns the current value of the left value when evaluate
 
 While an assignment updates a variable, the variable is pinned.
 The expression can contain method calls, command blocks that may try to update the variable.
-It will fail.
+They will fail.
 
 {%S update_forbiden%}
 
@@ -1229,8 +1232,8 @@ The same is true for object fields.
 
 {%S update_forbiden3%}
 
-In the case of array elements, the pinning it not possible for the individual elements.
-In that case the assignment recognizes if the left value was changed during the evaluation of the expression.
+In the case of array elements, pinning is not possible for the individual elements.
+In that case, the assignment recognizes if the left value was changed during the evaluation of the expression.
 
 {%S update_forbiden2%}
 
@@ -1243,7 +1246,7 @@ You are also not allowed to change a string variable while you assign a new stri
 
 {%S update_forbiden5%}
 
-When you do that, it is essentially the same as assitning a new value to the variable altogether:
+When you do that, it is essentially the same as assigning a new value to the variable altogether:
 
 {%S update_forbiden6%}
 
@@ -3124,11 +3127,11 @@ Function call: name(params)
 
 Field access: obj.field
 
- FIELD_ACCESS: := PRIMARY_EXPRESSION '.' IDENTIFIER ;
+ FIELD_ACCESS: := PRIMARY_EXPRESSION ('.'|'?.') (IDENTIFIER | KEYWORD) ;
 
 Method call: obj.method(params)
 
- METHOD_CALL: := PRIMARY_EXPRESSION '.' IDENTIFIER '(' [ EXPRESSION { ',' EXPRESSION } ] ')' ;
+ METHOD_CALL: := PRIMARY_EXPRESSION ('.'|'?.') (IDENTIFIER | KEYWORD) '(' [ EXPRESSION { ',' EXPRESSION } ] ')' ;
 
 Block returning an expression value.
 The value of the block is always the last executed expression.

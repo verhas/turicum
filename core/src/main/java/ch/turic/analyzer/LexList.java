@@ -64,10 +64,18 @@ public class LexList extends LngList {
         return lexAt(index++);
     }
 
-    public Lex next(Lex.Type expectedType) throws BadSyntax {
+    public String nextIdentifier() throws BadSyntax {
         final var lex = next();
-        BadSyntax.when(lex.startPosition(), lex.type() != expectedType, "%s was expected and got '%s' which is %s", expectedType.name(), lex.text(), lex.type().name());
-        return lex;
+        if (lex.type() != Lex.Type.IDENTIFIER) {
+            if (lex.type() == Lex.Type.RESERVED) {
+                if (!Character.isJavaIdentifierStart(lex.text().charAt(0))) {
+                    throw new BadSyntax(lex.startPosition(), "A non-word symbol was used as an identifier");
+                }
+            } else {
+                throw new BadSyntax(lex.startPosition(), "An identifier was expected");
+            }
+        }
+        return lex.text();
     }
 
     public Lex next(Lex.Type type, String msg) throws BadSyntax {
@@ -126,6 +134,7 @@ public class LexList extends LngList {
         }
         return lexAt(index).startPosition().clone();
     }
+
     /**
      * Returns the start position of the current token, or the last token if at the end of the list.
      *

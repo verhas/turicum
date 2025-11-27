@@ -1,3 +1,4 @@
 You can read glb, which is a global variable
 exception 1:Variable 'glb' was used as global, but is not declared, cannot be changed.
+exception 2:Variable cannot be local, it is already used as non-local 'glb'
 You can access glb here it is modified

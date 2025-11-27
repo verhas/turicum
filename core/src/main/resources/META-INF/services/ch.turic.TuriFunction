@@ -98,4 +98,5 @@ ch.turic.builtins.functions.debugger.DebugSessionFactory
 ch.turic.builtins.functions.Pack
 ch.turic.builtins.functions.AddJavaClasses
 ch.turic.builtins.functions.JavaResources
+ch.turic.builtins.functions.JavaCall
 

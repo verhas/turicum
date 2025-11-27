@@ -1,9 +1,9 @@
 package ch.turic.commands;
 
 import ch.turic.Command;
-import ch.turic.exceptions.ExecutionException;
 import ch.turic.TuriClass;
 import ch.turic.builtins.classes.TuriNone;
+import ch.turic.exceptions.ExecutionException;
 import ch.turic.memory.*;
 import ch.turic.utils.Unmarshaller;
 
@@ -48,10 +48,43 @@ public abstract class FunctionCallOrCurry extends AbstractCommand {
     public final Argument[] arguments;
 
 
-    public record Argument(Identifier id, Command expression) {
+    /**
+     * Represents an argument used within a function or command system.
+     * An Argument instance consists of an identifier, a flag indicating its optional status,
+     * and a command expression that defines its value or behavior.
+     * <p>
+     * This immutable class encapsulates the essential properties for defining and managing
+     * arguments in various execution contexts. Often used in function calls or command structures
+     * where arguments need to be defined, parsed, and processed.
+     * <p>
+     * Fields:
+     * - `id`: A unique identifier for the argument, often representing its name or key.
+     * - `optional`: A boolean flag indicating whether the argument is optional. If `true`,
+     * the argument may not be required by the function or command.
+     * - `expression`: A {@code Command} that represents the value, computation, or
+     * behavior associated with the argument.
+     * <p>
+     * Constructors:
+     * - The primary constructor initializes all fields explicitly.
+     * - An additional constructor allows creation of a mandatory argument by
+     * defaulting the optional flag to {@code false}.
+     * <p>
+     * Methods:
+     * - A static `factory` method is provided for constructing an Argument instance
+     * through an {@code Unmarshaller.Args} object. The method extracts the required
+     * fields (`id`, `optional`, `expression`) from the args object and creates an
+     * Argument instance.
+     */
+    public record Argument(Identifier id, boolean optional, Command expression) {
+
+        public Argument(Identifier id, Command expression) {
+            this(id, false, expression);
+        }
+
         public static Argument factory(final Unmarshaller.Args args) {
             return new Argument(
                     args.get("id", Identifier.class),
+                    args.get("optional", boolean.class),
                     args.command("expression"));
         }
     }

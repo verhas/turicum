@@ -1,3 +1,1 @@
-
-
-println version()
+println java_callback(fn(x) = x*2).as("IntFunction").apply(java_int(2))

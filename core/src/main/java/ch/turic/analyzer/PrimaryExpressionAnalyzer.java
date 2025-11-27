@@ -191,8 +191,8 @@ public class PrimaryExpressionAnalyzer extends AbstractAnalyzer {
             left = switch (lexes.next().text()) {
                 case ".(" -> new FunctionCurrying(left, analyzeArguments(lexes, isDecorator, true));
                 case "(" -> new FunctionCall(left, analyzeArguments(lexes, isDecorator, true));
-                case "." -> new FieldAccess(left, lexes.next(Lex.Type.IDENTIFIER).text(), false);
-                case "?." -> new FieldAccess(left, lexes.next(Lex.Type.IDENTIFIER).text(), true);
+                case "." -> new FieldAccess(left, lexes.nextIdentifier(), false);
+                case "?." -> new FieldAccess(left, lexes.nextIdentifier(), true);
                 case "[" -> {
                     final var indexExpression = new ArrayAccess(left, ExpressionAnalyzer.INSTANCE.analyze(lexes));
                     lexes.next(Lex.Type.RESERVED, "]", "Array indexing is not closed with ]");

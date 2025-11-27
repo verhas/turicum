@@ -35,6 +35,15 @@ public class LngClass implements HasFields, HasIndex, HasContext, LngCallable.Ln
     }
 
 
+    /**
+     * Creates a new instance of the class represented by this object.
+     *
+     * @param that an optional object representing the context or reference (or null) on which the constructor was called.
+     *             This is a special case when the class is a field of another object. 'that' will point to "that" object.
+     * @param callerContext the local context of the caller, used as a basis to create the instance's context.
+     * @param arguments the evaluated arguments to be passed to the class constructor or initializer.
+     * @return the newly created and initialized instance of the class.
+     */
     public Object newInstance(Object that, LocalContext callerContext, FunctionCall.Argument[] arguments) {
         final var objectContext = callerContext.wrap(context());
         final var uninitialized = new LngObject(this, objectContext);

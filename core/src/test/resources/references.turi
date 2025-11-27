@@ -1110,11 +1110,14 @@ class A {
     println("You can read glb, which is a " + glb)
     try{
        // you cannot change it without declaring that it is global
-       glb = 5;
+       // you could write 'let/mut glb', then it is a local variable, or
+       // 'global glb', then it is a global variable
+       glb = 5; // this will create an error
     }catch(e1){
         println("exception 1:",e1)
     }
     try{
+       let h = glb // after the try it is a new scope
        // you touched it as global, you cannot declare it as local anymore
        mut glb = 5;
     }catch(e2){
@@ -1958,6 +1961,12 @@ try: sb.deleteCharAt(0) catch e: println e
 sb.deleteCharAt(java_int(0))
 println sb
 // end snippet
+
+// snippet java_callback1
+// note you can use the keyword 'as' without the backticks
+println java_callback(fn(x) = x*2).as("IntFunction").apply(java_int(2))
+// end snippet
+
 
 // snippet java_call1
 let sb = java_object("java.lang.StringBuilder", "xBruhahha");

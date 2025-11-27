@@ -39,7 +39,7 @@ public class TuriString implements TuriClass {
      * @param target     the string instance on which the method will operate
      * @param identifier the name of the string method to retrieve
      * @return a callable object implementing the requested string operation, or null if the identifier is unrecognized
-     * @throws ExecutionException if the target is not a String or if invalid arguments are supplied to the method
+     * @throws ExecutionException if the target is not a String, or if invalid arguments are supplied to the method
      */
     @Override
     public LngCallable getMethod(Object target, String identifier) {
