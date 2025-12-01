@@ -8,6 +8,7 @@ import ch.turic.utils.Reflection;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.stream.Collectors;
+
 /*snippet builtin0160
 
 === `java_call`

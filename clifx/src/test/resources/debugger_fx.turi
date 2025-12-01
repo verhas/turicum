@@ -1,0 +1,80 @@
+sys_import turi.fx.base
+sys_import turi.debug
+// Create toolbar at top
+with fx {
+    let menuBar=fx.MenuBar();
+    let fileMenu=fx.Menu();
+    fileMenu.setText("File");
+    let openMenuItem=fx.MenuItem();
+    openMenuItem.setText("Open");
+    openMenuItem.setOnAction( event_handler( { | e |
+                let fileChooser=fx.FileChooser();
+                let selectedFile=fileChooser.showOpenDialog( fx_stage );
+                if( selectedFile != none ){
+                    try{ debug( str( selectedFile ) )
+                        code_tab.getContent().setText( line() );
+                        } catch ex {
+                            println code_tab
+                            println code_tab.getContent()
+                            println code_tab.getContent().getText()
+println $"ex=$(str(ex))"
+let exStr = str( ex )
+println exStr == none
+                        code_tab.getContent().setText(  exStr );
+                    }
+                }
+    } ) );
+
+    fileMenu.getItems().add( openMenuItem );
+    menuBar.getMenus().add( fileMenu );
+
+    let toolbar=HBox(5);
+    toolbar.setStyle("-fx-padding: 5; -fx-border-bottom: 1 solid #cccccc;");
+    toolbar.getChildren().add( create_button("Step",fn( e ){ println("Step"); } ) );
+    toolbar.getChildren().add( create_button("Continue",fn( e ){ println("Continue"); } ) );
+    toolbar.getChildren().add( create_button("Stop",fn( e ){ println("Stop"); } ) );
+
+
+    let code_pane=fx.TabPane()
+
+    let code_tab=fx.Tab();
+    code_tab.setText("Code");
+    code_tab.setContent( fx.TextArea() );
+
+    let output_tab=fx.Tab();
+    output_tab.setText("Output");
+    output_tab.setContent( TextArea() );
+    for each tab in[ code_tab, output_tab ] : code_pane.getTabs().add( tab );
+
+    let variable_pane=fx.TabPane()
+
+    let local_variables_tab=fx.Tab()
+    let global_variables_tab=fx.Tab()
+
+    for each tab in[ [ local_variables_tab, "Local Variables"], [ global_variables_tab, "Global Variables"] ] {
+        tab [0] .setText( tab [1] )
+        tab [0] .setContent( TableView() )
+    }
+
+
+    global_variables_tab.setText("Global Variables")
+    global_variables_tab.setContent( TableView() )
+
+    for each tab in[ local_variables_tab, global_variables_tab ] {
+        variable_pane.getTabs().add( tab )
+    }
+
+    let topContainer=fx.VBox();
+    for each bar in[ menuBar, toolbar ] : topContainer.getChildren().add( bar );
+
+    // Main layout with BorderPane
+    let root=fx.BorderPane();
+    root.setTop( topContainer );
+    root.setCenter( code_pane );
+    root.setBottom( variable_pane );
+
+    let my_scene=Scene( root, 800, 600);
+    fx_stage.setTitle("Turicum Debugger");
+    fx_stage.setScene( my_scene );
+    fx_stage.show();
+}

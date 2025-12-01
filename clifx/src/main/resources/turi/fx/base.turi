@@ -1,36 +1,16 @@
+
+
+
 // JavaFX Class Wrappers
-let _stage=java_class("javafx.stage.Stage");
-let _modality=java_class("javafx.stage.Modality");
+let fx=java_import("javafx")
+pin {fx};
 
 fn stage( modality=none ){
-    let s=_stage( );
+    let s=Stage( );
     if modality == "application" : s.initModality( _modality.APPLICATION_MODAL );
     if modality == "window" : s.initModality( _modality.WINDOW_MODAL )
     s
 }
-
-let label=java_class("javafx.scene.control.Label");
-let button=java_class("javafx.scene.control.Button");
-let text_field=java_class("javafx.scene.control.TextField");
-let text_area=java_class("javafx.scene.control.TextArea");
-let check_box=java_class("javafx.scene.control.CheckBox");
-let combo_box=java_class("javafx.scene.control.ComboBox");
-let spinner=java_class("javafx.scene.control.Spinner");
-
-let stack_pane=java_class("javafx.scene.layout.StackPane");
-let hbox=java_class("javafx.scene.layout.HBox");
-let vbox=java_class("javafx.scene.layout.VBox");
-let border_pane=java_class("javafx.scene.layout.BorderPane");
-let grid_pane=java_class("javafx.scene.layout.GridPane");
-let flow_pane=java_class("javafx.scene.layout.FlowPane");
-let anchor_pane=java_class("javafx.scene.layout.AnchorPane");
-
-let scene=java_class("javafx.scene.Scene");
-let color=java_class("javafx.scene.paint.Color");
-let font=java_class("javafx.scene.text.Font");
-
-let observable_list=java_class("javafx.collections.FXCollections");
-let insets=java_class("javafx.geometry.Insets");
 
 /**
  * Creates a button with the specified text and action handler.
@@ -40,7 +20,7 @@ let insets=java_class("javafx.geometry.Insets");
  * @return the created button
  */
 fn create_button( text, on_action ){
-    let btn=button( text );
+    let btn=fx.Button( text );
     btn.setOnAction( event_handler( on_action ) );
     btn;
 }
@@ -51,9 +31,9 @@ fn create_button( text, on_action ){
  * @param on_change a callable that will be invoked when the text changes
  * @return the created text field
  */
-fn create_text_field( on_change ){
-    let tf=text_field( );
-    tf.textProperty( ) .addListener( event_handler( on_change ) );
+fn create_text_field( on_change={ | a | } ){
+    let tf=fx.TextField( );
+    tf.textProperty( ) .addListener( java_callback( on_change ) . as("Function") );
     tf;
 }
 
@@ -64,24 +44,24 @@ fn create_text_field( on_change ){
  * @param on_change a callable that will be invoked when the checkbox state changes
  * @return the created checkbox
  */
-fn create_check_box( text, on_change ){
-    let cb=check_box( text );
-    cb.selectedProperty( ) .addListener( event_handler( on_change ) );
+fn create_check_box( text, on_change={ | x | } ){
+    let cb=fx.CheckBox( text );
+    cb.selectedProperty( ) .addListener( java_callback( on_change ) . as("Function") );
     cb;
 }
 
 /**
  * Creates a horizontal container with a label and a control.
  * 
- * The label is set to a minimum width of 100 and both are added to an HBox with 10px spacing.
+ * The label is set to a minimum width of 100, and both are added to an HBox with 10px spacing.
  * 
  * @param label_text the text for the label
  * @param control the control to place next to the label
  * @return an HBox containing the label and control
  */
-fn create_labeled_control( label_text, control ){
-    let container=hbox( 10);
-    let lbl=label( label_text );
+fn create_labeled_control( label_text, control={ | x | } ){
+    let container=fx.HBox( 10);
+    let lbl=fx.Label( label_text );
     lbl.setMinWidth( 100);
     container.getChildren( ) .add( lbl );
     container.getChildren( ) .add( control );
@@ -119,8 +99,6 @@ fn set_spacing( container, spacing ){
  * @param content the content text of the alert
  */
 fn show_alert( title, header, content ){
-    let alert=java_class("javafx.scene.control.Alert");
-    let alert_type=java_class("javafx.scene.control.Alert$AlertType");
     let dialog=alert( alert_type.INFORMATION );
     dialog.setTitle( title );
     dialog.setHeaderText( header );
@@ -148,7 +126,7 @@ fn style( control, css ){
  * @return the control with the updated font
  */
 fn set_font_size( control, size ){
-    let f=font( size );
+    let f=Font( size );
     control.setFont( f );
     control;
 }
@@ -164,5 +142,128 @@ fn set_font_size( control, size ){
 fn observable_array( items ){
     observable_list.observableArrayList( items );
 }
+
+
+/**
+ * Creates a TableView with specified columns.
+ * 
+ * @param columns a list of column definitions, each with `name` and `property` fields
+ * @return the created TableView
+ */
+fn create_table_view( columns ){
+    let tv=fxTableView( );
+    
+    foreach col in columns {
+        let table_col=fxTableColumn( );
+        table_col.setText( col.name );
+        table_col.setPrefWidth( col ?. width or 100);
+        
+        let value_factory=cell_value_factory( col.property );
+        table_col.setCellValueFactory( value_factory );
+        
+        tv.getColumns( ) .add( table_col );
+    }
+    
+    return tv;
+}
+
+/**
+ * Populates a TableView with data.
+ * 
+ * @param table_view the TableView to populate
+ * @param data a list of objects to display
+ */
+fn populate_table_view( table_view, data ){
+    let items=observable_list( data );
+    table_view.setItems( items );
+}
+
+/**
+ * Creates a TableView with columns and populates it with data in one step.
+ * 
+ * @param columns a list of column definitions with `name` and `property` fields
+ * @param data a list of objects to display
+ * @return the populated TableView
+ */
+fn create_and_populate_table_view( columns, data ){
+    let tv=create_table_view( columns );
+    populate_table_view( tv, data );
+    return tv;
+}
+
+/**
+ * Creates a simple key-value table with two columns.
+ * 
+ * @param data a list of objects with `key` and `value` properties
+ * @return the created TableView
+ */
+fn create_key_value_table( data ){
+    let columns=[
+        { name: "Key", property: "key", width: 150 } ,
+        { name: "Value", property: "value", width: 300 }
+    ];
+    return create_and_populate_table_view( columns, data );
+}
+
+/**
+ * Clears all data from a TableView.
+ * 
+ * @param table_view the TableView to clear
+ */
+fn clear_table_view( table_view ){
+    table_view.getItems( ) .clear( );
+}
+
+/**
+ * Gets all items from a TableView.
+ * 
+ * @param table_view the TableView
+ * @return a list of all items in the table
+ */
+fn get_table_view_items( table_view ){
+    return table_view.getItems( );
+}
+
+/**
+ * Gets the selected item from a TableView.
+ * 
+ * @param table_view the TableView
+ * @return the selected item or null if nothing is selected
+ */
+fn get_selected_item( table_view ){
+    return table_view.getSelectionModel( ) .getSelectedItem( );
+}
+
+/**
+ * Adds a row to a TableView.
+ * 
+ * @param table_view the TableView
+ * @param item the item to add
+ */
+fn add_table_row( table_view, item ){
+    table_view.getItems( ) .add( item );
+}
+
+/**
+ * Removes a row from a TableView.
+ * 
+ * @param table_view the TableView
+ * @param item the item to remove
+ */
+fn remove_table_row( table_view, item ){
+    table_view.getItems( ) .remove( item );
+}
+
+/**
+ * Adds a selection change listener to a TableView.
+ * 
+ * @param table_view the TableView
+ * @param on_change a callable invoked when selection changes
+ */
+fn on_table_selection_change( table_view, on_change ){
+    table_view.getSelectionModel( ) .selectedItemProperty( ) .addListener( event_handler( on_change ) );
+}
+
+export_all( );
 
 export_all( );

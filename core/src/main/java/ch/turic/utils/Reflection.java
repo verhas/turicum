@@ -49,17 +49,16 @@ public class Reflection {
         Objects.requireNonNull(methodName, "methodName must not be null");
         Objects.requireNonNull(args, "args must not be null");
         final var method = getMethodFromClass(klass, methodName, args);
-        if (method == null) {
-            return null;
-        }
-        try {
-            method.setAccessible(true);
-            if (method.canAccess(null)) {
-                return method;
+        if (method != null) {
+            try {
+                method.setAccessible(true);
+                if (method.canAccess(null)) {
+                    return method;
+                }
+            } catch (InaccessibleObjectException ignored) {
             }
-        } catch (InaccessibleObjectException ignored) {
         }
-        for (final var interfac: collectInterfaces(klass)) {
+        for (final var interfac : collectInterfaces(klass)) {
             final var interfaceMethod = getMethodFromClass(interfac, methodName, args);
             if (interfaceMethod != null) {
                 try {
@@ -138,10 +137,10 @@ public class Reflection {
 
             packed[normalCount] = varargsArray;
 
-            return (T)constructor.newInstance(packed);
+            return (T) constructor.newInstance(packed);
         } else {
             // Normal case, pass through
-            return (T)constructor.newInstance(args);
+            return (T) constructor.newInstance(args);
         }
     }
 
@@ -164,15 +163,14 @@ public class Reflection {
         Objects.requireNonNull(args, "args must not be null");
         final var klass = object.getClass();
         final var method = getMethodFromClass(klass, methodName, args);
-        if (method == null) {
-            return null;
-        }
-        try {
-            method.setAccessible(true);
-            if (method.canAccess(object)) {
-                return method;
+        if (method != null) {
+            try {
+                method.setAccessible(true);
+                if (method.canAccess(object)) {
+                    return method;
+                }
+            } catch (InaccessibleObjectException ignored) {
             }
-        } catch (InaccessibleObjectException ignored) {
         }
         for (final var interfac : collectInterfaces(klass)) {
             final var interfaceMethod = getMethodFromClass(interfac, methodName, args);
@@ -198,7 +196,7 @@ public class Reflection {
      * If an argument is null, its type is considered as null.
      *
      * @param klass the Class object representing the class from which the constructor is to be retrieved
-     * @param args an array of objects representing the arguments to be used for inferring the parameter types of the constructor
+     * @param args  an array of objects representing the arguments to be used for inferring the parameter types of the constructor
      * @return the Constructor instance that matches the specified arguments or null if no matching constructor is found
      */
     public static Constructor<?> getConstructorForArgs(final Class<?> klass, final Object[] args) {
@@ -209,7 +207,7 @@ public class Reflection {
      * Retrieves a constructor from the specified class that matches the given parameter types.
      *
      * @param klass the class from which to retrieve the constructor
-     * @param args an array of parameter types to match the desired constructor
+     * @param args  an array of parameter types to match the desired constructor
      * @return the matching constructor if found, or null if no matching constructor is available
      * @throws IllegalStateException if a non-constructor executable is unexpectedly returned
      */
@@ -243,7 +241,7 @@ public class Reflection {
     /**
      * Recursively collects all interfaces implemented by the specified class and its superclasses.
      *
-     * @param klass  the {@link Class} object to inspect for implemented interfaces, must not be null
+     * @param klass      the {@link Class} object to inspect for implemented interfaces, must not be null
      * @param interfaces a {@link Set} to which the collected interfaces are added, must not be null
      */
     private static void collectInterfaces(Class<?> klass, Set<Class<?>> interfaces) {
@@ -414,7 +412,75 @@ public class Reflection {
         if (parameterType.isPrimitive()) {
             return acceptsPrimitive(parameterType, argType);
         } else {
-            return parameterType.isAssignableFrom(argType);
+            return parameterType.isAssignableFrom(argType) || acceptsLambda(parameterType, argType);
+        }
+    }
+
+    /**
+     * Determines whether the given lambda type is compatible with the specified parameter type.
+     * <p>
+     * NOTE: the method does not check the return type, because of type erasure.
+     *
+     * @param parameterType the type of the parameter to be checked
+     * @param lambdaType    the type of the lambda to be checked
+     * @return {@code true} if the lambda type is compatible with the parameter type, otherwise {@code false}
+     */
+    private static boolean acceptsLambda(Class<?> parameterType, Class<?> lambdaType) {
+        // if the argument type is not a lambda, we do not even bother
+        if (notLambda(lambdaType)) {
+            return false;
+        }
+
+        // if it has zero or more than one method, it is still not a lambda
+        final var lambdaMethod = getLambdaMethod(lambdaType);
+        final var method = getLambdaMethod(parameterType);
+        if (lambdaMethod.isEmpty() || method.isEmpty()) {
+            return false;
+        }
+
+        return fits(lambdaMethod.get(), method.get().getParameterTypes(), Reflection::accepts);
+    }
+
+    /**
+     * Determines whether the given class is not a lambda class.
+     *
+     * @param klass the class to be checked
+     * @return true if the class is not synthetic, does not have "$Lambda$" in its name,
+     * or has declared constructors; false otherwise
+     * true means it is not a lambda class.
+     * false means it may be a lambda class
+     */
+    private static boolean notLambda(Class<?> klass) {
+        return !klass.isSynthetic() || !klass.getName().contains("$Lambda") ||
+                klass.getConstructors().length > 0;
+    }
+
+    /**
+     * Retrieves the single, non-abstract method declared in the given class, excluding
+     * methods inherited from the Object class or implemented as a default method in an interface.
+     * If the class contains exactly one such method, it is returned. Otherwise, an empty Optional is returned.
+     *
+     * @param type the class whose methods are to be analyzed
+     * @return an Optional containing the single non-abstract method if present, or an empty Optional otherwise
+     */
+    private static Optional<Method> getLambdaMethod(Class<?> type) {
+        final Method[] methods;
+        if (type.isInterface() || (type.getModifiers() & Modifier.ABSTRACT) != 0) {
+            methods = Arrays.stream(type.getMethods())
+                    .filter(m -> Modifier.isAbstract(m.getModifiers()))
+                    .filter(m -> m.getDeclaringClass() != Object.class)
+                    .toArray(Method[]::new);
+        } else {
+            methods = Arrays.stream(type.getMethods())
+                    .filter(m -> !Modifier.isAbstract(m.getModifiers()))
+                    .filter(m -> m.getDeclaringClass() != Object.class)
+                    .filter(m -> !m.getDeclaringClass().isInterface())
+                    .toArray(Method[]::new);
+        }
+        if (methods.length == 1) {
+            return Optional.of(methods[0]);
+        } else {
+            return Optional.empty();
         }
     }
 

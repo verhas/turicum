@@ -1,15 +1,13 @@
 package ch.turic.utils;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.stream.Stream;
+import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -106,6 +104,32 @@ class ReflectionTest {
         }
         return new LocalTestClass();
     }
+
+    public static class FunctionalClass {
+        public String function(String s) {
+            return "";
+        }
+    }
+
+    public static class FindMethodInIt {
+        public void method(FunctionalClass functionalClass) {
+        }
+    }
+
+
+    @Nested
+    @DisplayName("Handling Lambda")
+    class LambdaTests {
+        @Test
+        @DisplayName("Should find lambda method")
+        void shouldFindLambdaMethod() {
+            final var sut = new FindMethodInIt();
+            final Function<String,String> k = (String s) -> "";
+            final var method = Reflection.getMethod(sut, "method", new Class<?>[]{k.getClass()});
+            System.out.println(method);
+        }
+    }
+
 
     @Nested
     @DisplayName("getMethod() basic functionality tests")

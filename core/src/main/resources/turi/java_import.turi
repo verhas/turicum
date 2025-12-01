@@ -1,0 +1,8 @@
+
+fn import_package(package:str){
+    let classes = java_import(package)
+    for each klass in keys(classes){
+        set_caller_force(klass, classes[klass])
+    }
+}
+export_all()

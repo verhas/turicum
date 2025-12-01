@@ -9,7 +9,7 @@ import ch.turic.memory.LngObject;
 
 This function creates an object with the actual local context as the object context.
 It does not copy the context.
-If the local context changes after the object creation, the object changes accordingly.
+If the local context changes after the object is created, the object updates accordingly.
 The following example shows how a function can return its local context, essentially the set of local variables, as an object.
 
 {%S pack_1%}

@@ -99,10 +99,16 @@ public class LngException extends LngObject {
 
     @Override
     public String toString() {
-        if( e == null ){
+        var rootCause = e;
+        if( rootCause != null && rootCause.getMessage() == null ){
+            while( rootCause.getCause() != null && rootCause.getMessage() == null){
+                rootCause = rootCause.getCause();
+            }
+        }
+        if( rootCause == null || rootCause.getMessage() == null){
             return "none";
         }
-        return e.getMessage();
+        return rootCause.getMessage();
     }
 
 }
