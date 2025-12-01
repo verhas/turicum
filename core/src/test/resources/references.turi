@@ -1,3 +1,6 @@
+// snippet java_import
+println jsonify_beauty(java_import("ch.turic.exceptions"))
+// end snippet
 // snippet pack_1
 fn a {
     let h = 10

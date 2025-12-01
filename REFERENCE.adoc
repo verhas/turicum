@@ -1679,15 +1679,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=2E5C7F0B
+h id=11389053
 h after post increment: 1
 k: 0
-h id=21D5C1A0
-k id=2E5C7F0B
+h id=5DB99216
+k id=11389053
 h after pre increment: 2
 z: 2
-h id=4DE025BF
-z id=4DE025BF
+h id=3EC11999
+z id=3EC11999
 
 ----
 
@@ -1732,15 +1732,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=5DB99216
+h id=2E77B8CF
 h after post increment: 1
 k: 1
-h id=5DB99216
-k id=5DB99216
+h id=2E77B8CF
+k id=2E77B8CF
 h after pre increment: 2
 z: 2
-h id=5DB99216
-z id=5DB99216
+h id=2E77B8CF
+z id=2E77B8CF
 
 ----
 
@@ -1788,15 +1788,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=18CC679E
+h id=6E57E95E
 h after post decrement: -1
 k: 0
-h id=2C4CA0F9
-k id=18CC679E
+h id=56DB847E
+k id=6E57E95E
 h after pre decrement: -2
 z: -2
-h id=67EF029
-z id=67EF029
+h id=740ABB5
+z id=740ABB5
 
 ----
 
@@ -1838,15 +1838,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=56DB847E
+h id=578524C3
 h after post decrement: -1
 k: -1
-h id=56DB847E
-k id=56DB847E
+h id=578524C3
+k id=578524C3
 h after pre decrement: -2
 z: -2
-h id=56DB847E
-z id=56DB847E
+h id=578524C3
+z id=578524C3
 
 ----
 
@@ -4990,10 +4990,10 @@ execute("Thread 2",2)
 ----
  prime read 2
 Thread 1 generated 3
- prime read 3
 Thread 1 generated 5
+ prime read Thread 1 generated 7
+3
  prime read 5
-Thread 1 generated 7
  prime read 7
 Thread 1 generated 11
 Thread 1 generated 13
@@ -5004,10 +5004,10 @@ stopping
 exception Task stopped.
  prime read 2
 Thread 2 generated 3
- prime read 3
-Thread 2 generated 5
- prime read 5
+ prime read Thread 2 generated 5
+3
 Thread 2 generated 7
+ prime read 5
  prime read 7
 Thread 2 generated 11
 Thread 2 generated 13
@@ -5067,9 +5067,9 @@ println( (end-start)/1000000, "ms")
 [source]
 ----
 [1, 2, 3]
-312.920833ms
+315.541959ms
 []
-314.685292ms
+309.315792ms
 
 ----
 
@@ -5279,10 +5279,9 @@ a =3.6063454894655185
 a =3.6055513629176015
 a =3.6055512754639905
 a =3.6055512754639896
-a =3.6055512754639896
-sqrt(13) ≈ 3.6055512754639896
+sqrt(13) ≈ 3.6055512754639905
 sqrt(13) ≈ 3.605551275463989 calculated by java Math
-square ≈ 13.000000000000002
+square ≈ 13.000000000000009
 
 ----
 
@@ -10716,7 +10715,14 @@ println jsonify_beauty(glob("*"))
 .output of snippet `glob2`
 [source]
 ----
-[ "target/", "pom.xml", "pom.turi", ".env", "src/"]
+[
+    ".DS_Store",
+    "target/",
+    "pom.xml",
+    "pom.turi",
+    ".env",
+    "src/"
+]
 
 ----
 
@@ -11029,6 +11035,51 @@ Bruhahha
 
 
 The example above performs the same call as in the `java_object` example, but using a string to specify the name of the Java method.
+
+
+=== `java_import`
+
+Import the classes from a Java package.
+
+The function returns a map of classes from the specified package.
+The keys are the class names, and the values are the Java classes themselves.
+
+Listing classes from the classpath is not always possible.
+The possibility depends on the actual class loaders.
+For example, importing standard JDK packages will not work.
+
+The following example imports the Turicum exception classes:
+
+.source of snippet `java_import`
+
+[source]
+----
+println jsonify_beauty(java_import("ch.turic.exceptions"))
+
+----
+
+.output of snippet `java_import`
+[source]
+----
+{
+    "UnexpectedCharacter": JavaClass[klass=class ch.turic.exceptions.UnexpectedCharacter],
+    "StringNotTerminated": JavaClass[klass=class ch.turic.exceptions.StringNotTerminated],
+    "ch.turic.exceptions.BadSyntax": JavaClass[klass=class ch.turic.exceptions.BadSyntax],
+    "ch.turic.exceptions.StringNotTerminated": JavaClass[klass=class ch.turic.exceptions.StringNotTerminated],
+    "BadSyntax": JavaClass[klass=class ch.turic.exceptions.BadSyntax],
+    "ExecutionException": JavaClass[klass=class ch.turic.exceptions.ExecutionException],
+    "ch.turic.exceptions.ExecutionException": JavaClass[klass=class ch.turic.exceptions.ExecutionException],
+    "ch.turic.exceptions.UnexpectedCharacter": JavaClass[klass=class ch.turic.exceptions.UnexpectedCharacter]
+}
+
+----
+
+
+
+As you can see, the classes are present in the object with their simple names as well as with their FQN (canonical) name.
+This redundancy is intended to avoid ambiguity that can occur when a package is deeply nested, and two different classes have the same simple name.
+In that case, only one of them will be included with the simple name, but both are present with the FQN.
+
 
 
 === `java_callback`
@@ -11555,7 +11606,7 @@ println nano_time()
 .output of snippet `nano_time`
 [source]
 ----
-1315836036758833
+1618648658701541
 
 ----
 
@@ -11565,7 +11616,7 @@ println nano_time()
 
 This function creates an object with the actual local context as the object context.
 It does not copy the context.
-If the local context changes after the object creation, the object changes accordingly.
+If the local context changes after the object is created, the object updates accordingly.
 The following example shows how a function can return its local context, essentially the set of local variables, as an object.
 
 .source of snippet `pack_1`
@@ -11830,82 +11881,76 @@ none
 .output of snippet `que`
 [source]
 ----
-task2 is not ready 0
-task1 is not ready 0
-task2 is ready 1
-task1 is not ready 1
-task2 is not ready 0
-task2 is not ready 1task1 is not ready 2
-
-task1 is not ready 3task2 is not ready 2
-
-task2 is not ready 3task1 is ready 2
+task1 is ready 1task2 is not ready 0
 
 task1 is not ready 0
-task1 is not ready 1
-task2 is not ready 4
-task2 is not ready 5
-task1 is not ready 2
-task2 is ready 3
-task1 is not ready 3
-task2 is not ready 0
-task1 is not ready 4
 task2 is not ready 1
-task2 is not ready 2task1 is not ready 5
-
-task1 is ready 4task2 is not ready 3
-
+task1 is not ready 1
+task1 is not ready 2
+task2 is not ready 2
+task1 is ready 2
+task2 is not ready 3
 task1 is not ready 0
+task1 is not ready 1
 task2 is not ready 4
-task1 is not ready 1
-task2 is not ready 5
-task1 is not ready 2
-task1 is ready 5task2 is not ready 6
+task2 is not ready 5task1 is not ready 2
+
+task1 is not ready 3task2 is not ready 6
+
+task2 is not ready 7task1 is ready 3
 
 task1 is not ready 0
-task2 is not ready 7
-task1 is not ready 1
-task1 is not ready 2
 task2 is not ready 8
-task1 is ready 6task2 is not ready 9
+task1 is not ready 1
+task1 is not ready 2task2 is not ready 9
 
-task1 is not ready 0
-task1 is not ready 1task2 is not ready 10
+task2 is ready 4task1 is not ready 3
 
-task1 is not ready 2
-task2 is not ready 11
-task1 is not ready 3
-task2 is ready 7
 task2 is not ready 0
 task1 is not ready 4task2 is not ready 1
 
-task2 is not ready 2
-task1 is not ready 5
-task1 is not ready 6task2 is ready 8
+task1 is not ready 5task2 is not ready 2
+
+task2 is ready 5task1 is not ready 6
 
 task2 is not ready 0
-task2 is not ready 1task1 is not ready 7
-
+task1 is not ready 7
+task2 is not ready 1
 task2 is not ready 2
 task1 is not ready 8
-task2 is not ready 3task1 is not ready 9
+task1 is not ready 9
+task2 is ready 6
+task2 is not ready 0
+task2 is not ready 1task1 is not ready 10
 
-task2 is ready 9
-task1 is not ready 10task2 is not ready 0
-
+task2 is ready 7
+task2 is not ready 0
 task1 is not ready 11
 task2 is not ready 1
 task1 is not ready 12
-task2 is not ready 2
+task2 is not ready 2task1 is not ready 13
+
+task2 is not ready 3
+task1 is ready 8
+task1 is not ready 0
+task2 is not ready 4
+task1 is not ready 1
+task2 is not ready 5task1 is ready 9
+
+task1 is not ready 0
+task2 is not ready 6task1 is not ready 1
+
+task2 is not ready 7
+task1 is not ready 2
 closing the channel
 channel is closed
 1 is done false
 2 is done false
 we start to wait the first time
-task1 is done
 task2 is done
+task1 is done
 task1 done true
-task2 done false
+task2 done true
 We start to wait the second time
 task1 done true
 task2 done true
@@ -12449,7 +12494,7 @@ println sleep(0.001) // sleep one milli
 .output of snippet `sleep`
 [source]
 ----
-0.001
+0.002
 
 ----
 
@@ -12890,7 +12935,6 @@ not ready 0
 not ready 1
 not ready 2
 closing the channel
-not ready 3
 channel is closed
 is done false
 we are done
