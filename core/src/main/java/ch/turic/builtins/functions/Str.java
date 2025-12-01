@@ -24,17 +24,18 @@ public class Str implements TuriFunction {
 
     /**
      * Executes the function to convert the provided argument to its string representation.
-     * If the argument is null, defaults to the string "none".
+     * If the argument is null, it defaults to the string "none".
      *
      * @param ctx       The execution context in which the function is called.
      * @param arguments The arguments passed to the function. The first argument
      *                  is expected to be converted to a string.
-     * @return The string representation of the provided argument, or "none" if the argument is null.
+     * @return The string representation of the provided argument, or "none" if the argument is {@code null}, and also
+     * "none" when the original {@link Object#toString() toString()} method returns null.
      * @throws ExecutionException If an error occurs during the execution of the function.
      */
     @Override
     public Object call(Context ctx, Object[] arguments) throws ExecutionException {
         final var arg = FunUtils.arg(name(), arguments, Object.class);
-        return Objects.requireNonNullElse(arg, "none").toString();
+        return Objects.requireNonNullElse(Objects.requireNonNullElse(arg, "none").toString(),"none");
     }
 }
