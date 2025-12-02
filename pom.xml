@@ -288,6 +288,6 @@
         <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ssZ</maven.build.timestamp.format>
         <maven.compiler.source>21</maven.compiler.source>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <time>2025-11-28 18:42:55</time>
+        <time>2025-12-01 09:57:29</time>
     </properties>
 </project>

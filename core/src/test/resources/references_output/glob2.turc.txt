@@ -1,1 +1,8 @@
-[ "target/", "pom.xml", "pom.turi", ".env", "src/"]
+[
+    ".DS_Store",
+    "target/",
+    "pom.xml",
+    "pom.turi",
+    ".env",
+    "src/"
+]
