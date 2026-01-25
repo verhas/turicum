@@ -7,6 +7,7 @@
 
 
 
+
 == Introduction
 
 === What is Turicum?
@@ -35,8 +36,9 @@ Methods are just fields containing closures or function values, and they can be 
 
 * **Flexible**
 +
-The interpreter can evaluate loaded code at any time, passing the remaining lexical tokens to a preprocessor.
-This preprocessor—written in Turicum as a function or closure—can transform the token stream, enabling arbitrary syntactic extensions to the language.
+The language's syntax is extensible.
+You can write a preprocessor to hook into the processing chain between lexical and syntax analysis.
+The preprocessor can be written in Turicum itself, and it works on the lexical token list.
 
 * **Multithreaded**
 +
@@ -338,6 +340,7 @@ The reserved keywords are:
 `class`
 `continue`
 `die`
+`done`
 `each`
 `else`
 `elseif`
@@ -350,8 +353,10 @@ The reserved keywords are:
 `in`
 `let`
 `list`
+`loop`
 `mut`
 `or`
+`otherwise`
 `pin`
 `print`
 `println`
@@ -1679,15 +1684,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=11389053
+h id=1F11F64E
 h after post increment: 1
 k: 0
-h id=5DB99216
-k id=11389053
+h id=2B2F5FCF
+k id=1F11F64E
 h after pre increment: 2
 z: 2
-h id=3EC11999
-z id=3EC11999
+h id=858D8B4
+z id=858D8B4
 
 ----
 
@@ -1732,15 +1737,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=2E77B8CF
+h id=7EFD28BD
 h after post increment: 1
 k: 1
-h id=2E77B8CF
-k id=2E77B8CF
+h id=7EFD28BD
+k id=7EFD28BD
 h after pre increment: 2
 z: 2
-h id=2E77B8CF
-z id=2E77B8CF
+h id=7EFD28BD
+z id=7EFD28BD
 
 ----
 
@@ -1788,15 +1793,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=6E57E95E
+h id=26844ABB
 h after post decrement: -1
 k: 0
-h id=56DB847E
-k id=6E57E95E
+h id=1A865273
+k id=26844ABB
 h after pre decrement: -2
 z: -2
-h id=740ABB5
-z id=740ABB5
+h id=288CA5F0
+z id=288CA5F0
 
 ----
 
@@ -1838,15 +1843,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=578524C3
+h id=216E0771
 h after post decrement: -1
 k: -1
-h id=578524C3
-k id=578524C3
+h id=216E0771
+k id=216E0771
 h after pre decrement: -2
 z: -2
-h id=578524C3
-z id=578524C3
+h id=216E0771
+z id=216E0771
 
 ----
 
@@ -3608,7 +3613,7 @@ If the condition is `false` and there is no "else" block or command, then the re
 mut a= 13;
 if a%2 == 0: println("even") else: println("odd")
 a = {if a%2 == 0: "even" else: "odd"}
-print("again ",a)
+print("again ", a)
 
 ----
 
@@ -3703,7 +3708,7 @@ Since the `if` "operator" and its precedence is not so obvious as the usual nume
 
 There are three types of loops in Turicum:
 
-* `while`
+* `loop` / `while`
 
 * `for`
 
@@ -3711,7 +3716,7 @@ There are three types of loops in Turicum:
 
 Loops, like any command, have a result value.
 The value of a loop is either the last executed command or a list of the last executed command for each iteration.
-If the loop is skipped then the value is either `none` or an empty list.
+If the loop is skipped, the value is either `none` or an empty list.
 
 .source of snippet `emptyLoopResult`
 
@@ -3732,61 +3737,81 @@ none
 
 
 
-==== `while`
+==== `loop` / `while`
 
-A while loop is front and tail conditioned.
-The front condition, following the keyword `while` is checked before each execution of the loop body.
-The body of the loop will only be executed if the front condition is `true`.
+The `while` looping construct is a complex structure.
+It can contain up to five command blocks and two conditional expressions executed at different points.
+The full syntax of the command is the following:
 
-The tail condition is optional, and follows the body of the loop with the `until` keyword.
-It is checked after the execution of the loop body.
-Execution of the loop stops when the tail condition is `true`.
+
+[source]
+----
+  WHILE ::= [ 'loop'  ( BLOCK | ':' COMMAND ) ]
+  'while' [EXPRESSION] ['list']( BLOCK | ':' COMMAND )
+  [ 'until' EXPRESSION ]
+  [ 'done' ( BLOCK | ':' COMMAND ) ]
+  [ 'otherwise' ( BLOCK | ':' COMMAND ) ]
+  [ 'finally' ( BLOCK | ':' COMMAND ) ]
+  <p>
+
+----
+
+
+image::pictures/while_loop.png[]
+
+It
+
+* executes the block following the `loop`, then
+
+* iterates
+  ** 'while' the condition after the `while` is true, or
+  ** 'until' the condition after the `until` becomes true, or
+  ** until a `break` or `return` command is executed in the loop.
+
+If the `while` condition was false already at the start and the iteration DID NOT start, the block after the `otherwise` is executed.
+
+If the iteration started and finished without executing a `break` or a `return` command, the block after the `done` is executed.
+
+Finally, the block following the `finally` keyword is executed.
+This block is executed even if a `break` or `return` command was executed in the loop.
+The special, pinned variable `it` will hold the loop's value in these blocks.
+
+The loop is executed in two contexts.
+The outer context wraps the surrounding context.
+The inner context wraps the outer.
+The loop body is executed in the inner context.
+A new inner context is created for each execution of the loop.
+The `while` condition and the other blocks are executed in the outer context.
+The `until` condition is executed in the inner context.
 
 .source of snippet `whileLoop`
 
 [source]
 ----
-mut i = 1;
+loop: mut i = 1;
 while i < 5 {
-  print(i," ");
+  print i, " ";
   i++;
-}until i % 3 == 0;
+} until i % 3 == 0
+done { println "loop is done" }
+otherwise { println "Loop did not even start" }
+finally { println "We are done here" }
+try: print i catch err: println err
 
 ----
 
 .output of snippet `whileLoop`
 [source]
 ----
-1 2 
-----
-
-
-
-The body of the loop can be a command block, or it can be a single command.
-If the body is a single command, not enclosed between `+{+` and `+}+` it has to be preceded by a `:`.
-
-.source of snippet `whileLoop2`
-
-[source]
-----
- mut i = 1;
-while i < 5 :
-  i++;
-until i % 3 == 0;
-println(i)
-
-----
-
-.output of snippet `whileLoop2`
-[source]
-----
-3
+1 2 loop is done
+We are done here
+Variable 'i' is undefined.
 
 ----
 
 
 
-The value of the loop is the result of the last executed command.
+The value of the loop is the result of the last executed command in the loop body.
 
 .source of snippet `while_result`
 
@@ -3808,20 +3833,79 @@ println {
 
 
 
-The loop can also be used to result a list.
+The value from the `done`, and `finally`  blocks do not affect the loop's value.
+
+.source of snippet `while_result_with_done`
+
+[source]
+----
+println {
+    mut k = 0
+    while k < 10 : k++ done: 666;
+}
+
+----
+
+.output of snippet `while_result_with_done`
+[source]
+----
+666
+
+----
+
+
+
+.source of snippet `while_result_with_finally`
+
+[source]
+----
+println {
+    mut k = 0
+    while k < 10 : k++ finally: 666;
+}
+
+----
+
+.output of snippet `while_result_with_finally`
+[source]
+----
+9
+
+----
+
+
+
+The value of the loop is the `otherwise` block's value if that was executed.
+
+.source of snippet `while_result_with_otherwise`
+
+[source]
+----
+println {
+    mut k = 0
+    while false : k++ done: k otherwise: 42;
+}
+
+----
+
+.output of snippet `while_result_with_otherwise`
+[source]
+----
+42
+
+----
+
+
+
+The loop can also be used to produce a list.
+To get the list as a result, you have to write the `list` keyword in front of the loop body.
 The list will contain the results of each body loop execution.
 
 .source of snippet `while_list`
 
 [source]
 ----
-mut k = 0;
-println{ while k < 5 list{
-            mut h = k;
-            k++;
-            h
-         }
-}
+println { loop: mut k = 0 while k < 5 list: k++ }
 
 ----
 
@@ -3834,8 +3918,40 @@ println{ while k < 5 list{
 
 
 
-To get the list as a result, you have to write the `list` keyword in front of the loop body.
+For list resulting loops, when the `done` and/or `finally` blocks are executed, the special variable `it` will contain the resulting list.
+The variable as well as the list itself are pinned, so you cannot add or remove elements from the list or change the elements.
 
+.source of snippet `while_with_done_list1`
+
+[source]
+----
+let k = {
+    loop: mut i = 1
+    while i <= 10 list{
+      i++;
+      } done {
+          // cannot do that the variable is pinned
+          mut e;
+          try: it = [3,2,1] catch e1: println e1
+          // cannot do that the list itself is pinned
+          try: it[0] = 100 catch e2: println e2
+      }
+    }
+print k;
+
+----
+
+.output of snippet `while_with_done_list1`
+[source]
+----
+Variable 'it' is pinned.
+Cannot change a pinned list.
+[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+----
+
+
+
+.a note on the execution context of loops
 [NOTE]
 ====
 When a loop executes, two distinct contexts are used: an *outer context* and an *inner context*.
@@ -3849,7 +3965,8 @@ Additionally, the inner context can read and modify variables from the outer con
 However, *new variables defined in the inner context do not propagate into the outer context*.
 
 
-* The *head condition* following the `+while+` keyword is evaluated in the outer context.
+* The `loop` block, as well as
+* the *head condition* following the `+while+` keyword are evaluated in the outer context.
 
  * The *loop body* and the *exit condition* following the `+until+` keyword are evaluated in the inner context.
 
@@ -3857,6 +3974,230 @@ This design ensures that each iteration of the loop starts in a clean environmen
 Variables defined inside a previous iteration are *not available* in the next iteration, unless explicitly defined in the outer context.
 This approach avoids unintended side effects and provides a clear and consistent model for variable visibility and lifecycle within loops.
 ====
+
+The `loop` part clearly separates the loop from the surrounding code.
+Variables declared here are used only in the loop and are shared across iterations.
+
+.source of snippet `while_with_loop`
+
+[source]
+----
+loop: mut i = 1
+while i <= 10 list : i++ finally: println $"The last i after the loop is $i"
+try: println "i does not exist outside of the loop" catch e: println e
+
+----
+
+.output of snippet `while_with_loop`
+[source]
+----
+The last i after the loop is 11
+i does not exist outside of the loop
+
+----
+
+
+
+The following example demonstrates that `otherwise` is not executed when the loop is executed at lead once.
+
+.source of snippet `while_until_not_otherwise`
+
+[source]
+----
+mut i=1
+while i <= 10 {
+  println $"i is $i"
+  i++
+  } until i > 10
+ otherwise: die "i is not less than 10"
+
+----
+
+.output of snippet `while_until_not_otherwise`
+[source]
+----
+i is 1
+i is 2
+i is 3
+i is 4
+i is 5
+i is 6
+i is 7
+i is 8
+i is 9
+i is 10
+
+----
+
+
+
+The next example shows that the `otherwise` is executed when the loop head condition is false from the very start.
+
+.source of snippet `while_otherwise`
+
+[source]
+----
+mut i = 20
+while i <= 10 {
+  die "i is 20, must not execute the loop."
+  } otherwise: println "we are other, we are wise"
+
+----
+
+.output of snippet `while_otherwise`
+[source]
+----
+we are other, we are wise
+
+----
+
+
+
+The behavior is the same even with an `until` exit condition, which is never evaluated in this case.
+
+.source of snippet `while_until_otherwise`
+
+[source]
+----
+mut i = 20
+while i <= 10 {
+  die "i is 20, must not execute the loop."
+  } until i > 10
+  otherwise: println "we are other, we are wise"
+
+----
+
+.output of snippet `while_until_otherwise`
+[source]
+----
+we are other, we are wise
+
+----
+
+
+
+The next example demonstrates that the `done` block is not executed if the loop is broken.
+
+.source of snippet `while_until_with_done_broken`
+
+[source]
+----
+mut i = 1
+while i <= 10 {
+  println $"i is $i"
+  break {
+    println "we broke the loop"
+    55
+    } when i > 5
+  i++;
+  } until i > 10
+  done {
+      die "we broke the loop, we are not done"
+  }
+
+----
+
+.output of snippet `while_until_with_done_broken`
+[source]
+----
+i is 1
+i is 2
+i is 3
+i is 4
+i is 5
+i is 6
+we broke the loop
+
+----
+
+
+
+.a note on Python loop `else:` constructs in Turicum
+[NOTE]
+====
+Python has an `else:` construct that can follow a loop.
+In Python, it is executed when the loop is broken.
+Turicum does not need to provide this extra block for the loops.
+
+In Turicum, if you break a loop and want to execute some extra code, you can do it in the expression of the `break`.
+The break command can provide an expression, and every command, or command block, is an expression in Turicum.
+As you can see in the example above, this feature can be used for the same purpose as the `else:` branch for loops in Python.
+====
+
+The following two examples show the case when the `done` block is executed after the normal termination of the loop.
+
+.source of snippet `while_with_done`
+
+[source]
+----
+mut i = 1
+while i <= 10 {
+  println $"i is $i"
+  break {
+    println "we broke the loop"
+    55
+    } when i > 10
+  i++;
+  } done {
+      println "we are done nice and neat, not broken"
+  }
+
+----
+
+.output of snippet `while_with_done`
+[source]
+----
+i is 1
+i is 2
+i is 3
+i is 4
+i is 5
+i is 6
+i is 7
+i is 8
+i is 9
+i is 10
+we are done nice and neat, not broken
+
+----
+
+
+
+It also a normal termination of the loop when the loop is terminated by the `until` condition:
+
+.source of snippet `while_until_with_done`
+
+[source]
+----
+mut i = 1
+while i <= 10 {
+  println $"i is $i"
+  break {
+    println "we broke the loop"
+    55
+    } when i > 10
+  i++;
+  } until i > 5
+  done {
+      println "we are done nice and neat, not broken"
+  }
+
+----
+
+.output of snippet `while_until_with_done`
+[source]
+----
+i is 1
+i is 2
+i is 3
+i is 4
+i is 5
+we are done nice and neat, not broken
+
+----
+
+
+
 
 ==== `for`
 
@@ -4990,10 +5331,10 @@ execute("Thread 2",2)
 ----
  prime read 2
 Thread 1 generated 3
+ prime read 3
 Thread 1 generated 5
- prime read Thread 1 generated 7
-3
  prime read 5
+Thread 1 generated 7
  prime read 7
 Thread 1 generated 11
 Thread 1 generated 13
@@ -5002,10 +5343,10 @@ Thread 1 generated 19
 Thread 1 generated 23
 stopping
 exception Task stopped.
- prime read 2
 Thread 2 generated 3
- prime read Thread 2 generated 5
-3
+ prime read 2
+ prime read 3
+Thread 2 generated 5
 Thread 2 generated 7
  prime read 5
  prime read 7
@@ -5067,9 +5408,9 @@ println( (end-start)/1000000, "ms")
 [source]
 ----
 [1, 2, 3]
-315.541959ms
+308.976584ms
 []
-309.315792ms
+315.89025ms
 
 ----
 
@@ -7808,9 +8149,6 @@ println(FibCalculator(2).fib(10))
 ----
 
 
-
-We do not include here the printout.
-The first number you already know, try to guess the second, then run the code yourself.
 
 == String Functions
 
@@ -11066,8 +11404,8 @@ println jsonify_beauty(java_import("ch.turic.exceptions"))
     "StringNotTerminated": JavaClass[klass=class ch.turic.exceptions.StringNotTerminated],
     "ch.turic.exceptions.BadSyntax": JavaClass[klass=class ch.turic.exceptions.BadSyntax],
     "ch.turic.exceptions.StringNotTerminated": JavaClass[klass=class ch.turic.exceptions.StringNotTerminated],
-    "BadSyntax": JavaClass[klass=class ch.turic.exceptions.BadSyntax],
     "ExecutionException": JavaClass[klass=class ch.turic.exceptions.ExecutionException],
+    "BadSyntax": JavaClass[klass=class ch.turic.exceptions.BadSyntax],
     "ch.turic.exceptions.ExecutionException": JavaClass[klass=class ch.turic.exceptions.ExecutionException],
     "ch.turic.exceptions.UnexpectedCharacter": JavaClass[klass=class ch.turic.exceptions.UnexpectedCharacter]
 }
@@ -11606,7 +11944,7 @@ println nano_time()
 .output of snippet `nano_time`
 [source]
 ----
-1618648658701541
+2987907012181000
 
 ----
 
@@ -11881,75 +12219,81 @@ none
 .output of snippet `que`
 [source]
 ----
-task1 is ready 1task2 is not ready 0
-
 task1 is not ready 0
+task2 is ready 1
+task2 is not ready 0
 task2 is not ready 1
 task1 is not ready 1
-task1 is not ready 2
 task2 is not ready 2
-task1 is ready 2
+task1 is not ready 2
+task1 is not ready 3
 task2 is not ready 3
+task1 is ready 2
 task1 is not ready 0
-task1 is not ready 1
 task2 is not ready 4
-task2 is not ready 5task1 is not ready 2
-
-task1 is not ready 3task2 is not ready 6
-
-task2 is not ready 7task1 is ready 3
-
-task1 is not ready 0
-task2 is not ready 8
+task2 is not ready 5
 task1 is not ready 1
-task1 is not ready 2task2 is not ready 9
-
-task2 is ready 4task1 is not ready 3
-
+task1 is not ready 2
+task2 is not ready 6
+task1 is not ready 3
+task2 is ready 3
 task2 is not ready 0
-task1 is not ready 4task2 is not ready 1
-
+task2 is not ready 1
+task1 is not ready 4
 task1 is not ready 5task2 is not ready 2
 
-task2 is ready 5task1 is not ready 6
-
+task2 is ready 4
 task2 is not ready 0
+task1 is not ready 6
 task1 is not ready 7
 task2 is not ready 1
 task2 is not ready 2
 task1 is not ready 8
-task1 is not ready 9
-task2 is ready 6
-task2 is not ready 0
-task2 is not ready 1task1 is not ready 10
+task1 is not ready 9task2 is ready 5
 
-task2 is ready 7
 task2 is not ready 0
-task1 is not ready 11
 task2 is not ready 1
-task1 is not ready 12
-task2 is not ready 2task1 is not ready 13
-
+task1 is not ready 10
+task1 is not ready 11
+task2 is not ready 2
+task1 is ready 6
+task1 is not ready 0
 task2 is not ready 3
-task1 is ready 8
-task1 is not ready 0
-task2 is not ready 4
 task1 is not ready 1
-task2 is not ready 5task1 is ready 9
-
+task2 is not ready 4
+task1 is not ready 2
+task2 is not ready 5
+task1 is ready 7
+task2 is not ready 6
 task1 is not ready 0
-task2 is not ready 6task1 is not ready 1
-
+task1 is not ready 1
 task2 is not ready 7
 task1 is not ready 2
+task2 is not ready 8
+task2 is not ready 9
+task1 is ready 8
+task1 is not ready 0
+task2 is not ready 10task1 is not ready 1
+
+task2 is not ready 11
+task1 is not ready 2
+task2 is not ready 12
+task1 is not ready 3
+task2 is ready 9
+task2 is not ready 0
+task1 is not ready 4
+task2 is not ready 1
+task1 is not ready 5
 closing the channel
+task2 is not ready 2
 channel is closed
+task1 is not ready 6
 1 is done false
 2 is done false
 we start to wait the first time
 task2 is done
 task1 is done
-task1 done true
+task1 done false
 task2 done true
 We start to wait the second time
 task1 done true
@@ -12494,7 +12838,7 @@ println sleep(0.001) // sleep one milli
 .output of snippet `sleep`
 [source]
 ----
-0.002
+0.001
 
 ----
 
@@ -13057,30 +13401,47 @@ true
 
 == Preprocessing
 
-When the syntax analyzer meets a `#` symbol it stops parsing the tokens and starts preprocessing.
+The syntax analyzer works on the token list.
+When it meets a `#` symbol, it starts preprocessing for the remainder of the token list.
+
 The steps of the preprocessing are the following:
 
-. Parse the command following the `#` symbol.
-This is the preprocessor command.
+. First of all, it parses the command following the `#` symbol.
 It has to be a macro, a function, or a closure.
+This is the preprocessor command.
 
-. Remove all the tokens from the token list that were already processed.
+. After that, it removes all tokens from the processed token list.
+This includes the tokens just parsed after the `#` character.
 
-. Create a preprocessor context.
+. The parser creates an interpreter context to execute the preprocessor command.
+It is the preprocessor context.
+This context is created and reused by the analyzer if multiple preprocessors are executed one after the other.
 
-. Execute the commands that were parsed.
-This will create global variables, functions, and classes in the preprocessor context.
+. The analyzer executes the commands just parsed using the preprocessor context.
+This will create global variables, functions, and classes.
 
-. Execute the command passing the list of tokens as the only argument.
+. It executes the command, passing the list of tokens as the only argument.
+That is why the command has to be a macro, a function of closure.
+The command should read the token list and result in a list.
+This list may contain the original tokens, newly created tokens, and strings.
 
-. Remove all the tokens from the input and replace them with the token list returned by the preprocessor.
+. It removes all the tokens from the input and replaces them with the token list returned by the preprocessor.
 
-. If there are elements that are not tokens originating from the original list, parse them and convert each to a list of tokens.
+. If there are non-token-list elements, it parses them and converts each into a list of tokens.
 
-When the remaining code is executed, the interpreter will use the preprocessor context.
-If there is more than one preprocessor executed, they will share the same context.
+The analyzer uses this new token list to analyse the program code.
+The commands created up to this point are erased from the program being built.
+They served only the purpose of the preprocessor.
 
-The following example shows preprocessing that adds lines defining a global variable `M`, defines a function, and sets the value of the variable `M` to `"hello hello"`.
+While the remaining code is analyzed, the interpreter will use the already existing preprocessor context in subsequent preprocessing steps.
+
+The following example shows preprocessing that adds lines defining
+
+* a global variable `M`,
+
+* defines a function, and
+
+* sets the value of the variable `M` to `"hello hello"`.
 
 .source of snippet `preprocessorSample`
 
@@ -13125,7 +13486,6 @@ Preprocessors are usually defined in imported files and invoked using a simple f
 == Language Grammar (Appendix)
 
 === Full Annotated EBNF
-
 
 The following is the non-standard EBNF definition of the programming language called Turicum.
 
@@ -13201,12 +13561,18 @@ It is the __result__ of the command.
 
 
 
-   LOOP ::= ( WHILE | FOR | FOR_EACH ) [ 'until' EXPRESSION];
+   LOOP ::= ( FOR | FOR_EACH ) [ 'until' EXPRESSION];
 
 
 [source]
 ----
-  WHILE ::= 'while' [EXPRESSION] ['list']( BLOCK | ':' COMMAND )
+  WHILE ::= [ 'loop'  ( BLOCK | ':' COMMAND ) ]
+  'while' [EXPRESSION] ['list']( BLOCK | ':' COMMAND )
+  [ 'until' EXPRESSION ]
+  [ 'done' ( BLOCK | ':' COMMAND ) ]
+  [ 'otherwise' ( BLOCK | ':' COMMAND ) ]
+  [ 'finally' ( BLOCK | ':' COMMAND ) ]
+  <p>
 
 ----
 

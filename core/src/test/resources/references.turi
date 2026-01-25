@@ -1,3 +1,133 @@
+// snippet damage_while_done
+mut i = 0
+try:
+    let l ={
+        while (mut it=3; i < 5) list{
+            i++
+        } done {
+        }
+    }
+catch e: println e
+// end snippet
+// snippet while_until_not_otherwise
+mut i=1
+while i <= 10 {
+  println $"i is $i"
+  i++
+  } until i > 10
+ otherwise: die "i is not less than 10"
+// end snippet
+
+// snippet while_until_otherwise
+mut i = 20
+while i <= 10 {
+  die "i is 20, must not execute the loop."
+  } until i > 10
+  otherwise: println "we are other, we are wise"
+// end snippet
+
+// snippet while_otherwise
+mut i = 20
+while i <= 10 {
+  die "i is 20, must not execute the loop."
+  } otherwise: println "we are other, we are wise"
+// end snippet
+
+// snippet while_until_with_done_broken
+mut i = 1
+while i <= 10 {
+  println $"i is $i"
+  break {
+    println "we broke the loop"
+    55
+    } when i > 5
+  i++;
+  } until i > 10
+  done {
+      die "we broke the loop, we are not done"
+  }
+// end snippet
+// snippet while_not_otherwise
+mut i=1
+while i <= 10 {
+  println $"i is $i"
+  i++
+  } otherwise: die "i is not less than 10"
+// end snippet
+
+// snippet while_with_done_broken
+mut i = 1
+while i <= 10 {
+  println $"i is $i"
+  break {
+    println "we broke the loop"
+    55
+    } when i > 5
+  i++;
+  } done {
+      die "we broke the loop, we are not done"
+  }
+// end snippet
+
+// snippet while_with_done
+mut i = 1
+while i <= 10 {
+  println $"i is $i"
+  break {
+    println "we broke the loop"
+    55
+    } when i > 10
+  i++;
+  } done {
+      println "we are done nice and neat, not broken"
+  }
+// end snippet
+
+// snippet while_with_done_list1
+let k = {
+    loop: mut i = 1
+    while i <= 10 list{
+      i++;
+      } done {
+          // cannot do that the variable is pinned
+          mut e;
+          try: it = [3,2,1] catch e1: println e1
+          // cannot do that the list itself is pinned
+          try: it[0] = 100 catch e2: println e2
+      }
+    }
+print k;
+// end snippet
+
+// snippet while_with_loop
+loop: mut i = 1
+while i <= 10 list : i++ finally: println $"The last i after the loop is $i"
+try: println "i does not exist outside of the loop" catch e: println e
+// end snippet
+
+// snippet return_from_loop_finally
+try:
+    loop: mut i = 1
+    while i <= 10 list : i++ finally: return 0
+catch e: println e
+// end snippet
+
+
+// snippet while_until_with_done
+mut i = 1
+while i <= 10 {
+  println $"i is $i"
+  break {
+    println "we broke the loop"
+    55
+    } when i > 10
+  i++;
+  } until i > 5
+  done {
+      println "we are done nice and neat, not broken"
+  }
+// end snippet
+
 // snippet java_import
 println jsonify_beauty(java_import("ch.turic.exceptions"))
 // end snippet
@@ -1236,15 +1366,19 @@ println("variable 'object' still can be changed: ", object)
 mut a= 13;
 if a%2 == 0: println("even") else: println("odd")
 a = {if a%2 == 0: "even" else: "odd"}
-print("again ",a)
+print("again ", a)
 // end snippet
 
 // snippet whileLoop
-mut i = 1;
+loop: mut i = 1;
 while i < 5 {
-  print(i," ");
+  print i, " ";
   i++;
-}until i % 3 == 0;
+} until i % 3 == 0
+done { println "loop is done" }
+otherwise { println "Loop did not even start" }
+finally { println "We are done here" }
+try: print i catch err: println err
 // end snippet
 
 // snippet whileLoop2
@@ -3521,6 +3655,27 @@ println {
     while k < 10 : k++
 }
 // end snippet
+
+// snippet while_result_with_done
+println {
+    mut k = 0
+    while k < 10 : k++ done: 666;
+}
+// end snippet
+
+// snippet while_result_with_finally
+println {
+    mut k = 0
+    while k < 10 : k++ finally: 666;
+}
+// end snippet
+
+// snippet while_result_with_otherwise
+println {
+    mut k = 0
+    while false : k++ done: k otherwise: 42;
+}
+// end snippet
 // snippet for_result
 println {
     mut k = 0
@@ -3545,13 +3700,7 @@ println {
 // end snippet
 
 // snippet while_list
-mut k = 0;
-println{ while k < 5 list{
-            mut h = k;
-            k++;
-            h
-         }
-}
+println { loop: mut k = 0 while k < 5 list: k++ }
 // end snippet
 
 

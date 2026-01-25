@@ -40,6 +40,9 @@ public class BinaryExpressionAnalyzer extends AbstractAnalyzer {
             // end snippet
     };
     static final BinaryExpressionAnalyzer INSTANCE = new BinaryExpressionAnalyzer(binaryOperators);
+    // default expressions specifying default values for function arguments cannot contain '|' operators, except enclosed in '(' and ')'
+    // for that reason, when we analyse such an expression, we use a copy of the operator array and
+    // delete the '|' operator from the copy (see in the static block)
     static final BinaryExpressionAnalyzer BINARY_DEFAULT_EXPRESSION_ANALYZER = new BinaryExpressionAnalyzer(Arrays.copyOf(binaryOperators, binaryOperators.length));
 
     static {

@@ -89,7 +89,8 @@ public class CommandAnalyzer extends AbstractAnalyzer {
         analyzers.put(Keywords.YIELD, YieldAnalyzer.INSTANCE);
         analyzers.put(Keywords.PRINT, PrintAnalyzer.INSTANCE);
         analyzers.put(Keywords.PRINTLN, PrintAnalyzer.INSTANCE_NL);
-        analyzers.put(Keywords.WHILE, WhileLoopAnalyzer.INSTANCE);
+        analyzers.put(Keywords.WHILE, WhileLoopAnalyzer.WHILE_INSTANCE);
+        analyzers.put(Keywords.LOOP, WhileLoopAnalyzer.LOOP_INSTANCE);
         analyzers.put(Keywords.WITH, WithAnalyzer.INSTANCE);
         analyzers.put(Keywords.FOR, ForLoopAnalyzer.INSTANCE);
         analyzers.put(Keywords.FLOW, FlowAnalyzer.INSTANCE);
@@ -130,6 +131,7 @@ public class CommandAnalyzer extends AbstractAnalyzer {
             // commands that end in a block and do not need terminating ;
             case Keywords.IF,
                  Keywords.WHILE,
+                 Keywords.LOOP,
                  Keywords.FOR,
                  Keywords.WITH,
                  Keywords.FLOW,

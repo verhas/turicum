@@ -2,7 +2,7 @@
 // here we cannot use sys_import because that would use the version that runs and not the version we build
 let VERSION={ try{ import("core.src.main.resources.turi.version") .`turicum.version`; }
     catch( e ){
-        // when it was started from a module and the cwd is one level below
+        // when maven was started from a module and the cwd is one level below
         global APPIA; APPIA=[ ".." ];
         import("core.src.main.resources.turi.version") .`turicum.version`;
     }

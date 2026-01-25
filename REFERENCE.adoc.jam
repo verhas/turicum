@@ -1,4 +1,11 @@
 = Turicum Programming Language Reference
+{%@define EBNF($x)=
+[source]
+----
+{%#replaceLines replace="~\\*~~"
+{%@snip EBNF_$x%}%}
+----
+%}
 
 {%@snip:collect from=core/src/main/java%}
 {%@snip:collect ignoreErrors from=core/src/test/resources/references.turi%}
@@ -50,8 +57,9 @@ Methods are just fields containing closures or function values, and they can be 
 
 * **Flexible**
 +
-The interpreter can evaluate loaded code at any time, passing the remaining lexical tokens to a preprocessor.
-This preprocessor—written in Turicum as a function or closure—can transform the token stream, enabling arbitrary syntactic extensions to the language.
+The language's syntax is extensible.
+You can write a preprocessor to hook into the processing chain between lexical and syntax analysis.
+The preprocessor can be written in Turicum itself, and it works on the lexical token list.
 
 * **Multithreaded**
 +
@@ -1417,7 +1425,7 @@ Since the `if` "operator" and its precedence is not so obvious as the usual nume
 
 There are three types of loops in Turicum:
 
-* `while`
+* `loop` / `while`
 
 * `for`
 
@@ -1425,38 +1433,73 @@ There are three types of loops in Turicum:
 
 Loops, like any command, have a result value.
 The value of a loop is either the last executed command or a list of the last executed command for each iteration.
-If the loop is skipped then the value is either `none` or an empty list.
+If the loop is skipped, the value is either `none` or an empty list.
 
 {%S emptyLoopResult%}
 
-==== `while`
+==== `loop` / `while`
 
-A while loop is front and tail conditioned.
-The front condition, following the keyword `while` is checked before each execution of the loop body.
-The body of the loop will only be executed if the front condition is `true`.
+The `while` looping construct is a complex structure.
+It can contain up to five command blocks and two conditional expressions executed at different points.
+The full syntax of the command is the following:
 
-The tail condition is optional, and follows the body of the loop with the `until` keyword.
-It is checked after the execution of the loop body.
-Execution of the loop stops when the tail condition is `true`.
+{%EBNF WHILE%}
+
+image::pictures/while_loop.png[]
+
+It
+
+* executes the block following the `loop`, then
+
+* iterates
+  ** 'while' the condition after the `while` is true, or
+  ** 'until' the condition after the `until` becomes true, or
+  ** until a `break` or `return` command is executed in the loop.
+
+If the `while` condition was false already at the start and the iteration DID NOT start, the block after the `otherwise` is executed.
+
+If the iteration started and finished without executing a `break` or a `return` command, the block after the `done` is executed.
+
+Finally, the block following the `finally` keyword is executed.
+This block is executed even if a `break` or `return` command was executed in the loop.
+The special, pinned variable `it` will hold the loop's value in these blocks.
+
+The loop is executed in two contexts.
+The outer context wraps the surrounding context.
+The inner context wraps the outer.
+The loop body is executed in the inner context.
+A new inner context is created for each execution of the loop.
+The `while` condition and the other blocks are executed in the outer context.
+The `until` condition is executed in the inner context.
 
 {%S whileLoop%}
 
-The body of the loop can be a command block, or it can be a single command.
-If the body is a single command, not enclosed between `+{+` and `+}+` it has to be preceded by a `:`.
-
-{%S whileLoop2%}
-
-The value of the loop is the result of the last executed command.
+The value of the loop is the result of the last executed command in the loop body.
 
 {%S while_result%}
 
-The loop can also be used to result a list.
+The value from the `done`, and `finally`  blocks do not affect the loop's value.
+
+{%S while_result_with_done%}
+
+{%S while_result_with_finally%}
+
+The value of the loop is the `otherwise` block's value if that was executed.
+
+{%S while_result_with_otherwise%}
+
+The loop can also be used to produce a list.
+{%@def GET_LIST=To get the list as a result, you have to write the `list` keyword in front of the loop body.%}
 The list will contain the results of each body loop execution.
 
 {%S while_list%}
 
-{%@def GET_LIST=To get the list as a result, you have to write the `list` keyword in front of the loop body.%}
+For list resulting loops, when the `done` and/or `finally` blocks are executed, the special variable `it` will contain the resulting list.
+The variable as well as the list itself are pinned, so you cannot add or remove elements from the list or change the elements.
 
+{%S while_with_done_list1%}
+
+.a note on the execution context of loops
 [NOTE]
 ====
 {%@def LOOP_CONTEXT_HEADER=When a loop executes, two distinct contexts are used: an *outer context* and an *inner context*.
@@ -1470,7 +1513,8 @@ Additionally, the inner context can read and modify variables from the outer con
 However, *new variables defined in the inner context do not propagate into the outer context*.
 %}
 
-* The *head condition* following the `+while+` keyword is evaluated in the outer context.
+* The `loop` block, as well as
+* the *head condition* following the `+while+` keyword are evaluated in the outer context.
 
 {%@def LOOP_CONTEXT_FOOTER= * The *loop body* and the *exit condition* following the `+until+` keyword are evaluated in the inner context.
 
@@ -1478,6 +1522,48 @@ This design ensures that each iteration of the loop starts in a clean environmen
 Variables defined inside a previous iteration are *not available* in the next iteration, unless explicitly defined in the outer context.
 This approach avoids unintended side effects and provides a clear and consistent model for variable visibility and lifecycle within loops.%}
 ====
+
+The `loop` part clearly separates the loop from the surrounding code.
+Variables declared here are used only in the loop and are shared across iterations.
+
+{%S while_with_loop%}
+
+The following example demonstrates that `otherwise` is not executed when the loop is executed at lead once.
+
+{%S while_until_not_otherwise%}
+
+The next example shows that the `otherwise` is executed when the loop head condition is false from the very start.
+
+{%S while_otherwise%}
+
+The behavior is the same even with an `until` exit condition, which is never evaluated in this case.
+
+{%S while_until_otherwise%}
+
+The next example demonstrates that the `done` block is not executed if the loop is broken.
+
+{%S while_until_with_done_broken%}
+
+.a note on Python loop `else:` constructs in Turicum
+[NOTE]
+====
+Python has an `else:` construct that can follow a loop.
+In Python, it is executed when the loop is broken.
+Turicum does not need to provide this extra block for the loops.
+
+In Turicum, if you break a loop and want to execute some extra code, you can do it in the expression of the `break`.
+The break command can provide an expression, and every command, or command block, is an expression in Turicum.
+As you can see in the example above, this feature can be used for the same purpose as the `else:` branch for loops in Python.
+====
+
+The following two examples show the case when the `done` block is executed after the normal termination of the loop.
+
+{%S while_with_done%}
+
+It also a normal termination of the loop when the loop is terminated by the `until` condition:
+
+{%S while_until_with_done%}
+
 
 ==== `for`
 
@@ -2822,9 +2908,6 @@ Finally, here is a modified fibonacci calculation that can replace the start val
 
 {%S fibonacci8%}
 
-We do not include here the printout.
-The first number you already know, try to guess the second, then run the code yourself.
-
 == String Functions
 
 Turicum defines many methods to handle strings.
@@ -2949,30 +3032,47 @@ The following example shows how these functions work.
 
 == Preprocessing
 
-When the syntax analyzer meets a `#` symbol it stops parsing the tokens and starts preprocessing.
+The syntax analyzer works on the token list.
+When it meets a `#` symbol, it starts preprocessing for the remainder of the token list.
+
 The steps of the preprocessing are the following:
 
-. Parse the command following the `#` symbol.
-This is the preprocessor command.
+. First of all, it parses the command following the `#` symbol.
 It has to be a macro, a function, or a closure.
+This is the preprocessor command.
 
-. Remove all the tokens from the token list that were already processed.
+. After that, it removes all tokens from the processed token list.
+This includes the tokens just parsed after the `#` character.
 
-. Create a preprocessor context.
+. The parser creates an interpreter context to execute the preprocessor command.
+It is the preprocessor context.
+This context is created and reused by the analyzer if multiple preprocessors are executed one after the other.
 
-. Execute the commands that were parsed.
-This will create global variables, functions, and classes in the preprocessor context.
+. The analyzer executes the commands just parsed using the preprocessor context.
+This will create global variables, functions, and classes.
 
-. Execute the command passing the list of tokens as the only argument.
+. It executes the command, passing the list of tokens as the only argument.
+That is why the command has to be a macro, a function of closure.
+The command should read the token list and result in a list.
+This list may contain the original tokens, newly created tokens, and strings.
 
-. Remove all the tokens from the input and replace them with the token list returned by the preprocessor.
+. It removes all the tokens from the input and replaces them with the token list returned by the preprocessor.
 
-. If there are elements that are not tokens originating from the original list, parse them and convert each to a list of tokens.
+. If there are non-token-list elements, it parses them and converts each into a list of tokens.
 
-When the remaining code is executed, the interpreter will use the preprocessor context.
-If there is more than one preprocessor executed, they will share the same context.
+The analyzer uses this new token list to analyse the program code.
+The commands created up to this point are erased from the program being built.
+They served only the purpose of the preprocessor.
 
-The following example shows preprocessing that adds lines defining a global variable `M`, defines a function, and sets the value of the variable `M` to `"hello hello"`.
+While the remaining code is analyzed, the interpreter will use the already existing preprocessor context in subsequent preprocessing steps.
+
+The following example shows preprocessing that adds lines defining
+
+* a global variable `M`,
+
+* defines a function, and
+
+* sets the value of the variable `M` to `"hello hello"`.
 
 {%S preprocessorSample%}
 
@@ -2982,13 +3082,6 @@ Preprocessors are usually defined in imported files and invoked using a simple f
 == Language Grammar (Appendix)
 
 === Full Annotated EBNF
-{%@define EBNF($x)=
-[source]
-----
-{%#replaceLines replace="~\\*~~"
-{%@snip EBNF_$x%}%}
-----
-%}
 
 The following is the non-standard EBNF definition of the programming language called Turicum.
 
@@ -3024,7 +3117,7 @@ It is the __result__ of the command.
 {%EBNF KEYWORD_COMMAND%}
 
 
-   LOOP ::= ( WHILE | FOR | FOR_EACH ) [ 'until' EXPRESSION];
+   LOOP ::= ( FOR | FOR_EACH ) [ 'until' EXPRESSION];
 
 {%EBNF WHILE%}
 

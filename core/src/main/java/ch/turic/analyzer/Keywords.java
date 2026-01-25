@@ -10,6 +10,7 @@ public interface Keywords {
     String CLASS = "class";
     String CONTINUE = "continue";
     String DIE = "die";
+    String DONE = "done";
     String EACH = "each";
     String ELSE = "else";
     String ELSEIF = "elseif";
@@ -24,6 +25,7 @@ public interface Keywords {
     String LIST = "list";
     String MUT = "mut";
     String OR = "or";
+    String OTHERWISE = "otherwise";
     String PIN = "pin";
     String PRINT = "print";
     String PRINTLN = "println";
@@ -32,6 +34,7 @@ public interface Keywords {
     String UNTIL = "until";
     String WHEN = "when";
     String WHILE = "while";
+    String LOOP = "loop";
     String WITH = "with";
     String YIELD = "yield";
     // end snippet

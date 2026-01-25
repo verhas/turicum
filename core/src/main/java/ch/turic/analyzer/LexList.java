@@ -180,6 +180,12 @@ public class LexList extends LngList {
         return !hasNext();
     }
 
+    /**
+     * Determines whether the current lexeme at the current index is a keyword.
+     * A keyword is defined as a reserved type with an alphabetic starting character.
+     *
+     * @return true if the current lexeme is a keyword, false otherwise
+     */
     public boolean isKeyword() {
         return hasNext() && lexAt(index).type() == Lex.Type.RESERVED && Character.isAlphabetic(lexAt(index).text().charAt(0));
     }

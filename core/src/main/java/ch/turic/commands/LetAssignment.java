@@ -48,7 +48,6 @@ public class LetAssignment extends AbstractCommand {
                 ctx.define(assignment.identifier(),
                         null,
                         typeNames);
-                ctx.local(assignment.identifier(), null);
             } else {
                 value = assignment.expression().execute(ctx);
                 ctx.defineTypeChecked(assignment.identifier(),

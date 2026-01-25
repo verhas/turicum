@@ -8,11 +8,13 @@ import java.util.*;
 
 public class Lexer {
 
+    // only the command keywords. The operator keywords are added in a static block dynamically
     public static final Set<String> RESERVED = new HashSet<>(Set.of(
             Keywords.CLASS, Keywords.PIN, Keywords.FN, Keywords.LET, Keywords.GLOBAL, Keywords.IF, Keywords.ELSE,
             Keywords.ELSEIF, Keywords.DIE, Keywords.BREAK, Keywords.CONTINUE, Keywords.WHILE, Keywords.WITH, Keywords.UNTIL, Keywords.FOR, Keywords.FLOW,
             Keywords.EACH, Keywords.LIST, Keywords.IN, Keywords.RETURN, Keywords.YIELD, Keywords.WHEN, Keywords.TRY, Keywords.CATCH,
-            Keywords.FINALLY, Keywords.ASYNC, Keywords.AWAIT, Keywords.AS, Keywords.PRINT, Keywords.PRINTLN, Keywords.MUT
+            Keywords.FINALLY, Keywords.ASYNC, Keywords.AWAIT, Keywords.AS, Keywords.PRINT, Keywords.PRINTLN, Keywords.MUT,
+            Keywords.OTHERWISE, Keywords.DONE, Keywords.LOOP
     ));
     final static private ArrayList<String> _OPERANDS = new ArrayList<>(Arrays.asList(
             // snippet OPERANDS
@@ -25,6 +27,7 @@ public class Lexer {
             "=", "+=", "-=", "*=", "/=", "%=", "&=", "|=", "^=", "**=", "or=", "&&=", "||=", "<<=", ">>=", ">>>=",
     };
 
+    //Initializes the lexer by adding binary and unary operators to the reserved keywords and operand list.
     static {
         Arrays.stream(BinaryExpressionAnalyzer.binaryOperators).flatMap(Arrays::stream).forEach(
                 s -> {

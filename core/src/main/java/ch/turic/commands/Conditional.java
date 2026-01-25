@@ -33,6 +33,18 @@ sealed public interface Conditional permits Conditional.Result {
             this.done = done;
         }
 
+        /**
+         * Checks whether the current operation or computation has been marked as completed.
+         * The operation was completed if it was executed. It happens when a {@code break}, {@code return}, or {@code continue} statement is encountered
+         * without {@code when} condition or the value of the condition is {@code true}.
+         *
+         * In all other cases these commands return a {@link Result} with {@link #isDone()} false.
+         *
+         * When a block is executed in a loop it will also return a {@link Result} with {@link #isDone()} false
+         * unless it executed a {@code break} or {@code return} statement.
+         *
+         * @return true if the operation is complete; otherwise, false.
+         */
         public boolean isDone() {
             return done;
         }

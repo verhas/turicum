@@ -1,1 +1,14 @@
-println jsonify_beauty(java_import("ch.turic.exceptions"))
+
+
+fn a {
+    loop {
+        mut i = 0
+        println "loop started"
+    } while i < 3: (i++)
+    finally: println $"finally with $i"
+    try return i catch e: println e
+    return 666
+}
+
+
+println a()

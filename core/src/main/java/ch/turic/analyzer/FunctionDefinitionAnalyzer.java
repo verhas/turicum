@@ -55,7 +55,7 @@ public class FunctionDefinitionAnalyzer extends AbstractAnalyzer {
         if (lexes.is("(")) {
             fn = null;
         } else {
-            BadSyntax.when(lexes, !lexes.isIdentifier(), "function name or '(' expected after fn. You cannot omit the '()' for anonymous function.");
+            BadSyntax.when(lexes, !lexes.isIdentifier() && !lexes.isKeyword(), "function name or '(' expected after fn. You cannot omit the '()' for anonymous function.");
             fn = lexes.next().text();
         }
         final boolean hasParens = lexes.is("(");

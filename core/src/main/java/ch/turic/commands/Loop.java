@@ -11,6 +11,16 @@ public abstract class Loop extends AbstractCommand {
 
     public abstract Command exitCondition();
 
+    /**
+     * Evaluates the exit condition of a loop to determine whether the loop should terminate.
+     * This method leverages the {@code exitCondition()} method of the class to execute
+     * the given logic within the provided context converts its result to a Boolean value.
+     *
+     * @param ctx the execution context in which the loop is evaluated.
+     *            Provides the state and environment necessary for execution.
+     * @return true if the loop's exit condition evaluates to a boolean value of {@code true},
+     *         indicating the loop should terminate; false otherwise.
+     */
     public boolean exitLoop(LocalContext ctx) {
         return Cast.toBoolean(exitCondition().execute(ctx));
     }

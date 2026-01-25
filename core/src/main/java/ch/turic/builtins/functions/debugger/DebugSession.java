@@ -1,8 +1,8 @@
 package ch.turic.builtins.functions.debugger;
 
 import ch.turic.Command;
-import ch.turic.exceptions.ExecutionException;
 import ch.turic.analyzer.Pos;
+import ch.turic.exceptions.ExecutionException;
 import ch.turic.memory.Channel;
 import ch.turic.memory.LngList;
 import ch.turic.memory.ThreadContext;

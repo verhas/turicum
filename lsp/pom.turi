@@ -1,4 +1,4 @@
-global APPIA=? ( env( "APPIA" ) ?. split( "\\|" ) ) or [ source_directory( ) + "/.." ] ;
+global APPIA=? ( env("APPIA") ?. split("\\|") ) or[ source_directory() + "/.."];
 sys_import "turi.maven"
 import "turicum_versions"
 
@@ -14,10 +14,10 @@ let project=maven_project( {
         } ,
         build:{
             plugins: [
-                maven_plugin( "source" ),
-                maven_plugin( "javadoc" ),
-                maven_plugin( "compiler" ),
-                maven_plugin( "resources" ),
+                maven_plugin("source"),
+                maven_plugin("javadoc"),
+                maven_plugin("compiler"),
+                maven_plugin("resources"),
                 {
                     groupId: "org.apache.maven.plugins",
                     artifactId: "maven-shade-plugin",
@@ -25,18 +25,18 @@ let project=maven_project( {
                     executions: [
                         {
                             phase: "package",
-                            goals: [ "shade" ],
+                            goals: ["shade"],
                             configuration:{
                                 createDependencyReducedPom: false,
                                 shadedArtifactAttached: true,
                                 shadedClassifierName: "shaded",
                                 transformers: [
                                     {
-                                        "@implementation": "org.apache.maven.plugins.shade.resource.ManifestResourceTransformer",
+                                        "@implementation" : "org.apache.maven.plugins.shade.resource.ManifestResourceTransformer",
                                         mainClass: "ch.turic.lsp.LSPServerMain"
                                     } ,
                                     {
-                                        "@implementation": "org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"
+                                        "@implementation" : "org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"
                                     }
                                 ],
                                 filters: [
@@ -80,6 +80,6 @@ let project=maven_project( {
                 version: "0.24.0"
             }
         ]
-} ) ;
-project . properties=import( "properties" ) . properties ;
-project . done( ) ; 
+} );
+project.properties=import("properties").properties;
+project.`done`();

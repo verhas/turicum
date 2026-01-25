@@ -73,8 +73,8 @@ public class ForEachLoopAnalyzer extends AbstractAnalyzer {
             resultList = false;
         }
 
-        final Command body = ForLoopAnalyzer.getLoopBody(lexes);
-        final Command exitCondition = ForLoopAnalyzer.getOptionalExistCondition(lexes);
+        final Command body = LoopAnalyzerUtils.getLoopBody(lexes);
+        final Command exitCondition = LoopAnalyzerUtils.getOptionalExistCondition(lexes);
         return new ForEachLoop(identifiers, listLoopVar, with, expression, resultList, body, exitCondition);
     }
 }

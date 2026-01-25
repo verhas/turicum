@@ -49,8 +49,8 @@ public class ForLoopAnalyzer extends AbstractAnalyzer {
         }else{
             resultList = false;
         }
-        final Command body = getLoopBody(lexes);
-        final Command exitCondition = getOptionalExistCondition(lexes);
+        final Command body = LoopAnalyzerUtils.getLoopBody(lexes);
+        final Command exitCondition = LoopAnalyzerUtils.getOptionalExistCondition(lexes);
         return new ForLoop(startCommand, loopCondition, exitCondition, stepCommand, resultList, body);
     }
 
@@ -87,35 +87,4 @@ public class ForLoopAnalyzer extends AbstractAnalyzer {
         }
     }
 
-    static Command getOptionalExistCondition(LexList lexes) throws BadSyntax {
-        final Command exitCondition;
-        if (lexes.is(Keywords.UNTIL)) {
-            lexes.next();
-            exitCondition = ExpressionAnalyzer.INSTANCE.analyze(lexes);
-            Analyzer.checkCommandTermination(lexes);
-        } else {
-            exitCondition = new ConstantExpression(false);
-        }
-        return exitCondition;
-    }
-
-    /**
-     * Get the loop body, the '{' or ':' starting if needed was already checked
-     *
-     * @param lexes the current lexical sequence
-     * @return the read command
-     * @throws BadSyntax if any underlying analysis throws up
-     */
-    static Command getLoopBody(LexList lexes) throws BadSyntax {
-        Command body;
-        if (lexes.is(":")) {
-            lexes.next();
-            body = CommandAnalyzer.INSTANCE.analyze(lexes);
-        } else if (lexes.is("{")) {
-            body = BlockAnalyzer.INSTANCE.analyze(lexes);
-        } else {
-            throw lexes.syntaxError("Loop body must start with ':' or '{'.");
-        }
-        return body;
-    }
 }

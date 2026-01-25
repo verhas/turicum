@@ -319,6 +319,8 @@ class TuriTextDocumentService implements TextDocumentService {
         docs.put(Keywords.LIST, "declare that the result of a loop is a list");
         docs.put(Keywords.MUT, "mut variable declaration, mutable");
         docs.put(Keywords.OR, "alternative execution of expression and commands");
+        docs.put(Keywords.OTHERWISE, "execute command in while loop when the condition was false at the start");
+        docs.put(Keywords.DONE, "execute command in while loop when it finished without being broken");
         docs.put(Keywords.PIN, "alter a variable to be immutable");
         docs.put(Keywords.PRINT, "print the value of an expression to the console");
         docs.put(Keywords.PRINTLN, "println prints the value of an expression to the console followed by a newline");
@@ -327,6 +329,7 @@ class TuriTextDocumentService implements TextDocumentService {
         docs.put(Keywords.UNTIL, "until exit condition at the tail of a loop");
         docs.put(Keywords.WHEN, "when condition after the command die, return, continue, or break");
         docs.put(Keywords.WHILE, "while loop over a boolean condition");
+        docs.put(Keywords.LOOP, "while loop over a boolean condition");
         docs.put(Keywords.WITH, "execute a block with objects or with resources");
         docs.put(Keywords.YIELD, "yield a value from an asynchronous expression");
 
@@ -336,7 +339,8 @@ class TuriTextDocumentService implements TextDocumentService {
     @Override
     public CompletableFuture<Either<List<CompletionItem>, CompletionList>> completion(CompletionParams params) {
         return CompletableFuture.supplyAsync(() -> {
-            var list = new TuriCompletion(documentManager).completion(params);
+            // List<CompletionItem> list = new TuriCompletion(documentManager).completion(params);
+            List<CompletionItem> list = List.of();
             return Either.forLeft(list);
         }, TuriLanguageServer.VIRTUAL_EXECUTOR);
     }

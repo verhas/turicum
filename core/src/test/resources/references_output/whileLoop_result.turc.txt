@@ -1,1 +1,1 @@
-result{2}
+Variable 'i' is undefined.
