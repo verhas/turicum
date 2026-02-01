@@ -1,14 +1,15 @@
+try (mut a = 1;
+     mut b = 2;
+     mut c = 1 / 0;
+    ) catch e println e;
 
+let f = '{|!x|try { evaluate(x); "yes"} catch e {"no"}}
+println type(f)
+println f
+println type(unthunk(f))
 
-fn a {
-    loop {
-        mut i = 0
-        println "loop started"
-    } while i < 3: (i++)
-    finally: println $"finally with $i"
-    try return i catch e: println e
-    return 666
-}
+let yn=macro({|!x|try { evaluate(x); "yes"} catch e {"no"}})
 
-
-println a()
+println "Do we have a? ", yn(a)
+println "Do we have b? ", yn(b)
+println "Do we have c? ", yn(c)

@@ -1,8 +1,8 @@
 package ch.turic.commands.operators;
 
 import ch.turic.Command;
-import ch.turic.exceptions.ExecutionException;
 import ch.turic.commands.*;
+import ch.turic.exceptions.ExecutionException;
 import ch.turic.memory.LngObject;
 import ch.turic.memory.LocalContext;
 
@@ -28,12 +28,10 @@ public abstract class AbstractOperator implements Operator {
     public final Object execute(LocalContext context, Command left, Command right) throws ExecutionException {
         if (left == null) {
             final Object op2;
-            final var shadowed = context.shadow();
             try {
-                op2 = right.execute(shadowed);
-                TryCatch.exportFromTemporaryContext(shadowed, context);
+                op2 = right.execute(context);
             } catch (ExecutionException e) {
-                return exceptionHandler(shadowed, e, right);
+                return exceptionHandler(context, e, right);
             }
             if (!(op2 instanceof LngObject lngObject)) {
                 return unaryOp(context, op2);
@@ -61,12 +59,10 @@ public abstract class AbstractOperator implements Operator {
         }
 
         final Object op1;
-        final var shadowed = context.shadow();
         try {
-            op1 = left.execute(shadowed);
-            TryCatch.exportFromTemporaryContext(shadowed, context);
+            op1 = left.execute(context);
         } catch (ExecutionException e) {
-            return exceptionHandler(shadowed, e, right);
+            return exceptionHandler(context, e, right);
         }
 
         if (!(op1 instanceof LngObject lngObject)) {
@@ -107,6 +103,19 @@ public abstract class AbstractOperator implements Operator {
 
     public abstract Object binaryOp(LocalContext ctx, Object left, Command right) throws ExecutionException;
 
+    /**
+     * Handles exceptions thrown during the execution of a command within a given context.
+     * This method rethrows the captured exception.
+     * <p>
+     * The default implementation simply rethrows the exception.
+     * Operators that handle exceptions differently override this method. (See {@link Fallible}).
+     *
+     * @param ctx   the local execution context in which the exception occurred
+     * @param t     the {@link ExecutionException} that was thrown during execution
+     * @param right the command being executed when the exception was raised
+     * @return does not return a value as the exception is rethrown
+     * @throws ExecutionException always throws the provided exception
+     */
     public Object exceptionHandler(LocalContext ctx, ExecutionException t, Command right) throws ExecutionException {
         throw t;
     }

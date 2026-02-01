@@ -1684,15 +1684,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=1F11F64E
+h id=E24DDD0
 h after post increment: 1
 k: 0
-h id=2B2F5FCF
-k id=1F11F64E
+h id=6F70F32F
+k id=E24DDD0
 h after pre increment: 2
 z: 2
-h id=858D8B4
-z id=858D8B4
+h id=548E76F1
+z id=548E76F1
 
 ----
 
@@ -1737,15 +1737,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=7EFD28BD
+h id=3DD69F5A
 h after post increment: 1
 k: 1
-h id=7EFD28BD
-k id=7EFD28BD
+h id=3DD69F5A
+k id=3DD69F5A
 h after pre increment: 2
 z: 2
-h id=7EFD28BD
-z id=7EFD28BD
+h id=3DD69F5A
+z id=3DD69F5A
 
 ----
 
@@ -1793,15 +1793,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=26844ABB
+h id=5003041B
 h after post decrement: -1
 k: 0
-h id=1A865273
-k id=26844ABB
+h id=16FB356
+k id=5003041B
 h after pre decrement: -2
 z: -2
-h id=288CA5F0
-z id=288CA5F0
+h id=6BC248ED
+z id=6BC248ED
 
 ----
 
@@ -1843,15 +1843,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=216E0771
+h id=9573B3B
 h after post decrement: -1
 k: -1
-h id=216E0771
-k id=216E0771
+h id=9573B3B
+k id=9573B3B
 h after pre decrement: -2
 z: -2
-h id=216E0771
-z id=216E0771
+h id=9573B3B
+z id=9573B3B
 
 ----
 
@@ -5343,14 +5343,14 @@ Thread 1 generated 19
 Thread 1 generated 23
 stopping
 exception Task stopped.
-Thread 2 generated 3
  prime read 2
- prime read 3
-Thread 2 generated 5
+Thread 2 generated 3
+ prime read Thread 23 generated 5
+
 Thread 2 generated 7
  prime read 5
- prime read 7
-Thread 2 generated 11
+ prime read Thread 27 generated 
+11
 Thread 2 generated 13
 stopping
 exception Task stopped.
@@ -5408,9 +5408,9 @@ println( (end-start)/1000000, "ms")
 [source]
 ----
 [1, 2, 3]
-308.976584ms
+311.959875ms
 []
-315.89025ms
+307.097709ms
 
 ----
 
@@ -7419,9 +7419,10 @@ You can declare a variable to hold an error
 
 [source]
 ----
+mut error:err
 try{
         z = 55 // undefined variable
-}catch x : mut error:err = x
+}catch x : error = x
 
 println error
 
@@ -7460,9 +7461,10 @@ An exception has
 
 [source]
 ----
+mut error:err
 try{
         z = 55 // undefined variable
-}catch error: ;
+}catch err: error = err ;
 
 println """message "%s" """ % [error.message]
 println """cause "%s" """ % [error.cause]
@@ -7482,14 +7484,14 @@ for each st in error.stack_trace {
 message "Variable 'z' is undefined." 
 cause "none" 
 suppressed []" 
-try4.turi:2:8
+try4.turi:3:8
 source:         z = 55 // undefined variable
-try4.turi:1:4
+try4.turi:2:3
+source: try{
+try4.turi:2:0
 source: try{
 try4.turi:1:1
-source: try{
-try4.turi:1:1
-source: try{
+source: mut error:err
 
 ----
 
@@ -7514,15 +7516,15 @@ It is provided to let it have the same structure as the conditional and loop com
 
 If an exception variable is specified, it will be defined when the exception is caught.
 This is equivalent to defining a variable using the `let` command.
-It will hold the value of the exception during the execution of the catch part and after the whole try-catch command.
-If there were no exceptions, the value of this variable will be `none`.
+It will retain the exception's value during execution of the catch block.
 
 The exception variable can be defined as `catch(e)` with parentheses to make it more familiar to Java developers.
+Using the extra parentheses is not idiomatic in Turicum.
 
-If an exception happens, the execution of the try command stops, the exception variable will get the exception object and the catch block starts to execute.
+If an exception happens, the execution of the try command stops, the exception variable will get the exception object, and the catch block starts to execute.
 The exception variable is not available during the execution of the try command.
 
-The exception variable is pinned, cannot be modified.
+The exception variable is pinned and cannot be modified.
 
 The value of the try-catch command is
 
@@ -7530,86 +7532,6 @@ The value of the try-catch command is
 * the value of the catch command if there was an exception.
 
 The command after the `finally` keyword does not affect the result of the command.
-
-Also note that the execution of the `try` command has an atomic nature.
-
-.source of snippet `try6`
-
-[source]
-----
-try (mut a = 1;
-       mut b = 2;
-       mut c = 1 / 0;
-      )
-catch e println e;
-
-println "Do we have a? ", is_defined(a)
-println "Do we have b? ", is_defined(b)
-println "Do we have c? ", is_defined(c)
-
-----
-
-.output of snippet `try6`
-[source]
-----
-Cannot divide by zero
-Do we have a? false
-Do we have b? false
-Do we have c? false
-
-----
-
-
-
-In the example above, the local variables defined in the expression are undefined afterward because an error, division by zero, has occurred.
-
-The next example shows how this atomic behavior works.
-
-.source of snippet `try7`
-
-[source]
-----
-mut a = 3;
-try : (a = 1;
-       println "we redefined 'a'"
-       mut b = 2;
-       println "we defined 'b'"
-       1/0; // exception
-      )
-catch e : println e;
-
-println "Do we have a? ", is_defined(a)
-println "Was it changed or still 3? It is ",a
-println "Do we have b? ", is_defined(b)
-
-----
-
-.output of snippet `try7`
-[source]
-----
-we redefined 'a'
-we defined 'b'
-Cannot divide by zero
-Do we have a? true
-Was it changed or still 3? It is 1
-Do we have b? false
-
-----
-
-
-
-Note that the atomicity works only for the new variable definition.
-If you update a variable, an array element, an object, or something else the update is done and final even if later an exception happens.
-
-When the code following the `try` executes, it opens a new context.
-This context is a so-called shadow context.
-It wraps the surrounding context.
-When you define a new variable in this context, it checks not only this context but also the surrounding context to see whether the variable is already defined.
-
-To be precise, it checks not only the surrounding shadow context but all shadow contexts wrapped in the line.
-It has effect when `try` commands are nested.
-
-When and if the `try` command finishes successfully the variables from the shadow context are moved to the wrapped context, one level higher.
 
 == Decorators, Metaprogramming
 
@@ -11404,8 +11326,8 @@ println jsonify_beauty(java_import("ch.turic.exceptions"))
     "StringNotTerminated": JavaClass[klass=class ch.turic.exceptions.StringNotTerminated],
     "ch.turic.exceptions.BadSyntax": JavaClass[klass=class ch.turic.exceptions.BadSyntax],
     "ch.turic.exceptions.StringNotTerminated": JavaClass[klass=class ch.turic.exceptions.StringNotTerminated],
-    "ExecutionException": JavaClass[klass=class ch.turic.exceptions.ExecutionException],
     "BadSyntax": JavaClass[klass=class ch.turic.exceptions.BadSyntax],
+    "ExecutionException": JavaClass[klass=class ch.turic.exceptions.ExecutionException],
     "ch.turic.exceptions.ExecutionException": JavaClass[klass=class ch.turic.exceptions.ExecutionException],
     "ch.turic.exceptions.UnexpectedCharacter": JavaClass[klass=class ch.turic.exceptions.UnexpectedCharacter]
 }
@@ -11944,7 +11866,7 @@ println nano_time()
 .output of snippet `nano_time`
 [source]
 ----
-2987907012181000
+3082654950611333
 
 ----
 
@@ -12219,75 +12141,73 @@ none
 .output of snippet `que`
 [source]
 ----
-task1 is not ready 0
-task2 is ready 1
 task2 is not ready 0
-task2 is not ready 1
-task1 is not ready 1
+task1 is not ready 0
+task1 is ready 1
+task2 is not ready 1task1 is not ready 0
+
 task2 is not ready 2
-task1 is not ready 2
-task1 is not ready 3
-task2 is not ready 3
+task1 is not ready 1
 task1 is ready 2
 task1 is not ready 0
-task2 is not ready 4
-task2 is not ready 5
-task1 is not ready 1
-task1 is not ready 2
-task2 is not ready 6
-task1 is not ready 3
-task2 is ready 3
-task2 is not ready 0
-task2 is not ready 1
-task1 is not ready 4
-task1 is not ready 5task2 is not ready 2
-
-task2 is ready 4
-task2 is not ready 0
-task1 is not ready 6
-task1 is not ready 7
-task2 is not ready 1
-task2 is not ready 2
-task1 is not ready 8
-task1 is not ready 9task2 is ready 5
-
-task2 is not ready 0
-task2 is not ready 1
-task1 is not ready 10
-task1 is not ready 11
-task2 is not ready 2
-task1 is ready 6
-task1 is not ready 0
 task2 is not ready 3
 task1 is not ready 1
 task2 is not ready 4
-task1 is not ready 2
-task2 is not ready 5
-task1 is ready 7
-task2 is not ready 6
+task1 is not ready 2task2 is not ready 5
+
+task2 is not ready 6task1 is ready 3
+
 task1 is not ready 0
 task1 is not ready 1
 task2 is not ready 7
-task1 is not ready 2
-task2 is not ready 8
-task2 is not ready 9
-task1 is ready 8
-task1 is not ready 0
-task2 is not ready 10task1 is not ready 1
+task1 is not ready 2task2 is not ready 8
 
+task2 is not ready 9task1 is not ready 3
+
+task1 is ready 4task2 is not ready 10
+
+task1 is not ready 0
 task2 is not ready 11
-task1 is not ready 2
+task1 is not ready 1
 task2 is not ready 12
+task1 is not ready 2
+task1 is ready 5task2 is not ready 13
+
+task1 is not ready 0
+task1 is not ready 1task2 is not ready 14
+
+task1 is not ready 2
+task2 is not ready 15
+task2 is ready 6
 task1 is not ready 3
-task2 is ready 9
 task2 is not ready 0
-task1 is not ready 4
-task2 is not ready 1
+task2 is not ready 1task1 is not ready 4
+
 task1 is not ready 5
-closing the channel
 task2 is not ready 2
-channel is closed
 task1 is not ready 6
+task2 is ready 7
+task2 is not ready 0
+task2 is not ready 1task1 is not ready 7
+
+task2 is not ready 2
+task1 is not ready 8
+task2 is ready 8task1 is not ready 9
+
+task2 is not ready 0
+task1 is not ready 10
+task2 is not ready 1
+task1 is not ready 11task2 is not ready 2
+
+task2 is not ready 3
+task1 is ready 9
+task1 is not ready 0
+task1 is not ready 1
+task2 is not ready 4
+task1 is not ready 2
+task2 is not ready 5
+closing the channel
+channel is closed
 1 is done false
 2 is done false
 we start to wait the first time
@@ -12838,7 +12758,7 @@ println sleep(0.001) // sleep one milli
 .output of snippet `sleep`
 [source]
 ----
-0.001
+0.002
 
 ----
 
@@ -13054,6 +12974,9 @@ Without the call to `unlet`, the class would also have the variable `obj` as a f
 
 Execute a command object in the current context.
 The command object is probably the result of a `thunk()` call.
+Note that `quote()` is an alias for `thunk()`.
+Using the unary `'` operator is similar to `thunk()/quote()` but not exactly the same.
+For more information, see the documentation of the `'` operator.
 
 .source of snippet `thunk_unthunk`
 

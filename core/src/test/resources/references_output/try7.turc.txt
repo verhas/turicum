@@ -3,4 +3,4 @@ we defined 'b'
 Cannot divide by zero
 Do we have a? true
 Was it changed or still 3? It is 1
-Do we have b? false
+Do we have b? true

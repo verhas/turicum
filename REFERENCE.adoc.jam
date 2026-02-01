@@ -2719,15 +2719,15 @@ It is provided to let it have the same structure as the conditional and loop com
 
 If an exception variable is specified, it will be defined when the exception is caught.
 This is equivalent to defining a variable using the `let` command.
-It will hold the value of the exception during the execution of the catch part and after the whole try-catch command.
-If there were no exceptions, the value of this variable will be `none`.
+It will retain the exception's value during execution of the catch block.
 
 The exception variable can be defined as `catch(e)` with parentheses to make it more familiar to Java developers.
+Using the extra parentheses is not idiomatic in Turicum.
 
-If an exception happens, the execution of the try command stops, the exception variable will get the exception object and the catch block starts to execute.
+If an exception happens, the execution of the try command stops, the exception variable will get the exception object, and the catch block starts to execute.
 The exception variable is not available during the execution of the try command.
 
-The exception variable is pinned, cannot be modified.
+The exception variable is pinned and cannot be modified.
 
 The value of the try-catch command is
 
@@ -2735,29 +2735,6 @@ The value of the try-catch command is
 * the value of the catch command if there was an exception.
 
 The command after the `finally` keyword does not affect the result of the command.
-
-Also note that the execution of the `try` command has an atomic nature.
-
-{%S try6%}
-
-In the example above, the local variables defined in the expression are undefined afterward because an error, division by zero, has occurred.
-
-The next example shows how this atomic behavior works.
-
-{%S try7%}
-
-Note that the atomicity works only for the new variable definition.
-If you update a variable, an array element, an object, or something else the update is done and final even if later an exception happens.
-
-When the code following the `try` executes, it opens a new context.
-This context is a so-called shadow context.
-It wraps the surrounding context.
-When you define a new variable in this context, it checks not only this context but also the surrounding context to see whether the variable is already defined.
-
-To be precise, it checks not only the surrounding shadow context but all shadow contexts wrapped in the line.
-It has effect when `try` commands are nested.
-
-When and if the `try` command finishes successfully the variables from the shadow context are moved to the wrapped context, one level higher.
 
 == Decorators, Metaprogramming
 

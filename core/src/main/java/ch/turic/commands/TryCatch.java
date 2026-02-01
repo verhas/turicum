@@ -2,8 +2,8 @@ package ch.turic.commands;
 
 import ch.turic.Command;
 import ch.turic.exceptions.ExecutionException;
-import ch.turic.memory.LocalContext;
 import ch.turic.memory.LngException;
+import ch.turic.memory.LocalContext;
 import ch.turic.utils.Unmarshaller;
 
 public class TryCatch extends AbstractCommand {
@@ -36,23 +36,22 @@ public class TryCatch extends AbstractCommand {
         Object result;
         // save the position of the stack trace so we can drop the deeper elements when catching
         final int traceSize = context.threadContext.traceSize();
-        // create a temporary context: we will export from it if no error occurs
-        final var ctx = context.shadow();
+        // create a temporary context: we will export from it if no error occurs.
         try {
-            result = tryBlock.execute(ctx);
-            exportFromTemporaryContext(ctx, context);
+            result = tryBlock.execute(context);
             if (exceptionVariable != null) {
                 context.let0(exceptionVariable, null);
                 context.freeze(exceptionVariable);
             }
         } catch (ExecutionException e) {
+            final var catchContext = context.wrap();
             if (exceptionVariable != null) {
                 final var exception = LngException.build(context, e, context.threadContext.getStackTrace());
-                if( context.containsLocal(exceptionVariable) ) {
+                if (context.containsLocal(exceptionVariable)) {
                     throw new ExecutionException("Variable '%s' used in catch is already defined", exceptionVariable);
                 }
-                context.local(exceptionVariable, exception);
-                context.freeze(exceptionVariable);
+                catchContext.local(exceptionVariable, exception);
+                catchContext.freeze(exceptionVariable);
             }
 
             if (catchBlock == null) {
@@ -60,8 +59,8 @@ public class TryCatch extends AbstractCommand {
             } else {
                 //We reset the stack trace only now
                 // even if there is finally, but no catch, the original trace lives on
-                context.threadContext.resetTrace(traceSize);
-                result = catchBlock.execute(context);
+                catchContext.threadContext.resetTrace(traceSize);
+                result = catchBlock.execute(catchContext);
             }
         } finally {
             if (finallyBlock != null) {
@@ -75,7 +74,7 @@ public class TryCatch extends AbstractCommand {
     /**
      * Exports all local variables from a temporary context to another context.
      * This method copies all local variables and their values from the source context
-     * to the destination context using let0 operation.
+     * to the destination context using {@link LocalContext#local(String, Object)} operation.
      *
      * @param from source context containing the variables to be exported
      * @param to   destination context where variables will be copied to

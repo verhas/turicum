@@ -1,1 +1,1 @@
-Do we have b? false
+Do we have b? true

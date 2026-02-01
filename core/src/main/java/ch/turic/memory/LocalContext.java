@@ -22,7 +22,6 @@ public class LocalContext implements Context, AutoCloseable {
     public final ThreadContext threadContext;
     private LocalContext caller = null;
     private final List<String> exporting = new ArrayList<>();
-    private final boolean shadow;
     private final boolean with;
     private boolean pinned = false;
 
@@ -93,7 +92,6 @@ public class LocalContext implements Context, AutoCloseable {
         this.globalContext.registerContext(threadContext);
         this.wrapped = null;
         this.frame = globalContext.heap;
-        this.shadow = false;
         this.with = false;
         this.frozen = new HashSet<>();
     }
@@ -106,7 +104,6 @@ public class LocalContext implements Context, AutoCloseable {
         if (threadContext != null) {
             this.globalContext.registerContext(threadContext);
         }
-        this.shadow = false;
         this.with = false;
         this.frozen = new HashSet<>();
     }
@@ -128,7 +125,6 @@ public class LocalContext implements Context, AutoCloseable {
         this.threadContext = clone.threadContext;
         this.frame = new VarTable();
         this.wrapped = wrapped;
-        this.shadow = false;
         this.with = false;
         this.frozen = new HashSet<>();
     }
@@ -138,7 +134,6 @@ public class LocalContext implements Context, AutoCloseable {
         this.threadContext = thisContext.threadContext;
         this.frame = new VarTable();
         this.wrapped = wrappedContext;
-        this.shadow = shadow;
         this.with = false;
         this.frozen = new HashSet<>();
     }
@@ -149,7 +144,6 @@ public class LocalContext implements Context, AutoCloseable {
         this.frame = withContext.frame;
         this.frozen = withContext.frozen;
         this.wrapped = wrappedContext;
-        this.shadow = false;
         this.with = true;
     }
 
@@ -277,7 +271,7 @@ public class LocalContext implements Context, AutoCloseable {
     }
 
     /**
-     * Create a new variable. Also, check that the name is not global, not non-local, and not frozen.
+     * Create a new variable. Also, check that the name is neither global nor non-local, and not frozen.
      * <p>
      * The variable is also added to the local frame with the name, but it does not have a value (it is null).
      * <p>
@@ -296,15 +290,6 @@ public class LocalContext implements Context, AutoCloseable {
         // we are lenient when we have a "let" inside a loop, as it will be executed multiple times
         if (frame.containsKey(key)) {
             throw new ExecutionException("Variable '%s' is already defined.", key);
-        }
-        if (shadow) {
-            var ctx = this;
-            while (ctx != null && ctx.shadow) {
-                ctx = ctx.wrapped;
-                if (ctx != null && ctx.frame.containsKey(key)) {
-                    throw new ExecutionException("Variable '%s' is already defined.", key);
-                }
-            }
         }
         final var v = new Variable(key);
         v.types = Variable.getTypes(this, typeNames);
@@ -459,10 +444,6 @@ public class LocalContext implements Context, AutoCloseable {
      */
     public LocalContext wrap() {
         return new LocalContext(this, this);
-    }
-
-    public LocalContext shadow() {
-        return new LocalContext(this, this, true);
     }
 
     /**

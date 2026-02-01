@@ -11,6 +11,9 @@ import ch.turic.Command;
 
 Execute a command object in the current context.
 The command object is probably the result of a `thunk()` call.
+Note that `quote()` is an alias for `thunk()`.
+Using the unary `'` operator is similar to `thunk()/quote()` but not exactly the same.
+For more information, see the documentation of the `'` operator.
 
 {%S thunk_unthunk%}
 

@@ -1982,18 +1982,20 @@ try{
 // end snippet
 
 // snippet try3
+mut error:err
 try{
         z = 55 // undefined variable
-}catch x : mut error:err = x
+}catch x : error = x
 
 println error
 
 // end snippet
 
 // snippet try4
+mut error:err
 try{
         z = 55 // undefined variable
-}catch error: ;
+}catch err: error = err ;
 
 println """message "%s" """ % [error.message]
 println """cause "%s" """ % [error.cause]
@@ -2025,14 +2027,15 @@ for each st in error.stack_trace {
 
 // snippet try6
 try (mut a = 1;
-       mut b = 2;
-       mut c = 1 / 0;
-      )
-catch e println e;
+     mut b = 2;
+     mut c = 1 / 0;
+    ) catch e println e;
 
-println "Do we have a? ", is_defined(a)
-println "Do we have b? ", is_defined(b)
-println "Do we have c? ", is_defined(c)
+fn yn(!x:bool)="yes" if x else "no"
+
+println "Do we have a? ", yn(is_defined(a))
+println "Do we have b? ", yn(is_defined(b))
+println "Do we have c? ", yn(is_defined(c))
 // end snippet
 
 // snippet try7
