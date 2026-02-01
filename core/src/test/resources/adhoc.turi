@@ -1,15 +1,14 @@
-try (mut a = 1;
-     mut b = 2;
-     mut c = 1 / 0;
-    ) catch e println e;
 
-let f = '{|!x|try { evaluate(x); "yes"} catch e {"no"}}
-println type(f)
-println f
-println type(unthunk(f))
+class A {
+    fn `.` {
+        println "a"
+    }
+}
 
-let yn=macro({|!x|try { evaluate(x); "yes"} catch e {"no"}})
+class B: A {
+    fn b {
+        println "b"
+    }
+}
 
-println "Do we have a? ", yn(a)
-println "Do we have b? ", yn(b)
-println "Do we have c? ", yn(c)
+with B(): a()

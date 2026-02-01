@@ -2753,6 +2753,7 @@ B().`we can write here anything`()
 // snippet dot_method3
 class B {
   fn `.` {
+    global str;
     println str(this.`.`).before("@")
   }
 }

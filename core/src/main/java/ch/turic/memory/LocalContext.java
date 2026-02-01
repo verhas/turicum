@@ -311,6 +311,9 @@ public class LocalContext implements Context, AutoCloseable {
         nonlocal.remove(key);
     }
 
+    public boolean isGlobal(final String name){
+        return globals.contains(name);
+    }
 
     public void mergeVariablesFrom(LocalContext ctx, Set<String> exceptions) throws ExecutionException {
         for (final var e : ctx.frame.entrySet()) {
@@ -598,9 +601,11 @@ public class LocalContext implements Context, AutoCloseable {
      * Retrieve the object associated with the key. It is either on the local stack or a global, whatever.
      *
      * @param key the identifier.
-     * @return the object or null if not defined
+     * @return the object or null if declared but undefined global variable
+     * @throws ExecutionException if the variable is not defined in the current context or any of the wrapped contexts.
      */
     public Object get(String key) {
+        // if this identifier was declared or used already as global in this context
         if (globals.contains(key)) {
             final var variable = globalContext.heap.get(key);
             if (variable == null) {
@@ -616,8 +621,9 @@ public class LocalContext implements Context, AutoCloseable {
                 return ctx.frame.get(key).get();
             }
         }
+        // if not found local, then use the global if it exists
         if (globalContext.heap.containsKey(key)) {
-            nonlocal.add(key);
+            nonlocal.add(key);// register the use of the global variable
             return globalContext.heap.get(key).get();
         }
         throw new ExecutionException("Variable '%s' is undefined.", key);

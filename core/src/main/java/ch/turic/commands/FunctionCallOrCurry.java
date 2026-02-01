@@ -21,6 +21,7 @@ import java.util.Arrays;
  * The class supports both positional and named arguments, rest parameters, and closure parameters.
  */
 public abstract class FunctionCallOrCurry extends AbstractCommand {
+    public static final String JOKER_METHOD_NAME = ".";
     public static final String[] EMPTY_STRING_ARRAY = new String[0];
     /*
      * An object is the closure or something that is to be called. It can be {@link LngCallable}, {@link Closure},
@@ -344,7 +345,7 @@ public abstract class FunctionCallOrCurry extends AbstractCommand {
             default -> {
                 final var method = obj.getField(identifier);
                 if (method == null) {
-                    yield obj.getField(".");
+                    yield obj.getField(JOKER_METHOD_NAME);
                 } else {
                     yield method;
                 }
@@ -403,21 +404,32 @@ public abstract class FunctionCallOrCurry extends AbstractCommand {
      * @return the resulting Command object, either transformed into a FieldAccess Command or the original Command object
      */
     protected Command myFunctionObject(final LocalContext context) {
-        final Command myObject;
-        if (object instanceof Identifier id && (context.contains("this") || context.contains("cls"))) {
-            final var thisObject = context.contains("this") ? context.get("this") : null;
-            final var clsObject = context.contains("cls") ? context.get("cls") : null;
-            if (thisObject instanceof LngObject lngObject && lngObject.context().containsLocal(id.name())) {
-                myObject = new FieldAccess(new Identifier("this"), id.name(), false);
-            } else if (clsObject instanceof LngClass lngClass && lngClass.context().containsLocal(id.name())) {
-                myObject = new FieldAccess(new Identifier("cls"), id.name(), false);
-            } else {
-                myObject = object;
+
+        if (object instanceof Identifier id) {
+            if(context.isGlobal(id.name())) {
+                return object;
             }
-        } else {
-            myObject = object;
+            if (context.contains("this") || context.contains("cls")) {
+                final var thisObject = context.contains("this") ? context.get("this") : null;
+                final var clsObject = context.contains("cls") ? context.get("cls") : null;
+                if (thisObject instanceof LngObject lngObject && lngObject.context().containsLocal(id.name())) {
+                    return new FieldAccess(new Identifier("this"), id.name(), false);
+                }
+                if (clsObject instanceof LngClass lngClass && lngClass.context().containsLocal(id.name())) {
+                    return new FieldAccess(new Identifier("cls"), id.name(), false);
+                }
+                if (thisObject instanceof LngObject lngObject && lngObject.context().containsLocal(JOKER_METHOD_NAME)) {
+                    return new FieldAccess(new Identifier("this"), id.name(), false);
+                }
+                if (clsObject instanceof LngClass lngClass && lngClass.context().containsLocal(JOKER_METHOD_NAME)) {
+                    return new FieldAccess(new Identifier("cls"), id.name(), false);
+                }
+                return object;
+            } else {
+                return object;
+            }
         }
-        return myObject;
+        return object;
     }
 
     /**

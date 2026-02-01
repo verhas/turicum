@@ -80,7 +80,14 @@ public class LngObject implements HasFields, HasIndex, HasContext {
 
     @Override
     public Iterator<Object> iterator() {
-        throw new ExecutionException("You cannot iterate over the field values.");
+        final var array = new ArrayList<>();
+        for( final var key : fields() ){
+            final var field = new LngList();
+            field.add(key);
+            field.add(getField(key));
+            array.add(field);
+        }
+        return array.iterator();
     }
 
     @Override

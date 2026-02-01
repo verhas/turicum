@@ -120,8 +120,8 @@ public class FunctionCall extends FunctionCallOrCurry {
                     ctx.setCaller(context);
                     ctx.let0("me", function);
                     ctx.freeze("me");
-                    ctx.let0(".", command.name());
-                    ctx.freeze(".");
+                    ctx.let0(JOKER_METHOD_NAME, command.name());
+                    ctx.freeze(JOKER_METHOD_NAME);
                     defineArgumentsInContext(ctx, context, command.parameters(), argValues, true);
                     return command.execute(ctx);
                 }

@@ -2471,6 +2471,9 @@ You can still access the method itself via the `this` reference:
 
 {%S dot_method3%}
 
+Also note that global methods you want to use, like `str` in the example, have to be declared as `global`.
+Without that the call will revert to the joker method itself.
+
 == Currying
 
 Currying is a functional programming technique named after the logician Haskell Curry, where a function with multiple arguments is transformed into a sequence of functions, each taking a single argument.

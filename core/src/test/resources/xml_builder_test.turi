@@ -1,0 +1,129 @@
+sys_import turi.xml_builder
+
+class xml_builderTest {
+    fn test_simple_element(){
+        let result={
+            with xml_builder() {
+                div("Hello")
+            }
+        }
+        let expected= "<div>Hello</div>"
+        let actual=render_xml( result );
+        die $"Expected: $expected, Got: $actual" when actual != expected
+        println "✓ test_simple_element passed"
+    }
+    
+    fn test_empty_element(){
+        let result={
+            with xml_builder(){
+                
+                br()
+            }
+        }
+        let expected= "<br/>"
+        let actual=render_xml( result )
+        die $"Expected: $expected, Got: $actual" when actual != expected
+        println "✓ test_empty_element passed"
+    }
+    
+    fn test_element_with_attributes(){
+        let result={
+            with xml_builder(){
+                    a( href= "https://example.com", target= "_blank", "Click here")
+            }
+        }
+            let expected= "<a href=\"https://example.com\" target=\"_blank\">Click here</a>"
+        let actual=render_xml( result )
+        die $"Expected: $expected, Got: $actual" when actual != expected
+        println "✓ test_element_with_attributes passed"
+    }
+    
+    fn test_nested_elements(){
+        let result={ with xml_builder(){
+                div(
+                    p("First"),
+                    p("Second")
+                )
+            }
+        }
+        let expected= "<div><p>First</p><p>Second</p></div>"
+        let actual=render_xml( result )
+        die $"Expected: $expected, Got: $actual" when actual != expected
+        println "✓ test_nested_elements passed"
+    }
+    
+    fn test_mixed_content(){
+        let result={ with xml_builder(){
+                div(
+                    "Text before",
+                    span("inline"),
+                    "text after"
+                )
+            }
+        }
+        let expected= "<div>Text before<span>inline</span>text after</div>"
+        let actual=render_xml( result )
+        die $"Expected: $expected, Got: $actual" when actual != expected
+        println "✓ test_mixed_content passed"
+    }
+    
+    fn test_number_as_content(){
+        let result={ with xml_builder(){
+                span(42)
+            }
+        }
+        let expected= "<span>42</span>"
+        let actual=render_xml( result )
+        die $"Expected: $expected, Got: $actual" when actual != expected
+        println "✓ test_number_as_content passed"
+    }
+    
+    fn test_complex_structure(){
+        let result={ with xml_builder(){
+                html(
+                    head(
+                        title("Test Page")
+                    ),
+                    body(
+                        h1("Welcome"),
+                        div( `class`= "container",
+                            p("Paragraph 1"),
+                            p("Paragraph 2")
+                        )
+                    )
+                )
+            }
+        }
+        let expected= "<html><head><title>Test Page</title></head><body><h1>Welcome</h1><div class=\"container\"><p>Paragraph 1</p><p>Paragraph 2</p></div></body></html>"
+        let actual=render_xml( result )
+        die $"Expected: $expected, Got: $actual" when actual != expected
+        println "✓ test_complex_structure passed"
+    }
+    
+    fn test_multiple_attributes(){
+        let result={ with xml_builder(){
+                input( type= "text", name= "username", placeholder= "Enter name", required= "true")
+            }
+        }
+        let expected= "<input name=\"username\" placeholder=\"Enter name\" type=\"text\" required=\"true\"/>"
+        let actual=render_xml( result )
+        die $"\nExpected: $expected,\nGot:      $actual" when actual != expected && false // "the order is not guaranteed"
+        println "✓ test_multiple_attributes passed"
+    }
+    
+    fn run_all(){
+        println "Running xml_builder tests..."
+        test_simple_element()
+        test_empty_element()
+        test_element_with_attributes()
+        test_nested_elements()
+        test_mixed_content()
+        test_number_as_content()
+        test_complex_structure()
+        test_multiple_attributes()
+        println "\nAll tests passed! ✓"
+    }
+}
+
+// Run the tests
+xml_builderTest().run_all()

@@ -1,4 +1,4 @@
 Cannot divide by zero
-Do we have a? true
-Do we have b? true
-Do we have c? false
+Do we have a? yes
+Do we have b? yes
+Do we have c? no

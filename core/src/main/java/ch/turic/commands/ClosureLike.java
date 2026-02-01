@@ -7,12 +7,11 @@ import ch.turic.utils.NullableOptional;
 
 import java.util.Set;
 
-import static ch.turic.commands.FunctionCallOrCurry.defineArgumentsInContext;
-import static ch.turic.commands.FunctionCallOrCurry.freezeThisAndCls;
+import static ch.turic.commands.FunctionCallOrCurry.*;
 
 public sealed abstract class ClosureLike extends AbstractCommand implements Command, HasFields, Cloneable permits ChainedClosureOrMacro, ClosureOrMacro {
 
-    private static final Set<String> SPECIAL_VARIABLES = Set.of("this", "cls", "me", "it", ".");
+    private static final Set<String> SPECIAL_VARIABLES = Set.of("this", "cls", "me", "it", JOKER_METHOD_NAME);
 
     public abstract ParameterList parameters();
 
@@ -127,18 +126,18 @@ public sealed abstract class ClosureLike extends AbstractCommand implements Comm
         }
         ctx.let0("this", lngObject);
         ctx.let0("cls", lngObject.lngClass());
-        ctx.let0(".", methodName);
+        ctx.let0(JOKER_METHOD_NAME, methodName);
         ctx.setCaller(context);
         freezeThisAndCls(ctx);
-        ctx.freeze(".");
+        ctx.freeze(JOKER_METHOD_NAME);
         defineArgumentsInContext(ctx, context, it.parameters(), argValues, true);
         return ctx;
     }
 
     private static LocalContext getClassContext(LocalContext context, String methodName, LngClass lngClass, FunctionCallOrCurry.ArgumentEvaluated[] argValues, ClosureLike it) {
         final var ctx = context.wrap(lngClass.context());
-        ctx.let0(".", methodName);
-        ctx.freeze(".");
+        ctx.let0(JOKER_METHOD_NAME, methodName);
+        ctx.freeze(JOKER_METHOD_NAME);
         if ("init".equals(methodName)) {
             // this will make in a chained constructor call set 'this' to the object created
             // 'cls' point to the class, but 'this.cls' point to the class which is going to be initialized

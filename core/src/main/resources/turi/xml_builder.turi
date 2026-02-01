@@ -1,0 +1,31 @@
+class xml_builder {
+    fn `.`( [ children ],{ meta } ){
+        global len, keys;
+            if len( keys( meta ) ) > 0 :
+        { tag: `.`, attrs: meta, children: children }
+            else:
+        { tag: `.`, children: children }
+    }
+}
+
+fn render_xml( element ){
+    global is_obj, str, len, keys;
+    // Handle non-object nodes - convert to string
+    return str( element ) when! is_obj( element )
+    
+    // Render attributes
+    let attrs=(" " + " ".join({ for each[ key, value ] in element.attrs list: $"$key=\"$value\"" }) )
+    if element.attrs != none && len( keys( element.attrs ) ) > 0
+    else ""
+    
+    // Self-closing tags or tags with children
+        if element.children == none || len( element.children ) == 0 :
+    $"<${element.tag}$attrs/>"
+    else{
+        let rendered_children={ for each child in element.children list: render_xml( child ) }
+        let children_html= "".join( rendered_children )
+        $"<${element.tag}$attrs>$children_html</${element.tag}>"
+    }
+}
+
+export xml_builder, render_xml;
