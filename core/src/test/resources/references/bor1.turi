@@ -1,0 +1,7 @@
+println 1 | 2
+println( [1,1,2,3,3,2,1] | [])
+println ( { a:1, b: 2, c: { h: 1, z:2} w: ["k","h","dr."] }
+            | { a:11, b: 22, c: { k:7} , w : [1,2,3]} )
+try:
+    3.0 | 3.14
+catch e: println e

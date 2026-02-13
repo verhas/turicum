@@ -1,0 +1,11 @@
+class A {}
+class B : A {}
+mut K = class : B {}
+mut z = K()
+println is_type(z,"A"),""" "A" yes, it is the root class"""
+println is_type(z,A)," A yes, when referencing the class itself"
+println is_type(z,"H"),""" "H" no, there is not even defined"""
+try: is_type(z,H) catch e: println $"H is not defined: ${e}"
+println is_type(z,"K"),""" "K" no, it is not the name of the klass, only a variable"""
+println is_type(z,K)," K yes, it is the class itself"
+println is_type(z,"#undefined")," #ndefined yes, it is also has a class type that is unnamed"

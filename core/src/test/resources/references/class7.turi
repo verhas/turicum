@@ -1,0 +1,14 @@
+class A {
+    fn init {
+      cls = B
+    }
+}
+
+class B {
+
+}
+try:
+    A()
+catch ex:
+    println ex
+

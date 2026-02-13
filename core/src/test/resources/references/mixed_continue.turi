@@ -1,0 +1,6 @@
+println {for each z in [1, 2, 3, 4, 5, 10, 11, 12] list {
+            if z % 5 == 0 : continue;
+            if z % 3 == 0 : continue z + 0.1;
+            z
+          }
+        }

@@ -1,0 +1,9 @@
+class A {
+    fn p {
+        this = none
+    }
+}
+try :
+    A().p()
+catch ex :
+    println ex

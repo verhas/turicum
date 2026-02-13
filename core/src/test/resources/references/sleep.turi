@@ -1,0 +1,2 @@
+// stochastic
+println sleep(0.001) // sleep one milli

@@ -1,0 +1,6 @@
+let z = rng(0,9223372036854775807)
+mut i = 0
+for each k in z {
+  print k, " "
+  i++
+} until i > 5

@@ -1,0 +1,3 @@
+let add = fn(x, y) { x + y }
+let add5 = add.(5)
+print(add5(3))

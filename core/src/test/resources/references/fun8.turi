@@ -1,0 +1,4 @@
+fn concatenate(a:str, b:str):str = 13
+try:
+    println concatenate("ab","ba")
+catch err: println err

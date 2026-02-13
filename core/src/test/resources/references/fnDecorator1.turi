@@ -1,0 +1,10 @@
+  fn fun_decorator(^closure){
+    {|| println("We start the fun"); closure(); println("The fun is over")}
+  }
+
+mut z =
+@fun_decorator()
+fn q(){
+  println("We function");
+}
+  z()

@@ -1,0 +1,4 @@
+mut z = "apple juice";
+try: z[1..5] = {z = "worm"; "lma"}
+catch e: println e
+print z

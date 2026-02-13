@@ -1,0 +1,16 @@
+fn get_name(){
+    println "Getting name";
+    "turicum-parent"
+}
+mut project = &{
+      name : get_name(),
+      packaging : "pom",
+      groupId : "ch.turic",
+      artifactId : "turicum-parent",
+      version : "1.0.0-SNAPSHOT",
+      description : "Turicum programming language",
+      modules : [ "core", "maven", "cli" ]
+      }
+println project.name
+println project.packaging
+println project.name

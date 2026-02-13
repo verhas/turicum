@@ -1,0 +1,1 @@
+println "aLMa aTTa".lower_case()

@@ -1,0 +1,6 @@
+let s="""
+    bruhaha
+      marha
+  korte
+  valaka mortunaktraburnaki                  """
+println s.strip_indent()

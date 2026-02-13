@@ -1,0 +1,2 @@
+for i=-3 ; i < 18 ; i++ :
+    print "alma ata".safe_char_at(i);

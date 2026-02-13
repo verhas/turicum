@@ -1,0 +1,3 @@
+macro(fn (!arg,[rest],{meta},^closure)
+            { evaluate(arg)(..rest,..meta,..closure)}
+     )(fn () {println("Hello")})

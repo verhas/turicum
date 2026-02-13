@@ -1,14 +1,41 @@
+class Resource {
+    
+    fn k(){
+        println "haha"
+    }
+    
+}
 
-class A {
-    fn `.` {
-        println "a"
+
+with Resource {
+    k()
+}
+
+
+class ResourceManager {
+    fn entry {
+        println "creating glass"
+        cls
+    }
+    fn exit( e ){
+        if e != none {
+            println e
+            return true
+            } else{
+            println $"m is ${m}"
+        }
+        false
+    }
+    mut m:int|none = none;
+    fn get {
+        cls.m
     }
 }
 
-class B: A {
-    fn b {
-        println "b"
-    }
+
+with ResourceManager as g {
+    println g.get()
+    g.m = 13;
+    die "yayyy"
 }
 
-with B(): a()

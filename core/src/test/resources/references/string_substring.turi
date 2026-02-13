@@ -1,0 +1,4 @@
+println "alma ata".substring(5)
+println "alma ata".substring(5,53)
+println "alma ata".substring(5,7)
+println "alma ata".substring(-3,7)

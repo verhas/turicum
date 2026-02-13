@@ -1,2 +1,0 @@
-not possible to change loop variable in the loop it remained 1
-not possible to change loop variable in the loop it remained 2

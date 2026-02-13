@@ -1,0 +1,4 @@
+let b = []
+mut { a:num , b -> b[0] } = {a:1,b:2};
+println a
+println b

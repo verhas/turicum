@@ -1,0 +1,8 @@
+fn add(a,b)=a + b
+let add5 = add.(5)
+fn test(s){ println s," = ", s.execute() }
+test "add5(5)"
+test "curried_arity(add5)"
+test "arity(add5)"
+test "curried_arity(add)"
+test "arity(add)"

@@ -1,0 +1,16 @@
+class A {
+    mut z:num = 1
+    let k:str = "two"
+    fn zibabwa(a,b,@shia,[ta]){}
+}
+let k = A()
+let uu = {|f,y,z| none}
+
+println keys(A), " of A"
+println keys(A.zibabwa), " of A.zibabwa"
+println keys(k), " of k"
+println keys(uu), " of uu"
+
+let BigDecimal = java_class("java.math.BigDecimal")
+println keys(BigDecimal)
+println keys(BigDecimal("0"))

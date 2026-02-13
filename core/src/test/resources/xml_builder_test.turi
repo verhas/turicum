@@ -8,7 +8,7 @@ class xml_builderTest {
             }
         }
         let expected= "<div>Hello</div>"
-        let actual=render_xml( result );
+        let actual=render_xml(result);
         die $"Expected: $expected, Got: $actual" when actual != expected
         println "✓ test_simple_element passed"
     }
@@ -16,7 +16,6 @@ class xml_builderTest {
     fn test_empty_element(){
         let result={
             with xml_builder(){
-                
                 br()
             }
         }
@@ -29,7 +28,7 @@ class xml_builderTest {
     fn test_element_with_attributes(){
         let result={
             with xml_builder(){
-                    a( href= "https://example.com", target= "_blank", "Click here")
+                a( href= "https://example.com", target= "_blank", "Click here")
             }
         }
             let expected= "<a href=\"https://example.com\" target=\"_blank\">Click here</a>"
@@ -107,7 +106,7 @@ class xml_builderTest {
         }
         let expected= "<input name=\"username\" placeholder=\"Enter name\" type=\"text\" required=\"true\"/>"
         let actual=render_xml( result )
-        die $"\nExpected: $expected,\nGot:      $actual" when actual != expected && false // "the order is not guaranteed"
+        die $"\nExpected: $expected,\nGot:      $actual" when actual != expected && false // & false is added because the order is not guaranteed
         println "✓ test_multiple_attributes passed"
     }
     

@@ -1,0 +1,3 @@
+for each [ j, z ] with i in enumerate(["apple", "banana", "orange", "peach"]) {
+println "%s.%s. %s" % [i, j, z]
+}

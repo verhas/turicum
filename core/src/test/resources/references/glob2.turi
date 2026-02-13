@@ -1,0 +1,3 @@
+sys_import "turi.io", "glob"
+
+println jsonify_beauty(glob("*"))

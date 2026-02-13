@@ -1,4 +1,0 @@
-bashful
-sleepy
-dopey
-grumpy

@@ -1,0 +1,2 @@
+fn concatenate(a:str, b:str):str = a + b
+println concatenate("ab","ba")

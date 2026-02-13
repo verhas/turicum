@@ -1,0 +1,2 @@
+println "Ym9ymcAgc29yIG1lZ2d5b3Rvcg==".contains_regex("IG.*cg")
+println "Ym9ymcAgc29yIG1lZ2d5b3Rvcg==".contains_regex("YmZ.*?nora")

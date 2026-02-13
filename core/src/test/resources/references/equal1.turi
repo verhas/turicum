@@ -1,0 +1,11 @@
+mut k = { a:1 , b:2 }
+mut q = { a:1 , b:2 }
+mut w = "ohmy"
+println 1 == 1, " one is one"
+println 1 == 2, " one is not two"
+println 1 === 1, " one is the same as one"
+println 1 === 2, " one is not the same as two"
+println k == q, " k equals q, but"
+println k === q, " k is not the same as q"
+println w == "ohmy", " w is 'ohmy'"
+println w === "ohmy", " w is not that 'ohmy'"

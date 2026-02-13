@@ -1,0 +1,8 @@
+let b = []
+mut { a:num , let b -> [ x, y, z ] } = {a:1,b:[1,2,3]};
+a = 5 // a is mutable
+try: x = 77 catch e: none // x is immutable will not change
+println a
+println x
+println y
+println z

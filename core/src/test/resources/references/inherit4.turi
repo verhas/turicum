@@ -1,0 +1,16 @@
+class P1 {
+    fn init {
+        println "init in P1, cls='%s' this='%s'" % [cls, this]
+    }
+}
+class P2 {
+    fn init {
+        println "init in P2, cls='%s' this='%s'" % [cls, this]
+    }
+}
+class C : P1,P2 {
+    fn init {
+        println "init in C, cls='%s' this='%s'" % [cls, this]
+    }
+}
+mut o = C();

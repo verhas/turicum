@@ -1,0 +1,9 @@
+loop: mut i = 1;
+while i < 5 {
+  print i, " ";
+  i++;
+} until i % 3 == 0
+done { println "loop is done" }
+otherwise { println "Loop did not even start" }
+finally { println "We are done here" }
+try: print i catch err: println err

@@ -1,0 +1,10 @@
+let a  = {}
+println $"is a.b defined? ${with a: is_defined(b)}"
+try: let q = a.b.c
+catch e: println e
+// q is still undefined we can assign
+let p = (a.b or {}).c
+// the same, but shorter
+let q = a.b?.c
+println $"q is ${q}.. eventually, but at least exists..."
+println $"a was not changed ${a}"

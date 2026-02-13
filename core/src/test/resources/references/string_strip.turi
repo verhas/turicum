@@ -1,0 +1,3 @@
+let s="\u202F space elol hatul "
+println s
+println s.strip()

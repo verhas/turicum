@@ -1,0 +1,2 @@
+mut twice = macro(fn (arg){ evaluate(arg); evaluate(arg);});
+twice( {println("Hello")} )

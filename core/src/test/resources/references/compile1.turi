@@ -1,0 +1,2 @@
+mut z = "println 1+1".compile()
+z.execute()

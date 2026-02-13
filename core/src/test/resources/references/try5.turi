@@ -1,0 +1,14 @@
+mut error:err|none
+try{
+        z = 55 // undefined variable
+}catch err: error = err
+
+println """message "%s" """ % [error.message]
+println """cause "%s" """ % [error.cause]
+println """suppressed %s" """ % [error.suppressed]
+for each st in error.stack_trace {
+    println("%s:%s:%s" % [st.file, st.line, st.column])
+    println "source: ", st.source
+    }
+
+

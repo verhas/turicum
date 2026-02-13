@@ -1,0 +1,5 @@
+class A {}
+class B : A {}
+mut K = class : B {}
+println all_parents(K)
+println([ ..all_parents(K) -> type(it()) ])

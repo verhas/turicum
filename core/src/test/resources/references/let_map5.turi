@@ -1,0 +1,5 @@
+mut { a:num , let b } = {a:1,b:1};
+a = 5 // a is mutable
+try: b = 5 catch e: none // b is immutable will not change
+println a
+println b

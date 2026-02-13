@@ -1,0 +1,19 @@
+fn a {
+    mut h = 10
+    return [pack(),pack()]
+}
+let [x,y] = a()
+println $"x.h = $(x.h)"
+println $"y.h = $(y.h)"
+x.h = 100
+println "AFTER x.h = 100"
+println $"x.h = $(x.h)"
+println $"y.h = $(y.h)"
+println $"are they the same? $(x === y)"
+
+// field w is defined anew, not shared, inserted into x and y separately
+x.w = "x.w"
+y.w = "y.w"
+println $"x.w = $(x.w)"
+println $"y.w = $(y.w)"
+

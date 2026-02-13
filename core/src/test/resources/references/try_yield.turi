@@ -1,0 +1,31 @@
+// stochastic
+fn printer(){
+    mut n = 0
+    while {
+        mut s = try_yield();
+        return { println "we are done" } when yield_is_closed();
+        if s == none {
+            println "not ready %s" % n
+            n++
+            sleep 0.003
+        } else {
+            n = 0
+            println "received %s" % s;
+        }
+    }
+}
+
+mut task : task = async printer()
+for i=1 ; i < 4 ; i++ {
+ println "sending ",i
+ task.send(i);
+ sleep 0.009
+ }
+println "closing the channel"
+task.close();
+println "channel is closed"
+println "is done %s" % task.is_done()
+await task
+println "is done %s" % task.is_done()
+
+none

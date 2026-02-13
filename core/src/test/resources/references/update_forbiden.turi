@@ -1,0 +1,5 @@
+mut z = 13
+try {
+    z = {z = 12; 14}
+}catch e : println e
+print z," not changed"

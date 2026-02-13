@@ -1,0 +1,16 @@
+class Car {
+    fn init(power:num=125, color:str="red"){
+        pin power
+    }
+    fn repaint(color:str){
+        this.color = color
+    }
+}
+let my_porsch = Car(power=467)
+my_porsch.repaint("yellow")
+try {
+    with my_porsch {
+        power = power + 100;
+    }
+}catch e : println "You cannot do home tuning on a porsch";
+print $"The color of my porsch is ${my_porsch.color}"

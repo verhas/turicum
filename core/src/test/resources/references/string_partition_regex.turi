@@ -1,0 +1,5 @@
+mut s = "abraka, muhaha dabra, mutabor; kalifa";
+while s.is_not_empty() {
+  mut [start, sep, s ] = s.partition_regex("[ ,;]+")
+  println start
+}

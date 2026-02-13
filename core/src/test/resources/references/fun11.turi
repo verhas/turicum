@@ -1,0 +1,2 @@
+fn p()=(len "original K");
+println p()

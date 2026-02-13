@@ -1,0 +1,7 @@
+mut f = fn (a,b,[rest]) {
+  println("a=",a)
+  println("b=",b)
+  for each r in rest: print("%s " % r)
+}
+
+f(1,2,3,4,5,6)

@@ -1,0 +1,44 @@
+// stochastic
+/**
+  * a very simple prime number filter
+  */
+fn is_prime(x:num):bool {
+    return true when x == 2;
+    return false when x % 2 == 0;
+    for n = 3 ; n*n <= x ; n = n + 2 :
+        return false when x % n == 0
+    true
+}
+/**
+  * Create a generator with limited que size.
+  * Then read from it and print.
+  */
+fn execute(name:str, que_length:num){
+    mut prime = async[in=que_length] {
+        yield 2;
+        mut i = 3;
+        while {
+            if is_prime(i) {
+                yield i
+                println name, " generated ", i
+            }
+            i = i + 2; // only the odd numbers
+        }
+    }
+
+    mut count = 0
+    while prime.has_next(){
+        println " prime read ",prime.next()
+        count++
+        }until count > 3 // limit the printout to the first three primes
+    sleep 1 // will give time for the generator to run ahead uselessly
+    println "stopping"
+    prime.stop()
+    // the error is cancellation, since we stopped the task
+    try: await prime catch e : println "exception ", e
+}
+// only 5 for demonstration, in real life it can be millions eating memory
+// five now stands for "unlimited size"
+execute("Thread 1",5)
+// limited channel size will stop the running ahead
+execute("Thread 2",2)

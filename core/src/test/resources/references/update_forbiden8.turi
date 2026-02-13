@@ -1,0 +1,4 @@
+mut z = []
+try: z[3] = { z = [];  "K"}
+catch e: println e
+println z

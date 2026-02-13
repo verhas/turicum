@@ -1,0 +1,5 @@
+
+mut z = async[] [ 1, 2,  3, 4];
+mut k = await z
+print str(k).left(len("ch.turic.memory.Channel$SimpleMessage@"))
+

@@ -1,0 +1,3 @@
+let a = 3;
+println $"a is $(a)"
+println $"a is also $a"

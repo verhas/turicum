@@ -1,0 +1,1 @@
+i does not exist outside of the loop

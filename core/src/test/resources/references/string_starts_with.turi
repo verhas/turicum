@@ -1,0 +1,2 @@
+println "alma ata".starts_with("alma")
+println "alma ata".starts_with("ata")

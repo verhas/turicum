@@ -1,0 +1,5 @@
+fn add(a,b)=a + b
+let be10 = add.(5).(5)
+println be10()
+let unc = uncurry(be10)
+println unc(6,6)

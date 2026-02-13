@@ -1,4 +1,0 @@
-define a, but local 3
-define b, not local 4
-is a defined? no
-is b defined? yes, it is 4

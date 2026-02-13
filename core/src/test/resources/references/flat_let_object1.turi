@@ -1,0 +1,6 @@
+
+let z = { a: "apple", b:"bier", c : "count" }
+let {a, b, c} = z
+println a
+println b
+println c

@@ -1,0 +1,3 @@
+let appia_handlers = java_resources("turi/appia.turi")
+println $"There is ${len(appia_handlers)} appia handler sys import file."
+println $"It contains ${len(appia_handlers[0])} characters."

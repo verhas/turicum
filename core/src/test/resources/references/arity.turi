@@ -1,0 +1,4 @@
+fn a(x,z,h){}
+fn b(x,z,{h}){}
+println arity(a)
+println arity(b)

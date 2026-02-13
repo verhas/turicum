@@ -1,0 +1,5 @@
+mut z = { z: 13 };
+try {
+    z["z"] = {z.z = 12; 14}
+}catch e : println e
+print z.z, " already changed"

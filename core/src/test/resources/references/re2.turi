@@ -1,0 +1,4 @@
+sys_import "turi.re"
+
+mut m = Re("a(?<firstb>b)ra(?<twoletter>ka)(dabra)").match("abrakadabra");
+println "the ks is '%s'" % [m.name.twoletter]

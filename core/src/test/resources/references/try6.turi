@@ -1,0 +1,10 @@
+try (mut a = 1;
+     mut b = 2;
+     mut c = 1 / 0;
+    ) catch e println e;
+
+fn yn(!x:bool)="yes" if x else "no"
+
+println "Do we have a? ", yn(is_defined(a))
+println "Do we have b? ", yn(is_defined(b))
+println "Do we have c? ", yn(is_defined(c))

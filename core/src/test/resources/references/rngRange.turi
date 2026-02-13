@@ -1,0 +1,6 @@
+// a range does not store the numbers only where to start, end, and the step
+mut z = rng(100,9223372036854775807,100)
+// a range indexed is still only a range with a minimal memory footprint
+mut range = z[20..2000000]
+// the values come from the sub-range
+print( [..range[0 .. 5], "...", ..range[-5 .. len(range)]])

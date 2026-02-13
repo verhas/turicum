@@ -1,0 +1,6 @@
+mut s:str = "abraka; muhaha dabra; mutabor; kalifa";
+while s.is_not_empty() {
+  mut [start:str, sep:str, s_new ] = s.partition("; ");
+  s = s_new;
+  println start;
+}

@@ -1,0 +1,2 @@
+println "avalanche".pad_left(15)
+println "avalanche".pad_left(15,".")

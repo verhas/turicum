@@ -1,0 +1,13 @@
+// thunk is a macro, gets the block before it evaluates, and it does not evaluate it
+mut z = thunk({mut x = 3; println "hello"})
+println "before eval"
+// unthunking will evaluate the block, as a block
+unthunk(z)
+println "after eval"
+// 'x' was defined as a mutable variable inside the block, so here it is undefined
+println is_defined(x) // will print false
+// this will evaluate the block unwrapped
+unthunk(unwrap(z))
+// the block was unwrapped, so 'x' is defined in this context
+println is_defined(x) // will print true and
+println x             // then the value

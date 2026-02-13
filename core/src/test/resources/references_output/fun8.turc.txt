@@ -1,1 +1,0 @@
-Cannot return from 'concatenate' the value '13' as it does not fit any of the accepted type of the macro (str)

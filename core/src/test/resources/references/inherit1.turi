@@ -1,0 +1,10 @@
+class P {
+    fn a()=1
+    mut v = 2
+}
+class C : P {
+    fn b()=3
+    mut z = 4
+}
+mut o = C();
+println o.a(),o.v,o.b(),o.z;

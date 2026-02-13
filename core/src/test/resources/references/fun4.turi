@@ -1,0 +1,5 @@
+fn inc !x, @how_much {
+  x+how_much
+}
+println str(inc).before("@")
+println(inc(1,how_much=5))

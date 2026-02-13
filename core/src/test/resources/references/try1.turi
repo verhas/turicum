@@ -1,0 +1,10 @@
+mut z = {
+    try {
+        z = 55 // undefined variable
+    }catch e {
+      66
+    } finally {
+      println "this will always run"
+    }
+}
+println "z is now 66, is it ? ",z

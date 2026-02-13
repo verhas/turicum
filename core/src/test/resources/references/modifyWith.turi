@@ -1,0 +1,12 @@
+mut x = {a:1,b:2};
+mut y = {a:4,c:5};
+with x, y {
+    a = 0
+    b = 0
+    c = 0
+    mut k = 55;
+    pin b
+}
+try: x.b = 55 catch e: println e
+println x
+println y

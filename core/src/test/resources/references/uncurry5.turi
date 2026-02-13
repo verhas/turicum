@@ -1,0 +1,3 @@
+fn a(x,y){}
+println is_curried(uncurry(a.(1,2)))
+println is_curried(uncurry(a.(1,2),2))

@@ -1,0 +1,14 @@
+fn fun_decorator(^closure){
+        set_caller_force(closure.name,
+            {|| println("We start the fun"); closure(); println("The fun is over")}
+           )
+    }
+
+{
+    @fun_decorator()
+    fn q(){
+      println("We function");
+    }
+
+    q()
+}

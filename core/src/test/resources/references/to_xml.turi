@@ -1,0 +1,12 @@
+sys_import "turi.xml";
+
+let h = {
+    name : "Pinco Palino",
+    age : 32,
+    sex : "sometimes"
+}
+
+h.`@cahe` = true;
+
+println xml_format(to_xml(h, top="h"))
+

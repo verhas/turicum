@@ -1,0 +1,26 @@
+// stochastic
+class Incrementable {
+    fn init(counter:num=0);
+
+    fn `++`{
+         Incrementable(counter+1)
+    }
+
+    fn p(name:str) {
+        println name,": ",counter;
+    }
+}
+
+mut h = Incrementable();
+h.p("h original");
+println "h id=%X" % id_hash(h);
+let k = h++;
+h.p("h after post increment");
+k.p("k");
+println "h id=%X" % id_hash(h);
+println "k id=%X" % id_hash(k);
+let z = ++h;
+h.p("h after pre increment");
+z.p("z")
+println "h id=%X" % id_hash(h);
+println "z id=%X" % id_hash(z);

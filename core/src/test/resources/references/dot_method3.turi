@@ -1,0 +1,7 @@
+class B {
+  fn `.` {
+    global str;
+    println str(this.`.`).before("@")
+  }
+}
+B().`we can write here anything`()

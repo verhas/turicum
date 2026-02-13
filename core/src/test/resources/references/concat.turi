@@ -1,0 +1,5 @@
+mut dwarf_printer = thunk({println "bashful"})
+dwarf_printer += thunk({println "sleepy"})
+dwarf_printer += thunk({println "dopey"})
+dwarf_printer += thunk({println "grumpy"})
+unthunk(dwarf_printer)

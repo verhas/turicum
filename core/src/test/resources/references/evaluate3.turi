@@ -1,0 +1,3 @@
+(fn (!arg,[rest],{meta},^closure)
+            { arg(..rest,..meta,..closure)})
+     (fn () {println("Hello")})

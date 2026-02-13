@@ -1,0 +1,12 @@
+fn p(s:str){
+    println s, " is ", s.bool()
+}
+p "true"
+p "no"
+p "" // empty string
+p "nominative"
+p "false"
+p "0"
+p "1"
+p "1.0"
+p "0.0"

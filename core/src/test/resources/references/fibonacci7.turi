@@ -1,0 +1,11 @@
+mut fib = {
+    mut cache = [];
+    {|x|
+        if x == 1 || x == 0 : 1
+        else{
+            return cache[x] when cache[x] != none;
+            cache[x] = me(x - 1) + me(x - 2);
+        }
+    }
+}
+println(fib(10))

@@ -1,0 +1,11 @@
+{
+    fn globalize(^closure){
+            set_global(closure.name,closure)
+        }
+
+    @globalize()
+    fn q(){
+      println("We function");
+    }
+}
+q()

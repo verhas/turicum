@@ -1,0 +1,2 @@
+println "2F".hex()
+println "0x2F".hex()

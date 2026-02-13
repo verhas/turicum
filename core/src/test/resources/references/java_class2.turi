@@ -1,0 +1,3 @@
+let BigDecimal = java_class("java.math.BigDecimal")
+let h = BigDecimal("10.50")
+println $"h is ${h} of ${type(h)}"

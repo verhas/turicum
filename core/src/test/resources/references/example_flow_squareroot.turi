@@ -1,0 +1,17 @@
+// stochastic
+mut _sqrt = {
+    flow until epsilon < 0.0001 {
+        a <- 13;
+        a <- {
+            mut newA = (a + 13 / a) / 2;
+            println("a =", newA);
+            newA;
+        }
+        epsilon <- abs(a - (a + 13 / a) / 2);
+        yield a
+    }
+}
+
+println("sqrt(13) ≈ ", _sqrt);
+println("sqrt(13) ≈ ", sqrt(13), " calculated by java Math");
+println("square ≈ ", _sqrt * _sqrt);

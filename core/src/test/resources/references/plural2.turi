@@ -1,0 +1,12 @@
+sys_import "turi.xml";
+
+let project = {
+    dependencies : [
+    { "!": "dependentia", groupId : "ch.turic", artifactId: "habakuk", version: "1.0.7" },
+    { groupId : "ch.turic", artifactId: "habakak", version: "1.0.8" },
+    { groupId : "ch.turic", artifactId: "hababab", version: "1.0.5" },
+    { groupId : "ch.turic", artifactId: "haraluk", version: "1.4.7" }
+] };
+
+println xml_format(to_xml(project, top="project"))
+

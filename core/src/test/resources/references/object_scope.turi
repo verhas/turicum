@@ -1,0 +1,28 @@
+class X {
+  mut s = "class field"
+  cls.h = "another class field"
+  fn constructor {
+    mut g = "object field"
+  }
+  fn t(){
+    // access object field explicitly through 'this'
+    println("this.g=",this.g)
+    // the object wraps the class scope and not the other way around
+    // there is no 'g' defined in the class
+    try: println("cls.g=",cls.g) catch err1: println err1
+    // 'g' is in the wrapped scope of the object scope
+    // this is same as 'this.g'
+    try: println("g=",g) catch err2: println err2
+    // 'this.h' is the same as 'cls.h' because of wrapping
+    println("this.h=",this.h)
+    println("cls.h=",cls.h)
+    println("h=",h)
+    // the same is true for the other field
+    // does not matter how it was defined
+    println("this.s=",this.s)
+    println("cls.s=",cls.s)
+    println("s=",s)
+  }
+}
+mut x = X();
+x.t()

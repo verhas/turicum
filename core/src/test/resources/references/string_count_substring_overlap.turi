@@ -1,0 +1,2 @@
+println "almal atal".count_substring_overlap("al")
+println ("a"*6).count_substring_overlap("aa")

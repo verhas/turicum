@@ -1,0 +1,2 @@
+mut z : num = {if 232 % 2 == 0 : 1 else: 2 }
+println(z)

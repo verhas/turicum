@@ -1,0 +1,22 @@
+fn hi(){ // this will be deleted, it only exists in the preprocessor context
+  "hello "
+}
+// the next line starts the preprocessor
+# {|lexes|
+["""
+    // this is a string that will lead the new lexical token list
+    mut M:str = ""
+    fn helvetic_hi(){
+      "Gruetzi "
+    }
+    fn hi() { "hullo" }
+    M = M + "hello ";
+    M = M + (hi() or "none ");
+""",
+// and just mut's have the rest of the tokens
+..lexes]
+} // end of the preprocessor command
+
+// this is preprocessed
+M = M + helvetic_hi() + "ant hunter"
+print M

@@ -1,0 +1,3 @@
+let s= """z\t \\ a\n"a"""
+let q = s.quote()
+println $"${q} len q=${len(q)} len s=${len(s)}"

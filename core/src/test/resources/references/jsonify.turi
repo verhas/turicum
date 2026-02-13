@@ -1,0 +1,17 @@
+let z = {
+  a: 1, b:? [1,2,3]
+  pi : 3.1415926,
+  location : {
+    latidude : 16.990635373109665,
+    longidude: 17.935398980291257,
+    altidude: [2000, 1000,  -3 , false, "karma" ]
+    the_dude : "Peter Verhas",
+  }
+};
+
+println $"object to_string=${z}";
+println;
+println $"object jsonify=${jsonify(z)}";
+println;
+println $"object beauty=${jsonify_beauty(z,2,60)}";
+

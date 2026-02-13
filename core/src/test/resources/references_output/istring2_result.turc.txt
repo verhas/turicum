@@ -1,1 +1,0 @@
-is b defined? yes, it is 4

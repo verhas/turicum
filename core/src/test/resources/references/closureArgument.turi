@@ -1,0 +1,8 @@
+mut f = fn (a,b,^closure) {
+  println("a=",a);
+  println("b=",b);
+  println(closure(a,b))
+}
+
+f(2,3){|x,y| x+y}
+f(2,3){|x,y| x*y}

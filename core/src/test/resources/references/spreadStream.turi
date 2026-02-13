@@ -1,0 +1,8 @@
+fn c(a,b,c,d){
+    println("%s %s %s %s " % [a,b,c,d])
+}
+fn numbers {
+  for i = 1 ; i <= 4 ; i++ : yield i
+}
+
+c(..(async numbers()))

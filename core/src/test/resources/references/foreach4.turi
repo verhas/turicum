@@ -1,0 +1,3 @@
+for each [fruit, origin ] in [ ["apple","Ukraine"], ["banana","Brasil"], ["orange","Spain"], ["peach","Hungary"]] {
+println "Fruit %s comes from %s" % [fruit, origin]
+}

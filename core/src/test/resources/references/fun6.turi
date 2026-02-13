@@ -1,0 +1,5 @@
+fn wrong !x, h, !k {
+  // just don't do
+}
+try: wrong(1,3, h= 2)
+catch e: println("There is an error",e)

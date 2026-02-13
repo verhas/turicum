@@ -1,0 +1,4 @@
+println "alma ata".between("al","ta")
+// is the same as
+println "alma ata".after("al").before("al","ta")
+

@@ -1,0 +1,12 @@
+mut a = 3;
+try : (a = 1;
+       println "we redefined 'a'"
+       mut b = 2;
+       println "we defined 'b'"
+       1/0; // exception
+      )
+catch e : println e;
+
+println "Do we have a? ", is_defined(a)
+println "Was it changed or still 3? It is ",a
+println "Do we have b? ", is_defined(b)

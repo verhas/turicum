@@ -1,0 +1,21 @@
+class A {
+    fn init {
+        this.a = "a";
+    }
+    fn p {
+        println "I am class level"
+    }
+}
+mut a1 = A()
+a1.p()
+a1.p = fn (){
+  println "I am a1"
+}
+mut a2 = A()
+a2.p = fn (){
+  println "I am a2"
+}
+
+a1.p()
+a2.p()
+

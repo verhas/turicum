@@ -1,2 +1,0 @@
-Cannot find method 'deleteCharAt' on object 'xBruhahha' with arguments class java.lang.Long:0
-Bruhahha

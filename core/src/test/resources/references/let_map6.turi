@@ -1,0 +1,4 @@
+mut a:num = 3
+try:
+  mut { a:num , let b } = {a:1,b:1};
+catch e: println e

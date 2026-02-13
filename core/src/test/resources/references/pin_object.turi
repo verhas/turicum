@@ -1,0 +1,5 @@
+let a = {a:1, b:2};
+pin {a};
+
+try: a.k = 13 catch e: println e
+

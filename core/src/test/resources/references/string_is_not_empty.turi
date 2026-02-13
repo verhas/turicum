@@ -1,0 +1,2 @@
+println "".is_not_empty()
+println "\n\t  ".is_not_empty()

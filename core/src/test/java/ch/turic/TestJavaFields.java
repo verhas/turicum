@@ -5,8 +5,13 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+/**
+ * The TestJavaFields class is used to test the functionality of setting and reading static
+ * and non-static fields using reflective access. It includes tests to ensure proper interaction
+ * with fields via the Turicum interpreter.
+ */
 public class TestJavaFields {
-    private static Long testField = 2L;
+    private static Long testField = 2L;// cannot be converted to local variable, tested turicum code reads it reflectively
     private Long testField2 = 2L;
 
     @DisplayName("Test static field setting and reading")
@@ -19,10 +24,11 @@ public class TestJavaFields {
                 p
                 """;
         testField = 2L;
-        final var interpreter = new Interpreter(input);
-        final var p = interpreter.compileAndExecute();
-        Assertions.assertEquals(2L, p);
-        Assertions.assertEquals(3L, testField);
+        try (final var interpreter = new Interpreter(input)) {
+            final var p = interpreter.compileAndExecute();
+            Assertions.assertEquals(2L, p);
+            Assertions.assertEquals(3L, testField);
+        }
     }
 
     @DisplayName("Test non-static field setting and reading")

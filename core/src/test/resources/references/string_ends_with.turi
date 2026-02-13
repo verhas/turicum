@@ -1,0 +1,2 @@
+println "alma ata".ends_with("alma")
+println "alma ata".ends_with("ata")

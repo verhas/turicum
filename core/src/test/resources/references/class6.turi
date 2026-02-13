@@ -1,0 +1,12 @@
+class A {
+    fn init {
+      this = B()
+    }
+}
+
+class B {
+
+}
+
+println A().cls
+

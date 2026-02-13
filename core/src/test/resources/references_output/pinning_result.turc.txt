@@ -1,1 +1,0 @@
-variable 'object' still can be changed: {x: 1, y: 3}

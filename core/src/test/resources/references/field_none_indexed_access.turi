@@ -1,0 +1,3 @@
+let a  = {}
+let q = (a["b"] or {}) ["c"]
+println $"q is ${q}"

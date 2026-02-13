@@ -1,0 +1,9 @@
+mut c = {
+    mut whom = "World!";
+    {|greeting|
+        println(greeting,whom);
+        whom = "Universe!"
+    }
+}
+c("Hello, ")
+c("Hi, ")

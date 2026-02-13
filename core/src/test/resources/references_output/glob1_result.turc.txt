@@ -1,5 +1,0 @@
-[
-    "target/test-classes/ch/turic/TestJavaDocSnippets.class",
-    "target/test-classes/ch/turic/TestJavaFields.class",
-    "target/test-classes/ch/turic/TestRun.class"
-]

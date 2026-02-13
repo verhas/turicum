@@ -1,0 +1,9 @@
+mut f = fn (a,b,[rest],{meta}) {
+  println("a=",a);
+  println("b=",b);
+  for each r in keys(meta): print("%s=%s\n" % [r , meta[r]]);
+  println("rest:");
+  for each r in rest: print("%s " % r);
+}
+
+f(1,b=2,k=3,x=4,juice=5,7,six=6);

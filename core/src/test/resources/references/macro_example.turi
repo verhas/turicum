@@ -1,0 +1,6 @@
+mut c = macro(
+    fn(condition,then,`else`){
+        if evaluate(condition) : evaluate(then) else: evaluate(`else`)
+    });
+
+print c(true,"yes, it is true",{ println("this will never be printed") })

@@ -1,0 +1,5 @@
+let a = {}
+a.b = 13
+with a : pin b
+try{ a.b = 14 } catch e: println e
+println a.b

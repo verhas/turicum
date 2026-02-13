@@ -1,0 +1,6 @@
+println {
+    for i=0 ; i < 4 ; i++ {
+      break if i == 2 : 3 else : 4 when i == 2;
+      println i;
+    }
+}

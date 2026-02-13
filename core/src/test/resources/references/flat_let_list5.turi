@@ -1,0 +1,14 @@
+fn adjust(_x, @to){
+    mut x = _x;
+    if len(x) < to :
+        while len(x) < to :
+            x = [..x, none]
+    else :
+        x = x[0..len(x)]
+    x
+}
+mut [a, b, c, d] = adjust(to=4,[1,2])
+println a
+println b
+println c
+println d

@@ -1,0 +1,18 @@
+class OuterClass {
+    mut name = "outer class";
+    fn init(){
+      mut name = "outer object"
+    }
+    class InnerClass {
+        mut name = "inner class";
+        fn init() {
+            mut name = "inner object"
+            println("this name %s " % this.name)
+            println("this name %s " % cls.name)
+            println("this name %s " % that.name)
+            println("this name %s " % that.cls.name)
+            }
+        }
+    }
+mut outer = OuterClass()
+mut inner = outer.InnerClass()

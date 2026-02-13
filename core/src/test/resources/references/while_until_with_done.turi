@@ -1,0 +1,12 @@
+mut i = 1
+while i <= 10 {
+  println $"i is $i"
+  break {
+    println "we broke the loop"
+    55
+    } when i > 10
+  i++;
+  } until i > 5
+  done {
+      println "we are done nice and neat, not broken"
+  }

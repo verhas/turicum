@@ -1,0 +1,7 @@
+
+sys_import "turi.throw"
+
+try:
+    throw "wuff"
+catch ex:
+    print "don't die"

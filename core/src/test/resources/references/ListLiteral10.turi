@@ -1,0 +1,2 @@
+mut a = [1, 2, 3, 4 ? it % 2 == 0  -> it/2 ]
+println a

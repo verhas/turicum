@@ -1,0 +1,5 @@
+try{
+    try {
+        z = 55 // undefined variable
+    }
+}catch e: println e

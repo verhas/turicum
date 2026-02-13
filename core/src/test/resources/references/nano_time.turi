@@ -1,0 +1,2 @@
+// stochastic
+println nano_time()

@@ -1,0 +1,4 @@
+mut b = 5
+try:
+  let { a , b  } = {a:1,b:1};
+catch e: println e

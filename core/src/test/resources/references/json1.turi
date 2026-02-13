@@ -1,0 +1,11 @@
+mut project = {
+      name : "turicum-parent",
+      packaging : "pom",
+      groupId : "ch.turic",
+      artifactId : "turicum-parent",
+      version : "1.0.0-SNAPSHOT",
+      description : "Turicum programming language",
+      modules : [ "core", "maven", "cli" ]
+      }
+println project.name
+println project.packaging

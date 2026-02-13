@@ -1,0 +1,16 @@
+// import the Turicum range function to get named parameters for range
+sys_import turi.range
+
+// start from zero
+// also note ranges print wisely, when they are long
+println range(end=10)
+// all elements are printed when not more than five
+println range(end=5)
+println range(start=100, 200, 50)
+println range(end=200, 100, 50)
+// range object has one field: 'length'
+println "length=",range(end=200, 100, 50).length
+// you can also index a range object, it will not allocate memory
+println "r[1]=",range(end=200, 100, 50)[1]
+println range(100,100)
+println range(100,100,step=0)

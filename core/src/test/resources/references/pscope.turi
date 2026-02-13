@@ -1,0 +1,6 @@
+
+println "2*3=",2*(mut s=3)
+println "s is defined and it is ",s
+println "2*3=",2*{mut k=3}
+try : mut h = 2*k
+catch e : println e;

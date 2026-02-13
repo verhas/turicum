@@ -1,0 +1,6 @@
+class X {
+  mut s = "hu"
+}
+println("class var ", X.s)
+mut x = X();
+println("object var ", x.s)

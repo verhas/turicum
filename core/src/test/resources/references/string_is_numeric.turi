@@ -1,0 +1,4 @@
+println "653".is_numeric()
+println "6E23".is_numeric()
+println "3.1425923".is_numeric()
+println "10.13.55.2".is_numeric()

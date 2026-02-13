@@ -1,0 +1,7 @@
+mut error:err
+try{
+        z = 55 // undefined variable
+}catch x : error = x
+
+println error
+

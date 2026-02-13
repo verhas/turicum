@@ -1,0 +1,5 @@
+let Locale = java_class("java.util.Locale")
+// Locale constructor is vararg
+let l1 = Locale("en", "US");
+let l2 = Locale("en", "US", "POSIX");
+println "%s %s" % [l1, l2]

@@ -1,0 +1,4 @@
+// the program contains one command, which is a block
+mut z = "{let x = 1}".compile()[0] // get the block
+z.execute()
+print is_defined(x)

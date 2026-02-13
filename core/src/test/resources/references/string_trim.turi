@@ -1,0 +1,3 @@
+let s=" \u202Fspace elol hatul "
+println s
+println s.trim()

@@ -1,3 +1,0 @@
-just a print
-Hicory
-Variable 'k' is undefined.

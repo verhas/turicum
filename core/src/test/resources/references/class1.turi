@@ -1,0 +1,13 @@
+class A {
+    fn init {
+        mut a = "a";
+    }
+    mut c = "c"
+}
+mut a1 = A()
+mut a2 = A()
+a1.a = "1"
+a2.a = "2"
+A.c = "d"
+println a1.a, a2.a, a1.c, a2.c
+

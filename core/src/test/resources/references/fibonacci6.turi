@@ -1,0 +1,7 @@
+{
+    fn fib(x) {
+        if x == 1 || x == 0 : 1
+        else: me(x - 1) + me(x - 2)
+    }
+    println(fib(10))
+}

@@ -1,0 +1,4 @@
+println {
+    mut k = 0
+    while k < 10 : k++
+}

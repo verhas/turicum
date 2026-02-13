@@ -1,0 +1,5 @@
+println java_type(42), " ", type(42)
+println java_type(java_int(42)), " ", type(java_int(42))
+println java_type(thunk({let z=2}))," ",type(thunk({let z=2}))
+println java_type(java_class("java.math.BigInteger"))," ",type(java_class("java.math.BigInteger"))
+println java_type(java_class("java.math.BigInteger")("42"))," ",type(java_class("java.math.BigInteger")("42"))

@@ -1,0 +1,14 @@
+class A {
+  fn `==`(other) : bool {
+    return false when cls != other.cls
+    a == other.a
+  }
+}
+
+mut y = A()
+mut z = { a: 1, b: "x" }
+
+y.a = 1
+y.b = "y"
+
+println "y == z is %s" % (y == z)

@@ -1,0 +1,9 @@
+class Resource {
+    fn k(){
+        println "haha"
+    }
+}
+
+with Resource {
+    k()
+}

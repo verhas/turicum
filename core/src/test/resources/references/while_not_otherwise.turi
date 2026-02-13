@@ -1,0 +1,5 @@
+mut i=1
+while i <= 10 {
+  println $"i is $i"
+  i++
+  } otherwise: die "i is not less than 10"

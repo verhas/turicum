@@ -1,0 +1,6 @@
+mut myString="num"
+fn concatenate(a:str, b:str):(myString) = 13
+myString = "str"
+try:
+    println concatenate("ab","ba")
+catch err: println err

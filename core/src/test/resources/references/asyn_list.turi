@@ -1,0 +1,19 @@
+// stochastic
+fn sleeper(x) {
+    sleep 0.1
+    x
+    }
+{
+mut start = nano_time()
+mut serial = [sleeper(1), sleeper(2), sleeper(3)]
+mut end = nano_time()
+println serial
+println( (end-start)/1000000, "ms")
+}
+{
+mut start = nano_time()
+mut serial = [ ..async([sleeper(1), sleeper(2), sleeper(3)]) -> it.get() ]
+mut end = nano_time()
+println serial
+println( (end-start)/1000000, "ms")
+}

@@ -1,2 +1,0 @@
-Variable 'z' is pinned.
-apple juice

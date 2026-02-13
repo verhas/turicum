@@ -1,0 +1,1 @@
+println type("C:\\Users\\user\\Documents\\my_file.txt".path())

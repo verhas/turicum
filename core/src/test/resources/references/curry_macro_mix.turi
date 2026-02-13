@@ -1,0 +1,2 @@
+fn add(a,b,c) = a + evaluate(b) + evaluate(c)
+println macro(add.(1)).(2)(3)

@@ -1,2 +1,0 @@
-pinned variable cannot be altered 'b'
-13

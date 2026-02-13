@@ -1,0 +1,21 @@
+mut turicum = 13
+mut `list` = [1,2,3]
+mut object = { x:1, y:2};
+pin turicum, [`list`], {object}
+
+try {
+  turicum = 14;
+}catch e1: println("could not change the variable")
+
+try {
+  `list`[1] = 0;
+}catch e2: println("could not change the `list`")
+`list` = [ 0, ..`list`, 4]
+println("variable 'list' still can be changed: ", `list`)
+
+try {
+  object.x = 3;
+}catch e3: println("could not change the object")
+object = { x:1, y:3 }
+println("variable 'object' still can be changed: ", object)
+

@@ -1,0 +1,26 @@
+mut glb = "global variable";
+class A {
+  fn z(){
+    println("You can read glb, which is a " + glb)
+    try{
+       // you cannot change it without declaring that it is global
+       // you could write 'let/mut glb', then it is a local variable, or
+       // 'global glb', then it is a global variable
+       glb = 5; // this will create an error
+    }catch(e1){
+        println("exception 1:",e1)
+    }
+    try{
+       let h = glb // after the try it is a new scope
+       // you touched it as global, you cannot declare it as local anymore
+       mut glb = 5;
+    }catch(e2){
+        println("exception 2:",e2)
+    }
+    global glb;
+    glb = "modified"
+    return "You can access glb here it is " + glb ;
+  }
+}
+mut obj = A()
+println(obj.z())

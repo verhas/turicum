@@ -1,0 +1,2 @@
+println "almal atal".count_substring("al")
+println ("a"*6).count_substring("aa")

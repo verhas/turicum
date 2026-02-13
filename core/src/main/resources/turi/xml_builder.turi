@@ -1,10 +1,35 @@
+/**
+
+This simple class allows you to build XML documents in Turi.
+The typical use is with the 'with' command, as in the example below:
+
+    let result={
+        with xml_builder(){
+           div(
+               p("First"),
+               p("Second")
+           )
+       }
+    }
+    let expected= "<div><p>First</p><p>Second</p></div>"
+    let actual=render_xml( result )
+
+You create a builder and use the tag names as methods.
+The builder is implemented using the joker method, so it works with all tags.
+ At the end, use the 'render_xml()' function to get the XML string.
+
+*/
+
 class xml_builder {
+    /**
+    The Joker method allows you to call any tag name as a method.
+    */
     fn `.`( [ children ],{ meta } ){
-        global len, keys;
-            if len( keys( meta ) ) > 0 :
-        { tag: `.`, attrs: meta, children: children }
-            else:
-        { tag: `.`, children: children }
+        global len, keys; // without this, these would also mean the Joker method
+        if len( keys( meta ) ) > 0 :
+            { tag: `.`, attrs: meta, children: children }
+        else:
+            { tag: `.`, children: children }
     }
 }
 

@@ -1,0 +1,3 @@
+println "ABC".is_hex()
+println "ABC DEF".is_hex()
+println "ABCDEF13".is_hex()

@@ -1,0 +1,4 @@
+println $"negating all bits in 3 ${~3}"
+println $"!true is ${!true}"
+println $"+13 is just ${+13}"
+println $"-13 is just ${-(13)}"

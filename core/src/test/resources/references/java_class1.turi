@@ -1,0 +1,3 @@
+let m = java_class("java.lang.Math");
+println m.abs(-5)
+println m.absExact(int(-5))

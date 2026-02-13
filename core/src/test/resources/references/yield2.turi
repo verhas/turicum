@@ -1,0 +1,8 @@
+fn gen_1_to_10 {
+    for i=1 ; i <= 10 ; i++:
+        yield i;
+}
+
+mut st = async gen_1_to_10();
+while st.has_next() :
+    println(st.next());

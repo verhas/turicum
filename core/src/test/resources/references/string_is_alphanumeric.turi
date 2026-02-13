@@ -1,0 +1,3 @@
+println "ABC".is_alphanumeric()
+println "ABC DEF".is_alphanumeric()
+println "ABCDEF13".is_alphanumeric()

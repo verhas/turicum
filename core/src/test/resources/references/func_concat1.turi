@@ -1,0 +1,8 @@
+fn f (a,b,c) {
+    return a + b + c
+}
+fn g(x):num{
+    return x+1
+}
+let z =  (f ## g)(1,1,1)
+println z

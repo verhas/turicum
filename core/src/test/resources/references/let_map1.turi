@@ -1,0 +1,8 @@
+let { a , b , k -> [c,d,e , {f , k -> g }]} = {a:1,b:2, k: [3,4,5,{f:6, k: 7}]};
+println a
+println b
+println c
+println d
+println e
+println f
+println g

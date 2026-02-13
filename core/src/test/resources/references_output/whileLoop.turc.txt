@@ -1,3 +1,0 @@
-1 2 loop is done
-We are done here
-Variable 'i' is undefined.

@@ -1,1 +1,0 @@
-value of 'b' is not a list to be pinned

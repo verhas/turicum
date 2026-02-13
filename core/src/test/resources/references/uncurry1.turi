@@ -1,0 +1,7 @@
+fn add(a,b)=a + b
+let add5 = add.(5)
+println add5(5)
+println is_curried(add)
+println is_curried(add5)
+let unc = uncurry(add5)
+println unc(6,6)

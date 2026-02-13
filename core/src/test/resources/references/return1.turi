@@ -1,0 +1,9 @@
+fn a(x) {
+    if x == 2 {
+        return 2
+    }
+    return
+}
+println a(1)
+println a(2)
+println a(3)

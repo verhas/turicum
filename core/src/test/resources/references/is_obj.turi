@@ -1,0 +1,8 @@
+fn test(s){println jsonify(s), "=" , "is object" if is_obj(s) else "is not object"}
+
+test "hello"
+test 1
+test {}
+test {a:1}
+test( [3,2,1] )
+test none

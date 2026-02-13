@@ -1,0 +1,3 @@
+fn add(a,b) = evaluate(a) + evaluate(b)
+let addM = macro(add)
+println addM.(3)(4)

@@ -1,0 +1,17 @@
+mut commands = block_list(thunk({k = 13; suss = "huss"; mut x = 3; println "hello"}))
+println "before execution"
+mut i = 1;
+for each command in commands {
+    mut suss;
+    println "%s. before is_defined(x) = %s" % [i,is_defined(x)]
+    if i == 1 {// k is not defined, no assignable
+        try: unthunk(command) catch e: println "ERROR: %s" % [e];
+    } else {
+        // 2 can assign value to 'suss'
+        // 3 can define 'x'
+        // 4 prints 'hello'
+        unthunk(command)
+        println "%s. after is_defined(x) = %s" % [i,is_defined(x)]
+    }
+    i++
+}

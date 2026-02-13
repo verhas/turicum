@@ -1,0 +1,17 @@
+class Z {
+    fn init(obj){
+        for each t in keys(obj){
+            this[t] = obj[t]
+        }
+        // arguments to `init` are automatically fields
+        // we do not need this extra field here
+        unlet obj;
+    }
+}
+mut z = Z({
+    a: {
+        B : "abraka"
+        },
+    c : ""
+    });
+println z

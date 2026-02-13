@@ -1,0 +1,1 @@
+println "alma ata".right(3)

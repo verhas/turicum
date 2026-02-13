@@ -1,0 +1,6 @@
+global APPIA = ["./src/test/resources/"];
+
+let fun = import("import_this").imported_fun
+
+print fun()
+

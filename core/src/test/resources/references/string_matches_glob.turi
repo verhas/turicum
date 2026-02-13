@@ -1,0 +1,2 @@
+println "my_precious_text_file.txt".matches_glob("*.txt")
+println "my_precious_text_file.txt".matches_glob("*.turx")

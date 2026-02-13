@@ -1,0 +1,3 @@
+println "ABC".is_not_alpha()
+println "ABC DEF".is_not_alpha()
+println "ABCDEF13".is_not_alpha()

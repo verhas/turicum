@@ -1,0 +1,4 @@
+let sb = java_object("java.lang.StringBuilder", "xBruhahha");
+try: sb.deleteCharAt(0) catch e: println e
+sb.deleteCharAt(java_int(0))
+println sb

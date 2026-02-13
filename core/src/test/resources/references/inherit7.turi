@@ -1,0 +1,11 @@
+class P {
+    fn init(a,b);
+}
+class C : P {
+    fn init(b,c){
+        P.init(3,4)
+    }
+}
+
+let object = C(1,2);
+print object

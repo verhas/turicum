@@ -1,0 +1,13 @@
+class CurriedAway {
+    fn init(spice);
+    fn a(x,y) = x + y + spice
+}
+
+let z = CurriedAway(1)
+let fun = z.a.(1,1)
+println fun()
+println uncurry(fun,2)(2,1)
+{
+let spice = 3;
+println reclose(uncurry(fun))(3,1);
+}

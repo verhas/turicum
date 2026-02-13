@@ -1,0 +1,6 @@
+println {
+    for i=0 ; i < 10 ; i++ list{
+      break -2 when i == 2
+      i;
+    }
+}

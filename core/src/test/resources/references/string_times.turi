@@ -1,0 +1,3 @@
+println "alma ".times(5)
+// same as
+println "alma "*5

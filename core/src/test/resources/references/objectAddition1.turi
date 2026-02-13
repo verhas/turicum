@@ -1,0 +1,9 @@
+class LN {
+    fn init( a ){
+
+    }
+    fn `+` ( other ){
+            LN( this.a * other.a )
+    }
+}
+println (LN(2) + LN(4)).a

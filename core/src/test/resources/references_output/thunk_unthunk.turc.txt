@@ -1,7 +1,0 @@
-before eval
-hello
-after eval
-false
-hello
-true
-3

@@ -1,2 +1,0 @@
-5
-Variable cannot be local, it is already used as non-local 'z'

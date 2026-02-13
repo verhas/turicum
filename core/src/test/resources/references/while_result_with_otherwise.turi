@@ -1,0 +1,4 @@
+println {
+    mut k = 0
+    while false : k++ done: k otherwise: 42;
+}

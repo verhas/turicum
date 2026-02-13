@@ -1,0 +1,2 @@
+println "alma ata".index_of("lma")
+println "alma ata".index_of("amla")

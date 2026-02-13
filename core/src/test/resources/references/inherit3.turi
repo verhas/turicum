@@ -1,0 +1,14 @@
+class P1 {
+    fn a()=1
+    mut v = 2
+}
+class P2 {
+    fn a()=3
+    mut v = 4
+}
+class C : P1,P2 {
+    fn b()=5
+    mut z = 6
+}
+mut o = C();
+println o.a(), o.v, o.b(), o.z;

@@ -1,0 +1,4 @@
+mut z = rng(0,1000)
+mut array = [ ..z ] // this creates an array of 1000 elements
+println len(array)
+println [..array[0 .. 5], "...", ..array[-5 .. inf]]

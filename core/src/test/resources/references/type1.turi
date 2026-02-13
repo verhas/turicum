@@ -1,0 +1,23 @@
+
+mut s = "13"; mut i = 13; mut d = 3.14;
+
+mut err
+try: z = 6.55
+catch ex: err=ex
+class A {}
+
+println "\"13\" ", type("13")
+println "13 ", type(13)
+println "3.14 ", type(3.14)
+println "err ",type(err)
+println "A() ",type(A())
+println "[1,2,3] ",type([1,2,3])
+println "A ",type(A)
+println "fn()=3 ",type(fn()=3)
+println "{|| 3} ",type({|| 3})
+println "que(1) ",type(que(1))
+println "async ",type(async 1)
+println "macro ",type(macro(fn()=3))
+println "none ",type(none)
+println "java object ", type(java_object("java.lang.Object"))
+

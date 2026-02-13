@@ -1,0 +1,27 @@
+// stochastic
+class Decrementable {
+    fn init(counter:num=0);
+
+    fn `--`{
+         counter--
+         this
+    }
+
+    fn p(name:str) {
+        println name,": ",counter;
+    }
+}
+
+mut h = Decrementable();
+h.p("h original");
+println "h id=%X" % id_hash(h);
+let k = h--;
+h.p("h after post decrement");
+k.p("k");
+println "h id=%X" % id_hash(h);
+println "k id=%X" % id_hash(k);
+let z = --h;
+h.p("h after pre decrement");
+z.p("z")
+println "h id=%X" % id_hash(h);
+println "z id=%X" % id_hash(z);

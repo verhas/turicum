@@ -1,0 +1,39 @@
+class ResourceManager {
+    fn init {
+        // each resource manager object can manage one resource object
+        let res = Resource();
+    }
+
+    fn entry {
+        println $"entry to ResourceManager ${this}"
+        res
+    }
+
+    fn exit( e: err|none = none) {
+        println $"exit fom ResourceManager ${this} with \"${e}\" as exception"
+        if e != none : // we handle the exception printing it
+            println e
+        res.close() // close the resource
+        return true; // suppress exceptions
+    }
+}
+
+class Resource {
+    fn init {
+        println "Creating resource"
+    }
+    fn printf(s,[rest]){
+        println "printf was called"
+        println s % rest
+    }
+    fn close(){
+        println $"closing resource"
+    }
+}
+
+with ResourceManager() as r {
+    println $"r resource is ${r}"
+    r.printf("executing with resource %s %s",1,2)
+    die "mad dog"
+}
+println "did not die"

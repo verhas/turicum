@@ -1,0 +1,2 @@
+println "alma ata".bytes()
+println "alma ata".bytes("Cp037") // EBCDIC encoding

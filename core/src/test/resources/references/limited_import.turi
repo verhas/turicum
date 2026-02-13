@@ -1,0 +1,5 @@
+sys_import "turi.maven" , "lic*"
+
+println license.apache2_0.name
+println "The next printout is the error message, because github() is exported but we do not import it."
+try : println github("verhas", "turicum"); catch e: println e

@@ -1,0 +1,5 @@
+try: let k = {for each z in [1,2,3] {
+    continue z/2 when z % 2 == 0;
+    continue z;
+    }
+}catch e: println e

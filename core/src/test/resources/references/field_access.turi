@@ -1,0 +1,5 @@
+let a = {}
+a.k = 55
+a["z"] = a["k"]
+die when a.z != 55
+println "it is ok"

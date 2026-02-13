@@ -1,0 +1,2 @@
+println "alma ata".last_index_of("a")
+println "alma ata".last_index_of("amla")

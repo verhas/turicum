@@ -1,2 +1,0 @@
-result{3. 'xxxabrakadabrayyy'.substring(9,14)='dabra'
-}

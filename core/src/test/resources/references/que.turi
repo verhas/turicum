@@ -1,0 +1,52 @@
+// stochastic
+/**
+ * A printing function that will print the objects received through the que `q` till it gets closed.
+ */
+fn printer(q,@name){
+    mut n = 0 // counts the number of not-ready que attempts
+    while {
+        mut s = q.try_receive(); // try to receive one or get none if there is nothing in the queue
+        return { println "%s is done" % name } when q.is_closed(); // return when the que is closed
+        if s == none {
+            println "%s is not ready %s" % [name,n]
+            n++ // count the attempts
+            sleep 0.003 // sleep 3 mili
+        } else {
+            n = 0 // reset the attempts, we go an object to print
+            println "%s is ready %s" % [name,s];
+        }
+    }
+}
+
+// create ONE queue that will be consumed by two
+mut q : que = que(3)
+// create two asynchronous task. they start immediately
+mut task1 : task = async printer(q,name="task1")
+mut task2 : task = async printer(q,name="task2")
+// send the numbers 1 to 10 to the queue, whoever is lucky can get it
+for i=1 ; i < 10 ; i++ {
+    q.send(i);
+    sleep 0.01
+    }
+println "closing the channel"
+q.close();
+println "channel is closed"
+println "1 is done %s" % task1.is_done()
+println "2 is done %s" % task2.is_done()
+
+// get only the tasks into the list which are not done yet
+mut task_list = [ task1, task2 ? !it.is_done() ]
+
+println "we start to wait the first time"
+await task_list
+
+println "task1 done %s" % task1.is_done()
+println "task2 done %s" % task2.is_done()
+println "We start to wait the second time"
+// have to use [] empty options, no timeout because a list literal stands after it
+await[] [ task1, task2 ? !it.is_done() ]
+
+println "task1 done %s" % task1.is_done()
+println "task2 done %s" % task2.is_done()
+
+none

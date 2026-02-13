@@ -1,0 +1,34 @@
+let a = 1; // defined 'a' outside
+
+// wrapping block
+{
+    let a = 12; // redefining 'a'  for the local use
+    let b = 77; // defining 'b' valid only  inside
+}
+
+println "AFTER THE WRAPPING BLOCK"
+println $"a is $a"
+println $"b is not defined is_defined(b) is ${is_defined(b)}"
+
+unwrap(thunk({
+    try: let a = 12; // redefining 'a' will raise error
+    catch e: println "redefinition is not possible non-wrapped"
+    let b = 77; // defining 'b' valid outside when unwrapped
+})).execute()
+
+println "AFTER THE UNWRAPPING BLOCK"
+println $"a is $a"
+println $"b is not defined is_defined(b) is ${is_defined(b)}"
+println $"b is $b"
+
+// you can get the same result using an expression with a non-wrapping part
+!(
+    try: let a = 12; // redefining 'a'  will raise error
+    catch e1: println "redefinition is not possible non-wrapped"
+    let k = 78; // defining 'k' valid also outside
+)
+
+println "AFTER THE UNWRAPPING EXPRESSION"
+println $"a is $a"
+println $"k is $k"
+

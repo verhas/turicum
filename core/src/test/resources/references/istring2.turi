@@ -1,0 +1,4 @@
+println $"define a, but local ${let a = 3}"
+println $"define b, not local $(let b = 4)"
+println "is a defined? ", if is_defined(a) : $"yes, it is ${a}" else: "no"
+println "is b defined? ", if is_defined(b) : $"yes, it is ${b}" else: "no"

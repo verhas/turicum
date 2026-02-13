@@ -1,0 +1,26 @@
+class A {
+    fn init(a=1,b=2);
+    fn entry {
+        println "entry to A";
+        { a: 7, b:8 }
+    }
+    fn exit e:err|none {
+        println "exit from A";
+        none
+    }
+}
+class B {
+    fn init(a=4,c=5);
+    fn entry {
+        println "entry to B";
+        none
+    }
+    fn exit (e){
+        println "exit from B";
+        none
+    }
+}
+with A() as x, B() as y {
+  println x.a,x.b,y.c;
+  none
+}

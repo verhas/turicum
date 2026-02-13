@@ -1,0 +1,5 @@
+mut z = {
+    mut k = "Hi";
+    k + "cory"
+    }
+println(z)

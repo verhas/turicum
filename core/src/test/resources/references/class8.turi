@@ -1,0 +1,12 @@
+class A {
+    class B {
+        fn init {
+            println "this ", this
+            println "cls ", cls
+            println "that ", that
+        }
+    }
+}
+
+mut a = A()
+mut b = a.B()

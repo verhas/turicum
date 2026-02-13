@@ -1,0 +1,4 @@
+mut a= 13;
+if a%2 == 0: println("even") else: println("odd")
+a = {if a%2 == 0: "even" else: "odd"}
+print("again ", a)

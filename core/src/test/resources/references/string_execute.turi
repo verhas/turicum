@@ -1,0 +1,5 @@
+sys_import turi.range;
+
+mut j = 3;
+println "for each i in range(1,3) { println i+j; j ++ }".execute()
+println j;

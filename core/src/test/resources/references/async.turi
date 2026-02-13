@@ -1,0 +1,12 @@
+mut t:task = async {
+    for i=0 ; i < 10 ; i++ {
+        yield i
+    }
+    55
+}
+
+while t.has_next():
+    print t.next(), " "
+println()
+println(await t)
+

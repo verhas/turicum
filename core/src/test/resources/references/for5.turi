@@ -1,0 +1,6 @@
+mut i;
+for i = 1 ; i < 3 ; i=i+1 {
+    try: i++
+    catch e: println "not possible to change loop variable in the loop it remained ",i
+}
+

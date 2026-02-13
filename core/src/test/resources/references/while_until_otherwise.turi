@@ -1,0 +1,5 @@
+mut i = 20
+while i <= 10 {
+  die "i is 20, must not execute the loop."
+  } until i > 10
+  otherwise: println "we are other, we are wise"

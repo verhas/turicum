@@ -1,0 +1,6 @@
+println {
+    for i=0 ; i < 10 ; i++ {
+      println ".. ",i;
+      break when i == 2
+    }
+}

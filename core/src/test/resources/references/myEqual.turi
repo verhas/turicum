@@ -1,0 +1,18 @@
+class A {
+  fn `==`(other) : bool {
+    this.a == other.a
+  }
+}
+
+mut x = A()
+mut y = A()
+mut z = { a: 1, b: "x" }
+
+x.a = 1
+x.b = "x"
+
+y.a = 1
+y.b = "y"
+
+println "x == y is %s" % (x == y)
+println "y == z is %s" % (y == z)

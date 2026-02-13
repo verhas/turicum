@@ -1,0 +1,12 @@
+mut z = "cory"
+z = { // z is global
+    println "just a print"
+    mut k = "Hi" // k is local
+         + z // z is accessible
+    // the value of the block is the last command executed
+    // 'mut' assignments result the value assigned
+    }
+println(z)
+try:
+    println(k)
+catch err: println err

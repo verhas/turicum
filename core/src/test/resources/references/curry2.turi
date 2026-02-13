@@ -1,0 +1,8 @@
+class AddAndOffset {
+    fn init(offset=0);
+    fn add(a:num,b:num) = a + b + offset
+}
+
+let offset5 = AddAndOffset(5)
+let add8 = offset5.add.(3)
+println add8(2)

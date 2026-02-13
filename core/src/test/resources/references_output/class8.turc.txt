@@ -1,3 +1,0 @@
-this {that: {cls: class A}, cls: class B}
-cls class B
-that {cls: class A}

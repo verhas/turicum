@@ -1,0 +1,6 @@
+fn gen_1_to_10 {
+    for i=1 ; i <= 10 ; i++:
+        yield i;
+}
+
+println([ .. (async gen_1_to_10()) ])

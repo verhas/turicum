@@ -1,0 +1,2 @@
+println "\n\t  ".is_blank()
+println "\n\t  wupps".is_blank()

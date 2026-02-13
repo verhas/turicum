@@ -1,0 +1,9 @@
+mut z = 5
+try{
+    z = {
+        println(z);
+        mut z = 3
+        }
+}catch ex {
+    println(ex)
+}

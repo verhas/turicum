@@ -1,0 +1,5 @@
+fn inc x {
+  x+1
+}
+println str(inc).before("@")
+println(inc(1))

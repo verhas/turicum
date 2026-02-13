@@ -1,0 +1,2 @@
+The last i after the loop is 11
+i does not exist outside of the loop

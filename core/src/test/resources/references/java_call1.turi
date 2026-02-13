@@ -1,0 +1,3 @@
+let sb = java_object("java.lang.StringBuilder", "xBruhahha");
+java_call sb,"deleteCharAt",java_int(0)
+println sb

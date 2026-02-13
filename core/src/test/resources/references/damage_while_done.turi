@@ -1,0 +1,9 @@
+mut i = 0
+try:
+    let l ={
+        while (mut it=3; i < 5) list{
+            i++
+        } done {
+        }
+    }
+catch e: println e

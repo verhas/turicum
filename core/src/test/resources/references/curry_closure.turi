@@ -1,0 +1,10 @@
+let echo= {|a,!b,@c,[rest],{meta}|
+    println $"a=${a}"
+    println $"b=${b}"
+    println $"c=${c}"
+    println $"rest=${rest}"
+    println $"meta=${meta}"
+    "who am I kidding?"
+}
+let ho = echo.(c="cica","alamaba","bourbenk","rist",rust="the best programming language ever", joke=true)
+println ho("yayy")

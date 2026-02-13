@@ -1,1 +1,0 @@
-Variable 'cls' is pinned.

@@ -1,0 +1,4 @@
+mut computed = {fn(a,b) = a + b}(1,2);
+println [1, 2, 3, 4]
+println ["apple", "banana", "cherry"]
+println [1 + 2, computed]

@@ -1,4 +1,0 @@
-this name inner object 
-this name inner class 
-this name outer object 
-this name outer class 

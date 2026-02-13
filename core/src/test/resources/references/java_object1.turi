@@ -1,0 +1,4 @@
+let bd1 = java_object("java.math.BigDecimal", "10.50");
+let bd2 = java_object("java.math.BigDecimal", "3.25");
+let result = bd1.add(bd2)
+println result

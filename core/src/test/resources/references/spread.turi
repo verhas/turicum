@@ -1,0 +1,13 @@
+fn a(@a,@b,@c,@d){
+    println("%s %s %s %s " % [a,b,c,d])
+}
+fn b(!a,!b,!c,!d){
+    println("%s %s %s %s " % [a,b,c,d])
+}
+fn c(a,b,c,d){
+    println("%s %s %s %s " % [a,b,c,d])
+}
+
+a(..{a:1,b:2,c:3,d:4});
+b(..[1,2,3,4]);
+c(..[1,2],..{d:4},3);

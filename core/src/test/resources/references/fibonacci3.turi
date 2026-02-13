@@ -1,0 +1,8 @@
+try
+{
+    fn fib(x) {
+        if x == 1 || x == 0 : 1
+        else: fib(x - 1) + fib(x - 2)
+    }
+    println(fib(10))
+}catch ex : println(ex)

@@ -1,0 +1,10 @@
+mut k = 3;
+let z = k++; // valid it is only a variable
+let w = ++k; // valid, it is only a variable
+
+let x = [1,2,3]
+x[0]++; // valid, it is a statement
+// let h = x[0]++; it would not compile
+let h = (x[0]++); // valid, there is a command between ( and )
+// let t = ++x[0]; it would not compile
+let t = (++x[0]); // valid again, enclosed

@@ -1,0 +1,8 @@
+mut s = "alma ata\n";
+println s;
+s = s.chomp()
+println s;
+s = s.chomp()
+println s;
+s = s.chomp()
+println s;

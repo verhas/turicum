@@ -1,5 +1,0 @@
-entry to A
-entry to B
-785
-exit from B
-exit from A

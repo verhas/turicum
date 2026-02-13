@@ -1,0 +1,14 @@
+
+mut result = {try {
+               flow limit 5 {
+                   x <- 1;
+                   x <- {
+                       mut newX = x + 1;
+                       println("x =", newX);
+                       newX;
+                   }
+                   yield x
+               }
+           } catch e: println e.message}
+
+           println("Final x = ", result);

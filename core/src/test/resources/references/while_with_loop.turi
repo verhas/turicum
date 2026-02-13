@@ -1,0 +1,3 @@
+loop: mut i = 1
+while i <= 10 list : i++ finally: println $"The last i after the loop is $i"
+try: println "i does not exist outside of the loop" catch e: println e

@@ -1,0 +1,30 @@
+let q = que(3) // create a queue that can hold 3 messages
+println q.send("apple"), " apple is sent" // return value true means the message was sent
+println q.send("birne"), " birne ist geschickt"
+println q.try_send("peach"), " means ok"
+
+// q.send("queue is full") // this would wait infinitely
+// or until some other thread reads something from the queue and there is space to send
+
+println q.try_send("fail"), " means no" // false means sending failed, the queue is full
+
+// just print out the fruits we read from the queue
+println q.receive()
+println q.receive()
+println q.receive()
+
+// println q.receive() // this would wait infinitely, there is nothing in the queue
+// or until some other thread puts something into the queue
+
+// try_receive() returns none when there is nothing in the queue
+println q.try_receive()," return none, there is nothing in the queue"
+
+// it also returns none when there is a none in the queue
+q.send(none)
+println q.receive(), " was received... how do we know?"
+// we send again a none
+q.send(none);
+// check that there is something in the queue
+if q.has_next() : print "has_next() is true: it has value and it is "
+// we can be sure the 'none' was coming as a message from the queue
+println q.try_receive()

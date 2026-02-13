@@ -1,0 +1,3 @@
+mut z = "{let x = 1}".compile()[0]
+unwrap(z).execute()
+print is_defined(x)," and it is ", x

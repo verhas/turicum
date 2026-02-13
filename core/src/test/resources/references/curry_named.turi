@@ -1,0 +1,6 @@
+fn add(a:num,@b:num) = a + 2 * b
+
+ let add6 = add.(b=3)
+ let times2_add3 = add.(3)
+ println add6(2)
+ println times2_add3(b=1)

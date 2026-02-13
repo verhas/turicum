@@ -1,0 +1,8 @@
+class B {
+  fn init(a,b,c);
+
+  fn `.` {
+    println a,b,c
+  }
+}
+B(1,2,3).`we can write here anything`()

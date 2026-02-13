@@ -1,2 +1,0 @@
-this will always run
-z is now 66, is it ? 66

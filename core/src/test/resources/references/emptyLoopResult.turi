@@ -1,0 +1,2 @@
+println { for i=0 ; i < 0 ; i=i+1 : "anything, not executed, will print none" }
+println { for i=0 ; i < 0 ; i=i+1 list: "anything, not executed, will print []" }

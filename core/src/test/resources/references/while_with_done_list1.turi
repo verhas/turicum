@@ -1,0 +1,13 @@
+let k = {
+    loop: mut i = 1
+    while i <= 10 list{
+      i++;
+      } done {
+          // cannot do that the variable is pinned
+          mut e;
+          try: it = [3,2,1] catch e1: println e1
+          // cannot do that the list itself is pinned
+          try: it[0] = 100 catch e2: println e2
+      }
+    }
+print k;

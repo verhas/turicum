@@ -1,0 +1,11 @@
+class FibCalculator {
+    mut cache = [];
+    fn fib(x) {
+        if x == 1 || x == 0 : 1
+        else{
+            return cache[x] when cache[x] != none;
+            cache[x] = fib(x - 1) + fib(x - 2);
+        }
+    }
+}
+println(FibCalculator.fib(10))

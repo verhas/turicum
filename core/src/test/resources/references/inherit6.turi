@@ -1,0 +1,8 @@
+class P {
+    fn init {
+        println "init in P, cls='%s' this='%s'" % [cls, this]
+    }
+}
+class C : P {
+}
+mut o = C();

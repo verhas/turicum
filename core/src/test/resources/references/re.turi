@@ -1,0 +1,24 @@
+sys_import "turi.re"
+
+fn print_match(m){
+    for i=0 ; i < len(m.group) ; i++ {
+        mut {index, start, end } = m.group[i];
+        println "%s. '%s'.substring(%s,%s)='%s'" % [index,s,start, end,s[start..end]];
+    }
+}
+
+mut s = "abrakadabra";
+mut rx =Re("a(b)ra(ka)(dabra)")
+mut m = rx.match(s);
+println m
+print_match(m);
+
+s = "xxx"+s+"yyy";
+m = rx.match(s);
+if m.group == none :
+    println "does not match because of xxx and yyy"
+println m, " is an empty object"
+m = rx.find(s);
+if m.group != none :
+    println "matches because we find and not match"
+print_match(m);

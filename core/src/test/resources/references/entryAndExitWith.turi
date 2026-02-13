@@ -1,0 +1,39 @@
+class A {
+    fn init {
+        let res = Resource();
+    }
+
+    fn entry {
+        println $"entry to A ${this}"
+        res
+    }
+
+    fn exit( e: err|none = none) {
+        println $"exit fom A ${this} with ${e} as exception"
+        res.close()
+        return true; // suppress  exceptions
+    }
+}
+
+mut object_counter = 0;
+
+class Resource {
+    fn init {
+        global object_counter;
+        let me_counter = object_counter;
+        object_counter++;
+    }
+    fn printf(x,[rest]){
+        println s % rest
+    }
+    fn close(){
+        println $"closing resource ${me_counter}"
+    }
+}
+
+let x = A();
+with x as a {
+    println $"a resource id is ${a.me_counter}"
+    println "executing with A and B"
+    die "mad dog"
+}

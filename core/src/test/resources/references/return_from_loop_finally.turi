@@ -1,0 +1,4 @@
+try:
+    loop: mut i = 1
+    while i <= 10 list : i++ finally: return 0
+catch e: println e

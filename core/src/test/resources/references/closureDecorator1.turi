@@ -1,0 +1,7 @@
+  fn closure_decorator(^closure){
+    {|| println("We start"); closure(); println("We finish")}
+  }
+
+  mut z = closure_decorator(){|| println("We are closure") }
+
+  z()

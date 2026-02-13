@@ -1,0 +1,3 @@
+println xml_format("""<a>b<marnacle xmlns="hupsi"></marnacle> </a>""")
+
+try xml_format("<a>b<") catch e: println e

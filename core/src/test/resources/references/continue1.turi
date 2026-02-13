@@ -1,0 +1,5 @@
+sys_import "turi.range"
+
+for each i in range(start=0, end=5) list{
+    println i
+}
