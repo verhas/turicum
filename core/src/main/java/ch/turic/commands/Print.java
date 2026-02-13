@@ -64,7 +64,7 @@ public class Print extends AbstractCommand implements HasCommands {
                 if (entry != null) {
                     throw new ExecutionException("output handler 'flush()' is not a method %s", entry);
                 }
-                // if it is not defined at all, that is okay
+                // if it is not defined at all, that is OK
                 return;
             }
             closure.callAsMethod(ctx, outputHandleObject, FLUSH);
