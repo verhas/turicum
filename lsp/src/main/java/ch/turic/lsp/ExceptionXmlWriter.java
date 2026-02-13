@@ -11,9 +11,9 @@ public class ExceptionXmlWriter {
      * @param throwable the throwable to serialize
      */
     public static void writeToXml(Throwable throwable) {
-        try (PrintWriter writer = new PrintWriter(System.err)) {
-            writeThrowable(writer, throwable, 1);
-        }
+        final var writer = new PrintWriter(System.err);
+        writeThrowable(writer, throwable, 1);
+        writer.flush();
         System.err.flush();
         throw new RuntimeException(throwable);
     }

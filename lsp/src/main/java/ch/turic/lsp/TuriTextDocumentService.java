@@ -339,8 +339,7 @@ class TuriTextDocumentService implements TextDocumentService {
     @Override
     public CompletableFuture<Either<List<CompletionItem>, CompletionList>> completion(CompletionParams params) {
         return CompletableFuture.supplyAsync(() -> {
-            // List<CompletionItem> list = new TuriCompletion(documentManager).completion(params);
-            List<CompletionItem> list = List.of();
+            List<CompletionItem> list = new TuriCompletion(documentManager).completion(params);
             return Either.forLeft(list);
         }, TuriLanguageServer.VIRTUAL_EXECUTOR);
     }
