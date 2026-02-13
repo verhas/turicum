@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ $# -ne 1 ]]; then
+  cat <<'USAGE'
+Purpose:
+  Run exactly one "reference script" test in the Maven 'core' module, passing the script
+  name via the JVM system property 'turi.ref'. The script keeps Maven output quiet so
+  you primarily see the test's own output.
+
+Usage:
+  run-ref-test <ref-name>
+
+Example:
+  run-ref-test len
+
+Notes:
+  - <ref-name> is the snippet/script name (e.g. "len") that maps to a .turi file.
+  - Maven stderr is discarded to avoid Maven/plugin noise; if something fails, you
+    may not see the error details.
+USAGE
+  exit 2
+fi
+
+REF="$1"
+
+mvn -q -Dstyle.color=never \
+  -pl core \
+  -Dtest=TestReferenceSingleScript \
+  -Dturi.ref="${REF}" \
+  test 2>/dev/null

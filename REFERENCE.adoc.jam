@@ -1875,6 +1875,15 @@ The value of the command is the value of the block executed.
 
 {%S valueWith%}
 
+It is important to note that the `with` command can also be used with classes.
+The `with` command can handle classes similar to object and also as resource managers.
+Using a class as a resource manager instead of an object is not recommended.
+Remember: each resource manager can manage a single resource.
+
+When you use a class in the `with` command instead of an object the class fields and methods will be invoked.
+
+{%S withClass%}
+
 === Asynchronous execution
 
 You can execute any command asynchronously using the `async` command.

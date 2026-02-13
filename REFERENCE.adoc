@@ -1684,15 +1684,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=E24DDD0
+h id=4FF4357F
 h after post increment: 1
 k: 0
-h id=6F70F32F
-k id=E24DDD0
+h id=49CB9CB5
+k id=4FF4357F
 h after pre increment: 2
 z: 2
-h id=548E76F1
-z id=548E76F1
+h id=55322AAB
+z id=55322AAB
 
 ----
 
@@ -1737,15 +1737,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=3DD69F5A
+h id=146587A2
 h after post increment: 1
 k: 1
-h id=3DD69F5A
-k id=3DD69F5A
+h id=146587A2
+k id=146587A2
 h after pre increment: 2
 z: 2
-h id=3DD69F5A
-z id=3DD69F5A
+h id=146587A2
+z id=146587A2
 
 ----
 
@@ -1793,15 +1793,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=5003041B
+h id=F14A7D4
 h after post decrement: -1
 k: 0
-h id=16FB356
-k id=5003041B
+h id=29A5F4E7
+k id=F14A7D4
 h after pre decrement: -2
 z: -2
-h id=6BC248ED
-z id=6BC248ED
+h id=79C97CB
+z id=79C97CB
 
 ----
 
@@ -1843,15 +1843,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=9573B3B
+h id=27E47833
 h after post decrement: -1
 k: -1
-h id=9573B3B
-k id=9573B3B
+h id=27E47833
+k id=27E47833
 h after pre decrement: -2
 z: -2
-h id=9573B3B
-z id=9573B3B
+h id=27E47833
+z id=27E47833
 
 ----
 
@@ -3544,8 +3544,8 @@ class Printer {
 let printer = Printer();
 
 with printer as print_target {
-    println "Once upon a midnight dreary","Edgar"
-    println "God in his wisdom made the fly","Ogden"
+    println "Once upon a midnight dreary, ","Edgar"
+    println "God in his wisdom made the fly, ","Ogden"
     }
 println "Are you mental mixing poems?"
 println printer.get()
@@ -3568,8 +3568,8 @@ println "never more, to the fly";
 flushing is essential
 flushing is essential
 Are you mental mixing poems?
-Once upon a midnight drearyEdgar
-God in his wisdom made the flyOgden
+Once upon a midnight dreary, Edgar
+God in his wisdom made the fly, Ogden
 
 Said the raven:never more, to the fly
 Said the raven:
@@ -5190,6 +5190,38 @@ println {with x,y : a * b + c}
 
 
 
+It is important to note that the `with` command can also be used with classes.
+The `with` command can handle classes similar to object and also as resource managers.
+Using a class as a resource manager instead of an object is not recommended.
+Remember: each resource manager can manage a single resource.
+
+When you use a class in the `with` command instead of an object the class fields and methods will be invoked.
+
+.source of snippet `withClass`
+
+[source]
+----
+class Resource {
+    fn k(){
+        println "haha"
+    }
+}
+
+with Resource {
+    k()
+}
+
+----
+
+.output of snippet `withClass`
+[source]
+----
+haha
+
+----
+
+
+
 === Asynchronous execution
 
 You can execute any command asynchronously using the `async` command.
@@ -5343,14 +5375,14 @@ Thread 1 generated 19
 Thread 1 generated 23
 stopping
 exception Task stopped.
- prime read 2
 Thread 2 generated 3
+ prime read 2
  prime read 3
-Thread 2 generated 5
-Thread 2 generated 7
- prime read 5
-Thread 2 generated  prime read 11
+Thread 2 prime read  generated 5
+5
+Thread 2 generated  prime read 7
 7
+Thread 2 generated 11
 Thread 2 generated 13
 stopping
 exception Task stopped.
@@ -5408,9 +5440,9 @@ println( (end-start)/1000000, "ms")
 [source]
 ----
 [1, 2, 3]
-315.021958ms
+324.801084ms
 []
-310.3765ms
+333.547875ms
 
 ----
 
@@ -5620,9 +5652,10 @@ a =3.6063454894655185
 a =3.6055513629176015
 a =3.6055512754639905
 a =3.6055512754639896
-sqrt(13) ≈ 3.6055512754639905
+a =3.6055512754639896
+sqrt(13) ≈ 3.6055512754639896
 sqrt(13) ≈ 3.605551275463989 calculated by java Math
-square ≈ 13.000000000000009
+square ≈ 13.000000000000002
 
 ----
 
@@ -11870,7 +11903,7 @@ println nano_time()
 .output of snippet `nano_time`
 [source]
 ----
-3593372833616375
+3919733826441333
 
 ----
 
@@ -12145,78 +12178,84 @@ none
 .output of snippet `que`
 [source]
 ----
-task1 is not ready 0task2 is not ready 0
-
-task2 is not ready 1
+task2 is not ready 0
 task1 is ready 1
 task1 is not ready 0
-task1 is not ready 1task2 is not ready 2
-
-task2 is not ready 3task1 is not ready 2
-
-task1 is not ready 3task2 is ready 2
-
-task2 is not ready 0
-task1 is not ready 4
-task2 is not ready 1
-task2 is ready 3
-task2 is not ready 0
-task1 is not ready 5
-task1 is not ready 6task2 is not ready 1
+task2 is not ready 1task1 is not ready 1
 
 task2 is not ready 2
-task1 is not ready 7
-task2 is not ready 3task1 is not ready 8
-
-task1 is ready 4
-task2 is not ready 4
-task1 is not ready 0
-task1 is not ready 1task2 is not ready 5
-
-task2 is ready 5
-task2 is not ready 0
 task1 is not ready 2
-task1 is not ready 3task2 is not ready 1
-
-task2 is not ready 2
-task1 is not ready 4
-task2 is ready 6
-task1 is not ready 5task2 is not ready 0
-
-task2 is not ready 1task1 is not ready 6
-
-task1 is not ready 7task2 is not ready 2
-
-task1 is not ready 8
+task1 is not ready 3
 task2 is not ready 3
-task1 is ready 7
-task2 is not ready 4task1 is not ready 0
-
-task1 is not ready 1task2 is not ready 5
+task2 is not ready 4
+task1 is ready 2
+task1 is not ready 0
+task2 is not ready 5task1 is not ready 1
 
 task1 is not ready 2task2 is not ready 6
 
-task1 is ready 8
-task2 is not ready 7
+task1 is ready 3task2 is not ready 7
+
 task1 is not ready 0
-task1 is not ready 1
-task2 is not ready 8
-task1 is not ready 2
-task2 is not ready 9
-task2 is ready 9task1 is not ready 3
+task2 is not ready 8task1 is not ready 1
+
+task1 is not ready 2task2 is not ready 9
+
+task1 is not ready 3
+task2 is ready 4
+task2 is not ready 0
+task1 is not ready 4
+task2 is not ready 1
+task1 is not ready 5
+task2 is not ready 2
+task1 is not ready 6task2 is ready 5
 
 task2 is not ready 0
-task2 is not ready 1
+task1 is not ready 7task2 is not ready 1
+
+task1 is not ready 8
+task2 is not ready 2
+task2 is not ready 3task1 is ready 6
+
+task1 is not ready 0
+task1 is not ready 1task2 is not ready 4
+
+task1 is not ready 2task2 is not ready 5
+
+task2 is not ready 6task1 is not ready 3
+
+task1 is not ready 4task2 is ready 7
+
+task2 is not ready 0
+task2 is not ready 1task1 is not ready 5
+
+task1 is not ready 6task2 is not ready 2
+
+task1 is ready 8task2 is not ready 3
+
+task1 is not ready 0
+task2 is not ready 4
+task1 is not ready 1
+task2 is not ready 5
+task1 is not ready 2
+task2 is ready 9
+task1 is not ready 3
+task2 is not ready 0
 task1 is not ready 4
+task2 is not ready 1
+task1 is not ready 5
+task2 is not ready 2
+task1 is not ready 6
+task2 is not ready 3
 closing the channel
 channel is closed
 1 is done false
 2 is done false
 we start to wait the first time
-task2 is donetask1 is done
-
+task2 is done
+task1 is done
 task1 done true
-task2 done false
+task2 done true
 We start to wait the second time
 task1 done true
 task2 done true
@@ -13197,6 +13236,7 @@ sending 2
 received 2
 not ready 0
 not ready 1
+not ready 2
 sending 3
 received 3
 not ready 0

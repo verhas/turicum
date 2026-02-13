@@ -1,11 +1,6 @@
 global APPIA=? ( env("APPIA" ) ?. split("\\|" ) ) or [ source_directory( ) + "/../" ];
-println $"APPIA=$(APPIA)"
 sys_import "turi.maven"
-println "sysimport is okay"
 import "turicum_versions"
-//let VERSION=import("core.src.main.resources.turi.version") .`turicum.version`;
-
-println "maven3 extension pom.turi processing has started"
 
 let project=maven_project( {
         name: "maven 3 extension",
