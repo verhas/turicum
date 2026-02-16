@@ -1,15 +1,15 @@
 // stochastic
-mut result = {try {
-    flow timeout 0.01 {  // 10 milliseconds
-        counter <- 0;
+try{
+    flow timeout 0.01 { // 10 milliseconds
+        counter <- 0 ;
         counter <- {
-            mut n = counter + 1;
-            println("counter =", n);
-            sleep(0.005);  // 5 milliseconds per step
+            mut n=counter + 1 ;
+            println("counter =", n );
+            sleep(0.005); // 5 milliseconds per step
             n;
         }
         yield counter
     }
-}catch e: println e}
-
-println("Final counter = ", result);
+    } catch e {
+    println e
+} 

@@ -65,7 +65,7 @@ The preprocessor can be written in Turicum itself, and it works on the lexical t
 
 * **Multithreaded**
 +
-The interpreter is built on Java 21 and supports for Virtual Threads, using native language constructs.
+The interpreter is built on Java 21 and supports Virtual Threads using native language constructs.
 
 * **Typed and Scoped**
 +
@@ -93,7 +93,7 @@ The interpreter is currently available in three different applications:
 The command line version is available as an installation kit for Windows, Linux, and macOS.
 The kits are available on GitHub, and they include everything you need to run Turicum programs.
 
-To get an on-screen help type
+To get on-screen help, type
 
   turi -h
 
@@ -101,7 +101,7 @@ after the installation.
 
 == Maven Extension
 
-The maven extension is automatically downloaded and started if you have an `extensions.xml` file in your projects `.mvn` file.
+The Maven extension is automatically downloaded and started if you have an `extensions.xml` file in your project's `.mvn` directory.
 
 The content of this XML file should follow the format required by Maven documentation.
 The Turicum project configuration is
@@ -118,7 +118,7 @@ The Turicum project configuration is
 {%#define GROUP_ID={%pom /project/groupId/text()%}%}
 {%#define ARTIFACT_ID={%pom /project/artifactId/text()%}%}
 
-If you want to embed the application into Java, or Kotlin application, you use the dependency:
+If you want to embed the application into a Java or Kotlin application, use the following dependency:
 
 [source]
 ----
@@ -132,7 +132,7 @@ If you want to embed the application into Java, or Kotlin application, you use t
 NOTE: The above version is probably a version before release.
 
 Better, use the Maven extension of Turicum and specify the project using `pom.turi`.
-For an example, you can visit the `clit/pom.turi` project definition.
+For an example, see the `cli/pom.turi` project definition.
 It is the command line version of Turicum that depends on the core library.
 
 === Design Goals and Philosophy
@@ -318,7 +318,7 @@ Example:
 
 ==== Multiline Strings
 
-Multiline string literals are enclosed between triple quotes `pass["""]`.
+Multiline string literals are enclosed in triple quotes `pass:["""]`.
 
 They preserve line breaks and indentation exactly as written.
 Escape sequences are still processed.
@@ -396,7 +396,7 @@ These can be written using JavaScript-style object and array literals:
 {%S json1%}
 
 JSON keys can be identifiers or strings.
-The values can be presented by any Turicum expression.
+The values can be any Turicum expression.
 The value of a JSON expression is a class-less Turicum object.
 The values are evaluated when the literal is evaluated.
 
@@ -415,8 +415,8 @@ Each field is computed lazily, on demand, using the current execution context wr
 This behavior is similar to that of closures.
 
 In the example above `get_name()` is only invoked if and when the field `name` is accessed.
-However, it is called both times the field was accessed.
-Lazy JSON objects are pinned, a.k.a. it is not possible to change any of their fields.
+However, it is called each time the field is accessed.
+Lazy JSON objects are pinned, meaning it is not possible to change any of their fields.
 
 ==== List Literals
 
@@ -447,7 +447,7 @@ The `pass:[+]`, `-` and `*` operators are also defined for lists.
 {%S ListLiteral4%}
 
 The `pass:[+]` will concatenate the two lists, or append a single element to the list.
-If you want to append a list to a list instead of concatenation, you have to enclose it into a list.
+If you want to append a list to a list instead of concatenating, you have to enclose it in another list.
 
 {%S ListLiteral5%}
 
@@ -510,11 +510,11 @@ The last element of a list literal following the optional filters and mappers is
 When a list is attached to a class or object, the fields and methods of the attached class or object can be invoked on the list.
 The keyword `with` can attach the resulting list to an object or to a class.
 
-When a method is invoked, the usual special fields: `this` and `cls` are set the same way as if the call was performed on the original object or class.
+When a method is invoked, the special variables `this` and `cls` are set the same way as if the call were performed on the original object or class.
 In addition to that, the special field `it` will point to the list.
 
 If you create a slice from a list that has an object or class attached, the slice will inherit this attachment.
-Other operators, like `+`, `-`, `*` and so on, which are defined for lists will inherit the attachent of the left-hand side operand.
+Other operators, like `+`, `-`, `*` and so on, which are defined for lists will inherit the attachment of the left-hand side operand.
 
 {%S objectAttachment%}
 
@@ -567,12 +567,12 @@ The automatic creation of the fields is transitive.
 
 {%S field_transitive_creation%}
 
-You do not need to create `b`, `c`, d`, and `e` one by one.
+You do not need to create `b`, `c`, `d`, and `e` one by one.
 They will automatically become an `+{}+` classless object.
 
 Accessing a field on the right-hand side of an assignment, or in any expression, is more restrictive.
 You can still access a nonexistent field, and the value will be `none`, but you cannot access a field on `none`.
-To overcome this, you can use the `or` operator as in the example, or use can use the `?.` field access.
+To overcome this, you can use the `or` operator as in the example, or you can use the `?.` field access.
 
 {%S field_none_access%}
 
@@ -581,7 +581,7 @@ It is also important that accessing the non-existent `a.b` this way will *not* i
 It is just a lenient way of accessing fields.
 
 On the left side of the `?.` can be any expression resulting in an object or `none`, even a `["xxx"]` style field access.
-On the other hand, there is no `?.` equivalent accessing a field through the `["xxx"]`.
+On the other hand, there is no `?.` equivalent for accessing a field through `["xxx"]`.
 In that case the only remedy is the `or` operator:
 
 {%S field_none_indexed_access%}
@@ -609,7 +609,7 @@ The right side is only evaluated if the left side is `none`.
 
 {%S and%} Note that you cannot divide by zero, the result is an error and not `inf`.
 
-* `..` range operator. `start..end`` will result a range to index a list.
+* `..` range operator. `start..end` creates a range to index a list.
 The first index is `start`, the last is `end-1`.
 Ranges can be used to index lists as values and also in left values to replace a part of a list.
 When used as a unary prefix operator, it must be inside a list literal and in front of a list to flatten the list content into the literal.
@@ -618,7 +618,7 @@ It is also used to flatten objects or lists to function parameter passing.
 
 * `|` bitwise OR operation.
 +
-The operator works the conventional ways on integers.
+The operator works the conventional way on integers.
 +
 The operator is also defined for lists.
 The result is the union of the two lists with the unique elements.
@@ -649,7 +649,7 @@ The `+&+` operator is not defined for floating-point numbers.
 
 {%S band1%}
 
-* `!==`, `===`, ==`, `!=`, `in` are __not-the-same__, __the-same__, __equal__, __not-equal__, and __part-of__ operators.
+* `!==`, `===`, `==`, `!=`, `in` are __not-the-same__, __the-same__, __equal__, __not-equal__, and __part-of__ operators.
 The `in` operator works on a list to check if an element is in that list, or on strings to check the existence of a substring.
 
 {%S equal1%}
@@ -697,7 +697,7 @@ The unary `+` operator does not perform any checks; it operates on all objects a
 
 * `pass:[*]`, `/`, `%` binary multiply, divide, and remainder operators.
 The `pass:[*]` and `%` are also used in the case of strings and lists.
-A string multiplied by a number will result in the string that many times concatenated to itself.
+A string multiplied by a number results in the string concatenated to itself that many times.
 The `%` operator is also used for formatting.
 The left-hand side is the format string, and the right-hand side is a single element or list of elements.
 
@@ -718,7 +718,7 @@ You can, however, freely enclose the expression or a part of it between `(` and 
 
 * `pass:[**]` and `pass:[##]` are the power operator and method joining.
 The expression `a**b` is `a` to the power of `b`.
-Many language uses the `^` to denote this operator; however, in Turicum, that character is for bitwise xor.
+Many languages use `^` to denote this operator; however, in Turicum, that character is for bitwise XOR.
 +
 `pass:[##]` creates a new function from two functions by chaining them.
 In the following example `f##g` is a function that calls `f` and then `g`.
@@ -735,8 +735,8 @@ Turicum implements the pre- and post-increment and decrement operators as assign
 `pass:[a++]` or `pass:[a--]` are technically assignments that return the value of the variable before the modification.
 Similarly `pass:[++a]` and `pass:[--a]` are assignments returning the value after the modification.
 
-The expression analyzer recognizes and allows you to use pre-increment and pre-decrement operator in side an expression.
-It is easy to recognize for the parser —and similarly for the programmer— reading the code that a `++` or `--` introduces a pre-increment/pre-decrement assignment.
+The expression analyzer recognizes and allows you to use pre-increment and pre-decrement operators inside an expression.
+It is easy for the parser -- and similarly for the programmer -- to recognize that a `++` or `--` introduces a pre-increment/pre-decrement assignment.
 
 On the other hand, a `++` or `--` after a complex left value may be hard to read.
 For this reason the language permits the post-increment and post-decrement operators inside an expression only if it is applied on a simple variable left value.
@@ -776,7 +776,7 @@ See also the next section about operator overloading.
 
 Operators work for numerical types, string types, as usual, and they can also work on any object that defines them.
 The name of the method implementing the operator should be the operator itself.
-There is not any name association, like in Python dunder plus.
+There is no special name mapping, like Python's dunder methods (e.g., `pass:[__add__]`).
 Instead, you can use it, for example, `pass:[`+`]` as an operator identifier.
 
 The operator methods must have one single positional argument, usually named `other`.
@@ -861,7 +861,7 @@ The operator's table is defined in the source file {%#file (format="`$simpleName
 |`&`
 
 |7
-|`!==`, ===`, `==`, `!=`, `in`
+|`!==`, `===`, `==`, `!=`, `in`
 
 |8
 | `<`, `<=`, `>`, `>=`
@@ -877,7 +877,7 @@ The operator's table is defined in the source file {%#file (format="`$simpleName
 |===
 
 The higher precedence operators are executed first, and the lower precedence operators are executed on the results.
-When the order of the operator execution can be altered using parentheses.
+The order of operator execution can be altered using parentheses.
 This is a widespread practice in most programming languages.
 
 The usual practice is that you can have a whole expression between `()` characters.
@@ -888,7 +888,7 @@ The significant difference between the two is that the code between `()` is exec
 
 {%S pscope%}
 
-Because not only every command is a value but also every expression is a command, you can use the `()` to group commands to be executed in the same context as the code environment.
+Because every command is a value and every expression is a command, you can use `()` to group commands to be executed in the same context as the surrounding code.
 
 == Variables and Context
 
@@ -897,7 +897,7 @@ They are defined in scopes.
 Scopes are wrapped around each other.
 The top-level context is the global context.
 
-Scopes are created in run-time, like everything in Turicum.
+Scopes are created at runtime, like everything in Turicum.
 
 === Block scopes
 
@@ -925,9 +925,9 @@ The class and the function do not wrap the surrounding, global context.
 
 {%S function_scope%}
 
-The methods, a.k.a. functions defined inside a class, wrap the context of the class.
+The methods -- functions defined inside a class -- wrap the context of the class.
 Whenever a method is called its own context is created and the "local variables" `cls` and `this` are created.
-Unless the method is a constructor (named aptly as `constructor`) these variables are pinned, cannot be changed.
+Unless the method is a constructor (named `init`), these variables are pinned and cannot be changed.
 
 Code inside a class, outside any method is executed when the class is defined.
 
@@ -967,14 +967,14 @@ In the following example, the closure can access and even modify the variable `w
 {%S closure_example%}
 
 The variable `whom` lives only inside the block.
-The closure wraps this context and keeps the variable alive so long as long the closure is there and also modifies the content of the variable.
+The closure wraps this context and keeps the variable alive as long as the closure exists, and it also modifies the content of the variable.
 
 [NOTE]
 ====
 The closure arguments follow the same syntax as the function arguments.
 There is however, a small difference.
 
-When a closure argument list defines types and alternatives for the types, how does the parser know that the `|` is separating different types or close the closure argument list.
+When a closure argument list defines types and alternatives for the types, how does the parser know whether the `|` is separating different types or closing the closure argument list?
 For example, in the next example
 
   {|a:str| "*" + a + "*" }
@@ -985,7 +985,7 @@ The syntax analyzer looks ahead a few tokens, and in the case of closures it tre
 * the next token after it is an identifier and after that another `|`, a `=`, or `,` follows, or
 * the next token is `(`.
 
-This analysis is heuristic and can cause issue.
+This analysis is heuristic and can cause issues.
 To avoid those:
 
 * Do not start the first command of the closure with `(` if the closure's last argument has type.
@@ -994,7 +994,7 @@ To avoid those:
 
 === Macro scopes
 
-macro scopes are the same as closure scopes.
+Macro scopes are the same as closure scopes.
 Macros are closures that get their arguments unevaluated.
 You can create a macro using the built-in global function `macro` with a closure or function as an argument.
 Code inside macros can call the global function `evaluate` on the arguments.
@@ -1006,11 +1006,11 @@ The following simple macro reimplements the `if` command's functionality using i
 
 When a macro calls the function `evaluate` the evaluation happens in the caller context.
 This ensures the same context and variable visibility as calling a function or closure.
-The caller does not need to know that the implementation of the something it calls is a function, closure, or macro.
+The caller does not need to know whether what it calls is implemented as a function, closure, or macro.
 
 === Variable Declaration
 
-Upon first assignment, the code has to use the keyword `let` or `mut` to define the variable.
+On first assignment, the code must use the keyword `let` or `mut` to define the variable.
 Until that happens, you cannot use a variable.
 
 Variables defined using the keyword `let` are immutable.
@@ -1177,7 +1177,7 @@ You can use the `let` keyword in front of individual mappings to make them immut
 
 {%S let_map5%}
 
-Although `mut` is not strictly declarative, you can declare variables in a mapping for `mut` as in the example above.
+Although `mut` is not strictly declarative, you can declare new variables in a `mut` mapping as in the example above.
 However, if the variable you declare with a type already exists, it is an error:
 
 {%S let_map6%}
@@ -1185,12 +1185,12 @@ However, if the variable you declare with a type already exists, it is an error:
 You cannot make a submapping mutable inside a declarative `let` mapping or submapping.
 In other words, you cannot use `mut` on a submapping.
 
-Although there is no limit on the nesting of mapping and structure and list destrucuring, it is usually not a good practice to create too deep structures.
+Although there is no limit on the nesting depth of mapping and destructuring, it is usually not good practice to create excessively deep structures.
 
 
 ==== Updating a Variable
 
-Mutable variables can get new value any time.
+Mutable variables can receive a new value at any time.
 The assignment that updates a variable does not have the `let` or `mut` keyword and does not define a type.
 The syntax is
 
@@ -1199,7 +1199,7 @@ The syntax is
 LEFT_VALUE ASSIGNMENT_OPERATOR EXPRESSION
 ----
 
-which is simply loks like `a = 5*3` in most of the cases.
+which simply looks like `a = 5*3` in most cases.
 The left value can be
 
 * a variable identifier, (`my_variable`)
@@ -1256,13 +1256,13 @@ You are also not allowed to change a string variable while you assign a new stri
 
 {%S update_forbiden5%}
 
-When you do that, it is essentially the same as assigning a new value to the variable altogether:
+Doing so is essentially the same as assigning a new value to the variable altogether:
 
 {%S update_forbiden6%}
 
 The reason for that is that strings in the underlying Java ecosystem are immutable.
 Turicum is tightly integrated with Java and does not use wrapper classes around `String`, `Long`, or `Double` values.
-When you change a part of a string, Turicum creates the new string and then changes the value of the unerlying variable to hold this new string.
+When you change a part of a string, Turicum creates a new string and then updates the underlying variable to hold this new string.
 
 You are also not allowed to change a variable holding a list while an element of that list is changed.
 
@@ -1285,7 +1285,7 @@ or
   mut [ variable_list ] = expression
 
 command you can use an already defined variable in the list.
-In this case the variable, which was already earlier defined will be updated.
+In this case, the previously defined variable will be updated.
 A typical example for the use is a loop:
 
 {%S string_partition%}
@@ -1294,14 +1294,12 @@ Without this possibility you would need an extra variable in the list:
 
 {%S string_partition_alt%}
 
-There are some limits how to use this kind of variable update:
+There are some restrictions on this kind of variable update:
 
-* the variable must me mutable,
+* the variable must be mutable,
 * only `mut []` and `mut {}` are allowed,
 * `mut variable = expression` results in error if the variable is already defined,
 * the variable in the list must not have a type declaration at the location of the update.
-
-Also, the other variables
 
 ==== Pinned Variables
 
@@ -1313,7 +1311,7 @@ The syntax of the `pin` command is
   pin list
 ----
 
-The list is comma separated elements, can be
+The list contains comma-separated elements, which can be
 
 * a variable name, like `turic`,
 
@@ -1332,7 +1330,7 @@ Note that this is changing the mutability of the list itself and not the variabl
 
 {%S pin_list%}
 
-It is an error using the decoration on a variable that is not an object or list.
+It is an error to use the decoration on a variable that is not an object or list.
 
 {%S pin_wrong%}
 
@@ -1366,7 +1364,7 @@ The value of the command is the string sent to the output.
 
 == Control Flow
 
-=== Conditional Execution (`if` / `elseif` / else`)
+=== Conditional Execution (`if` / `elseif` / `else`)
 
 Command `if` is very conventional and similar to any other programming language.
 The syntax of the command is:
@@ -1376,16 +1374,16 @@ The syntax of the command is:
 'if' EXPRESSION ( ':' COMMAND | BLOCK ) [ 'else' ( [':'] COMMAND | BLOCK )] ;
 ----
 
-If the expression is `true`, the command executes the first command or block.
-If the expression is `false`, it executes the second command or block following the `else` keyword.
-The second command or block, along with the keyword `else`, is optional.
+If the expression evaluates to `true`, the first command or block is executed.
+If the expression evaluates to `false`, the second command or block following the `else` keyword is executed.
+The `else` keyword and its command or block are optional.
 
 The block is a series of commands enclosed between `+{+` and `+}+`.
 If there is only a single command after the condition or the keyword `else` it can be preceded with a `:`, or enclosed in a block.
 The `:` following the `else` keyword is optional.
 Its use can emphasize the structure and may help Python lovers.
 
-The conditional expression can, but does not need to be enclosed between parentheses.
+The conditional expression can be enclosed in parentheses but does not need to be.
 
 The result of the command is the value of the command or block executed.
 If the condition is `false` and there is no "else" block or command, then the result is `none`.
@@ -1530,7 +1528,7 @@ Variables declared here are used only in the loop and are shared across iteratio
 
 {%S while_with_loop%}
 
-The following example demonstrates that `otherwise` is not executed when the loop is executed at lead once.
+The following example demonstrates that `otherwise` is not executed when the loop is executed at least once.
 
 {%S while_until_not_otherwise%}
 
@@ -1550,7 +1548,7 @@ The next example demonstrates that the `done` block is not executed if the loop 
 [NOTE]
 ====
 Python has an `else:` construct that can follow a loop.
-In Python, it is executed when the loop is broken.
+In Python, it is executed when the loop completes without being broken.
 Turicum does not need to provide this extra block for the loops.
 
 In Turicum, if you break a loop and want to execute some extra code, you can do it in the expression of the `break`.
@@ -1562,7 +1560,7 @@ The following two examples show the case when the `done` block is executed after
 
 {%S while_with_done%}
 
-It also a normal termination of the loop when the loop is terminated by the `until` condition:
+It is also a normal termination of the loop when the loop is terminated by the `until` condition:
 
 {%S while_until_with_done%}
 
@@ -1572,7 +1570,7 @@ It also a normal termination of the loop when the loop is terminated by the `unt
 The `for` loop is very much similar to the conventional `for` loop we have since it was invented in the language C.
 There are some syntactical and some execution differences though.
 
-The syntactical difference is that the start, condition, and end steps do not need to be enclosed between `(` and `)`.
+The syntactic difference is that the start, condition, and step parts do not need to be enclosed between `(` and `)`.
 The start, condition, and end parts are separated by `;` and they are commands.
 The `;` in this place is not optional.
 
@@ -1603,7 +1601,7 @@ The value of the loop is the result of the last executed command.
 
 {%S for_result%}
 
-The loop can also be used to result a list.
+The loop can also be used to produce a list.
 The list will contain the results of each body loop execution.
 
 {%S for_list%}
@@ -1629,14 +1627,14 @@ The `for each` loop can also have a tail condition.
 
 {%S foreach2%}
 
-You can also define an index variable following the `with` keyword.
+You can also define an index variable using the `with` keyword.
 
 {%S foreach3%}
 
-The index starts from zero and increments with each execution by one.
+The index starts from zero and increments by one with each iteration.
 The index variable is local to the loop.
 Without this feature, you would need to declare a variable at a higher context level and then use it in the loop.
-That would violate the locality principle, not to rely on anything out of a context that can change, and even less modify anything out of the context, which is in this case a loop.
+That would violate the locality principle: do not rely on anything outside a context that can change, and even less modify anything outside the context, which in this case is a loop.
 
 It is also possible to deconstruct multiple values in the for-each loop.
 
@@ -1673,9 +1671,9 @@ This function (the idea) was taken from Python.
 
 {%S foreach5%}
 
-As you can see, the variables `j` and `i get the same value in each iteration.
+As you can see, the variables `j` and `i` get the same value in each iteration.
 
-When used in an expression position, a `for each` loop returns the result of the last executed loop body
+When used in an expression position, a `for each` loop returns the result of the last executed loop body,
 or a list if the `list` keyword was used.
 
 {%S for_each_result%}
@@ -1705,12 +1703,12 @@ The command can break the execution of the loop and can also specify the value o
 
 ==== `continue`
 
-Will continue the execution of the loop starting the body of the loop again without executing the rest of the commands in the loop body.
+Continues the execution of the loop, starting the body again without executing the rest of the commands in the current iteration.
 
 === Returning, Breaking, Continuing, and Yielding
 
-These three commands are in one family.
-Each of them can pass a value, and each can have a conditionality following the expression.
+These commands belong to one family.
+Each of them can pass a value, and each can have a condition following the expression.
 The syntax is
 
 [source]
@@ -1733,7 +1731,7 @@ If it is executed, the value of the loop will be the expression that follows the
 If it is missing then the value `none` will be the result.
 
 There is a slight difference between not having an expression or having an expression returning `none`.
-When the `break` command is used in a lis-resulting loop and there is an expression following the `break` keyword the value of this expression will be appended to the list as the last value.
+When the `break` command is used in a list-producing loop and there is an expression following the `break` keyword, the value of this expression will be appended to the list as the last element.
 When there is no expression, then the execution of the loop still terminates, but no expression will be appended to the result list.
 
 The following samples demonstrate these cases.
@@ -1755,7 +1753,7 @@ In the second case, the `break` is inside a block, and it aborts the execution o
 
 {%S break6%}
 
-When the expression following the `break` keyword starts with the `if` keyword, the expression has to be enclosed between `()` parentheses.
+When the expression following the `break` keyword starts with the `if` keyword, it must be enclosed in `()` parentheses.
 
 {%S break7%}
 
@@ -1773,7 +1771,7 @@ If there is no expression after the `continue` keyword, then the resulting list 
 
 As you can see, the resulting list adds 0.1 to each element that is a multiple of three, but the elements that are multiples of five are skipped.
 
-You cannot use `continue` with a value in a loop that does not result a list:
+You cannot use `continue` with a value in a loop that does not produce a list:
 
 {%S bad_continue%}
 
@@ -1790,7 +1788,7 @@ If there is no expression following the `return` keyword then `none` will be ret
 
 The command yield produces a value, and the execution of the code continues.
 It can only be used when the code was started so that another thread is expecting the yielded value.
-The typical example is when you execute a command `async` .
+The typical example is when you execute a command with `async`.
 
 {%S yield1%}
 
@@ -1800,7 +1798,7 @@ The return value can be used in a `for each` loop, or you can iterate through it
 
 === `with`
 
-The `with` command executes a block in the context of one or more objects, and also it functions as a resource manager similar to Python.
+The `with` command executes a block in the context of one or more objects, and it also functions as a resource manager similar to Python.
 
 [source]
 ----
@@ -1814,7 +1812,7 @@ or
 with object list: command
 ----
 
-The `object list` is a comma separated list of expressions each with an optional `as identifier` part.
+The `object list` is a comma-separated list of expressions, each with an optional `as identifier` part.
 When there is an `as identifier` the functionality is similar to that of Python.
 
 When there is an `as ID` after the expression, then the expression is treated as a resource manager.
@@ -1834,11 +1832,11 @@ This method will be invoked even if there was any error during the execution of 
 {%S withAs%}
 
 The argument to the method `exit` is the exception that was raised while processing the block, or `none` if there was not any.
-If the return value of the method `exit` is `true` or anything that can be converted to boolean and has the value `true` following the cast, then the exception is treated as caught and handled.
+If the return value of the method `exit` is `true` (or anything that can be converted to `true`), then the exception is treated as caught and handled.
 If there is any exception during the closing, then it will be thrown.
 Exceptions during resource closing do not get suppressed.
 
-If there are more than one resource in a `with` statement, then their `entry` method is called from left to right and then `exit` methods from right to left.
+If there is more than one resource in a `with` statement, their `entry` methods are called from left to right and their `exit` methods from right to left.
 The last "opened" resource is closed first.
 
 [NOTE]
@@ -1846,7 +1844,7 @@ The last "opened" resource is closed first.
 Handling the resources this way is similar to how Python handles the resources with some notable differences:
 
 * There are no underscore characters in the name of the method `entry` and `exit`.
-* `exit` cannot exist
+* `exit` cannot suppress exceptions on its own
 * `entry` can return `none`.
 It is the same as returning `this`.
 * `exit` gets only one argument, the exception that holds all the information.
@@ -1870,7 +1868,7 @@ You can also modify or even create and pin fields:
 {%S modifyWith%}
 
 Note that the field `x.a` was not modified, because it is shadowed by `y.a`.
-You can only create new fields in the right most object.
+You can only create new fields in the rightmost object.
 You can pin a field in any of the objects unless they are shadowed.
 
 The value of the command is the value of the block executed.
@@ -1878,7 +1876,7 @@ The value of the command is the value of the block executed.
 {%S valueWith%}
 
 It is important to note that the `with` command can also be used with classes.
-The `with` command can handle classes similar to object and also as resource managers.
+The `with` command can handle classes similar to objects and also as resource managers.
 Using a class as a resource manager instead of an object is not recommended.
 Remember: each resource manager can manage a single resource.
 
@@ -1894,8 +1892,8 @@ The command will start the execution in a separate thread (Java 21 virtual threa
 
 The return value of the `async` command is a `task`.
 
-To wait for the finishing of an asynchronously started command, you should use the `await` command.
-It will also result in the value returned by the task.
+To wait for an asynchronously started command to finish, use the `await` command.
+It returns the value produced by the task.
 
 In addition to returning a value, a task can also receive and send objects.
 The `yield` command inside the task will either receive an object or send an object.
@@ -1917,22 +1915,22 @@ A task object implements the following methods:
 * `get` returns the result of the task.
 It is the same as the result of the `await` command.
 
-* `close` close the channel to the task.
+* `close` closes the channel to the task.
 After calling this method, you cannot send anything to the task and the task will see that the channel is closed.
 
 * `send` will send an object to the task
 
-* `has_next` will be `true` if there are objects send by the task
+* `has_next` will be `true` if there are objects sent by the task
 
 * `next` gets the next value from the task
 
 The command `async` has four parameters:
 
-* `in` can give the size of the queue for objects to be sent to the task.
-The default value is no limit.
-If the queue is limited and full, sending an object will wait till a place is freed.
+* `in` sets the size of the queue for objects to be sent to the task.
+The default value is unlimited.
+If the queue is limited and full, sending an object will block until a place is freed.
 
-* `out` can give the size of the queue for the task to yield back to the main thread.
+* `out` sets the size of the queue for the task to yield values back to the main thread.
 If the queue is full, the task will wait.
 This can be used to limit the memory and CPU usage of infinite generators.
 
@@ -1940,9 +1938,9 @@ This can be used to limit the memory and CPU usage of infinite generators.
 ====
 
 Say you want to create a generator that returns the prime numbers.
-If you do not limit the channel size, the generator will run ahead and fill in the memory with prime numbers.
-Limiting the channel size you can balance the calculations.
-The generator will stop when it has generated enough numbers and starts when some of the result is consumed.
+If you do not limit the channel size, the generator will run ahead and fill the memory with prime numbers.
+By limiting the channel size, you can balance the calculations.
+The generator will stop when it has generated enough numbers and resume when some of the results are consumed.
 
 {%S channel_limit%}
 
@@ -1957,23 +1955,23 @@ The error message will indicate the step limit that was reached.
 
 {%S async_step_limit%}
 
-* `time` limits the time of the task, unit is seconds.
+* `time` limits the execution time of the task; the unit is seconds.
 The task will stop after the specified time.
-When a task times out the underlying thread stops and the task `is_done()`, `is_err()`, and `is_timeout()` methods will return true
+When a task times out, the underlying thread stops and the task's `is_done()`, `is_err()`, and `is_timeout()` methods will return `true`.
 
 These parameters can be specified after the `async` keyword between `[` and `]` characters.
-When the command to be executed asynchronously starts with a `[` character you either has to have `[]` in front of it,
+When the command to be executed asynchronously starts with a `[` character, you either have to place `[]` in front of it,
 or enclose the command between `(` and `)` or `+{+` and `+}+` to help the syntax analysis.
 
 {%S async_timeout%}
 
-The command can also execute a list parallel.
-When the expression to execute asynchronously is a list literal, then the command will execute the individual elements of the list parallel.
+The command can also execute a list in parallel.
+When the expression to execute asynchronously is a list literal, the command will execute the individual elements of the list in parallel.
 In that case the result is a list of tasks instead of a task that results in a list.
 
 [NOTE]
 ====
-You should not enclose the list literal between `(` and `)` using async.
+Do not enclose the list literal between `(` and `)` when using `async`.
 
 * `[1, 2, 3]` is a list literal.
 `async` will evaluate it as a parallel list.
@@ -1984,13 +1982,13 @@ You should not enclose the list literal between `(` and `)` using async.
 The only way to create an async list is to provide the possibly empty options as in the next example.
 ====
 
-The following example creates a list of `[1,2,3]` in the conventional way and also parallel.
+The following example creates a list of `[1,2,3]` in the conventional way and also in parallel.
 It prints out the elapsed time using the built-in `nano_time` function.
 
 {%S asyn_list%}
 
-As you can see, in the first case the execution time is a bit above 300ms, which is the three times 0.1sec waiting in the function.
-In the second case the functions wait the same time, parallel, and the execution time is just above the 100ms single wait time.
+As you can see, in the first case the execution time is a bit above 300ms, which is three times the 0.1s wait in the function.
+In the second case the functions wait the same time in parallel, and the execution time is just above the 100ms single wait time.
 
 [[flow-command]]
 == `flow` Command
@@ -2007,21 +2005,21 @@ The `flow` block terminates under one of the following conditions:
 It is repeatedly evaluated after each task in the context of the `flow` command.
 - The maximum number of task executions (`limit`) is reached.
 - The allowed wall-clock execution time (`timeout`) is exceeded.
-- The flow reaches a stable state, there are no more tasks to run.
+- The flow reaches a stable state: there are no more tasks to run.
 
 In these cases the already scheduled tasks are still executed before the flow stops.
 
 If a `yield` expression is specified, its result is returned as the result of the `flow` command.
 It is evaluated once after all scheduled tasks are finished.
 The evaluation happens in the context of the `flow` command.
-If there is no `yield` in the `flow` command `null` is returned.
+If there is no `yield` in the `flow` command, `null` is returned.
 
 The evaluation starts with the cells that have no dependencies.
 These are evaluated in asynchronous threads.
-Scheduling and executing tasks based on dependencies start when the start cells are all finished and the flow has reached the initial state.
+Scheduling and executing dependent tasks begins once all start cells have finished and the flow has reached its initial state.
 
-If there are cells that have dependencies, and that way they are not start cells, but their transitive closure of their dependencies does not include any start cells, it is en error.
-It is detected during compilation time and results in a syntax error.
+If there are cells that have dependencies (and therefore are not start cells), but whose transitive closure of dependencies does not include any start cells, it is an error.
+This is detected at compilation time and results in a syntax error.
 
 === Syntax
 
@@ -2036,9 +2034,9 @@ flow [<identifier>] [until <condition>] [limit <maxTasks>] [timeout <seconds>] {
 }
 ----
 
-- the identifier following the `flow` keyword is optional.
+- The identifier following the `flow` keyword is optional.
 It is used solely for diagnostic purposes.
-It does not get into any symbol table, does not hide any object of the same name in the context hierarchy.
+It does not enter any symbol table and does not hide any object of the same name in the context hierarchy.
 It is used only in error messages and is available for command introspection.
 This identifier cannot be `limit` or `timeout`, because those signal the start of the limit and timeout expressions respectively.
 
@@ -2056,8 +2054,8 @@ A numeric constant (can be fractional) specifying the maximum wall-clock time al
 ====
 `until`, `limit` and `timeout` are all optional and can be in any order.
 `limit` and `timeout` are not keywords.
-The syntax analyzer would not know if they start the limit or timeout definition or you want to name the flow to "limit" or "timeout".
-You cannot name the flow to either of these.
+The syntax analyzer cannot tell whether they start the limit or timeout definition or you want to name the flow "limit" or "timeout".
+You cannot name the flow either of these.
 ====
 
 Each
@@ -2076,18 +2074,18 @@ The identifier is the __cell state variable__.
 When the syntax analysis is done, the compiler performs several semantic checks.
 It checks that there are __start cell__s, that can be calculated independent of any other.
 
-There should be no two __start cell__s updating the same __cell state variable__.
+No two __start cell__s should update the same __cell state variable__.
 
 Following this analysis, the compiler checks that each cell is reachable from the __start cell__s.
-There should be no cells that are not reachable.
+All cells must be reachable.
 
 NOTE: Unreachable cells only can happen if a cell depends on itself or there is a circular dependency.
 Without such a dependency the cell would be a start cell.
 
-The last check is that all dependency circles contain at least __start cell__.
-If there is a dependency circle that does not contain a __start cell__ that circle would result in the use of a __cell state variable__ uninitialized.
+The last check is that all dependency cycles contain at least one __start cell__.
+If there is a dependency cycle that does not contain a __start cell__, that cycle would use a __cell state variable__ before it is initialized.
 
-If any of the checks fails, the compiler results in a syntax error and the command is not created.
+If any of the checks fail, the compiler reports a syntax error and the command is not created.
 
 === Semantics
 
@@ -2108,25 +2106,25 @@ When the value of the __cell block__ evaluation is `non_mutat` the __cell state 
 When the value of the __cell block__ evaluation is `fini` the __cell state variable__ is not updated and the cell will not be scheduled anymore.
 If there are already running instances of the cell, they will finish and possibly update the __cell state variable__ assuming they were started after the cell block that resulted the `fini` value.
 
-When a result is `fini` the __cell state variable__ counter is updated, even though the variable value is not, thus any block that was started earlier and not finished yet will not update the variable.
+When a result is `fini`, the __cell state variable__ counter is updated even though the variable value is not; thus any block that was started earlier and not yet finished will not update the variable.
 
-When the result if `non_mutat` nothing is updated.
+When the result is `non_mutat`, nothing is updated.
 
 NOTE: `fini` and `non_mutat` are predefined pinned global constant objects.
 
 Cell evaluation is performed in isolated thread-local contexts derived from the flow's original context.
-This context contains the flow context variables as copies and read-only.
+This context contains copies of the flow context variables, which are read-only.
 
 The system avoids infinite re-evaluation loops by tracking value stability and respecting the `limit` and `timeout` constraints.
 
 The execution of the code blocks is done asynchronously.
 There is no guarantee for any order.
-When it is recognized that a cell variable one of the blocks depends on, (uses it as a variable in some calculation), then it will be scheduled for execution and started as soon as the JVM and the operating system start it.
+When a cell variable that a block depends on changes (because the block uses it in some calculation), the block is scheduled for execution and started as soon as the JVM and the operating system allow.
 Each cell block is executed in a new virtual thread.
 
-It can happen that the same block executes parallel in multiple instances.
-It could lead to instability in the flow.
-An earlier started version can run longer than a later instance.
+It can happen that the same block executes in parallel in multiple instances.
+This could lead to instability in the flow.
+An earlier-started instance can run longer than a later one.
 Also, different blocks can update the same {%@def CSV=__cell state variable__%}.
 To avoid this the `flow` command only updates a {%CSV%} to the value resulting from a cell block execution only if the {%CSV%} was not updated in the meantime.
 If the {%CSV%} was already updated, the result is ignored.
@@ -2172,11 +2170,6 @@ It shows how the system halts with a clear error message once the execution limi
 
 {%S example_flow_limit%}
 
-The next example demonstrates that you can access the structure of the flow command or to any command.
-In the example the flow command is not executed, rather stored in a variable, and then the dependency graph of the cells is printed out.
-
-%S flow_mermaid_output%}
-
 == Functions
 
 Functions play a similar role as in other languages.
@@ -2185,7 +2178,7 @@ They can be top-level functions and methods attached to classes or to objects.
 === Function Declarations
 
 A function declaration is a statement that defines the function.
-The function will be usable after the function definition was executed.
+The function becomes usable after the function definition is executed.
 The syntax of the function definition is
 
 [source]
@@ -2215,7 +2208,7 @@ It can be missing, typically when the result, the function itself is assigned to
 
 `(parameters)` are the parameters, including default values and parameter types and parameter-passing requirements.
 The `(` and `)` is optional when the function has a name.
-When it does not have a name, then `(` and `)` must present even if there are zero arguments.
+When it does not have a name, `(` and `)` must be present even if there are zero arguments.
 
 {%S fun2%}
 
@@ -2286,7 +2279,7 @@ When a function is invoked, the actual parameters can be passed to the function 
 Some parameters can be passed in both ways, while others can only be passed positionally, and some can only be passed by name.
 This is declared in the formal parameter list.
 Each parameter declaration starts with the identifier of the argument.
-This is the identifier how the function body can use the variable as well as the identifier the called can use if the parameter is passed by name.
+This is the identifier the function body uses for the variable as well as the identifier the caller uses if the parameter is passed by name.
 
 Parameters preceded with '!' can only be passed positionally.
 
@@ -2299,7 +2292,7 @@ Passing a value as `x=1` would be an error.
 Parameter `how_much` must be passed by name.
 
 Parameters can also have type declarations and default values.
-If there is a type declaration passing a value that does not fit the type declaration is an error.
+Passing a value that does not fit the type declaration is an error.
 Not passing a value for a parameter that does not have a default value is also an error.
 
 {%S fun5%}
@@ -2335,7 +2328,7 @@ To do that, there are three extra arguments you can use in your function definit
 
 * `^closure`.
 
-You can name them any way you want, but for the same of simplicity we will use the names above.
+You can name them any way you want, but for the sake of simplicity we will use the names above.
 The syntax distinguishing them from the other parameters is the use of the extra `[]`, `+{}+`, and `^` characters.
 If they are present, they have to be the last formal parameters in the order as listed above.
 Any of them can be missing, but if two present then `[rest]` should be before `+{meta}+` and `^closure`, and `+{meta}+` has to precede `^closure`.
@@ -2411,7 +2404,7 @@ This call can aid in creating domain-specific languages.
 ==== Spreading lists and objects as arguments
 
 When calling a function, you can precede a parameter with the `..` operator.
-This will spread the content of the parameter to the parameters.
+This will spread the content of the argument across the parameters.
 
 If the value of the parameter is an object, the fields of the object will be used as named parameters.
 The field names will be used as argument names and the values as values.
@@ -2431,14 +2424,14 @@ Currently, the following classes implement the `HasField` interface:
 * `Lex` one token in the lexical analysis.
 It is used in preprocessors written in Turicum.
 
-* `LexList` the list of the tokes.
-Just like the class `Lex` it is used in preprocessors.
+* `LexList` the list of tokens.
+Just like the class `Lex`, it is used in preprocessors.
 
-* `Closure` is the implementation class for functions and closure.
-There is one, read-only field, `name`.
+* `Closure` is the implementation class for functions and closures.
+It has one read-only field, `name`.
 
 * `Macro` is the implementation class for macros.
-There is one, read-only field, `name`.
+It has one read-only field, `name`.
 
 * `JavaObject` is the class that implements the handling of any Java object, when all else fails.
 It implements reflection to access the declared fields of the class on the enveloped object.
@@ -2460,10 +2453,10 @@ This class also implements Iterable and is handled as such when used in an argum
 * `MapObject` any Java `Map<?,?>` object.
 The implementation will handle the keys as strings.
 
-The following class implement the `Iterable` interface in Turicum, which do not implement the `HasField` and thus can be spread as positional parameters:
+The following classes implement the `Iterable` interface in Turicum but do not implement `HasField`, and thus are spread as positional parameters:
 
 * `IndexedString` envelops a string during commands that modify a String.
-This is the technical implementation internally replacing an unmutable Java String with a mutable wrapper around.
+This is the technical implementation that internally replaces an immutable Java String with a mutable wrapper.
 
 * `JavaArray` makes it possible to index any Java array.
 
@@ -2471,7 +2464,7 @@ This is the technical implementation internally replacing an unmutable Java Stri
 Although this class also implements the `HasFields` interface this is handled as an exception and passed as positional arguments when spread.
 
 * `AsyncStreamHandler` is the class handling asynchronous operations and yields.
-It makes it possible to use the result of a `async expression` as arguments.
+It makes it possible to use the result of an `async` expression as arguments.
 +
 {%S spreadStream%}
 ====
@@ -2573,7 +2566,7 @@ In the second case, the result is still curried; it only has zero arguments, and
 
 {%S uncurry4%}
 
-When `fun` is uncarried in the last call, it gets disconnected from the object, and it is called as a standalone closure, without the surrounding object and class.
+When `fun` is uncurried in the last call, it gets disconnected from the object and is called as a standalone closure, without the surrounding object and class.
 That is the reason why the error message occurs.
 
 Even if the curried closure is not tied to an object, it technically remains curried if the `uncurry()` second, arity parameter is present:
@@ -2594,9 +2587,9 @@ A class is defined when the class definition is executed.
 {%S class1%}
 
 Classes can contain methods and can define class variables.
-In the example above the class contains the method `init`, which is a special one and declared one variable, `c`.
+In the example above the class contains the method `init`, which is a special one, and declares one variable, `c`.
 
-The method `init` is the initialized method.
+The method `init` is the initializer method.
 It is invoked when the class is instantiated.
 To create an object, you should use the name of the class like a method with parameters.
 The parameters will be passed to the `init` method.
@@ -2607,7 +2600,7 @@ When executing a method, there are two special variables:
 
 * `cls` is the class of the current object.
 
-If you use a variable without the `this.` prefix it will automatically be handled, but you can just use the `this.` prefix any time.
+If you use a variable without the `this.` prefix, it will be resolved automatically, but you can always use the `this.` prefix explicitly.
 That way the following example is the same as the previous:
 
 {%S class2%}
@@ -2621,7 +2614,7 @@ You can define methods attached to the objects.
 
 {%S class3%}
 
-The variable `cls` and `this` are pinned, cannot be modified in the methods.
+The variables `cls` and `this` are pinned and cannot be modified in methods.
 
 {%S class4%}
 
@@ -2641,16 +2634,16 @@ You cannot change the value of the `cls` even in the initializer:
 {%S class7%}
 
 Classes can be nested and defined inside other classes.
-When calling the constructor of the class to create a new instance then the variable `this` would be ambigous.
+When calling the constructor of the class to create a new instance, the variable `this` would be ambiguous.
 
-For `a.Z()` it usually points to `a`, but if `Z` is a class, and we called the constructor, than `this` should be the new instance.
-In this situation, a special variable called `that` will point to `a.
+For `a.Z()` it usually points to `a`, but if `Z` is a class and we called the constructor, then `this` should be the new instance.
+In this situation, a special variable called `that` will point to `a`.
 
 {%S class8%}
 
 === Class inheritance
 
-Classes can inherit in Turicum.
+Classes support inheritance in Turicum.
 When you declare a class, the parent class or classes are specified by the name after a `:`.
 
 {%S inherit1%}
@@ -2686,14 +2679,14 @@ When it is inherited, the `init` is executed in the context of the child class; 
 
 When a class has parent class or classes, the class methods and fields are inherited, but there is only one single `this` object.
 There is a single set of object fields.
-Object fields do not "shadow" each other, because there is only one field for a given name.
+Object fields do not shadow each other, because there is only one field for a given name.
 
 {%S inherit7%}
 
 In the example `b` is `4`, even though it is initialized to be `1` when calling the initializer of `C` but it is overwritten when the `P` initializer is invoked.
 
-There is no restriction on which other classes initializers can or should an initializer invoke.
-Your code theoretically could call the initializer of a class the current does not extend.
+There is no restriction on which other class initializers an initializer can invoke.
+Your code could theoretically call the initializer of a class that the current class does not extend.
 
 The object fields are created when the initializers are invoked.
 The type declaration of a parent class may not be the same for a field as in the child class.
@@ -2710,7 +2703,7 @@ If an error happens, an exception is thrown.
 An exception can be caught using `catch` pairing with a `try`.
 
 An exception is an object.
-You can declare a variable to hold an error
+You can declare a variable to hold an error.
 
 {%S try3%}
 
@@ -2774,7 +2767,7 @@ The command after the `finally` keyword does not affect the result of the comman
 == Decorators, Metaprogramming
 
 Decorators are an inherent part of Turicum.
-To make them similar to Python decorators and Java annotation, they can have a `@` in front of the decorator function call.
+To make them similar to Python decorators and Java annotations, they can have a `@` in front of the decorator function call.
 However, in the case of closures, you do not even need that.
 Every function call that has a closure as the last parameter can act as a decorator.
 
@@ -2795,20 +2788,20 @@ However, as soon as we try to invoke `z()` the program fails.
 It tries to invoke the closure returned by `fun_decorator()`, which tries to call `closure()` which now has the value `none`.
 This happens because the syntax analysis does not use the function definition as a parameter.
 
-The code can, however, be fixed, not onlyusing `@` but also passing the function definition as a regular argument between `(` and `)`:
+The code can, however, be fixed not only by using `@` but also by passing the function definition as a regular argument between `(` and `)`:
 
 {%S fnDecorator2%}
 
 The application of the `@` is therefore only a syntactic sugar.
 The following example shows that a decorator cannot only return the decorated function, class, or closure.
-They can also modify the existing definition.
+They can also modify an existing definition.
 
 {%S fnDecorator3%}
 
 Technically the decorator does not modify the function `q`.
 It creates a new function and redefines the variable named `q` in the wrapped context.
 
-Note, that if `fun_decorator` was a function declared with `fn` it would not work.
+Note that if `fun_decorator` were a function declared with `fn`, it would not work.
 A function does not wrap the surrounding context and thus cannot redefine anything in it.
 To redefine an already existing variable, it needs to be a closure.
 
@@ -2817,7 +2810,7 @@ In this case we have to use the built-in `set` function, because we have the nam
 
 In the following example we moved the function definition to a local context.
 The decorator in this case simply defines the global variable of the same name as we used locally for the function.
-The value is the closure or function, whatever we decorate itself.
+The value is the closure or function itself, whatever we decorate.
 
 {%S fnDecorator4%}
 
@@ -2828,7 +2821,7 @@ Since we use `set_global` the decorator can be a function, it does not need acce
 The built-in functions `macro` and `reclose` are special closure conversion functions.
 
 The function `macro()` accepts a closure as an argument and returns the closure converted to a macro.
-The major difference between ordinary macros and closures is that the argumente of a closure are evaluated before starting.
+The major difference between macros and closures is that the arguments of a closure are evaluated before the call.
 A macro gets its arguments unevaluated.
 
 === Special variables
@@ -2862,7 +2855,7 @@ You will hardly ever need it.
 
 * `me` it always points to the currently executing function or closure.
 You can use it to make recursive calls.
-It is necessary that when a function is defined in a local context, it does not capture.
+This is necessary because a function defined in a local context does not capture the surrounding context.
 For more, read the next section.
 
 === Function scopes and `me`
@@ -3017,7 +3010,7 @@ However, you can enclose any command in a block, and then you can use the block 
 ==== `unthunk`
 
 When you `unthunk` a block it will be evaluated in a local context freshly created for the block execution.
-Although this context wraps the surrounding context, but defined local variables will not be visible after the execution of the block.
+Although this context wraps the surrounding context, locally defined variables will not be visible after the execution of the block.
 To overcome this limitation and execute the commands like they were literally written where the `unthunk` call is made you can `unwrap` a block.
 
 .block wrapping explanation
@@ -3035,7 +3028,7 @@ The body of the `init` method is executed in the surrounding context.
 This is the object context in this case.
 Any local variable defined in the `init` method becomes a field.
 
-`unwrap` should get a block command as argument, probably as the result of a `thunk` call and it will result in a copy of the block, unwrapping.
+`unwrap` takes a block command as its argument, typically the result of a `thunk` call, and returns a non-wrapping copy of the block.
 ====
 
 The following example shows how these functions work.
@@ -3045,7 +3038,7 @@ The following example shows how these functions work.
 == Preprocessing
 
 The syntax analyzer works on the token list.
-When it meets a `#` symbol, it starts preprocessing for the remainder of the token list.
+When it encounters a `#` symbol, it starts preprocessing for the remainder of the token list.
 
 The steps of the preprocessing are the following:
 
@@ -3064,7 +3057,7 @@ This context is created and reused by the analyzer if multiple preprocessors are
 This will create global variables, functions, and classes.
 
 . It executes the command, passing the list of tokens as the only argument.
-That is why the command has to be a macro, a function of closure.
+That is why the command has to be a macro, a function, or a closure.
 The command should read the token list and result in a list.
 This list may contain the original tokens, newly created tokens, and strings.
 
@@ -3072,7 +3065,7 @@ This list may contain the original tokens, newly created tokens, and strings.
 
 . If there are non-token-list elements, it parses them and converts each into a list of tokens.
 
-The analyzer uses this new token list to analyse the program code.
+The analyzer uses this new token list to analyze the program code.
 The commands created up to this point are erased from the program being built.
 They served only the purpose of the preprocessor.
 
@@ -3113,7 +3106,7 @@ The following is the non-standard EBNF definition of the programming language ca
 
 A program is a series of commands.
 Commands can be separated by `;` character, and it is recommended to use it, but it is not required.
-New line can replace the use of `;`.
+A newline can replace the use of `;`.
 The recognition of the command end upon new-line is heuristic.
 The safe way is to use `;` to close commands.
 
@@ -3177,7 +3170,7 @@ The value of the global declaration is the value of the last assignment in the c
  GLOBAL ::= 'global' IDENTIFIER_ASSIGNMENT_LIST;
 
 Variables pinned cannot be changed in the local context.
-Pinning has no effect to outer scopes.
+Pinning has no effect on outer scopes.
 You can also pin an object.
 In that case use `+{variable}+` instead of the name.
 
@@ -3193,7 +3186,7 @@ In that case use `+{variable}+` instead of the name.
 
  TYPE_NAME ::= IDENTIFIER
 
-It is valid to have no identifiers in an identifier list, a.k.a. having an empty identifier list
+It is valid to have no identifiers in an identifier list, i.e., an empty identifier list.
 
  IDENTIFIER_LIST ::= [ IDENTIFIER { ',' IDENTIFIER } ];
 
