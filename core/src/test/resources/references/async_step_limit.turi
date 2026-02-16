@@ -12,5 +12,5 @@ sleep 0.1
 println "\nResults are true, true and false"
 println $"  z is done ${z.is_done()}"
 println $"  z is err ${z.is_err()}"
-println $"  z is timeout ${z.is_timeout()} is is step limit, not time"
+println $"  z is timeout ${z.is_timeout()}, it is step limit, not time"
 println $"  ${z.get_err()}" 

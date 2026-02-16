@@ -1951,7 +1951,11 @@ In the second case the calculation was limited.
 ====
 
 * `steps` limits the number of elementary steps in the execution.
-The task will stop after this many steps (planned feature).
+The task will stop after this many steps.
+When a task exceeds the step limit the task `is_done()` and `is_err()` methods will return `true`.
+The error message will indicate the step limit that was reached.
+
+{%S async_step_limit%}
 
 * `time` limits the time of the task, unit is seconds.
 The task will stop after the specified time.

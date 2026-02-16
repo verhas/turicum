@@ -1163,6 +1163,9 @@
 
 
 
+
+
+
 == Introduction
 
 === What is Turicum?
@@ -2840,15 +2843,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=499EF98E
+h id=53B8AFEA
 h after post increment: 1
 k: 0
-h id=24934262
-k id=499EF98E
+h id=6C302A1D
+k id=53B8AFEA
 h after pre increment: 2
 z: 2
-h id=93F432E
-z id=93F432E
+h id=33A3C44A
+z id=33A3C44A
 
 ----
 
@@ -2894,15 +2897,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=5B051A5C
+h id=93F432E
 h after post increment: 1
 k: 1
-h id=5B051A5C
-k id=5B051A5C
+h id=93F432E
+k id=93F432E
 h after pre increment: 2
 z: 2
-h id=5B051A5C
-z id=5B051A5C
+h id=93F432E
+z id=93F432E
 
 ----
 
@@ -2951,15 +2954,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=4AAAE508
+h id=6869A3B3
 h after post decrement: -1
 k: 0
-h id=6009BEA
-k id=4AAAE508
+h id=6AB4BA9F
+k id=6869A3B3
 h after pre decrement: -2
 z: -2
-h id=7BC6D27A
-z id=7BC6D27A
+h id=27ACE0B1
+z id=27ACE0B1
 
 ----
 
@@ -3002,15 +3005,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=27ACE0B1
+h id=4C59E45E
 h after post decrement: -1
 k: -1
-h id=27ACE0B1
-k id=27ACE0B1
+h id=4C59E45E
+k id=4C59E45E
 h after pre decrement: -2
 z: -2
-h id=27ACE0B1
-z id=27ACE0B1
+h id=4C59E45E
+z id=4C59E45E
 
 ----
 
@@ -6518,26 +6521,26 @@ execute("Thread 2",2)
 [source]
 ----
  prime read 2
-Thread 1 generated  prime read 3
-3
+Thread 1 generated 3
+ prime read 3
 Thread 1 generated 5
-Thread 1 generated 7
-Thread 1 generated 11
  prime read 5
-Thread 1 generated 13
+Thread 1 generated 7
  prime read 7
+Thread 1 generated 11
+Thread 1 generated 13
 Thread 1 generated 17
 Thread 1 generated 19
 Thread 1 generated 23
 stopping
 exception Task stopped.
  prime read 2
-Thread 2 prime read  generated 3
-3
+Thread 2 generated 3
+ prime read 3
 Thread 2 generated 5
  prime read 5
-Thread 2 generated 7
- prime read 7
+Thread 2 generated 7 prime read 
+7
 Thread 2 generated 11
 Thread 2 generated 13
 stopping
@@ -6552,7 +6555,46 @@ In the second case the calculation was limited.
 ====
 
 * `steps` limits the number of elementary steps in the execution.
-The task will stop after this many steps (planned feature).
+The task will stop after this many steps.
+When a task exceeds the step limit the task `is_done()` and `is_err()` methods will return `true`.
+The error message will indicate the step limit that was reached.
+
+.source of snippet `async_step_limit`
+
+[source]
+----
+let z=async[ steps= 100] {
+    loop{
+        mut i= 0
+        } while{
+        print $"${i++} "
+    }
+}
+
+// sleep 100ms, should be enough to timeout
+sleep 0.1
+
+println "\nResults are true, true and false"
+println $"  z is done ${z.is_done()}"
+println $"  z is err ${z.is_err()}"
+println $"  z is timeout ${z.is_timeout()}, it is step limit, not time"
+println $"  ${z.get_err()}"
+
+----
+
+.output of snippet `async_step_limit`
+[source]
+----
+0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 
+Results are true, true and false
+  z is done true
+  z is err true
+  z is timeout false is is step limit, not time
+  Step limit 100 reached
+
+----
+
+
 
 * `time` limits the time of the task, unit is seconds.
 The task will stop after the specified time.
@@ -6644,9 +6686,9 @@ fn sleeper( x ){
 [source]
 ----
 [1, 2, 3]
-314.867916ms
+315.1715ms
 [1, 2, 3]
-107.414167ms
+105.4715ms
 
 ----
 
@@ -6856,11 +6898,9 @@ a =3.6820276497695854
 a =3.6063454894655185
 a =3.6055513629176015
 a =3.6055512754639905
-a =3.6055512754639896
-a =3.6055512754639896
-sqrt(13) ≈ 3.6055512754639896
+sqrt(13) ≈ 3.6055513629176015
 sqrt(13) ≈ 3.605551275463989 calculated by java Math
-square ≈ 13.000000000000002
+square ≈ 13.000000630636974
 
 ----
 
@@ -12566,8 +12606,8 @@ println jsonify_beauty(java_import("ch.turic.exceptions"))
 {
     "UnexpectedCharacter": JavaClass[klass=class ch.turic.exceptions.UnexpectedCharacter],
     "StringNotTerminated": JavaClass[klass=class ch.turic.exceptions.StringNotTerminated],
-    "ch.turic.exceptions.StringNotTerminated": JavaClass[klass=class ch.turic.exceptions.StringNotTerminated],
     "ch.turic.exceptions.BadSyntax": JavaClass[klass=class ch.turic.exceptions.BadSyntax],
+    "ch.turic.exceptions.StringNotTerminated": JavaClass[klass=class ch.turic.exceptions.StringNotTerminated],
     "ExecutionException": JavaClass[klass=class ch.turic.exceptions.ExecutionException],
     "BadSyntax": JavaClass[klass=class ch.turic.exceptions.BadSyntax],
     "ch.turic.exceptions.ExecutionException": JavaClass[klass=class ch.turic.exceptions.ExecutionException],
@@ -13109,7 +13149,7 @@ println nano_time()
 .output of snippet `nano_time`
 [source]
 ----
-38573006224916
+61088775961125
 
 ----
 
@@ -13385,83 +13425,82 @@ none
 .output of snippet `que`
 [source]
 ----
-task1 is not ready 0
-task2 is ready 1
 task2 is not ready 0
+task1 is ready 1
+task1 is not ready 0
 task2 is not ready 1
 task1 is not ready 1
-task2 is not ready 2
-task1 is not ready 2
-task2 is not ready 3
-task1 is not ready 3
+task2 is not ready 2task1 is not ready 2
+
 task2 is ready 2
 task2 is not ready 0
-task1 is not ready 4
-task2 is not ready 1
-task1 is not ready 5
-task2 is not ready 2
-task1 is not ready 6
-task2 is not ready 3
-task1 is ready 3
-task1 is not ready 0
-task2 is not ready 4
-task1 is not ready 1
-task2 is not ready 5
-task1 is not ready 2
 task1 is not ready 3
-task2 is ready 4
-task2 is not ready 0
-task1 is not ready 4
 task2 is not ready 1
-task1 is not ready 5
-task2 is not ready 2
-task1 is ready 5
-task1 is not ready 0
-task2 is not ready 3
-task1 is not ready 1
-task2 is not ready 4
-task2 is not ready 5
-task1 is not ready 2
-task2 is not ready 6task1 is ready 6
+task1 is not ready 4
+task1 is not ready 5task2 is not ready 2
 
-task1 is not ready 0
-task2 is not ready 7
-task1 is not ready 1
-task1 is not ready 2
-task2 is not ready 8
-task1 is not ready 3task2 is not ready 9
-
-task1 is not ready 4task2 is ready 7
+task1 is not ready 6task2 is ready 3
 
 task2 is not ready 0
-task1 is not ready 5task2 is not ready 1
-
-task2 is ready 8
-task2 is not ready 0
-task1 is not ready 6
 task2 is not ready 1task1 is not ready 7
 
-task1 is not ready 8task2 is not ready 2
+task2 is not ready 2task1 is not ready 8
 
-task2 is not ready 3task1 is not ready 9
-
-task2 is not ready 4task1 is ready 9
-
+task1 is ready 4
+task2 is not ready 3
 task1 is not ready 0
-task1 is not ready 1task2 is not ready 5
+task1 is not ready 1task2 is not ready 4
 
 task1 is not ready 2
-task2 is not ready 6
+task2 is not ready 5
+task2 is not ready 6task1 is not ready 3
+
+task1 is ready 5
+task1 is not ready 0
+task2 is not ready 7
+task2 is not ready 8
+task1 is not ready 1
+task2 is not ready 9task1 is not ready 2
+
+task1 is not ready 3
+task2 is ready 6
+task2 is not ready 0
+task1 is not ready 4
+task2 is not ready 1
+task2 is not ready 2
+task1 is not ready 5
+task1 is not ready 6task2 is ready 7
+
+task2 is not ready 0
+task1 is not ready 7
+task2 is not ready 1
+task1 is not ready 8task2 is not ready 2
+
+task1 is not ready 9task2 is ready 8
+
+task2 is not ready 0
+task1 is not ready 10
+task2 is not ready 1
+task1 is not ready 11task2 is not ready 2
+
+task1 is not ready 12
+task2 is ready 9
+task2 is not ready 0
+task2 is not ready 1
+task1 is not ready 13
+task1 is not ready 14
+task2 is not ready 2
 closing the channel
 channel is closed
+task1 is not ready 15
 1 is done false
 2 is done false
 we start to wait the first time
 task2 is done
-task1 is done
-task1 done true
+task1 done false
 task2 done true
 We start to wait the second time
+task1 is done
 task1 done true
 task2 done true
 
@@ -14005,7 +14044,7 @@ println sleep(0.001) // sleep one milli
 .output of snippet `sleep`
 [source]
 ----
-0.001
+0.002
 
 ----
 
@@ -14434,10 +14473,10 @@ none
 [source]
 ----
 sending 1
+not ready 0
 received 1
 not ready 0
 not ready 1
-not ready 2
 sending 2
 received 2
 not ready 0
