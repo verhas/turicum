@@ -8,6 +8,1161 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 == Introduction
 
 === What is Turicum?
@@ -386,7 +1541,7 @@ Numeric literals can be either integers or floating-point numbers.
 
 [source]
 ----
-mut z = 0xFfE3;
+mut z= 0xFfE3 ;
 println z
 
 ----
@@ -1251,9 +2406,9 @@ The example below demonstrates the shortcut evaluation, as it works and does not
 
 [source]
 ----
-if (7&2) == 3 && 5/0 == inf {
+if(7 & 2) == 3 && 5 / 0 == inf {
     println "something is wrong"
-}else{
+    } else{
     println "dandy"
 }
 
@@ -1652,6 +2807,7 @@ The example functionality is incrementing, decrementing a field, but the actual 
 
 [source]
 ----
+// stochastic
 class Incrementable {
     fn init(counter:num=0);
 
@@ -1684,15 +2840,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=4FF4357F
+h id=499EF98E
 h after post increment: 1
 k: 0
-h id=49CB9CB5
-k id=4FF4357F
+h id=24934262
+k id=499EF98E
 h after pre increment: 2
 z: 2
-h id=55322AAB
-z id=55322AAB
+h id=93F432E
+z id=93F432E
 
 ----
 
@@ -1704,6 +2860,7 @@ You can track the different object instances using the hex output from the `id_h
 
 [source]
 ----
+// stochastic
 class Incrementable {
     fn init(counter:num=0);
 
@@ -1737,15 +2894,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=146587A2
+h id=5B051A5C
 h after post increment: 1
 k: 1
-h id=146587A2
-k id=146587A2
+h id=5B051A5C
+k id=5B051A5C
 h after pre increment: 2
 z: 2
-h id=146587A2
-z id=146587A2
+h id=5B051A5C
+z id=5B051A5C
 
 ----
 
@@ -1761,6 +2918,7 @@ The next two examples implement the same functionality for the `--` operator.
 
 [source]
 ----
+// stochastic
 class Decrementable {
     fn init(counter:num=0);
 
@@ -1793,15 +2951,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=F14A7D4
+h id=4AAAE508
 h after post decrement: -1
 k: 0
-h id=29A5F4E7
-k id=F14A7D4
+h id=6009BEA
+k id=4AAAE508
 h after pre decrement: -2
 z: -2
-h id=79C97CB
-z id=79C97CB
+h id=7BC6D27A
+z id=7BC6D27A
 
 ----
 
@@ -1810,6 +2968,7 @@ z id=79C97CB
 
 [source]
 ----
+// stochastic
 class Decrementable {
     fn init(counter:num=0);
 
@@ -1843,15 +3002,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=27E47833
+h id=27ACE0B1
 h after post decrement: -1
 k: -1
-h id=27E47833
-k id=27E47833
+h id=27ACE0B1
+k id=27ACE0B1
 h after pre decrement: -2
 z: -2
-h id=27E47833
-z id=27E47833
+h id=27ACE0B1
+z id=27ACE0B1
 
 ----
 
@@ -2082,7 +3241,6 @@ The significant difference between the two is that the code between `()` is exec
 
 [source]
 ----
-
 println "2*3=",2*(mut s=3)
 println "s is defined and it is ",s
 println "2*3=",2*{mut k=3}
@@ -2579,7 +3737,6 @@ The following is a simple example when the mapping copies the values from an obj
 
 [source]
 ----
-
 let z = { a: "apple", b:"bier", c : "count" }
 let {a, b, c} = z
 println a
@@ -2605,7 +3762,6 @@ It is not an error if there are fields in the object that are not read during th
 
 [source]
 ----
-
 let z = { a: "apple", b:"bier", c : "count" , d: "not used" }
 let {a, b, c, f} = z
 println a
@@ -3011,55 +4167,55 @@ This temporary command returns the current value of the left value when evaluate
 
 [source]
 ----
-mut z = 3
-println "z=",z
-z += 1;
-println "z +=1 :",z
-z -= 1;
-println "z -=1 :",z
-z *= 4;
-println "z *=4 :",z
-z /= 2;
-println "z /=2 :",z
-z %= 5;
-println "z %=5 :",z
-z |=128;
-println "z |=128 :",z
-z &= 7;
-println "z &=0x7F :",z
-z ^= 0xFF;
-println "z ^=0xFF :",z
-z **= 2;
-println "z **=2 :",z
+mut z= 3
+println "z=", z
+z += 1 ;
+println "z +=1 :", z
+z -= 1 ;
+println "z -=1 :", z
+z *= 4 ;
+println "z *=4 :", z
+z /= 2 ;
+println "z /=2 :", z
+z %= 5 ;
+println "z %=5 :", z
+z |= 128 ;
+println "z |=128 :", z
+z &= 7 ;
+println "z &=0x7F :", z
+z ^= 0xFF ;
+println "z ^=0xFF :", z
+z **= 2 ;
+println "z **=2 :", z
 z or= inf;
-println "z or=inf :",z
+println "z or=inf :", z
 z <<= 2
-println "z <<=2 :",z
-z >>=2
-println "z >>=2 :",z
-z >>>=2
-println "z >>>=2 :",z
-z >>>=2
-println "z >>>=2 :",z
-z >>>=2
-println "z >>>=2 :",z
-z >>>=2
-println "z >>>=2 :",z
-z >>>=2
-println "z >>>=2 :",z
-z >>>=2
-println "z >>>=2 :",z
-z >>>=2
-println "z >>>=2 :",z
-z >>>=2
-println "z >>>=2 :",z
+println "z <<=2 :", z
+z >>= 2
+println "z >>=2 :", z
+z >>>= 2
+println "z >>>=2 :", z
+z >>>= 2
+println "z >>>=2 :", z
+z >>>= 2
+println "z >>>=2 :", z
+z >>>= 2
+println "z >>>=2 :", z
+z >>>= 2
+println "z >>>=2 :", z
+z >>>= 2
+println "z >>>=2 :", z
+z >>>= 2
+println "z >>>=2 :", z
+z >>>= 2
+println "z >>>=2 :", z
 
-mut b = true
-println "b=",b
+mut b=true
+println "b=", b
 b &&= false;
-println "b &&=false :",b
+println "b &&=false :", b
 b ||= true;
-println "b ||=true :",b
+println "b ||=true :", b
 
 ----
 
@@ -4868,11 +6024,11 @@ You cannot use `continue` with a value in a loop that does not result a list:
 
 [source]
 ----
-try: let k = {for each z in [1,2,3] {
-    continue z/2 when z % 2 == 0;
-    continue z;
+try:let k={ for each z in[1, 2, 3] {
+        continue z / 2 when z % 2 == 0 ;
+        continue z;
     }
-}catch e: println e
+} catch e:println e
 
 ----
 
@@ -5228,8 +6384,7 @@ You can execute any command asynchronously using the `async` command.
 You simply have to write `async` in front of the command.
 The command will start the execution in a separate thread (Java 21 virtual thread) and the starting thread will go on executing.
 
-The return value of the `async` command is a handler to the started task.
-The type is `task`.
+The return value of the `async` command is a `task`.
 
 To wait for the finishing of an asynchronously started command, you should use the `await` command.
 It will also result in the value returned by the task.
@@ -5241,17 +6396,17 @@ The `yield` command inside the task will either receive an object or send an obj
 
 [source]
 ----
-mut t:task = async {
-    for i=0 ; i < 10 ; i++ {
+mut t: task=async{
+    for i= 0 ; i < 10 ; i ++ {
         yield i
     }
     55
 }
 
-while t.has_next():
-    print t.next(), " "
+    while t.has_next() :
+print t.next(), " "
 println()
-println(await t)
+println( await t )
 
 
 ----
@@ -5271,6 +6426,8 @@ A task object implements the following methods:
 * `is_done` is `true` when the task has finished.
 
 * `is_cancelled` is `true` when the task was cancelled
+
+* `is_timeout` is `true` when the task was stopped due to timeout
 
 * `is_err` is `true` when the task ended in an error
 
@@ -5306,12 +6463,11 @@ If you do not limit the channel size, the generator will run ahead and fill in t
 Limiting the channel size you can balance the calculations.
 The generator will stop when it has generated enough numbers and starts when some of the result is consumed.
 
-
 .source of snippet `channel_limit`
 
 [source]
 ----
-
+// stochastic
 /**
   * a very simple prime number filter
   */
@@ -5365,23 +6521,23 @@ execute("Thread 2",2)
 Thread 1 generated  prime read 3
 3
 Thread 1 generated 5
- prime read 5
 Thread 1 generated 7
- prime read 7
 Thread 1 generated 11
+ prime read 5
 Thread 1 generated 13
+ prime read 7
 Thread 1 generated 17
 Thread 1 generated 19
 Thread 1 generated 23
 stopping
 exception Task stopped.
-Thread 2 generated 3
  prime read 2
- prime read 3
-Thread 2 prime read  generated 5
-5
-Thread 2 generated  prime read 7
-7
+Thread 2 prime read  generated 3
+3
+Thread 2 generated 5
+ prime read 5
+Thread 2 generated 7
+ prime read 7
 Thread 2 generated 11
 Thread 2 generated 13
 stopping
@@ -5398,15 +6554,62 @@ In the second case the calculation was limited.
 * `steps` limits the number of elementary steps in the execution.
 The task will stop after this many steps (planned feature).
 
-* `times` limits the time of the task, unit is milliseconds.
-The task will stop after the specified time (planned feature).
+* `time` limits the time of the task, unit is seconds.
+The task will stop after the specified time.
+When a task times out the underlying thread stops and the task `is_done()`, `is_err()`, and `is_timeout()` methods will return true
 
 These parameters can be specified after the `async` keyword between `[` and `]` characters.
-When the command to be executed asynchronously starts with a `[` character you either has to have `[]` in front of it or enclose the command between `(` and `)` or `+{+` and `+}+` to help the syntax analysis.
+When the command to be executed asynchronously starts with a `[` character you either has to have `[]` in front of it,
+or enclose the command between `(` and `)` or `+{+` and `+}+` to help the syntax analysis.
+
+.source of snippet `async_timeout`
+
+[source]
+----
+let z=async[ time= 1 / 20] {
+    while{
+        //burn some CPU doing nothing
+    }
+}
+
+// sleep 100ms, should be enough to timeout
+sleep 0.1
+
+println "All three results should be true"
+println $"  z is done ${z.is_done()}"
+println $"  z is err ${z.is_err()}"
+println $"  z is timeout ${z.is_timeout()}"
+
+----
+
+.output of snippet `async_timeout`
+[source]
+----
+All three results should be true
+  z is done true
+  z is err true
+  z is timeout true
+
+----
+
+
 
 The command can also execute a list parallel.
 When the expression to execute asynchronously is a list literal, then the command will execute the individual elements of the list parallel.
 In that case the result is a list of tasks instead of a task that results in a list.
+
+[NOTE]
+====
+You should not enclose the list literal between `(` and `)` using async.
+
+* `[1, 2, 3]` is a list literal.
+`async` will evaluate it as a parallel list.
+
+* `([1, 2, 3])`, and `{[1, 2, 3]}` are block commands with a list literal in them.
+`async` will evaluate the block as a single command.
+
+The only way to create an async list is to provide the possibly empty options as in the next example.
+====
 
 The following example creates a list of `[1,2,3]` in the conventional way and also parallel.
 It prints out the elapsed time using the built-in `nano_time` function.
@@ -5415,23 +6618,24 @@ It prints out the elapsed time using the built-in `nano_time` function.
 
 [source]
 ----
-fn sleeper(x) {
+// stochastic
+fn sleeper( x ){
     sleep 0.1
     x
-    }
-{
-mut start = nano_time()
-mut serial = [sleeper(1), sleeper(2), sleeper(3)]
-mut end = nano_time()
-println serial
-println( (end-start)/1000000, "ms")
 }
 {
-mut start = nano_time()
-mut serial = [ ..async([sleeper(1), sleeper(2), sleeper(3)]) -> it.get() ]
-mut end = nano_time()
-println serial
-println( (end-start)/1000000, "ms")
+    mut start=nano_time()
+    mut serial=[ sleeper(1), sleeper(2), sleeper(3) ]
+    mut end=nano_time()
+    println serial
+    println( ( end - start ) / 1000000, "ms")
+}
+{
+    mut start=nano_time()
+    mut serial=[ .. (async[][ sleeper(1), sleeper(2), sleeper(3) ])  -> it.get() ]
+    mut end=nano_time()
+    println serial
+    println( ( end - start ) / 1000000, "ms")
 }
 
 ----
@@ -5440,9 +6644,9 @@ println( (end-start)/1000000, "ms")
 [source]
 ----
 [1, 2, 3]
-324.801084ms
-[]
-333.547875ms
+314.867916ms
+[1, 2, 3]
+107.414167ms
 
 ----
 
@@ -5623,6 +6827,7 @@ It shows how reactive cells can update each other iteratively until convergence 
 
 [source]
 ----
+// stochastic
 mut _sqrt = {
     flow until epsilon < 0.0001 {
         a <- 13;
@@ -5668,6 +6873,7 @@ It simulates a long-running or slow computation and demonstrates how flow execut
 
 [source]
 ----
+// stochastic
 mut result = {try {
     flow timeout 0.01 {  // 10 milliseconds
         counter <- 0;
@@ -5705,7 +6911,6 @@ It shows how the system halts with a clear error message once the execution limi
 
 [source]
 ----
-
 mut result = {try {
                flow limit 5 {
                    x <- 1;
@@ -7582,12 +8787,12 @@ Every function call that has a closure as the last parameter can act as a decora
 [source]
 ----
 fn closure_decorator(^closure){
-  {|| println("We start"); closure(); println("We finish")}
-}
+    {|| println("We start"); closure(); println("We finish")}
+  }
 
-mut z = closure_decorator(){|| println("We are closure") }
+  mut z = closure_decorator(){|| println("We are closure") }
 
-z()
+  z()
 
 ----
 
@@ -7609,12 +8814,12 @@ If you add a `@` then the result is the same:
 [source]
 ----
 fn closure_decorator(^closure){
-  {|| println("We start@"); closure(); println("We finish@")}
-}
+    {|| println("We start@"); closure(); println("We finish@")}
+  }
 
-mut z = @closure_decorator(){|| println("We are closure") }
+  mut z = @closure_decorator(){|| println("We are closure") }
 
-z()
+  z()
 
 ----
 
@@ -7637,7 +8842,7 @@ When the `@` precedes the function call, a `fn` or `class` are also recognized a
 
 [source]
 ----
-  fn fun_decorator(^closure){
+fn fun_decorator(^closure){
     {|| println("We start the fun"); closure(); println("The fun is over")}
   }
 
@@ -7672,7 +8877,7 @@ The code can, however, be fixed, not onlyusing `@` but also passing the function
 
 [source]
 ----
-  fn fun_decorator(^closure){
+fn fun_decorator(^closure){
     {|| println("We start the fun"); closure(); println("The fun is over")}
   }
 
@@ -10441,11 +11646,11 @@ It means that all classes, including the parents of the parents and so on, are r
 
 [source]
 ----
-class A {}
-class B : A {}
-mut K = class : B {}
-println all_parents(K)
-println([ ..all_parents(K) -> type(it()) ])
+class A { }
+class B: A { }
+mut K=class: B { }
+println all_parents( K )
+println( [ .. all_parents( K ) -> type( it() ) ] )
 
 ----
 
@@ -10471,8 +11676,8 @@ This function supports reflective programming and is likely used together with t
 
 [source]
 ----
-let z = thunk({let k = 5})
-println jsonify_beauty(as_object(z))
+let z=thunk( { let k= 5 } )
+println jsonify_beauty( as_object( z ) )
 
 ----
 
@@ -10527,10 +11732,10 @@ The arguments `[rest]`, `{meta}`, and `^closure` do ot count into the arity.
 
 [source]
 ----
-fn a(x,z,h){}
-fn b(x,z,{h}){}
-println arity(a)
-println arity(b)
+fn a( x, z, h ){ }
+fn b( x, z,{ h } ){ }
+println arity( a )
+println arity( b )
 
 ----
 
@@ -11361,10 +12566,10 @@ println jsonify_beauty(java_import("ch.turic.exceptions"))
 {
     "UnexpectedCharacter": JavaClass[klass=class ch.turic.exceptions.UnexpectedCharacter],
     "StringNotTerminated": JavaClass[klass=class ch.turic.exceptions.StringNotTerminated],
-    "ch.turic.exceptions.BadSyntax": JavaClass[klass=class ch.turic.exceptions.BadSyntax],
     "ch.turic.exceptions.StringNotTerminated": JavaClass[klass=class ch.turic.exceptions.StringNotTerminated],
-    "BadSyntax": JavaClass[klass=class ch.turic.exceptions.BadSyntax],
+    "ch.turic.exceptions.BadSyntax": JavaClass[klass=class ch.turic.exceptions.BadSyntax],
     "ExecutionException": JavaClass[klass=class ch.turic.exceptions.ExecutionException],
+    "BadSyntax": JavaClass[klass=class ch.turic.exceptions.BadSyntax],
     "ch.turic.exceptions.ExecutionException": JavaClass[klass=class ch.turic.exceptions.ExecutionException],
     "ch.turic.exceptions.UnexpectedCharacter": JavaClass[klass=class ch.turic.exceptions.UnexpectedCharacter]
 }
@@ -11788,9 +12993,9 @@ The argument can be:
 
 [source]
 ----
-
 println len("abc")
 println len([1,2,3])
+
 
 ----
 
@@ -11896,6 +13101,7 @@ Unlike timestamps, the returned value has no absolute meaning but is strictly mo
 
 [source]
 ----
+// stochastic
 println nano_time()
 
 ----
@@ -11903,7 +13109,7 @@ println nano_time()
 .output of snippet `nano_time`
 [source]
 ----
-3919733826441333
+38573006224916
 
 ----
 
@@ -12121,6 +13327,7 @@ Here is a complex example using this function:
 
 [source]
 ----
+// stochastic
 /**
  * A printing function that will print the objects received through the que `q` till it gets closed.
  */
@@ -12178,68 +13385,16 @@ none
 .output of snippet `que`
 [source]
 ----
+task1 is not ready 0
+task2 is ready 1
 task2 is not ready 0
-task1 is ready 1
-task1 is not ready 0
-task2 is not ready 1task1 is not ready 1
-
-task2 is not ready 2
-task1 is not ready 2
-task1 is not ready 3
-task2 is not ready 3
-task2 is not ready 4
-task1 is ready 2
-task1 is not ready 0
-task2 is not ready 5task1 is not ready 1
-
-task1 is not ready 2task2 is not ready 6
-
-task1 is ready 3task2 is not ready 7
-
-task1 is not ready 0
-task2 is not ready 8task1 is not ready 1
-
-task1 is not ready 2task2 is not ready 9
-
-task1 is not ready 3
-task2 is ready 4
-task2 is not ready 0
-task1 is not ready 4
 task2 is not ready 1
-task1 is not ready 5
-task2 is not ready 2
-task1 is not ready 6task2 is ready 5
-
-task2 is not ready 0
-task1 is not ready 7task2 is not ready 1
-
-task1 is not ready 8
-task2 is not ready 2
-task2 is not ready 3task1 is ready 6
-
-task1 is not ready 0
-task1 is not ready 1task2 is not ready 4
-
-task1 is not ready 2task2 is not ready 5
-
-task2 is not ready 6task1 is not ready 3
-
-task1 is not ready 4task2 is ready 7
-
-task2 is not ready 0
-task2 is not ready 1task1 is not ready 5
-
-task1 is not ready 6task2 is not ready 2
-
-task1 is ready 8task2 is not ready 3
-
-task1 is not ready 0
-task2 is not ready 4
 task1 is not ready 1
-task2 is not ready 5
+task2 is not ready 2
 task1 is not ready 2
-task2 is ready 9
+task2 is not ready 3
 task1 is not ready 3
+task2 is ready 2
 task2 is not ready 0
 task1 is not ready 4
 task2 is not ready 1
@@ -12247,6 +13402,56 @@ task1 is not ready 5
 task2 is not ready 2
 task1 is not ready 6
 task2 is not ready 3
+task1 is ready 3
+task1 is not ready 0
+task2 is not ready 4
+task1 is not ready 1
+task2 is not ready 5
+task1 is not ready 2
+task1 is not ready 3
+task2 is ready 4
+task2 is not ready 0
+task1 is not ready 4
+task2 is not ready 1
+task1 is not ready 5
+task2 is not ready 2
+task1 is ready 5
+task1 is not ready 0
+task2 is not ready 3
+task1 is not ready 1
+task2 is not ready 4
+task2 is not ready 5
+task1 is not ready 2
+task2 is not ready 6task1 is ready 6
+
+task1 is not ready 0
+task2 is not ready 7
+task1 is not ready 1
+task1 is not ready 2
+task2 is not ready 8
+task1 is not ready 3task2 is not ready 9
+
+task1 is not ready 4task2 is ready 7
+
+task2 is not ready 0
+task1 is not ready 5task2 is not ready 1
+
+task2 is ready 8
+task2 is not ready 0
+task1 is not ready 6
+task2 is not ready 1task1 is not ready 7
+
+task1 is not ready 8task2 is not ready 2
+
+task2 is not ready 3task1 is not ready 9
+
+task2 is not ready 4task1 is ready 9
+
+task1 is not ready 0
+task1 is not ready 1task2 is not ready 5
+
+task1 is not ready 2
+task2 is not ready 6
 closing the channel
 channel is closed
 1 is done false
@@ -12792,6 +13997,7 @@ It is the same as the argument or a bit more.
 
 [source]
 ----
+// stochastic
 println sleep(0.001) // sleep one milli
 
 ----
@@ -12896,7 +14102,6 @@ This method returns the type of the argument as a string.
 
 [source]
 ----
-
 mut s = "13"; mut i = 13; mut d = 3.14;
 
 mut err
@@ -13191,6 +14396,7 @@ It returns `none` if there is no message or the channel is closed.
 
 [source]
 ----
+// stochastic
 fn printer(){
     mut n = 0
     while {
@@ -13228,10 +14434,10 @@ none
 [source]
 ----
 sending 1
-not ready 0
 received 1
 not ready 0
 not ready 1
+not ready 2
 sending 2
 received 2
 not ready 0

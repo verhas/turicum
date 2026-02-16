@@ -1,5 +1,6 @@
 package ch.turic;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Files;
@@ -18,8 +19,13 @@ public class TestReferenceSingleScript {
      * Where turi.ref is either:
      * - snippet name (e.g. "len")
      * - or file name (e.g. "len.turi")
+     * <p>
+     * The test is intentionally disabled, so it does not run during build where no actual test was selected.
+     * The tests are all executed from other tests. This test method is a development aux helper that can be used
+     * from the commandline to execute a single test as defined in the {@code turi.ref} system variable.
      */
     @Test
+    @Disabled
     void runOneReferenceScriptFromProperty() throws Exception {
         final var raw = System.getProperty("turi.ref");
         final var file = getPath(raw);

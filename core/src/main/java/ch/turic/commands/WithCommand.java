@@ -244,7 +244,7 @@ public class WithCommand extends AbstractCommand {
             final AtomicBoolean suppressExceptions,
             final ArrayList<RuntimeException> closeExceptions) {
         final var param = exception != null
-                ? LngException.build(context, exception, context.threadContext.getStackTrace())
+                ? LngException.build(context, exception, context.threadContext)
                 : null;
         for (final var lngObject : lngObjects.reversed()) {
             try {

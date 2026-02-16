@@ -11,11 +11,17 @@ import java.util.List;
  */
 public class ThreadContext {
     private Yielder yielder = null;
+    private volatile boolean aborted = false;
 
     public void abort() {
+        aborted = true;
         if (thread != null) {
             thread.interrupt();
         }
+    }
+
+    public boolean isAborted() {
+        return aborted;
     }
 
     private Thread thread;

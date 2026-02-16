@@ -7,15 +7,38 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * Debounce + latest-wins + single-flight gate with a one-step open().
- * <p>
- * Usage:
- * <pre>
- *   try (var lease = gate.open()) {
- *     if (lease == null) return; // superseded or closed
+ * A concurrency gate implementing <em>debounce</em> + <em>latest-wins</em> + <em>single-flight</em>
+ * semantics for expensive operations.
+ *
+ * <h2>Concept</h2>
+ * Multiple threads may signal that expensive work should run (e.g., re-index, re-parse, re-compute).
+ * This class ensures:
+ * <ul>
+ *   <li><b>Debounce:</b> work starts only after a configured quiet period has elapsed without a newer request.</li>
+ *   <li><b>Latest-wins:</b> if a newer request arrives while you are waiting, your attempt is cancelled.</li>
+ *   <li><b>Single-flight:</b> at most one caller may run the expensive section at any time.</li>
+ * </ul>
+ *
+ * <h2>Typical usage</h2>
+ * Call {@link #open()} when you want to run the expensive work. If it returns a {@link Lease},
+ * you own the single-flight slot and may proceed. Always release the lease.
+ *
+ * <pre>{@code
+ * try (var lease = gate.open()) {
+ *     if (lease == null) {
+ *         return; // superseded by a newer request, or gate has been closed
+ *     }
  *     // ... expensive work ...
- *   }
- * </pre>
+ * }
+ * }</pre>
+ *
+ * <h2>Cancellation model</h2>
+ * Cancellation is cooperative: a caller learns it has lost by receiving {@code null} from
+ * {@link #open()}, or (optionally) by checking {@link Lease#isStillLatest()} during computation.
+ *
+ * <h2>Thread interruption</h2>
+ * {@link #open()} is interruptible. If the current thread is interrupted while waiting,
+ * it throws {@link InterruptedException} and does not acquire a lease.
  */
 public final class SlowStart implements AutoCloseable {
 
@@ -24,6 +47,12 @@ public final class SlowStart implements AutoCloseable {
 
     private final long quietPeriodNanos;
 
+
+    /**
+     * {@code true} once this gate has been permanently closed.
+     * <p>
+     * <b>Guarded by {@link #lock}:</b> all reads/writes must hold {@code lock} (no {@code volatile} needed).
+     */
     private boolean closed = false;
 
     /**
@@ -32,10 +61,17 @@ public final class SlowStart implements AutoCloseable {
     private long generation = 0;
 
     /**
-     * True, while expensive work is currently running under a lease.
+     * {@true} while expensive work is currently running under a lease.
      */
     private boolean running = false;
 
+    /**
+     * Creates a new gate with the given debounce window.
+     *
+     * @param quietPeriod the minimum time that must pass without a newer request before work may start
+     * @throws NullPointerException if {@code quietPeriod} is {@code null}
+     * @throws IllegalArgumentException if {@code quietPeriod} is zero or negative
+     */
     public SlowStart(Duration quietPeriod) {
         Objects.requireNonNull(quietPeriod, "quietPeriod");
         if (quietPeriod.isZero() || quietPeriod.isNegative()) {
@@ -45,11 +81,20 @@ public final class SlowStart implements AutoCloseable {
     }
 
     /**
-     * Announces interest in doing expensive work.
-     * <p>
-     * This method blocks for the debounce window and for single-flight availability.
+     * Announces interest in running the expensive operation and waits until it is allowed to start.
      *
-     * @return a Lease if the caller is allowed to run, or null if the caller was superseded or gate closed.
+     * <p>This method implements two sequential waiting phases:</p>
+     * <ol>
+     *   <li><b>Debounce phase:</b> wait until the quiet period elapses with no newer request.</li>
+     *   <li><b>Single-flight phase:</b> wait until no other thread is currently running under a lease.</li>
+     * </ol>
+     *
+     * <p><b>Latest-wins:</b> If a newer request arrives while you are waiting in either phase,
+     * this call returns {@code null}.</p>
+     *
+     * @return a {@link Lease} if the caller is permitted to run; {@code null} if superseded by a newer
+     *         request or if the gate was closed
+     * @throws InterruptedException if the current thread is interrupted while waiting
      */
     public Lease open() throws InterruptedException {
         final long myGen;
@@ -58,7 +103,6 @@ public final class SlowStart implements AutoCloseable {
         lock.lockInterruptibly();
         try {
             if (closed) return null;
-
             generation++;
             myGen = generation;
             deadline = System.nanoTime() + quietPeriodNanos;
@@ -99,6 +143,18 @@ public final class SlowStart implements AutoCloseable {
         }
     }
 
+    /**
+     * Permanently closes this gate.
+     *
+     * <p>After closing:</p>
+     * <ul>
+     *   <li>All current and future {@link #open()} calls return {@code null} (or may be unblocked to do so).</li>
+     *   <li>Any threads waiting inside {@link #open()} are awakened so they can observe the closed state.</li>
+     * </ul>
+     *
+     * <p>Closing the gate does not forcibly stop already-running work; it only prevents new leases from being
+     * granted and allows cooperative cancellation checks via {@link Lease#isStillLatest()}.</p>
+     */
     @Override
     public void close() {
         lock.lock();
@@ -110,6 +166,14 @@ public final class SlowStart implements AutoCloseable {
         }
     }
 
+    /**
+     * A lease representing permission to run the expensive operation.
+     *
+     * <p>Only one lease may be active at a time (single-flight). Closing the lease releases the slot and wakes
+     * up waiting callers.</p>
+     *
+     * <p>Leases are intended to be used with try-with-resources.</p>
+     */
     public final class Lease implements AutoCloseable {
         private final long myGen;
         private boolean released = false;
@@ -119,8 +183,9 @@ public final class SlowStart implements AutoCloseable {
         }
 
         /**
-         * Release the single-flight lock.
-         * Always call via try-with-resources.
+         * Releases the single-flight slot held by this lease.
+         *
+         * <p>This method is idempotent: calling it multiple times has no additional effect.</p>
          */
         @Override
         public void close() {
@@ -141,8 +206,13 @@ public final class SlowStart implements AutoCloseable {
         }
 
         /**
-         * Optional: exposes whether this lease still corresponds to the latest generation.
-         * Useful if you want to bail out mid-computation.
+         * Returns whether this lease still corresponds to the latest request generation and the gate is open.
+         *
+         * <p>This is an optional cooperative cancellation hook: long-running computations can periodically
+         * check this and abort early if a newer request arrived or the gate was closed.</p>
+         *
+         * @return {@code true} if the gate is not closed, and no newer request has superseded this lease;
+         *         {@code false} otherwise
          */
         public boolean isStillLatest() {
             lock.lock();

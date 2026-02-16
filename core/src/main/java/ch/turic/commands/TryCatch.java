@@ -46,7 +46,7 @@ public class TryCatch extends AbstractCommand {
         } catch (ExecutionException e) {
             final var catchContext = context.wrap();
             if (exceptionVariable != null) {
-                final var exception = LngException.build(context, e, context.threadContext.getStackTrace());
+                final var exception = LngException.build(context, e, context.threadContext);
                 if (context.containsLocal(exceptionVariable)) {
                     throw new ExecutionException("Variable '%s' used in catch is already defined", exceptionVariable);
                 }

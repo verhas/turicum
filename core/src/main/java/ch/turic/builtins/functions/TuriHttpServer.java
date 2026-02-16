@@ -108,7 +108,7 @@ public class TuriHttpServer implements TuriFunction {
                                 out.flush();
                             }
                         } catch (Exception e) {
-                            final var exception = Channel.Message.exception(LngException.build(handlerCtx, e, handlerCtx.threadContext.getStackTrace()));
+                            final var exception = Channel.Message.exception(LngException.build(handlerCtx, e, handlerCtx.threadContext));
                             channel.send((Channel.Message) exception);
                         }finally {
                             handlerCtx.close();

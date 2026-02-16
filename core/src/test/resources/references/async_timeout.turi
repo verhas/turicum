@@ -1,6 +1,6 @@
 let z=async[ time= 1 / 20] {
     while{
-        //sleep 1 / 1000
+        //burn some CPU doing nothing
     }
 }
 

@@ -3,6 +3,7 @@ package ch.turic.lsp;
 import ch.turic.analyzer.*;
 import org.eclipse.lsp4j.*;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -39,25 +40,34 @@ public class TuriCompletion {
         }
     }
 
+    private static final SlowStart completionGate = new SlowStart(Duration.ofMillis(100));
+
     public List<CompletionItem> completion(CompletionParams params) {
-        final var uri = params.getTextDocument().getUri();
-        final var source = documentManager.getContent(uri);
-        if (source == null) {
+        try (final var lease = completionGate.open()) {
+            if (lease != null) {
+                final var uri = params.getTextDocument().getUri();
+                final var source = documentManager.getContent(uri);
+                if (source == null) {
+                    return emptyCompletionList();
+                }
+                final var position = params.getPosition();
+                final String startString = TuricUtils.getWordAtPosition(source, position, uri);
+
+                final var lexes = Lexer.try_analyze(new Input(new StringBuilder(source), uri));
+                final var items = matchingIdentifiers(lexes, startString, uri);
+
+                items.addAll(keywords());
+
+                items.addAll(languageTemplates());
+
+                setDataForItems(items, new CompletionData(params.getTextDocument().getUri()));
+
+                return items;
+            }
+            return emptyCompletionList();
+        } catch (Exception e) {
             return emptyCompletionList();
         }
-        final var position = params.getPosition();
-        final String startString = TuricUtils.getWordAtPosition(source, position, uri);
-
-        final var lexes = Lexer.try_analyze(new Input(new StringBuilder(source), uri));
-        final var items = matchingIdentifiers(lexes, startString, uri);
-
-        items.addAll(keywords());
-
-        items.addAll(languageTemplates());
-
-        setDataForItems(items, new CompletionData(params.getTextDocument().getUri()));
-
-        return items;
     }
 
     private static List<CompletionItem> languageTemplates() {
@@ -152,8 +162,8 @@ public class TuriCompletion {
                 CompletionItemKind.Text
                 :
                 switch (tokenBeforeTheIdentifier.text()) {
-                    case Keywords.LET, Keywords.MUT, Keywords.FOR, Keywords.GLOBAL, Keywords.PIN
-                            -> CompletionItemKind.Variable;
+                    case Keywords.LET, Keywords.MUT, Keywords.FOR, Keywords.GLOBAL, Keywords.PIN ->
+                            CompletionItemKind.Variable;
                     case Keywords.FN -> CompletionItemKind.Function;
                     case Keywords.CLASS -> CompletionItemKind.Class;
                     default -> CompletionItemKind.Text;

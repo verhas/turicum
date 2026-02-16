@@ -8,9 +8,11 @@
 %}
 
 {%@snip:collect from=core/src/main/java%}
-{%@snip:collect ignoreErrors from=core/src/test/resources/references.turi%}
-{%@comment ignoreErrors is needed to avoid .turc binary file reading errors%}\
-{%@snip:collect ignoreErrors from=core/src/test/resources/references_output%}
+{%!#for [evalist] fn in ({%@listDir (pattern=".*\\.turi") core/src/test/resources/references/%})=
+{%@ident {%#snip:define {%@file (format="$bareNaked") fn%}={%@include [verbatim] fn%}%}
+%}
+%}
+{%@snip:collect from=core/src/test/resources/references_output%}
 
 {%@define S($X)=.source of snippet `$X`
 
@@ -1890,8 +1892,7 @@ You can execute any command asynchronously using the `async` command.
 You simply have to write `async` in front of the command.
 The command will start the execution in a separate thread (Java 21 virtual thread) and the starting thread will go on executing.
 
-The return value of the `async` command is a handler to the started task.
-The type is `task`.
+The return value of the `async` command is a `task`.
 
 To wait for the finishing of an asynchronously started command, you should use the `await` command.
 It will also result in the value returned by the task.
@@ -1906,6 +1907,8 @@ A task object implements the following methods:
 * `is_done` is `true` when the task has finished.
 
 * `is_cancelled` is `true` when the task was cancelled
+
+* `is_timeout` is `true` when the task was stopped due to timeout
 
 * `is_err` is `true` when the task ended in an error
 
@@ -1941,7 +1944,6 @@ If you do not limit the channel size, the generator will run ahead and fill in t
 Limiting the channel size you can balance the calculations.
 The generator will stop when it has generated enough numbers and starts when some of the result is consumed.
 
-
 {%S channel_limit%}
 
 In the output you can see that the calculation went ahead uselessly in the first case.
@@ -1951,15 +1953,32 @@ In the second case the calculation was limited.
 * `steps` limits the number of elementary steps in the execution.
 The task will stop after this many steps (planned feature).
 
-* `times` limits the time of the task, unit is milliseconds.
-The task will stop after the specified time (planned feature).
+* `time` limits the time of the task, unit is seconds.
+The task will stop after the specified time.
+When a task times out the underlying thread stops and the task `is_done()`, `is_err()`, and `is_timeout()` methods will return true
 
 These parameters can be specified after the `async` keyword between `[` and `]` characters.
-When the command to be executed asynchronously starts with a `[` character you either has to have `[]` in front of it or enclose the command between `(` and `)` or `+{+` and `+}+` to help the syntax analysis.
+When the command to be executed asynchronously starts with a `[` character you either has to have `[]` in front of it,
+or enclose the command between `(` and `)` or `+{+` and `+}+` to help the syntax analysis.
+
+{%S async_timeout%}
 
 The command can also execute a list parallel.
 When the expression to execute asynchronously is a list literal, then the command will execute the individual elements of the list parallel.
 In that case the result is a list of tasks instead of a task that results in a list.
+
+[NOTE]
+====
+You should not enclose the list literal between `(` and `)` using async.
+
+* `[1, 2, 3]` is a list literal.
+`async` will evaluate it as a parallel list.
+
+* `([1, 2, 3])`, and `{[1, 2, 3]}` are block commands with a list literal in them.
+`async` will evaluate the block as a single command.
+
+The only way to create an async list is to provide the possibly empty options as in the next example.
+====
 
 The following example creates a list of `[1,2,3]` in the conventional way and also parallel.
 It prints out the elapsed time using the built-in `nano_time` function.

@@ -10,6 +10,8 @@ import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.MarkupKind;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
+import java.time.Duration;
+
 public class TuriHover {
     final DocumentManager documentManager;
     final CancelChecker cancelChecker;
@@ -18,6 +20,8 @@ public class TuriHover {
         this.documentManager = documentManager;
         this.cancelChecker = cancelChecker;
     }
+
+    private static final SlowStart hoverGate = new SlowStart(Duration.ofMillis(100));
 
     /**
      * Provides hover information for a given position in a text document.
@@ -30,26 +34,32 @@ public class TuriHover {
      * @return a Hover object containing the relevant documentation or information in a specific format
      */
     public Hover hover(HoverParams params) {
-        final var position = params.getPosition();
-        final var uri = params.getTextDocument().getUri();
+        try (final var lease = hoverGate.open()) {
+            if (lease != null) {
+                final var position = params.getPosition();
+                final var uri = params.getTextDocument().getUri();
 
-        final var source = documentManager.getContent(uri);
-        if (source == null) {
-            return new Hover();
-        }
+                final var source = documentManager.getContent(uri);
+                if (source == null) {
+                    return new Hover();
+                }
 
-        final String id = TuricUtils.getWordAtPosition(source, position, uri);
-        if (id == null || id.isEmpty() || !Character.isAlphabetic(id.charAt(0))) {
+                final String id = TuricUtils.getWordAtPosition(source, position, uri);
+                if (id == null || id.isEmpty() || !Character.isAlphabetic(id.charAt(0))) {
+                    return emptyHover();
+                }
+
+                final var triplet = getHoverTriplet(source, uri, id);
+                if (triplet.docComment() == null) {
+                    return noDocumentedHover(triplet, id);
+                } else {
+                    return documentedHover(triplet, id, source);
+                }
+            }
+        } catch (Exception e) {
             return emptyHover();
         }
-
-        final var triplet = getHoverTriplet(source, uri, id);
-        if (triplet.docComment() == null) {
-            return noDocumentedHover(triplet, id);
-        } else {
-            return documentedHover(triplet, id, source);
-        }
-
+        return emptyHover();
     }
 
     /**
@@ -57,7 +67,7 @@ public class TuriHover {
      * The hover content is constructed using the identifier type, documentation comments, and source context.
      *
      * @param result a Triple object containing the documentation comment, identifier type, and line number
-     * @param id the identifier associated with the hover content
+     * @param id     the identifier associated with the hover content
      * @param source the source code text containing the relevant context
      * @return a Hover object containing the formatted documentation or source information in markdown format
      */
@@ -110,7 +120,8 @@ public class TuriHover {
      * Determines if the first line should be skipped based on whether it is empty or contains only whitespace.
      *
      * @param trimmed the string representing the first line, which has been trimmed of leading and trailing whitespace
-     * @return true if the first line is empty or contains only whitespace; false*/
+     * @return true if the first line is empty or contains only whitespace; false
+     */
     private static boolean isSkipEmptyFirstLine(String trimmed) {
         return trimmed.isBlank();
     }
@@ -126,7 +137,7 @@ public class TuriHover {
     private static String chopOffCommentStart(String trimmed) {
         if (trimmed.startsWith("/**")) {
             return trimmed.substring(3);
-        }else{
+        } else {
             return trimmed.substring(2);
         }
     }
@@ -152,7 +163,7 @@ public class TuriHover {
      * Otherwise, the hover will include the identifier type in bold followed by the identifier.
      *
      * @param result a Triple containing metadata including the identifier type, documentation comment, and line number
-     * @param id the identifier associated with the hover content
+     * @param id     the identifier associated with the hover content
      * @return a Hover object with markdown-formatted content based on the provided identifier and result information
      */
     private static Hover noDocumentedHover(Triple result, String id) {

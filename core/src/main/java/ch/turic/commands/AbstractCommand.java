@@ -147,6 +147,9 @@ public abstract class AbstractCommand implements Command, HasFields {
 
 
     public Object execute(final LocalContext ctx) throws ExecutionException {
+        if( ctx.threadContext.isAborted()) {
+            throw new RuntimeException("Execution aborted");
+        }
         final var sf = new LngStackFrame(this);
         final var dc = ctx.threadContext.getDebuggerContext();
         boolean step = handleDebugActions(ctx, dc);

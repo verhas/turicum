@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
@@ -25,13 +26,17 @@ public class TuriFormatter {
     private static final String RULES_RESOURCE = CONFIGURATION_DIRECTORY + "/" + FORMATTER_SUBDIR + "/" + RULES_FILE_NAME;
     private static final String INDENT_UNIT = "    ";
 
+    private static final SlowStart formatterGate = new SlowStart(Duration.ofMillis(100));
+
     public static String formatDocument(String content) {
-        try {
-            return formatDocument_(content);
+        try (final var lease = formatterGate.open()) {
+            if (lease != null) {
+                return formatDocument_(content);
+            }
         } catch (Throwable e) {
             ExceptionXmlWriter.writeToXml(e);
-            return content;
         }
+        return content;
     }
 
     private static String formatDocument_(String content) {
@@ -414,7 +419,7 @@ public class TuriFormatter {
 
     private static Rule[] loadRulesFile(String rulesTuriSource, String rulesPath) {
         try {
-            try (final var interpreter = new Interpreter(Input.fromString(rulesTuriSource,rulesPath))) {
+            try (final var interpreter = new Interpreter(Input.fromString(rulesTuriSource, rulesPath))) {
                 final var ruleTable = interpreter.compileAndExecute();
                 if (ruleTable instanceof LngList ruleList) {
                     final var loadedRules = new Rule[(int) ruleList.size()];

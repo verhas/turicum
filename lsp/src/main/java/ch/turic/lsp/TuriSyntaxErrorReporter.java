@@ -5,6 +5,7 @@ import ch.turic.exceptions.BadSyntax;
 import org.eclipse.lsp4j.*;
 import org.eclipse.lsp4j.services.LanguageClient;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -18,16 +19,22 @@ public class TuriSyntaxErrorReporter {
         this.documentManager = documentManager;
     }
 
+    private static final SlowStart syntaxReporterGate = new SlowStart(Duration.ofMillis(100));
+
     /**
      * Analyze a document for syntax errors and publish diagnostics
      */
     public void analyzeAndReportErrors(String uri) {
-        String content = documentManager.getContent(uri);
-        if (content == null) {
-            return;
+        try (final var lease = syntaxReporterGate.open()) {
+            if (lease != null) {
+                String content = documentManager.getContent(uri);
+                if (content == null) {
+                    return;
+                }
+                publishDiagnostics(uri, syntaxAnalysis(content, uri));
+            }
+        } catch (Exception ignore) {
         }
-
-        publishDiagnostics(uri, syntaxAnalysis(content, uri));
     }
 
     /**

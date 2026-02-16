@@ -1,7 +1,7 @@
 package ch.turic.memory;
 
-import ch.turic.exceptions.ExecutionException;
 import ch.turic.commands.AbstractCommand;
+import ch.turic.exceptions.ExecutionException;
 
 import java.util.List;
 import java.util.Set;
@@ -38,8 +38,9 @@ public class LngException extends LngObject {
         }
     }
 
-    public static LngException build(LocalContext context, Throwable e, List<LngStackFrame> stackTrace){
-        if( e instanceof ExecutionException ee && ee.embedded() != null ){
+    public static LngException build(LocalContext context, Throwable e, ThreadContext tc) {
+        final var stackTrace = tc.getStackTrace();
+        if (e instanceof ExecutionException ee && ee.embedded() != null) {
             return ee.embedded();
         }
         return new LngException(context, e, stackTrace);
@@ -79,7 +80,7 @@ public class LngException extends LngObject {
         return switch (name) {
             case "stack_trace" -> stackTrace;
             case "message" -> e.getMessage();
-            case "cause" -> LngException.build(context, e.getCause(), context.threadContext.getStackTrace());
+            case "cause" -> LngException.build(context, e.getCause(), context.threadContext);
             case "suppressed" -> {
                 final var lngList = new LngList();
                 final var suppressed = e.getSuppressed();
@@ -100,13 +101,16 @@ public class LngException extends LngObject {
     @Override
     public String toString() {
         var rootCause = e;
-        if( rootCause != null && rootCause.getMessage() == null ){
-            while( rootCause.getCause() != null && rootCause.getMessage() == null){
+        if (rootCause != null && rootCause.getMessage() == null) {
+            while (rootCause.getCause() != null && rootCause.getMessage() == null) {
                 rootCause = rootCause.getCause();
             }
         }
-        if( rootCause == null || rootCause.getMessage() == null){
+        if (rootCause == null) {
             return "none";
+        }
+        if (rootCause.getMessage() == null) {
+            return rootCause.getClass().getSimpleName();
         }
         return rootCause.getMessage();
     }

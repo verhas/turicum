@@ -1,15 +1,13 @@
 package ch.turic.lsp;
 
-import ch.turic.analyzer.Input;
-import ch.turic.analyzer.Keywords;
-import ch.turic.analyzer.Lex;
-import ch.turic.analyzer.Lexer;
+import ch.turic.analyzer.*;
 import org.eclipse.lsp4j.*;
 import org.eclipse.lsp4j.jsonrpc.CompletableFutures;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.lsp4j.services.TextDocumentService;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -259,7 +257,7 @@ class TuriTextDocumentService implements TextDocumentService {
     private Map<String, FunctionInfo> getFunctionDatabase(String source, String functionName) {
         Map<String, FunctionInfo> functions = new HashMap<>();
         try {
-            final var lexer = Lexer.try_analyze(new Input(new StringBuilder(source), ""));
+            final var lexer = tryAnalyze(source, "");
             Lex prior;
             if (lexer.hasNext()) {
                 prior = lexer.next();
@@ -355,7 +353,7 @@ class TuriTextDocumentService implements TextDocumentService {
             final var uri = params.getTextDocument().getUri();
             final var content = documentManager.getContent(uri);
 
-            final var lexes = Lexer.try_analyze(new Input(new StringBuilder(content), uri));
+            final var lexes = tryAnalyze(content, uri);
 
             List<FoldingRange> ranges = new ArrayList<>();
 
@@ -391,7 +389,7 @@ class TuriTextDocumentService implements TextDocumentService {
             final var uri = params.getTextDocument().getUri();
             final var content = documentManager.getContent(uri);
 
-            final var lexes = Lexer.try_analyze(new Input(new StringBuilder(content), uri));
+            final var lexes = tryAnalyze(content, uri);
 
             List<CodeLens> lenses = new ArrayList<>();
 
@@ -426,7 +424,7 @@ class TuriTextDocumentService implements TextDocumentService {
             final var uri = params.getTextDocument().getUri();
             final var content = documentManager.getContent(uri);
 
-            final var lexes = Lexer.try_analyze(new Input(new StringBuilder(content), uri));
+            final var lexes = tryAnalyze(content, uri);
             List<Either<SymbolInformation, DocumentSymbol>> symbols = new ArrayList<>();
 
             Lex prior = null;
@@ -477,8 +475,7 @@ class TuriTextDocumentService implements TextDocumentService {
         return CompletableFutures.computeAsync(TuriLanguageServer.VIRTUAL_EXECUTOR, cancelChecker -> {
             final var locations = new ArrayList<Location>();
             String uri = params.getTextDocument().getUri();
-            final var source = new Input(new StringBuilder(documentManager.getContent(uri)), uri);
-            final var lexes = Lexer.try_analyze(source);
+            final var lexes = tryAnalyze(documentManager.getContent(uri), uri);
             final var srcLine = params.getPosition().getLine();
             final var srcCharacter = params.getPosition().getCharacter();
             // first find the thing that we want to find
@@ -521,8 +518,7 @@ class TuriTextDocumentService implements TextDocumentService {
         return CompletableFutures.computeAsync(TuriLanguageServer.VIRTUAL_EXECUTOR, cancelChecker -> {
             final var locations = new ArrayList<Location>();
             String uri = params.getTextDocument().getUri();
-            final var source = new Input(new StringBuilder(documentManager.getContent(uri)), uri);
-            final var lexes = Lexer.try_analyze(source);
+            final var lexes = tryAnalyze(documentManager.getContent(uri), uri);
             final var srcLine = params.getPosition().getLine();
             final var srcCharacter = params.getPosition().getCharacter();
             // first find the thing that we want to find
@@ -588,6 +584,21 @@ class TuriTextDocumentService implements TextDocumentService {
             }
         }
         return edits;
+    }
+
+    private static final SlowStart lexerGate = new SlowStart(Duration.ofMillis(100));
+
+    private static LexList tryAnalyze(final String content, final String uri) {
+        if (content == null) return LexList.of();
+        try (final var lease = lexerGate.open()) {
+            if (lease != null) {
+                return Lexer.try_analyze(new Input(new StringBuilder(content), uri));
+            } else {
+                return LexList.of();
+            }
+        } catch (Exception ignore) {
+        }
+        return LexList.of();
     }
 
     @Override

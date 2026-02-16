@@ -33,6 +33,7 @@ public class BreakCommand extends AbstractCommand {
 
     @Override
     public Conditional _execute(LocalContext context) throws ExecutionException {
+        context.step();
         if (Cast.toBoolean(condition.execute(context))) {
             if (expression == null) {
                 return Conditional.doBreak(Sentinel.NO_VALUE);

@@ -31,16 +31,16 @@ public class AwaitEvaluation extends AbstractCommand {
     }
 
     @Override
-    public Object _execute(LocalContext ctx) throws ExecutionException {
-
+    public Object _execute(LocalContext context) throws ExecutionException {
+        context.step();
         long timeLimit = -1;
         for (final var key : options.keySet()) {
             timeLimit = switch (key) {
-                case "time" -> parameter(key, ctx, options.get(key), 1000);
+                case "time" -> parameter(key, context, options.get(key), 1000);
                 default -> throw new ExecutionException("Unknown option: " + key);
             };
         }
-        final Object result = command.execute(ctx);
+        final Object result = command.execute(context);
         final Object future;
         if (result instanceof LngList) {
             final var futures = new ArrayList<CompletableFuture<?>>();

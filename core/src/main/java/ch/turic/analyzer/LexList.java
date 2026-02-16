@@ -53,6 +53,13 @@ public class LexList extends LngList {
 
     private int index;
 
+    public static LexList of(final List<Lex> lexes) {
+        return new LexList(lexes);
+    }
+    public static LexList of() {
+        return new LexList(List.of());
+    }
+
     public LexList(final List<Lex> lexes) {
         array.addAll(lexes);
     }

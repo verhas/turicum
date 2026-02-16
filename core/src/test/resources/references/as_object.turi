@@ -1,2 +1,2 @@
-let z = thunk({let k = 5})
-println jsonify_beauty(as_object(z))
+let z=thunk( { let k= 5 } )
+println jsonify_beauty( as_object( z ) ) 

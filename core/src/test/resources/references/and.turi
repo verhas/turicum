@@ -1,5 +1,5 @@
-if (7&2) == 3 && 5/0 == inf {
+if(7 & 2) == 3 && 5 / 0 == inf {
     println "something is wrong"
-}else{
+    } else{
     println "dandy"
-}
+} 
