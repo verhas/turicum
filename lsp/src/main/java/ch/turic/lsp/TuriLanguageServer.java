@@ -1,6 +1,5 @@
 package ch.turic.lsp;
 
-import ch.turic.analyzer.Lexer;
 import org.eclipse.lsp4j.*;
 import org.eclipse.lsp4j.services.*;
 
@@ -64,11 +63,11 @@ public class TuriLanguageServer implements LanguageServer, LanguageClientAware {
         // Semantic tokens for better syntax highlighting
         final var semanticTokens = new SemanticTokensWithRegistrationOptions();
         SemanticTokensLegend legend = new SemanticTokensLegend();
-        legend.setTokenTypes(List.of(Lexer.RESERVED.toArray(String[]::new)));
-        legend.setTokenModifiers(List.of("documented"));
-
+        legend.setTokenTypes(List.of("keyword", "string", "number", "comment", "variable", "operator"));
+        legend.setTokenModifiers(List.of());
+        semanticTokens.setFull(true);
         semanticTokens.setLegend(legend);
-//        capabilities.setSemanticTokensProvider(semanticTokens);
+        capabilities.setSemanticTokensProvider(semanticTokens);
 
 
         InitializeResult result = new InitializeResult(capabilities);

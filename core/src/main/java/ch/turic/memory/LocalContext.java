@@ -688,6 +688,7 @@ public class LocalContext implements Context, AutoCloseable {
 
     public void step() throws ExecutionException {
         globalContext.step();
+        threadContext.step();
     }
 
     public LocalContext caller() {

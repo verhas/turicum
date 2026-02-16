@@ -1,0 +1,16 @@
+let z=async[ steps= 100] {
+    loop{
+        mut i= 0
+        } while{
+        print $"${i++} "
+    }
+}
+
+// sleep 100ms, should be enough to timeout
+sleep 0.1
+
+println "\nResults are true, true and false"
+println $"  z is done ${z.is_done()}"
+println $"  z is err ${z.is_err()}"
+println $"  z is timeout ${z.is_timeout()} is is step limit, not time"
+println $"  ${z.get_err()}" 

@@ -602,6 +602,55 @@ class TuriTextDocumentService implements TextDocumentService {
     }
 
     @Override
+    public CompletableFuture<SemanticTokens> semanticTokensFull(SemanticTokensParams params) {
+        return CompletableFutures.computeAsync(TuriLanguageServer.VIRTUAL_EXECUTOR, cancelChecker -> {
+            final var uri = params.getTextDocument().getUri();
+            final var content = documentManager.getContent(uri);
+            final var lexes = tryAnalyze(content, uri);
+
+            List<Integer> data = new ArrayList<>();
+            int prevLine = 0;
+            int prevCol = 0;
+
+            while (lexes.hasNext()) {
+                if (cancelChecker.isCanceled()) {
+                    return null;
+                }
+                final var lex = lexes.next();
+                if (lex.type() == Lex.Type.SPACES || lex.type() == Lex.Type.CHARACTER) {
+                    continue;
+                }
+                int tokenType = switch (lex.type()) {
+                    case RESERVED -> 0;  // keyword
+                    case STRING -> 1;    // string
+                    case INTEGER, FLOAT -> 2; // number
+                    case COMMENT -> 3;   // comment
+                    case IDENTIFIER -> 4; // variable
+                    default -> -1;
+                };
+                if (tokenType < 0) {
+                    continue;
+                }
+                int line = lex.startPosition().line - 1;
+                int col = lex.startPosition().column;
+                int deltaLine = line - prevLine;
+                int deltaCol = deltaLine == 0 ? col - prevCol : col;
+                int length = lex.lexeme().length();
+
+                data.add(deltaLine);
+                data.add(deltaCol);
+                data.add(length);
+                data.add(tokenType);
+                data.add(0); // no modifiers
+
+                prevLine = line;
+                prevCol = col;
+            }
+            return new SemanticTokens(data);
+        });
+    }
+
+    @Override
     public CompletableFuture<List<? extends TextEdit>> formatting(DocumentFormattingParams params) {
         String uri = params.getTextDocument().getUri();
         String currentContent = documentManager.getContent(uri);

@@ -99,9 +99,6 @@ public class AsyncEvaluation extends AbstractCommand {
      *
      * <h2>Limits</h2>
      * <p>
-     * {@code stepLimit} and {@code timeLimit} are accepted to support execution limiting, but this method currently does not
-     * enforce them directly; enforcement (if any) must be implemented by the surrounding execution machinery.
-     * </p>
      *
      * @param command     the command to execute asynchronously in the child thread context
      * @param ctx         the parent context used as the source for creating and initializing the child thread context
@@ -123,6 +120,9 @@ public class AsyncEvaluation extends AbstractCommand {
 
         final var newContext = ctx.thread();
         copyVariables(ctx, newContext);
+        if (stepLimit >= 0) {
+            newContext.threadContext.setStepLimit(stepLimit);
+        }
         newContext.threadContext.addYielder(yielder);
 
         CompletableFuture<Channel.Message<?>> future =

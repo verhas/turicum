@@ -5,6 +5,7 @@ import ch.turic.memory.debugger.DebuggerContext;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * A special context holding the values for the thread.
@@ -94,4 +95,19 @@ public class ThreadContext {
     public void addYielder(Yielder yielder) throws ExecutionException {
         this.yielder = yielder;
     }
+    private int stepLimit = -1;
+    private final AtomicInteger steps = new AtomicInteger();
+
+    public void setStepLimit(int stepLimit) {
+        this.stepLimit = stepLimit;
+    }
+
+    public void step() throws ExecutionException {
+        if (stepLimit < 0) return;
+        if (stepLimit <= steps.get()) {
+            throw new ExecutionException("Step limit %d reached", stepLimit);
+        }
+        steps.incrementAndGet();
+    }
+
 }
