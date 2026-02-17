@@ -407,7 +407,7 @@ public class Reflection {
      * @return true if the argument can be assigned to the parameter type, false otherwise
      */
     private static boolean accepts(Class<?> parameterType, Class<?> argType) {
-        if (parameterType == null) return !argType.isPrimitive(); // null can only go into non-primitives
+        if (argType == null) return !parameterType.isPrimitive(); // null can only go into non-primitives
 
         if (parameterType.isPrimitive()) {
             return acceptsPrimitive(parameterType, argType);
@@ -501,7 +501,7 @@ public class Reflection {
      * or unboxing applies; false otherwise
      */
     private static boolean acceptsBoxing(Class<?> parameterType, Class<?> argType) {
-        if (parameterType == null) return !argType.isPrimitive(); // null can only go into non-primitives
+        if (argType == null) return !parameterType.isPrimitive(); // null can only go into non-primitives
         if (argType.isPrimitive()) {
             return switch (argType.getName()) {
                 case "boolean" -> parameterType == Boolean.class;

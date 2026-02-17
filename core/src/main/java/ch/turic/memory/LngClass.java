@@ -1,6 +1,7 @@
 package ch.turic.memory;
 
 import ch.turic.Context;
+import ch.turic.commands.Identifier;
 import ch.turic.exceptions.ExecutionException;
 import ch.turic.LngCallable;
 import ch.turic.commands.ClosureLike;
@@ -74,6 +75,24 @@ public class LngClass implements HasFields, HasIndex, HasContext, LngCallable.Ln
         return objectContext.get("this");
     }
 
+    private Object callConstructorEvaluated(LocalContext callerContext, Object[] arguments, ClosureLike command, LocalContext objectContext) {
+        if (command instanceof Macro) {
+            objectContext.setCaller(callerContext);
+        }
+        if( command.parameters().parameters().length == arguments.length) {
+            throw new ExecutionException("Wrong number of arguments");
+        }
+        final var argValues = new ArgumentEvaluated[arguments.length];
+        for (int i = 0; i < arguments.length; i++) {
+            argValues[i] = new ArgumentEvaluated(
+                    new Identifier(command.parameters().parameters()[i].identifier()),arguments[i]);
+        }
+        defineArgumentsInContext(objectContext, callerContext, command.parameters(), argValues, false);
+        command.execute(objectContext);
+        objectContext.freeze("this");
+        return objectContext.get("this");
+    }
+
     @Override
     public void setField(String name, Object value) throws ExecutionException {
         context.local(name, value);
@@ -123,7 +142,7 @@ public class LngClass implements HasFields, HasIndex, HasContext, LngCallable.Ln
         final var constructor = uninitialized.getField("init");
         if (constructor != null) {
             if ((constructor instanceof ClosureLike closure)) {
-                closure.execute(objectContext);
+                callConstructorEvaluated(callerCtx,arguments,closure,objectContext);
             } else {
                 throw new ExecutionException("Constructor function is not callable");
             }

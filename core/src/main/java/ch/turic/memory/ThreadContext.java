@@ -103,11 +103,11 @@ public class ThreadContext {
     }
 
     public void step() throws ExecutionException {
+        final var currentStep = steps.incrementAndGet();
         if (stepLimit < 0) return;
-        if (stepLimit <= steps.get()) {
+        if (stepLimit <= currentStep ) {
             throw new ExecutionException("Step limit %d reached", stepLimit);
         }
-        steps.incrementAndGet();
     }
 
 }

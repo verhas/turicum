@@ -1,7 +1,7 @@
 package ch.turic.memory;
 
-import ch.turic.exceptions.ExecutionException;
 import ch.turic.TuriClass;
+import ch.turic.exceptions.ExecutionException;
 import ch.turic.memory.debugger.DebuggerContext;
 import ch.turic.utils.TuricumClassLoader;
 
@@ -111,13 +111,13 @@ public class GlobalContext {
      * @throws ExecutionException if the step limit is reached or exceeded
      */
     public void step() throws ExecutionException {
+        final var currentStep = steps.incrementAndGet();
         if (stepLimit < 0) {
             return;
         }
-        if (stepLimit <= steps.get()) {
+        if (stepLimit <= currentStep) {
             throw new ExecutionException("Step limit %d reached", stepLimit);
         }
-        steps.incrementAndGet();
     }
 
     /**

@@ -6,6 +6,7 @@ import ch.turic.Command;
 import ch.turic.memory.LocalContext;
 import ch.turic.memory.LngObject;
 
+import java.util.Objects;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 
@@ -143,10 +144,10 @@ public abstract class Compare implements Operator {
             final var op1 = left.execute(ctx);
             final var op2 = right.execute(ctx);
             if (Cast.isLong(op1) || Cast.isLong(op2)) {
-                return op1.equals(op2);
+                return Objects.equals(op1,op2);
             }
             if (Cast.isDouble(op1) || Cast.isDouble(op2)) {
-                return op1.equals(op2);
+                return Objects.equals(op1,op2);
             }
             return op1 == op2;
         }
@@ -159,10 +160,10 @@ public abstract class Compare implements Operator {
             final var op1 = left.execute(ctx);
             final var op2 = right.execute(ctx);
             if (Cast.isLong(op1) || Cast.isLong(op2)) {
-                return !op1.equals(op2);
+                return !Objects.equals(op1,op2);
             }
             if (Cast.isDouble(op1) || Cast.isDouble(op2)) {
-                return !op1.equals(op2);
+                return !Objects.equals(op1,op2);
             }
             return op1 != op2;
         }

@@ -57,7 +57,7 @@ public class LngException extends LngObject {
 
     @Override
     public Object getIndex(Object index) throws ExecutionException {
-        throw new ExecutionException("Exeptions do not have index.");
+        throw new ExecutionException("Exceptions do not have index.");
     }
 
     @Override
@@ -67,7 +67,7 @@ public class LngException extends LngObject {
 
     @Override
     public void setField(String name, Object value) {
-        throw new ExecutionException("Exeptions are immutable.");
+        throw new ExecutionException("Exceptions are immutable.");
     }
 
     @Override

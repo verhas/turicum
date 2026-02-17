@@ -1,7 +1,7 @@
 package ch.turic.memory;
 
-import ch.turic.exceptions.ExecutionException;
 import ch.turic.commands.operators.Cast;
+import ch.turic.exceptions.ExecutionException;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -20,7 +20,7 @@ public class LngList implements HasIndex, HasFields {
         this.fieldProvider = fieldProvider;
     }
 
-    public long size(){
+    public long size() {
         return array.size();
     }
 
@@ -67,7 +67,7 @@ public class LngList implements HasIndex, HasFields {
         ExecutionException.when(pinned.get(), "Cannot change a pinned list.");
         if (Cast.isLong(index)) {
             final var longIndex = Cast.toLong(index);
-            if( longIndex > (long) Integer.MAX_VALUE) {
+            if (longIndex > (long) Integer.MAX_VALUE) {
                 throw new ExecutionException("Indexing error, %d is too large, %s > %s.", longIndex,
                         longIndex, Integer.MAX_VALUE);
             }
@@ -117,12 +117,16 @@ public class LngList implements HasIndex, HasFields {
     public Object getIndex(Object index) throws ExecutionException {
         if (Cast.isLong(index)) {
             final var longIndex = Cast.toLong(index);
-            if( longIndex > (long) Integer.MAX_VALUE) {
+            if (longIndex > (long) Integer.MAX_VALUE) {
                 throw new ExecutionException("Indexing error, %d is too large, %s > %s.", longIndex,
                         longIndex, Integer.MAX_VALUE);
             }
             final var indexValue = longIndex.intValue();
-            ExecutionException.when(indexValue < 0, "Indexing error, %s < 0", indexValue);
+            if (indexValue < 0) {
+                ExecutionException.when(array.size() + indexValue < 0,
+                        "Indexing error, %d is too small, %s-%s < %s.", indexValue, array.size(), -indexValue, 0);
+                return array.get(array.size() + indexValue);
+            }
             if (indexValue >= array.size()) {
                 return null;
             } else {

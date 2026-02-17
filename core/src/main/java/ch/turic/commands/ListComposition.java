@@ -80,7 +80,7 @@ public class ListComposition extends AbstractCommand implements HasCommands{
      * @param end       the end index exclusive
      * @param modifiers the array of the modifiers that can filter out elements or modify them on the fly
      * @param context   the context to wrap into a closure context when we execute the modifiers
-     * @param list      is the target to which the non-filtere and possibly modified string will be added to
+     * @param list      is the target to which the non-filter and possibly modified string will be added to
      * @param fetch     is used to fetch the element for the given index to be filtered out and modified
      * @throws ExecutionException when some modifiers are not closures
      */
@@ -131,7 +131,7 @@ public class ListComposition extends AbstractCommand implements HasCommands{
                     list.array.add(item);
                 }
             } else {
-                list.array.add(i);
+                list.array.add(item);
             }
         }
     }

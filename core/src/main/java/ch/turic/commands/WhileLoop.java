@@ -87,9 +87,7 @@ public class WhileLoop extends Loop {
         scalarResult = executeDoneOrOtherwise(wasExecuted, loopContext, listResult, scalarResult);
 
         if (finallyBody != null) {
-            if (!wasExecuted) {// was already set for the 'done' block
-                setVariableIT(loopContext, listResult, scalarResult);
-            }
+            setVariableIT(loopContext, listResult, scalarResult);
             final var finallyResult = finallyBody.execute(loopContext);
             if (finallyResult instanceof Conditional.ReturnResult returnResult && returnResult.isDone()) {
                 return finallyResult;
@@ -103,10 +101,10 @@ public class WhileLoop extends Loop {
      * If execution was successful and the "done" body is present, it sets up the loop context and executes the "done" body.
      * Otherwise, if the "otherwise" body is present, it executes the "otherwise" body to determine a new scalar result.
      *
-     * @param wasExecuted    indicates whether the loop execution was successful
-     * @param loopContext    the local context of the loop
-     * @param listResult     the list-result to be set in the context, if applicable
-     * @param scalarResult   the resulting scalar value
+     * @param wasExecuted  indicates whether the loop execution was successful
+     * @param loopContext  the local context of the loop
+     * @param listResult   the list-result to be set in the context, if applicable
+     * @param scalarResult the resulting scalar value
      * @return the resulting scalar value; may be updated if "otherwise" body logic is executed
      */
     private Object executeDoneOrOtherwise(final boolean wasExecuted,
@@ -132,22 +130,31 @@ public class WhileLoop extends Loop {
      * {@code scalarResult}.
      * After setting the variable, it freezes the "it" variable in the loop context.
      *
-     * @param loopContext the local context of the loop where the variable is to be set
-     * @param listResult the scalarResult list to assign to the "it" variable if the result is a list
+     * @param loopContext  the local context of the loop where the variable is to be set
+     * @param listResult   the scalarResult list to assign to the "it" variable if the result is a list
      * @param scalarResult the value to assign to the "it" variable if the result is not a list
      */
     private void setVariableIT(LocalContext loopContext, LngList listResult, Object scalarResult) {
-        if (resultIsList) {
-            loopContext.define("it", listResult, null);
-            listResult.pinned.set(true);
-        } else {
-            loopContext.define("it", scalarResult, null);
-            switch(scalarResult){
-                case LngList list -> list.pinned.set(true);
-                case LngObject obj -> obj.pinned.set(true);
-                default -> { }
+        if (!loopContext.contains("it")) {
+            if (resultIsList) {
+                loopContext.define("it", listResult, null);
+                listResult.pinned.set(true);
+            } else {
+                final Object realResult;
+                if (scalarResult instanceof Conditional.Result result) {
+                    realResult = result.result();
+                } else {
+                    realResult = scalarResult;
+                }
+                loopContext.define("it", realResult, null);
+                switch (realResult) {
+                    case LngList list -> list.pinned.set(true);
+                    case LngObject obj -> obj.pinned.set(true);
+                    case null, default -> {
+                    }
+                }
             }
+            loopContext.freeze("it");
         }
-        loopContext.freeze("it");
     }
 }

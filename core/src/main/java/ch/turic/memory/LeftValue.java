@@ -2,6 +2,7 @@ package ch.turic.memory;
 
 import ch.turic.exceptions.ExecutionException;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -66,7 +67,7 @@ public interface LeftValue {
     static HasFields toObject(Object existing) {
         return switch (existing) {
             case HasFields hasFields -> hasFields;
-            case Map<?, ?> map -> new MapObject(Map.copyOf(map));
+            case Map<?, ?> map -> new MapObject(new HashMap<>(map));
             case null -> throw new ExecutionException("You cannot use 'none' as object");
             default -> new JavaObject(existing);
         };

@@ -63,6 +63,6 @@ public class LetAssignment extends AbstractCommand {
 
     @Override
     public String toString() {
-        return mut ? "mut " : "let " + Arrays.stream(assignments).map(Objects::toString).collect(Collectors.joining(", "));
+        return (mut ? "mut " : "let ") + Arrays.stream(assignments).map(Objects::toString).collect(Collectors.joining(", "));
     }
 }
