@@ -36,7 +36,8 @@ public class ReturnCommand extends AbstractCommand {
             if (expression == null) {
                 return Conditional.doReturn(null);
             } else {
-                return Conditional.doReturn(expression.execute(context));
+                final var result = expression.execute(context);
+                return Conditional.doReturn(result);
             }
         } else {
             return Conditional.result(null);

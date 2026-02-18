@@ -2843,15 +2843,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=53B8AFEA
+h id=764CBA
 h after post increment: 1
 k: 0
-h id=6C302A1D
-k id=53B8AFEA
+h id=523D6BDB
+k id=764CBA
 h after pre increment: 2
 z: 2
-h id=33A3C44A
-z id=33A3C44A
+h id=58496C97
+z id=58496C97
 
 ----
 
@@ -2897,15 +2897,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=93F432E
+h id=12968227
 h after post increment: 1
 k: 1
-h id=93F432E
-k id=93F432E
+h id=12968227
+k id=12968227
 h after pre increment: 2
 z: 2
-h id=93F432E
-z id=93F432E
+h id=12968227
+z id=12968227
 
 ----
 
@@ -2954,15 +2954,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=6869A3B3
+h id=2D23FAEF
 h after post decrement: -1
 k: 0
-h id=6AB4BA9F
-k id=6869A3B3
+h id=7CB8437D
+k id=2D23FAEF
 h after pre decrement: -2
 z: -2
-h id=27ACE0B1
-z id=27ACE0B1
+h id=62A4417
+z id=62A4417
 
 ----
 
@@ -3005,15 +3005,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=4C59E45E
+h id=1BF39D06
 h after post decrement: -1
 k: -1
-h id=4C59E45E
-k id=4C59E45E
+h id=1BF39D06
+k id=1BF39D06
 h after pre decrement: -2
 z: -2
-h id=4C59E45E
-z id=4C59E45E
+h id=1BF39D06
+z id=1BF39D06
 
 ----
 
@@ -4932,6 +4932,7 @@ If the iteration started and finished without executing a `break` or a `return` 
 Finally, the block following the `finally` keyword is executed.
 This block is executed even if a `break` or `return` command was executed in the loop.
 The special, pinned variable `it` will hold the loop's value in these blocks.
+This variable is not defined when the block `otherwise` is executed.
 
 The loop is executed in two contexts.
 The outer context wraps the surrounding context.
@@ -6534,12 +6535,12 @@ stopping
 exception Task stopped.
  prime read 2
 Thread 2 generated 3
- prime read 3
 Thread 2 generated 5
+ prime read 3
  prime read 5
-Thread 2 generated 7 prime read 
-7
+Thread 2 generated 7
 Thread 2 generated 11
+ prime read 7
 Thread 2 generated 13
 stopping
 exception Task stopped.
@@ -6583,11 +6584,11 @@ println $"  ${z.get_err()}"
 .output of snippet `async_step_limit`
 [source]
 ----
-0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 
+0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 
 Results are true, true and false
   z is done true
   z is err true
-  z is timeout false is is step limit, not time
+  z is timeout false, it is step limit, not time
   Step limit 100 reached
 
 ----
@@ -6684,9 +6685,9 @@ fn sleeper( x ){
 [source]
 ----
 [1, 2, 3]
-315.1715ms
+307.771333ms
 [1, 2, 3]
-105.4715ms
+107.395541ms
 
 ----
 
@@ -6896,9 +6897,11 @@ a =3.6820276497695854
 a =3.6063454894655185
 a =3.6055513629176015
 a =3.6055512754639905
-sqrt(13) ≈ 3.6055513629176015
+a =3.6055512754639896
+a =3.6055512754639896
+sqrt(13) ≈ 3.6055512754639896
 sqrt(13) ≈ 3.605551275463989 calculated by java Math
-square ≈ 13.000000630636974
+square ≈ 13.000000000000002
 
 ----
 
@@ -6935,8 +6938,6 @@ try{
 counter =1
 counter =2
 Flow '#unnamed' timed out after 10 ms
-Final counter = Flow '#unnamed' timed out after 10 ms
-
 
 ----
 
@@ -8694,7 +8695,7 @@ You can declare a variable to hold an error.
 
 [source]
 ----
-mut error:err
+mut error:err|none
 try{
         z = 55 // undefined variable
 }catch x : error = x
@@ -8736,18 +8737,18 @@ An exception has
 
 [source]
 ----
-mut error:err
+mut error: err | none
 try{
-        z = 55 // undefined variable
-}catch err: error = err ;
+    z= 55// undefined variable
+} catch err: error=err;
 
-println """message "%s" """ % [error.message]
-println """cause "%s" """ % [error.cause]
-println """suppressed %s" """ % [error.suppressed]
+println """message "%s" """ % [ error.message ]
+println """cause "%s" """ % [ error.cause ]
+println """suppressed %s" """ % [ error.suppressed ]
 for each st in error.stack_trace {
-    println("%s:%s:%s" % [st.file, st.line, st.column])
+    println("%s:%s:%s" % [ st.file, st.line, st.column ] )
     println "source: ", st.source
-    }
+}
 
 
 
@@ -8757,16 +8758,16 @@ for each st in error.stack_trace {
 [source]
 ----
 message "Variable 'z' is undefined." 
-cause "none" 
+cause "null" 
 suppressed []" 
-try4.turi:3:8
-source:         z = 55 // undefined variable
+try4.turi:3:4
+source:     z= 55// undefined variable
 try4.turi:2:3
 source: try{
 try4.turi:2:0
 source: try{
 try4.turi:1:1
-source: mut error:err
+source: mut error: err | none
 
 ----
 
@@ -8807,6 +8808,7 @@ The value of the try-catch command is
 * the value of the catch command if there was an exception.
 
 The command after the `finally` keyword does not affect the result of the command.
+It is an error to execute a `return`, `break` or `continue` inside the `finally` block.
 
 == Decorators, Metaprogramming
 
@@ -12599,8 +12601,8 @@ println jsonify_beauty(java_import("ch.turic.exceptions"))
 {
     "UnexpectedCharacter": JavaClass[klass=class ch.turic.exceptions.UnexpectedCharacter],
     "StringNotTerminated": JavaClass[klass=class ch.turic.exceptions.StringNotTerminated],
-    "ch.turic.exceptions.BadSyntax": JavaClass[klass=class ch.turic.exceptions.BadSyntax],
     "ch.turic.exceptions.StringNotTerminated": JavaClass[klass=class ch.turic.exceptions.StringNotTerminated],
+    "ch.turic.exceptions.BadSyntax": JavaClass[klass=class ch.turic.exceptions.BadSyntax],
     "ExecutionException": JavaClass[klass=class ch.turic.exceptions.ExecutionException],
     "BadSyntax": JavaClass[klass=class ch.turic.exceptions.BadSyntax],
     "ch.turic.exceptions.ExecutionException": JavaClass[klass=class ch.turic.exceptions.ExecutionException],
@@ -13142,7 +13144,7 @@ println nano_time()
 .output of snippet `nano_time`
 [source]
 ----
-61088775961125
+242555785501583
 
 ----
 
@@ -13418,82 +13420,83 @@ none
 .output of snippet `que`
 [source]
 ----
-task2 is not ready 0
-task1 is ready 1
 task1 is not ready 0
-task2 is not ready 1
-task1 is not ready 1
-task2 is not ready 2task1 is not ready 2
-
-task2 is ready 2
+task2 is ready 1
 task2 is not ready 0
-task1 is not ready 3
-task2 is not ready 1
-task1 is not ready 4
-task1 is not ready 5task2 is not ready 2
+task2 is not ready 1task1 is not ready 1
 
-task1 is not ready 6task2 is ready 3
+task1 is not ready 2task2 is not ready 2
 
-task2 is not ready 0
-task2 is not ready 1task1 is not ready 7
-
-task2 is not ready 2task1 is not ready 8
-
-task1 is ready 4
 task2 is not ready 3
-task1 is not ready 0
-task1 is not ready 1task2 is not ready 4
-
-task1 is not ready 2
-task2 is not ready 5
-task2 is not ready 6task1 is not ready 3
-
-task1 is ready 5
-task1 is not ready 0
-task2 is not ready 7
-task2 is not ready 8
-task1 is not ready 1
-task2 is not ready 9task1 is not ready 2
-
 task1 is not ready 3
-task2 is ready 6
+task2 is not ready 4
+task1 is ready 2
+task1 is not ready 0
+task2 is not ready 5task1 is not ready 1
+
+task2 is not ready 6task1 is not ready 2
+
+task2 is ready 3
+task1 is not ready 3
 task2 is not ready 0
 task1 is not ready 4
 task2 is not ready 1
-task2 is not ready 2
-task1 is not ready 5
-task1 is not ready 6task2 is ready 7
+task2 is not ready 2task1 is not ready 5
+
+task1 is not ready 6task2 is ready 4
 
 task2 is not ready 0
 task1 is not ready 7
 task2 is not ready 1
-task1 is not ready 8task2 is not ready 2
-
-task1 is not ready 9task2 is ready 8
+task1 is not ready 8
+task2 is not ready 2
+task2 is ready 5task1 is not ready 9
 
 task2 is not ready 0
 task1 is not ready 10
 task2 is not ready 1
-task1 is not ready 11task2 is not ready 2
-
-task1 is not ready 12
-task2 is ready 9
-task2 is not ready 0
-task2 is not ready 1
-task1 is not ready 13
-task1 is not ready 14
 task2 is not ready 2
+task1 is not ready 11
+task1 is not ready 12
+task2 is ready 6
+task2 is not ready 0
+task2 is not ready 1task1 is not ready 13
+
+task2 is not ready 2
+task1 is not ready 14
+task1 is ready 7
+task2 is not ready 3
+task1 is not ready 0
+task1 is not ready 1
+task2 is not ready 4
+task1 is not ready 2
+task2 is not ready 5
+task1 is ready 8
+task1 is not ready 0
+task2 is not ready 6
+task2 is not ready 7
+task1 is not ready 1
+task1 is not ready 2task2 is not ready 8
+
+task1 is ready 9task2 is not ready 9
+
+task1 is not ready 0
+task2 is not ready 10
+task1 is not ready 1
+task2 is not ready 11task1 is not ready 2
+
+task1 is not ready 3
+task2 is not ready 12
 closing the channel
 channel is closed
-task1 is not ready 15
 1 is done false
 2 is done false
 we start to wait the first time
+task1 is done
 task2 is done
-task1 done false
+task1 done true
 task2 done true
 We start to wait the second time
-task1 is done
 task1 done true
 task2 done true
 
@@ -14037,7 +14040,7 @@ println sleep(0.001) // sleep one milli
 .output of snippet `sleep`
 [source]
 ----
-0.002
+0.001
 
 ----
 
@@ -14466,10 +14469,10 @@ none
 [source]
 ----
 sending 1
-not ready 0
 received 1
 not ready 0
 not ready 1
+not ready 2
 sending 2
 received 2
 not ready 0

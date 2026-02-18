@@ -48,6 +48,7 @@ public class ContinueCommand extends AbstractCommand {
             if (expression == null) {
                 return Conditional.doContinue(Sentinel.NO_VALUE);
             } else {
+
                 return Conditional.doContinue(expression.execute(context));
             }
         } else {

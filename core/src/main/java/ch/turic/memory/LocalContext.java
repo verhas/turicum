@@ -254,7 +254,7 @@ public class LocalContext implements Context, AutoCloseable {
      */
     public void define(String key, Object value, String[] typeNames) {
         final var v = createVariable(key, typeNames);
-        v.value = value;
+        v.set(value);
     }
 
     /**
@@ -334,7 +334,7 @@ public class LocalContext implements Context, AutoCloseable {
                         }
                     }
                     v.types = types.toArray(Variable.Type[]::new);
-                    v.set(value.value);
+                    v.set(value.get());
                 } else {
                     frame.put(key, value);
                 }

@@ -103,7 +103,7 @@ public class LngObject implements HasFields, HasIndex, HasContext {
         if (lngClass == null) {
             return true;
         }
-        return this.lngClass.assignableTo(lngClass);
+        return this.lngClass != null && this.lngClass.assignableTo(lngClass);
     }
 
     @Override

@@ -1,5 +1,5 @@
 message "Variable 'z' is undefined." 
-cause "none" 
+cause "null" 
 suppressed []" 
 try5.turi:3:8
 source:         z = 55 // undefined variable

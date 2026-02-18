@@ -1,5 +1,6 @@
 package ch.turic.memory;
 
+import ch.turic.commands.Conditional;
 import ch.turic.exceptions.ExecutionException;
 import ch.turic.commands.Closure;
 import ch.turic.commands.Identifier;
@@ -61,7 +62,7 @@ public class Variable {
 
     public final String name;
     // the current value of the variable
-    Object value;
+    private Object value;
     Type[] types;
 
     /**
@@ -72,6 +73,9 @@ public class Variable {
      * @throws ExecutionException if the value does not fit any of the types.
      */
     public void set(Object newValue) throws ExecutionException {
+        if( newValue instanceof Conditional) {
+            throw new ExecutionException("You cannot store a break, continue or return in a variable");
+        }
         if (isOfTypes(newValue)) {
             this.value = newValue;
         } else {

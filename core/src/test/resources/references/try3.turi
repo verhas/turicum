@@ -1,4 +1,4 @@
-mut error:err
+mut error:err|none
 try{
         z = 55 // undefined variable
 }catch x : error = x

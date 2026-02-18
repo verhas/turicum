@@ -79,7 +79,7 @@ public class LngClass implements HasFields, HasIndex, HasContext, LngCallable.Ln
         if (command instanceof Macro) {
             objectContext.setCaller(callerContext);
         }
-        if( command.parameters().parameters().length == arguments.length) {
+        if( command.parameters().parameters().length != arguments.length) {
             throw new ExecutionException("Wrong number of arguments");
         }
         final var argValues = new ArgumentEvaluated[arguments.length];

@@ -64,7 +64,10 @@ public class TryCatch extends AbstractCommand {
             }
         } finally {
             if (finallyBlock != null) {
-                finallyBlock.execute(context);
+                final var finallyResult = finallyBlock.execute(context);
+                if (finallyResult instanceof Conditional.Result returnResult && returnResult.isDone()) {
+                    throw new ExecutionException("Must not return/break/continue in finally block of try-catch");
+                }
             }
         }
         return result;

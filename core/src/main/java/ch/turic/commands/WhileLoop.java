@@ -67,10 +67,9 @@ public class WhileLoop extends Loop {
             scalarResult = loopCore(body, innerContext, listResult);
             if (breakLoop(scalarResult)) {
                 if (finallyBody != null) {
-                    if (resultIsList) {
-                        loopContext.define("it", scalarResult, null);
-                        loopContext.freeze("it");
-                    }
+                    final var result = (Conditional.Result) scalarResult;
+                    loopContext.define("it", result.result(), null);
+                    loopContext.freeze("it");
                     final var finallyResult = finallyBody.execute(loopContext);
                     if (finallyResult instanceof Conditional.ReturnResult returnResult && returnResult.isDone()) {
                         return finallyResult;
@@ -86,12 +85,21 @@ public class WhileLoop extends Loop {
         }
         scalarResult = executeDoneOrOtherwise(wasExecuted, loopContext, listResult, scalarResult);
 
+        if (scalarResult instanceof Conditional.BreakResult || scalarResult instanceof Conditional.ContinueResult) {
+            throw new ExecutionException("done block of a while loop mut not break or continue");
+        }
+
         if (finallyBody != null) {
             setVariableIT(loopContext, listResult, scalarResult);
             final var finallyResult = finallyBody.execute(loopContext);
-            if (finallyResult instanceof Conditional.ReturnResult returnResult && returnResult.isDone()) {
-                return finallyResult;
+            if (finallyResult instanceof Conditional.Result returnResult && returnResult.isDone()) {
+                throw new ExecutionException("Must not return/break/continue in finally block of a while loop");
             }
+        }
+        // if the done block contains a "return", then we will return that value as the result of the loop
+        // even if it is a list resulting loop, because this may return from the surrounding function
+        if (scalarResult instanceof Conditional.ReturnResult returnResult && returnResult.isDone()) {
+            return scalarResult;
         }
         return resultIsList ? listResult : scalarResult;
     }

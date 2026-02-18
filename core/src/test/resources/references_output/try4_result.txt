@@ -1,2 +1,2 @@
-result{source: mut error:err
+result{source: mut error: err | none
 }

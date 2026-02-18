@@ -158,7 +158,7 @@ public class MultiLetAssignment extends AbstractCommand {
             final var iterator = iterable.iterator();
             for (var elementMapping : mapper.elementMappings) {
                 if (!iterator.hasNext()) {
-                    throw new ExecutionException("%s assignment right-hand side has too few values", pin ? Keywords.LET : Keywords.MUT, value);
+                    throw new ExecutionException("%s assignment right-hand side has too few values", pin ? Keywords.LET : Keywords.MUT);
                 }
                 final var mappedValue = iterator.next();
                 final var mapping = elementMapping.mapping();
@@ -184,7 +184,7 @@ public class MultiLetAssignment extends AbstractCommand {
                 }
             }
             if( iterator.hasNext()){
-                throw new ExecutionException("%s assignment right-hand side has too many values", pin ? Keywords.LET : Keywords.MUT, value);
+                throw new ExecutionException("%s assignment right-hand side has too many values", pin ? Keywords.LET : Keywords.MUT);
             }
         }
     }

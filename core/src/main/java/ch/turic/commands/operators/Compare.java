@@ -1,10 +1,10 @@
 package ch.turic.commands.operators;
 
-import ch.turic.exceptions.ExecutionException;
-import ch.turic.commands.Closure;
 import ch.turic.Command;
-import ch.turic.memory.LocalContext;
+import ch.turic.commands.Closure;
+import ch.turic.exceptions.ExecutionException;
 import ch.turic.memory.LngObject;
+import ch.turic.memory.LocalContext;
 
 import java.util.Objects;
 import java.util.function.BiPredicate;
@@ -55,14 +55,14 @@ public abstract class Compare implements Operator {
             return doubleComparator.test(Cast.toDouble(op1), Cast.toDouble(op2));
         }
 
-        if( op1 instanceof LngObject lngOp1){
+        if (op1 instanceof LngObject lngOp1) {
             final var method = lngOp1.getField(operator);
-            if( method != null ){
-                if( !(method instanceof Closure operation)){
+            if (method != null) {
+                if (!(method instanceof Closure operation)) {
                     throw new ExecutionException(String.format("%s is not a valid %s operator", method, operator));
                 }
-                final var res = operation.callAsMethod(ctx,lngOp1,operator,op2);
-                if( !Cast.isBoolean(res)){
+                final var res = operation.callAsMethod(ctx, lngOp1, operator, op2);
+                if (!Cast.isBoolean(res)) {
                     throw new ExecutionException(String.format("The return value of %s is '%s' cannot be used as a bool", operator, res));
                 }
                 return Cast.toBoolean(res);
@@ -72,12 +72,16 @@ public abstract class Compare implements Operator {
         }
 
         final Class<?> comparableClass;
-        if (op1.getClass().isAssignableFrom(op2.getClass())) {
-            comparableClass = op1.getClass();
-        } else if (op2.getClass().isAssignableFrom(op1.getClass())) {
-            comparableClass = op2.getClass();
-        } else {
-            throw new ExecutionException("Cannot compare types %s and %s", op1.getClass(), op2.getClass());
+        if (op1 != null && op2 != null) {
+            if (op1.getClass().isAssignableFrom(op2.getClass())) {
+                comparableClass = op1.getClass();
+            } else if (op2.getClass().isAssignableFrom(op1.getClass())) {
+                comparableClass = op2.getClass();
+            } else {
+                throw new ExecutionException("Cannot compare types %s and %s", op1.getClass(), op2.getClass());
+            }
+        }else{
+            throw new ExecutionException("Cannot compare none");
         }
         if (Comparable.class.isAssignableFrom(comparableClass)) {
             @SuppressWarnings("rawtypes") final var cop1 = (Comparable) op1;
@@ -93,7 +97,7 @@ public abstract class Compare implements Operator {
     public static class LessThan extends Compare {
         @Override
         public Object execute(LocalContext ctx, Command left, Command right) throws ExecutionException {
-            return compare(ctx, left, right, "<",LONG_LESS_THAN_PREDICATE, DOUBLE_LESS_THAN_PREDICATE, LESS_THAN_COMPARATOR_PREDICATE);
+            return compare(ctx, left, right, "<", LONG_LESS_THAN_PREDICATE, DOUBLE_LESS_THAN_PREDICATE, LESS_THAN_COMPARATOR_PREDICATE);
         }
     }
 
@@ -144,10 +148,10 @@ public abstract class Compare implements Operator {
             final var op1 = left.execute(ctx);
             final var op2 = right.execute(ctx);
             if (Cast.isLong(op1) || Cast.isLong(op2)) {
-                return Objects.equals(op1,op2);
+                return Objects.equals(op1, op2);
             }
             if (Cast.isDouble(op1) || Cast.isDouble(op2)) {
-                return Objects.equals(op1,op2);
+                return Objects.equals(op1, op2);
             }
             return op1 == op2;
         }
@@ -160,10 +164,10 @@ public abstract class Compare implements Operator {
             final var op1 = left.execute(ctx);
             final var op2 = right.execute(ctx);
             if (Cast.isLong(op1) || Cast.isLong(op2)) {
-                return !Objects.equals(op1,op2);
+                return !Objects.equals(op1, op2);
             }
             if (Cast.isDouble(op1) || Cast.isDouble(op2)) {
-                return !Objects.equals(op1,op2);
+                return !Objects.equals(op1, op2);
             }
             return op1 != op2;
         }

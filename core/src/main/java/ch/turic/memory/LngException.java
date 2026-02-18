@@ -80,7 +80,7 @@ public class LngException extends LngObject {
         return switch (name) {
             case "stack_trace" -> stackTrace;
             case "message" -> e.getMessage();
-            case "cause" -> LngException.build(context, e.getCause(), context.threadContext);
+            case "cause" -> e.getCause() == null ? null : LngException.build(context, e.getCause(), context.threadContext);
             case "suppressed" -> {
                 final var lngList = new LngList();
                 final var suppressed = e.getSuppressed();

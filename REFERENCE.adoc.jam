@@ -1463,6 +1463,7 @@ If the iteration started and finished without executing a `break` or a `return` 
 Finally, the block following the `finally` keyword is executed.
 This block is executed even if a `break` or `return` command was executed in the loop.
 The special, pinned variable `it` will hold the loop's value in these blocks.
+This variable is not defined when the block `otherwise` is executed.
 
 The loop is executed in two contexts.
 The outer context wraps the surrounding context.
@@ -2763,6 +2764,7 @@ The value of the try-catch command is
 * the value of the catch command if there was an exception.
 
 The command after the `finally` keyword does not affect the result of the command.
+It is an error to execute a `return`, `break` or `continue` inside the `finally` block.
 
 == Decorators, Metaprogramming
 
