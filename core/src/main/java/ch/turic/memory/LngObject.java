@@ -108,13 +108,8 @@ public class LngObject implements HasFields, HasIndex, HasContext {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        final var lngObject = (LngObject) o;
+        if (this == o) return true;
+        if (!(o instanceof LngObject lngObject)) return false;
         var method = this.getField("==");
         if (method instanceof Closure lngEquals) {
             ExecutionException.when(!lngEquals.parameters().fitOperator(), "Operator methods must have exactly one argument");
@@ -134,80 +129,56 @@ public class LngObject implements HasFields, HasIndex, HasContext {
         if (!Objects.equals(lngClass, lngObject.lngClass)) {
             return false;
         }
-        final var compared = new IdentityHashMap<>();
         final var allKeys = new HashSet<>(context.keys());
         allKeys.addAll(lngObject.fields());
-        compared.put(lngObject, null);
-        compared.put(this, null);
-        for (final var key : allKeys) {
-            final var thisField = getField(key);
-            final var thatField = lngObject.getField(key);
-            if (!compared.containsKey(thisField) && !compared.containsKey(thatField) && !Objects.equals(thisField, thatField)) {
-                return false;
+        return CycleGuard.equals(this, lngObject, () -> {
+            for (final var key : allKeys) {
+                if (!Objects.equals(getField(key), lngObject.getField(key))) {
+                    return false;
+                }
             }
-            compared.put(thisField, null);
-            compared.put(thatField, null);
-        }
-        return true;
+            return true;
+        });
     }
 
     @Override
     public int hashCode() {
-        return computeHashCode(new IdentityHashMap<>());
-    }
-
-    private int computeHashCode(Map<Object, Boolean> visited) {
-        if (visited.containsKey(this)) {
-            return 0; // prevent infinite loop in cyclic structures
-        }
-        visited.put(this, true);
-
-        int result = Objects.hashCode(lngClass);
-
-        for (var key : context.keys()) {
-            if ("==".equals(key)) {
-                continue; // skip dynamic equals override field
+        return CycleGuard.hashCode(this, () -> {
+            int result = Objects.hashCode(lngClass);
+            for (var key : context.keys()) {
+                if ("==".equals(key)) {
+                    continue;
+                }
+                result = 31 * result + Objects.hashCode(getField(key));
             }
-            Object value = getField(key);
-            int fieldHash;
-            if (visited.containsKey(value)) {
-                fieldHash = 0;
-            } else if (value instanceof LngObject obj) {
-                fieldHash = obj.computeHashCode(visited);
-            } else {
-                fieldHash = Objects.hashCode(value);
-            }
-            result = 31 * result + fieldHash;
-        }
-
-        return result;
+            return result;
+        });
     }
 
     @Override
     public String toString() {
-        final var to_string = getField(TO_STRING_METHOD);
-        if (to_string == null) {
-            final var builder = new StringBuilder("{");
-            String sep = "";
-            try {
-                for (var key : context().keys()) {
-                    final var object = context().get(key);
-                    if (object != this) {
-                        builder.append(sep).append(key).append(": ").append(object);
+        return CycleGuard.toString(this, "{...}", () -> {
+            final var to_string = getField(TO_STRING_METHOD);
+            if (to_string == null) {
+                final var builder = new StringBuilder("{");
+                String sep = "";
+                try {
+                    for (var key : context().keys()) {
+                        builder.append(sep).append(key).append(": ").append(context().get(key));
                         sep = ", ";
                     }
+                    builder.append("}");
+                    return builder.toString();
+                } catch (ConcurrentModificationException cme) {
+                    throw new ExecutionException(cme, "ConcurrentModification exception while to_string() the object.");
                 }
-                builder.append("}");
-                return builder.toString();
-            } catch (ConcurrentModificationException cme) {
-                throw new ExecutionException(cme, "ConcurrentModification exception while to_string() the object.");
+            } else {
+                if (!(to_string instanceof Closure closure)) {
+                    throw new ExecutionException("output handler does not have '%s()' method", TO_STRING_METHOD);
+                }
+                return Objects.requireNonNullElse(closure.callAsMethod(context, this, TO_STRING_METHOD), "none").toString();
             }
-        } else {
-            if (!(to_string instanceof Closure closure)) {
-                throw new ExecutionException("output handler does not have '%s()' method", TO_STRING_METHOD);
-            }
-            return Objects.requireNonNullElse(closure.callAsMethod(context, this, TO_STRING_METHOD), "none").toString();
-        }
+        });
     }
 
 }

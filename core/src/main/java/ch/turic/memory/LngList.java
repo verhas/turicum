@@ -174,58 +174,36 @@ public class LngList implements HasIndex, HasFields {
 
     @Override
     public String toString() {
-        return "[" +
-                array.stream()
-                        .map(s -> s == null ? "none" : s.toString()).
-                        collect(Collectors.joining(", ")) +
-                "]";
+        return CycleGuard.toString(this, "[...]", () ->
+                "[" + array.stream()
+                        .map(s -> s == null ? "none" : s.toString())
+                        .collect(Collectors.joining(", ")) + "]");
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        final var lngList = (LngList) o;
-        if (array.size() != lngList.array.size()) {
-            return false;
-        }
-        final var compared = new IdentityHashMap<>();
-        compared.put(lngList, null);
-        compared.put(this, null);
-        for (int i = 0; i < array.size(); i++) {
-            final var thisField = array.get(i);
-            final var thatField = lngList.array.get(i);
-            if (!compared.containsKey(thisField) && !compared.containsKey(thatField) && !Objects.equals(thisField, thatField)) {
-                return false;
+        if (this == o) return true;
+        if (!(o instanceof LngList other)) return false;
+        if (array.size() != other.array.size()) return false;
+        return CycleGuard.equals(this, other, () -> {
+            for (int i = 0; i < array.size(); i++) {
+                if (!Objects.equals(array.get(i), other.array.get(i))) {
+                    return false;
+                }
             }
-        }
-        return true;
+            return true;
+        });
     }
 
     @Override
     public int hashCode() {
-        return computeHashCode(new IdentityHashMap<>());
-    }
-
-    private int computeHashCode(Map<Object, Boolean> visited) {
-        if (visited.containsKey(this)) {
-            return 0; // avoid cycles
-        }
-        visited.put(this, true);
-        int result = 1;
-        for (var item : array) {
-            if (visited.containsKey(item)) {
-                result = 31 * result;
-            } else {
-                result = 31 * result + (item == null ? 0 :
-                        (item instanceof LngList l ? l.computeHashCode(visited) : item.hashCode()));
+        return CycleGuard.hashCode(this, () -> {
+            int result = 1;
+            for (var item : array) {
+                result = 31 * result + Objects.hashCode(item);
             }
-        }
-        return result;
+            return result;
+        });
     }
 
 }
