@@ -118,6 +118,9 @@ public class TuriHttpServer implements TuriFunction {
         }
 
 
+        // request handlers run Turicum closures on their own threads and may touch the global heap;
+        // switch it to the concurrent implementation before the first handler thread can start
+        ctx.globalContext.switchToMultithreading();
         server.setExecutor(executor);
         server.start();
         return channel;

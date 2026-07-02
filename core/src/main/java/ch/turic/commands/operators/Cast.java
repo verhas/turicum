@@ -5,7 +5,8 @@ import ch.turic.exceptions.ExecutionException;
 
 public class Cast {
 
-    private static final String MAX_LONG = Long.MAX_VALUE + "";
+    private static final String MAX_LONG = Long.toString(Long.MAX_VALUE);
+    private static final String MIN_LONG_MAGNITUDE = Long.toString(Long.MIN_VALUE).substring(1);
 
     /**
      * Test for conversion to long possibility.
@@ -25,24 +26,33 @@ public class Cast {
                     yield false;
                 }
                 int start = cs.charAt(0) == '+' || cs.charAt(0) == '-' ? 1 : 0;
-                int digitCount = 0;
+                if (cs.length() == start) {
+                    yield false;
+                }
                 for (int i = start; i < cs.length(); i++) {
                     if (!Character.isDigit(cs.charAt(i))) {
                         yield false;
                     }
-                    digitCount++;
                 }
-                if (digitCount == 0 || digitCount > MAX_LONG.length()) {
-                    yield false;
+                // all digits; only the long range boundary is left to check
+                int firstSignificant = start;
+                while (firstSignificant < cs.length() - 1 && cs.charAt(firstSignificant) == '0') {
+                    firstSignificant++;
                 }
-                if( digitCount == MAX_LONG.length()){
-                    for( int j = 0; j < MAX_LONG.length(); j++ ){
-                        if( cs.charAt(start + j) > MAX_LONG.charAt(j) ){
-                            yield false;
-                        }
+                // the negative bound is one larger in magnitude (Long.MIN_VALUE)
+                final var bound = cs.charAt(0) == '-' ? MIN_LONG_MAGNITUDE : MAX_LONG;
+                final int digits = cs.length() - firstSignificant;
+                if (digits != bound.length()) {
+                    yield digits < bound.length();
+                }
+                // equal number of significant digits: lexicographic order is numeric order
+                for (int j = 0; j < bound.length(); j++) {
+                    final char c = cs.charAt(firstSignificant + j);
+                    if (c != bound.charAt(j)) {
+                        yield c < bound.charAt(j);
                     }
                 }
-                yield false;
+                yield true; // equal to the bound
             }
             case null, default -> false;
         };

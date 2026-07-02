@@ -457,6 +457,9 @@ public class FlowCommand extends AbstractCommand {
      */
     @Override
     public Object _execute(LocalContext context) throws ExecutionException {
+        // cell tasks run on their own threads and may read or write the global heap;
+        // switch it to the concurrent implementation while we are still single-threaded
+        context.globalContext.switchToMultithreading();
         final var ctx = context.wrap();
         final var stateCounters = new HashMap<String, Long>();
         final var stoppedCells = new HashSet<Cell>();
