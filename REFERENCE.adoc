@@ -1166,6 +1166,9 @@
 
 
 
+
+
+
 == Introduction
 
 === What is Turicum?
@@ -2140,12 +2143,12 @@ w.a()
 .output of snippet `objectAttachment`
 [source]
 ----
-hello {Kukk: 2, cls: class B}, class B  [1, 2, 3]
+hello {this: {...}, Kukk: 2, cls: class B}, class B  [1, 2, 3]
 2
 Now with h
 hello none, class B  [1, 2, 3]
 none
-hello {Kukk: 2, cls: class B}, class B  [2, 3]
+hello {this: {...}, Kukk: 2, cls: class B}, class B  [2, 3]
 
 ----
 
@@ -2843,15 +2846,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=764CBA
+h id=3F685162
 h after post increment: 1
 k: 0
-h id=523D6BDB
-k id=764CBA
+h id=11F406F8
+k id=3F685162
 h after pre increment: 2
 z: 2
-h id=58496C97
-z id=58496C97
+h id=987455B
+z id=987455B
 
 ----
 
@@ -2897,15 +2900,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=12968227
+h id=1D5D5621
 h after post increment: 1
 k: 1
-h id=12968227
-k id=12968227
+h id=1D5D5621
+k id=1D5D5621
 h after pre increment: 2
 z: 2
-h id=12968227
-z id=12968227
+h id=1D5D5621
+z id=1D5D5621
 
 ----
 
@@ -2954,15 +2957,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=2D23FAEF
+h id=782BF610
 h after post decrement: -1
 k: 0
-h id=7CB8437D
-k id=2D23FAEF
+h id=3DB663D0
+k id=782BF610
 h after pre decrement: -2
 z: -2
-h id=62A4417
-z id=62A4417
+h id=73FC518F
+z id=73FC518F
 
 ----
 
@@ -3005,15 +3008,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=1BF39D06
+h id=151EF57F
 h after post decrement: -1
 k: -1
-h id=1BF39D06
-k id=1BF39D06
+h id=151EF57F
+k id=151EF57F
 h after pre decrement: -2
 z: -2
-h id=1BF39D06
-z id=1BF39D06
+h id=151EF57F
+z id=151EF57F
 
 ----
 
@@ -6223,11 +6226,11 @@ println "did not die"
 [source]
 ----
 Creating resource
-entry to ResourceManager {res: {cls: class Resource}, cls: class ResourceManager}
-r resource is {cls: class Resource}
+entry to ResourceManager {res: {this: {...}, cls: class Resource}, this: {...}, cls: class ResourceManager}
+r resource is {this: {...}, cls: class Resource}
 printf was called
 executing with resource 1 2
-exit fom ResourceManager {res: {cls: class Resource}, cls: class ResourceManager} with "mad dog" as exception
+exit fom ResourceManager {res: {this: {...}, cls: class Resource}, this: {...}, cls: class ResourceManager} with "mad dog" as exception
 mad dog
 closing resource
 did not die
@@ -6523,13 +6526,13 @@ execute("Thread 2",2)
 Thread 1 generated 3
  prime read 3
 Thread 1 generated 5
- prime read 5
 Thread 1 generated 7
- prime read 7
+ prime read 5
 Thread 1 generated 11
 Thread 1 generated 13
 Thread 1 generated 17
 Thread 1 generated 19
+ prime read 7
 Thread 1 generated 23
 stopping
 exception Task stopped.
@@ -6685,9 +6688,9 @@ fn sleeper( x ){
 [source]
 ----
 [1, 2, 3]
-307.771333ms
+311.302833ms
 [1, 2, 3]
-107.395541ms
+107.721833ms
 
 ----
 
@@ -8401,9 +8404,9 @@ mut b = a.B()
 .output of snippet `class8`
 [source]
 ----
-this {that: {cls: class A}, cls: class B}
+this {that: {this: {...}, cls: class A}, this: {...}, cls: class B}
 cls class B
-that {cls: class A}
+that {this: {...}, cls: class A}
 
 ----
 
@@ -8537,7 +8540,7 @@ mut o = C();
 .output of snippet `inherit4`
 [source]
 ----
-init in C, cls='class C' this='{cls: class C}'
+init in C, cls='class C' this='{this: {...}, cls: class C}'
 
 ----
 
@@ -8573,9 +8576,9 @@ mut o = C();
 .output of snippet `inherit5`
 [source]
 ----
-init in C, cls='class C' this='{cls: class C}'
-init in P1, cls='class P1' this='{cls: class C}'
-init in P2, cls='class P2' this='{cls: class C}'
+init in C, cls='class C' this='{this: {...}, cls: class C}'
+init in P1, cls='class P1' this='{this: {...}, cls: class C}'
+init in P2, cls='class P2' this='{this: {...}, cls: class C}'
 
 ----
 
@@ -8601,7 +8604,7 @@ mut o = C();
 .output of snippet `inherit6`
 [source]
 ----
-init in P, cls='class C' this='{cls: class C}'
+init in P, cls='class C' this='{this: {...}, cls: class C}'
 
 ----
 
@@ -8636,7 +8639,7 @@ print object
 .output of snippet `inherit7`
 [source]
 ----
-{a: 3, b: 4, c: 2, cls: class C}
+{a: 3, b: 4, c: 2, this: {...}, cls: class C}
 ----
 
 
@@ -13144,7 +13147,7 @@ println nano_time()
 .output of snippet `nano_time`
 [source]
 ----
-242555785501583
+854208405589666
 
 ----
 
@@ -13423,70 +13426,72 @@ none
 task1 is not ready 0
 task2 is ready 1
 task2 is not ready 0
-task2 is not ready 1task1 is not ready 1
-
-task1 is not ready 2task2 is not ready 2
-
+task2 is not ready 1
+task1 is not ready 1
+task2 is not ready 2
+task1 is not ready 2
 task2 is not ready 3
 task1 is not ready 3
-task2 is not ready 4
-task1 is ready 2
+task1 is ready 2task2 is not ready 4
+
 task1 is not ready 0
-task2 is not ready 5task1 is not ready 1
+task2 is not ready 5
+task1 is not ready 1
+task1 is not ready 2
+task2 is not ready 6
+task2 is ready 3task1 is not ready 3
 
-task2 is not ready 6task1 is not ready 2
-
-task2 is ready 3
-task1 is not ready 3
 task2 is not ready 0
-task1 is not ready 4
-task2 is not ready 1
+task2 is not ready 1task1 is not ready 4
+
 task2 is not ready 2task1 is not ready 5
 
-task1 is not ready 6task2 is ready 4
+task2 is not ready 3
+task1 is not ready 6
+task2 is ready 4task1 is not ready 7
 
 task2 is not ready 0
-task1 is not ready 7
+task1 is not ready 8
+task2 is not ready 1
+task1 is not ready 9
+task2 is not ready 2
+task2 is ready 5task1 is not ready 10
+
+task2 is not ready 0
+task1 is not ready 11task2 is not ready 1
+
+task2 is not ready 2
+task1 is not ready 12
+task2 is ready 6task1 is not ready 13
+
+task2 is not ready 0
+task2 is not ready 1task1 is not ready 14
+
+task2 is not ready 2task1 is not ready 15
+
+task2 is not ready 3task1 is ready 7
+
+task1 is not ready 0
+task1 is not ready 1task2 is not ready 4
+
+task2 is not ready 5task1 is not ready 2
+
+task2 is not ready 6task1 is not ready 3
+
+task1 is not ready 4task2 is ready 8
+
+task2 is not ready 0
+task2 is not ready 1
+task1 is not ready 5
+task2 is not ready 2task1 is not ready 6
+
+task1 is not ready 7task2 is ready 9
+
+task2 is not ready 0
 task2 is not ready 1
 task1 is not ready 8
 task2 is not ready 2
-task2 is ready 5task1 is not ready 9
-
-task2 is not ready 0
-task1 is not ready 10
-task2 is not ready 1
-task2 is not ready 2
-task1 is not ready 11
-task1 is not ready 12
-task2 is ready 6
-task2 is not ready 0
-task2 is not ready 1task1 is not ready 13
-
-task2 is not ready 2
-task1 is not ready 14
-task1 is ready 7
-task2 is not ready 3
-task1 is not ready 0
-task1 is not ready 1
-task2 is not ready 4
-task1 is not ready 2
-task2 is not ready 5
-task1 is ready 8
-task1 is not ready 0
-task2 is not ready 6
-task2 is not ready 7
-task1 is not ready 1
-task1 is not ready 2task2 is not ready 8
-
-task1 is ready 9task2 is not ready 9
-
-task1 is not ready 0
-task2 is not ready 10
-task1 is not ready 1
-task2 is not ready 11task1 is not ready 2
-
-task1 is not ready 3
-task2 is not ready 12
+task1 is not ready 9
 closing the channel
 channel is closed
 1 is done false
@@ -14239,7 +14244,7 @@ println z
 .output of snippet `unlet`
 [source]
 ----
-{a: {B: abraka}, c: , cls: class Z}
+{a: {B: abraka}, c: , this: {...}, cls: class Z}
 
 ----
 
@@ -14484,6 +14489,7 @@ not ready 0
 not ready 1
 not ready 2
 closing the channel
+not ready 3
 channel is closed
 is done false
 we are done

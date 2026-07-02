@@ -6,6 +6,7 @@ import ch.turic.exceptions.ExecutionException;
 import ch.turic.memory.LngList;
 import ch.turic.memory.LngObject;
 import ch.turic.memory.LocalContext;
+import ch.turic.memory.Sentinel;
 import ch.turic.utils.Unmarshaller;
 
 public class WhileLoop extends Loop {
@@ -68,11 +69,12 @@ public class WhileLoop extends Loop {
             if (breakLoop(scalarResult)) {
                 if (finallyBody != null) {
                     final var result = (Conditional.Result) scalarResult;
-                    loopContext.define("it", result.result(), null);
+                    // will throw if 'it' already exists, user must not define
+                    loopContext.define("it", result.result() == Sentinel.NO_VALUE ? null : result.result());
                     loopContext.freeze("it");
                     final var finallyResult = finallyBody.execute(loopContext);
                     if (finallyResult instanceof Conditional.ReturnResult returnResult && returnResult.isDone()) {
-                        return finallyResult;
+                        throw new ExecutionException("Must not return/break/continue in finally block of a while loop");
                     }
                 }
                 return normalize(scalarResult);
@@ -83,14 +85,14 @@ public class WhileLoop extends Loop {
                 break;
             }
         }
-        scalarResult = executeDoneOrOtherwise(wasExecuted, loopContext, listResult, scalarResult);
+        setVariableIT(loopContext, listResult, scalarResult);
+        scalarResult = executeDoneOrOtherwise(wasExecuted, loopContext, scalarResult);
 
         if (scalarResult instanceof Conditional.BreakResult || scalarResult instanceof Conditional.ContinueResult) {
-            throw new ExecutionException("done block of a while loop mut not break or continue");
+            throw new ExecutionException("done block of a while loop must not break or continue");
         }
 
         if (finallyBody != null) {
-            setVariableIT(loopContext, listResult, scalarResult);
             final var finallyResult = finallyBody.execute(loopContext);
             if (finallyResult instanceof Conditional.Result returnResult && returnResult.isDone()) {
                 throw new ExecutionException("Must not return/break/continue in finally block of a while loop");
@@ -111,17 +113,14 @@ public class WhileLoop extends Loop {
      *
      * @param wasExecuted  indicates whether the loop execution was successful
      * @param loopContext  the local context of the loop
-     * @param listResult   the list-result to be set in the context, if applicable
      * @param scalarResult the resulting scalar value
      * @return the resulting scalar value; may be updated if "otherwise" body logic is executed
      */
     private Object executeDoneOrOtherwise(final boolean wasExecuted,
                                           final LocalContext loopContext,
-                                          final LngList listResult,
                                           final Object scalarResult) {
         if (wasExecuted) {
             if (doneBody != null) {
-                setVariableIT(loopContext, listResult, scalarResult);
                 return doneBody.execute(loopContext);
             }
         } else {
@@ -143,26 +142,24 @@ public class WhileLoop extends Loop {
      * @param scalarResult the value to assign to the "it" variable if the result is not a list
      */
     private void setVariableIT(LocalContext loopContext, LngList listResult, Object scalarResult) {
-        if (!loopContext.contains("it")) {
-            if (resultIsList) {
-                loopContext.define("it", listResult, null);
-                listResult.pinned.set(true);
+        if (resultIsList) {
+            loopContext.define("it", listResult);
+            listResult.pinned.set(true);
+        } else {
+            final Object realResult;
+            if (scalarResult instanceof Conditional.Result result) {
+                realResult = result.result();
             } else {
-                final Object realResult;
-                if (scalarResult instanceof Conditional.Result result) {
-                    realResult = result.result();
-                } else {
-                    realResult = scalarResult;
-                }
-                loopContext.define("it", realResult, null);
-                switch (realResult) {
-                    case LngList list -> list.pinned.set(true);
-                    case LngObject obj -> obj.pinned.set(true);
-                    case null, default -> {
-                    }
+                realResult = scalarResult;
+            }
+            loopContext.define("it", realResult);
+            switch (realResult) {
+                case LngList list -> list.pinned.set(true);
+                case LngObject obj -> obj.pinned.set(true);
+                case null, default -> {
                 }
             }
-            loopContext.freeze("it");
         }
+        loopContext.freeze("it");
     }
 }

@@ -45,7 +45,7 @@ public class LetAssignment extends AbstractCommand {
                 }
             }
             if (assignment.expression() == null) {
-                ctx.define(assignment.identifier(),
+                ctx.defineTypeChecked(assignment.identifier(),
                         null,
                         typeNames);
             } else {

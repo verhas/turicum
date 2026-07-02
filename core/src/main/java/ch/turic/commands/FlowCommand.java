@@ -1,8 +1,8 @@
 package ch.turic.commands;
 
 import ch.turic.Command;
-import ch.turic.exceptions.ExecutionException;
 import ch.turic.commands.operators.Cast;
+import ch.turic.exceptions.ExecutionException;
 import ch.turic.memory.LocalContext;
 import ch.turic.memory.NameGen;
 import ch.turic.memory.Sentinel;
@@ -221,7 +221,7 @@ public class FlowCommand extends AbstractCommand {
 
     private void validateSchedulingOrderFromDependencies() throws ExecutionException {
         if (dependentCells.isEmpty()) {
-            throw new RuntimeException("There are no dependencies defined for this flow command. It is an internal error.");
+            throw new IllegalArgumentException("There are no dependencies defined for this flow command. It is an internal error.");
         }
 
         final var dependencyMap = buildDepencencyMap();
@@ -422,10 +422,12 @@ public class FlowCommand extends AbstractCommand {
      * and its superclasses, excluding the Object class
      */
     private static Field[] getFields(Object command) {
-        final var fields = new HashSet<>(List.of(command.getClass().getDeclaredFields()));
-        while (command.getClass().getSuperclass() != null && command.getClass().getSuperclass() != Object.class) {
-            fields.addAll(List.of(command.getClass().getSuperclass().getDeclaredFields()));
-            command = command.getClass().getSuperclass();
+
+        final var fields = new HashSet<Field>();
+        for (var commandClass = command.getClass();
+             commandClass != null && commandClass != Object.class;
+             commandClass = commandClass.getSuperclass()) {
+            fields.addAll(List.of(commandClass.getDeclaredFields()));
         }
         return fields.toArray(Field[]::new);
     }
@@ -530,7 +532,7 @@ public class FlowCommand extends AbstractCommand {
                 }
             }
         } catch (ExecutionException e) {
-            final var newException = new ExecutionException("While in flow '%s': %s", flowId, e.getMessage());
+            final var newException = new ExecutionException(e,"While in flow '%s': %s", flowId, e.getMessage());
             newException.setStackTrace(e.getStackTrace());
             throw newException;
         } catch (Exception e) {
@@ -756,7 +758,7 @@ public class FlowCommand extends AbstractCommand {
                 final var newException = new ExecutionException(t, "Exception in flow '%s' thread %s ", flowId, Thread.currentThread().getName());
                 exception.compareAndSet(null, newException);
                 return null;
-            }finally {
+            } finally {
                 newContext.close();
             }
         }, executor);

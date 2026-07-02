@@ -33,7 +33,7 @@
 fn flat(!clist:lst,@recurse:bool=false):lst{
     mut flattened=[];
     for each l in clist{
-        flattened+=if recurse&&type(l)=="lst":flat(l)else:l;
+        flattened += if recurse && type(l) == "lst" : flat(l) else: l;
     }
     flattened
 }

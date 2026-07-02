@@ -1,0 +1,3 @@
+// test that the keyword 'let mut' is allowed
+// this is a syntactic sugar provided to make the code more Rust like
+let mut x = 10

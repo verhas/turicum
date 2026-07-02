@@ -1,1 +1,1 @@
-{a: {B: abraka}, c: , cls: class Z}
+{a: {B: abraka}, c: , this: {...}, cls: class Z}

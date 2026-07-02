@@ -157,6 +157,9 @@ public class LngList implements HasIndex, HasFields {
     @Override
     public Object getField(String name) throws ExecutionException {
         if (fieldProvider == null) {
+            if ("length".equals(name)) {
+                return array.size();
+            }
             throw new ExecutionException("List is not tied.");
         }
         return fieldProvider.getField(name);
@@ -164,7 +167,11 @@ public class LngList implements HasIndex, HasFields {
 
     @Override
     public Set<String> fields() {
-        return Set.of("length");
+        if (fieldProvider == null) {
+            return Set.of("length");
+        } else {
+            return fieldProvider.fields();
+        }
     }
 
     @Override

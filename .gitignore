@@ -3,3 +3,4 @@
 .asciidoctor
 cli/output
 *.turc
+.perag/perag.db

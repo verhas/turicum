@@ -1,0 +1,15 @@
+
+fn assert_throws( [ rest ],{ meta } ,^ closure ) : err {
+    try{
+        closure( .. meta,.. rest )
+        } catch e {
+        return e
+    }
+    die "did not throw"
+}
+
+fn assert_equals( expected, actual ){
+    die $"not equal $expected != $actual" when expected != actual
+}
+
+export_all();

@@ -1,1 +1,1 @@
-{that: {cls: class A}, cls: class B}
+{that: {this: {...}, cls: class A}, this: {...}, cls: class B}

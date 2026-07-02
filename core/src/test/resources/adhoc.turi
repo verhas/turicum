@@ -1,13 +1,4 @@
-let z=async[ time= 1 / 20] {
-    while{
-        //sleep 1 / 1000
-    }
-}
+let mut z = 13
+print "Hello World"
 
-// sleep 100ms, should be enough to timeout
-sleep 0.1
 
-println "All three results should be true"
-println $"  z is done ${z.is_done()}"
-println $"  z is err ${z.is_err()}"
-println $"  z is timeout ${z.is_timeout()}"

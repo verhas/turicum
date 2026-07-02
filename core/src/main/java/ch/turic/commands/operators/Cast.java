@@ -1,9 +1,11 @@
 package ch.turic.commands.operators;
 
-import ch.turic.exceptions.ExecutionException;
 import ch.turic.commands.Conditional;
+import ch.turic.exceptions.ExecutionException;
 
 public class Cast {
+
+    private static final String MAX_LONG = Long.MAX_VALUE + "";
 
     /**
      * Test for conversion to long possibility.
@@ -23,12 +25,24 @@ public class Cast {
                     yield false;
                 }
                 int start = cs.charAt(0) == '+' || cs.charAt(0) == '-' ? 1 : 0;
+                int digitCount = 0;
                 for (int i = start; i < cs.length(); i++) {
                     if (!Character.isDigit(cs.charAt(i))) {
                         yield false;
                     }
+                    digitCount++;
                 }
-                yield true;
+                if (digitCount == 0 || digitCount > MAX_LONG.length()) {
+                    yield false;
+                }
+                if( digitCount == MAX_LONG.length()){
+                    for( int j = 0; j < MAX_LONG.length(); j++ ){
+                        if( cs.charAt(start + j) > MAX_LONG.charAt(j) ){
+                            yield false;
+                        }
+                    }
+                }
+                yield false;
             }
             case null, default -> false;
         };
@@ -47,16 +61,18 @@ public class Cast {
                 if (cs.isEmpty()) {
                     yield false;
                 }
-                int i = cs.charAt(0) == '+' || cs.charAt(0) == '-' ? 1 : 0;
-                while (i < cs.length()) {
+                final int start = cs.charAt(0) == '+' || cs.charAt(0) == '-' ? 1 : 0;
+                var i = start;
+                int digitCount = 0;
+                for (; i < cs.length(); i++) {
                     if (cs.charAt(i) == '.') break;
                     if (!Character.isDigit(cs.charAt(i))) {
                         yield false;
                     }
-                    i++;
+                    digitCount++;
                 }
                 if (i >= cs.length()) {
-                    yield true;
+                    yield cs.length() > start;
                 }
                 if (cs.charAt(i) != '.') {
                     yield false;
@@ -67,10 +83,17 @@ public class Cast {
                     if (!Character.isDigit(cs.charAt(i))) {
                         yield false;
                     }
+                    digitCount++;
                     i++;
+                }
+                if (digitCount == 0) {
+                    yield false;
                 }
                 if (i < cs.length() && cs.charAt(i) != 'e' && cs.charAt(i) != 'E') {
                     yield false;
+                }
+                if (i == cs.length()) {
+                    yield true;
                 }
                 i++; // step over the 'e' or 'E'
                 if (i >= cs.length()) {

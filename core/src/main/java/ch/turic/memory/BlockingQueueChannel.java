@@ -89,8 +89,12 @@ public class BlockingQueueChannel<T> implements Channel<T> {
     @Override
     public void close() {
         if (!closed) {
-            Channel.super.close();
-            closed = true;
+            synchronized (this) {
+                if (!closed) {
+                    Channel.super.close();
+                    closed = true;
+                }
+            }
         }
     }
 

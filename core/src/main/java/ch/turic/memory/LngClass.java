@@ -1,12 +1,12 @@
 package ch.turic.memory;
 
 import ch.turic.Context;
-import ch.turic.commands.Identifier;
-import ch.turic.exceptions.ExecutionException;
 import ch.turic.LngCallable;
 import ch.turic.commands.ClosureLike;
 import ch.turic.commands.FunctionCall;
+import ch.turic.commands.Identifier;
 import ch.turic.commands.Macro;
+import ch.turic.exceptions.ExecutionException;
 
 import java.util.Iterator;
 import java.util.Set;
@@ -39,10 +39,10 @@ public class LngClass implements HasFields, HasIndex, HasContext, LngCallable.Ln
     /**
      * Creates a new instance of the class represented by this object.
      *
-     * @param that an optional object representing the context or reference (or null) on which the constructor was called.
-     *             This is a special case when the class is a field of another object. 'that' will point to "that" object.
+     * @param that          an optional object representing the context or reference (or null) on which the constructor was called.
+     *                      This is a special case when the class is a field of another object. 'that' will point to "that" object.
      * @param callerContext the local context of the caller, used as a basis to create the instance's context.
-     * @param arguments the evaluated arguments to be passed to the class constructor or initializer.
+     * @param arguments     the evaluated arguments to be passed to the class constructor or initializer.
      * @return the newly created and initialized instance of the class.
      */
     public Object newInstance(Object that, LocalContext callerContext, FunctionCall.Argument[] arguments) {
@@ -55,7 +55,7 @@ public class LngClass implements HasFields, HasIndex, HasContext, LngCallable.Ln
         objectContext.local("this", uninitialized);
         objectContext.local("cls", this);
         FunctionCall.freezeCls(objectContext);
-        final var constructor = context().get("init");
+        final var constructor = uninitialized.getField("init");
         if (constructor instanceof ClosureLike command) {
             return callConstructor(callerContext, arguments, command, objectContext);
         } else {
@@ -75,26 +75,26 @@ public class LngClass implements HasFields, HasIndex, HasContext, LngCallable.Ln
         return objectContext.get("this");
     }
 
-    private Object callConstructorEvaluated(LocalContext callerContext, Object[] arguments, ClosureLike command, LocalContext objectContext) {
+    private void callConstructorEvaluated(LocalContext callerContext, Object[] arguments, ClosureLike command, LocalContext objectContext) {
         if (command instanceof Macro) {
             objectContext.setCaller(callerContext);
         }
-        if( command.parameters().parameters().length != arguments.length) {
+        if (command.parameters().parameters().length != arguments.length) {
             throw new ExecutionException("Wrong number of arguments");
         }
         final var argValues = new ArgumentEvaluated[arguments.length];
         for (int i = 0; i < arguments.length; i++) {
             argValues[i] = new ArgumentEvaluated(
-                    new Identifier(command.parameters().parameters()[i].identifier()),arguments[i]);
+                    new Identifier(command.parameters().parameters()[i].identifier()), arguments[i]);
         }
         defineArgumentsInContext(objectContext, callerContext, command.parameters(), argValues, false);
         command.execute(objectContext);
         objectContext.freeze("this");
-        return objectContext.get("this");
     }
 
     @Override
     public void setField(String name, Object value) throws ExecutionException {
+        ExecutionException.when(pinned.get(), "You cannot change a pinned class");
         context.local(name, value);
     }
 
@@ -142,7 +142,7 @@ public class LngClass implements HasFields, HasIndex, HasContext, LngCallable.Ln
         final var constructor = uninitialized.getField("init");
         if (constructor != null) {
             if ((constructor instanceof ClosureLike closure)) {
-                callConstructorEvaluated(callerCtx,arguments,closure,objectContext);
+                callConstructorEvaluated(callerCtx, arguments, closure, objectContext);
             } else {
                 throw new ExecutionException("Constructor function is not callable");
             }
@@ -156,9 +156,11 @@ public class LngClass implements HasFields, HasIndex, HasContext, LngCallable.Ln
         if (other == this) {
             return true;
         }
-        for (final var parent : context.parents()) {
-            if (parent.assignableTo(other)) {
-                return true;
+        if (context.parents() != null) {
+            for (final var parent : context.parents()) {
+                if (parent.assignableTo(other)) {
+                    return true;
+                }
             }
         }
         return false;

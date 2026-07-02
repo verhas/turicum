@@ -155,7 +155,7 @@ public class AsyncEvaluation extends AbstractCommand {
      * @param target the context to which we copy the variables
      */
     private static void copyVariables(LocalContext source, LocalContext target) {
-        for (final var key : source.keys()) {
+        for (final var key : source.allLocalKeys()) {
             target.let0(key, source.get(key));
             target.freeze(key);
         }

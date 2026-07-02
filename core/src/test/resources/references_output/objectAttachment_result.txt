@@ -1,1 +1,1 @@
-hello {Kukk: 2, cls: class B}, class B  [2, 3]
+hello {this: {...}, Kukk: 2, cls: class B}, class B  [2, 3]

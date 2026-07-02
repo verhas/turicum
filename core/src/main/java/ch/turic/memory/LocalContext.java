@@ -246,19 +246,17 @@ public class LocalContext implements Context, AutoCloseable {
     }
 
     /**
-     * Define a variable with the types defined by {@code typeNames}.
+     * Define a variable without the types defined.
      *
      * @param key       the name of the variable
      * @param value     the value of the new variable
-     * @param typeNames the names of the accepted types
      */
-    public void define(String key, Object value, String[] typeNames) {
-        final var v = createVariable(key, typeNames);
-        v.set(value);
+    public void define(String key, Object value) {
+        defineTypeChecked(key, value, null);
     }
 
     /**
-     * Same as {@link #define(String, Object, String[]) define()}, but it throws an exception if the type does not fit the
+     * Same as {@link #define(String, Object) define()}, but it throws an exception if the type does not fit the
      * value.
      *
      * @param key       the name of the variable

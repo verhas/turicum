@@ -72,7 +72,7 @@ public class LngException extends LngObject {
 
     @Override
     public void setIndex(Object index, Object value) throws ExecutionException {
-        super.setIndex(index, value);
+        throw new ExecutionException("Exceptions do not have index.");
     }
 
     @Override

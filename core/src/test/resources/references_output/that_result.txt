@@ -1,1 +1,1 @@
-{that: {name: outer object, cls: class OuterClass}, name: inner object, cls: class InnerClass}
+{that: {this: {...}, name: outer object, cls: class OuterClass}, this: {...}, name: inner object, cls: class InnerClass}

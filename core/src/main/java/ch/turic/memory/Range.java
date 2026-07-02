@@ -83,8 +83,7 @@ public record Range(Object start, Object end) {
             if (i < 0) {
                 i = i + size;
             }
-            final var limit = isStart ? size : size + 1;
-            if (i < 0 || i > limit) {
+            if (i < 0 || i > size) {
                 throw new ExecutionException("Index is out of range %d", i);
             }
             return i;

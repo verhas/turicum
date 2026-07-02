@@ -1,9 +1,9 @@
 Creating resource
-entry to ResourceManager {res: {cls: class Resource}, cls: class ResourceManager}
-r resource is {cls: class Resource}
+entry to ResourceManager {res: {this: {...}, cls: class Resource}, this: {...}, cls: class ResourceManager}
+r resource is {this: {...}, cls: class Resource}
 printf was called
 executing with resource 1 2
-exit fom ResourceManager {res: {cls: class Resource}, cls: class ResourceManager} with "mad dog" as exception
+exit fom ResourceManager {res: {this: {...}, cls: class Resource}, this: {...}, cls: class ResourceManager} with "mad dog" as exception
 mad dog
 closing resource
 did not die

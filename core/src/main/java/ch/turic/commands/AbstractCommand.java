@@ -101,6 +101,9 @@ public abstract class AbstractCommand implements Command, HasFields {
     }
 
     private Object cast2Lang(LocalContext context, Object command) {
+        if( command == null ){
+            throw new IllegalArgumentException("command is null in AbstractCommand");
+        }
         if (command.getClass().isArray()) {
             return _toLngList(command, context);
         }
@@ -148,6 +151,8 @@ public abstract class AbstractCommand implements Command, HasFields {
 
     public Object execute(final LocalContext ctx) throws ExecutionException {
         if( ctx.threadContext.isAborted()) {
+            // it is not an execution exception, the thread should stop,
+            // and ExecutionException would be caught by try-catch
             throw new RuntimeException("Execution aborted");
         }
         final var sf = new LngStackFrame(this);
@@ -156,6 +161,7 @@ public abstract class AbstractCommand implements Command, HasFields {
 
         ctx.threadContext.push(sf);
         final var result = _execute(ctx);
+        // is not popped in case of exception, stack will be used where the exception is caught
         ctx.threadContext.pop();
         if (dc != null && step) {
             dc.setState(DebuggerContext.State.STEPPING);
