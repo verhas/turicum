@@ -3,6 +3,7 @@ package ch.turic.memory;
 
 import ch.turic.Context;
 import ch.turic.exceptions.ExecutionException;
+import ch.turic.exceptions.UndefinedVariable;
 import ch.turic.memory.debugger.ConcurrentWorkItem;
 import ch.turic.memory.debugger.DebuggerContext;
 
@@ -125,15 +126,6 @@ public class LocalContext implements Context, AutoCloseable {
         this.threadContext = clone.threadContext;
         this.frame = new VarTable();
         this.wrapped = wrapped;
-        this.with = false;
-        this.frozen = new HashSet<>();
-    }
-
-    private LocalContext(final LocalContext thisContext, final LocalContext wrappedContext, final boolean shadow) {
-        this.globalContext = thisContext.globalContext;
-        this.threadContext = thisContext.threadContext;
-        this.frame = new VarTable();
-        this.wrapped = wrappedContext;
         this.with = false;
         this.frozen = new HashSet<>();
     }
@@ -624,7 +616,7 @@ public class LocalContext implements Context, AutoCloseable {
             nonlocal.add(key);// register the use of the global variable
             return globalContext.heap.get(key).get();
         }
-        throw new ExecutionException("Variable '%s' is undefined.", key);
+        throw new UndefinedVariable(key);
     }
 
     public boolean contains(String key) {

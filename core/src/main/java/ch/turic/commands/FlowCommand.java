@@ -3,6 +3,7 @@ package ch.turic.commands;
 import ch.turic.Command;
 import ch.turic.commands.operators.Cast;
 import ch.turic.exceptions.ExecutionException;
+import ch.turic.exceptions.UndefinedVariable;
 import ch.turic.memory.LocalContext;
 import ch.turic.memory.NameGen;
 import ch.turic.memory.Sentinel;
@@ -101,6 +102,7 @@ public class FlowCommand extends AbstractCommand {
         this.dependentCells = dependentCells;
     }
 
+    @SuppressWarnings("unchecked")
     public static FlowCommand factory(final Unmarshaller.Args args) {
         return new FlowCommand(
                 args.str("flowId"),
@@ -432,6 +434,8 @@ public class FlowCommand extends AbstractCommand {
         return fields.toArray(Field[]::new);
     }
 
+    private record ExitFlag(boolean doExit, ExecutionException doException) {
+    }
 
     /**
      * Executes the flow command using the given context. The execution starts with the first defined cell
@@ -458,8 +462,7 @@ public class FlowCommand extends AbstractCommand {
         final var stoppedCells = new HashSet<Cell>();
         final var exception = new AtomicReference<Exception>(null);
         long totalScheduled = 0;
-        boolean doExit = false;
-        ExecutionException doException = null;
+        ExitFlag exitFlag = new ExitFlag(false, null);
         long limit;
         if (limitExpression == null) {
             limit = -1;
@@ -488,18 +491,11 @@ public class FlowCommand extends AbstractCommand {
                 CompletableFuture.anyOf(tasksRunning.toArray(CompletableFuture[]::new)).join();
                 final long currentTime = System.nanoTime();
                 if (timeout >= 0 && timeout <= currentTime - startTime) {
-                    doExit = true;
-                    doException = new ExecutionException("Flow '%s' timed out after %s ms", flowId, timeout / 1_000_000);
+                    exitFlag = new ExitFlag(true,
+                            new ExecutionException("Flow '%s' timed out after %s ms", flowId, timeout / 1_000_000));
                 }
                 while (true) {
-                    final var e = exception.get();
-                    if (e != null) {
-                        if (e instanceof ExecutionException ee) {
-                            throw ee;
-                        } else {
-                            throw new ExecutionException(exception.get(), "Exception while executing flow '%s'.", flowId);
-                        }
-                    }
+                    throwIfExceptionPresent(exception);
                     // get one task that is ready
                     final var task = tasksRunning.stream().filter(CompletableFuture::isDone).findAny();
                     if (task.isEmpty()) {
@@ -507,20 +503,23 @@ public class FlowCommand extends AbstractCommand {
                     }
                     tasksRunning.remove(task.get());
                     final var cnR = task.get().get();
-                    // do not schedule new tasks if we started to exit or start to exit now
-                    if (!doExit && !(doExit = isExitConditionMet(ctx))) {
+                    // unless we already started exit check if we should
+                    if (!exitFlag.doExit()) {
+                        exitFlag = isExitConditionMet(ctx);
+                    }
+                    // do not schedule new tasks if we started to exit
+                    if (!exitFlag.doExit()) {
                         if (cnR != null) {
                             if (cnR.result == Sentinel.FINI) {
                                 stoppedCells.add(cnR.cell);
-                                updateStateCounter(ctx, cnR, stateCounters);
+                                updateStateCounter(cnR, stateCounters);
                             } else {
                                 if (cnR.result != Sentinel.NON_MUTAT) {
                                     final var nr = updateAndScheduleNewTasks(ctx, cnR, tasksRunning, exception, stateCounters, stoppedCells);
                                     totalScheduled += nr;
                                     if (limit >= 0) {
                                         if (nr >= limit) {
-                                            doExit = true;
-                                            doException = new ExecutionException("Task limit has been reached in flow '%s' command after %d tasks.", flowId, totalScheduled);
+                                            exitFlag = new ExitFlag(true, new ExecutionException("Task limit has been reached in flow '%s' command after %d tasks.", flowId, totalScheduled));
                                         } else {
                                             limit -= nr;
                                         }
@@ -532,19 +531,30 @@ public class FlowCommand extends AbstractCommand {
                 }
             }
         } catch (ExecutionException e) {
-            final var newException = new ExecutionException(e,"While in flow '%s': %s", flowId, e.getMessage());
+            final var newException = new ExecutionException(e, "While in flow '%s': %s", flowId, e.getMessage());
             newException.setStackTrace(e.getStackTrace());
             throw newException;
         } catch (Exception e) {
             throw new ExecutionException(e, "There was an exception while executing the flow '%s'", flowId);
         }
-        if (doException != null) {
-            throw doException;
+        if (exitFlag.doException() != null) {
+            throw exitFlag.doException();
         }
         if (resultExpression != null) {
             return resultExpression.execute(ctx);
         } else {
             return null;
+        }
+    }
+
+    private void throwIfExceptionPresent(final AtomicReference<Exception> exception) {
+        final var e = exception.get();
+        if (e != null) {
+            if (e instanceof ExecutionException ee) {
+                throw ee;
+            } else {
+                throw new ExecutionException(e, "Exception while executing flow '%s'.", flowId);
+            }
         }
     }
 
@@ -597,22 +607,24 @@ public class FlowCommand extends AbstractCommand {
 
     /**
      * Safely evaluates the {@code exitCondition} using the provided context.
-     * Returns {@code false} if the condition is {@code null} or
-     * if the evaluation of the condition throws an exception.
-     * Note that the expression evaluated in the 'until' part of the flow may throw
-     *  an exception at the start when some cells are still undefined.
+     * <p>
+     * Note that the
+     * <p>
+     * Returns {@code false} if the condition is {@code null} or throws an exception during evaluation.
      *
      * @param ctx the context to use for evaluation
      * @return {@code true} if the exit condition evaluates to true; {@code false} otherwise
      */
-    private boolean isExitConditionMet(LocalContext ctx) {
+    private ExitFlag isExitConditionMet(LocalContext ctx) {
         if (exitCondition == null) {
-            return false;
+            return new ExitFlag(false, null);
         }
         try {
-            return Cast.toBoolean(exitCondition.execute(ctx));
+            return new ExitFlag(Cast.toBoolean(exitCondition.execute(ctx)), null);
+        } catch (UndefinedVariable uv) {
+            return new ExitFlag(false, null);
         } catch (ExecutionException e) {
-            return false;
+            return new ExitFlag(true, e);
         }
     }
 
@@ -702,10 +714,10 @@ public class FlowCommand extends AbstractCommand {
      */
     private void saveState(LocalContext ctx, CellWithResult cnR, Map<String, Long> stateCounters) {
         ctx.let0(cnR.cell.id, cnR.result);
-        updateStateCounter(ctx, cnR, stateCounters);
+        updateStateCounter(cnR, stateCounters);
     }
 
-    private void updateStateCounter(LocalContext ctx, CellWithResult cnR, Map<String, Long> stateCounters) {
+    private void updateStateCounter(CellWithResult cnR, Map<String, Long> stateCounters) {
         stateCounters.computeIfPresent(cnR.cell.id, (k, v) -> v + 1);
     }
 
