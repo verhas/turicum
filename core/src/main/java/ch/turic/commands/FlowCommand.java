@@ -597,7 +597,10 @@ public class FlowCommand extends AbstractCommand {
 
     /**
      * Safely evaluates the {@code exitCondition} using the provided context.
-     * Returns {@code false} if the condition is {@code null} or throws an exception during evaluation.
+     * Returns {@code false} if the condition is {@code null} or
+     * if the evaluation of the condition throws an exception.
+     * Note that the expression evaluated in the 'until' part of the flow may throw
+     *  an exception at the start when some cells are still undefined.
      *
      * @param ctx the context to use for evaluation
      * @return {@code true} if the exit condition evaluates to true; {@code false} otherwise
