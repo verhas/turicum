@@ -39,6 +39,12 @@ public class VarTable {
     }
 
 
+    /**
+     * This method is called only from the GlobalContext to switch the VarTable from single-thread to multi-thread.
+     * By the time this method is called, there is only one thread in the interpreter calling this method.
+     * This ensures that the non-volatile {@code map} field is safely changed and all other threads have a safe
+     * happens-before edge because they are started later.
+     */
     public void parallel() {
         if (isMultiThreading.compareAndSet(false, true)) {
             map = new ConcurrentHashMap<>(map);

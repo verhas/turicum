@@ -105,20 +105,14 @@ public class CycleGuard {
             if (!guard.seen().add(pair)) {
                 return true;
             }
-            return comparator.getAsBoolean();
+            try {
+                return comparator.getAsBoolean();
+            } finally {
+                guard.seen().remove(pair);
+            }
         }
     }
 
-    /**
-     * Cycle-safe hash code computation. Call this from {@code hashCode()} implementations.
-     * <p>
-     * If {@code obj} is already being hashed on this thread's call stack, returns {@code 0}
-     * to break the cycle. Otherwise it registers the object and delegates to {@code computer}.
-     *
-     * @param obj      the object being hashed ({@code this} in the caller)
-     * @param computer performs the actual hash computation; called only when no cycle is detected
-     * @return the hash code, or {@code 0} if a cycle is detected
-     */
     /**
      * Cycle-safe {@code toString()} computation. Call this from {@code toString()} implementations.
      * <p>
@@ -143,6 +137,16 @@ public class CycleGuard {
         }
     }
 
+    /**
+     * Cycle-safe hash code computation. Call this from {@code hashCode()} implementations.
+     * <p>
+     * If {@code obj} is already being hashed on this thread's call stack, returns {@code 0}
+     * to break the cycle. Otherwise, it registers the object and delegates to {@code computer}.
+     *
+     * @param obj      the object being hashed ({@code this} in the caller)
+     * @param computer performs the actual hash computation; called only when no cycle is detected
+     * @return the hash code, or {@code 0} if a cycle is detected
+     */
     public static int hashCode(Object obj, IntSupplier computer) {
         try (final var guard = Guard.of(HASH_GUARD, IdentityHashMap::new)) {
             if (guard.seen().containsKey(obj)) {
