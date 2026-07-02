@@ -179,9 +179,7 @@ public interface Channel<T> extends AutoCloseable, Iterable<T> {
     }
 
     @Override
-    default void close() {
-        send(Message.closed());
-    }
+    void close(); // no exception
 
     /**
      * Send a message to the receiving end. If the channel is full, then wait.
