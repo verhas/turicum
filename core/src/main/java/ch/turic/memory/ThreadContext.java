@@ -61,7 +61,9 @@ public class ThreadContext {
         return aborted;
     }
 
-    private Thread thread;
+    // volatile: set from inside the running thread, read by abort() from other threads
+    // (e.g. the timeout handler in AsyncEvaluation or a cancelling parent)
+    private volatile Thread thread;
 
     /**
      * Returns the Java thread currently executing inside this context, or {@code null}

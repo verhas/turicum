@@ -5,7 +5,6 @@ import "turicum_versions"
 let project=maven_project( {
         name: "maven 3 extension",
         artifactId: "turicum-maven-extension"
-        version: VERSION,
         description: "Turicum maven extension",
         parent:{
             groupId: groupId,

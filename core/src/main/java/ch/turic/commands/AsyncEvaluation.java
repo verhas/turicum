@@ -11,6 +11,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class AsyncEvaluation extends AbstractCommand {
     private static final ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
@@ -18,7 +19,10 @@ public class AsyncEvaluation extends AbstractCommand {
     private final Map<String, Command> options;
 
     public static AsyncEvaluation factory(Unmarshaller.Args args) {
-        return new AsyncEvaluation(args.command("command"), args.get("options", Map.class));
+        final var command = args.command("command");
+        @SuppressWarnings("unchecked")
+        final Map<String,Command> options = args.get("options", Map.class);
+        return new AsyncEvaluation(command, options);
     }
 
     public AsyncEvaluation(Command command, Map<String, Command> options) {
@@ -140,6 +144,12 @@ public class AsyncEvaluation extends AbstractCommand {
                 }, executor);
         if (timeLimit >= 0) {
             future = future.orTimeout(timeLimit, TimeUnit.MILLISECONDS);
+            // the timeout only completes the future; the interpreter thread must also be stopped
+            future.whenComplete((result, throwable) -> {
+                if (throwable instanceof TimeoutException) {
+                    newContext.threadContext.abort();
+                }
+            });
         }
         yielder.setFuture(future);
         yielder.setContext(newContext);

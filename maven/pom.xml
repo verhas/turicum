@@ -47,14 +47,13 @@
     <name>maven 3 extension</name>
     <description>Turicum maven extension</description>
     <artifactId>turicum-maven-extension</artifactId>
-    <version>1.4.2</version>
     <properties>
         <maven.plugin.validation>VERBOSE</maven.plugin.validation>
         <maven.compiler.target>21</maven.compiler.target>
         <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ssZ</maven.build.timestamp.format>
         <maven.compiler.source>21</maven.compiler.source>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <time>2026-07-02 10:58:49</time>
+        <time>2026-07-02 11:16:28</time>
     </properties>
     <dependencies>
         <dependency>
@@ -84,7 +83,7 @@
             <scope>provided</scope>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-core</artifactId>
-            <version>3.9.8</version>
+            <version>3.9.11</version>
         </dependency>
     </dependencies>
 </project>
