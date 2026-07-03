@@ -80,9 +80,28 @@ class CastTest {
         assertFalse(Cast.isDouble("1.5e+"));
         assertFalse(Cast.isDouble("1.5ee3"));
         assertFalse(Cast.isDouble(".e5"));
+        assertFalse(Cast.isDouble("e5"));
         assertFalse(Cast.isDouble("abc"));
-        // stricter than Double.parseDouble: the exponent form requires a '.' before it
-        assertFalse(Cast.isDouble("1e5"));
+    }
+
+    @Test
+    void isDoubleAcceptsExponentWithoutFraction() {
+        // consistent with Double.parseDouble: the exponent does not require a '.' before it
+        assertTrue(Cast.isDouble("1e5"));
+        assertTrue(Cast.isDouble("1E5"));
+        assertTrue(Cast.isDouble("-2e-3"));
+        assertTrue(Cast.isDouble("+2e+3"));
+        assertEquals(100000.0, Cast.toDouble("1e5"));
+    }
+
+    @Test
+    void toLongAcceptsFloatLikeDouble() {
+        // symmetric with toDouble, which accepts Float
+        assertEquals(3L, Cast.toLong(3.0f));
+        assertThrows(ch.turic.exceptions.ExecutionException.class, () -> Cast.toLong(3.5f),
+                "fractions do not fit a long");
+        assertThrows(ch.turic.exceptions.ExecutionException.class, () -> Cast.toLong(1e30f),
+                "out of long range");
     }
 
     /**
@@ -125,5 +144,55 @@ class CastTest {
         assertEquals(Long.MAX_VALUE, Cast.toLong("9223372036854775807"));
         assertEquals(Long.MIN_VALUE, Cast.toLong("-9223372036854775808"));
         assertEquals(42L, Cast.toLong("000042"));
+    }
+
+    @Test
+    void isIntegerChecksTheIntRange() {
+        assertTrue(Cast.isInteger(42L));
+        assertTrue(Cast.isInteger("2147483647"));
+        assertTrue(Cast.isInteger("-2147483648"));
+        assertFalse(Cast.isInteger("2147483648"), "Integer.MAX_VALUE+1 is not an int");
+        assertFalse(Cast.isInteger("-2147483649"), "Integer.MIN_VALUE-1 is not an int");
+        assertFalse(Cast.isInteger(3.14), "double is not an int");
+        assertFalse(Cast.isInteger("abc"));
+    }
+
+    @Test
+    void toIntegerConvertsInRangeValues() {
+        assertEquals(42, Cast.toInteger(42L));
+        assertEquals(Integer.MAX_VALUE, Cast.toInteger((long) Integer.MAX_VALUE));
+        assertEquals(Integer.MIN_VALUE, Cast.toInteger((long) Integer.MIN_VALUE));
+        assertEquals(-5, Cast.toInteger("-5"));
+        assertEquals(3, Cast.toInteger(3.0));
+    }
+
+    /**
+     * {@code toInteger} must throw instead of silently truncating values outside the int range.
+     * A truncated value used e.g. as an async step limit turns a requested limit into
+     * "unlimited", and used as a capacity it becomes a negative number.
+     */
+    @Test
+    void toIntegerRejectsOutOfRangeValuesInsteadOfTruncating() {
+        assertThrows(ch.turic.exceptions.ExecutionException.class,
+                () -> Cast.toInteger(Integer.MAX_VALUE + 1L));
+        assertThrows(ch.turic.exceptions.ExecutionException.class,
+                () -> Cast.toInteger(Integer.MIN_VALUE - 1L));
+        assertThrows(ch.turic.exceptions.ExecutionException.class,
+                () -> Cast.toInteger(3.0e9), "double beyond int range must not truncate");
+        assertThrows(ch.turic.exceptions.ExecutionException.class,
+                () -> Cast.toInteger("4294967296"), "2^32 truncates to 0 without the range check");
+    }
+
+    @Test
+    void isIntegerTrueImpliesToIntegerSucceeds() {
+        final var samples = List.of(
+                "42", "-5", "2147483647", "-2147483648", "2147483648", "9223372036854775807",
+                42L, 42, (short) 42, (byte) 42, 'a', 3.14, "abc", true);
+        for (final var sample : samples) {
+            if (Cast.isInteger(sample)) {
+                assertDoesNotThrow(() -> Cast.toInteger(sample),
+                        "isInteger is true, so toInteger must not throw for: " + sample);
+            }
+        }
     }
 }

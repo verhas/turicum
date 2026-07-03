@@ -7,11 +7,7 @@ import ch.turic.memory.*;
 import ch.turic.utils.Unmarshaller;
 
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
 
 public class AsyncEvaluation extends AbstractCommand {
     private static final ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
@@ -20,8 +16,7 @@ public class AsyncEvaluation extends AbstractCommand {
 
     public static AsyncEvaluation factory(Unmarshaller.Args args) {
         final var command = args.command("command");
-        @SuppressWarnings("unchecked")
-        final Map<String,Command> options = args.get("options", Map.class);
+        @SuppressWarnings("unchecked") final Map<String, Command> options = args.get("options", Map.class);
         return new AsyncEvaluation(command, options);
     }
 
@@ -37,13 +32,13 @@ public class AsyncEvaluation extends AbstractCommand {
         for (final var key : options.keySet()) {
             switch (key) {
                 case "in":
-                    inCapacity = parameter(key, ctx, options.get(key), 1).intValue();
+                    inCapacity = intParameter(key, ctx, options.get(key), 1);
                     break;
                 case "out":
-                    outCapacity = parameter(key, ctx, options.get(key), 1).intValue();
+                    outCapacity = intParameter(key, ctx, options.get(key), 1);
                     break;
                 case "steps":
-                    stepLimit = parameter(key, ctx, options.get(key), 1).intValue();
+                    stepLimit = intParameter(key, ctx, options.get(key), 1);
                     break;
                 case "time":
                     timeLimit = parameter(key, ctx, options.get(key), 1000);
@@ -180,8 +175,19 @@ public class AsyncEvaluation extends AbstractCommand {
         } else {
             throw new ExecutionException("parameter %s='%s' for async is not valid", key, arg);
         }
-
     }
 
+    private static Integer intParameter(String key, LocalContext context, Command command, int multiplier) {
+        final var arg = command.execute(context);
+        if (Cast.isInteger(arg)) {
+            return Cast.toInteger(arg) * multiplier;
+        } else if (Cast.isLong(arg)) {
+            throw new ExecutionException("parameter %s='%s' for async is too large", key, arg);
+        } else if (Cast.isDouble(arg)) {
+            return Cast.toInteger(Cast.toDouble(arg) * multiplier);
+        } else {
+            throw new ExecutionException("parameter %s='%s' for async is not valid", key, arg);
+        }
+    }
 }
 

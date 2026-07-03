@@ -89,45 +89,34 @@ public class Cast {
                 if (cs.isEmpty()) {
                     yield false;
                 }
-                final int start = cs.charAt(0) == '+' || cs.charAt(0) == '-' ? 1 : 0;
-                var i = start;
+                // [sign] digits [ '.' digits ] [ ('e'|'E') [sign] digits ]
+                // with at least one digit before the exponent, consistent with Double.parseDouble
+                var i = cs.charAt(0) == '+' || cs.charAt(0) == '-' ? 1 : 0;
                 int digitCount = 0;
-                for (; i < cs.length(); i++) {
-                    if (cs.charAt(i) == '.') break;
-                    if (!Character.isDigit(cs.charAt(i))) {
-                        yield false;
-                    }
-                    digitCount++;
-                }
-                if (i >= cs.length()) {
-                    yield cs.length() > start;
-                }
-                if (cs.charAt(i) != '.') {
-                    yield false;
-                }
-                i++; // step over the '.'
-                while (i < cs.length()) {
-                    if (cs.charAt(i) == 'e' || cs.charAt(i) == 'E') break;
-                    if (!Character.isDigit(cs.charAt(i))) {
-                        yield false;
-                    }
+                while (i < cs.length() && Character.isDigit(cs.charAt(i))) {
                     digitCount++;
                     i++;
                 }
-                if (digitCount == 0) {
-                    yield false;
+                if (i < cs.length() && cs.charAt(i) == '.') {
+                    i++; // step over the '.'
+                    while (i < cs.length() && Character.isDigit(cs.charAt(i))) {
+                        digitCount++;
+                        i++;
+                    }
                 }
-                if (i < cs.length() && cs.charAt(i) != 'e' && cs.charAt(i) != 'E') {
+                if (digitCount == 0) {
                     yield false;
                 }
                 if (i == cs.length()) {
                     yield true;
                 }
-                i++; // step over the 'e' or 'E'
-                if (i >= cs.length()) {
+                if (cs.charAt(i) != 'e' && cs.charAt(i) != 'E') {
                     yield false;
                 }
-                i += cs.charAt(i) == '+' || cs.charAt(i) == '-' ? 1 : 0;
+                i++; // step over the 'e' or 'E'
+                if (i < cs.length() && (cs.charAt(i) == '+' || cs.charAt(i) == '-')) {
+                    i++;
+                }
                 if (i >= cs.length()) {
                     yield false;
                 }
@@ -216,7 +205,10 @@ public class Cast {
     }
 
     public static Integer toInteger(Object obj) throws ExecutionException {
-        return toLong(obj).intValue();
+        final long l = toLong(obj);
+        ExecutionException.when(l < Integer.MIN_VALUE || l > Integer.MAX_VALUE,
+                "Value '%s' does not fit into an integer", obj);
+        return (int) l;
     }
 
     public static Long toLong(Object obj) throws ExecutionException {
@@ -232,13 +224,19 @@ public class Cast {
                 ExecutionException.when(d % 1 != 0, "Value '%s' cannot be used as a long, it has fractions", d);
                 yield d.longValue();
             }
-            case Float ignore -> throw new ExecutionException("Cannot cast float to number");
+            case Float f -> {
+                // handled the same way as Double; toDouble() also accepts Float
+                ExecutionException.when(f > Long.MAX_VALUE || f < Long.MIN_VALUE,
+                        "Value '%s' cannot be used as a long, too %s", f, f > 0 ? "large" : "small");
+                ExecutionException.when(f % 1 != 0, "Value '%s' cannot be used as a long, it has fractions", f);
+                yield f.longValue();
+            }
             case Boolean ignore -> throw new ExecutionException("Cannot cast boolean to number");
             case CharSequence cs -> {
                 try {
                     yield Long.parseLong(cs.toString());
                 } catch (NumberFormatException e) {
-                    throw new ExecutionException("Cannot cast string to long");
+                    throw new ExecutionException("Cannot cast string '%s' to long", cs);
                 }
             }
             case Conditional ignored -> throw new ExecutionException("Cannot cast break or return result to number");
@@ -262,7 +260,7 @@ public class Cast {
                 try {
                     yield Double.parseDouble(cs.toString());
                 } catch (NumberFormatException e) {
-                    throw new ExecutionException("Cannot cast string to number");
+                    throw new ExecutionException("Cannot cast string '%s' to number", cs);
                 }
             }
             case Conditional ignored -> throw new ExecutionException("Cannot cast break or return result to number");

@@ -1,0 +1,39 @@
+// Cells are local to the flow. The exit condition may freely use variables of the
+// surrounding scope as long as their names do not collide with cell names.
+// The single self-chained counter makes the result deterministic: the exit condition is
+// re-evaluated before every cell value save, so no save can happen past the first true.
+let threshold = 5
+
+let counted = {
+    flow until counter >= threshold {
+        counter <- 0;
+        counter <- counter + 1;
+        yield counter
+    }
+}
+println "counted: " + counted
+
+// During warm-up the exit condition may reference a cell that has not computed yet:
+// 'b' is still undefined at the first evaluation of the condition, which is tolerated.
+let doubled = {
+    flow until b >= 2 {
+        a <- 1;
+        b <- a * 2;
+        yield b
+    }
+}
+println "doubled: " + doubled
+
+// A flow does not care what variables are defined around it: a cell may shadow a
+// variable of the surrounding scope. The flow uses its own local cell; the outer
+// variable is neither read (not even before the cell computes) nor modified.
+let value = 100
+let shadowing = {
+    flow until value >= 3 {
+        value <- 0;
+        value <- value + 1;
+        yield value
+    }
+}
+println "shadowing flow: " + shadowing
+println "outer value: " + value
