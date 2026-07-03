@@ -368,7 +368,7 @@ public class FunUtils {
             throw new ExecutionException("Built-in function '%s' needs exactly one argument.", name);
         }
         if (Cast.isLong(args[0])) {
-            return Cast.toLong(args[0]).intValue();
+            return Cast.toInteger(args[0]);
         } else {
             throw new ExecutionException("Argument to %s('%s') must be a number", name, args[0]);
         }

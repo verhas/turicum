@@ -31,6 +31,6 @@ public class TuriLong implements TuriClass {
         if (Cast.isDouble(arg)) {
             return Cast.toDouble(arg) * Cast.toDouble(num);
         }
-        return arg.toString().repeat(Cast.toLong(num).intValue());
+        return arg.toString().repeat(Cast.toInteger(num));
     }
 }

@@ -128,7 +128,7 @@ public class Rng implements TuriFunction {
         @Override
         public Object getIndex(Object index) throws ExecutionException {
             if (Cast.isLong(index)) {
-                final var indexValue = Cast.toLong(index).intValue();
+                final var indexValue = Cast.toInteger(index);
                 ExecutionException.when(indexValue < 0, "Indexing error, %s < 0", indexValue);
                 if (indexValue >= length) {
                     return null;

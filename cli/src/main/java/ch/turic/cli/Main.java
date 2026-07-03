@@ -141,7 +141,7 @@ public class Main {
             }
             final var returnValue = interpreter.compileAndExecute();
             if (returnValue != null && Cast.isLong(returnValue)) {
-                System.exit(Cast.toLong(returnValue).intValue());
+                System.exit(Cast.toInteger(returnValue));
             }
         } catch (Exception e) {
             System.err.println("Error: " + e.getMessage());

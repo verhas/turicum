@@ -65,8 +65,11 @@ public class MathFunctions {
         @Override
         public Object call(Context context, Object[] arguments) throws ExecutionException {
             final var arg = FunUtils.arg(name(), arguments);
+            if (Cast.isInteger(arg)) {
+                return Cast.toInteger(arg);
+            }
             if (Cast.isLong(arg)) {
-                return Cast.toLong(arg).intValue();
+                return Cast.toInteger(arg);
             }
             if (Cast.isDouble(arg)) {
                 return Cast.toDouble(arg).intValue();

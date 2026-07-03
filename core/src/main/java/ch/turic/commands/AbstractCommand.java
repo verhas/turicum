@@ -349,8 +349,8 @@ public abstract class AbstractCommand implements Command, HasFields {
     }
 
     protected static Command getIndexedCommand(final Command[] commands, final Object index) {
-        if (Cast.isLong(index)) {
-            int i = Cast.toLong(index).intValue();
+        if (Cast.isInteger(index)) {
+            int i = Cast.toInteger(index);
             if (i < 0) {
                 throw new ExecutionException("Index to fetch a command from a program object must be non-negative.");
             }

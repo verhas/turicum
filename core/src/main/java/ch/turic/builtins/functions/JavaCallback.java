@@ -57,7 +57,7 @@ public class JavaCallback implements TuriFunction {
             }
 
             public Integer callInt(Object... args) throws ExecutionException {
-                return Cast.toLong(callable.call(context, args)).intValue();
+                return Cast.toInteger(callable.call(context, args));
             }
 
             public Long callLong(Object... args) throws ExecutionException {

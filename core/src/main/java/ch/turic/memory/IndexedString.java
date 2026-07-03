@@ -23,8 +23,8 @@ public record IndexedString(StringBuilder string) implements HasIndex {
     public void setIndex(Object index, Object value) throws ExecutionException {
         final int start;
         final int end;
-        if (Cast.isLong(index)) {
-            start = Cast.toLong(index).intValue();
+        if (Cast.isInteger(index)) {
+            start = Cast.toInteger(index);
             ExecutionException.when(start < 0 || start >= string.length(), "String indexing error, %d is out of array range", start);
             end = start + 1;
         } else if (index instanceof Range(Object rangeStart, Object rangeEnd)) {
@@ -50,7 +50,7 @@ public record IndexedString(StringBuilder string) implements HasIndex {
         final int start;
         final int end;
         if (Cast.isLong(index)) {
-            start = Cast.toLong(index).intValue();
+            start = Cast.toInteger(index);
             ExecutionException.when(start < 0 || start >= string.length(), "String indexing error, %d is out of array range", start);
             end = start + 1;
         } else if (index instanceof Range(Object rangeStart, Object rangeEnd)) {
@@ -66,7 +66,7 @@ public record IndexedString(StringBuilder string) implements HasIndex {
         if (rangeStart == InfiniteValue.INF_NEGATIVE) {
             return inRange(string, 0);
         } else if (Cast.isLong(rangeStart)) {
-            return inRange(string, Cast.toLong(rangeStart).intValue());
+            return inRange(string, Cast.toInteger(rangeStart));
         }
         throw new ExecutionException("Cannot use '%s' as index", rangeStart);
     }
@@ -75,7 +75,7 @@ public record IndexedString(StringBuilder string) implements HasIndex {
         if (rangeStart == InfiniteValue.INF_POSITIVE) {
             return string.length();
         } else if (Cast.isLong(rangeStart)) {
-            final var end = Cast.toLong(rangeStart).intValue();
+            final var end = Cast.toInteger(rangeStart);
             if (end < 0) {
                 return inRange(string, string.length() + end);
             } else {

@@ -392,7 +392,7 @@ public class TuriString implements TuriClass {
                 // {%S string_number%}
                     new TuriMethod<>((args) -> {
                         final var number = FunUtils.arg("number", args);
-                        final var radix = Cast.toLong(number).intValue();
+                        final var radix = Cast.toInteger(number);
                         return Long.parseLong(string.strip(), radix);
                     });
             case "hex" ->
@@ -499,7 +499,7 @@ public class TuriString implements TuriClass {
                 // If `n` is equal to, or larger than the number of characters in the string, then the whole string is the result.
                 // {%S string_left%}
                     new TuriMethod<>((args) -> {
-                        final var endIndex = Cast.toLong(args[0]).intValue();
+                        final var endIndex = Cast.toInteger(args[0]);
                         if (endIndex > string.length()) {
                             return string;
                         }
@@ -512,7 +512,7 @@ public class TuriString implements TuriClass {
                 // If `n` is equal to, or larger than the number of characters in the string, then the whole string is the result.
                 // {%S string_right%}
                     new TuriMethod<>((args) -> {
-                        int n = Cast.toLong(args[0]).intValue();
+                        int n = Cast.toInteger(args[0]);
                         if (n >= string.length()) {
                             return string;
                         }
@@ -555,7 +555,7 @@ public class TuriString implements TuriClass {
                 // repeat the string as specified by the argument.
                 // This is same as multiplying a string by an integer number.
                 // {%S string_times%}
-                    new TuriMethod<>((args) -> string.repeat(Cast.toLong(args[0]).intValue()));
+                    new TuriMethod<>((args) -> string.repeat(Cast.toInteger(args[0])));
             case "lower_case" ->
                 // return the string lower-cased character.
                 // {%S string_lower_case%}
@@ -675,7 +675,7 @@ public class TuriString implements TuriClass {
                         if (args.length < 2) {
                             limit = -1;
                         } else {
-                            limit = Cast.toLong(args[1]).intValue();
+                            limit = Cast.toInteger(args[1]);
                         }
                         final var list = new LngList();
                         list.array.addAll(Arrays.asList(string.split(splitter, limit)));
@@ -697,7 +697,7 @@ public class TuriString implements TuriClass {
                         }
                         final var limits = new int[args.length - 1];
                         for (int i = 1; i < args.length; i++) {
-                            limits[i - 1] = Cast.toLong(args[i]).intValue();
+                            limits[i - 1] = Cast.toInteger(args[i]);
                         }
                         return StringUtils.msplit(string, 0, splitter, limits);
                     });
@@ -751,7 +751,7 @@ public class TuriString implements TuriClass {
             case "char_at" ->
                 // get the character at the given position as a single character string.
                 // {%S string_char_at%}
-                    new TuriMethod<>((args) -> "" + string.charAt(Cast.toLong(args[0]).intValue()));
+                    new TuriMethod<>((args) -> "" + string.charAt(Cast.toInteger(args[0])));
             case "safe_char_at" ->
                 // get the character at the given position or an empty string if the index is out of range.
                 // The return value is a single character string or an empty string.

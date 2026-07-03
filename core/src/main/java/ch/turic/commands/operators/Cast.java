@@ -8,6 +8,24 @@ public class Cast {
     private static final String MAX_LONG = Long.toString(Long.MAX_VALUE);
     private static final String MIN_LONG_MAGNITUDE = Long.toString(Long.MIN_VALUE).substring(1);
 
+
+    /**
+     * An internally used function used in places where the code expects a number in the int range.
+     * Instead of checking at all places the size after being converted to long, this function does the check.
+     *
+     * @param obj the object to check
+     * @return {@code true} if the object can be converter to Int
+     */
+    public static boolean isInteger(Object obj){
+        if( isLong(obj) ){
+            long l = toLong(obj);
+            return l >= Integer.MIN_VALUE && l <= Integer.MAX_VALUE;
+        }else{
+            return false;
+        }
+    }
+
+
     /**
      * Test for conversion to long possibility.
      *
@@ -195,6 +213,10 @@ public class Cast {
             return "none";
         }
         return obj.toString();
+    }
+
+    public static Integer toInteger(Object obj) throws ExecutionException {
+        return toLong(obj).intValue();
     }
 
     public static Long toLong(Object obj) throws ExecutionException {

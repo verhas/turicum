@@ -65,7 +65,7 @@ public class TuriHttpServer implements TuriFunction {
             throw new ExecutionException("%s needs an object as configuration argument", name());
         }
 
-        final var port = Cast.toLong(conf.getField("port")).intValue();
+        final var port = Cast.toInteger(conf.getField("port"));
         final var host = conf.getField("host").toString();
         final HttpServer server;
         try {
@@ -74,7 +74,7 @@ public class TuriHttpServer implements TuriFunction {
             throw new ExecutionException(e);
         }
 
-        final var concurrency = Cast.toLong(Objects.requireNonNullElse(conf.getField("concurrency"), 10)).intValue();
+        final var concurrency = Cast.toInteger(Objects.requireNonNullElse(conf.getField("concurrency"), 10));
         final var executor = new LimitedVirtualThreadExecutor(concurrency);
 
         final ChannelIterator<?> channel = (ChannelIterator<?>) new BlockingQueueChannel<>(concurrency).iterator();
@@ -102,7 +102,7 @@ public class TuriHttpServer implements TuriFunction {
                             channel.send((Channel.Message) Channel.Message.of(requestMessage));
                             final var result = closure.call(handlerCtx.open(), request, response).toString();
 
-                            exchange.sendResponseHeaders(Cast.toLong(response.getField("code")).intValue(), result.length());
+                            exchange.sendResponseHeaders(Cast.toInteger(response.getField("code")), result.length());
                             try (final var out = exchange.getResponseBody()) {
                                 out.write(result.getBytes(StandardCharsets.UTF_8));
                                 out.flush();

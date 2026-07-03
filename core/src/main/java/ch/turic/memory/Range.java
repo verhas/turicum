@@ -79,7 +79,7 @@ public record Range(Object start, Object end) {
         } else if (index == InfiniteValue.INF_POSITIVE) {
             return size;
         } else if (Cast.isLong(index)) {
-            int i = Cast.toLong(index).intValue();
+            int i = Cast.toInteger(index);
             if (i < 0) {
                 i = i + size;
             }

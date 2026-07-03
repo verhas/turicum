@@ -15,8 +15,8 @@ public class JavaArray implements HasIndex{
 
     @Override
     public void setIndex(Object index, Object value) throws ExecutionException {
-        ExecutionException.when(!Cast.isLong(index),"Cannot use '%s' as index", index);
-        int indexValue = Cast.toLong(index).intValue();
+        ExecutionException.when(!Cast.isInteger(index),"Cannot use '%s' as index", index);
+        int indexValue = Cast.toInteger(index);
         ExecutionException.when( indexValue < 0 || indexValue >= values.length, "Indexing error, %d is out of array range",indexValue);
         values[indexValue] = value;
     }
@@ -24,7 +24,7 @@ public class JavaArray implements HasIndex{
     @Override
     public Object getIndex(Object index) throws ExecutionException {
         ExecutionException.when(!Cast.isLong(index),"Cannot use '%s' as index", index);
-        int indexValue = Cast.toLong(index).intValue();
+        int indexValue = Cast.toInteger(index);
         ExecutionException.when( indexValue < 0 || indexValue >= values.length, "Indexing error, %d is out of array range",indexValue);
         return values[indexValue];
     }
