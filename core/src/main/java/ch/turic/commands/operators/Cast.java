@@ -34,7 +34,7 @@ public class Cast {
                         yield false;
                     }
                 }
-                // all digits; only the long range boundary is left to check
+                // all digits; only the long-range boundary is left to check
                 int firstSignificant = start;
                 while (firstSignificant < cs.length() - 1 && cs.charAt(firstSignificant) == '0') {
                     firstSignificant++;

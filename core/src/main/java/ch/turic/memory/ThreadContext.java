@@ -1,6 +1,7 @@
 package ch.turic.memory;
 
 import ch.turic.exceptions.ExecutionException;
+import ch.turic.exceptions.StepLimitReached;
 import ch.turic.memory.debugger.DebuggerContext;
 
 import java.util.ArrayList;
@@ -36,8 +37,8 @@ public class ThreadContext {
      * Requests cooperative termination of this thread.
      * <p>
      * Sets the {@code aborted} flag to {@code true} so that the next call to
-     * {@link ch.turic.commands.AbstractCommand#execute} will throw a {@link RuntimeException} and
-     * unwind the interpreter stack. If a {@link Thread} has been associated with
+     * {@link ch.turic.commands.AbstractCommand#execute} will throw an
+     * {@link ch.turic.exceptions.ExecutionAborted} and unwind the interpreter stack. If a {@link Thread} has been associated with
      * this context via {@link #setThread(Thread)}, it is also interrupted so that
      * any blocking I/O or {@link java.util.concurrent.BlockingQueue} operation
      * returns immediately.
@@ -53,7 +54,7 @@ public class ThreadContext {
      * Returns {@code true} if {@link #abort()} has been called on this context.
      * <p>
      * The interpreter checks this flag at the start of every command execution and
-     * raises a {@link RuntimeException} to stop evaluation as soon as possible.
+     * raises an {@link ch.turic.exceptions.ExecutionAborted} to stop evaluation as soon as possible.
      *
      * @return {@code true} if abortion has been requested
      */
@@ -265,17 +266,19 @@ public class ThreadContext {
      * <p>
      * Called by commands that represent a single unit of work (assignments, function
      * calls, loop iterations, etc.). If {@code stepLimit} is negative the check is
-     * skipped entirely. Otherwise, an {@link ExecutionException} is thrown as soon
+     * skipped entirely. Otherwise, a {@link StepLimitReached} is thrown as soon
      * as the counter meets or exceeds {@code stepLimit}, stopping further execution
      * on this thread.
      *
-     * @throws ExecutionException if the thread-level step limit has been reached
+     * @throws StepLimitReached if the thread-level step limit has been reached; it is not an
+     *                          {@link ExecutionException}, so Turicum-level {@code try}/{@code catch}
+     *                          cannot swallow it
      */
     public void step() throws ExecutionException {
         final var currentStep = steps.incrementAndGet();
         if (stepLimit < 0) return;
         if (stepLimit <= currentStep) {
-            throw new ExecutionException("Step limit %d reached", stepLimit);
+            throw new StepLimitReached(stepLimit);
         }
     }
 

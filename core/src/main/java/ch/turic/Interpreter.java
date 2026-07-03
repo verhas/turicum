@@ -5,9 +5,9 @@ import ch.turic.analyzer.Lexer;
 import ch.turic.analyzer.ProgramAnalyzer;
 import ch.turic.exceptions.BadSyntax;
 import ch.turic.exceptions.ExecutionException;
+import ch.turic.exceptions.InterpreterHalt;
 import ch.turic.memory.Channel;
 import ch.turic.memory.LocalContext;
-import ch.turic.memory.Variable;
 import ch.turic.memory.debugger.ConcurrentWorkItem;
 import ch.turic.utils.Marshaller;
 import ch.turic.utils.Unmarshaller;
@@ -149,14 +149,16 @@ public class Interpreter implements AutoCloseable {
             if (source != null && source.position != null && source.position.file != null) {
                 ctx.sourcePath(Path.of(source.position.file));
             }
-            if( injectedVariables != null ){
-                for( final var injectedVariable : injectedVariables.entrySet()){
-                    ctx.global( injectedVariable.getKey(), injectedVariable.getValue());
-                    ctx.freeze( injectedVariable.getKey());
+            if (injectedVariables != null) {
+                for (final var injectedVariable : injectedVariables.entrySet()) {
+                    ctx.global(injectedVariable.getKey(), injectedVariable.getValue());
+                    ctx.freeze(injectedVariable.getKey());
                 }
             }
             return code.execute(ctx);
-        } catch (ExecutionException e) {
+        } catch (ExecutionException | InterpreterHalt e) {
+            // InterpreterHalt (step limit, abort) is invisible to Turicum try/catch, but at this
+            // boundary it is converted to the documented ExecutionException for the embedder
             final var newStackTrace = new ArrayList<StackTraceElement>();
             final var stackTrace = ctx.threadContext.getStackTrace();
             for (int i = stackTrace.size() - 1; i >= 0; i--) {

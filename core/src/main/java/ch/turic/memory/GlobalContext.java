@@ -2,6 +2,7 @@ package ch.turic.memory;
 
 import ch.turic.TuriClass;
 import ch.turic.exceptions.ExecutionException;
+import ch.turic.exceptions.StepLimitReached;
 import ch.turic.memory.debugger.DebuggerContext;
 import ch.turic.utils.TuricumClassLoader;
 
@@ -105,10 +106,12 @@ public class GlobalContext {
      * This method ensures that the number of executed steps does not exceed the configured step limit.
      * <p>
      * - If the step limit is negative, the method returns immediately without performing any action.
-     * - If the current number of steps has reached or exceeded the step limit, an {@code ExecutionException} is thrown.
+     * - If the current number of steps has reached or exceeded the step limit, a {@code StepLimitReached} is thrown.
      * - Otherwise, the step counter is incremented by one.
      *
-     * @throws ExecutionException if the step limit is reached or exceeded
+     * @throws StepLimitReached if the step limit is reached or exceeded; it is not an
+     *                          {@link ExecutionException}, so Turicum-level {@code try}/{@code catch}
+     *                          cannot swallow it
      */
     public void step() throws ExecutionException {
         final var currentStep = steps.incrementAndGet();
@@ -116,7 +119,7 @@ public class GlobalContext {
             return;
         }
         if (stepLimit <= currentStep) {
-            throw new ExecutionException("Step limit %d reached", stepLimit);
+            throw new StepLimitReached(stepLimit);
         }
     }
 

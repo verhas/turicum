@@ -1,6 +1,7 @@
 package ch.turic.commands;
 
 import ch.turic.Command;
+import ch.turic.exceptions.ExecutionAborted;
 import ch.turic.exceptions.ExecutionException;
 import ch.turic.LngCallable;
 import ch.turic.analyzer.Lex;
@@ -153,7 +154,7 @@ public abstract class AbstractCommand implements Command, HasFields {
         if( ctx.threadContext.isAborted()) {
             // it is not an execution exception, the thread should stop,
             // and ExecutionException would be caught by try-catch
-            throw new RuntimeException("Execution aborted");
+            throw new ExecutionAborted();
         }
         final var sf = new LngStackFrame(this);
         final var dc = ctx.threadContext.getDebuggerContext();
