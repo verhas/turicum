@@ -25,17 +25,21 @@ import static ch.turic.memory.debugger.DebuggerContext.State.PAUSED;
 public abstract class AbstractCommand implements Command, HasFields {
     private Pos startPosition;
     private Pos endPosition;
-    private volatile LngObject lngObjectRef = null;
 
+    /**
+     * Converts this command into a {@code LngObject} snapshot within the given context.
+     * <p>
+     * A fresh object is built on every call. The result is mutable and bound to the caller's
+     * interpreter (its global context), so it must not be cached on the command: a command can
+     * be executed by different interpreters and threads, and callers of {@code as_object()}
+     * must not see each other's mutations.
+     *
+     * @param context the context of the caller; the object is created in a new frame of the
+     *                same interpreter
+     * @return a new {@code LngObject} representing this command
+     */
     public LngObject toLngObject(LocalContext context) {
-        if (lngObjectRef == null) {
-            synchronized (this) {
-                if (lngObjectRef == null) {
-                    lngObjectRef = _toLngObject(context);
-                }
-            }
-        }
-        return lngObjectRef;
+        return _toLngObject(context);
     }
 
     public LngObject _toLngObject(LocalContext context) throws ExecutionException {
