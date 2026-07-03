@@ -434,8 +434,23 @@ public class FlowCommand extends AbstractCommand {
         return fields.toArray(Field[]::new);
     }
 
+
     private record ExitFlag(boolean doExit, ExecutionException doException) {
     }
+
+    private static ExitFlag signalExit(String s, Object... params) {
+        return new ExitFlag(true, new ExecutionException(s, params));
+    }
+
+    private static ExitFlag signalExit(ExecutionException e) {
+        return new ExitFlag(true, e);
+    }
+
+    private static ExitFlag signalExit(boolean b) {
+        return new ExitFlag(b, null);
+    }
+
+    private static final ExitFlag CONTINUE = new ExitFlag(false, null);
 
     /**
      * Executes the flow command using the given context. The execution starts with the first defined cell
@@ -461,11 +476,14 @@ public class FlowCommand extends AbstractCommand {
         // switch it to the concurrent implementation while we are still single-threaded
         context.globalContext.switchToMultithreading();
         final var ctx = context.wrap();
+        for( var cell : cells ) {
+            ctx.registerLocal(cell.id());
+        }
         final var stateCounters = new HashMap<String, Long>();
         final var stoppedCells = new HashSet<Cell>();
         final var exception = new AtomicReference<Exception>(null);
         long totalScheduled = 0;
-        ExitFlag exitFlag = new ExitFlag(false, null);
+        var exitFlag = CONTINUE;
         long limit;
         if (limitExpression == null) {
             limit = -1;
@@ -494,8 +512,7 @@ public class FlowCommand extends AbstractCommand {
                 CompletableFuture.anyOf(tasksRunning.toArray(CompletableFuture[]::new)).join();
                 final long currentTime = System.nanoTime();
                 if (timeout >= 0 && timeout <= currentTime - startTime) {
-                    exitFlag = new ExitFlag(true,
-                            new ExecutionException("Flow '%s' timed out after %s ms", flowId, timeout / 1_000_000));
+                    exitFlag = signalExit("Flow '%s' timed out after %s ms", flowId, timeout / 1_000_000);
                 }
                 while (true) {
                     throwIfExceptionPresent(exception);
@@ -522,7 +539,7 @@ public class FlowCommand extends AbstractCommand {
                                     totalScheduled += nr;
                                     if (limit >= 0) {
                                         if (nr >= limit) {
-                                            exitFlag = new ExitFlag(true, new ExecutionException("Task limit has been reached in flow '%s' command after %d tasks.", flowId, totalScheduled));
+                                            exitFlag = signalExit("Task limit has been reached in flow '%s' command after %d tasks.", flowId, totalScheduled);
                                         } else {
                                             limit -= nr;
                                         }
@@ -611,23 +628,38 @@ public class FlowCommand extends AbstractCommand {
     /**
      * Safely evaluates the {@code exitCondition} using the provided context.
      * <p>
-     * Note that the
-     * <p>
-     * Returns {@code false} if the condition is {@code null} or throws an exception during evaluation.
+     * Returns {@code false} if
+     *
+     * <ul>
+     *     <li> the condition is {@code null}
+     *     <li> condition evaluation throws {@link UndefinedVariable} exception and the variable is one of the cells
+     *     <li> condition evaluation results in {@code false}
+     * </ul>
+     *
+     * The reason to accept an undefined cell variable as a false result is to handle the warmup of the evaluation.
+     * If there is a typo in the cell name used in the condition, the error will come up.
+     * In some rare cases it may happen that there is an undefined variable, but it is not recognized during the warmup.
+     * It happens when the evaluation of the condition finds a no-defined-yet cell sooner than the undefined non-cell.
+     * This will delay the error until after the warmup, but eventually the error will surface.
      *
      * @param ctx the context to use for evaluation
      * @return {@code true} if the exit condition evaluates to true; {@code false} otherwise
      */
     private ExitFlag isExitConditionMet(LocalContext ctx) {
         if (exitCondition == null) {
-            return new ExitFlag(false, null);
+            return CONTINUE;
         }
         try {
-            return new ExitFlag(Cast.toBoolean(exitCondition.execute(ctx)), null);
+            return signalExit(Cast.toBoolean(exitCondition.execute(ctx)));
         } catch (UndefinedVariable uv) {
-            return new ExitFlag(false, null);
+            for (var cell : cells) {
+                if (cell.id().equals(uv.key())) {
+                    return CONTINUE;
+                }
+            }
+            return signalExit("Variable '%s' is not defined in flow '%s'", uv.key(), flowId);
         } catch (ExecutionException e) {
-            return new ExitFlag(true, e);
+            return signalExit(e);
         }
     }
 

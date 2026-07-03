@@ -1,10 +1,10 @@
 package ch.turic.analyzer;
 
 
-import ch.turic.exceptions.BadSyntax;
 import ch.turic.Command;
-import ch.turic.exceptions.ExecutionException;
 import ch.turic.commands.*;
+import ch.turic.exceptions.BadSyntax;
+import ch.turic.exceptions.ExecutionException;
 import ch.turic.memory.CompositionModifier;
 
 import java.util.ArrayList;
@@ -66,8 +66,8 @@ public class PrimaryExpressionAnalyzer extends AbstractAnalyzer {
         if (lexes.is(Keywords.IF)) {
             lexes.next();
             final var ifExpression = IfAnalyzer.INSTANCE.analyze(lexes);
-            final int index = lexes.getIndex()-1;
-            if( lexes.lexAt(index).is(";") ){
+            final int index = lexes.getIndex() - 1;
+            if (lexes.lexAt(index).is(";")) {
                 lexes.setIndex(index);
             }
             return ifExpression;
@@ -93,8 +93,7 @@ public class PrimaryExpressionAnalyzer extends AbstractAnalyzer {
                 lexes.next();
                 return getAccessOrCall(lexes, EmptyObject.INSTANCE, false);
             }
-            if ((lexes.isAt(1, Lex.Type.IDENTIFIER) || lexes.isAt(1, Lex.Type.STRING)) &&
-                    lexes.isAt(2, ":")) {
+            if (lexes.isJSONStart()) {
                 return getAccessOrCall(lexes, JsonStructureAnalyzer.INSTANCE.analyze(lexes), false);
             }
             return getAccessOrCall(lexes, BlockOrClosureAnalyzer.INSTANCE.analyze(lexes), false);
@@ -130,14 +129,17 @@ public class PrimaryExpressionAnalyzer extends AbstractAnalyzer {
             return getAccessOrCall(lexes, new Identifier(lex.text()), true);
         }
         final var lex = lexes.next();
-        try{
-        return switch (lex.type()) {
-            case IDENTIFIER -> getAccessOrCall(lexes, new Identifier(lex.text()).fixPosition(lex), false);
-            case STRING -> getAccessOrCall(lexes, new StringConstant(lex.text, lex.interpolated).fixPosition(lex), false);
-            case INTEGER -> getAccessOrCall(lexes, new IntegerConstant(lex.text()).fixPosition(lex), false);
-            case FLOAT -> getAccessOrCall(lexes, new FloatConstant(lex.text()).fixPosition(lex), false);
-            default -> throw lexes.syntaxError("Expression: expected identifier, or constant, got '%s'", lex.text());
-        };}catch(ExecutionException ee){
+        try {
+            return switch (lex.type()) {
+                case IDENTIFIER -> getAccessOrCall(lexes, new Identifier(lex.text()).fixPosition(lex), false);
+                case STRING ->
+                        getAccessOrCall(lexes, new StringConstant(lex.text, lex.interpolated).fixPosition(lex), false);
+                case INTEGER -> getAccessOrCall(lexes, new IntegerConstant(lex.text()).fixPosition(lex), false);
+                case FLOAT -> getAccessOrCall(lexes, new FloatConstant(lex.text()).fixPosition(lex), false);
+                default ->
+                        throw lexes.syntaxError("Expression: expected identifier, or constant, got '%s'", lex.text());
+            };
+        } catch (ExecutionException ee) {
             throw lexes.syntaxError(ee.getMessage());
         }
     }

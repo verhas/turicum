@@ -1169,6 +1169,9 @@
 
 
 
+
+
+
 == Introduction
 
 === What is Turicum?
@@ -2846,15 +2849,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=3F685162
+h id=1E469DFD
 h after post increment: 1
 k: 0
-h id=11F406F8
-k id=3F685162
+h id=554F0DFB
+k id=1E469DFD
 h after pre increment: 2
 z: 2
-h id=987455B
-z id=987455B
+h id=1F7076BC
+z id=1F7076BC
 
 ----
 
@@ -2900,15 +2903,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=1D5D5621
+h id=6A472566
 h after post increment: 1
 k: 1
-h id=1D5D5621
-k id=1D5D5621
+h id=6A472566
+k id=6A472566
 h after pre increment: 2
 z: 2
-h id=1D5D5621
-z id=1D5D5621
+h id=6A472566
+z id=6A472566
 
 ----
 
@@ -2957,15 +2960,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=782BF610
+h id=56913163
 h after post decrement: -1
 k: 0
-h id=3DB663D0
-k id=782BF610
+h id=702B06FB
+k id=56913163
 h after pre decrement: -2
 z: -2
-h id=73FC518F
-z id=73FC518F
+h id=A18649A
+z id=A18649A
 
 ----
 
@@ -3008,15 +3011,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=151EF57F
+h id=62573C86
 h after post decrement: -1
 k: -1
-h id=151EF57F
-k id=151EF57F
+h id=62573C86
+k id=62573C86
 h after pre decrement: -2
 z: -2
-h id=151EF57F
-z id=151EF57F
+h id=62573C86
+z id=62573C86
 
 ----
 
@@ -6526,18 +6529,18 @@ execute("Thread 2",2)
 Thread 1 generated 3
  prime read 3
 Thread 1 generated 5
-Thread 1 generated 7
  prime read 5
+Thread 1 generated 7
+ prime read 7
 Thread 1 generated 11
 Thread 1 generated 13
 Thread 1 generated 17
 Thread 1 generated 19
- prime read 7
 Thread 1 generated 23
 stopping
 exception Task stopped.
- prime read 2
 Thread 2 generated 3
+ prime read 2
 Thread 2 generated 5
  prime read 3
  prime read 5
@@ -6688,9 +6691,9 @@ fn sleeper( x ){
 [source]
 ----
 [1, 2, 3]
-311.302833ms
+317.6025ms
 [1, 2, 3]
-107.721833ms
+113.454333ms
 
 ----
 
@@ -12484,7 +12487,6 @@ test none
 "hello"=is not object
 1=is not object
 {}=is object
-{"a":1}=is object
 [3,2,1]=is not object
 null=is not object
 
@@ -12602,14 +12604,22 @@ println jsonify_beauty(java_import("ch.turic.exceptions"))
 [source]
 ----
 {
+    "ExecutionAborted": JavaClass[klass=class ch.turic.exceptions.ExecutionAborted],
+    "ch.turic.exceptions.StringNotTerminated": JavaClass[klass=class ch.turic.exceptions.StringNotTerminated],
+    "ch.turic.exceptions.StepLimitReached": JavaClass[klass=class ch.turic.exceptions.StepLimitReached],
+    "InterpreterHalt": JavaClass[klass=class ch.turic.exceptions.InterpreterHalt],
+    "BadSyntax": JavaClass[klass=class ch.turic.exceptions.BadSyntax],
+    "ch.turic.exceptions.UndefinedVariable": JavaClass[klass=class ch.turic.exceptions.UndefinedVariable],
+    "ch.turic.exceptions.ExecutionException": JavaClass[klass=class ch.turic.exceptions.ExecutionException],
+    "ch.turic.exceptions.UnexpectedCharacter": JavaClass[klass=class ch.turic.exceptions.UnexpectedCharacter],
+    "ch.turic.exceptions.InterpreterHalt": JavaClass[klass=class ch.turic.exceptions.InterpreterHalt],
     "UnexpectedCharacter": JavaClass[klass=class ch.turic.exceptions.UnexpectedCharacter],
     "StringNotTerminated": JavaClass[klass=class ch.turic.exceptions.StringNotTerminated],
-    "ch.turic.exceptions.StringNotTerminated": JavaClass[klass=class ch.turic.exceptions.StringNotTerminated],
+    "StepLimitReached": JavaClass[klass=class ch.turic.exceptions.StepLimitReached],
     "ch.turic.exceptions.BadSyntax": JavaClass[klass=class ch.turic.exceptions.BadSyntax],
-    "ExecutionException": JavaClass[klass=class ch.turic.exceptions.ExecutionException],
-    "BadSyntax": JavaClass[klass=class ch.turic.exceptions.BadSyntax],
-    "ch.turic.exceptions.ExecutionException": JavaClass[klass=class ch.turic.exceptions.ExecutionException],
-    "ch.turic.exceptions.UnexpectedCharacter": JavaClass[klass=class ch.turic.exceptions.UnexpectedCharacter]
+    "UndefinedVariable": JavaClass[klass=class ch.turic.exceptions.UndefinedVariable],
+    "ch.turic.exceptions.ExecutionAborted": JavaClass[klass=class ch.turic.exceptions.ExecutionAborted],
+    "ExecutionException": JavaClass[klass=class ch.turic.exceptions.ExecutionException]
 }
 
 ----
@@ -13147,7 +13157,7 @@ println nano_time()
 .output of snippet `nano_time`
 [source]
 ----
-854208405589666
+1008037373633875
 
 ----
 
@@ -13423,23 +13433,60 @@ none
 .output of snippet `que`
 [source]
 ----
-task1 is not ready 0
-task2 is ready 1
+task1 is ready 1
+task2 is not ready 0task1 is not ready 0
+
+task1 is not ready 1
+task2 is not ready 1
+task2 is not ready 2task1 is not ready 2
+
+task2 is not ready 3task1 is not ready 3
+
+task2 is ready 2task1 is not ready 4
+
 task2 is not ready 0
 task2 is not ready 1
-task1 is not ready 1
-task2 is not ready 2
-task1 is not ready 2
-task2 is not ready 3
-task1 is not ready 3
-task1 is ready 2task2 is not ready 4
+task1 is not ready 5
+task2 is not ready 2task1 is not ready 6
 
+task1 is not ready 7task2 is ready 3
+
+task2 is not ready 0
+task2 is not ready 1
+task1 is not ready 8
+task2 is not ready 2task1 is not ready 9
+
+task1 is not ready 10task2 is ready 4
+
+task2 is not ready 0
+task1 is not ready 11
+task2 is not ready 1
+task1 is not ready 12
+task2 is not ready 2
+task1 is not ready 13task2 is ready 5
+
+task2 is not ready 0
+task1 is not ready 14
+task2 is not ready 1
+task2 is not ready 2
+task1 is not ready 15
+task1 is ready 6
+task2 is not ready 3
 task1 is not ready 0
-task2 is not ready 5
+task2 is not ready 4
 task1 is not ready 1
 task1 is not ready 2
+task2 is not ready 5
+task1 is not ready 3
 task2 is not ready 6
-task2 is ready 3task1 is not ready 3
+task1 is ready 7
+task2 is not ready 7
+task1 is not ready 0
+task2 is not ready 8task1 is not ready 1
+
+task1 is not ready 2
+task2 is not ready 9
+task1 is not ready 3task2 is ready 8
 
 task2 is not ready 0
 task2 is not ready 1task1 is not ready 4
@@ -13447,58 +13494,19 @@ task2 is not ready 1task1 is not ready 4
 task2 is not ready 2task1 is not ready 5
 
 task2 is not ready 3
-task1 is not ready 6
-task2 is ready 4task1 is not ready 7
-
-task2 is not ready 0
-task1 is not ready 8
-task2 is not ready 1
-task1 is not ready 9
-task2 is not ready 2
-task2 is ready 5task1 is not ready 10
-
-task2 is not ready 0
-task1 is not ready 11task2 is not ready 1
-
-task2 is not ready 2
-task1 is not ready 12
-task2 is ready 6task1 is not ready 13
-
-task2 is not ready 0
-task2 is not ready 1task1 is not ready 14
-
-task2 is not ready 2task1 is not ready 15
-
-task2 is not ready 3task1 is ready 7
-
+task1 is ready 9
 task1 is not ready 0
-task1 is not ready 1task2 is not ready 4
+task2 is not ready 4
+task1 is not ready 1
+task1 is not ready 2task2 is not ready 5
 
-task2 is not ready 5task1 is not ready 2
-
-task2 is not ready 6task1 is not ready 3
-
-task1 is not ready 4task2 is ready 8
-
-task2 is not ready 0
-task2 is not ready 1
-task1 is not ready 5
-task2 is not ready 2task1 is not ready 6
-
-task1 is not ready 7task2 is ready 9
-
-task2 is not ready 0
-task2 is not ready 1
-task1 is not ready 8
-task2 is not ready 2
-task1 is not ready 9
 closing the channel
 channel is closed
 1 is done false
 2 is done false
 we start to wait the first time
-task1 is done
 task2 is done
+task1 is done
 task1 done true
 task2 done true
 We start to wait the second time
@@ -14045,7 +14053,7 @@ println sleep(0.001) // sleep one milli
 .output of snippet `sleep`
 [source]
 ----
-0.001
+0.002
 
 ----
 
@@ -14474,22 +14482,22 @@ none
 [source]
 ----
 sending 1
+not ready 0
 received 1
 not ready 0
 not ready 1
-not ready 2
 sending 2
 received 2
 not ready 0
 not ready 1
 not ready 2
+not ready 3
 sending 3
 received 3
 not ready 0
 not ready 1
 not ready 2
 closing the channel
-not ready 3
 channel is closed
 is done false
 we are done
@@ -14911,26 +14919,26 @@ The value of the local declaration is the value of the last assignment in the co
 [source]
 ----
   LET ::= SINGLE_LET | MULTI_LET
- 
+  <p>
   SINGLE_LET ::= ('let' | 'mut') ASSIGNMENT_LIST
- 
+  <p>
   MULTI_LET ::= ('let' | 'mut') DESTRUCTURING '=' EXPRESSION
- 
+  <p>
   DESTRUCTURING ::= '[' MAP_LIST ']'
-                  | '{' FIELD_MAP_LIST '}'
- 
+  | '{' FIELD_MAP_LIST '}'
+  <p>
   MAP_LIST ::= ['let'] MAP ( ',' ['let'] MAP )
- 
+  <p>
   FIELD_MAP_LIST ::== ['let'] FIELD_MAP (',' ['let'] FIELD_MAP)
- 
+  <p>
   MAP ::_= IDENTIFIER [':' TYPE_DECLARATIONS ] | LEFT_VALUE | DESTRUCTURING
- 
+  <p>
   FIELD_MAP ::= [ IDENTIFIER '->' ] MAP
- 
+  <p>
   TYPE_DECLARATIONS ::= TYPE_DECLARATION ( '|' TYPE_DECLARATION )
- 
+  <p>
   TYPE_DECLARATION ::= IDENTIFIER | '(' EXPRESION ')'
- 
+  <p>
   EXPRESSION ::= // Any valid Turicum expression
 
 ----

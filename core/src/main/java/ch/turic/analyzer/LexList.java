@@ -56,6 +56,7 @@ public class LexList extends LngList {
     public static LexList of(final List<Lex> lexes) {
         return new LexList(lexes);
     }
+
     public static LexList of() {
         return new LexList(List.of());
     }
@@ -219,6 +220,19 @@ public class LexList extends LngList {
 
     public boolean is(String... s) {
         return hasNext() && lexAt(index).is(s);
+    }
+
+    public boolean isJSONStart() {
+        return is("{") && (isAt(1, Lex.Type.IDENTIFIER) || isAt(1, Lex.Type.STRING)) &&
+                isAt(2, ":");
+    }
+
+    public boolean isFlowBlockStart() {
+        return is("{") && isAt(1, Lex.Type.IDENTIFIER) && isAt(2, "<-");
+    }
+
+    public boolean isBlockStart() {
+        return is("{") && !isJSONStart() && !isFlowBlockStart();
     }
 
     public boolean isIdentifier() {

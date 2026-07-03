@@ -1,4 +1,9 @@
-let mut z = 13
-print "Hello World"
+fn f(x){
+    println x.a
+    println x["a"]
+    with x : println a
+}
+
+f {a: 42}
 
 

@@ -1,9 +1,9 @@
 package ch.turic.analyzer;
 
-import ch.turic.exceptions.BadSyntax;
 import ch.turic.Command;
 import ch.turic.commands.FunctionCall;
 import ch.turic.commands.Identifier;
+import ch.turic.exceptions.BadSyntax;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -62,7 +62,7 @@ public class CommandAnalyzer extends AbstractAnalyzer {
                 lexes.setIndex(position);
                 return null;
             }
-            if (lexes.isIdentifier() || lexes.isConstant() || lexes.is("{")) {
+            if (lexes.isIdentifier() || lexes.isConstant() || lexes.isBlockStart() || lexes.isJSONStart()) {
                 final var arguments = analyzeArguments(lexes, false, false);
                 return new FunctionCall(new Identifier(functionName), arguments);
             }

@@ -8,7 +8,10 @@ import ch.turic.memory.debugger.ConcurrentWorkItem;
 import ch.turic.memory.debugger.DebuggerContext;
 
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Keep a context of the current thread's executing environment.
@@ -17,6 +20,7 @@ public class LocalContext implements Context, AutoCloseable {
     VarTable frame;
     private final Set<String> globals = new HashSet<>();
     private final Set<String> nonlocal = new HashSet<>();
+    private final Set<String> local = new HashSet<>();
     private final Set<String> frozen;
     private final LocalContext wrapped;
     public final GlobalContext globalContext;
@@ -51,14 +55,27 @@ public class LocalContext implements Context, AutoCloseable {
      * Retrieves all local keys from the current context and all wrapped contexts.
      * This method traverses through the chain of wrapped contexts, collecting the keys
      * from each context's local frame.
+     * <p>
+     * The result is consistent with {@link #get(String)}: a name registered as local (see
+     * {@link #registerLocal(String)}) on some level hides same-named variables in the contexts
+     * wrapped by that level. Hidden names are not included, because they cannot be resolved
+     * from this context.
      *
-     * @return a set of all local keys present in the current context and its wrapped contexts
+     * @return a set of all local keys resolvable from the current context and its wrapped contexts
      */
     public Set<String> allLocalKeys() {
         final var keySet = new HashSet<String>();
+        final var hidden = new HashSet<String>();
         var ctx = this;
         while (ctx != null) {
-            keySet.addAll(ctx.frame.keySet());
+            for (final var key : ctx.frame.keySet()) {
+                // add a key to the set ONLY if it was not registered local in a deeper context
+                if (!hidden.contains(key)) {
+                    keySet.add(key);
+                }
+            }
+            // after we added all relevant keys of this context extend the hidden set with the key from this context
+            hidden.addAll(ctx.local);
             ctx = ctx.wrapped;
         }
         return keySet;
@@ -240,8 +257,8 @@ public class LocalContext implements Context, AutoCloseable {
     /**
      * Define a variable without the types defined.
      *
-     * @param key       the name of the variable
-     * @param value     the value of the new variable
+     * @param key   the name of the variable
+     * @param value the value of the new variable
      */
     public void define(String key, Object value) {
         defineTypeChecked(key, value, null);
@@ -301,7 +318,7 @@ public class LocalContext implements Context, AutoCloseable {
         nonlocal.remove(key);
     }
 
-    public boolean isGlobal(final String name){
+    public boolean isGlobal(final String name) {
         return globals.contains(name);
     }
 
@@ -363,7 +380,7 @@ public class LocalContext implements Context, AutoCloseable {
     /**
      * Sets a global variable in the global context heap.
      *
-     * @param name the name of the global variable to be set
+     * @param name  the name of the global variable to be set
      * @param value the value to associate with the specified global variable
      * @throws ExecutionException if an error occurs during execution
      */
@@ -373,7 +390,7 @@ public class LocalContext implements Context, AutoCloseable {
     }
 
     public void predefine(String name, Object value) throws ExecutionException {
-        global(name,value);
+        global(name, value);
         globalContext.predefinedGlobals.add(name);
         freeze(name);
     }
@@ -588,6 +605,29 @@ public class LocalContext implements Context, AutoCloseable {
     }
 
     /**
+     * Register a variable as local. It does not define the variable. At the moment this method is called the variable
+     * is usually not defined, but whenever it is used, it has to be treated as local.
+     * <p>
+     * For example, the Flow command registers the cells as local variables. They are not defined at the start of the
+     * command execution, but when they are used, they are searched for ONLY in the local frame. This will prevent
+     * global or higher frame-defined variables shadowing a local cell value -- which is technically a local variable --
+     * temporarily until the local variable/cell gets value.
+     * <p>
+     * If there is a defined variable VAR in a surrounding, higher scope and the same variable name VAR is registered
+     * as local, then later deeper, nested environments will also not see the defined, higher level VAR. The search for
+     * the value of the variable will stop on this level, either finding the defined value or throwing an undefined
+     * variable exception.
+     *
+     * @param key the name of the variable declared as local
+     */
+    public void registerLocal(String key) {
+        if( globals.contains(key)){
+            throw new ExecutionException("Variable '%s' is already defined as global.", key);
+        }
+        local.add(key);
+    }
+
+    /**
      * Retrieve the object associated with the key. It is either on the local stack or a global, whatever.
      *
      * @param key the identifier.
@@ -609,6 +649,9 @@ public class LocalContext implements Context, AutoCloseable {
                     nonlocal.add(key);
                 }
                 return ctx.frame.get(key).get();
+            }
+            if (ctx.local.contains(key)) {
+                throw new UndefinedVariable(key);
             }
         }
         // if not found local, then use the global if it exists
