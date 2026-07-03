@@ -7,14 +7,18 @@ import ch.turic.exceptions.UndefinedVariable;
 import ch.turic.memory.LocalContext;
 import ch.turic.memory.NameGen;
 import ch.turic.memory.Sentinel;
+import ch.turic.memory.ThreadContext;
 import ch.turic.utils.Unmarshaller;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -498,18 +502,32 @@ public class FlowCommand extends AbstractCommand {
             timeout = -1;
         }
         final long startTime = System.nanoTime();
+        // the absolute System.nanoTime() value when the flow times out, or -1 if there is no timeout
+        final long deadline = timeout < 0 ? -1 : startTime + timeout;
+        // the thread contexts of all tasks started by this flow execution, used to abort them on timeout
+        final var childContexts = new ArrayList<ThreadContext>();
 
         try {
             final var tasksRunning = new HashSet<CompletableFuture<CellWithResult>>();
             for (final var startCell : startCells) {
-                final var startTask = startTask(ctx, startCell, exception, nextCounter(startCell.id, stateCounters));
+                final var startTask = startTask(ctx, startCell, exception, nextCounter(startCell.id, stateCounters), childContexts);
                 tasksRunning.add(startTask);
             }
-            updateAndScheduleStart(ctx, tasksRunning, stateCounters, exception, stoppedCells);
+            exitFlag = updateAndScheduleStart(ctx, tasksRunning, stateCounters, exception, stoppedCells, childContexts, deadline, timeout);
+            if (exitFlag.doExit()) {
+                // the start-up phase timed out; the children are already aborted, do not wait for them
+                tasksRunning.clear();
+            }
 
             while (!tasksRunning.isEmpty()) {
-                // we wait until at least one is done
-                CompletableFuture.anyOf(tasksRunning.toArray(CompletableFuture[]::new)).join();
+                // wait until at least one is done, but never past the timeout deadline
+                if (!waitForAnyTask(tasksRunning, deadline)) {
+                    // the deadline passed while all the remaining tasks were still running, possibly
+                    // blocked in IO; stop waiting for them and request their termination
+                    childContexts.forEach(ThreadContext::abort);
+                    exitFlag = signalExit("Flow '%s' timed out after %s ms", flowId, timeout / 1_000_000);
+                    break;
+                }
                 final long currentTime = System.nanoTime();
                 if (timeout >= 0 && timeout <= currentTime - startTime) {
                     exitFlag = signalExit("Flow '%s' timed out after %s ms", flowId, timeout / 1_000_000);
@@ -535,7 +553,7 @@ public class FlowCommand extends AbstractCommand {
                                 updateStateCounter(cnR, stateCounters);
                             } else {
                                 if (cnR.result != Sentinel.NON_MUTAT) {
-                                    final var nr = updateAndScheduleNewTasks(ctx, cnR, tasksRunning, exception, stateCounters, stoppedCells);
+                                    final var nr = updateAndScheduleNewTasks(ctx, cnR, tasksRunning, exception, stateCounters, stoppedCells, childContexts);
                                     totalScheduled += nr;
                                     if (limit >= 0) {
                                         if (nr >= limit) {
@@ -596,32 +614,92 @@ public class FlowCommand extends AbstractCommand {
      * @param stateCounters map tracking the version of each cell's state
      * @param exception     shared reference for propagating exceptions
      * @param stoppedCells  set of cells that have completed execution
+     * @param childContexts the thread contexts of the tasks started by this flow execution
+     * @param deadline      the absolute {@link System#nanoTime()} value when the flow times out, or -1 for no timeout
+     * @param timeout       the flow timeout in nanoseconds, or -1; used only for the error message
+     * @return {@link #CONTINUE}, or an exit flag carrying the timeout error if the deadline passed
+     * while some start tasks were still running (those tasks are aborted before returning)
      * @throws InterruptedException                    if task execution is interrupted
      * @throws java.util.concurrent.ExecutionException if a task fails
      */
-    private void updateAndScheduleStart(LocalContext ctx,
-                                        HashSet<CompletableFuture<CellWithResult>> tasksRunning,
-                                        HashMap<String, Long> stateCounters,
-                                        AtomicReference<Exception> exception,
-                                        HashSet<Cell> stoppedCells
+    private ExitFlag updateAndScheduleStart(LocalContext ctx,
+                                            HashSet<CompletableFuture<CellWithResult>> tasksRunning,
+                                            HashMap<String, Long> stateCounters,
+                                            AtomicReference<Exception> exception,
+                                            HashSet<Cell> stoppedCells,
+                                            List<ThreadContext> childContexts,
+                                            long deadline,
+                                            long timeout
     ) throws InterruptedException, java.util.concurrent.ExecutionException {
-        // wait for all the start tasks to finish before let the hell get loose
-        CompletableFuture.allOf(tasksRunning.toArray(CompletableFuture[]::new)).join();
+        // wait for all the start tasks to finish before let the hell get loose,
+        // but never past the timeout deadline
+        if (!waitForAllTasks(tasksRunning, deadline)) {
+            // some start tasks are still running, possibly blocked in IO;
+            // stop waiting for them and request their termination
+            childContexts.forEach(ThreadContext::abort);
+            return signalExit("Flow '%s' timed out after %s ms", flowId, timeout / 1_000_000);
+        }
         final var newTasksSchedulers = new ArrayList<Runnable>();
         for (final var task : tasksRunning) {
             final var cnR = task.get();
             if (exception.get() != null) {
-                return;
+                return CONTINUE;
             }
             final var updated = updateCellVariable(ctx, cnR, stateCounters);
             if (updated) {
-                newTasksSchedulers.add(() -> scheduleNewTasks(ctx, cnR, tasksRunning, exception, stateCounters, stoppedCells));
+                newTasksSchedulers.add(() -> scheduleNewTasks(ctx, cnR, tasksRunning, exception, stateCounters, stoppedCells, childContexts));
             } else {
                 throw new ExecutionException("Updating initial value '%s' failed. Probably double defined in initial state in flow '%s'", cnR.cell.id, flowId);
             }
         }
         for (final var schedule : newTasksSchedulers) {
             schedule.run();
+        }
+        return CONTINUE;
+    }
+
+    /**
+     * Waits until at least one of the given tasks completes, but never past the given deadline.
+     *
+     * @param tasksRunning the currently running tasks, must not be empty
+     * @param deadline     the absolute {@link System#nanoTime()} value when the flow times out, or -1 for no deadline
+     * @return {@code true} if at least one task is done, {@code false} if the deadline passed first
+     */
+    private static boolean waitForAnyTask(HashSet<CompletableFuture<CellWithResult>> tasksRunning, long deadline) {
+        return waitFor(CompletableFuture.anyOf(tasksRunning.toArray(CompletableFuture[]::new)), deadline);
+    }
+
+    /**
+     * Waits until all the given tasks complete, but never past the given deadline.
+     *
+     * @param tasksRunning the currently running tasks
+     * @param deadline     the absolute {@link System#nanoTime()} value when the flow times out, or -1 for no deadline
+     * @return {@code true} if all tasks are done, {@code false} if the deadline passed first
+     */
+    private static boolean waitForAllTasks(HashSet<CompletableFuture<CellWithResult>> tasksRunning, long deadline) {
+        return waitFor(CompletableFuture.allOf(tasksRunning.toArray(CompletableFuture[]::new)), deadline);
+    }
+
+    private static boolean waitFor(CompletableFuture<?> future, long deadline) {
+        try {
+            if (deadline < 0) {
+                future.join();
+            } else {
+                final long remaining = deadline - System.nanoTime();
+                if (remaining <= 0) {
+                    return future.isDone();
+                }
+                future.get(remaining, TimeUnit.NANOSECONDS);
+            }
+            return true;
+        } catch (TimeoutException e) {
+            return false;
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new ExecutionException(e);
+        } catch (java.util.concurrent.ExecutionException | CompletionException e) {
+            // the future completed exceptionally, so it is done; the task processing will surface the failure
+            return true;
         }
     }
 
@@ -680,10 +758,10 @@ public class FlowCommand extends AbstractCommand {
      * @param stoppedCells  is the set of cells that have returned fini signaling that they are done.
      * @return the number of new tasks scheduled
      */
-    private int updateAndScheduleNewTasks(LocalContext ctx, CellWithResult cnR, HashSet<CompletableFuture<CellWithResult>> tasksRunning, AtomicReference<Exception> exception, Map<String, Long> stateCounters, HashSet<Cell> stoppedCells) {
+    private int updateAndScheduleNewTasks(LocalContext ctx, CellWithResult cnR, HashSet<CompletableFuture<CellWithResult>> tasksRunning, AtomicReference<Exception> exception, Map<String, Long> stateCounters, HashSet<Cell> stoppedCells, List<ThreadContext> childContexts) {
         final var updated = updateCellVariable(ctx, cnR, stateCounters);
         if (updated) {
-            return scheduleNewTasks(ctx, cnR, tasksRunning, exception, stateCounters, stoppedCells);
+            return scheduleNewTasks(ctx, cnR, tasksRunning, exception, stateCounters, stoppedCells, childContexts);
         } else {
             return 0;
         }
@@ -707,13 +785,14 @@ public class FlowCommand extends AbstractCommand {
                                  HashSet<CompletableFuture<CellWithResult>> tasksRunning,
                                  AtomicReference<Exception> exception,
                                  Map<String, Long> stateCounters,
-                                 HashSet<Cell> stoppedCells) {
+                                 HashSet<Cell> stoppedCells,
+                                 List<ThreadContext> childContexts) {
         int newTasksScheduled = 0;
         final var dCells = this.dependentCells.get(cnR.cell.id);
         if (dCells != null) {
             for (final var cell : dCells) {
                 if (!stoppedCells.contains(cell)) {
-                    tasksRunning.add(startTask(ctx, cell, exception, nextCounter(cell.id, stateCounters)));
+                    tasksRunning.add(startTask(ctx, cell, exception, nextCounter(cell.id, stateCounters), childContexts));
                     newTasksScheduled++;
                 }
             }
@@ -791,8 +870,9 @@ public class FlowCommand extends AbstractCommand {
      *                  to avoid update with stale calculation.
      * @return the comparable future running the task
      */
-    private CompletableFuture<CellWithResult> startTask(LocalContext ctx, Cell cell, AtomicReference<Exception> exception, long counter) {
+    private CompletableFuture<CellWithResult> startTask(LocalContext ctx, Cell cell, AtomicReference<Exception> exception, long counter, List<ThreadContext> childContexts) {
         final var newContext = ctx.thread();
+        childContexts.add(newContext.threadContext);
         copyVariables(ctx, newContext);
         return CompletableFuture.supplyAsync(() -> {
             Thread.currentThread().setName(cell.id + ":" + NameGen.generateName());
