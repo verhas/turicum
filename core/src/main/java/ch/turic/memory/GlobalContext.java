@@ -20,7 +20,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  * This global context is shared for the whole interpreter for all the threads.
  */
 public class GlobalContext {
-    public VarTable heap = new VarTable();
+    // globals can be shared between threads without a synchronization point, so the heap
+    // stores the values in volatile variables; see VolatileVariable
+    public VarTable heap = new VarTable(true);
     public final int stepLimit;
     public final AtomicInteger steps = new AtomicInteger();
     private final Map<Class<?>, TuriClass> turiClasses = new HashMap<>();

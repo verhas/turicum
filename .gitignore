@@ -4,3 +4,11 @@
 cli/output
 *.turc
 .perag/perag.db
+.claude
+.perag
+.vscode
+/core/src/test/resources/references_output/*
+/lsp/output/*
+/.mcp.json
+/.repl.turi
+/lsp/lsp_err.txt

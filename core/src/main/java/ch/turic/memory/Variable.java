@@ -77,7 +77,7 @@ public class Variable {
             throw new ExecutionException("You cannot store a break, continue or return in a variable");
         }
         if (isOfTypes(newValue)) {
-            this.value = newValue;
+            assign(newValue);
         } else {
             if (types.length == 1) {
                 throw new ExecutionException(
@@ -242,6 +242,17 @@ public class Variable {
             if (javaType == Long.class) return Cast.isLong(value);
             return value != null && javaType.isAssignableFrom(value.getClass());
         }
+    }
+
+    /**
+     * Stores the already validated value. This is the raw storage operation without any type
+     * checking; it is called by {@link #set(Object)} after validation and overridden by
+     * {@link VolatileVariable} to provide volatile storage for global variables.
+     *
+     * @param newValue the value to store
+     */
+    protected void assign(Object newValue) {
+        this.value = newValue;
     }
 
     public Object get() {

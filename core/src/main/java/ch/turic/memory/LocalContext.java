@@ -298,9 +298,10 @@ public class LocalContext implements Context, AutoCloseable {
         if (frame.containsKey(key)) {
             throw new ExecutionException("Variable '%s' is already defined.", key);
         }
-        final var v = new Variable(key);
+        // the frame creates the variable, so the root context (whose frame is the global heap)
+        // gets a volatile variable while local frames get plain ones
+        final var v = frame.define(key);
         v.types = Variable.getTypes(this, typeNames);
-        frame.put(key, v);
         return v;
     }
 
