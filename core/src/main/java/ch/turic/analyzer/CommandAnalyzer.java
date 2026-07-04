@@ -95,6 +95,7 @@ public class CommandAnalyzer extends AbstractAnalyzer {
         analyzers.put(Keywords.FOR, ForLoopAnalyzer.INSTANCE);
         analyzers.put(Keywords.FLOW, FlowAnalyzer.INSTANCE);
         analyzers.put(Keywords.SYNC, SyncAnalyzer.INSTANCE);
+        analyzers.put(Keywords.VEIL, VeilAnalyzer.INSTANCE);
     }
 
     /**
@@ -145,6 +146,7 @@ public class CommandAnalyzer extends AbstractAnalyzer {
             }
             // commands that may have terminating ;
             case Keywords.PIN,
+                 Keywords.VEIL,
                  Keywords.GLOBAL,
                  Keywords.BREAK,
                  Keywords.CONTINUE,

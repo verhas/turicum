@@ -321,15 +321,34 @@ public abstract class FunctionCallOrCurry extends AbstractCommand {
     }
 
     /**
+     * Field lookup for method dispatch. When the dispatch originates from an internally
+     * rewritten bare method call (see {@link FieldAccess.Internal}), the veil check is skipped:
+     * methods of the object may call the veiled methods.
+     */
+    private static Object fieldOf(HasFields obj, String identifier, boolean internal) {
+        if (internal) {
+            if (obj instanceof LngObject lngObject) {
+                return lngObject.getFieldUnveiled(identifier);
+            }
+            if (obj instanceof LngClass lngClass) {
+                return lngClass.getFieldUnveiled(identifier);
+            }
+        }
+        return obj.getField(identifier);
+    }
+
+    /**
      * Get the method from the object. If it is a JavaObject, but the contained object has a TuriClass implementing
      * functionality, then get that functionality instead.
      *
      * @param context    the context to get access to the interpreter and, through that, to the registered TuriClasses
      * @param obj        the object for which we are searching the method
      * @param identifier the name of the method
+     * @param internal   {@code true} when the dispatch comes from an internally rewritten bare
+     *                   method call, in which case the veil check is skipped
      * @return the method object that can be a closure
      */
-    protected static Object getMethod(LocalContext context, HasFields obj, String identifier) {
+    protected static Object getMethod(LocalContext context, HasFields obj, String identifier, boolean internal) {
         return switch (obj) {
             case null -> null;
             case JavaObject jo -> {
@@ -343,9 +362,9 @@ public abstract class FunctionCallOrCurry extends AbstractCommand {
                 yield jo.getField(identifier);
             }
             default -> {
-                final var method = obj.getField(identifier);
+                final var method = fieldOf(obj, identifier, internal);
                 if (method == null) {
-                    yield obj.getField(JOKER_METHOD_NAME);
+                    yield fieldOf(obj, JOKER_METHOD_NAME, internal);
                 } else {
                     yield method;
                 }
@@ -413,16 +432,16 @@ public abstract class FunctionCallOrCurry extends AbstractCommand {
                 final var thisObject = context.contains("this") ? context.get("this") : null;
                 final var clsObject = context.contains("cls") ? context.get("cls") : null;
                 if (thisObject instanceof LngObject lngObject && lngObject.context().containsLocal(id.name())) {
-                    return new FieldAccess(new Identifier("this"), id.name(), false);
+                    return new FieldAccess.Internal(new Identifier("this"), id.name());
                 }
                 if (clsObject instanceof LngClass lngClass && lngClass.context().containsLocal(id.name())) {
-                    return new FieldAccess(new Identifier("cls"), id.name(), false);
+                    return new FieldAccess.Internal(new Identifier("cls"), id.name());
                 }
                 if (thisObject instanceof LngObject lngObject && lngObject.context().containsLocal(JOKER_METHOD_NAME)) {
-                    return new FieldAccess(new Identifier("this"), id.name(), false);
+                    return new FieldAccess.Internal(new Identifier("this"), id.name());
                 }
                 if (clsObject instanceof LngClass lngClass && lngClass.context().containsLocal(JOKER_METHOD_NAME)) {
-                    return new FieldAccess(new Identifier("cls"), id.name(), false);
+                    return new FieldAccess.Internal(new Identifier("cls"), id.name());
                 }
                 return object;
             } else {

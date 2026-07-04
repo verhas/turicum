@@ -103,3 +103,4 @@ ch.turic.builtins.functions.JavaImport
 
 ch.turic.builtins.functions.Mutex
 ch.turic.builtins.functions.Atomic
+ch.turic.builtins.functions.KeysAll

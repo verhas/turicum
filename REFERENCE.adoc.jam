@@ -1,4 +1,5 @@
 = Turicum Programming Language Reference
+{%#comment is used to avoid tousands of empty lines
 {%@define EBNF($x)=
 [source]
 ----
@@ -30,7 +31,10 @@
 
 %}
 {%@define FORCE=The `*_force` version overwrites the value even when the variable is pinned.%}
-
+{%@export FORCE%}
+{%@export EBNF%}
+{%@export S%}
+%}
 == Introduction
 
 === What is Turicum?
@@ -1887,54 +1891,9 @@ When you use a class in the `with` command instead of an object the class fields
 
 === Mutual Exclusion: `mutex` and `sync`
 
-The function `mutex()` creates a mutual exclusion lock, a mutex.
-The `sync` command executes a block or a command while holding a mutex:
-
-[source]
-----
-sync expression { block }
-----
-
-or
-
-[source]
-----
-sync expression : command
-----
-
-The expression must evaluate to a mutex.
-Only one thread at a time can hold a mutex; a thread executing a `sync` command on a mutex that another thread holds waits until the holder releases it.
-Use it to protect invariants that span several variables or objects, for example, moving an amount between two accounts so that no other thread can see the intermediate state.
-
-The mutex is released when the body finishes.
-The release is guaranteed: it also happens when the body throws an exception, and even when the executing thread is aborted because of a time or step limit.
-The exception raised in the body, if there is any, propagates; `sync` never suppresses it.
-The value of the `sync` command is the value of the body.
-
-The mutex is reentrant: a `sync` command nested inside another `sync` on the same mutex executes without waiting.
+{%@snip sync_command%}
 
 {%S sync_mutex%}
-
-The methods `lock()`, `unlock()`, `try_lock()`, `try_lock(seconds)`, `is_locked()`, and `is_held()` are also available on the mutex object for advanced use.
-When you call these methods directly, the program is responsible for releasing the mutex it acquired.
-The `sync` command is the recommended form because it guarantees the release.
-
-The type of a mutex is `mtx`, as in
-
-[source]
-----
-let l : mtx = mutex()
-----
-
-[NOTE]
-====
-A mutex is not a resource manager: it cannot be used with an `as` alias in a `with` command.
-Use the `sync` command.
-
-A mutex protects only the accesses that go through it.
-If any code path reads or writes the shared data without holding the mutex, the protection is gone.
-When a single shared value is enough, prefer an atomic value (see below), where unsynchronized access is not possible at all.
-====
 
 === Atomic Values
 
@@ -2131,10 +2090,12 @@ Optional.
 A boolean expression that terminates the flow once it evaluates to true.
 - `limit <maxTasks>`::
 Optional.
-A numeric constant that sets the maximum number of dependent cell executions allowed.
+A numeric expression that sets the maximum number of dependent cell executions allowed.
+It is evaluated once, when the flow starts.
 - `timeout <seconds>`::
 Optional.
-A numeric constant (can be fractional) specifying the maximum wall-clock time allowed for execution, in seconds.
+A numeric expression (can be fractional) specifying the maximum wall-clock time allowed for execution, in seconds.
+It is evaluated once, when the flow starts.
 
 [NOTE]
 ====
@@ -2143,6 +2104,19 @@ A numeric constant (can be fractional) specifying the maximum wall-clock time al
 The syntax analyzer cannot tell whether they start the limit or timeout definition or you want to name the flow "limit" or "timeout".
 You cannot name the flow either of these.
 ====
+
+The values of the clauses are parsed as expressions, the same way as the conditions of the `if` and `while` commands.
+A bare identifier is a valid condition, and no `;` is needed between the clauses or before the body:
+
+[source]
+----
+flow until finished limit 100 timeout 1.5 {
+   ...
+}
+----
+
+You can still write a `;` after each clause if you find it more readable.
+Commands are not expressions in Turicum; if the condition needs one, enclose it in `{` and `}` as a block expression.
 
 Each
 
@@ -2222,6 +2196,23 @@ They will be executed first.
 
 It is important that other cell calculations start only after the {%SC%}s have been calculated.
 If you have multiple {%SC%}s and a cell block depends on more than one, then they will both be defined when the dependent cell calculation starts.
+
+==== Cells are Local
+
+The {%CSV%}s are local to the `flow` command.
+A flow does not care what variables are defined around it: a cell may freely have the same name as a variable of the surrounding scope or a global variable.
+The cell is used inside the flow; the outer variable is neither read nor modified.
+In particular, before a cell has computed its first value, the `until` condition and the other cells never fall back to a same-named outer variable.
+Variables of the surrounding scope that do not collide with any cell name can be used freely in the cell expressions and in the `until` condition.
+
+{%S flow_cell_locality%}
+
+==== Undefined Variables in the Exit Condition
+
+The `until` condition is evaluated repeatedly, and during the start-up of the flow it may reference cells that have not computed their first value yet.
+When the evaluation of the condition fails because a *cell* is undefined, the condition counts as `false` and the flow keeps running; the cell will get its value and the condition will be evaluated again.
+When the evaluation fails because a name is undefined that is *not* a cell — for example, a typo — the flow stops and reports the error.
+Any other error in the evaluation of the condition also stops the flow and reports the error.
 
 [NOTE]
 ====
@@ -2781,6 +2772,12 @@ In this case the type definition of the field will be the union of the types.
 {%S inherit8%}
 
 The field `b` is declared to be a number in the class `Child` but it also inherits the type `str` through the invocation of the initializer of `Parent`.
+
+=== Veiled Fields
+
+{%@snip veil_command%}
+
+{%S veil_fields%}
 
 == Error Handling
 

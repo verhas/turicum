@@ -1,1183 +1,5 @@
 = Turicum Programming Language Reference
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 == Introduction
 
 === What is Turicum?
@@ -1534,6 +356,7 @@ The reserved keywords are:
 `sync`
 `try`
 `until`
+`veil`
 `when`
 `while`
 `with`
@@ -2856,15 +1679,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=4F0F7849
+h id=784ABD3E
 h after post increment: 1
 k: 0
-h id=56A4F272
-k id=4F0F7849
+h id=36C2B646
+k id=784ABD3E
 h after pre increment: 2
 z: 2
-h id=3EE0B4F7
-z id=3EE0B4F7
+h id=434514D8
+z id=434514D8
 
 ----
 
@@ -2910,15 +1733,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=77BBADC
+h id=EC8F4B9
 h after post increment: 1
 k: 1
-h id=77BBADC
-k id=77BBADC
+h id=EC8F4B9
+k id=EC8F4B9
 h after pre increment: 2
 z: 2
-h id=77BBADC
-z id=77BBADC
+h id=EC8F4B9
+z id=EC8F4B9
 
 ----
 
@@ -2967,15 +1790,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=622FDB81
+h id=103082DD
 h after post decrement: -1
 k: 0
-h id=1F3165E7
-k id=622FDB81
+h id=3A22BAD6
+k id=103082DD
 h after pre decrement: -2
 z: -2
-h id=2EC3633F
-z id=2EC3633F
+h id=56AFDF9A
+z id=56AFDF9A
 
 ----
 
@@ -3018,15 +1841,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=20576557
+h id=77EC6A3D
 h after post decrement: -1
 k: -1
-h id=20576557
-k id=20576557
+h id=77EC6A3D
+k id=77EC6A3D
 h after pre decrement: -2
 z: -2
-h id=20576557
-z id=20576557
+h id=77EC6A3D
+z id=77EC6A3D
 
 ----
 
@@ -6399,6 +5222,7 @@ haha
 
 === Mutual Exclusion: `mutex` and `sync`
 
+
 The function `mutex()` creates a mutual exclusion lock, a mutex.
 The `sync` command executes a block or a command while holding a mutex:
 
@@ -6424,6 +5248,29 @@ The exception raised in the body, if there is any, propagates; `sync` never supp
 The value of the `sync` command is the value of the body.
 
 The mutex is reentrant: a `sync` command nested inside another `sync` on the same mutex executes without waiting.
+
+The methods `lock()`, `unlock()`, `try_lock()`, `try_lock(seconds)`, `is_locked()`, and `is_held()` are also available on the mutex object for advanced use.
+When you call these methods directly, the program is responsible for releasing the mutex it acquired.
+The `sync` command is the recommended form because it guarantees the release.
+
+The type of a mutex is `mtx`, as in
+
+[source]
+----
+let l : mtx = mutex()
+----
+
+[NOTE]
+====
+A mutex is not a resource manager: it cannot be used with an `as` alias in a `with` command.
+Use the `sync` command.
+
+A mutex protects only the accesses that go through it.
+If any code path reads or writes the shared data without holding the mutex, the protection is gone.
+When a single shared value is enough, prefer an atomic value, where unsynchronized access is not possible at all.
+====
+
+
 
 .source of snippet `sync_mutex`
 
@@ -6478,27 +5325,6 @@ released after die: true
 ----
 
 
-
-The methods `lock()`, `unlock()`, `try_lock()`, `try_lock(seconds)`, `is_locked()`, and `is_held()` are also available on the mutex object for advanced use.
-When you call these methods directly, the program is responsible for releasing the mutex it acquired.
-The `sync` command is the recommended form because it guarantees the release.
-
-The type of a mutex is `mtx`, as in
-
-[source]
-----
-let l : mtx = mutex()
-----
-
-[NOTE]
-====
-A mutex is not a resource manager: it cannot be used with an `as` alias in a `with` command.
-Use the `sync` command.
-
-A mutex protects only the accesses that go through it.
-If any code path reads or writes the shared data without holding the mutex, the protection is gone.
-When a single shared value is enough, prefer an atomic value (see below), where unsynchronized access is not possible at all.
-====
 
 === Atomic Values
 
@@ -6728,8 +5554,8 @@ execute("Thread 2",2)
 Thread 1 generated 3
  prime read 3
 Thread 1 generated 5
- prime read Thread 1 generated 7
-5
+ prime read 5
+Thread 1 generated 7
  prime read 7
 Thread 1 generated 11
 Thread 1 generated 13
@@ -6738,12 +5564,12 @@ Thread 1 generated 19
 Thread 1 generated 23
 stopping
 exception Task stopped.
- prime read 2
 Thread 2 generated 3
+ prime read 2
  prime read 3
 Thread 2 generated 5
- prime read 5
 Thread 2 generated 7
+ prime read 5
  prime read 7
 Thread 2 generated 11
 Thread 2 generated 13
@@ -6890,9 +5716,9 @@ fn sleeper( x ){
 [source]
 ----
 [1, 2, 3]
-312.703542ms
+312.544458ms
 [1, 2, 3]
-102.301875ms
+106.881ms
 
 ----
 
@@ -6956,10 +5782,12 @@ Optional.
 A boolean expression that terminates the flow once it evaluates to true.
 - `limit <maxTasks>`::
 Optional.
-A numeric constant that sets the maximum number of dependent cell executions allowed.
+A numeric expression that sets the maximum number of dependent cell executions allowed.
+It is evaluated once, when the flow starts.
 - `timeout <seconds>`::
 Optional.
-A numeric constant (can be fractional) specifying the maximum wall-clock time allowed for execution, in seconds.
+A numeric expression (can be fractional) specifying the maximum wall-clock time allowed for execution, in seconds.
+It is evaluated once, when the flow starts.
 
 [NOTE]
 ====
@@ -6968,6 +5796,19 @@ A numeric constant (can be fractional) specifying the maximum wall-clock time al
 The syntax analyzer cannot tell whether they start the limit or timeout definition or you want to name the flow "limit" or "timeout".
 You cannot name the flow either of these.
 ====
+
+The values of the clauses are parsed as expressions, the same way as the conditions of the `if` and `while` commands.
+A bare identifier is a valid condition, and no `;` is needed between the clauses or before the body:
+
+[source]
+----
+flow until finished limit 100 timeout 1.5 {
+   ...
+}
+----
+
+You can still write a `;` after each clause if you find it more readable.
+Commands are not expressions in Turicum; if the condition needs one, enclose it in `{` and `}` as a block expression.
 
 Each
 
@@ -7048,6 +5889,79 @@ They will be executed first.
 It is important that other cell calculations start only after the __start cell__s have been calculated.
 If you have multiple __start cell__s and a cell block depends on more than one, then they will both be defined when the dependent cell calculation starts.
 
+==== Cells are Local
+
+The __cell state variable__s are local to the `flow` command.
+A flow does not care what variables are defined around it: a cell may freely have the same name as a variable of the surrounding scope or a global variable.
+The cell is used inside the flow; the outer variable is neither read nor modified.
+In particular, before a cell has computed its first value, the `until` condition and the other cells never fall back to a same-named outer variable.
+Variables of the surrounding scope that do not collide with any cell name can be used freely in the cell expressions and in the `until` condition.
+
+.source of snippet `flow_cell_locality`
+
+[source]
+----
+// Cells are local to the flow. The exit condition may freely use variables of the
+// surrounding scope as long as their names do not collide with cell names.
+// The single self-chained counter makes the result deterministic: the exit condition is
+// re-evaluated before every cell value save, so no save can happen past the first true.
+let threshold = 5
+
+let counted = {
+    flow until counter >= threshold {
+        counter <- 0;
+        counter <- counter + 1;
+        yield counter
+    }
+}
+println "counted: " + counted
+
+// During warm-up the exit condition may reference a cell that has not computed yet:
+// 'b' is still undefined at the first evaluation of the condition, which is tolerated.
+let doubled = {
+    flow until b >= 2 {
+        a <- 1;
+        b <- a * 2;
+        yield b
+    }
+}
+println "doubled: " + doubled
+
+// A flow does not care what variables are defined around it: a cell may shadow a
+// variable of the surrounding scope. The flow uses its own local cell; the outer
+// variable is neither read (not even before the cell computes) nor modified.
+let value = 100
+let shadowing = {
+    flow until value >= 3 {
+        value <- 0;
+        value <- value + 1;
+        yield value
+    }
+}
+println "shadowing flow: " + shadowing
+println "outer value: " + value
+
+----
+
+.output of snippet `flow_cell_locality`
+[source]
+----
+counted: 5
+doubled: 2
+shadowing flow: 3
+outer value: 100
+
+----
+
+
+
+==== Undefined Variables in the Exit Condition
+
+The `until` condition is evaluated repeatedly, and during the start-up of the flow it may reference cells that have not computed their first value yet.
+When the evaluation of the condition fails because a *cell* is undefined, the condition counts as `false` and the flow keeps running; the cell will get its value and the condition will be evaluated again.
+When the evaluation fails because a name is undefined that is *not* a cell — for example, a typo — the flow stops and reports the error.
+Any other error in the evaluation of the condition also stops the flow and reports the error.
+
 [NOTE]
 ====
 - The order of `until`, `limit`, and `timeout` is flexible in the syntax.
@@ -7103,9 +6017,10 @@ a =3.6063454894655185
 a =3.6055513629176015
 a =3.6055512754639905
 a =3.6055512754639896
-sqrt(13) ≈ 3.6055512754639905
+a =3.6055512754639896
+sqrt(13) ≈ 3.6055512754639896
 sqrt(13) ≈ 3.605551275463989 calculated by java Math
-square ≈ 13.000000000000009
+square ≈ 13.000000000000002
 
 ----
 
@@ -7140,6 +6055,7 @@ try{
 [source]
 ----
 counter =1
+counter =2
 Flow '#unnamed' timed out after 10 ms
 
 ----
@@ -8884,6 +7800,120 @@ Cannot set variable 'b' to value 'none' because it does not fit any of the decla
 
 
 The field `b` is declared to be a number in the class `Child` but it also inherits the type `str` through the invocation of the initializer of `Parent`.
+
+=== Veiled Fields
+
+
+The `veil` command makes fields inaccessible from the outside:
+
+[source]
+----
+class Account {
+    fn init(opening) {
+        mut balance = opening
+        veil balance                    // instance field, veiled per object
+    }
+    fn deposit(d) { balance = balance + d }
+    fn helper() { 1 }
+    veil helper                         // class level method
+}
+----
+
+A veiled name cannot be read or written through the field access of the object or the class
+(`a.balance`, `a["balance"]`, calling `a.helper()`), the access reports an error.
+Inside the methods of the object, the name is used as a variable the usual way; the veil does not
+restrict the lexical name resolution.
+Methods of a subclass also see the veiled names of the parent.
+
+The veil is a guardrail, not a security boundary.
+The `with` command and macros see through it deliberately.
+For example, a method comparing two instances can read the veiled field of the other instance:
+
+[source]
+----
+fn equals(other) { v == { with other : v } }
+----
+
+The names must be defined before they are veiled.
+The `keys()` function does not list veiled names; `keys_all()` lists all of them.
+Do not veil `init`, `entry`, `exit`, `to_string`, or operator methods: they are invoked through
+the field access, and veiling them makes the object unusable for the corresponding purpose.
+
+
+
+.source of snippet `veil_fields`
+
+[source]
+----
+// The 'veil' command makes fields and methods inaccessible from the outside. Inside the
+// methods of the object the veiled names are used as variables the usual way.
+class Account {
+    fn init(opening) {
+        mut balance = opening
+        veil balance
+    }
+    fn deposit(d) { balance = balance + d }
+    fn total() { balance }
+    fn helper() { "internal" }
+    fn front() { helper() }
+    veil helper
+}
+
+let a = Account(100)
+a.deposit(50)
+println "total: " + a.total()
+
+// veiled fields and methods are not accessible from the outside
+try {
+    a.balance
+} catch e {
+    println "caught: " + e.message
+}
+try {
+    a.helper()
+} catch e {
+    println "caught: " + e.message
+}
+// but methods of the object can use them
+println "front: " + a.front()
+
+// keys() does not list veiled names, keys_all() does
+mut in_keys = false
+for each k in keys(a) : if k == "balance" : in_keys = true
+mut in_keys_all = false
+for each k in keys_all(a) : if k == "balance" : in_keys_all = true
+println "balance in keys: " + in_keys
+println "balance in keys_all: " + in_keys_all
+
+// the veil is a guardrail: 'with' sees through it deliberately, which is how a method
+// can compare its veiled field with the one of another instance
+class Box {
+    fn init(v0) {
+        mut v = v0
+        veil v
+    }
+    fn same(other) { v == { with other : v } }
+}
+println "same: " + Box(42).same(Box(42))
+println "same: " + Box(42).same(Box(43))
+
+----
+
+.output of snippet `veil_fields`
+[source]
+----
+total: 150
+caught: Field 'balance' is veiled.
+caught: Field 'helper' is veiled.
+front: internal
+balance in keys: false
+balance in keys_all: true
+same: true
+same: false
+
+----
+
+
 
 == Error Handling
 
@@ -12812,8 +11842,8 @@ println jsonify_beauty(java_import("ch.turic.exceptions"))
     "ch.turic.exceptions.UnexpectedCharacter": JavaClass[klass=class ch.turic.exceptions.UnexpectedCharacter],
     "ch.turic.exceptions.InterpreterHalt": JavaClass[klass=class ch.turic.exceptions.InterpreterHalt],
     "UnexpectedCharacter": JavaClass[klass=class ch.turic.exceptions.UnexpectedCharacter],
-    "StringNotTerminated": JavaClass[klass=class ch.turic.exceptions.StringNotTerminated],
     "StepLimitReached": JavaClass[klass=class ch.turic.exceptions.StepLimitReached],
+    "StringNotTerminated": JavaClass[klass=class ch.turic.exceptions.StringNotTerminated],
     "ch.turic.exceptions.BadSyntax": JavaClass[klass=class ch.turic.exceptions.BadSyntax],
     "UndefinedVariable": JavaClass[klass=class ch.turic.exceptions.UndefinedVariable],
     "ch.turic.exceptions.ExecutionAborted": JavaClass[klass=class ch.turic.exceptions.ExecutionAborted],
@@ -13220,6 +12250,16 @@ println keys(BigDecimal("0"))
 
 Note that the return value contains the special fields, like `cls`, `this` and so on.
 
+Veiled names (see the `veil` command) are not listed.
+Use `keys_all()` to list every key, including the veiled ones.
+
+
+=== `keys_all`
+
+The function `keys_all()` is the same as `keys()`, but it also lists the veiled names of an
+object or a class. It is an introspection tool; accessing the listed veiled fields through the
+field access still reports an error.
+
 
 === `len`
 
@@ -13355,7 +12395,7 @@ println nano_time()
 .output of snippet `nano_time`
 [source]
 ----
-1055409752590333
+1074530606044291
 
 ----
 
@@ -13631,81 +12671,79 @@ none
 .output of snippet `que`
 [source]
 ----
-task1 is not ready 0task2 is ready 1
-
+task1 is not ready 0
+task2 is ready 1
 task2 is not ready 0
 task2 is not ready 1
 task1 is not ready 1
-task2 is not ready 2
-task1 is not ready 2
+task1 is not ready 2task2 is not ready 2
+
 task2 is not ready 3
 task1 is not ready 3
-task2 is ready 2
-task1 is not ready 4
-task2 is not ready 0
-task2 is not ready 1
-task1 is not ready 5
-task1 is not ready 6
-task2 is not ready 2
-task1 is not ready 7
-task2 is ready 3
-task2 is not ready 0
-task1 is not ready 8
-task2 is not ready 1
-task1 is not ready 9
-task2 is not ready 2
-task1 is not ready 10
-task2 is not ready 3
-task1 is ready 4
-task2 is not ready 4
-task1 is not ready 0
-task1 is not ready 1
-task2 is not ready 5
-task2 is not ready 6
-task1 is not ready 2
-task1 is ready 5task2 is not ready 7
+task2 is not ready 4task1 is ready 2
 
 task1 is not ready 0
+task1 is not ready 1task2 is not ready 5
+
+task2 is not ready 6
+task1 is ready 3
+task1 is not ready 0
+task2 is not ready 7
 task1 is not ready 1
 task2 is not ready 8
-task2 is not ready 9
+task1 is not ready 2
+task2 is ready 4
+task1 is not ready 3
+task2 is not ready 0
+task2 is not ready 1
+task1 is not ready 4
+task1 is not ready 5
+task2 is not ready 2
+task1 is not ready 6
+task2 is not ready 3
+task1 is ready 5
+task1 is not ready 0
+task2 is not ready 4
+task2 is not ready 5task1 is not ready 1
+
+task2 is not ready 6
 task1 is not ready 2
 task2 is ready 6
 task1 is not ready 3
 task2 is not ready 0
 task1 is not ready 4
 task2 is not ready 1
-task2 is not ready 2
 task1 is not ready 5
-task1 is not ready 6
-task2 is not ready 3
+task2 is not ready 2
 task1 is ready 7
-task2 is not ready 4
+task2 is not ready 3
 task1 is not ready 0
-task2 is not ready 5
-task1 is not ready 1
-task2 is not ready 6
-task1 is not ready 2
-task1 is ready 8
+task2 is not ready 4task1 is not ready 1
+
+task2 is not ready 5task1 is not ready 2
+
+task2 is not ready 6task1 is ready 8
+
 task1 is not ready 0
 task2 is not ready 7
-task2 is not ready 8
 task1 is not ready 1
 task1 is not ready 2
+task2 is not ready 8
 task2 is not ready 9
 task1 is ready 9
-task2 is not ready 10
 task1 is not ready 0
+task2 is not ready 10
 task1 is not ready 1
 task2 is not ready 11
+task1 is not ready 2
 closing the channel
 channel is closed
 1 is done false
 2 is done false
+we start to wait the first time
 task2 is done
 task1 is done
-we start to wait the first time
-task1 done true
+task1 done false
 task2 done true
 We start to wait the second time
 task1 done true
@@ -14722,6 +13760,7 @@ none
 [source]
 ----
 sending 1
+not ready 0
 received 1
 not ready 0
 not ready 1
@@ -14735,7 +13774,6 @@ sending 3
 received 3
 not ready 0
 not ready 1
-not ready 2
 closing the channel
 channel is closed
 is done false

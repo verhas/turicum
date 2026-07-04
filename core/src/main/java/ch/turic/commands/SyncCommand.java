@@ -8,23 +8,52 @@ import ch.turic.utils.Unmarshaller;
 
 /*snippet sync_command
 
-The `sync` command executes its body while holding a mutex:
+The function `mutex()` creates a mutual exclusion lock, a mutex.
+The `sync` command executes a block or a command while holding a mutex:
 
 [source]
 ----
-let l = mutex()
-sync l {
-    // only one thread at a time executes here
-}
-sync l : counter = counter + 1     // single command form
+sync expression { block }
 ----
 
-The expression after the keyword must evaluate to a mutex created by the `mutex()` built-in
-function. The mutex is acquired before the body starts and released when the body ends. The
-release is guaranteed: it also happens when the body throws an exception or when the executing
-thread is aborted (time or step limit). The exception of the body, if any, propagates; `sync`
-never suppresses it. The mutex is reentrant, nested `sync` commands on the same mutex are
-allowed. The value of the `sync` command is the value of the body.
+or
+
+[source]
+----
+sync expression : command
+----
+
+The expression must evaluate to a mutex.
+Only one thread at a time can hold a mutex; a thread executing a `sync` command on a mutex that another thread holds waits until the holder releases it.
+Use it to protect invariants that span several variables or objects, for example, moving an amount between two accounts so that no other thread can see the intermediate state.
+
+The mutex is released when the body finishes.
+The release is guaranteed: it also happens when the body throws an exception, and even when the executing thread is aborted because of a time or step limit.
+The exception raised in the body, if there is any, propagates; `sync` never suppresses it.
+The value of the `sync` command is the value of the body.
+
+The mutex is reentrant: a `sync` command nested inside another `sync` on the same mutex executes without waiting.
+
+The methods `lock()`, `unlock()`, `try_lock()`, `try_lock(seconds)`, `is_locked()`, and `is_held()` are also available on the mutex object for advanced use.
+When you call these methods directly, the program is responsible for releasing the mutex it acquired.
+The `sync` command is the recommended form because it guarantees the release.
+
+The type of a mutex is `mtx`, as in
+
+[source]
+----
+let l : mtx = mutex()
+----
+
+[NOTE]
+====
+A mutex is not a resource manager: it cannot be used with an `as` alias in a `with` command.
+Use the `sync` command.
+
+A mutex protects only the accesses that go through it.
+If any code path reads or writes the shared data without holding the mutex, the protection is gone.
+When a single shared value is enough, prefer an atomic value, where unsynchronized access is not possible at all.
+====
 
 end snippet*/
 

@@ -95,18 +95,30 @@ public class LngClass implements HasFields, HasIndex, HasContext, LngCallable.Ln
     @Override
     public void setField(String name, Object value) throws ExecutionException {
         ExecutionException.when(pinned.get(), "You cannot change a pinned class");
+        ExecutionException.when(context.isVeiled(name), "Field '%s' is veiled.", name);
         context.local(name, value);
     }
 
     @Override
     public Object getField(String name) throws ExecutionException {
+        ExecutionException.when(context.isVeiled(name), "Field '%s' is veiled.", name);
+        return getFieldUnveiled(name);
+    }
+
+    /**
+     * Field access without the veil check; see {@link LngObject#getFieldUnveiled(String)}.
+     *
+     * @param name the name of the field
+     * @return the value of the field or {@code null}
+     */
+    public Object getFieldUnveiled(String name) throws ExecutionException {
         final var fieldInSelf = context.getLocal(name);
         if (fieldInSelf != null) {
             return fieldInSelf;
         }
         if (context.parents() != null) {
             for (var parent : context.parents()) {
-                final var fieldInParent = parent.getField(name);
+                final var fieldInParent = parent.getFieldUnveiled(name);
                 if (fieldInParent != null) {
                     return fieldInParent;
                 }

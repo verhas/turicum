@@ -42,6 +42,33 @@ public class FieldAccess extends AbstractCommand {
     }
 
     /**
+     * A field access created internally by the runtime for method dispatch: a bare method call
+     * inside a method is rewritten to a {@code this}/{@code cls} field access (see
+     * {@code FunctionCallOrCurry.myFunctionObject}). It is exempt from the veil check, because a
+     * method of the object may call the veiled methods and read the veiled fields.
+     * <p>
+     * Instances are created only during execution; they are never part of the analyzed command
+     * tree and never get serialized.
+     */
+    public static class Internal extends FieldAccess {
+        public Internal(Command object, String identifier) {
+            super(object, identifier, false);
+        }
+
+        @Override
+        public Object _execute(final LocalContext context) throws ExecutionException {
+            final var raw = object().execute(context);
+            return switch (raw) {
+                case LngObject o -> o.getFieldUnveiled(identifier());
+                case LngClass c -> c.getFieldUnveiled(identifier());
+                case null ->
+                        throw new ExecutionException("Cannot access the field '%s' because the object it is used on is undefined.", identifier());
+                default -> LeftValue.toObject(raw).getField(identifier());
+            };
+        }
+    }
+
+    /**
      * Executes the field access command, retrieving the value of the specified field from the target object.
      * <p>
      * If the target object is undefined and lenient mode is enabled, returns a default empty object; otherwise, throws an ExecutionException.

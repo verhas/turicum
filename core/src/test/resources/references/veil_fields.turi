@@ -1,0 +1,51 @@
+// The 'veil' command makes fields and methods inaccessible from the outside. Inside the
+// methods of the object the veiled names are used as variables the usual way.
+class Account {
+    fn init(opening) {
+        mut balance = opening
+        veil balance
+    }
+    fn deposit(d) { balance = balance + d }
+    fn total() { balance }
+    fn helper() { "internal" }
+    fn front() { helper() }
+    veil helper
+}
+
+let a = Account(100)
+a.deposit(50)
+println "total: " + a.total()
+
+// veiled fields and methods are not accessible from the outside
+try {
+    a.balance
+} catch e {
+    println "caught: " + e.message
+}
+try {
+    a.helper()
+} catch e {
+    println "caught: " + e.message
+}
+// but methods of the object can use them
+println "front: " + a.front()
+
+// keys() does not list veiled names, keys_all() does
+mut in_keys = false
+for each k in keys(a) : if k == "balance" : in_keys = true
+mut in_keys_all = false
+for each k in keys_all(a) : if k == "balance" : in_keys_all = true
+println "balance in keys: " + in_keys
+println "balance in keys_all: " + in_keys_all
+
+// the veil is a guardrail: 'with' sees through it deliberately, which is how a method
+// can compare its veiled field with the one of another instance
+class Box {
+    fn init(v0) {
+        mut v = v0
+        veil v
+    }
+    fn same(other) { v == { with other : v } }
+}
+println "same: " + Box(42).same(Box(42))
+println "same: " + Box(42).same(Box(43))

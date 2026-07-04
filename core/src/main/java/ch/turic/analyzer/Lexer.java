@@ -14,7 +14,7 @@ public class Lexer {
             Keywords.ELSEIF, Keywords.DIE, Keywords.BREAK, Keywords.CONTINUE, Keywords.WHILE, Keywords.WITH, Keywords.UNTIL, Keywords.FOR, Keywords.FLOW,
             Keywords.EACH, Keywords.LIST, Keywords.IN, Keywords.RETURN, Keywords.YIELD, Keywords.WHEN, Keywords.TRY, Keywords.CATCH,
             Keywords.FINALLY, Keywords.ASYNC, Keywords.AWAIT, Keywords.AS, Keywords.PRINT, Keywords.PRINTLN, Keywords.MUT,
-            Keywords.OTHERWISE, Keywords.DONE, Keywords.LOOP, Keywords.SYNC
+            Keywords.OTHERWISE, Keywords.DONE, Keywords.LOOP, Keywords.SYNC, Keywords.VEIL
     ));
     final static private ArrayList<String> _OPERANDS = new ArrayList<>(Arrays.asList(
             // snippet OPERANDS

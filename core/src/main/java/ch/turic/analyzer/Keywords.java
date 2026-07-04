@@ -33,6 +33,7 @@ public interface Keywords {
     String SYNC = "sync";
     String TRY = "try";
     String UNTIL = "until";
+    String VEIL = "veil";
     String WHEN = "when";
     String WHILE = "while";
     String LOOP = "loop";

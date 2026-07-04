@@ -47,17 +47,32 @@ public class LngObject implements HasFields, HasIndex, HasContext {
     @Override
     public void setField(String name, Object value) {
         ExecutionException.when(pinned.get(), "You cannot change a pinned object");
+        ExecutionException.when(context.isVeiled(name), "Field '%s' is veiled.", name);
         context.local(name, value);
     }
 
     @Override
     public Object getField(String name) throws ExecutionException {
+        ExecutionException.when(context.isVeiled(name), "Field '%s' is veiled.", name);
+        return getFieldUnveiled(name);
+    }
+
+    /**
+     * Field access without the veil check. It is used by the runtime's internal method dispatch:
+     * a bare method call inside a method is rewritten to a {@code this}/{@code cls} field access,
+     * and those must see the veiled names — a method of the object may call the veiled methods
+     * and read the veiled fields.
+     *
+     * @param name the name of the field
+     * @return the value of the field or {@code null}
+     */
+    public Object getFieldUnveiled(String name) throws ExecutionException {
         final var value = context.getLocal(name);
         if (value != null) {
             return value;
         }
         if (lngClass != null) {
-            return lngClass.getField(name);
+            return lngClass.getFieldUnveiled(name);
         }
         return null;
     }
@@ -158,7 +173,8 @@ public class LngObject implements HasFields, HasIndex, HasContext {
     @Override
     public String toString() {
         return CycleGuard.toString(this, "{...}", () -> {
-            final var to_string = getField(TO_STRING_METHOD);
+            // a veiled to_string is not accessible from the outside; use the default representation
+            final var to_string = context.isVeiled(TO_STRING_METHOD) ? null : getField(TO_STRING_METHOD);
             if (to_string == null) {
                 final var builder = new StringBuilder("{");
                 String sep = "";

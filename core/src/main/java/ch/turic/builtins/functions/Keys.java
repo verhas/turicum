@@ -27,6 +27,9 @@ The function `keys()` returns a list containing the keys (strings) of the argume
 
 Note that the return value contains the special fields, like `cls`, `this` and so on.
 
+Veiled names (see the `veil` command) are not listed.
+Use `keys_all()` to list every key, including the veiled ones.
+
 end snippet */
 
 /**
@@ -68,11 +71,11 @@ public class Keys implements TuriFunction {
         final var arg = args.at(0).get();
         return switch (arg) {
             case LngClass klass -> {
-                result.addAll(klass.context().keys());
+                result.addAll(klass.context().visibleKeys());
                 yield result;
             }
             case LngObject object -> {
-                result.addAll(object.context().keys());
+                result.addAll(object.context().visibleKeys());
                 yield result;
             }
             case ClosureLike closure -> {

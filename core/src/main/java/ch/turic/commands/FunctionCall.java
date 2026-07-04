@@ -77,7 +77,7 @@ public class FunctionCall extends FunctionCallOrCurry {
                     }
                 }
             } else {
-                function = getMethod(context, obj, fieldAccess.identifier());
+                function = getMethod(context, obj, fieldAccess.identifier(), fieldAccess instanceof FieldAccess.Internal);
             }
             if (function instanceof ClosureLike command) {
                 final var nullableOptionalResult = command.methodCall(context, obj, fieldAccess.identifier(), this.arguments());

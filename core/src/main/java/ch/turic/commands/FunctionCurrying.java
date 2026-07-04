@@ -29,7 +29,7 @@ public class FunctionCurrying extends FunctionCallOrCurry {
         final Object function;
         if (myObject instanceof FieldAccess fieldAccess) {
             final var obj = LeftValue.toObject(fieldAccess.object().execute(context));
-            function = getMethod(context, obj, fieldAccess.identifier());
+            function = getMethod(context, obj, fieldAccess.identifier(), fieldAccess instanceof FieldAccess.Internal);
             if (function instanceof ClosureLike command) {
                 final FunctionCall.ArgumentEvaluated[] argValues = command.evaluateArguments(context, this.arguments);
                 return command.curried(obj, argValues);

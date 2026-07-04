@@ -21,6 +21,7 @@ public class LocalContext implements Context, AutoCloseable {
     private final Set<String> globals = new HashSet<>();
     private final Set<String> nonlocal = new HashSet<>();
     private final Set<String> local = new HashSet<>();
+    private final Set<String> veiled = new HashSet<>();
     private final Set<String> frozen;
     private final LocalContext wrapped;
     public final GlobalContext globalContext;
@@ -626,6 +627,61 @@ public class LocalContext implements Context, AutoCloseable {
             throw new ExecutionException("Variable '%s' is already defined as global.", key);
         }
         local.add(key);
+    }
+
+    /**
+     * Veil a name: the field is not accessible from the outside through the field access of the
+     * object or class anymore. Inside methods, the name is still accessible as a bare variable,
+     * because the lexical variable resolution does not consult the veil. The {@code with} command
+     * and macros also see through the veil by design.
+     * <p>
+     * The name is veiled in the context of the chain where it is defined, because the command may
+     * execute in a block context wrapping the object or class context. It is an error to veil a
+     * name that is not defined.
+     *
+     * @param name the name to veil
+     * @throws ExecutionException when the name is not defined
+     */
+    public void veil(String name) throws ExecutionException {
+        for (var ctx = this; ctx != null; ctx = ctx.wrapped) {
+            if (ctx.frame.containsKey(name)) {
+                ctx.veiled.add(name);
+                return;
+            }
+        }
+        throw new ExecutionException("Cannot veil '%s', it is not defined.", name);
+    }
+
+    /**
+     * Checks whether the name is veiled in this context or in any of the wrapped contexts.
+     * This is consulted by the field access of objects and classes, which resolve names through
+     * the same context chain.
+     *
+     * @param name the name to check
+     * @return {@code true} if the name is veiled
+     */
+    public boolean isVeiled(String name) {
+        for (var ctx = this; ctx != null; ctx = ctx.wrapped) {
+            if (ctx.veiled.contains(name)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * The keys of the current frame without the veiled names. This is what {@code keys()} shows;
+     * {@code keys_all()} uses {@link #keys()}.
+     *
+     * @return the visible keys of the frame
+     */
+    public Set<String> visibleKeys() {
+        if (veiled.isEmpty()) {
+            return frame.keySet();
+        }
+        final var keys = new HashSet<>(frame.keySet());
+        keys.removeAll(veiled);
+        return keys;
     }
 
     /**

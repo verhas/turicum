@@ -32,7 +32,7 @@ public class FlowAnalyzer extends AbstractAnalyzer {
                     throw lexes.syntaxError("There can only be one exit condition in flow.");
                 }
                 lexes.next();
-                exitCondition = CommandAnalyzer.INSTANCE.analyze(lexes);
+                exitCondition = ExpressionAnalyzer.INSTANCE.analyze(lexes);
                 if (lexes.is(";")) {
                     lexes.next();
                 }
@@ -42,7 +42,7 @@ public class FlowAnalyzer extends AbstractAnalyzer {
                     throw lexes.syntaxError("There can only be one limit in flow.");
                 }
                 lexes.next();
-                limitExpression = CommandAnalyzer.INSTANCE.analyze(lexes);
+                limitExpression = ExpressionAnalyzer.INSTANCE.analyze(lexes);
                 if (lexes.is(";")) {
                     lexes.next();
                 }
@@ -52,7 +52,7 @@ public class FlowAnalyzer extends AbstractAnalyzer {
                     throw lexes.syntaxError("There can only be one timeout in flow.");
                 }
                 lexes.next();
-                timeoutExpression = CommandAnalyzer.INSTANCE.analyze(lexes);
+                timeoutExpression = ExpressionAnalyzer.INSTANCE.analyze(lexes);
             }
         }
         Command resultExpression = null;
