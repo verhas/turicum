@@ -1,0 +1,30 @@
+// The mutex() built-in creates a reentrant mutual exclusion lock, and the 'sync' command
+// executes its body while holding it. The release is guaranteed: it happens on normal
+// completion, on exception, and even when the executing thread is aborted.
+let l : mtx = mutex()
+
+sync l {
+    println "inside sync"
+}
+
+// the value of the sync command is the value of its body
+let r = { sync l : 42 }
+println "r = " + r
+
+// nested sync on the same mutex is allowed, the lock is reentrant
+sync l : sync l : println "reentrant ok"
+
+// the lock methods are available for advanced use
+println "try_lock: " + l.try_lock()
+println "is_held: " + l.is_held()
+println "is_locked: " + l.is_locked()
+l.unlock()
+println "after unlock is_locked: " + l.is_locked()
+
+// sync releases the mutex even when the body dies
+try {
+    sync l : die "boom"
+} catch e {
+    println "caught: " + e.message
+}
+println "released after die: " + (l.is_locked() == false)

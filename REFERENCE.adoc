@@ -1172,6 +1172,9 @@
 
 
 
+
+
+
 == Introduction
 
 === What is Turicum?
@@ -1525,6 +1528,7 @@ The reserved keywords are:
 `print`
 `println`
 `return`
+`sync`
 `try`
 `until`
 `when`
@@ -2849,15 +2853,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=4760F169
+h id=22A6E998
 h after post increment: 1
 k: 0
-h id=261EA657
-k id=4760F169
+h id=55E42449
+k id=22A6E998
 h after pre increment: 2
 z: 2
-h id=35C12C7A
-z id=35C12C7A
+h id=E57E5D6
+z id=E57E5D6
 
 ----
 
@@ -2903,15 +2907,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=4AC86D6A
+h id=3DFFC764
 h after post increment: 1
 k: 1
-h id=4AC86D6A
-k id=4AC86D6A
+h id=3DFFC764
+k id=3DFFC764
 h after pre increment: 2
 z: 2
-h id=4AC86D6A
-z id=4AC86D6A
+h id=3DFFC764
+z id=3DFFC764
 
 ----
 
@@ -2960,15 +2964,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=41B1F51E
+h id=36C0D0BD
 h after post decrement: -1
 k: 0
-h id=3A543F31
-k id=41B1F51E
+h id=5E1FC2AA
+k id=36C0D0BD
 h after pre decrement: -2
 z: -2
-h id=47B67FCB
-z id=47B67FCB
+h id=688D411B
+z id=688D411B
 
 ----
 
@@ -3011,15 +3015,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=AC20BB4
+h id=2AF46AFD
 h after post decrement: -1
 k: -1
-h id=AC20BB4
-k id=AC20BB4
+h id=2AF46AFD
+k id=2AF46AFD
 h after pre decrement: -2
 z: -2
-h id=AC20BB4
-z id=AC20BB4
+h id=2AF46AFD
+z id=2AF46AFD
 
 ----
 
@@ -3673,6 +3677,8 @@ There are predefined type names.
  the variable has to be a queue
 * `task`
  the variable has to be an asynchronous task
+* `mtx`
+ the variable has to be a mutex
 * `err`
  the variable has to be an asynchronous task
 * `cls`
@@ -6526,8 +6532,8 @@ execute("Thread 2",2)
 [source]
 ----
  prime read 2
-Thread 1 generated 3
- prime read 3
+Thread 1 generated  prime read 3
+3
 Thread 1 generated 5
  prime read 5
 Thread 1 generated 7
@@ -6539,13 +6545,13 @@ Thread 1 generated 19
 Thread 1 generated 23
 stopping
 exception Task stopped.
-Thread 2 generated 3
  prime read 2
-Thread 2 generated 5
+Thread 2 generated 3
  prime read 3
+Thread 2 generated 5
  prime read 5
-Thread 2 prime read  generated 77
-
+Thread 2 generated 7
+ prime read 7
 Thread 2 generated 11
 Thread 2 generated 13
 stopping
@@ -6691,9 +6697,9 @@ fn sleeper( x ){
 [source]
 ----
 [1, 2, 3]
-312.675417ms
+315.274375ms
 [1, 2, 3]
-103.384458ms
+105.753625ms
 
 ----
 
@@ -6904,9 +6910,10 @@ a =3.6063454894655185
 a =3.6055513629176015
 a =3.6055512754639905
 a =3.6055512754639896
-sqrt(13) ≈ 3.6055512754639905
+a =3.6055512754639896
+sqrt(13) ≈ 3.6055512754639896
 sqrt(13) ≈ 3.605551275463989 calculated by java Math
-square ≈ 13.000000000000009
+square ≈ 13.000000000000002
 
 ----
 
@@ -12618,8 +12625,8 @@ println jsonify_beauty(java_import("ch.turic.exceptions"))
     "StringNotTerminated": JavaClass[klass=class ch.turic.exceptions.StringNotTerminated],
     "ch.turic.exceptions.BadSyntax": JavaClass[klass=class ch.turic.exceptions.BadSyntax],
     "UndefinedVariable": JavaClass[klass=class ch.turic.exceptions.UndefinedVariable],
-    "ch.turic.exceptions.ExecutionAborted": JavaClass[klass=class ch.turic.exceptions.ExecutionAborted],
-    "ExecutionException": JavaClass[klass=class ch.turic.exceptions.ExecutionException]
+    "ExecutionException": JavaClass[klass=class ch.turic.exceptions.ExecutionException],
+    "ch.turic.exceptions.ExecutionAborted": JavaClass[klass=class ch.turic.exceptions.ExecutionAborted]
 }
 
 ----
@@ -13157,7 +13164,7 @@ println nano_time()
 .output of snippet `nano_time`
 [source]
 ----
-1016800525985458
+1053135168836375
 
 ----
 
@@ -13434,71 +13441,65 @@ none
 [source]
 ----
 task1 is not ready 0
+task2 is ready 1
 task2 is not ready 0
-task2 is not ready 1
-task1 is ready 1
-task1 is not ready 0
-task2 is not ready 2task1 is not ready 1
+task1 is not ready 1task2 is not ready 1
 
 task1 is not ready 2
-task2 is not ready 3
+task2 is not ready 2
 task1 is ready 2
 task1 is not ready 0
-task2 is not ready 4
-task1 is not ready 1
-task2 is not ready 5
-task1 is not ready 2task2 is not ready 6
+task2 is not ready 3
+task2 is not ready 4task1 is not ready 1
 
-task1 is ready 3
+task1 is not ready 2task2 is not ready 5
+
+task2 is not ready 6
+task1 is not ready 3
+task2 is not ready 7task1 is ready 3
+
 task1 is not ready 0
-task2 is not ready 7
-task1 is not ready 1
-task2 is not ready 8
-task2 is not ready 9task1 is not ready 2
+task1 is not ready 1task2 is not ready 8
 
-task2 is ready 4task1 is not ready 3
-
+task2 is ready 4
+task1 is not ready 2
 task2 is not ready 0
-task1 is not ready 4task2 is not ready 1
+task1 is not ready 3
+task2 is not ready 1
+task2 is not ready 2task1 is not ready 4
 
-task1 is not ready 5
-task2 is not ready 2
 task1 is ready 5
 task1 is not ready 0
 task2 is not ready 3
 task1 is not ready 1
 task2 is not ready 4
-task1 is not ready 2task2 is not ready 5
-
+task1 is not ready 2
+task2 is not ready 5
 task1 is ready 6
-task2 is not ready 6
 task1 is not ready 0
+task2 is not ready 6
 task1 is not ready 1task2 is not ready 7
 
-task1 is not ready 2
-task2 is not ready 8
-task1 is ready 7
-task2 is not ready 9
-task1 is not ready 0
-task1 is not ready 1task2 is not ready 10
+task2 is not ready 8task1 is not ready 2
 
-task2 is not ready 11
-task1 is not ready 2
-task2 is ready 8
-task1 is not ready 3
+task1 is not ready 3task2 is ready 7
+
 task2 is not ready 0
-task2 is not ready 1
 task1 is not ready 4
-task2 is not ready 2task1 is not ready 5
+task2 is not ready 1
+task2 is not ready 2task1 is ready 8
 
-task2 is not ready 3
-task1 is not ready 6
-task1 is not ready 7
-task2 is ready 9
-task2 is not ready 0
-task2 is not ready 1task1 is not ready 8
+task1 is not ready 0
+task2 is not ready 3task1 is not ready 1
 
-task1 is not ready 9task2 is not ready 2
+task1 is not ready 2task2 is not ready 4
+
+task1 is ready 9
+task1 is not ready 0
+task2 is not ready 5
+task1 is not ready 1
+task2 is not ready 6
+task2 is not ready 7task1 is not ready 2
 
 closing the channel
 channel is closed
@@ -14138,6 +14139,24 @@ It returns `none` if currently there is no receivable object, the object is `non
 === `http_client`
 
 
+=== `mutex`
+
+Creates a new mutual exclusion lock to be used with the `sync` command:
+
+[source]
+----
+let l = mutex()
+sync l {
+    // only one thread at a time executes here
+}
+----
+
+The returned object also provides the methods `lock()`, `unlock()`, `try_lock()`,
+`try_lock(seconds)`, `is_locked()` and `is_held()` for advanced use. When these methods are used
+directly, the program is responsible for releasing the mutex it acquired; the `sync` command is
+the recommended form because it guarantees the release even on errors and thread abortion.
+
+
 === `http_server`
 
 
@@ -14490,12 +14509,10 @@ sending 2
 received 2
 not ready 0
 not ready 1
-not ready 2
 sending 3
+not ready 2
 received 3
 not ready 0
-not ready 1
-not ready 2
 closing the channel
 channel is closed
 is done false
@@ -14759,6 +14776,7 @@ It is the __result__ of the command.
       LOOP |
       WITH |
       FLOW |
+      SYNC |
       FN |
       CLASS |
       PIN |

@@ -12,3 +12,4 @@ cli/output
 /.mcp.json
 /.repl.turi
 /lsp/lsp_err.txt
+/.mdship/

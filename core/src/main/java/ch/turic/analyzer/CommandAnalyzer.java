@@ -94,6 +94,7 @@ public class CommandAnalyzer extends AbstractAnalyzer {
         analyzers.put(Keywords.WITH, WithAnalyzer.INSTANCE);
         analyzers.put(Keywords.FOR, ForLoopAnalyzer.INSTANCE);
         analyzers.put(Keywords.FLOW, FlowAnalyzer.INSTANCE);
+        analyzers.put(Keywords.SYNC, SyncAnalyzer.INSTANCE);
     }
 
     /**
@@ -108,6 +109,7 @@ public class CommandAnalyzer extends AbstractAnalyzer {
      * LOOP |
      * WITH |
      * FLOW |
+     * SYNC |
      * FN |
      * CLASS |
      * PIN |
@@ -135,6 +137,7 @@ public class CommandAnalyzer extends AbstractAnalyzer {
                  Keywords.FOR,
                  Keywords.WITH,
                  Keywords.FLOW,
+                 Keywords.SYNC,
                  Keywords.FN,
                  Keywords.CLASS -> {
                 lexes.next();

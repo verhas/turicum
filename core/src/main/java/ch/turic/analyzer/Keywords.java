@@ -30,6 +30,7 @@ public interface Keywords {
     String PRINT = "print";
     String PRINTLN = "println";
     String RETURN = "return";
+    String SYNC = "sync";
     String TRY = "try";
     String UNTIL = "until";
     String WHEN = "when";

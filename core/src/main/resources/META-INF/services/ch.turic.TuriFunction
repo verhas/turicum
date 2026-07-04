@@ -101,3 +101,4 @@ ch.turic.builtins.functions.JavaResources
 ch.turic.builtins.functions.JavaCallback
 ch.turic.builtins.functions.JavaImport
 
+ch.turic.builtins.functions.Mutex
