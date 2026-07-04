@@ -1885,6 +1885,91 @@ When you use a class in the `with` command instead of an object the class fields
 
 {%S withClass%}
 
+=== Mutual Exclusion: `mutex` and `sync`
+
+The function `mutex()` creates a mutual exclusion lock, a mutex.
+The `sync` command executes a block or a command while holding a mutex:
+
+[source]
+----
+sync expression { block }
+----
+
+or
+
+[source]
+----
+sync expression : command
+----
+
+The expression must evaluate to a mutex.
+Only one thread at a time can hold a mutex; a thread executing a `sync` command on a mutex that another thread holds waits until the holder releases it.
+Use it to protect invariants that span several variables or objects, for example, moving an amount between two accounts so that no other thread can see the intermediate state.
+
+The mutex is released when the body finishes.
+The release is guaranteed: it also happens when the body throws an exception, and even when the executing thread is aborted because of a time or step limit.
+The exception raised in the body, if there is any, propagates; `sync` never suppresses it.
+The value of the `sync` command is the value of the body.
+
+The mutex is reentrant: a `sync` command nested inside another `sync` on the same mutex executes without waiting.
+
+{%S sync_mutex%}
+
+The methods `lock()`, `unlock()`, `try_lock()`, `try_lock(seconds)`, `is_locked()`, and `is_held()` are also available on the mutex object for advanced use.
+When you call these methods directly, the program is responsible for releasing the mutex it acquired.
+The `sync` command is the recommended form because it guarantees the release.
+
+The type of a mutex is `mtx`, as in
+
+[source]
+----
+let l : mtx = mutex()
+----
+
+[NOTE]
+====
+A mutex is not a resource manager: it cannot be used with an `as` alias in a `with` command.
+Use the `sync` command.
+
+A mutex protects only the accesses that go through it.
+If any code path reads or writes the shared data without holding the mutex, the protection is gone.
+When a single shared value is enough, prefer an atomic value (see below), where unsynchronized access is not possible at all.
+====
+
+=== Atomic Values
+
+The function `atomic()` creates an atomic cell holding a single value.
+The value is reachable only through the synchronized operations of the cell; there is no way to access it without synchronization.
+Any value can be stored, not only numbers.
+
+The operations of the cell are:
+
+* `get()` returns the current value.
+It does not use a lock; it is safe and fast to call from any thread.
+* `set(v)` replaces the value.
+* `update(f)` atomically replaces the value with `f(value)` and returns the new value.
+The function runs exactly once, while the cell is locked.
+Do not perform blocking operations and do not use other atomic cells or mutexes inside it.
+* `cas(expected, new)` sets the value to `new` if the current value equals `expected` and returns `true` if it did.
+* `incr()`, `decr()`, and `add(n)` are numeric conveniences; they atomically modify the value and return the new value.
+They report an error when the stored value or the argument is not a number.
+
+Lists and objects stored in the cell are pinned: the cell holds and hands out immutable snapshots.
+To change the value, build a new one and `set()` or `update()` it in.
+This way, a value read from the cell can never be modified behind the cell's back.
+
+{%S atomic_cell%}
+
+The type of an atomic cell is `atm`, as in
+
+[source]
+----
+let counter : atm = atomic(0)
+----
+
+Tasks started with `async` receive frozen copies of the surrounding variables; they cannot assign the variables of the parent.
+An atomic cell is shared by reference: the frozen copy in the task refers to the same cell, so a task can `incr()` a counter or publish a result that the parent reads with `get()` without any further ceremony.
+
 === Asynchronous execution
 
 You can execute any command asynchronously using the `async` command.

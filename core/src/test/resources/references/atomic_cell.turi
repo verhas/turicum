@@ -1,0 +1,27 @@
+// The atomic() built-in creates a cell holding a single value. All mutating operations are
+// synchronized on the cell, reads are lock-free, so threads can share the cell safely.
+let a : atm = atomic(0)
+
+println "incr: " + a.incr()
+println "add: " + a.add(9)
+println "decr: " + a.decr()
+println "get: " + a.get()
+
+a.set(100)
+println "cas hit: " + a.cas(100, 5)
+println "cas miss: " + a.cas(100, 7)
+println "get: " + a.get()
+
+// update atomically replaces the value with f(value) and returns the new value
+println "update: " + a.update({|x| x * 2})
+
+// any value can be stored; lists and objects become pinned (immutable) snapshots
+let boxed = atomic([1, 2])
+println "boxed: " + boxed.get()
+let peeked = boxed.get()
+try {
+    peeked[0] = 9
+} catch e {
+    println "stored snapshot is pinned"
+}
+println a

@@ -9,7 +9,7 @@ import ch.turic.exceptions.BadSyntax;
  * {@code sync expression '{' commands '}'} or {@code sync expression ':' command}.
  * <p>
  * The expression has to evaluate to a mutex during execution. The expression is parsed with the
- * expression analyzer (not the command analyzer), so the opening {@code '{'} of the body is not
+ * expression analyzer (not the command analyzer), so the opening '{' of the body is not
  * mistaken for a block argument of a parenthesis-less function call.
  */
 public class SyncAnalyzer extends AbstractAnalyzer {

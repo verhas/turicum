@@ -1175,6 +1175,9 @@
 
 
 
+
+
+
 == Introduction
 
 === What is Turicum?
@@ -2853,15 +2856,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=22A6E998
+h id=4F0F7849
 h after post increment: 1
 k: 0
-h id=55E42449
-k id=22A6E998
+h id=56A4F272
+k id=4F0F7849
 h after pre increment: 2
 z: 2
-h id=E57E5D6
-z id=E57E5D6
+h id=3EE0B4F7
+z id=3EE0B4F7
 
 ----
 
@@ -2907,15 +2910,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=3DFFC764
+h id=77BBADC
 h after post increment: 1
 k: 1
-h id=3DFFC764
-k id=3DFFC764
+h id=77BBADC
+k id=77BBADC
 h after pre increment: 2
 z: 2
-h id=3DFFC764
-z id=3DFFC764
+h id=77BBADC
+z id=77BBADC
 
 ----
 
@@ -2964,15 +2967,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=36C0D0BD
+h id=622FDB81
 h after post decrement: -1
 k: 0
-h id=5E1FC2AA
-k id=36C0D0BD
+h id=1F3165E7
+k id=622FDB81
 h after pre decrement: -2
 z: -2
-h id=688D411B
-z id=688D411B
+h id=2EC3633F
+z id=2EC3633F
 
 ----
 
@@ -3015,15 +3018,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=2AF46AFD
+h id=20576557
 h after post decrement: -1
 k: -1
-h id=2AF46AFD
-k id=2AF46AFD
+h id=20576557
+k id=20576557
 h after pre decrement: -2
 z: -2
-h id=2AF46AFD
-z id=2AF46AFD
+h id=20576557
+z id=20576557
 
 ----
 
@@ -3679,6 +3682,8 @@ There are predefined type names.
  the variable has to be an asynchronous task
 * `mtx`
  the variable has to be a mutex
+* `atm`
+ the variable has to be an atomic cell
 * `err`
  the variable has to be an asynchronous task
 * `cls`
@@ -6392,6 +6397,194 @@ haha
 
 
 
+=== Mutual Exclusion: `mutex` and `sync`
+
+The function `mutex()` creates a mutual exclusion lock, a mutex.
+The `sync` command executes a block or a command while holding a mutex:
+
+[source]
+----
+sync expression { block }
+----
+
+or
+
+[source]
+----
+sync expression : command
+----
+
+The expression must evaluate to a mutex.
+Only one thread at a time can hold a mutex; a thread executing a `sync` command on a mutex that another thread holds waits until the holder releases it.
+Use it to protect invariants that span several variables or objects, for example, moving an amount between two accounts so that no other thread can see the intermediate state.
+
+The mutex is released when the body finishes.
+The release is guaranteed: it also happens when the body throws an exception, and even when the executing thread is aborted because of a time or step limit.
+The exception raised in the body, if there is any, propagates; `sync` never suppresses it.
+The value of the `sync` command is the value of the body.
+
+The mutex is reentrant: a `sync` command nested inside another `sync` on the same mutex executes without waiting.
+
+.source of snippet `sync_mutex`
+
+[source]
+----
+// The mutex() built-in creates a reentrant mutual exclusion lock, and the 'sync' command
+// executes its body while holding it. The release is guaranteed: it happens on normal
+// completion, on exception, and even when the executing thread is aborted.
+let l : mtx = mutex()
+
+sync l {
+    println "inside sync"
+}
+
+// the value of the sync command is the value of its body
+let r = { sync l : 42 }
+println "r = " + r
+
+// nested sync on the same mutex is allowed, the lock is reentrant
+sync l : sync l : println "reentrant ok"
+
+// the lock methods are available for advanced use
+println "try_lock: " + l.try_lock()
+println "is_held: " + l.is_held()
+println "is_locked: " + l.is_locked()
+l.unlock()
+println "after unlock is_locked: " + l.is_locked()
+
+// sync releases the mutex even when the body dies
+try {
+    sync l : die "boom"
+} catch e {
+    println "caught: " + e.message
+}
+println "released after die: " + (l.is_locked() == false)
+
+----
+
+.output of snippet `sync_mutex`
+[source]
+----
+inside sync
+r = 42
+reentrant ok
+try_lock: true
+is_held: true
+is_locked: true
+after unlock is_locked: false
+caught: boom
+released after die: true
+
+----
+
+
+
+The methods `lock()`, `unlock()`, `try_lock()`, `try_lock(seconds)`, `is_locked()`, and `is_held()` are also available on the mutex object for advanced use.
+When you call these methods directly, the program is responsible for releasing the mutex it acquired.
+The `sync` command is the recommended form because it guarantees the release.
+
+The type of a mutex is `mtx`, as in
+
+[source]
+----
+let l : mtx = mutex()
+----
+
+[NOTE]
+====
+A mutex is not a resource manager: it cannot be used with an `as` alias in a `with` command.
+Use the `sync` command.
+
+A mutex protects only the accesses that go through it.
+If any code path reads or writes the shared data without holding the mutex, the protection is gone.
+When a single shared value is enough, prefer an atomic value (see below), where unsynchronized access is not possible at all.
+====
+
+=== Atomic Values
+
+The function `atomic()` creates an atomic cell holding a single value.
+The value is reachable only through the synchronized operations of the cell; there is no way to access it without synchronization.
+Any value can be stored, not only numbers.
+
+The operations of the cell are:
+
+* `get()` returns the current value.
+It does not use a lock; it is safe and fast to call from any thread.
+* `set(v)` replaces the value.
+* `update(f)` atomically replaces the value with `f(value)` and returns the new value.
+The function runs exactly once, while the cell is locked.
+Do not perform blocking operations and do not use other atomic cells or mutexes inside it.
+* `cas(expected, new)` sets the value to `new` if the current value equals `expected` and returns `true` if it did.
+* `incr()`, `decr()`, and `add(n)` are numeric conveniences; they atomically modify the value and return the new value.
+They report an error when the stored value or the argument is not a number.
+
+Lists and objects stored in the cell are pinned: the cell holds and hands out immutable snapshots.
+To change the value, build a new one and `set()` or `update()` it in.
+This way, a value read from the cell can never be modified behind the cell's back.
+
+.source of snippet `atomic_cell`
+
+[source]
+----
+// The atomic() built-in creates a cell holding a single value. All mutating operations are
+// synchronized on the cell, reads are lock-free, so threads can share the cell safely.
+let a : atm = atomic(0)
+
+println "incr: " + a.incr()
+println "add: " + a.add(9)
+println "decr: " + a.decr()
+println "get: " + a.get()
+
+a.set(100)
+println "cas hit: " + a.cas(100, 5)
+println "cas miss: " + a.cas(100, 7)
+println "get: " + a.get()
+
+// update atomically replaces the value with f(value) and returns the new value
+println "update: " + a.update({|x| x * 2})
+
+// any value can be stored; lists and objects become pinned (immutable) snapshots
+let boxed = atomic([1, 2])
+println "boxed: " + boxed.get()
+let peeked = boxed.get()
+try {
+    peeked[0] = 9
+} catch e {
+    println "stored snapshot is pinned"
+}
+println a
+
+----
+
+.output of snippet `atomic_cell`
+[source]
+----
+incr: 1
+add: 10
+decr: 9
+get: 9
+cas hit: true
+cas miss: false
+get: 5
+update: 10
+boxed: [1, 2]
+stored snapshot is pinned
+atomic[10]
+
+----
+
+
+
+The type of an atomic cell is `atm`, as in
+
+[source]
+----
+let counter : atm = atomic(0)
+----
+
+Tasks started with `async` receive frozen copies of the surrounding variables; they cannot assign the variables of the parent.
+An atomic cell is shared by reference: the frozen copy in the task refers to the same cell, so a task can `incr()` a counter or publish a result that the parent reads with `get()` without any further ceremony.
+
 === Asynchronous execution
 
 You can execute any command asynchronously using the `async` command.
@@ -6532,11 +6725,11 @@ execute("Thread 2",2)
 [source]
 ----
  prime read 2
-Thread 1 generated  prime read 3
-3
+Thread 1 generated 3
+ prime read 3
 Thread 1 generated 5
- prime read 5
-Thread 1 generated 7
+ prime read Thread 1 generated 7
+5
  prime read 7
 Thread 1 generated 11
 Thread 1 generated 13
@@ -6697,9 +6890,9 @@ fn sleeper( x ){
 [source]
 ----
 [1, 2, 3]
-315.274375ms
+312.703542ms
 [1, 2, 3]
-105.753625ms
+102.301875ms
 
 ----
 
@@ -6910,10 +7103,9 @@ a =3.6063454894655185
 a =3.6055513629176015
 a =3.6055512754639905
 a =3.6055512754639896
-a =3.6055512754639896
-sqrt(13) ≈ 3.6055512754639896
+sqrt(13) ≈ 3.6055512754639905
 sqrt(13) ≈ 3.605551275463989 calculated by java Math
-square ≈ 13.000000000000002
+square ≈ 13.000000000000009
 
 ----
 
@@ -6948,7 +7140,6 @@ try{
 [source]
 ----
 counter =1
-counter =2
 Flow '#unnamed' timed out after 10 ms
 
 ----
@@ -12615,18 +12806,18 @@ println jsonify_beauty(java_import("ch.turic.exceptions"))
     "ch.turic.exceptions.StringNotTerminated": JavaClass[klass=class ch.turic.exceptions.StringNotTerminated],
     "ch.turic.exceptions.StepLimitReached": JavaClass[klass=class ch.turic.exceptions.StepLimitReached],
     "InterpreterHalt": JavaClass[klass=class ch.turic.exceptions.InterpreterHalt],
-    "ch.turic.exceptions.UndefinedVariable": JavaClass[klass=class ch.turic.exceptions.UndefinedVariable],
     "BadSyntax": JavaClass[klass=class ch.turic.exceptions.BadSyntax],
+    "ch.turic.exceptions.UndefinedVariable": JavaClass[klass=class ch.turic.exceptions.UndefinedVariable],
     "ch.turic.exceptions.ExecutionException": JavaClass[klass=class ch.turic.exceptions.ExecutionException],
     "ch.turic.exceptions.UnexpectedCharacter": JavaClass[klass=class ch.turic.exceptions.UnexpectedCharacter],
     "ch.turic.exceptions.InterpreterHalt": JavaClass[klass=class ch.turic.exceptions.InterpreterHalt],
     "UnexpectedCharacter": JavaClass[klass=class ch.turic.exceptions.UnexpectedCharacter],
-    "StepLimitReached": JavaClass[klass=class ch.turic.exceptions.StepLimitReached],
     "StringNotTerminated": JavaClass[klass=class ch.turic.exceptions.StringNotTerminated],
+    "StepLimitReached": JavaClass[klass=class ch.turic.exceptions.StepLimitReached],
     "ch.turic.exceptions.BadSyntax": JavaClass[klass=class ch.turic.exceptions.BadSyntax],
     "UndefinedVariable": JavaClass[klass=class ch.turic.exceptions.UndefinedVariable],
-    "ExecutionException": JavaClass[klass=class ch.turic.exceptions.ExecutionException],
-    "ch.turic.exceptions.ExecutionAborted": JavaClass[klass=class ch.turic.exceptions.ExecutionAborted]
+    "ch.turic.exceptions.ExecutionAborted": JavaClass[klass=class ch.turic.exceptions.ExecutionAborted],
+    "ExecutionException": JavaClass[klass=class ch.turic.exceptions.ExecutionException]
 }
 
 ----
@@ -13164,7 +13355,7 @@ println nano_time()
 .output of snippet `nano_time`
 [source]
 ----
-1053135168836375
+1055409752590333
 
 ----
 
@@ -13440,74 +13631,80 @@ none
 .output of snippet `que`
 [source]
 ----
-task1 is not ready 0
-task2 is ready 1
+task1 is not ready 0task2 is ready 1
+
 task2 is not ready 0
-task1 is not ready 1task2 is not ready 1
-
-task1 is not ready 2
-task2 is not ready 2
-task1 is ready 2
-task1 is not ready 0
-task2 is not ready 3
-task2 is not ready 4task1 is not ready 1
-
-task1 is not ready 2task2 is not ready 5
-
-task2 is not ready 6
-task1 is not ready 3
-task2 is not ready 7task1 is ready 3
-
-task1 is not ready 0
-task1 is not ready 1task2 is not ready 8
-
-task2 is ready 4
-task1 is not ready 2
-task2 is not ready 0
-task1 is not ready 3
 task2 is not ready 1
-task2 is not ready 2task1 is not ready 4
-
-task1 is ready 5
-task1 is not ready 0
-task2 is not ready 3
 task1 is not ready 1
-task2 is not ready 4
+task2 is not ready 2
 task1 is not ready 2
-task2 is not ready 5
-task1 is ready 6
+task2 is not ready 3
+task1 is not ready 3
+task2 is ready 2
+task1 is not ready 4
+task2 is not ready 0
+task2 is not ready 1
+task1 is not ready 5
+task1 is not ready 6
+task2 is not ready 2
+task1 is not ready 7
+task2 is ready 3
+task2 is not ready 0
+task1 is not ready 8
+task2 is not ready 1
+task1 is not ready 9
+task2 is not ready 2
+task1 is not ready 10
+task2 is not ready 3
+task1 is ready 4
+task2 is not ready 4
 task1 is not ready 0
+task1 is not ready 1
+task2 is not ready 5
 task2 is not ready 6
-task1 is not ready 1task2 is not ready 7
+task1 is not ready 2
+task1 is ready 5task2 is not ready 7
 
-task2 is not ready 8task1 is not ready 2
-
-task1 is not ready 3task2 is ready 7
-
+task1 is not ready 0
+task1 is not ready 1
+task2 is not ready 8
+task2 is not ready 9
+task1 is not ready 2
+task2 is ready 6
+task1 is not ready 3
 task2 is not ready 0
 task1 is not ready 4
 task2 is not ready 1
-task2 is not ready 2task1 is ready 8
-
-task1 is not ready 0
-task2 is not ready 3task1 is not ready 1
-
-task1 is not ready 2task2 is not ready 4
-
-task1 is ready 9
+task2 is not ready 2
+task1 is not ready 5
+task1 is not ready 6
+task2 is not ready 3
+task1 is ready 7
+task2 is not ready 4
 task1 is not ready 0
 task2 is not ready 5
 task1 is not ready 1
 task2 is not ready 6
-task2 is not ready 7task1 is not ready 2
-
+task1 is not ready 2
+task1 is ready 8
+task1 is not ready 0
+task2 is not ready 7
+task2 is not ready 8
+task1 is not ready 1
+task1 is not ready 2
+task2 is not ready 9
+task1 is ready 9
+task2 is not ready 10
+task1 is not ready 0
+task1 is not ready 1
+task2 is not ready 11
 closing the channel
 channel is closed
 1 is done false
 2 is done false
+task2 is done
+task1 is done
 we start to wait the first time
-task2 is donetask1 is done
-
 task1 done true
 task2 done true
 We start to wait the second time
@@ -14139,6 +14336,30 @@ It returns `none` if currently there is no receivable object, the object is `non
 === `http_client`
 
 
+=== `atomic`
+
+Creates an atomic cell holding a single value. The value can only be accessed through the
+synchronized operations of the cell, so concurrent threads can share it safely:
+
+[source]
+----
+let counter = atomic(0)          // any value can be stored, not only numbers
+counter.incr()                   // atomic increment, returns the new value
+counter.add(10)                  // atomic addition
+counter.get()                    // lock-free read
+counter.set(0)                   // replace the value
+counter.update({|x| x * 2})      // atomically replace the value with f(value)
+counter.cas(0, 42)               // set to 42 if the value equals 0; returns true/false
+----
+
+The argument of `atomic()` is the initial value; called without an argument the cell starts
+holding `none`. Lists and objects stored in the cell are pinned: the cell holds and hands out
+immutable snapshots, to change the value build a new one and `set()` or `update()` it in.
+
+The function given to `update` runs exactly once, while holding the cell's internal lock. Do not
+perform blocking operations or use other atomic cells inside it.
+
+
 === `mutex`
 
 Creates a new mutual exclusion lock to be used with the `sync` command:
@@ -14509,10 +14730,12 @@ sending 2
 received 2
 not ready 0
 not ready 1
-sending 3
 not ready 2
+sending 3
 received 3
 not ready 0
+not ready 1
+not ready 2
 closing the channel
 channel is closed
 is done false
