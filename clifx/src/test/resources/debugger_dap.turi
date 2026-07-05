@@ -1,0 +1,598 @@
+/**
+ * Debug Adapter Protocol front end for Turicum.
+ *
+ * Run this program as the debug adapter process. It speaks DAP over stdio and starts the
+ * debugged Turicum program in-process through debug_session(), the same Java API used by
+ * debugger_fx.turi.
+ *
+ * Stdout is reserved for DAP frames. The adapter keeps the original System.out for the
+ * protocol and redirects ordinary Turicum/JVM stdout to stderr before launching user code,
+ * so debuggee println output cannot corrupt the DAP stream.
+ */
+
+global System = java_class("java.lang.System");
+global StandardCharsets = java_class("java.nio.charset.StandardCharsets");
+global Integer = java_class("java.lang.Integer");
+global Long = java_class("java.lang.Long");
+global Double = java_class("java.lang.Double");
+global Character = java_class("java.lang.Character");
+
+global dap_in = System.`in`;
+global dap_out = System.out;
+System.setOut(System.err);
+
+global dap_seq = 1;
+global debugger_global_session = none;
+global debugger_global_timeout = 100_000; // 100 sec in 0.01s polls
+global debugger_source = none;
+global configured_breakpoints = {};
+global stopped = false;
+global launched = false;
+global stop_on_entry = true;
+global running = true;
+global last_pos = none;
+
+// ---------------------------------------------------------------------------------------
+// Minimal JSON parser. DAP messages use normal JSON; Turicum has jsonify() but no parser.
+// ---------------------------------------------------------------------------------------
+
+fn json_ch(p) {
+    if p.at >= len(p.text) : return "";
+    p.text[p.at]
+}
+
+fn json_skip_ws(p) {
+    while json_ch(p) == " " || json_ch(p) == "\t" || json_ch(p) == "\r" || json_ch(p) == "\n" : p.at++;
+}
+
+fn json_expect(p, s: str) {
+    die $"JSON expected '${s}' at ${p.at}" when p.text.substring(p.at, p.at + len(s)) != s;
+    p.at += len(s);
+}
+
+fn json_string(p) {
+    json_expect(p, "\"");
+    mut r = "";
+    while p.at < len(p.text) {
+        let c = p.text[p.at];
+        p.at++;
+        if c == "\"" : return r;
+        if c == "\\" {
+            let e = p.text[p.at];
+            p.at++;
+            if e == "\"" : r += "\"";
+            else {
+            if e == "\\" : r += "\\";
+            else {
+            if e == "/" : r += "/";
+            else {
+            if e == "b" : r += "\b";
+            else {
+            if e == "f" : r += "\f";
+            else {
+            if e == "n" : r += "\n";
+            else {
+            if e == "r" : r += "\r";
+            else {
+            if e == "t" : r += "\t";
+            else {
+            if e == "u" {
+                let hex = p.text.substring(p.at, p.at + 4);
+                p.at += 4;
+                r += Character.toString(java_int(Integer.parseInt(hex, java_int(16))));
+            } else {
+                die $"bad JSON escape \\${e}";
+            }
+            }
+            }
+            }
+            }
+            }
+            }
+            }
+            }
+        } else {
+            r += c;
+        }
+    }
+    die "unterminated JSON string";
+}
+
+fn json_number(p) {
+    let start = p.at;
+    if json_ch(p) == "-" : p.at++;
+    while json_ch(p).is_digit() : p.at++;
+    mut is_float = false;
+    if json_ch(p) == "." {
+        is_float = true;
+        p.at++;
+        while json_ch(p).is_digit() : p.at++;
+    }
+    if json_ch(p) == "e" || json_ch(p) == "E" {
+        is_float = true;
+        p.at++;
+        if json_ch(p) == "+" || json_ch(p) == "-" : p.at++;
+        while json_ch(p).is_digit() : p.at++;
+    }
+    let s = p.text.substring(start, p.at);
+    if is_float : Double.parseDouble(s) else Long.parseLong(s)
+}
+
+fn json_array(p) {
+    json_expect(p, "[");
+    json_skip_ws(p);
+    let a = [];
+    if json_ch(p) == "]" {
+        p.at++;
+        return a;
+    }
+    while true {
+        a[len(a)] = json_value(p);
+        json_skip_ws(p);
+        if json_ch(p) == "]" {
+            p.at++;
+            return a;
+        }
+        json_expect(p, ",");
+        json_skip_ws(p);
+    }
+}
+
+fn json_object(p) {
+    json_expect(p, "{");
+    json_skip_ws(p);
+    let o = {};
+    if json_ch(p) == "}" {
+        p.at++;
+        return o;
+    }
+    while true {
+        json_skip_ws(p);
+        let k = json_string(p);
+        json_skip_ws(p);
+        json_expect(p, ":");
+        json_skip_ws(p);
+        o[k] = json_value(p);
+        json_skip_ws(p);
+        if json_ch(p) == "}" {
+            p.at++;
+            return o;
+        }
+        json_expect(p, ",");
+        json_skip_ws(p);
+    }
+}
+
+fn json_value(p) {
+    json_skip_ws(p);
+    let c = json_ch(p);
+    if c == "\"" : return json_string(p);
+    if c == "{" : return json_object(p);
+    if c == "[" : return json_array(p);
+    if c == "t" {
+        json_expect(p, "true");
+        return true;
+    }
+    if c == "f" {
+        json_expect(p, "false");
+        return false;
+    }
+    if c == "n" {
+        json_expect(p, "null");
+        return none;
+    }
+    json_number(p)
+}
+
+fn parse_json(s: str) {
+    let p = { text: s, at: 0 };
+    let v = json_value(p);
+    json_skip_ws(p);
+    die $"trailing JSON input at ${p.at}" when p.at != len(p.text);
+    v
+}
+
+// ---------------------------------------------------------------------------------------
+// DAP framing and response helpers.
+// ---------------------------------------------------------------------------------------
+
+fn read_message() {
+    global dap_in;
+    mut header = "";
+    while ! header.ends_with("\r\n\r\n") {
+        let b = dap_in.read();
+        if b < 0 : return none;
+        header += chr(b);
+    }
+    mut content_length = none;
+    for each line in header.split("\r\n") {
+        if line.lower_case().starts_with("content-length:") {
+            content_length = line.after(":").trim().int();
+        }
+    }
+    die "DAP frame without Content-Length" when content_length == none;
+    mut body = "";
+    for i = 0; i < content_length; i++ {
+        let b = dap_in.read();
+        die "EOF inside DAP body" when b < 0;
+        body += chr(b);
+    }
+    parse_json(body)
+}
+
+fn write_frame(msg) {
+    global dap_out;
+    let body = jsonify(msg);
+    let bytes = body.bytes();
+    let header = $"Content-Length: ${len(bytes)}\r\n\r\n";
+    java_call(dap_out, "print", header);
+    java_call(dap_out, "print", body);
+    dap_out.flush();
+}
+
+fn event(event_name: str, body = {}) {
+    global dap_seq;
+    write_frame({
+        seq: dap_seq,
+        type: "event",
+        event: event_name,
+        body: body
+    });
+    dap_seq++;
+}
+
+fn response(req, body = {}, @success = true, @message = none) {
+    global dap_seq;
+    let r = {
+        seq: dap_seq,
+        type: "response",
+        request_seq: req.seq,
+        success: success,
+        command: req.command,
+        body: body
+    };
+    if message != none : r.message = message;
+    write_frame(r);
+    dap_seq++;
+}
+
+fn error_response(req, msg) {
+    response(req, {}, success=false, message=str(msg));
+}
+
+// ---------------------------------------------------------------------------------------
+// Debug-session wrappers. These mirror debugger_fx.turi and keep all commands serialized.
+// ---------------------------------------------------------------------------------------
+
+fn wait() {
+    global debugger_global_session;
+    global debugger_global_timeout;
+    mut i = 0;
+    while debugger_global_session != none &&
+          ! debugger_global_session.is_paused() &&
+          ! debugger_global_session.is_finished() {
+        sleep 0.01;
+        i++;
+    } until i > debugger_global_timeout;
+    die "debugged program did not pause" when i > debugger_global_timeout;
+}
+
+fn finished() {
+    global debugger_global_session;
+    debugger_global_session == none || debugger_global_session.is_finished()
+}
+
+fn select_first_thread() {
+    global debugger_global_session;
+    let ts = debugger_global_session.threads();
+    if len(ts) > 0 : debugger_global_session.set_thread(ts[0]);
+}
+
+fn debug(file_name: str, @timeout = 1000) {
+    global debugger_global_session = debug_session(file_name);
+    global debugger_source = file_name;
+    global launched = true;
+    mut i = 0;
+    while ! debugger_global_session.is_started() && ! debugger_global_session.is_finished() {
+        sleep 0.01;
+        i++;
+    } until i > timeout;
+    die "debugged program did not start" when i > timeout;
+    select_first_thread();
+    if ! finished() {
+        debugger_global_session.step_into();
+        wait();
+    }
+    none
+}
+
+fn current_pos() {
+    global debugger_global_session;
+    global last_pos;
+    if finished() : return none;
+    debugger_global_session.fetch_pos();
+    wait();
+    if finished() : return none;
+    last_pos = debugger_global_session.start_pos();
+    last_pos
+}
+
+fn current_line() {
+    let p = current_pos();
+    if p == none : none else p.line
+}
+
+fn notify_stop(reason: str) {
+    global stopped = true;
+    event("stopped", { reason: reason, threadId: 1, allThreadsStopped: true });
+}
+
+fn notify_after_resume(reason: str) {
+    global stopped;
+    if finished() {
+        stopped = false;
+        event("terminated");
+    } else {
+        notify_stop(reason);
+    }
+}
+
+fn step_line(stepper, reason: str) {
+    global stopped = false;
+    let start = current_line();
+    mut i = 0;
+    while ! finished() && i < 500 {
+        stepper();
+        wait();
+        if finished() : break;
+        let l = current_line();
+        if l == none || l != start : break;
+        i++;
+    }
+    notify_after_resume(reason);
+}
+
+fn step_into_once() {
+    global debugger_global_session;
+    debugger_global_session.step_into();
+}
+
+fn step_over_once() {
+    global debugger_global_session;
+    debugger_global_session.step_over();
+}
+
+fn resume_program(reason: str) {
+    global debugger_global_session;
+    global stopped = false;
+    debugger_global_session.run();
+    wait();
+    notify_after_resume(reason);
+}
+
+fn stop_program() {
+    global debugger_global_session;
+    if debugger_global_session != none && ! finished() && debugger_global_session.is_paused() {
+        debugger_global_session.stop();
+    }
+}
+
+fn apply_breakpoint(line) {
+    global debugger_global_session;
+    if debugger_global_session == none || finished() || ! debugger_global_session.is_paused() : return none;
+    debugger_global_session.add_breakpoint(java_int(line));
+    wait();
+}
+
+fn clear_breakpoint(line) {
+    global debugger_global_session;
+    if debugger_global_session == none || finished() || ! debugger_global_session.is_paused() : return none;
+    debugger_global_session.remove_breakpoint(java_int(line));
+    wait();
+}
+
+fn set_source_breakpoints(path, lines) {
+    global configured_breakpoints;
+    let old = configured_breakpoints[path] or [];
+    for each l in old : if ! list_has(lines, l) : clear_breakpoint(l);
+    for each l in lines : if ! list_has(old, l) : apply_breakpoint(l);
+    configured_breakpoints[path] = lines;
+}
+
+fn list_has(lst, value) {
+    for each item in lst : if item == value : return true;
+    false
+}
+
+fn vars_response(scope) {
+    global debugger_global_session;
+    if finished() : return [];
+    let global_names = [];
+    if scope == "locals" {
+        debugger_global_session.fetch_globals();
+        wait();
+        for each v in debugger_global_session.globals() : global_names[len(global_names)] = v.name;
+    }
+    let vars = if scope == "locals" : {
+        debugger_global_session.fetch_locals();
+        wait();
+        debugger_global_session.locals();
+    } else {
+        debugger_global_session.fetch_globals();
+        wait();
+        debugger_global_session.globals();
+    };
+    let r = [];
+    for each v in vars {
+        if scope != "locals" || ! list_has(global_names, v.name) {
+            r[len(r)] = {
+                name: v.name,
+                value: str(v.value),
+                type: type(v.value),
+                variablesReference: 0
+            };
+        }
+    }
+    r
+}
+
+// ---------------------------------------------------------------------------------------
+// DAP command handlers.
+// ---------------------------------------------------------------------------------------
+
+fn source_from_args(args) {
+    if args == none : return none;
+    if args.program != none : return args.program;
+    if args.path != none : return args.path;
+    if args.script != none : return args.script;
+    if args.name != none : return args.name;
+    none
+}
+
+fn handle_initialize(req) {
+    response(req, {
+        supportsConfigurationDoneRequest: true,
+        supportsTerminateRequest: true,
+        supportsStepBack: false,
+        supportsEvaluateForHovers: false,
+        supportsSetVariable: false,
+        supportsLoadedSourcesRequest: false,
+        supportsRestartRequest: false
+    });
+}
+
+fn handle_launch(req) {
+    global stop_on_entry;
+    let args = req.arguments or {};
+    let program = source_from_args(args);
+    die "launch.arguments.program is required" when program == none;
+    stop_on_entry = if args.stopOnEntry == none : true else args.stopOnEntry;
+    debug(program);
+    response(req);
+    event("initialized");
+}
+
+fn handle_set_breakpoints(req) {
+    let source = req.arguments.source or {};
+    let path = source.path or source.name or debugger_source or "";
+    let bps = req.arguments.breakpoints or [];
+    let lines = [];
+    let response_bps = [];
+    for each bp in bps {
+        let line = bp.line;
+        lines[len(lines)] = line;
+        response_bps[len(response_bps)] = { verified: true, line: line };
+    }
+    set_source_breakpoints(path, lines);
+    response(req, { breakpoints: response_bps });
+}
+
+fn handle_configuration_done(req) {
+    response(req);
+    if stop_on_entry {
+        notify_stop("entry");
+    } else {
+        resume_program("breakpoint");
+    }
+}
+
+fn handle_threads(req) {
+    global debugger_global_session;
+    mut tname = "main";
+    if debugger_global_session != none {
+        let ts = debugger_global_session.threads();
+        if len(ts) > 0 : tname = str(ts[0]);
+    }
+    response(req, { threads: [ { id: 1, name: tname } ] });
+}
+
+fn handle_stack_trace(req) {
+    global debugger_source;
+    let p = current_pos();
+    let line = if p == none : 1 else p.line;
+    let col = if p == none : 1 else p.column + 1;
+    response(req, {
+        stackFrames: [
+            {
+                id: 1,
+                name: "Turicum",
+                source: { name: debugger_source, path: debugger_source },
+                line: line,
+                column: col
+            }
+        ],
+        totalFrames: 1
+    });
+}
+
+fn handle_scopes(req) {
+    response(req, {
+        scopes: [
+            { name: "Locals", variablesReference: 1, expensive: false },
+            { name: "Globals", variablesReference: 2, expensive: false }
+        ]
+    });
+}
+
+fn handle_variables(req) {
+    let ref = req.arguments.variablesReference;
+    if ref == 1 {
+        response(req, { variables: vars_response("locals") });
+        return none;
+    }
+    if ref == 2 {
+        response(req, { variables: vars_response("globals") });
+        return none;
+    }
+    response(req, { variables: [] });
+}
+
+fn handle_continue(req) {
+    response(req, { allThreadsContinued: true });
+    resume_program("breakpoint");
+}
+
+fn handle_next(req) {
+    response(req);
+    step_line(step_over_once, "step");
+}
+
+fn handle_step_in(req) {
+    response(req);
+    step_line(step_into_once, "step");
+}
+
+fn handle_disconnect(req) {
+    stop_program();
+    response(req);
+    global running = false;
+}
+
+fn handle_request(req) {
+    try {
+        let command = req.command;
+        if command == "initialize" { handle_initialize(req); return none; }
+        if command == "launch" { handle_launch(req); return none; }
+        if command == "setBreakpoints" { handle_set_breakpoints(req); return none; }
+        if command == "configurationDone" { handle_configuration_done(req); return none; }
+        if command == "threads" { handle_threads(req); return none; }
+        if command == "stackTrace" { handle_stack_trace(req); return none; }
+        if command == "scopes" { handle_scopes(req); return none; }
+        if command == "variables" { handle_variables(req); return none; }
+        if command == "continue" { handle_continue(req); return none; }
+        if command == "next" { handle_next(req); return none; }
+        if command == "stepIn" { handle_step_in(req); return none; }
+        if command == "stepOut" { handle_next(req); return none; }
+        if command == "disconnect" { handle_disconnect(req); return none; }
+        if command == "terminate" { handle_disconnect(req); return none; }
+        response(req, {}, success=false, message=$"unsupported DAP command '${command}'");
+    } catch e {
+        error_response(req, e);
+    }
+}
+
+while running {
+    let msg = read_message();
+    if msg == none : break;
+    if msg.type == "request" : handle_request(msg);
+}
