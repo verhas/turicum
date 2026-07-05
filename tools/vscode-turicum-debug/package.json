@@ -1,0 +1,66 @@
+{
+  "name": "turicum-debug",
+  "displayName": "Turicum Debug",
+  "description": "Local VS Code debug adapter launcher for Turicum programs.",
+  "version": "0.0.1",
+  "publisher": "turicum-local",
+  "engines": {
+    "vscode": "^1.126.0"
+  },
+  "categories": [
+    "Debuggers"
+  ],
+  "activationEvents": [
+    "onDebugResolve:turi"
+  ],
+  "main": "./extension.js",
+  "contributes": {
+    "debuggers": [
+      {
+        "type": "turi",
+        "label": "Turicum",
+        "languages": [
+          "turi"
+        ],
+        "configurationAttributes": {
+          "launch": {
+            "required": [
+              "program"
+            ],
+            "properties": {
+              "program": {
+                "type": "string",
+                "description": "The Turicum source file to debug."
+              },
+              "stopOnEntry": {
+                "type": "boolean",
+                "default": true,
+                "description": "Stop on the first executable statement after launch."
+              },
+              "adapterCommand": {
+                "type": "string",
+                "description": "Optional command used to start the debug adapter."
+              },
+              "adapterArgs": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Optional arguments used with adapterCommand."
+              }
+            }
+          }
+        },
+        "initialConfigurations": [
+          {
+            "type": "turi",
+            "request": "launch",
+            "name": "Debug current Turicum file",
+            "program": "${file}",
+            "stopOnEntry": true
+          }
+        ]
+      }
+    ]
+  }
+}
