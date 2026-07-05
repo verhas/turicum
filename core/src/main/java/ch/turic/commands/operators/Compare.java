@@ -125,6 +125,28 @@ public abstract class Compare implements Operator {
         }
     }
 
+    /**
+     * Numeric value equality for boxed Java numbers. {@code Integer(1).equals(Long(1))} is
+     * false in Java, so a plain {@code equals()} based {@code ==} silently fails whenever an
+     * {@code Integer} arrives from Java field access or reflection. The ordering operators
+     * already compare numerically; {@code ==}/{@code !=} must be consistent with them.
+     * Strings are deliberately NOT coerced here ({@code "1" == 1} stays false); the strict
+     * {@code ===} also keeps its semantics.
+     *
+     * @param op1 the left operand, not null
+     * @param op2 the right operand, not null
+     * @return the numeric equality, or null when the operands are not both numbers
+     */
+    private static Boolean numericEquality(Object op1, Object op2) {
+        if (op1 instanceof Number n1 && op2 instanceof Number n2) {
+            if (n1 instanceof Double || n1 instanceof Float || n2 instanceof Double || n2 instanceof Float) {
+                return n1.doubleValue() == n2.doubleValue();
+            }
+            return n1.longValue() == n2.longValue();
+        }
+        return null;
+    }
+
     @Operator.Symbol("==")
     public static class Equal extends Compare {
         @Override
@@ -136,6 +158,10 @@ public abstract class Compare implements Operator {
             } else if (op1 == null || op2 == null) {
                 return false;
             } else {
+                final var numeric = numericEquality(op1, op2);
+                if (numeric != null) {
+                    return numeric;
+                }
                 return op1.equals(op2);
             }
         }
@@ -184,6 +210,10 @@ public abstract class Compare implements Operator {
             } else if (op1 == null || op2 == null) {
                 return true;
             } else {
+                final var numeric = numericEquality(op1, op2);
+                if (numeric != null) {
+                    return !numeric;
+                }
                 return !op1.equals(op2);
             }
         }

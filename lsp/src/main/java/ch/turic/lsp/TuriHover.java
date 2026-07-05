@@ -10,7 +10,6 @@ import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.MarkupKind;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
-import java.time.Duration;
 
 public class TuriHover {
     final DocumentManager documentManager;
@@ -20,8 +19,6 @@ public class TuriHover {
         this.documentManager = documentManager;
         this.cancelChecker = cancelChecker;
     }
-
-    private static final SlowStart hoverGate = new SlowStart(Duration.ofMillis(100));
 
     /**
      * Provides hover information for a given position in a text document.
@@ -34,32 +31,29 @@ public class TuriHover {
      * @return a Hover object containing the relevant documentation or information in a specific format
      */
     public Hover hover(HoverParams params) {
-        try (final var lease = hoverGate.open()) {
-            if (lease != null) {
-                final var position = params.getPosition();
-                final var uri = params.getTextDocument().getUri();
+        try {
+            final var position = params.getPosition();
+            final var uri = params.getTextDocument().getUri();
 
-                final var source = documentManager.getContent(uri);
-                if (source == null) {
-                    return new Hover();
-                }
+            final var source = documentManager.getContent(uri);
+            if (source == null) {
+                return new Hover();
+            }
 
-                final String id = TuricUtils.getWordAtPosition(source, position, uri);
-                if (id == null || id.isEmpty() || !Character.isAlphabetic(id.charAt(0))) {
-                    return emptyHover();
-                }
+            final String id = TuricUtils.getWordAtPosition(source, position, uri);
+            if (id == null || id.isEmpty() || !(Character.isAlphabetic(id.charAt(0)) || id.charAt(0) == '_')) {
+                return emptyHover();
+            }
 
-                final var triplet = getHoverTriplet(source, uri, id);
-                if (triplet.docComment() == null) {
-                    return noDocumentedHover(triplet, id);
-                } else {
-                    return documentedHover(triplet, id, source);
-                }
+            final var triplet = getHoverTriplet(source, uri, id);
+            if (triplet.docComment() == null) {
+                return noDocumentedHover(triplet, id);
+            } else {
+                return documentedHover(triplet, id, source);
             }
         } catch (Exception e) {
             return emptyHover();
         }
-        return emptyHover();
     }
 
     /**
@@ -191,6 +185,11 @@ public class TuriHover {
     private static Triple getHoverTriplet(String source, String uri, String id) {
         final var tokens = Lexer.try_analyze(Input.fromString(source, uri));
         var t = new Triple(null, null, -1);
+        // the first occurrence is remembered as a fallback, but the scan continues to find a
+        // declaration form occurrence (identifier preceded by fn/class/let/mut/global):
+        // without this, hovering a symbol shows the info of an earlier, unrelated use with
+        // the same spelling
+        Triple firstOccurrence = null;
         while (tokens.hasNext()) {
             final var lex = tokens.next();
             if (lex.type() == Lex.Type.COMMENT && lex.text().startsWith("/**")) {
@@ -199,7 +198,13 @@ public class TuriHover {
             }
             if (lex.type() == Lex.Type.IDENTIFIER && lex.text().equals(id)) {
                 t = t.line(lex.startPosition().line - 1);
-                break;
+                if (t.idType() != null) {
+                    return t;
+                }
+                if (firstOccurrence == null) {
+                    firstOccurrence = t;
+                }
+                t = new Triple(null, null, -1);
             } else {
                 if (lex.type() != Lex.Type.SPACES || !lex.text().isBlank()) {
                     t = switch (lex.text()) {
@@ -213,7 +218,7 @@ public class TuriHover {
                 }
             }
         }
-        return t;
+        return firstOccurrence == null ? t : firstOccurrence;
     }
 
     /**

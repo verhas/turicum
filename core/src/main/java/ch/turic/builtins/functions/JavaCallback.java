@@ -102,6 +102,7 @@ public class JavaCallback implements TuriFunction {
             case "ObjIntConsumer" -> (ObjIntConsumer<?>) callBack::call;
             case "ObjLongConsumer" -> (ObjLongConsumer<?>) callBack::call;
             case "Predicate" -> (Predicate<?>) callBack::callBoolean;
+            case "Runnable" -> (Runnable) callBack::call;
             case "Supplier" -> (Supplier<?>) callBack::call;
             case "ToDoubleBiFunction" -> (ToDoubleBiFunction<?, ?>) callBack::callDouble;
             case "ToDoubleFunction" -> (ToDoubleFunction<?>) callBack::callDouble;

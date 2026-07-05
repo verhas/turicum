@@ -126,12 +126,14 @@ public final class Input implements ch.turic.Input, CharSequence {
     }
 
     public void skip(int numberOfCharacters) {
-        require(() -> numberOfCharacters > 0, "numberOfCharacters must be non-negative");
-        if (builder.charAt(0) == '\n') {
-            position.line++;
-            position.column = 0;
-        } else {
-            position.column += numberOfCharacters;
+        require(() -> numberOfCharacters > 0, "numberOfCharacters must be positive");
+        for (int i = 0; i < numberOfCharacters; i++) {
+            if (builder.charAt(i) == '\n') {
+                position.line++;
+                position.column = 0;
+            } else {
+                position.column++;
+            }
         }
         builder.delete(0, numberOfCharacters);
     }

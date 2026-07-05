@@ -61,7 +61,7 @@ public final class SlowStart implements AutoCloseable {
     private long generation = 0;
 
     /**
-     * {@true} while expensive work is currently running under a lease.
+     * {@code true} while expensive work is currently running under a lease.
      */
     private boolean running = false;
 

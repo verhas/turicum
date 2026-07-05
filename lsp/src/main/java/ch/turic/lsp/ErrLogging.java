@@ -33,8 +33,21 @@ public class ErrLogging {
         @Override
         public int read() throws IOException {
             int c = in.read();
-            fillBuffer((byte) c);
+            if (c >= 0) {
+                fillBuffer((byte) c);
+            }
             return c;
+        }
+
+        @Override
+        public int read(byte[] b, int off, int len) throws IOException {
+            // without this override every protocol byte would go through the single-byte
+            // read() of the default implementation
+            final int n = in.read(b, off, len);
+            for (int i = 0; i < n; i++) {
+                fillBuffer(b[off + i]);
+            }
+            return n;
         }
 
         @Override

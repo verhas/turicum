@@ -16,17 +16,14 @@ class TuriWorkspaceService implements WorkspaceService {
 
     @Override
     public CompletableFuture<Object> executeCommand(ExecuteCommandParams params) {
-        System.out.println("Executing command: " + params.getCommand());
         return CompletableFuture.completedFuture(null);
     }
 
     @Override
     public void didChangeConfiguration(DidChangeConfigurationParams params) {
-        System.out.println("Configuration changed");
     }
 
     @Override
     public void didChangeWatchedFiles(DidChangeWatchedFilesParams params) {
-        System.out.println("Watched files changed");
     }
 }

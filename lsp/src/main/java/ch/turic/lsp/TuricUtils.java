@@ -17,6 +17,9 @@ public class TuricUtils {
      */
     static String getFraction(String source, Position position) {
         final var lines = source.split("\n", -1);
+        if (position.getLine() < 0 || position.getLine() >= lines.length) {
+            return "";
+        }
         final var line = lines[position.getLine()];
         if (!line.isEmpty()) {
             // find the start of the identifier if we are standing on something that looks like an id

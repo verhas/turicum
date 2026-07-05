@@ -9,6 +9,9 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class TuriSyntaxErrorReporter {
     private final LanguageClient client;
@@ -19,13 +22,26 @@ public class TuriSyntaxErrorReporter {
         this.documentManager = documentManager;
     }
 
-    private static final SlowStart syntaxReporterGate = new SlowStart(Duration.ofMillis(100));
+    /**
+     * One debounce gate per document. The gate must be per document: with a single global
+     * gate, typing in one document cancels the pending analysis of another, leaving stale
+     * diagnostics there.
+     */
+    private final Map<String, SlowStart> gates = new ConcurrentHashMap<>();
 
     /**
-     * Analyze a document for syntax errors and publish diagnostics
+     * Analyze a document for syntax errors and publish diagnostics.
+     * <p>
+     * The call returns immediately: the analysis runs on a virtual thread, debounced per
+     * document. The debounce must not run on the caller's thread, because the caller is the
+     * JSON-RPC dispatcher and blocking it would delay every other request while typing.
      */
     public void analyzeAndReportErrors(String uri) {
-        try (final var lease = syntaxReporterGate.open()) {
+        CompletableFuture.runAsync(() -> analyzeNow(uri), TuriLanguageServer.VIRTUAL_EXECUTOR);
+    }
+
+    private void analyzeNow(String uri) {
+        try (final var lease = gates.computeIfAbsent(uri, u -> new SlowStart(Duration.ofMillis(100))).open()) {
             if (lease != null) {
                 String content = documentManager.getContent(uri);
                 if (content == null) {
@@ -44,6 +60,8 @@ public class TuriSyntaxErrorReporter {
         PublishDiagnosticsParams params = new PublishDiagnosticsParams();
         params.setUri(uri);
         params.setDiagnostics(diagnostics);
+        // tagging with the version lets the client drop diagnostics computed against stale text
+        params.setVersion(documentManager.getVersion(uri));
         client.publishDiagnostics(params);
     }
 
@@ -51,6 +69,10 @@ public class TuriSyntaxErrorReporter {
      * Clear all diagnostics for a document
      */
     public void clearDiagnostics(String uri) {
+        final var gate = gates.remove(uri);
+        if (gate != null) {
+            gate.close();
+        }
         publishDiagnostics(uri, Collections.emptyList());
     }
 
@@ -74,8 +96,9 @@ public class TuriSyntaxErrorReporter {
                     createDiagnostic(pos.line - 1, pos.column, pos.column + 2, msg)
             );
         } catch (Exception e) {
+            final var msg = e.getMessage() == null ? e.getClass().getSimpleName() : getTheFirstLineOfTheExceptionMessage(e);
             diagnostics.add(
-                    createDiagnostic(1, 0, 2, e.getMessage())
+                    createDiagnostic(0, 0, 2, msg)
             );
         }
 

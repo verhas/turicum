@@ -6,16 +6,16 @@ public class ExceptionXmlWriter {
 
     /**
      * Writes the full throwable structure (stack trace, causes, suppressed exceptions)
-     * into an XML file.
+     * to the standard error stream. This is a terminal logging call: it must never throw,
+     * because the callers use it inside catch blocks as their last-resort error reporting.
      *
-     * @param throwable the throwable to serialize
+     * @param throwable the throwable to log
      */
     public static void writeToXml(Throwable throwable) {
         final var writer = new PrintWriter(System.err);
         writeThrowable(writer, throwable, 1);
         writer.flush();
         System.err.flush();
-        throw new RuntimeException(throwable);
     }
 
     private static void writeThrowable(PrintWriter writer, Throwable t, int indentLevel) {

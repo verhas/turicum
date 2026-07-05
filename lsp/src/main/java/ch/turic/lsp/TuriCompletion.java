@@ -3,7 +3,6 @@ package ch.turic.lsp;
 import ch.turic.analyzer.*;
 import org.eclipse.lsp4j.*;
 
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -40,31 +39,26 @@ public class TuriCompletion {
         }
     }
 
-    private static final SlowStart completionGate = new SlowStart(Duration.ofMillis(100));
-
     public List<CompletionItem> completion(CompletionParams params) {
-        try (final var lease = completionGate.open()) {
-            if (lease != null) {
-                final var uri = params.getTextDocument().getUri();
-                final var source = documentManager.getContent(uri);
-                if (source == null) {
-                    return emptyCompletionList();
-                }
-                final var position = params.getPosition();
-                final String startString = TuricUtils.getWordAtPosition(source, position, uri);
-
-                final var lexes = Lexer.try_analyze(new Input(new StringBuilder(source), uri));
-                final var items = matchingIdentifiers(lexes, startString, uri);
-
-                items.addAll(keywords());
-
-                items.addAll(languageTemplates());
-
-                setDataForItems(items, new CompletionData(params.getTextDocument().getUri()));
-
-                return items;
+        try {
+            final var uri = params.getTextDocument().getUri();
+            final var source = documentManager.getContent(uri);
+            if (source == null) {
+                return emptyCompletionList();
             }
-            return emptyCompletionList();
+            final var position = params.getPosition();
+            final String startString = TuricUtils.getWordAtPosition(source, position, uri);
+
+            final var lexes = Lexer.try_analyze(new Input(new StringBuilder(source), uri));
+            final var items = matchingIdentifiers(lexes, startString, uri);
+
+            items.addAll(keywords());
+
+            items.addAll(languageTemplates());
+
+            setDataForItems(items, new CompletionData(params.getTextDocument().getUri()));
+
+            return items;
         } catch (Exception e) {
             return emptyCompletionList();
         }
@@ -106,14 +100,13 @@ public class TuriCompletion {
             item.setKind(CompletionItemKind.Keyword);
             item.setDetail("");
             item.setInsertText(keyword);
-            item.setInsertTextFormat(InsertTextFormat.Snippet);
             items.add(item);
         }
         return items;
     }
 
     private static List<CompletionItem> emptyCompletionList() {
-        return List.of(new CompletionItem());
+        return List.of();
     }
 
     /**

@@ -8,6 +8,7 @@ module ch.turic.clifx {
     opens turi.fx;
     exports ch.turic.clifx;
     exports ch.turic.clifx.builtins.functions;
-    provides ch.turic.TuriFunction with ch.turic.clifx.builtins.functions.EventHandlerFactory;
+    provides ch.turic.TuriFunction with ch.turic.clifx.builtins.functions.EventHandlerFactory,
+            ch.turic.clifx.builtins.functions.FxRunLater;
 }
 

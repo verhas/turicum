@@ -192,10 +192,15 @@ public abstract class AbstractCommand implements Command, HasFields {
             return false;
         }
         if (dc.getState() == DebuggerContext.State.STEPPING) {
-            dc.setState(PAUSED);
+            // runtime-generated helper commands (internal field accesses, argument binding
+            // machinery) have no source position; the debugger cannot show them and
+            // single-stepping must not stop on them
+            if (startPosition() != null) {
+                dc.setState(PAUSED);
+            }
         }
         if (dc.getState() == DebuggerContext.State.RUNNING) {
-            if (dc.isBreakPoint(this)) {
+            if (dc.shouldBreak(this)) {
                 dc.setState(PAUSED);
             }
         }
@@ -205,7 +210,12 @@ public abstract class AbstractCommand implements Command, HasFields {
                 dc.pause(command);
                 dc.setState(switch (command.command()) {
                     case STOP -> throw new ExecutionException("Stopped by debugger");
-                    case RUN -> DebuggerContext.State.RUNNING;
+                    case RUN -> {
+                        // resuming from a breakpoint: do not re-break on the remaining nodes
+                        // of the same line
+                        dc.suppressBreaksAround(this);
+                        yield DebuggerContext.State.RUNNING;
+                    }
                     case STEP_OVER -> {
                         step = true; // step over
                         yield DebuggerContext.State.RUNNING;

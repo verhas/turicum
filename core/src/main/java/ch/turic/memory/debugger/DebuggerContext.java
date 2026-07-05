@@ -65,14 +65,64 @@ public class DebuggerContext {
         breakpoints.add(bp);
     }
 
+    private int suppressedFromLine = -1;
+    private int suppressedToLine = -1;
+
+    /**
+     * Suppresses breakpoint pausing while the execution stays within the line span of the
+     * command the debugger resumes from. Without this, a RUN issued while paused at a
+     * breakpoint immediately re-pauses on the next node of the same source line (a line
+     * consists of several command nodes, and the breakpoint matches all of them), so the
+     * program appears not to resume at all. The suppression is cleared by the first command
+     * whose span leaves the recorded one — in a loop, the next iteration re-arms the
+     * breakpoint and it fires again.
+     *
+     * @param command the command the debugger is paused at when the RUN command is received
+     */
+    public void suppressBreaksAround(Command command) {
+        if (command instanceof AbstractCommand ac && ac.startPosition() != null && ac.endPosition() != null) {
+            suppressedFromLine = ac.startPosition().line;
+            suppressedToLine = ac.endPosition().line;
+        }
+    }
+
+    /**
+     * Decides whether the running execution has to pause at this command because of a
+     * breakpoint, honoring the post-resume suppression (see
+     * {@link #suppressBreaksAround(Command)}).
+     *
+     * @param command the command about to execute
+     * @return {@code true} if the execution has to pause
+     */
+    public boolean shouldBreak(Command command) {
+        if (!(command instanceof AbstractCommand ac)) {
+            return false;
+        }
+        if (ac.startPosition() == null || ac.endPosition() == null) {
+            return false;
+        }
+        if (suppressedFromLine >= 0) {
+            if (ac.startPosition().line <= suppressedToLine && ac.endPosition().line >= suppressedFromLine) {
+                return false; // still inside the span the debugger resumed from
+            }
+            suppressedFromLine = -1;
+            suppressedToLine = -1;
+        }
+        return isBreakPoint(command);
+    }
+
     public boolean isBreakPoint(Command command) {
         if (command instanceof AbstractCommand abstractCommand) {
             if( abstractCommand.startPosition() == null || abstractCommand.endPosition() == null ) {
                 return false;
             }
+            // a breakpoint fires where a command STARTS on its line. Matching the whole
+            // start..end span would fire on every ancestor node covering the line — a
+            // breakpoint inside a loop body would stop at the loop header, and resuming
+            // from there would have to suppress the whole loop span, silencing the
+            // breakpoint for the rest of the loop.
             final var lineStart = abstractCommand.startPosition().line;
-            final var lineEnd = abstractCommand.endPosition().line;
-            return breakpoints.stream().anyMatch(bp -> bp.line >= lineStart && bp.line <= lineEnd) ||
+            return breakpoints.stream().anyMatch(bp -> bp.line == lineStart) ||
                     (parent != null && parent.isBreakPoint(abstractCommand));
         } else {
             return false;

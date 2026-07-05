@@ -43,6 +43,7 @@ public class TuriLanguageServer implements LanguageServer, LanguageClientAware {
         // Hover support
         capabilities.setHoverProvider(true);
         capabilities.setDocumentSymbolProvider(true);
+        capabilities.setFoldingRangeProvider(true);
 
         // Add code lens support
         final var codeLensOptions = new CodeLensOptions();

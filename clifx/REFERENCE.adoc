@@ -1,6 +1,10 @@
-= Turicum Programming Language CLI Reference
+[WARNING]
+--
+* Cannot read file './test.turi' from any of the directories:  at /Users/verhasp/github/turicum/clifx/REFERENCE.adoc.jam[include]/60:27
+--
+= Turicum Programming Language CLI with FX Reference
 
-This document is the reference document for the Turicum programming language Command Line Interface.
+This document is the reference document for the Turicum programming language GUI Interface.
 
 == Installation
 
@@ -19,10 +23,10 @@ The kit ``turicum-``__os__``-``__platform__``+-+``__version__``.zip`` is the ins
 
 == Executing a script
 
-After the installation you can execute any script using the `turi` command.
+After the installation, you can execute any script using the `turi` command.
 You can also add
 
-    #!/usr/local/bin/turi
+    #!/usr/local/bin/turifx
 
 shebang line to the start of the script file.
 The extension of the script file containing the Turicum source code has to have `.turi` extension.
@@ -56,13 +60,17 @@ When the REPL application feels that you need to provide more code after the end
 
 You can create a binary version of the code using the command line option `-compile`.
 
-In the cli source code directory there is a file `test.turi`.
+In the cli source code directory there is a file `{%@def test_source=test.turi%}`.
 
-    println "Hello, World!"
+[WARNING]
+--
+* Cannot read file './test.turi' from any of the directories:  at /Users/verhasp/github/turicum/clifx/REFERENCE.adoc.jam[include]/60:27
+--
+    {%#include [verbatim] ./{%test_source%}%}
 
 The command line
 
-    turi -compile test.turi
+    turi -compile {%test_source%}
 
 will create the file `test.turc`.
 Executing this file with the command
@@ -79,3 +87,76 @@ will skip the source code compilation phase and will start the execution of the 
     $ turi test.turc
     Hello, World!
     $
+[WARNING]
+--
+* Cannot read file './test.turi' from any of the directories:  at /Users/verhasp/github/turicum/clifx/REFERENCE.adoc.jam[include]/60:27
+--
+[source]
+----
+Cannot read file './test.turi' from any of the directories:  at /Users/verhasp/github/turicum/clifx/REFERENCE.adoc.jam[include]/60:27
+	javax0.jamal.tools.FileTools(getInput:119)
+	javax0.jamal.builtins.Include(getInputOptional:91)
+	javax0.jamal.builtins.Include(evaluate:56)
+	javax0.jamal.engine.Processor(evaluateBuiltinMacro:523)
+	javax0.jamal.engine.Processor(lambda$evaluateBuiltInMacro$6:463)
+	javax0.jamal.engine.Processor(safeEvaluate:472)
+	javax0.jamal.engine.Processor(evaluateBuiltInMacro:463)
+	javax0.jamal.engine.Processor(evalMacro:412)
+	javax0.jamal.engine.Processor(processMacro:325)
+	javax0.jamal.engine.Processor(process:202)
+	javax0.jamal.asciidoc.JamalPreprocessor(processJamal:451)
+	javax0.jamal.asciidoc.JamalPreprocessor(runJamalInProcess:288)
+	javax0.jamal.asciidoc.JamalPreprocessor(process:205)
+Suppressed exceptions:
+Cannot get the content of the file '/Users/verhasp/github/turicum/clifx/test.turi'	javax0.jamal.tools.FileTools(getFileContent:201)
+	javax0.jamal.tools.FileTools(getInput:134)
+	javax0.jamal.tools.FileTools(getInput:113)
+	javax0.jamal.builtins.Include(getInputOptional:91)
+	javax0.jamal.builtins.Include(evaluate:56)
+	javax0.jamal.engine.Processor(evaluateBuiltinMacro:523)
+	javax0.jamal.engine.Processor(lambda$evaluateBuiltInMacro$6:463)
+	javax0.jamal.engine.Processor(safeEvaluate:472)
+	javax0.jamal.engine.Processor(evaluateBuiltInMacro:463)
+	javax0.jamal.engine.Processor(evalMacro:412)
+	javax0.jamal.engine.Processor(processMacro:325)
+	javax0.jamal.engine.Processor(process:202)
+	javax0.jamal.asciidoc.JamalPreprocessor(processJamal:451)
+	javax0.jamal.asciidoc.JamalPreprocessor(runJamalInProcess:288)
+	javax0.jamal.asciidoc.JamalPreprocessor(process:205)
+Causing Exception:
+java.nio.file.NoSuchFileException: /Users/verhasp/github/turicum/clifx/test.turi	javax0.jamal.tools.FileTools(lambda$getFileContent$5:194)
+	javax0.jamal.tools.FileTools(getFileContent:190)
+	javax0.jamal.tools.FileTools(getInput:134)
+	javax0.jamal.tools.FileTools(getInput:113)
+	javax0.jamal.builtins.Include(getInputOptional:91)
+	javax0.jamal.builtins.Include(evaluate:56)
+	javax0.jamal.engine.Processor(evaluateBuiltinMacro:523)
+	javax0.jamal.engine.Processor(lambda$evaluateBuiltInMacro$6:463)
+	javax0.jamal.engine.Processor(safeEvaluate:472)
+	javax0.jamal.engine.Processor(evaluateBuiltInMacro:463)
+	javax0.jamal.engine.Processor(evalMacro:412)
+	javax0.jamal.engine.Processor(processMacro:325)
+	javax0.jamal.engine.Processor(process:202)
+	javax0.jamal.asciidoc.JamalPreprocessor(processJamal:451)
+	javax0.jamal.asciidoc.JamalPreprocessor(runJamalInProcess:288)
+	javax0.jamal.asciidoc.JamalPreprocessor(process:205)
+Causing Exception:
+/Users/verhasp/github/turicum/clifx/test.turi	javax0.jamal.tools.FileInput(getInput:20)
+	javax0.jamal.tools.FileTools(lambda$getFileContent$5:192)
+	javax0.jamal.tools.FileTools(getFileContent:190)
+	javax0.jamal.tools.FileTools(getInput:134)
+	javax0.jamal.tools.FileTools(getInput:113)
+	javax0.jamal.builtins.Include(getInputOptional:91)
+	javax0.jamal.builtins.Include(evaluate:56)
+	javax0.jamal.engine.Processor(evaluateBuiltinMacro:523)
+	javax0.jamal.engine.Processor(lambda$evaluateBuiltInMacro$6:463)
+	javax0.jamal.engine.Processor(safeEvaluate:472)
+	javax0.jamal.engine.Processor(evaluateBuiltInMacro:463)
+	javax0.jamal.engine.Processor(evalMacro:412)
+	javax0.jamal.engine.Processor(processMacro:325)
+	javax0.jamal.engine.Processor(process:202)
+	javax0.jamal.asciidoc.JamalPreprocessor(processJamal:451)
+	javax0.jamal.asciidoc.JamalPreprocessor(runJamalInProcess:288)
+	javax0.jamal.asciidoc.JamalPreprocessor(process:205)
+sed -i.bak  '' /Users/verhasp/github/turicum/clifx/REFERENCE.adoc.jam
+----

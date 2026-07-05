@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.Duration;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
@@ -26,13 +25,14 @@ public class TuriFormatter {
     private static final String RULES_RESOURCE = CONFIGURATION_DIRECTORY + "/" + FORMATTER_SUBDIR + "/" + RULES_FILE_NAME;
     private static final String INDENT_UNIT = "    ";
 
-    private static final SlowStart formatterGate = new SlowStart(Duration.ofMillis(100));
-
     public static String formatDocument(String content) {
-        try (final var lease = formatterGate.open()) {
-            if (lease != null) {
-                return formatDocument_(content);
+        try {
+            if (rules == null) {
+                // without spacing rules the formatter would glue the tokens together;
+                // an unformatted document is better than a damaged one
+                return content;
             }
+            return formatDocument_(content);
         } catch (Throwable e) {
             ExceptionXmlWriter.writeToXml(e);
         }
@@ -69,12 +69,12 @@ public class TuriFormatter {
             }
 
             if (formattingIsOn) {
-                colonLevel = !inComment && lastNonSpaceChar(line) == ':' ? colonLevel + 1 : 0;
-
                 if (!inString) {
                     result.append(INDENT_UNIT.repeat(indentLevel + colonLevel));
                 }
                 result.append(formatLine(inString, inComment, line, lexes, index, i));
+                // a line ending with ':' indents the NEXT line, not itself
+                colonLevel = !inComment && lastNonSpaceChar(line) == ':' ? colonLevel + 1 : 0;
             } else {
                 result.append(line);
             }
@@ -229,11 +229,11 @@ public class TuriFormatter {
             Lex lex = getFirstLexOnTheLine(lexes, index, lineNr);
             while (lex != null && lex.startPosition().line - 1 == lineNr) {
                 final var next = getTheNextSignificantLex(lexes);
-                sb.append(lexToString(lex, next));
-                if (next == null) {
+                sb.append(lexToString(lex, next.lex(), next.gapBefore()));
+                if (next.lex() == null) {
                     break;
                 }
-                lex = next;
+                lex = next.lex();
             }
             return sb.toString();
         } finally {
@@ -250,11 +250,18 @@ public class TuriFormatter {
      * @param lexes the lexical list containing the sequence of lexemes to iterate through
      * @return the next significant lexical element, or null if none is found or the next element is at the start of a line
      */
-    private static Lex getTheNextSignificantLex(LexList lexes) {
+    private record NextLex(Lex lex, boolean gapBefore) {
+    }
+
+    private static NextLex getTheNextSignificantLex(LexList lexes) {
         Lex next;
+        boolean gap = false;
         if (lexes.hasNext()) {
             do {
                 next = lexes.next();
+                if (next.type() == Lex.Type.SPACES) {
+                    gap = true;
+                }
             } while (next.type() == Lex.Type.SPACES && next.text().isBlank() && !next.atLineStart() && lexes.hasNext());
             if (next.atLineStart()) {
                 next = null;
@@ -262,7 +269,7 @@ public class TuriFormatter {
         } else {
             next = null;
         }
-        return next;
+        return new NextLex(next, gap);
     }
 
     /**
@@ -488,14 +495,16 @@ public class TuriFormatter {
      * @param next the next lexical element in the sequence; may be null
      * @return the number of spaces to be inserted between the current and next lexical elements
      */
-    private static int spacesFor(Lex lex, Lex next) {
+    private static int spacesFor(Lex lex, Lex next, boolean gapBefore) {
         if (rules == null || next == null) return 0;
         for (final var rule : rules) {
             if (rule.match(lex, next)) {
                 return rule.spaces;
             }
         }
-        return 0;
+        // no rule for this pair: preserve the original spacing (collapsed to one space)
+        // instead of gluing the tokens together
+        return gapBefore ? 1 : 0;
     }
 
     /**
@@ -511,7 +520,7 @@ public class TuriFormatter {
      * @param next the next lexical element, used to determine spacing or additional formatting
      * @return the string representation of the current lexical element, formatted appropriately
      */
-    private static String lexToString(Lex lex, Lex next) {
+    private static String lexToString(Lex lex, Lex next, boolean gapAfter) {
         if (lex == null) {
             return "";
         }
@@ -520,11 +529,11 @@ public class TuriFormatter {
         }
 
         if (lex.type() == Lex.Type.STRING)
-            return firstLine(lex.lexeme()) + " ".repeat(spacesFor(lex, next));
+            return firstLine(lex.lexeme()) + " ".repeat(spacesFor(lex, next, gapAfter));
         if (lex.type() == Lex.Type.COMMENT)
-            return firstLine(lex.text()) + " ".repeat(spacesFor(lex, next));
+            return firstLine(lex.text()) + " ".repeat(spacesFor(lex, next, gapAfter));
 
-        return lex.lexeme() + " ".repeat(spacesFor(lex, next));
+        return lex.lexeme() + " ".repeat(spacesFor(lex, next, gapAfter));
     }
 
     /**

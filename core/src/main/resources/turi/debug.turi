@@ -126,7 +126,7 @@ fn line(start  = none , end  = none){
             }
         }
         else{
-            println sp.line , ". " , lines[sp.line -1].substring(num(sp.column -1))
+            println sp.line , ". " , lines[sp.line -1].substring(num(sp.column))
             for i  = sp.line ; i  < ep.line -1 ; i ++{
                 println +(i +1), ". -" , sp.lines[i]
             }
@@ -213,7 +213,7 @@ fn run(){
 help +="add_breakpoint(line)           add a breakpoint at the given line\n"
 fn add_breakpoint(line : int){
     global debugger_global_session ;
-    debugger_global_session.add_breakpoint(int(line))
+    debugger_global_session.add_breakpoint(java_int(line))
     wait();
     println "done"
 }
@@ -221,7 +221,7 @@ fn add_breakpoint(line : int){
 help +="remove_breakpoint(line)        remove the breakpoint at the given line\n"
 fn remove_breakpoint(line : int){
     global debugger_global_session ;
-    debugger_global_session.remove_breakpoint(int(line))
+    debugger_global_session.remove_breakpoint(java_int(line))
     wait();
     println "done"
 }
@@ -229,7 +229,7 @@ fn remove_breakpoint(line : int){
 help +="add_global_breakpoint(line)    add a global breakpoint at the given line\n"
 fn add_global_breakpoint(line : int){
     global debugger_global_session ;
-    debugger_global_session.add_global_breakpoint(int(line))
+    debugger_global_session.add_global_breakpoint(java_int(line))
     wait();
     println "done"
 }
@@ -237,7 +237,7 @@ fn add_global_breakpoint(line : int){
 help +="remove_global_breakpoint(line) remove the global breakpoint at the given line\n"
 fn remove_global_breakpoint(line : int){
     global debugger_global_session ;
-    debugger_global_session.remove_global_breakpoint(int(line))
+    debugger_global_session.remove_global_breakpoint(java_int(line))
     wait();
     println "done"
 }

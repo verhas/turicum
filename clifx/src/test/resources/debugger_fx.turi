@@ -1,274 +1,472 @@
 sys_import turi.fx.base
 
 /**
- * Implement functions to help with debugging from the REPL application.
+ * Graphical debugger front end.
+ *
+ * Threading rules, the reason for the structure of this file:
+ *
+ * 1. Everything that waits for the debugged program (debug(), wait(), stepping) runs in an
+ *    'async' block on a virtual thread. Running it on the JavaFX Application Thread would
+ *    freeze the UI and can deadlock.
+ * 2. Everything that touches a UI widget runs through fx_run_later(), which schedules the
+ *    closure on the JavaFX Application Thread.
+ * 3. Event handlers themselves run on the JavaFX Application Thread; they must only start
+ *    the async work and return immediately.
+ *
+ * The code pane is a VBox of per-line rows instead of a TextArea: a TextArea cannot color
+ * individual characters or lines. Every row is [arrow gutter][breakpoint gutter][line
+ * number][source text], so the markers never push the source text out of alignment.
  */
 
 // usually, you do not debug more than one program interactively
 // This is the global variable holding the debug session
-
 global debugger_global_session;
-global debugger_global_timeout= 100_000 ; // 100 sec
+global debugger_global_timeout = 100_000; // 100 sec in 0.01s polls
 
-fn debug( file_name: str,@ timeout= 1000/*one sec*/){
-    global debugger_global_session=debug_session( file_name );
-    println "dgs=", debugger_global_session, " for ", file_name
-    mut i= 0 ;
-    while! debugger_global_session.is_started() && ! debugger_global_session.is_finished(){
+// the source lines that have a breakpoint, mirrored from the session
+global breakpoint_lines = [];
+// when false, the variable views hide the interpreter's own values (ch.turic.builtin*, clifx)
+global show_all_vars = false;
+// the line selected with a single click; the Breakpoint button acts on it
+global selected_line = none;
+// the last rendered rows and status, kept so a selection click can restyle the code pane
+// on the FX thread without a debugger round trip
+global last_rows = none;
+global last_status = "no program loaded";
+
+fn debug(file_name: str, @timeout = 1000/*ten sec*/) {
+    global debugger_global_session = debug_session(file_name);
+    mut i = 0;
+    while ! debugger_global_session.is_started() && ! debugger_global_session.is_finished() {
         sleep 0.01
-        i ++
+        i++
     } until i > timeout;
-    die "not started in a second" when i > timeout
-    if "main" in threads(){
-        debugger_global_session.set_thread("main");
-        } else{
-        debugger_global_session.set_thread( threads() [0] );
-        println "threads=" + threads()
-    }
-    return;
+    die "debugged program did not start" when i > timeout
+    // the reported thread name is the name of the thread that created the interpreter;
+    // in this application that is the JavaFX Application Thread, so the first reported
+    // thread is selected
+    debugger_global_session.set_thread(debugger_global_session.threads()[0]);
+    // the first pause is at the outermost Program node; stepping over that would run the
+    // whole program in one go, so descend to the first statement right away
+    if ! finished() : step_into();
+    none
 }
 
-fn wait(){
+fn wait() {
     global debugger_global_session;
     global debugger_global_timeout;
-    println "dgs=", debugger_global_session
-    mut i= 0 ;
-    while! debugger_global_session.is_paused() && ! debugger_global_session.is_finished(){
-        sleep 0.01 ;
-        i ++;
+    mut i = 0;
+    while ! debugger_global_session.is_paused() && ! debugger_global_session.is_finished() {
+        sleep 0.01;
+        i++;
     } until i > debugger_global_timeout;
-    die "not paused in a second" when i > debugger_global_timeout
+    die "debugged program did not pause" when i > debugger_global_timeout
 }
 
-fn command(){
-    global debugger_global_session
-    debugger_global_session.fetch_command();
-    wait();
-    debugger_global_session.command_str()
+fn finished() {
+    global debugger_global_session;
+    debugger_global_session == none || debugger_global_session.is_finished()
 }
 
-fn breakpoints(){
+/**
+ * The position of the current execution point, or none. One fetch/wait rendezvous.
+ */
+fn current_pos() {
     global debugger_global_session
-    debugger_global_session.fetch_breakpoints();
-    wait();
-    debugger_global_session.breakpoints()
-}
-
-fn global_breakpoints(){
-    global debugger_global_session
-    debugger_global_session.fetch_global_breakpoints();
-    wait();
-    debugger_global_session.breakpoints()
-}
-
-fn pos(){
-    global debugger_global_session
-    debugger_global_session.fetch_pos();
-    wait();
-    
-    let sp=debugger_global_session.start_pos();
-    let ep=debugger_global_session.end_pos();
-    if sp != none && ep != none {
-        {
-            start:{ line: sp.line, column: sp.column } ,
-            end:{ line: ep.line, column: ep.column }
-        }
-        } else{
-        none
-    }
-}
-
-fn line( start=none, end=none ){
-    global debugger_global_session
-    println "libe dgs=", debugger_global_session
+    if finished() : return none
     debugger_global_session.fetch_pos()
-    println "start waiting"
     wait()
-    println "waited for"
-    let sp=debugger_global_session.start_pos();
-    let ep=debugger_global_session.end_pos();
-    mut buffer: str= "" ;
-    if sp != none && ep != none {
-        let lines=sp.lines;
-        if start != none || end != none {
-            let s=start;
-            let e=if end == none: start else end;
-            for i=s - 1 ; i < e && i < len( lines ); i ++ {
-                buffer += "" + ( i + 1) + ". " + lines [ i ]
-            }
-        }
-        else{
-            buffer += sp.line + ". " + lines [ sp.line - 1] .substring( num( sp.column - 1) )
-            for i=sp.line; i < ep.line - 1 ; i ++ {
-                buffer += "" + ( i + 1) + ". -" + sp.lines [ i ]
-            }
-            if ep.line > sp.line {
-                buffer += $"$(ep.line). ? $(sp.lines[ep.line -1].substring(0 , ep.column))"
-            }
+    if finished() : return none
+    debugger_global_session.start_pos()
+}
+
+/**
+ * One row descriptor per source line: line number, text, whether it is the active line and
+ * whether it carries a breakpoint. Computed on the background thread; the FX thread only
+ * turns the descriptors into widgets.
+ */
+fn row_specs() {
+    global breakpoint_lines;
+    let sp = current_pos();
+    if sp == none : return none
+    let lines = sp.lines;
+    let active = sp.line;
+    let rows = [];
+    for i = 0; i < len(lines); i++ {
+        rows[i] = {
+            n: i + 1,
+            text: lines[i],
+            active: (i + 1) == active,
+            bp: (i + 1) in breakpoint_lines
+        };
+    }
+    rows
+}
+
+/**
+ * The variables as a "name = value" text, one variable per line. Unless "show all vars" is
+ * ticked, the interpreter's built-in values (ch.turic.builtin*) are hidden.
+ */
+fn vars_text(vars) {
+    global show_all_vars;
+    mut buffer: str = "";
+    for each v in vars {
+        let sv = str(v.value);
+        if show_all_vars || ! ("ch.turic.builtin" in sv || "ch.turic.clifx" in sv) {
+            buffer += v.name + " = " + sv + "\n"
         }
     }
-    else{
-        buffer += "no source information in the command"
-    }
-    ""
+    buffer
 }
 
-fn threads(){
-    global debugger_global_timeout
-    debugger_global_session.threads()
-}
-
-fn thread( name: str ){
+fn locals_text() {
     global debugger_global_session;
-    debugger_global_session.set_thread( name );
-    // fun fact: ${name} is filtered by maven to be 'turicum'
-    $"Thread $(name) selected" ;
-}
-
-fn finished(){
-    global debugger_global_session;
-    debugger_global_session.is_finished()
-}
-
-fn globals(){
-    global debugger_global_session;
-    debugger_global_session.fetch_globals()
-    wait()
-    let g={ }
-        for each v with i in debugger_global_session.globals() :
-    g [ v.name ] =v.value;
-    g;
-}
-
-fn locals( @ no_globals=false ){
-    global debugger_global_session;
+    if finished() : return ""
     debugger_global_session.fetch_locals()
     wait()
-    let l={ }
-    let g=if no_globals: keys( globals() ) else[ ];
-        for each v with i in debugger_global_session.locals() :
-            if! ( v.name in g ) :
-    l [ v.name ] =v.value;
-    l;
+    if finished() : return ""
+    vars_text(debugger_global_session.locals())
 }
 
-fn step_into(){
+fn globals_text() {
+    global debugger_global_session;
+    if finished() : return ""
+    debugger_global_session.fetch_globals()
+    wait()
+    if finished() : return ""
+    vars_text(debugger_global_session.globals())
+}
+
+// the UI widgets the background workers update through fx_run_later
+global code_box;
+global code_scroll;
+global locals_area;
+global globals_area;
+global status_label;
+
+fn mono_label(text, width) {
+    let l = fx.Label(text);
+    l.setStyle("-fx-font-family: 'Menlo', 'Courier New', monospace;");
+    if width > 0 : l.setMinWidth(width);
+    l
+}
+
+/**
+ * Rebuilds the code pane rows and the status. Must run on the JavaFX Application Thread.
+ */
+fn rebuild(rows, status) {
+    global code_box;
+    global code_scroll;
+    global status_label;
+    status_label.setText(status);
+    code_box.getChildren().clear();
+    if rows == none : return none
+    mut active_index = none;
+    mut n = 0;
+    for each r in rows {
+        // first gutter column: the execution point arrow
+        mut arrow_text = " ";
+        if r.active : arrow_text = "→";
+        let arrow = mono_label(arrow_text, 20);
+        // second gutter column: the breakpoint dot, in red
+        mut dot_text = " ";
+        if r.bp : dot_text = "●";
+        let dot = mono_label(dot_text, 20);
+        dot.setStyle("-fx-font-family: 'Menlo', 'Courier New', monospace; -fx-text-fill: red;");
+        let nr = mono_label("" + r.n + ".", 40);
+        let text = mono_label(r.text, 0);
+        let row = fx.HBox(2);
+        row.getChildren().add(arrow);
+        row.getChildren().add(dot);
+        row.getChildren().add(nr);
+        row.getChildren().add(text);
+        global selected_line;
+        if r.active {
+            // yellowish background marks the line in execution
+            row.setStyle("-fx-background-color: #fdf0a8;");
+            active_index = n;
+        } else {
+            if r.n == selected_line {
+                // bluish background marks the selected line
+                row.setStyle("-fx-background-color: #cfe2f3;");
+            }
+        }
+        let ln = r.n;
+        // single click selects the line, double click toggles its breakpoint
+        row.setOnMouseClicked(event_handler({|e|
+            let clicks = e.getClickCount();
+            if clicks == 1 {
+                global selected_line;
+                selected_line = ln;
+                // restyle only: we are on the FX thread, no debugger round trip
+                rebuild(last_rows, last_status);
+            }
+            if clicks == 2 : in_background({|| toggle_breakpoint(ln)});
+        }));
+        code_box.getChildren().add(row);
+        n = n + 1;
+    }
+    if active_index != none && len(rows) > 1 {
+        // scroll the active line roughly into view
+        code_scroll.setVvalue((active_index * 1.0) / (len(rows) - 1));
+    }
+    none
+}
+
+/**
+ * Refreshes the code pane and the variable views. Must run on a background thread; the
+ * widget updates are marshalled to the JavaFX Application Thread.
+ */
+fn refresh() {
+    global debugger_global_session;
+    global locals_area;
+    global globals_area;
+    if debugger_global_session == none : return none
+    global last_rows;
+    global last_status;
+    let rows = if finished() : none else row_specs();
+    let loc = locals_text();
+    let glo = globals_text();
+    let status = if finished() : "finished" else "paused";
+    last_rows = rows;
+    last_status = status;
+    fx_run_later({||
+        rebuild(rows, status);
+        locals_area.setText(loc);
+        globals_area.setText(glo);
+    });
+    none
+}
+
+/**
+ * Runs a debugger action in the background and refreshes the UI when the debugged
+ * program pauses again. Returns immediately; safe to call from an event handler.
+ */
+fn in_background(action) {
+    async {
+        try {
+            action();
+            refresh();
+        } catch e {
+            global status_label;
+            let message = str(e);
+            fx_run_later({|| status_label.setText(message)});
+        }
+    }
+    none
+}
+
+fn step_into() {
     global debugger_global_session;
     debugger_global_session.step_into()
     wait();
 }
 
-fn step_over(){
+fn step_over() {
     global debugger_global_session;
     debugger_global_session.step_over()
     wait();
 }
 
-fn run(){
+/**
+ * Steps with source-line granularity. The debugger core pauses at every command node of
+ * the tree, and one source line consists of several nodes — stepping node by node needs
+ * multiple button presses per line. This wrapper repeats the node-level step until the
+ * execution point leaves the current line (or the program finishes). The step count cap
+ * keeps the button responsive on single-line loops, which never leave their line.
+ */
+fn step_line(stepper) {
+    let start = current_line();
+    mut i = 0;
+    while ! finished() && i < 500 {
+        stepper();
+        if finished() : break;
+        let l = current_line();
+        if l == none || l != start : break;
+        i++;
+    }
+}
+
+fn current_line() {
+    let sp = current_pos();
+    if sp == none : return none
+    sp.line
+}
+
+fn resume() {
     global debugger_global_session;
     debugger_global_session.run()
     wait();
 }
 
-fn add_breakpoint( line: int ){
+fn stop() {
     global debugger_global_session;
-    debugger_global_session.add_breakpoint( int( line ) )
+    debugger_global_session.stop()
+}
+
+fn without(lst, v) {
+    let r = [];
+    for each x in lst : if x != v : r[len(r)] = x;
+    r
+}
+
+fn appended(lst, v) {
+    let r = [];
+    for each x in lst : r[len(r)] = x;
+    r[len(r)] = v;
+    r
+}
+
+/**
+ * Toggles the breakpoint on the given source line. Breakpoints can only be changed while
+ * the debugged program is paused: the command travels on the same rendezvous channel as
+ * the stepping commands. Must run on a background thread.
+ */
+fn toggle_breakpoint(l) {
+    global debugger_global_session;
+    global breakpoint_lines;
+    if finished() : return none
+    if ! debugger_global_session.is_paused() : return none
+    let had = l in breakpoint_lines;
+    // java_int: the session methods take a Java 'int'; a Turicum number is a Long and
+    // the reflection dispatch does not narrow Long to int
+    if had : debugger_global_session.remove_breakpoint(java_int(l))
+    else : debugger_global_session.add_breakpoint(java_int(l));
+    // the rebind must be at the function's top level: the 'global' declaration lives in the
+    // function context, and a nested block does not inherit it — assigning the global from
+    // inside an if-block fails with "used as global, but is not declared"
+    breakpoint_lines = if had : without(breakpoint_lines, l) else appended(breakpoint_lines, l);
     wait();
 }
 
-fn remove_breakpoint( line: int ){
-    global debugger_global_session;
-    debugger_global_session.remove_breakpoint( int( line ) )
-    wait();
-}
-
-fn add_global_breakpoint( line: int ){
-    global debugger_global_session;
-    debugger_global_session.add_global_breakpoint( int( line ) )
-    wait();
-}
-
-fn remove_global_breakpoint( line: int ){
-    global debugger_global_session;
-    debugger_global_session.remove_global_breakpoint( int( line ) )
-    wait();
-}
-
-// Create toolbar at top
-with fx {
-    let menuBar=fx.MenuBar();
-    let fileMenu=fx.Menu();
-    fileMenu.setText("File");
-    let openMenuItem=fx.MenuItem();
-    openMenuItem.setText("Open");
-    openMenuItem.setOnAction( event_handler( { | e |
-                let fileChooser=fx.FileChooser();
-                let selectedFile=fileChooser.showOpenDialog( fx_stage );
-                if( selectedFile != none ){
-                    //                    try{
-                    debug( str( selectedFile ) )
-                    global debugger_global_session
-                    println( debugger_global_session )
-                    code_tab.getContent().setText( line() );
-                    /*                      } catch ex {
-                     * println $"ex=$(str(ex))"
-                     * let exStr=str( ex )
-                     * println exStr == none
-                     * code_tab.getContent().setText( exStr );
-                     * }*/
-                }
-    } ) );
-    
-    fileMenu.getItems().add( openMenuItem );
-    menuBar.getMenus().add( fileMenu );
-    
-    let toolbar=HBox(5);
-    toolbar.setStyle("-fx-padding: 5; -fx-border-bottom: 1 solid #cccccc;");
-    toolbar.getChildren().add( create_button("Step",fn( e ){ println("Step"); } ) );
-    toolbar.getChildren().add( create_button("Continue",fn( e ){ println("Continue"); } ) );
-    toolbar.getChildren().add( create_button("Stop",fn( e ){ println("Stop"); } ) );
-    
-    
-    let code_pane=fx.TabPane()
-    
-    let code_tab=fx.Tab();
-    code_tab.setText("Code");
-    code_tab.setContent( fx.TextArea() );
-    
-    let output_tab=fx.Tab();
-    output_tab.setText("Output");
-    output_tab.setContent( TextArea() );
-    for each tab in[ code_tab, output_tab ] : code_pane.getTabs().add( tab );
-    
-    let variable_pane=fx.TabPane()
-    
-    let local_variables_tab=fx.Tab()
-    let global_variables_tab=fx.Tab()
-    
-    for each tab in[ [ local_variables_tab, "Local Variables"], [ global_variables_tab, "Global Variables"] ] {
-        tab [0] .setText( tab [1] )
-        tab [0] .setContent( TableView() )
+/**
+ * Asks for confirmation and exits. Must run on the JavaFX Application Thread (it opens a
+ * modal dialog).
+ */
+fn confirm_exit() {
+    let alert_type = java_class("javafx.scene.control.Alert$AlertType");
+    let dialog = fx.Alert(alert_type.CONFIRMATION);
+    dialog.setTitle("Exit");
+    dialog.setContentText("Do you really want to exit the debugger?");
+    let r = dialog.showAndWait();
+    if r.isPresent() {
+        if str(r.get().getText()) == "OK" {
+            let platform = java_class("javafx.application.Platform");
+            platform.exit();
+        }
     }
-    
-    
-    global_variables_tab.setText("Global Variables")
-    global_variables_tab.setContent( TableView() )
-    
-    for each tab in[ local_variables_tab, global_variables_tab ] {
-        variable_pane.getTabs().add( tab )
-    }
-    
-    let topContainer=fx.VBox();
-    for each bar in[ menuBar, toolbar ] : topContainer.getChildren().add( bar );
-    
-    // Main layout with BorderPane
-    let root=fx.BorderPane();
-    root.setTop( topContainer );
-    root.setCenter( code_pane );
-    root.setBottom( variable_pane );
-    
-    let my_scene=Scene( root, 800, 600);
-    fx_stage.setTitle("Turicum Debugger");
-    fx_stage.setScene( my_scene );
-    fx_stage.show();
+    none
 }
+
+// ---------------------------------------------------------------------------------------
+// UI construction. This part runs on the JavaFX Application Thread (Main.start()).
+// ---------------------------------------------------------------------------------------
+
+global code_box = fx.VBox();
+global code_scroll = fx.ScrollPane();
+code_scroll.setContent(code_box);
+code_scroll.setFitToWidth(true);
+
+global locals_area = fx.TextArea();
+locals_area.setEditable(false);
+global globals_area = fx.TextArea();
+globals_area.setEditable(false);
+global status_label = fx.Label("no program loaded");
+
+let menuBar = fx.MenuBar();
+let fileMenu = fx.Menu();
+fileMenu.setText("File");
+
+let openMenuItem = fx.MenuItem();
+openMenuItem.setText("Open");
+openMenuItem.setOnAction(event_handler({|e|
+    // the FileChooser must be used on the JavaFX Application Thread;
+    // the debugging work is started in the background afterwards
+    let fileChooser = fx.FileChooser();
+    let selectedFile = fileChooser.showOpenDialog(fx_stage);
+    if selectedFile != none {
+        in_background({|| debug(str(selectedFile))});
+    }
+}));
+
+let exitMenuItem = fx.MenuItem();
+exitMenuItem.setText("Exit");
+exitMenuItem.setOnAction(event_handler({|e| confirm_exit(); }));
+
+fileMenu.getItems().add(openMenuItem);
+// Exit is the last item of the File menu
+fileMenu.getItems().add(exitMenuItem);
+menuBar.getMenus().add(fileMenu);
+
+let toolbar = fx.HBox(5);
+toolbar.setStyle("-fx-padding: 5;");
+toolbar.getChildren().add(create_button("Step Into (F7)", fn(e) { in_background({|| step_line(step_into)}); }));
+toolbar.getChildren().add(create_button("Step Over (F8)", fn(e) { in_background({|| step_line(step_over)}); }));
+toolbar.getChildren().add(create_button("Run (F9)", fn(e) { in_background({|| resume()}); }));
+toolbar.getChildren().add(create_button("Stop", fn(e) { in_background({|| stop()}); }));
+toolbar.getChildren().add(create_button("Breakpoint", fn(e) {
+    // toggles the breakpoint of the line selected with a single click;
+    // double clicking a line does the same
+    if selected_line != none : in_background({|| toggle_breakpoint(selected_line)});
+}));
+
+let show_vars_cb = fx.CheckBox("show all vars");
+show_vars_cb.setOnAction(event_handler({|e|
+    global show_all_vars;
+    show_all_vars = show_vars_cb.isSelected();
+    in_background({|| none});
+}));
+toolbar.getChildren().add(show_vars_cb);
+toolbar.getChildren().add(status_label);
+
+let code_pane = fx.TabPane();
+let code_tab = fx.Tab();
+code_tab.setText("Code");
+code_tab.setClosable(false);
+code_tab.setContent(code_scroll);
+code_pane.getTabs().add(code_tab);
+
+let variable_pane = fx.TabPane();
+let local_variables_tab = fx.Tab();
+local_variables_tab.setText("Local Variables");
+local_variables_tab.setClosable(false);
+local_variables_tab.setContent(locals_area);
+let global_variables_tab = fx.Tab();
+global_variables_tab.setText("Global Variables");
+global_variables_tab.setClosable(false);
+global_variables_tab.setContent(globals_area);
+for each tab in [local_variables_tab, global_variables_tab] {
+    variable_pane.getTabs().add(tab);
+}
+
+let topContainer = fx.VBox();
+for each bar in [menuBar, toolbar] : topContainer.getChildren().add(bar);
+
+// Main layout with BorderPane
+let root = fx.BorderPane();
+root.setTop(topContainer);
+root.setCenter(code_pane);
+root.setBottom(variable_pane);
+
+let my_scene = fx.Scene(root, 800, 600);
+
+// keyboard shortcuts: F7 step into, F8 step over, F9 run.
+// A scene-level key handler is used instead of getAccelerators(): the accelerator map is
+// returned into Turicum as a MapObject, and objects put through its index assignment would
+// be wrapped values, invisible to the JavaFX accelerator lookup.
+my_scene.setOnKeyPressed(event_handler({|e|
+    let code = str(e.getCode());
+    if code == "F7" : in_background({|| step_line(step_into)});
+    if code == "F8" : in_background({|| step_line(step_over)});
+    if code == "F9" : in_background({|| resume()});
+}));
+
+// closing the window (red button or Command-Q) asks for confirmation
+fx_stage.setOnCloseRequest(event_handler({|e|
+    e.consume();
+    confirm_exit();
+}));
+
+fx_stage.setTitle("Turicum Debugger");
+fx_stage.setScene(my_scene);
+fx_stage.show();

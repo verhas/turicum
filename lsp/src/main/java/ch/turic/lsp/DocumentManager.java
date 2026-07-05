@@ -13,6 +13,28 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class DocumentManager {
     private final Map<String, String> documents = new ConcurrentHashMap<>();
+    private final Map<String, Integer> versions = new ConcurrentHashMap<>();
+
+    /**
+     * Records the client-provided version of the document. The version is attached to the
+     * published diagnostics so the client can drop results computed against stale text.
+     *
+     * @param uri     the document identifier
+     * @param version the version from didOpen/didChange, may be null
+     */
+    public void setVersion(String uri, Integer version) {
+        if (version != null) {
+            versions.put(uri, version);
+        }
+    }
+
+    /**
+     * @param uri the document identifier
+     * @return the last recorded version of the document, or null
+     */
+    public Integer getVersion(String uri) {
+        return versions.get(uri);
+    }
 
     /**
      * Stores the provided content associated with the specified URI in the document collection.
@@ -32,6 +54,7 @@ public class DocumentManager {
      */
     public void remove(String uri) {
         documents.remove(uri);
+        versions.remove(uri);
     }
 
     /**

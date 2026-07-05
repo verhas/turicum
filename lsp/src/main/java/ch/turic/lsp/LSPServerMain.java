@@ -11,11 +11,17 @@ import java.util.concurrent.Future;
 
 // Main class to start the server
 class LSPServerMain {
-    static void main(String[] args) {
+    public static void main(String[] args) {
         try {
             System.err.println("=== Turi Language Server Started " + OffsetDateTime.now() + " ===");
             System.err.flush();
-            startServer(new ErrLogging.InputStream(System.in), new ErrLogging.PrintStream(System.out));
+            if (Boolean.getBoolean("turicum.lsp.trace")) {
+                // full protocol wiretap to stderr, for debugging only: it copies every byte
+                // of the client communication and costs measurable throughput
+                startServer(new ErrLogging.InputStream(System.in), new ErrLogging.PrintStream(System.out));
+            } else {
+                startServer(System.in, new PrintStream(System.out, true));
+            }
         }catch(Throwable e) {
             System.err.println("=== MAIN THREAD EXCEPTION ===");
             ExceptionXmlWriter.writeToXml(e);

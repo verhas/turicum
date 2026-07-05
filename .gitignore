@@ -13,3 +13,7 @@ cli/output
 /.repl.turi
 /lsp/lsp_err.txt
 /.mdship/
+/.codex/config.toml
+/.agents/skills/ai-fix/SKILL.md
+/.agents/skills/ai-placeholder/SKILL.md
+/.agents/skills/ai-review/SKILL.md

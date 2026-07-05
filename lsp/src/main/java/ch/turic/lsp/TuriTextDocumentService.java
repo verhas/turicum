@@ -35,6 +35,7 @@ class TuriTextDocumentService implements TextDocumentService {
         String uri = params.getTextDocument().getUri();
         String content = params.getTextDocument().getText();
         documentManager.put(uri, content);
+        documentManager.setVersion(uri, params.getTextDocument().getVersion());
         errorReporter.analyzeAndReportErrors(uri);
     }
 
@@ -42,6 +43,7 @@ class TuriTextDocumentService implements TextDocumentService {
     public void didChange(DidChangeTextDocumentParams params) {
         String uri = params.getTextDocument().getUri();
         params.getContentChanges().forEach(change -> documentManager.applyChange(uri, change));
+        documentManager.setVersion(uri, params.getTextDocument().getVersion());
         errorReporter.analyzeAndReportErrors(uri);
     }
 
@@ -73,15 +75,9 @@ class TuriTextDocumentService implements TextDocumentService {
                     resolveFunctionDetails(unresolved);
                     break;
 
-                case Variable:
-                case Field:
-                    resolveVariableDetails(unresolved);
-                    break;
-
-                case Class:
-                case Interface:
-                    resolveTypeDetails(unresolved);
-                    break;
+                // Variable/Field and Class/Interface resolution intentionally omitted:
+                // there is no real data source for them yet, and showing fabricated
+                // placeholder details misleads the user (kept out until a symbol table exists)
 
                 case Keyword:
                     resolveKeywordDetails(unresolved);
@@ -92,13 +88,8 @@ class TuriTextDocumentService implements TextDocumentService {
                     break;
 
                 default:
-                    // For other types, just add basic documentation if not present
-                    if (unresolved.getDocumentation() == null) {
-                        unresolved.setDocumentation(new MarkupContent(
-                                MarkupKind.MARKDOWN,
-                                "Additional information for: `" + label + "`"
-                        ));
-                    }
+                    // no fabricated fallback documentation: an unresolved item is better
+                    // than fiction
                     break;
             }
 
@@ -120,8 +111,11 @@ class TuriTextDocumentService implements TextDocumentService {
      */
     private void resolveFunctionDetails(CompletionItem item) {
         String functionName = item.getLabel();
-        final var cData = (CompletionData) item.getData();
-        final var source = documentManager.getContent(cData.uri());
+        final var uri = completionUri(item.getData());
+        if (uri == null) {
+            return;
+        }
+        final var source = documentManager.getContent(uri);
         Map<String, FunctionInfo> functions = getFunctionDatabase(source, functionName);
         FunctionInfo info = functions.get(functionName);
 
@@ -133,6 +127,21 @@ class TuriTextDocumentService implements TextDocumentService {
             docs.setValue("**" + functionName + info.signature + "**\n\n");
             item.setDocumentation(docs);
         }
+    }
+
+    /**
+     * Extracts the document URI from a completion item's {@code data} field. The completion
+     * items are created with a {@link CompletionData}, but when the client sends the item
+     * back for {@code completionItem/resolve}, LSP4J deserializes the field as a Gson
+     * {@link com.google.gson.JsonObject} — the original record never survives the round
+     * trip, so both shapes must be handled.
+     */
+    private static String completionUri(Object data) {
+        return switch (data) {
+            case CompletionData cd -> cd.uri();
+            case com.google.gson.JsonObject jo when jo.has("uri") -> jo.get("uri").getAsString();
+            case null, default -> null;
+        };
     }
 
     /**
@@ -427,29 +436,38 @@ class TuriTextDocumentService implements TextDocumentService {
             final var lexes = tryAnalyze(content, uri);
             List<Either<SymbolInformation, DocumentSymbol>> symbols = new ArrayList<>();
 
+            // only declarations become symbols: a symbol for every identifier use floods
+            // the outline, and DocumentSymbol requires kind and ranges to be set
             Lex prior = null;
             while (lexes.hasNext()) {
                 if (cancelChecker.isCanceled()) {
                     return null;
                 }
                 final var lex = lexes.next();
-                if (lex.type() == Lex.Type.IDENTIFIER) {
-                    DocumentSymbol symbol = new DocumentSymbol();
-                    symbol.setName(lex.text());
-                    if (prior != null) {
-                        if (prior.is(Keywords.FN)) {
-                            symbol.setKind(SymbolKind.Function);
-                        } else if (prior.is(Keywords.LET, Keywords.PIN)) {
-                            symbol.setKind(SymbolKind.Constant);
-                        } else if (prior.is(Keywords.MUT, Keywords.GLOBAL)) {
-                            symbol.setKind(SymbolKind.Variable);
-                        } else if (prior.is(Keywords.CLASS)) {
-                            symbol.setKind(SymbolKind.Class);
-                        }
-                        symbol.setRange(new Range(new Position(prior.startPosition().line - 1, prior.startPosition().column), new Position(lex.startPosition().line - 1, lex.startPosition().column + 1)));
-                        symbol.setSelectionRange(new Range(new Position(prior.startPosition().line - 1, prior.startPosition().column), new Position(lex.startPosition().line - 1, lex.startPosition().column + lex.text().length())));
+                if (lex.type() == Lex.Type.SPACES) {
+                    continue;
+                }
+                if (lex.type() == Lex.Type.IDENTIFIER && prior != null) {
+                    final SymbolKind kind;
+                    if (prior.is(Keywords.FN)) {
+                        kind = SymbolKind.Function;
+                    } else if (prior.is(Keywords.LET, Keywords.PIN)) {
+                        kind = SymbolKind.Constant;
+                    } else if (prior.is(Keywords.MUT, Keywords.GLOBAL)) {
+                        kind = SymbolKind.Variable;
+                    } else if (prior.is(Keywords.CLASS)) {
+                        kind = SymbolKind.Class;
+                    } else {
+                        kind = null;
                     }
-                    symbols.add(Either.forRight(symbol));
+                    if (kind != null) {
+                        DocumentSymbol symbol = new DocumentSymbol();
+                        symbol.setName(lex.text());
+                        symbol.setKind(kind);
+                        symbol.setRange(new Range(new Position(prior.startPosition().line - 1, prior.startPosition().column), new Position(lex.startPosition().line - 1, lex.startPosition().column + lex.text().length())));
+                        symbol.setSelectionRange(new Range(new Position(lex.startPosition().line - 1, lex.startPosition().column), new Position(lex.startPosition().line - 1, lex.startPosition().column + lex.text().length())));
+                        symbols.add(Either.forRight(symbol));
+                    }
                 }
                 prior = lex;
             }
@@ -457,18 +475,11 @@ class TuriTextDocumentService implements TextDocumentService {
         });
     }
 
-    @Override
-    public CompletableFuture<DocumentDiagnosticReport> diagnostic(DocumentDiagnosticParams params) {
-        final var diagnostics = new DocumentDiagnosticReport(new RelatedFullDocumentDiagnosticReport());
-
-        // Example diagnostic analysis
-        TextDocumentIdentifier document = params.getTextDocument();
-        // You can implement your actual diagnostic logic here
-        // For now, returning an empty list of diagnostics
-
-        return CompletableFuture.completedFuture(diagnostics);
-    }
-
+    // Pull diagnostics ('textDocument/diagnostic') are intentionally NOT implemented:
+    // this server pushes diagnostics from didOpen/didChange/didSave, and an implemented
+    // but empty pull endpoint would clear the pushed squiggles on clients that negotiate
+    // pull diagnostics. If pull is ever wanted, advertise DiagnosticRegistrationOptions
+    // and return the real syntax analysis here.
 
     @Override
     public CompletableFuture<Either<List<? extends Location>, List<? extends LocationLink>>> definition(DefinitionParams params) {
@@ -481,6 +492,7 @@ class TuriTextDocumentService implements TextDocumentService {
             // first find the thing that we want to find
             String id = null;
             Lex lex = null;
+            boolean found = false;
             while (lexes.hasNext()) {
                 lex = lexes.next();
                 if (lex.type() == Lex.Type.SPACES) {
@@ -492,15 +504,21 @@ class TuriTextDocumentService implements TextDocumentService {
                 } else {
                     id = null;
                 }
-                if (srcLine == pos.line - 1 && lex.startPosition().column - 1 <= srcCharacter && srcCharacter <= pos.column + lex.lexeme().length()) {
+                if (srcLine == pos.line - 1 && pos.column <= srcCharacter && srcCharacter <= pos.column + lex.lexeme().length()) {
+                    found = true;
                     break;
                 }
+            }
+            if (!found) {
+                // the cursor does not cover any token; without this check the last
+                // identifier of the file would be used
+                id = null;
             }
             if (id != null) {
                 lexes.setIndex(0);
                 while (lexes.hasNext()) {
                     final var ref = lexes.next();
-                    if (lex != ref && ref.text().equals(id)) {
+                    if (lex != ref && ref.type() == Lex.Type.IDENTIFIER && ref.text().equals(id)) {
                         final var pos = ref.startPosition();
                         final var location = new Location();
                         location.setUri(uri);
@@ -524,6 +542,7 @@ class TuriTextDocumentService implements TextDocumentService {
             // first find the thing that we want to find
             String id = null;
             Lex prior = null;
+            boolean found = false;
             while (lexes.hasNext()) {
                 final var lex = lexes.next();
                 if (lex.type() == Lex.Type.SPACES) {
@@ -536,17 +555,23 @@ class TuriTextDocumentService implements TextDocumentService {
                     prior = lex;
                     id = null;
                 }
-                if (srcLine == pos.line - 1 && lex.startPosition().column - 1 <= srcCharacter && srcCharacter <= pos.column + lex.lexeme().length()) {
+                if (srcLine == pos.line - 1 && pos.column <= srcCharacter && srcCharacter <= pos.column + lex.lexeme().length()) {
+                    found = true;
                     break;
                 }
                 prior = lex;
+            }
+            if (!found) {
+                // the cursor does not cover any token; without this check the last
+                // identifier of the file would be used
+                id = null;
             }
             final var listUses = prior != null && prior.is(Keywords.FN, Keywords.LET, Keywords.PIN, Keywords.MUT, Keywords.GLOBAL, Keywords.CLASS);
             if (id != null) {
                 lexes.setIndex(0);
                 while (lexes.hasNext()) {
                     final var lex = lexes.next();
-                    if (lex.text().equals(id)) {
+                    if (lex.type() == Lex.Type.IDENTIFIER && lex.text().equals(id)) {
                         final var pos = lex.startPosition();
                         final var location = new Location();
                         location.setUri(uri);
@@ -562,43 +587,31 @@ class TuriTextDocumentService implements TextDocumentService {
         });
     }
 
-    private List<TextEdit> createMinimalEdits(String original, String formatted) {
-        List<TextEdit> edits = new ArrayList<>();
-
-        // Simple approach: find differences line by line
-        String[] originalLines = original.split("\n");
-        String[] formattedLines = formatted.split("\n");
-
-        // Use a diff algorithm or simple comparison
-        for (int i = 0; i < Math.max(originalLines.length, formattedLines.length); i++) {
-            String origLine = i < originalLines.length ? originalLines[i] : "";
-            String formLine = i < formattedLines.length ? formattedLines[i] : "";
-
-            if (!origLine.equals(formLine)) {
-                Position start = new Position(i, 0);
-                Position end = new Position(i, origLine.length());
-                Range range = new Range(start, end);
-
-                TextEdit edit = new TextEdit(range, formLine);
-                edits.add(edit);
-            }
-        }
-        return edits;
+    /**
+     * A single edit replacing the whole document. A line-by-line diff cannot faithfully
+     * represent inserted or deleted lines or trailing blank line changes; a full replacement
+     * is simple, always correct, and standard practice for document formatting.
+     */
+    private static TextEdit fullDocumentReplacement(String original, String formatted) {
+        final String[] originalLines = original.split("\n", -1);
+        final int lastLine = originalLines.length - 1;
+        final var range = new Range(new Position(0, 0), new Position(lastLine, originalLines[lastLine].length()));
+        return new TextEdit(range, formatted);
     }
 
-    private static final SlowStart lexerGate = new SlowStart(Duration.ofMillis(100));
-
+    /**
+     * Lexes the content, returning an empty list when the content is missing or the lexer
+     * fails. Lexing is cheap enough to run per request; it must not be debounced or
+     * single-flighted, because a lost race would fabricate empty results (for semantic
+     * tokens that would clear the editor's highlighting).
+     */
     private static LexList tryAnalyze(final String content, final String uri) {
         if (content == null) return LexList.of();
-        try (final var lease = lexerGate.open()) {
-            if (lease != null) {
-                return Lexer.try_analyze(new Input(new StringBuilder(content), uri));
-            } else {
-                return LexList.of();
-            }
+        try {
+            return Lexer.try_analyze(new Input(new StringBuilder(content), uri));
         } catch (Exception ignore) {
+            return LexList.of();
         }
-        return LexList.of();
     }
 
     @Override
@@ -652,17 +665,17 @@ class TuriTextDocumentService implements TextDocumentService {
 
     @Override
     public CompletableFuture<List<? extends TextEdit>> formatting(DocumentFormattingParams params) {
-        String uri = params.getTextDocument().getUri();
-        String currentContent = documentManager.getContent(uri);
-        if (currentContent == null) {
-            return CompletableFuture.completedFuture(List.of());
-        }
-        // Now format the current content
-        String formattedContent = TuriFormatter.formatDocument(currentContent);
-
-        // Create precise edits instead of replacing everything
-        List<TextEdit> edits = createMinimalEdits(currentContent, formattedContent);
-
-        return CompletableFuture.completedFuture(edits);
+        return CompletableFutures.computeAsync(TuriLanguageServer.VIRTUAL_EXECUTOR, cancelChecker -> {
+            String uri = params.getTextDocument().getUri();
+            String currentContent = documentManager.getContent(uri);
+            if (currentContent == null) {
+                return List.of();
+            }
+            String formattedContent = TuriFormatter.formatDocument(currentContent);
+            if (formattedContent.equals(currentContent)) {
+                return List.of();
+            }
+            return List.of(fullDocumentReplacement(currentContent, formattedContent));
+        });
     }
 }

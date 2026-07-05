@@ -36,7 +36,9 @@ public class Pos {
         this.file = file;
         this.lines = lines;
         line = 1;
-        column = 1;
+        // lines are 1-based, columns are 0-based: Input.skip() resets the column to 0 on
+        // newlines, and the BadSyntax caret rendering repeats '-' column times
+        column = 0;
     }
 
     public Pos(String file, int line, int column, String[] lines) {
