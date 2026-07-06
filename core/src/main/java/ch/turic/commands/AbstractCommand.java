@@ -155,10 +155,23 @@ public abstract class AbstractCommand implements Command, HasFields {
 
 
     public Object execute(final LocalContext ctx) throws ExecutionException {
-        if( ctx.threadContext.isAborted()) {
-            // it is not an execution exception, the thread should stop,
-            // and ExecutionException would be caught by try-catch
-            throw new ExecutionAborted();
+        final var tc = ctx.threadContext;
+        if (tc.isHaltFinal()) {
+            throw tc.finalHaltCause();
+        }
+        if (tc.isAborted()) {
+            if (tc.isGraceActive()) {
+                if (!tc.consumeGraceStep()) {
+                    throw tc.finalHaltCause();
+                }
+                // else: still within the cleanup-grace budget; let this command run
+            } else {
+                // it is not an execution exception, the thread should stop,
+                // and ExecutionException would be caught by try-catch
+                final var abortCause = new ExecutionAborted();
+                tc.noteHalt(abortCause);
+                throw abortCause;
+            }
         }
         final var sf = new LngStackFrame(this);
         final var dc = ctx.threadContext.getDebuggerContext();

@@ -24,6 +24,8 @@ public class GlobalContext {
     // stores the values in volatile variables; see VolatileVariable
     public VarTable heap = new VarTable(true);
     public final int stepLimit;
+    /** Extra steps granted to a finally/exit block after a halt, per thread; 0 disables it. See {@link ThreadContext}. */
+    public final int graceSteps;
     public final AtomicInteger steps = new AtomicInteger();
     private final Map<Class<?>, TuriClass> turiClasses = new HashMap<>();
     Path sourcePath;
@@ -35,7 +37,17 @@ public class GlobalContext {
     public final Set<String> predefinedGlobals = new HashSet<>();
 
     public GlobalContext(int stepLimit) {
+        this(stepLimit, 0);
+    }
+
+    /**
+     * @param stepLimit  the maximum permitted steps, or a negative value for no limit
+     * @param graceSteps extra steps granted to a finally/exit block after a halt fires on a
+     *                   thread of this interpreter, or 0 to disable cleanup grace entirely
+     */
+    public GlobalContext(int stepLimit, int graceSteps) {
         this.stepLimit = stepLimit;
+        this.graceSteps = graceSteps;
     }
 
     public DebuggerContext getDebuggerContext() {

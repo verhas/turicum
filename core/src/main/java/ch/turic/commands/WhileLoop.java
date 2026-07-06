@@ -3,6 +3,7 @@ package ch.turic.commands;
 import ch.turic.Command;
 import ch.turic.commands.operators.Cast;
 import ch.turic.exceptions.ExecutionException;
+import ch.turic.exceptions.InterpreterHalt;
 import ch.turic.memory.LngList;
 import ch.turic.memory.LngObject;
 import ch.turic.memory.LocalContext;
@@ -62,28 +63,41 @@ public class WhileLoop extends Loop {
             initBody.execute(loopContext);
         }
         var wasExecuted = false;
-        while (Cast.toBoolean(startCondition.execute(loopContext))) {
-            wasExecuted = true;
-            final var innerContext = loopContext.wrap();
-            scalarResult = loopCore(body, innerContext, listResult);
-            if (breakLoop(scalarResult)) {
-                if (finallyBody != null) {
-                    final var result = (Conditional.Result) scalarResult;
-                    // will throw if 'it' already exists, user must not define
-                    loopContext.define("it", result.result() == Sentinel.NO_VALUE ? null : result.result());
-                    loopContext.freeze("it");
-                    final var finallyResult = finallyBody.execute(loopContext);
-                    if (finallyResult instanceof Conditional.ReturnResult returnResult && returnResult.isDone()) {
-                        throw new ExecutionException("Must not return/break/continue in finally block of a while loop");
+        try {
+            while (Cast.toBoolean(startCondition.execute(loopContext))) {
+                wasExecuted = true;
+                final var innerContext = loopContext.wrap();
+                scalarResult = loopCore(body, innerContext, listResult);
+                if (breakLoop(scalarResult)) {
+                    if (finallyBody != null) {
+                        final var result = (Conditional.Result) scalarResult;
+                        // will throw if 'it' already exists, user must not define
+                        loopContext.define("it", result.result() == Sentinel.NO_VALUE ? null : result.result());
+                        loopContext.freeze("it");
+                        final var finallyResult = finallyBody.execute(loopContext);
+                        if (finallyResult instanceof Conditional.ReturnResult returnResult && returnResult.isDone()) {
+                            throw new ExecutionException("Must not return/break/continue in finally block of a while loop");
+                        }
                     }
+                    return normalize(scalarResult);
+                } else {
+                    scalarResult = normalize(scalarResult);
                 }
-                return normalize(scalarResult);
-            } else {
-                scalarResult = normalize(scalarResult);
+                if (exitLoop(innerContext)) {
+                    break;
+                }
             }
-            if (exitLoop(innerContext)) {
-                break;
+        } catch (InterpreterHalt halt) {
+            // a halt (step limit / abort) propagated out of the loop body itself - the two
+            // finallyBody invocations above (break path) and below (normal-completion path)
+            // are unreachable in this case, since a Java exception skips straight past them;
+            // this is the loop's only chance to release resources, under a bounded grace
+            // window that can never suppress the halt itself (see beginCleanupGrace())
+            if (finallyBody != null) {
+                context.threadContext.beginCleanupGrace();
+                finallyBody.execute(loopContext);
             }
+            throw halt;
         }
         setVariableIT(loopContext, listResult, scalarResult);
         scalarResult = executeDoneOrOtherwise(wasExecuted, loopContext, scalarResult);

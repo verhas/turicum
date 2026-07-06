@@ -52,6 +52,11 @@ public class WithCommand extends AbstractCommand {
         } catch (ExecutionException e) {
             exception = e;
         } finally {
+            // if a halt (step limit / abort) is propagating through this finally block,
+            // this opens a bounded grace window (a no-op otherwise); see
+            // ThreadContext.beginCleanupGrace() for why this cannot be used to survive
+            // an abort indefinitely
+            context.threadContext.beginCleanupGrace();
             callExitMethods(context, exception, objects, suppressExceptions, closeExceptions);
             throwClosingOnlyExceptionsIfAny(exception, closeExceptions);
         }
@@ -257,7 +262,11 @@ public class WithCommand extends AbstractCommand {
                     final var exitValue = Cast.toBoolean(turiMethod.call(context, new Object[] { param }));
                     suppressExceptions.set(suppressExceptions.get() || exitValue);
                 }
-            } catch (Exception e) {
+            } catch (ExecutionException e) {
+                // deliberately NOT catching plain Exception/RuntimeException here: an
+                // InterpreterHalt (step limit / abort) must propagate untouched, never be
+                // wrapped and stripped of its identity, and never be treated as something
+                // exit()'s return value could suppress
                 closeExceptions.add(new RuntimeException(e));
             }
         }

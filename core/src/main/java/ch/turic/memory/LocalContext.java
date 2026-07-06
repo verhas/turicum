@@ -3,6 +3,7 @@ package ch.turic.memory;
 
 import ch.turic.Context;
 import ch.turic.exceptions.ExecutionException;
+import ch.turic.exceptions.StepLimitReached;
 import ch.turic.exceptions.UndefinedVariable;
 import ch.turic.memory.debugger.ConcurrentWorkItem;
 import ch.turic.memory.debugger.DebuggerContext;
@@ -106,8 +107,22 @@ public class LocalContext implements Context, AutoCloseable {
      * @param stepLimit the number of maximal steps before killing the interpreter
      */
     public LocalContext(int stepLimit) {
-        this.globalContext = new GlobalContext(stepLimit);
+        this(stepLimit, 0);
+    }
+
+    /**
+     * Create a new context with limited steps and a bounded cleanup-grace allowance for
+     * finally/exit blocks to run after a halt (step limit or abort) fires; see
+     * {@link ThreadContext#beginCleanupGrace()}.
+     *
+     * @param stepLimit  the number of maximal steps before killing the interpreter
+     * @param graceSteps extra steps granted to a finally/exit block after a halt, or 0 to
+     *                   disable cleanup grace entirely (the default via {@link #LocalContext(int)})
+     */
+    public LocalContext(int stepLimit, int graceSteps) {
+        this.globalContext = new GlobalContext(stepLimit, graceSteps);
         this.threadContext = new ThreadContext(Thread.currentThread());
+        this.threadContext.setGraceSteps(graceSteps);
         this.globalContext.registerContext(threadContext);
         this.wrapped = null;
         this.frame = globalContext.heap;
@@ -122,6 +137,10 @@ public class LocalContext implements Context, AutoCloseable {
         this.threadContext = threadContext;
         if (threadContext != null) {
             this.globalContext.registerContext(threadContext);
+            // every thread inherits the interpreter-wide grace allowance by default;
+            // there is currently no per-async-block override (mirroring how 'steps=' does
+            // override per-thread, this does not - kept out for now to limit scope)
+            threadContext.setGraceSteps(globalContext.graceSteps);
         }
         this.with = false;
         this.frozen = new HashSet<>();
@@ -777,8 +796,22 @@ public class LocalContext implements Context, AutoCloseable {
     }
 
     public void step() throws ExecutionException {
-        globalContext.step();
-        threadContext.step();
+        if (threadContext.isHaltFinal()) {
+            throw threadContext.finalHaltCause();
+        }
+        if (threadContext.isGraceActive()) {
+            if (threadContext.consumeGraceStep()) {
+                return;
+            }
+            throw threadContext.finalHaltCause();
+        }
+        try {
+            globalContext.step();
+            threadContext.step();
+        } catch (StepLimitReached e) {
+            threadContext.noteHalt(e);
+            throw e;
+        }
     }
 
     public LocalContext caller() {
