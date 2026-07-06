@@ -92,9 +92,9 @@ public class WhileLoop extends Loop {
             // finallyBody invocations above (break path) and below (normal-completion path)
             // are unreachable in this case, since a Java exception skips straight past them;
             // this is the loop's only chance to release resources, under a bounded grace
-            // window that can never suppress the halt itself (see beginCleanupGrace())
+            // window that can never suppress the halt itself (see Grace.beginCleanup())
             if (finallyBody != null) {
-                context.threadContext.beginCleanupGrace();
+                context.threadContext.grace().beginCleanup();
                 finallyBody.execute(loopContext);
             }
             throw halt;

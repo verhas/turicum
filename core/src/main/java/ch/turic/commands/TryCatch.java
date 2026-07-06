@@ -66,9 +66,9 @@ public class TryCatch extends AbstractCommand {
             if (finallyBlock != null) {
                 // if a halt (step limit / abort) is propagating through this finally block,
                 // this opens a bounded grace window (a no-op otherwise); see
-                // ThreadContext.beginCleanupGrace() for why this cannot be used to survive
+                // Grace.beginCleanup() for why this cannot be used to survive
                 // an abort indefinitely
-                context.threadContext.beginCleanupGrace();
+                context.threadContext.grace().beginCleanup();
                 final var finallyResult = finallyBlock.execute(context);
                 if (finallyResult instanceof Conditional.Result returnResult && returnResult.isDone()) {
                     throw new ExecutionException("Must not return/break/continue in finally block of try-catch");

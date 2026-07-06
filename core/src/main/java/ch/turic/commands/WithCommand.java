@@ -54,9 +54,9 @@ public class WithCommand extends AbstractCommand {
         } finally {
             // if a halt (step limit / abort) is propagating through this finally block,
             // this opens a bounded grace window (a no-op otherwise); see
-            // ThreadContext.beginCleanupGrace() for why this cannot be used to survive
+            // Grace.beginCleanup() for why this cannot be used to survive
             // an abort indefinitely
-            context.threadContext.beginCleanupGrace();
+            context.threadContext.grace().beginCleanup();
             callExitMethods(context, exception, objects, suppressExceptions, closeExceptions);
             throwClosingOnlyExceptionsIfAny(exception, closeExceptions);
         }

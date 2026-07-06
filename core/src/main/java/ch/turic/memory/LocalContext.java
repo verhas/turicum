@@ -113,7 +113,7 @@ public class LocalContext implements Context, AutoCloseable {
     /**
      * Create a new context with limited steps and a bounded cleanup-grace allowance for
      * finally/exit blocks to run after a halt (step limit or abort) fires; see
-     * {@link ThreadContext#beginCleanupGrace()}.
+     * {@link Grace#beginCleanup()}.
      *
      * @param stepLimit  the number of maximal steps before killing the interpreter
      * @param graceSteps extra steps granted to a finally/exit block after a halt, or 0 to
@@ -122,7 +122,7 @@ public class LocalContext implements Context, AutoCloseable {
     public LocalContext(int stepLimit, int graceSteps) {
         this.globalContext = new GlobalContext(stepLimit, graceSteps);
         this.threadContext = new ThreadContext(Thread.currentThread());
-        this.threadContext.setGraceSteps(graceSteps);
+        this.threadContext.grace().setSteps(graceSteps);
         this.globalContext.registerContext(threadContext);
         this.wrapped = null;
         this.frame = globalContext.heap;
@@ -140,7 +140,7 @@ public class LocalContext implements Context, AutoCloseable {
             // every thread inherits the interpreter-wide grace allowance by default;
             // there is currently no per-async-block override (mirroring how 'steps=' does
             // override per-thread, this does not - kept out for now to limit scope)
-            threadContext.setGraceSteps(globalContext.graceSteps);
+            threadContext.grace().setSteps(globalContext.graceSteps);
         }
         this.with = false;
         this.frozen = new HashSet<>();
@@ -796,20 +796,21 @@ public class LocalContext implements Context, AutoCloseable {
     }
 
     public void step() throws ExecutionException {
-        if (threadContext.isHaltFinal()) {
-            throw threadContext.finalHaltCause();
+        final var grace = threadContext.grace();
+        if (grace.isFinal()) {
+            throw grace.finalCause();
         }
-        if (threadContext.isGraceActive()) {
-            if (threadContext.consumeGraceStep()) {
+        if (grace.isActive()) {
+            if (grace.consumeStep()) {
                 return;
             }
-            throw threadContext.finalHaltCause();
+            throw grace.finalCause();
         }
         try {
             globalContext.step();
             threadContext.step();
         } catch (StepLimitReached e) {
-            threadContext.noteHalt(e);
+            grace.noteHalt(e);
             throw e;
         }
     }

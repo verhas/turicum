@@ -1,8 +1,6 @@
 package ch.turic.memory;
 
-import ch.turic.exceptions.ExecutionAborted;
 import ch.turic.exceptions.ExecutionException;
-import ch.turic.exceptions.InterpreterHalt;
 import ch.turic.exceptions.StepLimitReached;
 import ch.turic.memory.debugger.DebuggerContext;
 
@@ -284,124 +282,20 @@ public class ThreadContext {
         }
     }
 
-    // ---------------------------------------------------------------------------------
-    // Bounded cleanup grace: lets a finally/exit block release resources after an
-    // InterpreterHalt (step limit or abort), without reopening the "a hostile cleanup
-    // block hangs the thread forever" hole that motivated making halts uncatchable in
-    // the first place.
-    //
-    // The model is the same one process supervisors use for shutdown: the halt fires
-    // (equivalent of SIGTERM), one bounded, ONE-SHOT grace window is granted across the
-    // *whole* unwind (not per try/finally frame - an outer cleanup block does not get a
-    // second window just because an inner one already used the first), and once that
-    // budget is spent the halt becomes final and unconditional (equivalent of SIGKILL):
-    // every further step()/execute() call throws immediately, forever, and no further
-    // grace can ever be granted on this thread. The effective ceiling is therefore
-    // stepLimit + graceSteps, fixed and known in advance - not a weaker guarantee than
-    // today, just a documented larger one.
-    //
-    // With graceSteps left at its default of 0 (disabled), beginCleanupGrace() is always
-    // a no-op and isGraceActive()/isHaltFinal() are never true: zero behavior change for
-    // callers that do not opt in.
-    // ---------------------------------------------------------------------------------
-
-    /** Extra steps of grace granted once a halt fires; 0 (the default) disables the feature. */
-    private int graceSteps = 0;
-    /** {@code true} once ANY {@link InterpreterHalt} has been observed on this thread. */
-    private volatile boolean haltTriggered = false;
-    /** One-shot latch: the grace window has been opened for this thread's current unwind. */
-    private volatile boolean graceGranted = false;
-    /** Steps left in the grace window; meaningful only while {@link #graceGranted} is true. */
-    private volatile int graceRemaining = 0;
-    /** Once true, every further check throws immediately and unconditionally; never reset. */
-    private volatile boolean haltFinal = false;
-    /** The first halt observed on this thread; reused (not rebuilt) for every later throw. */
-    private volatile RuntimeException haltCause = null;
+    /**
+     * The bounded cleanup-grace state for this thread; see {@link Grace} for the full
+     * rationale. Disabled by default (0 steps) — a no-op unless explicitly configured via
+     * {@code grace().setSteps(...)}.
+     */
+    private final Grace grace = new Grace();
 
     /**
-     * Sets the number of extra steps a finally/exit block is allowed to run after this
-     * thread has been halted. 0 (the default) disables cleanup grace entirely.
-     *
-     * @param graceSteps the grace budget in steps, or 0 to disable
+     * @return this thread's {@link Grace} tracker, consulted by {@code AbstractCommand.execute}
+     * and {@code LocalContext.step}, and armed by {@code TryCatch}, {@code WithCommand}, and
+     * {@code WhileLoop} immediately before running a finally/exit body
      */
-    public void setGraceSteps(int graceSteps) {
-        this.graceSteps = graceSteps;
-    }
-
-    /**
-     * Records the first {@link InterpreterHalt} observed on this thread. Idempotent: only
-     * the first call has any effect, so it is safe to call on every halt, not just the
-     * first one — later halts (e.g. a step limit re-tripping because it is never reset)
-     * do not overwrite the originally captured cause.
-     *
-     * @param cause the halt that is about to be (re)thrown
-     */
-    public void noteHalt(RuntimeException cause) {
-        haltTriggered = true;
-        if (haltCause == null) {
-            haltCause = cause;
-        }
-    }
-
-    /**
-     * Opens a bounded cleanup-grace window, if this thread is actually halting, grace is
-     * configured, and a window has not already been granted during this unwind. Called by
-     * the runtime immediately before running a finally/exit body (see {@code TryCatch},
-     * {@code WithCommand}, {@code WhileLoop}); safe to call unconditionally, including
-     * when no halt is in progress or grace is disabled — in either case it is a no-op, so
-     * ordinary (non-halting) execution of a finally/exit block is entirely unaffected.
-     */
-    public void beginCleanupGrace() {
-        if (haltFinal || graceGranted || graceSteps <= 0 || !haltTriggered) {
-            return;
-        }
-        graceGranted = true;
-        graceRemaining = graceSteps;
-    }
-
-    /**
-     * @return {@code true} if this thread is currently inside a granted, not-yet-exhausted
-     * cleanup-grace window
-     */
-    public boolean isGraceActive() {
-        return graceGranted && graceRemaining > 0;
-    }
-
-    /**
-     * Consumes one unit of the grace budget.
-     *
-     * @return {@code true} if the caller may proceed with one more step of cleanup code;
-     * {@code false} if the budget just ran out — the caller must halt immediately, via
-     * {@link #finalHaltCause()}, and must not attempt any further cleanup
-     */
-    public boolean consumeGraceStep() {
-        if (graceRemaining <= 0) {
-            haltFinal = true;
-            return false;
-        }
-        graceRemaining--;
-        return true;
-    }
-
-    /**
-     * @return {@code true} if the halt on this thread is now final and unconditional: no
-     * further code, including further cleanup blocks anywhere up the call stack, may run
-     */
-    public boolean isHaltFinal() {
-        return haltFinal;
-    }
-
-    /**
-     * Marks the halt as final (idempotent) and returns the exception to throw. Reuses the
-     * originally captured halt cause rather than constructing a new one, so the message
-     * seen by the program is always the reason it was halted in the first place, whether
-     * or not a cleanup grace window was granted or exhausted along the way.
-     *
-     * @return the {@link InterpreterHalt} to throw, unconditionally and immediately
-     */
-    public RuntimeException finalHaltCause() {
-        haltFinal = true;
-        return haltCause != null ? haltCause : new ExecutionAborted();
+    public Grace grace() {
+        return grace;
     }
 
 }
