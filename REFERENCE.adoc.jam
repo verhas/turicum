@@ -139,6 +139,9 @@ Better, use the Maven extension of Turicum and specify the project using `pom.tu
 For an example, see the `cli/pom.turi` project definition.
 It is the command line version of Turicum that depends on the core library.
 
+An embedder controls how much a Turicum program is allowed to run through the `LocalContext` constructor: a step limit bounds total execution, and an optional bounded grace allowance lets `finally`/`with` cleanup code run for a little while after that limit (or an external abort) fires, without being able to run forever — see <<cleanup-after-halt>>.
+Richer embedding and sandboxing APIs, including limiting a program's access to the JDK and system resources, are under active development.
+
 === Design Goals and Philosophy
 
 Turicum was designed with the following principles:
@@ -1997,6 +2000,7 @@ In the second case the calculation was limited.
 The task will stop after this many steps.
 When a task exceeds the step limit the task `is_done()` and `is_err()` methods will return `true`.
 The error message will indicate the step limit that was reached.
+See <<cleanup-after-halt>> for what happens to `finally`/`with` cleanup code when the step limit is reached (or the task is aborted from outside).
 
 {%S async_step_limit%}
 
@@ -2847,6 +2851,39 @@ The value of the try-catch command is
 
 The command after the `finally` keyword does not affect the result of the command.
 It is an error to execute a `return`, `break` or `continue` inside the `finally` block.
+
+[[cleanup-after-halt]]
+==== Cleanup After a Halt (Step Limit / Abort)
+
+Two things can stop a Turicum program in a way that ordinary Turicum code cannot catch, suppress, or delay: the *step limit* being reached (see the `steps` option of `async`, above, and the embedder-configured interpreter-wide limit), and an *abort* requested from outside the program (for example, a supervising thread cancelling a task).
+Both are enforced at the language boundary, deliberately bypassing `try`/`catch` entirely — a program running under a step limit must not be able to catch the limit and keep going, since that would defeat the whole point of using it as a sandboxing tool.
+
+By default, this means a `finally` block (or a `with` block's `exit()` method) does not get a chance to do anything when one of these events happens: its very first statement hits the same limit and stops immediately, before it can, for example, close a file handle or release a lock.
+The one exception is `mutex`/`sync`, whose release is implemented directly in the host language below the interpreter loop, and is therefore unaffected by any of this.
+
+An embedder can opt in to a bounded *cleanup grace* period: a small, fixed number of extra steps that a `finally`/`exit()` block is allowed to spend releasing resources after a halt, before the halt becomes final.
+This is configured on the Java side, not from Turicum source, since it is a property of how the interpreter is embedded rather than of the language itself:
+
+[source,java]
+----
+// stepLimit:  the normal execution budget
+// graceSteps: extra steps a finally/exit block may spend cleaning up after a halt fires
+LocalContext ctx = new LocalContext(stepLimit, graceSteps);
+----
+
+With `graceSteps` left at its default of `0`, behavior is unchanged: cleanup blocks never run after a halt.
+Configuring it grants a strictly bounded window, with three guarantees that keep it from reopening the hole the step limit exists to close:
+
+* The grace budget is spent once, across the *whole* unwind — not once per `try`/`finally` or `with` block.
+If a `finally` is nested inside another `finally`, the two share the same allowance; the outer one does not get a fresh window just because the inner one already used its share.
+
+* Once the budget runs out, the halt becomes final and unconditional: no further Turicum code runs at all, including any other cleanup block still waiting its turn.
+There is no way to be granted a second grace period.
+
+* A `finally` or `exit()` cannot suppress a halt.
+`exit()` returning `true` normally tells `with` to swallow an exception; during a halt this has no effect at all — the halt propagates regardless of what the cleanup code returns.
+
+The effective ceiling on a program's execution is therefore `stepLimit + graceSteps`, fixed and known in advance — the same shape as the SIGTERM-then-SIGKILL pattern used by process supervisors: the halt fires, a bounded interval is granted for a clean shutdown, and if that is not enough, termination happens unconditionally.
 
 == Decorators, Metaprogramming
 

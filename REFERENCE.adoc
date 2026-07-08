@@ -112,6 +112,9 @@ Better, use the Maven extension of Turicum and specify the project using `pom.tu
 For an example, see the `cli/pom.turi` project definition.
 It is the command line version of Turicum that depends on the core library.
 
+An embedder controls how much a Turicum program is allowed to run through the `LocalContext` constructor: a step limit bounds total execution, and an optional bounded grace allowance lets `finally`/`with` cleanup code run for a little while after that limit (or an external abort) fires, without being able to run forever — see <<cleanup-after-halt>>.
+Richer embedding and sandboxing APIs, including limiting a program's access to the JDK and system resources, are under active development.
+
 === Design Goals and Philosophy
 
 Turicum was designed with the following principles:
@@ -1679,15 +1682,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=784ABD3E
+h id=1457FDE
 h after post increment: 1
 k: 0
-h id=36C2B646
-k id=784ABD3E
+h id=6F94FB9D
+k id=1457FDE
 h after pre increment: 2
 z: 2
-h id=434514D8
-z id=434514D8
+h id=17FA1336
+z id=17FA1336
 
 ----
 
@@ -1733,15 +1736,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=EC8F4B9
+h id=671D1157
 h after post increment: 1
 k: 1
-h id=EC8F4B9
-k id=EC8F4B9
+h id=671D1157
+k id=671D1157
 h after pre increment: 2
 z: 2
-h id=EC8F4B9
-z id=EC8F4B9
+h id=671D1157
+z id=671D1157
 
 ----
 
@@ -1790,15 +1793,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=103082DD
+h id=3FE46690
 h after post decrement: -1
 k: 0
-h id=3A22BAD6
-k id=103082DD
+h id=4BEABEEC
+k id=3FE46690
 h after pre decrement: -2
 z: -2
-h id=56AFDF9A
-z id=56AFDF9A
+h id=3B4D50B
+z id=3B4D50B
 
 ----
 
@@ -1841,15 +1844,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=77EC6A3D
+h id=7CD4A4D7
 h after post decrement: -1
 k: -1
-h id=77EC6A3D
-k id=77EC6A3D
+h id=7CD4A4D7
+k id=7CD4A4D7
 h after pre decrement: -2
 z: -2
-h id=77EC6A3D
-z id=77EC6A3D
+h id=7CD4A4D7
+z id=7CD4A4D7
 
 ----
 
@@ -5552,8 +5555,8 @@ execute("Thread 2",2)
 ----
  prime read 2
 Thread 1 generated 3
- prime read 3
-Thread 1 generated 5
+Thread 1 prime read  generated 3
+5
  prime read 5
 Thread 1 generated 7
  prime read 7
@@ -5564,12 +5567,12 @@ Thread 1 generated 19
 Thread 1 generated 23
 stopping
 exception Task stopped.
-Thread 2 generated 3
  prime read 2
+Thread 2 generated 3
  prime read 3
 Thread 2 generated 5
-Thread 2 generated 7
  prime read 5
+Thread 2 generated 7
  prime read 7
 Thread 2 generated 11
 Thread 2 generated 13
@@ -5588,6 +5591,7 @@ In the second case the calculation was limited.
 The task will stop after this many steps.
 When a task exceeds the step limit the task `is_done()` and `is_err()` methods will return `true`.
 The error message will indicate the step limit that was reached.
+See <<cleanup-after-halt>> for what happens to `finally`/`with` cleanup code when the step limit is reached (or the task is aborted from outside).
 
 .source of snippet `async_step_limit`
 
@@ -5716,9 +5720,9 @@ fn sleeper( x ){
 [source]
 ----
 [1, 2, 3]
-312.544458ms
+312.445833ms
 [1, 2, 3]
-106.881ms
+102.09675ms
 
 ----
 
@@ -7999,7 +8003,7 @@ try4.turi:2:3
 source: try{
 try4.turi:2:0
 source: try{
-try4.turi:1:1
+try4.turi:1:0
 source: mut error: err | none
 
 ----
@@ -8042,6 +8046,39 @@ The value of the try-catch command is
 
 The command after the `finally` keyword does not affect the result of the command.
 It is an error to execute a `return`, `break` or `continue` inside the `finally` block.
+
+[[cleanup-after-halt]]
+==== Cleanup After a Halt (Step Limit / Abort)
+
+Two things can stop a Turicum program in a way that ordinary Turicum code cannot catch, suppress, or delay: the *step limit* being reached (see the `steps` option of `async`, above, and the embedder-configured interpreter-wide limit), and an *abort* requested from outside the program (for example, a supervising thread cancelling a task).
+Both are enforced at the language boundary, deliberately bypassing `try`/`catch` entirely — a program running under a step limit must not be able to catch the limit and keep going, since that would defeat the whole point of using it as a sandboxing tool.
+
+By default, this means a `finally` block (or a `with` block's `exit()` method) does not get a chance to do anything when one of these events happens: its very first statement hits the same limit and stops immediately, before it can, for example, close a file handle or release a lock.
+The one exception is `mutex`/`sync`, whose release is implemented directly in the host language below the interpreter loop, and is therefore unaffected by any of this.
+
+An embedder can opt in to a bounded *cleanup grace* period: a small, fixed number of extra steps that a `finally`/`exit()` block is allowed to spend releasing resources after a halt, before the halt becomes final.
+This is configured on the Java side, not from Turicum source, since it is a property of how the interpreter is embedded rather than of the language itself:
+
+[source,java]
+----
+// stepLimit:  the normal execution budget
+// graceSteps: extra steps a finally/exit block may spend cleaning up after a halt fires
+LocalContext ctx = new LocalContext(stepLimit, graceSteps);
+----
+
+With `graceSteps` left at its default of `0`, behavior is unchanged: cleanup blocks never run after a halt.
+Configuring it grants a strictly bounded window, with three guarantees that keep it from reopening the hole the step limit exists to close:
+
+* The grace budget is spent once, across the *whole* unwind — not once per `try`/`finally` or `with` block.
+If a `finally` is nested inside another `finally`, the two share the same allowance; the outer one does not get a fresh window just because the inner one already used its share.
+
+* Once the budget runs out, the halt becomes final and unconditional: no further Turicum code runs at all, including any other cleanup block still waiting its turn.
+There is no way to be granted a second grace period.
+
+* A `finally` or `exit()` cannot suppress a halt.
+`exit()` returning `true` normally tells `with` to swallow an exception; during a halt this has no effect at all — the halt propagates regardless of what the cleanup code returns.
+
+The effective ceiling on a program's execution is therefore `stepLimit + graceSteps`, fixed and known in advance — the same shape as the SIGTERM-then-SIGKILL pattern used by process supervisors: the halt fires, a bounded interval is granted for a clean shutdown, and if that is not enough, termination happens unconditionally.
 
 == Decorators, Metaprogramming
 
@@ -11846,8 +11883,8 @@ println jsonify_beauty(java_import("ch.turic.exceptions"))
     "StringNotTerminated": JavaClass[klass=class ch.turic.exceptions.StringNotTerminated],
     "ch.turic.exceptions.BadSyntax": JavaClass[klass=class ch.turic.exceptions.BadSyntax],
     "UndefinedVariable": JavaClass[klass=class ch.turic.exceptions.UndefinedVariable],
-    "ch.turic.exceptions.ExecutionAborted": JavaClass[klass=class ch.turic.exceptions.ExecutionAborted],
-    "ExecutionException": JavaClass[klass=class ch.turic.exceptions.ExecutionException]
+    "ExecutionException": JavaClass[klass=class ch.turic.exceptions.ExecutionException],
+    "ch.turic.exceptions.ExecutionAborted": JavaClass[klass=class ch.turic.exceptions.ExecutionAborted]
 }
 
 ----
@@ -11926,6 +11963,7 @@ The implemented conversions are listed below.
 * `ObjIntConsumer`
 * `ObjLongConsumer`
 * `Predicate`
+* `Runnable`
 * `Supplier`
 * `ToDoubleBiFunction`
 * `ToDoubleFunction`
@@ -12395,7 +12433,7 @@ println nano_time()
 .output of snippet `nano_time`
 [source]
 ----
-1074530606044291
+1286516077220750
 
 ----
 
@@ -12674,38 +12712,40 @@ none
 task1 is not ready 0
 task2 is ready 1
 task2 is not ready 0
-task2 is not ready 1
 task1 is not ready 1
+task2 is not ready 1
 task1 is not ready 2task2 is not ready 2
 
 task2 is not ready 3
 task1 is not ready 3
-task2 is not ready 4task1 is ready 2
-
-task1 is not ready 0
-task1 is not ready 1task2 is not ready 5
-
-task2 is not ready 6
-task1 is ready 3
-task1 is not ready 0
-task2 is not ready 7
-task1 is not ready 1
-task2 is not ready 8
-task1 is not ready 2
-task2 is ready 4
-task1 is not ready 3
+task2 is ready 2
+task1 is not ready 4
 task2 is not ready 0
 task2 is not ready 1
-task1 is not ready 4
 task1 is not ready 5
-task2 is not ready 2
 task1 is not ready 6
+task2 is not ready 2
+task1 is not ready 7
+task2 is ready 3
+task2 is not ready 0
+task2 is not ready 1
+task1 is not ready 8
+task2 is not ready 2
+task1 is not ready 9
+task2 is ready 4
+task2 is not ready 0
+task1 is not ready 10
+task2 is not ready 1
+task1 is not ready 11
+task2 is not ready 2
+task1 is not ready 12
+task1 is not ready 13
 task2 is not ready 3
 task1 is ready 5
-task1 is not ready 0
 task2 is not ready 4
-task2 is not ready 5task1 is not ready 1
-
+task1 is not ready 0
+task2 is not ready 5
+task1 is not ready 1
 task2 is not ready 6
 task1 is not ready 2
 task2 is ready 6
@@ -12718,23 +12758,25 @@ task2 is not ready 2
 task1 is ready 7
 task2 is not ready 3
 task1 is not ready 0
-task2 is not ready 4task1 is not ready 1
-
-task2 is not ready 5task1 is not ready 2
-
-task2 is not ready 6task1 is ready 8
-
-task1 is not ready 0
-task2 is not ready 7
+task2 is not ready 4
 task1 is not ready 1
 task1 is not ready 2
+task2 is not ready 5
+task2 is not ready 6
+task1 is not ready 3
+task1 is ready 8
+task2 is not ready 7
+task1 is not ready 0
 task2 is not ready 8
+task1 is not ready 1
+task1 is not ready 2
 task2 is not ready 9
+task2 is not ready 10
 task1 is ready 9
 task1 is not ready 0
-task2 is not ready 10
 task1 is not ready 1
 task2 is not ready 11
+task2 is not ready 12
 task1 is not ready 2
 closing the channel
 channel is closed
@@ -12743,7 +12785,7 @@ channel is closed
 we start to wait the first time
 task2 is done
 task1 is done
-task1 done false
+task1 done true
 task2 done true
 We start to wait the second time
 task1 done true
@@ -13289,7 +13331,7 @@ println sleep(0.001) // sleep one milli
 .output of snippet `sleep`
 [source]
 ----
-0.001
+0.002
 
 ----
 
@@ -13764,7 +13806,6 @@ not ready 0
 received 1
 not ready 0
 not ready 1
-not ready 2
 sending 2
 received 2
 not ready 0
@@ -13774,6 +13815,7 @@ sending 3
 received 3
 not ready 0
 not ready 1
+not ready 2
 closing the channel
 channel is closed
 is done false
