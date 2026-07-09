@@ -1,10 +1,10 @@
 package ch.turic.builtins.functions;
 
 import ch.turic.Context;
-import ch.turic.exceptions.ExecutionException;
 import ch.turic.TuriFunction;
 import ch.turic.commands.ClosureLike;
 import ch.turic.commands.ParameterList;
+import ch.turic.exceptions.ExecutionException;
 import ch.turic.memory.*;
 
 import java.lang.reflect.Field;
@@ -38,6 +38,8 @@ end snippet */
  * <li> If it is a class, then the keys are the class-level fields, including those that have closure value, hence are class methods.
  * <li> If it is an object, then the list contains the fields.
  * <li> If it is a macro, a closure, or a function, then it will return the parameter names.
+ * <p>
+ * This function returns only the names that are not veiled (are visible).
  *
  * <pre>{@code
  * class A {
@@ -82,6 +84,9 @@ public class Keys implements TuriFunction {
                 result.addAll(
                         Arrays.stream(closure.parameters().parameters())
                                 .map(ParameterList.Parameter::identifier).toList());
+                addIfNotNull(closure.parameters().meta(),result);
+                addIfNotNull(closure.parameters().rest(),result);
+                addIfNotNull(closure.parameters().closure(),result);
                 yield result;
             }
             case HasFields fields -> {
@@ -95,5 +100,11 @@ public class Keys implements TuriFunction {
                 yield result;
             }
         };
+    }
+
+    private static void addIfNotNull(String key, LngList list) {
+        if (key != null) {
+            list.add(key);
+        }
     }
 }

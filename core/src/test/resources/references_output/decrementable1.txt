@@ -1,10 +1,10 @@
 h original: 0
-h id=6CD5122D
+h id=14823F76
 h after post decrement: -1
 k: 0
-h id=2C7A8AF2
-k id=6CD5122D
+h id=6917BB4
+k id=14823F76
 h after pre decrement: -2
 z: -2
-h id=10C07B8D
-z id=10C07B8D
+h id=6ED16657
+z id=6ED16657

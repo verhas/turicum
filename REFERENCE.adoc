@@ -1682,15 +1682,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=1457FDE
+h id=48B4A043
 h after post increment: 1
 k: 0
-h id=6F94FB9D
-k id=1457FDE
+h id=2F5B8250
+k id=48B4A043
 h after pre increment: 2
 z: 2
-h id=17FA1336
-z id=17FA1336
+h id=4821AA9F
+z id=4821AA9F
 
 ----
 
@@ -1736,15 +1736,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=671D1157
+h id=4996C99
 h after post increment: 1
 k: 1
-h id=671D1157
-k id=671D1157
+h id=4996C99
+k id=4996C99
 h after pre increment: 2
 z: 2
-h id=671D1157
-z id=671D1157
+h id=4996C99
+z id=4996C99
 
 ----
 
@@ -1793,15 +1793,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=3FE46690
+h id=79FD6F95
 h after post decrement: -1
 k: 0
-h id=4BEABEEC
-k id=3FE46690
+h id=48840594
+k id=79FD6F95
 h after pre decrement: -2
 z: -2
-h id=3B4D50B
-z id=3B4D50B
+h id=49C675F0
+z id=49C675F0
 
 ----
 
@@ -1844,15 +1844,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=7CD4A4D7
+h id=1442F788
 h after post decrement: -1
 k: -1
-h id=7CD4A4D7
-k id=7CD4A4D7
+h id=1442F788
+k id=1442F788
 h after pre decrement: -2
 z: -2
-h id=7CD4A4D7
-z id=7CD4A4D7
+h id=1442F788
+z id=1442F788
 
 ----
 
@@ -2486,41 +2486,41 @@ If the expression is missing, the value will be `none`, and the variable is defi
 There can be multiple `identifier: type = expression` after the `let` keyword, comma-separated.
 There are predefined type names.
 
-* `bool`
+case Types.BOOL -> new Variable.Type(Boolean.class, null, new Identifier(name));
  boolean type
-* `str`
+case Types.STR -> new Variable.Type(String.class, null, new Identifier(name));
  string
-* `num`
+case Types.NUM -> new Variable.Type(Number.class, null, new Identifier(name));
  any numeric type, integer or float
-* `int`
+case Types.INT -> new Variable.Type(Long.class, null, new Identifier(name));
  any integer type
-* `float`
+case Types.FLOAT -> new Variable.Type(Double.class, null, new Identifier(name));
  float type
-* `any`
+case Types.ANY -> new Variable.Type(null, null, new Identifier(name));
  the variable can hold any value
-* `obj`
+case Types.OBJ -> new Variable.Type(LngObject.class, null, new Identifier(name));
  the variable can hold any object without restriction on the class of that object
-* `lst`
+case Types.LST -> new Variable.Type(LngList.class, null, new Identifier(name));
  the variable has to be a list
-* `que`
+case Types.QUE -> new Variable.Type(Channel.class, null, new Identifier(name));
  the variable has to be a queue
-* `task`
+case Types.TASK -> new Variable.Type(AsyncStreamHandler.class, null, new Identifier(name));
  the variable has to be an asynchronous task
-* `mtx`
+case Types.MTX -> new Variable.Type(LngMutex.class, null, new Identifier(name));
  the variable has to be a mutex
-* `atm`
+case Types.ATM -> new Variable.Type(LngAtomic.class, null, new Identifier(name));
  the variable has to be an atomic cell
-* `err`
+case Types.ERR -> new Variable.Type(LngException.class, null, new Identifier(name));
  the variable has to be an asynchronous task
-* `cls`
+case Types.CLS -> new Variable.Type(LngClass.class, null, new Identifier(name));
  the variable has to be a class
-* `fn`
+case Types.FN -> new Variable.Type(Closure.class, null, new Identifier(name));
  the variable value has to be a function of closure
-* `macro`
+case Types.MACRO -> new Variable.Type(Macro.class, null, new Identifier(name));
  the variable value has to be a macro
-* `none`
+case Types.NONE -> new Variable.Type(NoneType.class, null, new Identifier(name));
  the variable can hold the value `none`
-* `some`
+case Types.SOME -> new Variable.Type(SomeType.class, null, new Identifier(name));
  the variable can hold any value, except `none`
 
 
@@ -5555,11 +5555,11 @@ execute("Thread 2",2)
 ----
  prime read 2
 Thread 1 generated 3
-Thread 1 prime read  generated 3
-5
+ prime read 3
+Thread 1 generated 5
  prime read 5
-Thread 1 generated 7
- prime read 7
+Thread 1 generated  prime read 7
+7
 Thread 1 generated 11
 Thread 1 generated 13
 Thread 1 generated 17
@@ -5567,12 +5567,12 @@ Thread 1 generated 19
 Thread 1 generated 23
 stopping
 exception Task stopped.
- prime read 2
 Thread 2 generated 3
+ prime read 2
  prime read 3
 Thread 2 generated 5
- prime read 5
 Thread 2 generated 7
+ prime read 5
  prime read 7
 Thread 2 generated 11
 Thread 2 generated 13
@@ -5720,9 +5720,9 @@ fn sleeper( x ){
 [source]
 ----
 [1, 2, 3]
-312.445833ms
+315.306ms
 [1, 2, 3]
-102.09675ms
+108.561584ms
 
 ----
 
@@ -11498,7 +11498,7 @@ println jsonify_beauty(glob("**/test-classes/**/*.class", recursive=true)[0..3])
 [
     "target/test-classes/ch/turic/TestJavaDocSnippets.class",
     "target/test-classes/ch/turic/TestJavaFields.class",
-    "target/test-classes/ch/turic/TestRun.class"
+    "target/test-classes/ch/turic/TestTuriParameters$AnnotatedBuiltin.class"
 ]
 
 ----
@@ -11513,8 +11513,6 @@ which otherwise exports multiple functions and classes.
 
 [source]
 ----
-sys_import "turi.io", "glob"
-
 println jsonify_beauty(glob("*"))
 
 ----
@@ -11879,8 +11877,8 @@ println jsonify_beauty(java_import("ch.turic.exceptions"))
     "ch.turic.exceptions.UnexpectedCharacter": JavaClass[klass=class ch.turic.exceptions.UnexpectedCharacter],
     "ch.turic.exceptions.InterpreterHalt": JavaClass[klass=class ch.turic.exceptions.InterpreterHalt],
     "UnexpectedCharacter": JavaClass[klass=class ch.turic.exceptions.UnexpectedCharacter],
-    "StepLimitReached": JavaClass[klass=class ch.turic.exceptions.StepLimitReached],
     "StringNotTerminated": JavaClass[klass=class ch.turic.exceptions.StringNotTerminated],
+    "StepLimitReached": JavaClass[klass=class ch.turic.exceptions.StepLimitReached],
     "ch.turic.exceptions.BadSyntax": JavaClass[klass=class ch.turic.exceptions.BadSyntax],
     "UndefinedVariable": JavaClass[klass=class ch.turic.exceptions.UndefinedVariable],
     "ExecutionException": JavaClass[klass=class ch.turic.exceptions.ExecutionException],
@@ -12276,7 +12274,7 @@ println keys(BigDecimal("0"))
 [source]
 ----
 [zibabwa, z, cls, k] of A
-[a, b, shia] of A.zibabwa
+[a, b, shia, ta] of A.zibabwa
 [this, cls] of k
 [f, y, z] of uu
 [ZERO, ROUND_DOWN, ROUND_UNNECESSARY, ROUND_CEILING, ROUND_HALF_DOWN, ROUND_HALF_UP, ONE, ROUND_UP, ROUND_FLOOR, ROUND_HALF_EVEN, TEN, TWO]
@@ -12433,7 +12431,7 @@ println nano_time()
 .output of snippet `nano_time`
 [source]
 ----
-1286516077220750
+122111529945208
 
 ----
 
@@ -12712,79 +12710,79 @@ none
 task1 is not ready 0
 task2 is ready 1
 task2 is not ready 0
+task2 is not ready 1
 task1 is not ready 1
-task2 is not ready 1
-task1 is not ready 2task2 is not ready 2
+task2 is not ready 2
+task1 is not ready 2
+task1 is not ready 3task2 is not ready 3
 
-task2 is not ready 3
-task1 is not ready 3
-task2 is ready 2
-task1 is not ready 4
+task1 is ready 2
+task2 is not ready 4
+task1 is not ready 0
+task2 is not ready 5
+task1 is not ready 1
+task1 is not ready 2task2 is not ready 6
+
+task2 is ready 3task1 is not ready 3
+
 task2 is not ready 0
-task2 is not ready 1
-task1 is not ready 5
-task1 is not ready 6
-task2 is not ready 2
-task1 is not ready 7
-task2 is ready 3
-task2 is not ready 0
-task2 is not ready 1
-task1 is not ready 8
-task2 is not ready 2
-task1 is not ready 9
+task2 is not ready 1task1 is not ready 4
+
+task1 is not ready 5task2 is not ready 2
+
 task2 is ready 4
 task2 is not ready 0
-task1 is not ready 10
+task1 is not ready 6
+task1 is not ready 7
 task2 is not ready 1
-task1 is not ready 11
-task2 is not ready 2
-task1 is not ready 12
-task1 is not ready 13
+task2 is not ready 2task1 is not ready 8
+
 task2 is not ready 3
+task1 is not ready 9
 task1 is ready 5
 task2 is not ready 4
 task1 is not ready 0
-task2 is not ready 5
 task1 is not ready 1
-task2 is not ready 6
+task2 is not ready 5
 task1 is not ready 2
-task2 is ready 6
-task1 is not ready 3
-task2 is not ready 0
-task1 is not ready 4
-task2 is not ready 1
-task1 is not ready 5
-task2 is not ready 2
-task1 is ready 7
-task2 is not ready 3
+task2 is not ready 6
+task1 is ready 6
 task1 is not ready 0
-task2 is not ready 4
-task1 is not ready 1
-task1 is not ready 2
-task2 is not ready 5
-task2 is not ready 6
-task1 is not ready 3
-task1 is ready 8
 task2 is not ready 7
-task1 is not ready 0
-task2 is not ready 8
 task1 is not ready 1
+task2 is not ready 8
 task1 is not ready 2
 task2 is not ready 9
-task2 is not ready 10
-task1 is ready 9
+task1 is ready 7
 task1 is not ready 0
+task2 is not ready 10
 task1 is not ready 1
 task2 is not ready 11
-task2 is not ready 12
 task1 is not ready 2
+task2 is not ready 12
+task1 is not ready 3
+task2 is not ready 13
+task1 is ready 8
+task1 is not ready 0
+task2 is not ready 14
+task1 is not ready 1
+task2 is not ready 15
+task1 is not ready 2
+task2 is not ready 16
+task2 is ready 9
+task1 is not ready 3
+task2 is not ready 0
+task2 is not ready 1
+task1 is not ready 4
+task2 is not ready 2
+task1 is not ready 5
 closing the channel
 channel is closed
 1 is done false
 2 is done false
 we start to wait the first time
-task2 is done
 task1 is done
+task2 is done
 task1 done true
 task2 done true
 We start to wait the second time
@@ -13113,19 +13111,19 @@ matches because we find and not match
 
 
 
-You can create a regular expression object using `Re()`.
+You can create a regular expression object using `Re(pattern)` or `Re(pattern, flags)`.
 It has two methods:
 
 * `match()` to match the whole string passed as argument, and
 
-* `find()` to find a matching string in the string.
+* `find()` to find a matching substring in the string.
 
 If there is no match, the return value is an empty object.
 If there is a match, then the return value is an object containing the matching groups.
 
-Even if there are no matching groups the object is not empty as it will have an empty list field named `group`.
+Even if there are no matching groups, the object is not empty as it will have an empty list field named `group`.
 
-You can also use named arguments, that will get into the field `name`.
+You can also use named arguments that will get into the field `name`.
 In the example above that field was empty.
 In the following example we have named arguments:
 
@@ -13150,6 +13148,19 @@ the ks is '{start: 6, index: 3, end: 11}'
 
 
 Each named argument contains the start, end, and the index of the named group.
+
+The optional `flags` argument is a string. Each character enables a Java regular-expression
+option:
+
+* `i` enables case-insensitive matching,
+* `m` enables multiline matching,
+* `s` enables dot-all mode,
+* `u` enables Unicode-aware case folding,
+* `x` enables comments and whitespace in the pattern,
+* `c` enables canonical equivalence,
+* `d` enables Unix-lines mode,
+* `l` treats the pattern as a literal string, and
+* `U` enables the Unicode character class mode.
 
 === `set_caller`, `set_caller_force`
 

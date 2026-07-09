@@ -210,6 +210,18 @@ class TestTuriParameters {
     }
 
     @Test
+    void reWrapperPassesFlagsToRxPositionally() {
+        try (final var interpreter = new Interpreter("""
+                sys_import "turi.re";
+                Re("abc", "i").match("ABC").group != none
+                """)) {
+            final var program = interpreter.compile();
+            final var result = interpreter.execute(program);
+            assertEquals(true, result);
+        }
+    }
+
+    @Test
     void unannotatedBuiltinKeepsLegacyPositionalCalling() {
         try (final var interpreter = new Interpreter("legacy(a = 1)")) {
             final var program = interpreter.compile();

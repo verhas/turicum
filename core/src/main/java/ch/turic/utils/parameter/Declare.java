@@ -21,7 +21,8 @@ import java.util.Arrays;
  * convenient or the parameter list is easier to keep close to executable Java code.
  * <p>
  * Example:
- * <pre>{@code
+ * <pre>
+ * {@code
  * private final ParameterList parameters = Declare.params(
  *         param("object").any().mandatory(),
  *         param("tab").integer().defaultValue(4),
