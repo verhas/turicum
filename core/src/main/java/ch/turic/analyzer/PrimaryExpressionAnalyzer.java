@@ -241,7 +241,7 @@ public class PrimaryExpressionAnalyzer extends AbstractAnalyzer {
             final var closure = ClosureAnalyzer.INSTANCE.analyze(lexes);
             arguments.add(new FunctionCall.Argument(null, closure));
         } else if (isDecorator) {
-            if (lexes.is("fn")) {
+            if (lexes.is(Keywords.FN)) {
                 lexes.next();
                 final var fn = FunctionDefinitionAnalyzer.INSTANCE.analyze(lexes);
                 arguments.add(new FunctionCall.Argument(null, fn));

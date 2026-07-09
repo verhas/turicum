@@ -8,7 +8,6 @@ import ch.turic.memory.LngList;
 import ch.turic.memory.LngObject;
 import ch.turic.utils.parameter.Declare;
 
-import static ch.turic.builtins.functions.FunUtils.ArgumentsHolder.optional;
 import static ch.turic.utils.parameter.Declare.Parameter.param;
 
 /**
@@ -68,7 +67,7 @@ public class JsonifyBeauty implements TuriFunction {
         // * the object to jsonify and beauty
         // * the tab size
         // * the right margin
-        final var args = FunUtils.args(name(), arguments, Object.class, optional(Long.class), optional(Long.class));
+        final var args = FunUtils.args(name(), arguments, Object.class, Long.class, Long.class);
         return jsonify(args.at(0).get(), 0, args.at(1).as(Long.class).intValue(), args.at(2).as(Long.class).intValue());
     }
 
@@ -76,9 +75,9 @@ public class JsonifyBeauty implements TuriFunction {
     private final ParameterList parameters;
     public JsonifyBeauty() {
         parameters = Declare.params(
-                param("object").type("any").mandatory(),
-                param("tab").type("int").defaultExpression("4"),
-                param("margin").type("int").defaultExpression("60")
+                param("object").any().mandatory(),
+                param("tab").integer().defaultValue(4),
+                param("margin").integer().defaultValue(60)
         ).done();
     }
 

@@ -1,6 +1,7 @@
 package ch.turic.memory;
 
 import ch.turic.commands.Conditional;
+import ch.turic.analyzer.Types;
 import ch.turic.exceptions.ExecutionException;
 import ch.turic.commands.Closure;
 import ch.turic.commands.Identifier;
@@ -163,41 +164,41 @@ public class Variable {
     public static Type getTypeFromName(LocalContext ctx, String name) {
         return switch (name) {
             // snippet types
-            case "bool" -> new Variable.Type(Boolean.class, null, new Identifier(name));
+            case Types.BOOL -> new Variable.Type(Boolean.class, null, new Identifier(name));
             // boolean type
-            case "str" -> new Variable.Type(String.class, null, new Identifier(name));
+            case Types.STR -> new Variable.Type(String.class, null, new Identifier(name));
             // string
-            case "num" -> new Variable.Type(Number.class, null, new Identifier(name));
+            case Types.NUM -> new Variable.Type(Number.class, null, new Identifier(name));
             // any numeric type, integer or float
-            case "int" -> new Variable.Type(Long.class, null, new Identifier(name));
+            case Types.INT -> new Variable.Type(Long.class, null, new Identifier(name));
             // any integer type
-            case "float" -> new Variable.Type(Double.class, null, new Identifier(name));
+            case Types.FLOAT -> new Variable.Type(Double.class, null, new Identifier(name));
             // float type
-            case "any" -> new Variable.Type(null, null, new Identifier(name));
+            case Types.ANY -> new Variable.Type(null, null, new Identifier(name));
             // the variable can hold any value
-            case "obj" -> new Variable.Type(LngObject.class, null, new Identifier(name));
+            case Types.OBJ -> new Variable.Type(LngObject.class, null, new Identifier(name));
             // the variable can hold any object without restriction on the class of that object
-            case "lst" -> new Variable.Type(LngList.class, null, new Identifier(name));
+            case Types.LST -> new Variable.Type(LngList.class, null, new Identifier(name));
             // the variable has to be a list
-            case "que" -> new Variable.Type(Channel.class, null, new Identifier(name));
+            case Types.QUE -> new Variable.Type(Channel.class, null, new Identifier(name));
             // the variable has to be a queue
-            case "task" -> new Variable.Type(AsyncStreamHandler.class, null, new Identifier(name));
+            case Types.TASK -> new Variable.Type(AsyncStreamHandler.class, null, new Identifier(name));
             // the variable has to be an asynchronous task
-            case "mtx" -> new Variable.Type(LngMutex.class, null, new Identifier(name));
+            case Types.MTX -> new Variable.Type(LngMutex.class, null, new Identifier(name));
             // the variable has to be a mutex
-            case "atm" -> new Variable.Type(LngAtomic.class, null, new Identifier(name));
+            case Types.ATM -> new Variable.Type(LngAtomic.class, null, new Identifier(name));
             // the variable has to be an atomic cell
-            case "err" -> new Variable.Type(LngException.class, null, new Identifier(name));
+            case Types.ERR -> new Variable.Type(LngException.class, null, new Identifier(name));
             // the variable has to be an asynchronous task
-            case "cls" -> new Variable.Type(LngClass.class, null, new Identifier(name));
+            case Types.CLS -> new Variable.Type(LngClass.class, null, new Identifier(name));
             // the variable has to be a class
-            case "fn" -> new Variable.Type(Closure.class, null, new Identifier(name));
+            case Types.FN -> new Variable.Type(Closure.class, null, new Identifier(name));
             // the variable value has to be a function of closure
-            case "macro" -> new Variable.Type(Macro.class, null, new Identifier(name));
+            case Types.MACRO -> new Variable.Type(Macro.class, null, new Identifier(name));
             // the variable value has to be a macro
-            case "none" -> new Variable.Type(NoneType.class, null, new Identifier(name));
+            case Types.NONE -> new Variable.Type(NoneType.class, null, new Identifier(name));
             // the variable can hold the value `none`
-            case "some" -> new Variable.Type(SomeType.class, null, new Identifier(name));
+            case Types.SOME -> new Variable.Type(SomeType.class, null, new Identifier(name));
             // the variable can hold any value, except `none`
             // end snippet
             default -> {

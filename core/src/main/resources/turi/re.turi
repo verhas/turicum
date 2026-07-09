@@ -1,6 +1,6 @@
 class Re {
-    fn init z:str {
-        let pattern = _rx(z)
+    fn init z:str, flags:str = "" {
+        let pattern = _rx(z,flags)
     }
 
     fn match(s:str){

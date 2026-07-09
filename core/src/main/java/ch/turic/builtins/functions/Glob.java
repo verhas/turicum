@@ -1,13 +1,15 @@
 package ch.turic.builtins.functions;
 
 import ch.turic.Context;
-import ch.turic.TuriParameters;
-import ch.turic.exceptions.ExecutionException;
 import ch.turic.SnakeNamed.Name;
 import ch.turic.TuriFunction;
+import ch.turic.commands.ParameterList;
+import ch.turic.exceptions.ExecutionException;
 import ch.turic.memory.LngList;
+import ch.turic.utils.parameter.Declare;
 
 import static ch.turic.builtins.functions.FunUtils.ArgumentsHolder.optional;
+import static ch.turic.utils.parameter.Declare.Parameter.param;
 /*snippet builtin0110
 
 === `glob`
@@ -65,7 +67,6 @@ end snippet */
  * }</pre>
  */
 @Name("glob")
-@TuriParameters("pattern: str, @path: str|none = none, @recursive: bool = false")
 public class Glob implements TuriFunction {
 
     @Override
@@ -88,5 +89,20 @@ public class Glob implements TuriFunction {
             throw new ExecutionException(e, "Error, while globbing file names in glob(): '" + e.getMessage() + "'");
         }
         return result;
+    }
+
+    @Override
+    public ParameterList parameters() {
+        return params;
+    }
+
+    final ParameterList params;
+
+    public Glob() {
+        this.params = Declare.params(
+                param("pattern").str().positional().mandatory(),
+                param("path").str().or().none().named().defaultNone(),
+                param("recursive").bool().named().defaultValue(false)
+        ).done();
     }
 }

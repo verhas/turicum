@@ -3,6 +3,7 @@ package ch.turic.builtins.functions;
 import ch.turic.Context;
 import ch.turic.LngCallable;
 import ch.turic.TuriFunction;
+import ch.turic.analyzer.Types;
 import ch.turic.commands.Closure;
 import ch.turic.exceptions.ExecutionException;
 import ch.turic.commands.Macro;
@@ -37,21 +38,21 @@ public class Type implements TuriFunction {
     public Object call(Context context, Object[] arguments) throws ExecutionException {
         final var arg = FunUtils.arg(name(), arguments);
         return switch (arg) {
-            case Boolean ignore -> "bool";
-            case Macro ignore -> "macro";
-            case LngClass ignore -> "cls";
-            case LngList ignore -> "lst";
-            case String ignore -> "str";
-            case Double ignore -> "float";
-            case Long ignore -> "int";
-            case Number ignore -> "num";
-            case LngException ignore -> "err";
-            case LngObject object -> object.lngClass() == null ? "obj" : object.lngClass().name();
-            case Closure ignore -> "fn";
-            case LngCallable ignore -> "fn";
-            case Channel<?> ignore -> "que";
-            case AsyncStreamHandler ignore -> "task";
-            case null -> "none";
+            case Boolean ignore -> Types.BOOL;
+            case Macro ignore -> Types.MACRO;
+            case LngClass ignore -> Types.CLS;
+            case LngList ignore -> Types.LST;
+            case String ignore -> Types.STR;
+            case Double ignore -> Types.FLOAT;
+            case Long ignore -> Types.INT;
+            case Number ignore -> Types.NUM;
+            case LngException ignore -> Types.ERR;
+            case LngObject object -> object.lngClass() == null ? Types.OBJ : object.lngClass().name();
+            case Closure ignore -> Types.FN;
+            case LngCallable ignore -> Types.FN;
+            case Channel<?> ignore -> Types.QUE;
+            case AsyncStreamHandler ignore -> Types.TASK;
+            case null -> Types.NONE;
             default -> "java." + arg.getClass().getCanonicalName();
         };
     }

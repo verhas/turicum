@@ -178,6 +178,18 @@ public class FunUtils {
             return (T) value;
         }
 
+
+        public String asString() {
+            return as(String.class);
+        }
+
+        public String asStringOr(String defaultValue) {
+            if (value == null) {
+                return defaultValue;
+            }
+            return as(String.class);
+        }
+
         /**
          * Casts the argument's value to the specified type if possible, or returns the provided default value if the value is null.
          * If the value cannot be cast to the specified type, an {@code ExecutionException} is thrown.

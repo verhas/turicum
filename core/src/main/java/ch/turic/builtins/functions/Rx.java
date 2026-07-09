@@ -1,11 +1,15 @@
 package ch.turic.builtins.functions;
 
 import ch.turic.Context;
+import ch.turic.commands.ParameterList;
 import ch.turic.exceptions.ExecutionException;
 import ch.turic.SnakeNamed.Name;
 import ch.turic.TuriFunction;
+import ch.turic.utils.parameter.Declare;
 
 import java.util.regex.Pattern;
+
+import static ch.turic.utils.parameter.Declare.Parameter.param;
 /*snippet builtin0340
 
 === Regular Expressions
@@ -48,7 +52,33 @@ public class Rx implements TuriFunction {
 
     @Override
     public Object call(Context ctx, Object[] arguments) throws ExecutionException {
-        final var arg = FunUtils.arg(name(), arguments);
-        return Pattern.compile(arg.toString());
+        final var args = FunUtils.args(name(), arguments);
+        final var pattern = args.at(0).asString();
+        final var options = args.at(1).asString().toCharArray();
+        int flags = 0;
+        for( final var option : options){
+            switch (option){
+                case 'i' -> flags |= Pattern.CASE_INSENSITIVE;
+                case 'm' -> flags |= Pattern.MULTILINE;
+                case 's' -> flags |= Pattern.DOTALL;
+                case 'u' -> flags |= Pattern.UNICODE_CASE;
+                case 'x' -> flags |= Pattern.COMMENTS;
+                case 'c' -> flags |= Pattern.CANON_EQ;
+                case 'd' -> flags |= Pattern.UNIX_LINES;
+                case 'l' -> flags |= Pattern.LITERAL;
+                case 'U' -> flags |= Pattern.UNICODE_CHARACTER_CLASS;
+                default -> throw new ExecutionException("Invalid option '%s' in regular expression", option);
+            }
+        }
+        return Pattern.compile(pattern,flags);
     }
+
+    final ParameterList parameters;
+    public Rx(){
+        parameters = Declare.params(
+                param("regex").positional().mandatory(),
+                param("flags").str().or().none().named().defaultNone()
+        ).done();
+    }
+
 }
