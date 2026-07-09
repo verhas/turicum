@@ -1,6 +1,7 @@
 package ch.turic.builtins.functions;
 
 import ch.turic.Context;
+import ch.turic.TuriParameters;
 import ch.turic.exceptions.ExecutionException;
 import ch.turic.SnakeNamed.Name;
 import ch.turic.TuriFunction;
@@ -51,13 +52,7 @@ end snippet */
 /**
  * This function is used to list file names in a directory, possibly using recursion.
  * <p>
- * The function is named {@code _glob()} with an underscore at the start because it is
- * not supposed to be called directly. Source code should instead import the function {@code glob}
- * from the {@code turi.io} module.
  * <pre>{@code
- * // import the 'glob' function from the io module
- * sys_import "turi.io", "glob"
- *
  * // 'file_list' will contain all the files without recursion
  * let file_list = glob("*")
  * die "" when type(file_list) != "lst"
@@ -69,7 +64,8 @@ end snippet */
  * die "" when len(file_list) > len(all_files)
  * }</pre>
  */
-@Name("_glob")
+@Name("glob")
+@TuriParameters("pattern: str, @path: str|none = none, @recursive: bool = false")
 public class Glob implements TuriFunction {
 
     @Override

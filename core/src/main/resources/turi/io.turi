@@ -19,8 +19,4 @@ class files {
     }
 }
 
-fn glob(pattern: str,@path: str|none=none,@recursive: bool=false){
-    _glob(pattern, path, recursive)
-}
-
-export files, path, glob
+export files, path

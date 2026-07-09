@@ -18,7 +18,8 @@ module ch.turic {
     exports ch.turic.analyzer;
     exports ch.turic.commands;
     exports ch.turic.commands.operators;
-    opens turi; // needed to read the sysimport files as resources
+    opens turi;
+    exports ch.turic.utils.parameter; // needed to read the sysimport files as resources
 
     uses ch.turic.TuriFunction;
     uses ch.turic.TuriMacro;

@@ -89,10 +89,10 @@ public class FunctionCall extends FunctionCallOrCurry {
                 return lngClass.newInstance(obj, context, arguments);
             }
             if (function instanceof LngCallable.LngCallableClosure callable) {
-                return callable.call(context, bareValues(evaluateClosureArguments(context, this.arguments)));
+                return callBuiltin(context, callable, evaluateClosureArguments(context, this.arguments));
             }
             if (function instanceof LngCallable.LngCallableMacro callable) {
-                return callable.call(context, bareValues(evaluateMacroArguments(context, this.arguments)));
+                return callBuiltin(context, callable, evaluateMacroArguments(context, this.arguments));
             }
             throw new ExecutionException("It is not possible to invoke %s.%s() as %s.%s()", obj, function, fieldAccess.object(), fieldAccess.identifier());
         } else {
@@ -132,13 +132,53 @@ public class FunctionCall extends FunctionCallOrCurry {
             }
 
             if (function instanceof LngCallable.LngCallableClosure callable) {
-                return callable.call(context, bareValues(evaluateClosureArguments(context, this.arguments)));
+                return callBuiltin(context, callable, evaluateClosureArguments(context, this.arguments));
             }
             if (function instanceof LngCallable.LngCallableMacro callable) {
-                return callable.call(context, bareValues(evaluateMacroArguments(context, this.arguments)));
+                return callBuiltin(context, callable, evaluateMacroArguments(context, this.arguments));
             }
             throw new ExecutionException("It is not possible to invoke '%s' because its value is '%s' and not something I can invoke." +
                     "It is a f5g %s", object, function, function == null ? "null" : function.getClass().getName());
         }
+    }
+
+    private Object callBuiltin(final LocalContext context,
+                               final LngCallable callable,
+                               final ArgumentEvaluated[] argValues) {
+        final var parameters = callable.parameters();
+        if (parameters == null) {
+            return callable.call(context, bareValues(argValues));
+        }
+        final var argumentContext = context.wrap();
+        defineArgumentsInContext(argumentContext, context, parameters, argValues, true);
+        return callable.call(context, builtinArgumentValues(argumentContext, parameters));
+    }
+
+    private Object[] builtinArgumentValues(final LocalContext context, final ParameterList parameters) {
+        int size = parameters.parameters().length;
+        if (parameters.rest() != null) {
+            size++;
+        }
+        if (parameters.meta() != null) {
+            size++;
+        }
+        if (parameters.closure() != null) {
+            size++;
+        }
+        final var values = new Object[size];
+        int index = 0;
+        for (final var parameter : parameters.parameters()) {
+            values[index++] = context.get(parameter.identifier());
+        }
+        if (parameters.rest() != null) {
+            values[index++] = context.get(parameters.rest());
+        }
+        if (parameters.meta() != null) {
+            values[index++] = context.get(parameters.meta());
+        }
+        if (parameters.closure() != null) {
+            values[index] = context.get(parameters.closure());
+        }
+        return values;
     }
 }

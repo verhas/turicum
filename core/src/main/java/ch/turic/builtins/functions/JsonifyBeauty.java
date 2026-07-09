@@ -1,12 +1,16 @@
 package ch.turic.builtins.functions;
 
 import ch.turic.Context;
-import ch.turic.exceptions.ExecutionException;
 import ch.turic.TuriFunction;
+import ch.turic.commands.ParameterList;
+import ch.turic.exceptions.ExecutionException;
 import ch.turic.memory.LngList;
 import ch.turic.memory.LngObject;
+import ch.turic.utils.parameter.Declare;
 
 import static ch.turic.builtins.functions.FunUtils.ArgumentsHolder.optional;
+import static ch.turic.utils.parameter.Declare.Parameter.param;
+
 /**
  * This function converts a Turicum value to JSON string like {@link Jsonify}, but also formats it.
  *
@@ -28,8 +32,8 @@ import static ch.turic.builtins.functions.FunUtils.ArgumentsHolder.optional;
  * println;
  * println $"object beauty=${jsonify_beauty(z,2,60)}";
  * }</pre>
- *
- *will print out
+ * <p>
+ * will print out
  * <pre>
  * {@code
  * object to_string={a: 1, b: [1, 2, 3], pi: 3.1415926, location: {the_dude: Peter Verhas, longidude: 17.935398980291257, latidude: 16.990635373109665, altidude: [2000, 1000, -3, false, karma]}}
@@ -65,7 +69,22 @@ public class JsonifyBeauty implements TuriFunction {
         // * the tab size
         // * the right margin
         final var args = FunUtils.args(name(), arguments, Object.class, optional(Long.class), optional(Long.class));
-        return jsonify(args.at(0).get(), 0, args.at(1).as(Long.class,4L).intValue(), args.at(2).as(Long.class, 60L).intValue());
+        return jsonify(args.at(0).get(), 0, args.at(1).as(Long.class).intValue(), args.at(2).as(Long.class).intValue());
+    }
+
+
+    private final ParameterList parameters;
+    public JsonifyBeauty() {
+        parameters = Declare.params(
+                param("object").type("any").mandatory(),
+                param("tab").type("int").defaultExpression("4"),
+                param("margin").type("int").defaultExpression("60")
+        ).done();
+    }
+
+    @Override
+    public ParameterList parameters() {
+        return parameters;
     }
 
     private static String jsonify(Object object, int tab, int tabsize, int margin) {
