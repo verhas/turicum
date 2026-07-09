@@ -1,22 +1,227 @@
-fn basic(lexes){
-    mut turi_code = {
-        for each lex in lexes list {
-            if lex.atLineStart {
-                continue "\nmut" when lex.text == "LET";
-                continue "\nwhile" when lex.text == "WHILE";
-                continue "\n}" when lex.text == "WEND";
-                continue "\nif" when lex.text == "IF";
-                continue "\n}" when lex.text == "ENDIF";
-                continue "\nprintln" when lex.text == "PRINT";
-            }
-            continue "{\n" when lex.text == "DO";
-            continue "} else {\n" when lex.text == "ELSE";
-            continue "{\n" when lex.text == "THEN";
-
-            lex;
+fn basic_lines_of(lexes) {
+    mut lines = []
+    mut line = []
+    for each lex in lexes list {
+        if lex.atLineStart && len(line) > 0 {
+            lines += [line]
+            line = []
         }
+        line += [lex]
+    }
+    if len(line) > 0 {
+        lines += [line]
+    }
+    lines
+}
+
+fn basic_command_start(line) {
+    if len(line) > 0 && line[0].text.is_numeric() {
+        1
+    } else {
+        0
+    }
+}
+
+fn basic_find_token(line, start, text) {
+    mut i = start
+    while i < len(line) {
+        return i when line[i].text == text
+        i += 1
+    }
+    -1
+}
+
+fn basic_emit_tokens(out, line, start, end) {
+    mut result = out
+    mut i = start
+    while i < end {
+        result += [line[i]]
+        i += 1
+    }
+    result
+}
+
+fn basic_emit_statement(out, line, start, end) {
+    return out when start >= end
+    mut result = out
+    let command = line[start].text
+
+    if command == "LET" {
+        result += ["mut "]
+        return basic_emit_tokens(result, line, start + 1, end)
+    }
+
+    if command == "PRINT" {
+        result += ["println "]
+        return basic_emit_tokens(result, line, start + 1, end)
+    }
+
+    if command == "REM" {
+        result += ["// BASIC REM\n"]
+        return result
+    }
+
+    if command == "GOTO" {
+        result += ["// BASIC GOTO is intentionally not translated in this structured demo\n"]
+        return result
+    }
+
+    if command == "GOSUB" {
+        result += ["// BASIC GOSUB is intentionally not translated in this structured demo\n"]
+        return result
+    }
+
+    if command == "RETURN" {
+        result += ["return"]
+        return result
+    }
+
+    basic_emit_tokens(result, line, start, end)
+}
+
+fn basic_emit_line(out, line) {
+    let start = basic_command_start(line)
+    return out when start >= len(line)
+    mut result = out
+    let command = line[start].text
+
+        result += ["\n"]
+
+        if command == "REM" {
+            result += ["// BASIC REM"]
+            return result
+        }
+
+        if command == "LET" || command == "PRINT" || command == "GOTO" || command == "GOSUB" || command == "RETURN" {
+            result = basic_emit_statement(result, line, start, len(line))
+            result += [";"]
+            return result
+        }
+
+        if command == "IF" {
+            let then_at = basic_find_token(line, start + 1, "THEN")
+            if then_at >= 0 {
+                result += ["if "]
+                result = basic_emit_tokens(result, line, start + 1, then_at)
+                if then_at + 1 < len(line) {
+                    result += ["{\n"]
+                    result = basic_emit_statement(result, line, then_at + 1, len(line))
+                    result += [";\n}"]
+                } else {
+                    result += ["{\n"]
+                }
+                return result
+            }
+        }
+
+        if command == "ELSEIF" {
+            let then_at = basic_find_token(line, start + 1, "THEN")
+            if then_at >= 0 {
+                result += ["} else if "]
+                result = basic_emit_tokens(result, line, start + 1, then_at)
+                result += ["{\n"]
+                return result
+            }
+        }
+
+        if command == "ELSE" {
+            result += ["} else {\n"]
+            return result
+        }
+
+        if command == "ENDIF" {
+            result += ["}"]
+            return result
+        }
+
+        if command == "WHILE" {
+            let do_at = basic_find_token(line, start + 1, "DO")
+            result += ["while "]
+            result = basic_emit_tokens(result, line, start + 1, if do_at >= 0 : do_at else : len(line))
+            result += ["{\n"]
+            return result
+        }
+
+        if command == "WEND" {
+            result += ["}"]
+            return result
+        }
+
+        if command == "FOR" {
+            let to_at = basic_find_token(line, start + 1, "TO")
+            let step_at = basic_find_token(line, start + 1, "STEP")
+            if to_at >= 0 {
+                let var_name = line[start + 1]
+                result += ["for mut "]
+                result += [var_name, "="]
+                result = basic_emit_tokens(result, line, start + 3, to_at)
+                result += [";"]
+                result += [var_name, "<="]
+                result = basic_emit_tokens(result, line, to_at + 1, if step_at >= 0 : step_at else : len(line))
+                result += [";"]
+                result += [var_name, "+="]
+                if step_at >= 0 {
+                    result = basic_emit_tokens(result, line, step_at + 1, len(line))
+                } else {
+                    result += ["1"]
+                }
+                result += ["{\n"]
+                return result
+            }
+        }
+
+        if command == "NEXT" {
+            result += ["}"]
+            return result
+        }
+
+        if command == "DO" || command == "REPEAT" {
+            result += ["while true {\n"]
+            return result
+        }
+
+        if command == "LOOP" {
+            if start + 1 < len(line) && line[start + 1].text == "WHILE" {
+                result += ["} until !("]
+                result = basic_emit_tokens(result, line, start + 2, len(line))
+                result += [");"]
+                return result
+            }
+            if start + 1 < len(line) && line[start + 1].text == "UNTIL" {
+                result += ["} until "]
+                result = basic_emit_tokens(result, line, start + 2, len(line))
+                result += [";"]
+                return result
+            }
+            result += ["}"]
+            return result
+        }
+
+        if command == "UNTIL" {
+            result += ["} until "]
+            result = basic_emit_tokens(result, line, start + 1, len(line))
+            result += [";"]
+            return result
+        }
+
+        result = basic_emit_statement(result, line, start, len(line))
+        result += [";"]
+        result
+}
+
+fn basic(lexes) {
+
+    mut turi_code = []
+    for each line in basic_lines_of(lexes) {
+        turi_code = basic_emit_line(turi_code, line)
     }
     turi_code
 }
 
 export basic;
+export basic_lines_of;
+export basic_command_start;
+export basic_find_token;
+export basic_emit_tokens;
+export basic_emit_statement;
+export basic_emit_line;
