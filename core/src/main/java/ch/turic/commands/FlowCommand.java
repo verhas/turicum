@@ -15,8 +15,7 @@ import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
@@ -76,7 +75,6 @@ public class FlowCommand extends AbstractCommand {
         }
     }
 
-    private static final ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
     private final String flowId;
     private final Command exitCondition;
     private final Command limitExpression;
@@ -874,24 +872,33 @@ public class FlowCommand extends AbstractCommand {
         final var newContext = ctx.thread();
         childContexts.add(newContext.threadContext);
         copyVariables(ctx, newContext);
-        return CompletableFuture.supplyAsync(() -> {
-            Thread.currentThread().setName(cell.id + ":" + NameGen.generateName());
-            newContext.threadContext.setThread(Thread.currentThread());
-            try {
-                return new CellWithResult(cell.command.execute(newContext), cell, counter);
-            } catch (ExecutionException e) {
-                final var newException = new ExecutionException("Exception in flow '%s' in thread %s %s", flowId, Thread.currentThread().getName(), e.getMessage());
-                newException.setStackTrace(e.getStackTrace());
-                exception.compareAndSet(null, newException);
-                return null;
-            } catch (Exception t) {
-                final var newException = new ExecutionException(t, "Exception in flow '%s' thread %s ", flowId, Thread.currentThread().getName());
-                exception.compareAndSet(null, newException);
-                return null;
-            } finally {
-                newContext.close();
-            }
-        }, executor);
+        final var global = ctx.globalContext;
+        global.acquireThreadPermit();
+        try {
+            return CompletableFuture.supplyAsync(() -> {
+                Thread.currentThread().setName(cell.id + ":" + NameGen.generateName());
+                newContext.threadContext.setThread(Thread.currentThread());
+                try {
+                    return new CellWithResult(cell.command.execute(newContext), cell, counter);
+                } catch (ExecutionException e) {
+                    final var newException = new ExecutionException("Exception in flow '%s' in thread %s %s", flowId, Thread.currentThread().getName(), e.getMessage());
+                    newException.setStackTrace(e.getStackTrace());
+                    exception.compareAndSet(null, newException);
+                    return null;
+                } catch (Exception t) {
+                    final var newException = new ExecutionException(t, "Exception in flow '%s' thread %s ", flowId, Thread.currentThread().getName());
+                    exception.compareAndSet(null, newException);
+                    return null;
+                } finally {
+                    newContext.close();
+                    global.releaseThreadPermit();
+                }
+            }, global.executor());
+        } catch (RejectedExecutionException e) {
+            global.releaseThreadPermit();
+            newContext.close();
+            throw new ExecutionException(e, "Cannot start flow cell '%s', the interpreter is shut down", cell.id);
+        }
     }
 
     private static void copyVariables(LocalContext source, LocalContext target) {

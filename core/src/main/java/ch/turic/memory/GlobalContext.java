@@ -6,12 +6,16 @@ import ch.turic.exceptions.StepLimitReached;
 import ch.turic.memory.debugger.DebuggerContext;
 import ch.turic.utils.TuricumClassLoader;
 
+import java.io.PrintStream;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -35,6 +39,19 @@ public class GlobalContext {
     public final TuricumClassLoader classLoader = new TuricumClassLoader(getClass().getClassLoader());
     // stores all predefined global symbols, so they do not get exported using export_all()
     public final Set<String> predefinedGlobals = new HashSet<>();
+
+    /**
+     * The executor shared by all interpreters that were not configured with their own executor.
+     * It is never shut down; virtual threads are cheap and dangling tasks are stopped via
+     * {@link ThreadContext#abort()} and {@link #joinThreads()}.
+     */
+    private static final ExecutorService SHARED_EXECUTOR = Executors.newVirtualThreadPerTaskExecutor();
+    // volatile: configured by the embedder on the main thread before execution, read by any
+    // interpreter thread that starts an async task or a flow cell
+    private volatile ExecutorService executor = SHARED_EXECUTOR;
+    private volatile Semaphore threadPermits = null;
+    private volatile PrintStream out = System.out;
+    private volatile PrintStream err = System.err;
 
     public GlobalContext(int stepLimit) {
         this(stepLimit, 0);
@@ -216,6 +233,123 @@ public class GlobalContext {
      */
     public void switchToMultithreading() {
         heap.parallel();
+    }
+
+    /**
+     * Returns the executor used to run asynchronous tasks (async blocks, flow cells) of this
+     * interpreter. By default, it is a JVM-wide shared virtual-thread executor; an embedder can
+     * replace it via {@link #setExecutor(ExecutorService)} to get per-engine isolation and
+     * deterministic shutdown.
+     *
+     * @return the executor for this interpreter's asynchronous tasks
+     */
+    public ExecutorService executor() {
+        return executor;
+    }
+
+    /**
+     * Replaces the executor used for this interpreter's asynchronous tasks.
+     * <p>
+     * The caller retains ownership of the executor's lifecycle; this class never shuts it down.
+     * Must be called before execution starts.
+     *
+     * @param executor the executor to run async tasks and flow cells on
+     */
+    public void setExecutor(ExecutorService executor) {
+        this.executor = executor;
+    }
+
+    /**
+     * Limits the number of concurrently running interpreter threads by installing a permit pool.
+     * <p>
+     * The permits may be shared between several interpreters (for an engine-wide cap) by passing
+     * the same {@link Semaphore} instance to each of them. Passing {@code null} removes the limit.
+     * Must be called before execution starts.
+     *
+     * @param threadPermits the shared permit pool, or {@code null} for no limit
+     */
+    public void setThreadPermits(Semaphore threadPermits) {
+        this.threadPermits = threadPermits;
+    }
+
+    /**
+     * Acquires a permit to start a new interpreter thread, if a permit pool is installed.
+     * <p>
+     * The acquisition never blocks: when the pool is exhausted, the method fails immediately so
+     * that a script cannot stall the interpreter by over-spawning.
+     *
+     * @throws ExecutionException if the thread limit is reached
+     */
+    public void acquireThreadPermit() throws ExecutionException {
+        final var permits = threadPermits;
+        if (permits != null && !permits.tryAcquire()) {
+            throw new ExecutionException("Thread limit reached, cannot start a new thread");
+        }
+    }
+
+    /**
+     * Returns a permit acquired by {@link #acquireThreadPermit()} to the pool.
+     * Called from the finishing thread's {@code finally} block.
+     */
+    public void releaseThreadPermit() {
+        final var permits = threadPermits;
+        if (permits != null) {
+            permits.release();
+        }
+    }
+
+    /**
+     * Returns the stream that {@code print}/{@code println} write to, {@link System#out} unless
+     * redirected via {@link #setOut(PrintStream)}.
+     *
+     * @return the standard output of this interpreter
+     */
+    public PrintStream out() {
+        return out;
+    }
+
+    /**
+     * Redirects the interpreter's standard output. Must be called before execution starts.
+     *
+     * @param out the stream to receive {@code print}/{@code println} output
+     */
+    public void setOut(PrintStream out) {
+        this.out = out;
+    }
+
+    /**
+     * Returns the interpreter's error stream, {@link System#err} unless redirected via
+     * {@link #setErr(PrintStream)}.
+     *
+     * @return the standard error of this interpreter
+     */
+    public PrintStream err() {
+        return err;
+    }
+
+    /**
+     * Redirects the interpreter's error stream. Must be called before execution starts.
+     *
+     * @param err the stream to receive error output
+     */
+    public void setErr(PrintStream err) {
+        this.err = err;
+    }
+
+    /**
+     * Requests cooperative termination of every thread of this interpreter, including the main
+     * interpreter thread.
+     * <p>
+     * Each registered {@link ThreadContext} gets its abort flag set and its thread interrupted,
+     * so blocking operations (sleep, channel reads, I/O) return immediately and the next command
+     * on each thread raises an {@link ch.turic.exceptions.ExecutionAborted}. Turicum code cannot
+     * catch or suppress the abort; {@code finally}/exit blocks still get their bounded
+     * {@link Grace} allowance.
+     * <p>
+     * This method is safe to call from any thread, typically from an embedder's watchdog timer.
+     */
+    public void abortAll() {
+        contexts.keySet().forEach(ThreadContext::abort);
     }
 
 }

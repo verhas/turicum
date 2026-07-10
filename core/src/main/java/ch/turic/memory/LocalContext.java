@@ -130,6 +130,26 @@ public class LocalContext implements Context, AutoCloseable {
         this.frozen = new HashSet<>();
     }
 
+    /**
+     * Create a new root context on the current thread for a prebuilt, embedder-configured
+     * global context. This is the constructor used by the {@code ch.turic.embed} API: the
+     * embedder creates the {@link GlobalContext} with its limits (steps, grace, executor,
+     * thread permits, I/O redirection), and this context becomes the program's root frame,
+     * sharing its frame with the global heap exactly like {@link #LocalContext(int, int)}.
+     *
+     * @param globalContext the configured global context this interpreter instance runs with
+     */
+    public LocalContext(final GlobalContext globalContext) {
+        this.globalContext = globalContext;
+        this.threadContext = new ThreadContext(Thread.currentThread());
+        this.threadContext.grace().setSteps(globalContext.graceSteps);
+        this.globalContext.registerContext(threadContext);
+        this.wrapped = null;
+        this.frame = globalContext.heap;
+        this.with = false;
+        this.frozen = new HashSet<>();
+    }
+
     public LocalContext(final GlobalContext globalContext, final ThreadContext threadContext) {
         this.wrapped = null;
         this.frame = new VarTable();

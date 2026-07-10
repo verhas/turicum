@@ -21,7 +21,7 @@ public class AppiaHandler {
     public static List<Path> getAppiaRoots() {
         var appia = System.getProperty(APPIA);
         if (appia == null) {
-            System.getenv(APPIA);
+            appia = System.getenv(APPIA);
         }
         if (appia == null) {
             appia = loadFromEnvFile();

@@ -1,12 +1,16 @@
+// Anchor the import roots to this file's directory - the project root - instead of the
+// current working directory. This file is imported into a fresh context that inherits no
+// APPIA, and the cwd is NOT the project root when the maven extension runs inside an IDE
+// embedder (e.g., IntelliJ's embedded Maven runs with its cwd inside the IDE installation).
+// Requires a turicum version that resolves source_directory() inside an imported file
+// (fixed 2025-11-25); the extension in .mvn/extensions.xml must be recent enough.
+// NOTE: APPIA is unlet before the export_all() below, because the importing pom.turi
+// defines its own APPIA and importing a variable that is already defined is an error.
+global APPIA = ?(env("APPIA")?.split("\\|")) or [ source_directory() ];
+
 // we import it from the sys_import area to make it available for the turicum programs
 // here we cannot use sys_import because that would use the version that runs and not the version we build
-let VERSION={ try{ import("core.src.main.resources.turi.version") .`turicum.version`; }
-    catch( e ){
-        // when maven was started from a module and the cwd is one level below
-        global APPIA; APPIA=[ ".." ];
-        import("core.src.main.resources.turi.version") .`turicum.version`;
-    }
-}
+let VERSION = import("core.src.main.resources.turi.version").`turicum.version`;
 let `org.openjfx`= "25.0.1" ;
 
 let `maven-javadoc-plugin`= "3.12.0" ;
@@ -15,6 +19,9 @@ let `maven-compiler-plugin`= "3.14.1" ;
 let `maven-dependency-plugin`= "3.8.1" ;
 let `maven-surefire-plugin`= "3.5.4" ;
 let `org.junit.jupiter`= "6.0.0" ;
+// with JUnit 6 the platform artifacts share the jupiter version; a 1.x launcher next to a
+// 6.x jupiter puts two junit-platform-commons versions on the module path
+let `junit-platform-launcher` = "6.0.0";
 let `maven-assembly-plugin`= "3.7.1" ;
 let `org.mockito`= "5.17.0" ;
 let `maven-resources-plugin`= "3.3.1" ;
@@ -30,4 +37,7 @@ let groupId= "ch.turic" ;
 let groupIdMavenPlugin= "org.apache.maven.plugins" ;
 
 
-export_all( ); 
+// APPIA served only to locate the version import above; see the comment at its definition
+unlet APPIA;
+
+export_all( );

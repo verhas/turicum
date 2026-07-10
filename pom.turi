@@ -157,6 +157,12 @@ let project = maven_project({
                 scope: "test"
             },
             {
+                groupId: "org.junit.platform",
+                artifactId: "junit-platform-launcher",
+                version:  `junit-platform-launcher`,
+                scope: "test"
+            },
+            {
                 groupId: "org.junit.jupiter",
                 artifactId: "junit-jupiter-engine",
                 version:  `org.junit.jupiter`,

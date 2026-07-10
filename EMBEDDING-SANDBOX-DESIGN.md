@@ -201,10 +201,18 @@ annotations. Apply a built-in deny-list even in permissive mode:
 
 ## 6. Suggested phasing
 
-1. **Phase 1 — plumbing (unblocks embedders immediately).**
+1. **Phase 1 — plumbing (unblocks embedders immediately).** *(implemented 2026-07-10)*
    `SandboxPolicy` + `TuriEngine`/`TuriSession` exposing what already exists
    (step limit, grace steps, injected globals) **plus** the wall-clock timeout,
    the per-engine thread cap, and I/O redirection.
+   Implementation notes: new package `ch.turic.embed` (`SandboxPolicy`, `TuriEngine`,
+   `TuriProgram`, `TuriSession`, `TuriTimeoutException`); `GlobalContext` gained
+   `out()`/`err()` redirection, a per-context `executor()` (default: JVM-shared
+   virtual-thread executor), a `Semaphore`-based thread-permit pool shareable across
+   sessions for an engine-wide cap, and `abortAll()`; `LocalContext(GlobalContext)`
+   root constructor added; `AsyncEvaluation` and `FlowCommand` now use the
+   per-context executor and acquire/release thread permits; `Print` writes to
+   `globalContext.out()`. Tests: `core/src/test/java/ch/turic/embed/TestTuriEngine.java`.
 2. **Phase 2 — capabilities.**
    Capability-gated builtin registration, the class filter on `TuricumClassLoader`
    with the default deny-list, and the import root.

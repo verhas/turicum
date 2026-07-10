@@ -38,7 +38,7 @@ public class Print extends AbstractCommand implements HasCommands {
 
     private static void out(String str, LocalContext ctx, Object outputHandle) {
         if (outputHandle == null) {
-            System.out.print(str);
+            ctx.globalContext.out().print(str);
         } else {
             switch (outputHandle) {
                 case LngObject outputHandlerObject -> {
@@ -56,7 +56,7 @@ public class Print extends AbstractCommand implements HasCommands {
 
     private static void flush(LocalContext ctx, Object outputHandle) {
         if (outputHandle == null) {
-            System.out.flush();
+            ctx.globalContext.out().flush();
         }
         if (outputHandle instanceof LngObject outputHandleObject) {
             final var entry = outputHandleObject.getField(FLUSH);

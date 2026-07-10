@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.concurrent.*;
 
 public class AsyncEvaluation extends AbstractCommand {
-    private static final ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
     private final Command command;
     private final Map<String, Command> options;
 
@@ -124,19 +123,28 @@ public class AsyncEvaluation extends AbstractCommand {
         }
         newContext.threadContext.addYielder(yielder);
 
-        CompletableFuture<Channel.Message<?>> future =
-                CompletableFuture.supplyAsync(() -> {
-                    Thread.currentThread().setName(NameGen.generateName());
-                    newContext.threadContext.setThread(Thread.currentThread());
-                    try (yielder) {
-                        return Channel.Message.of(command.execute(newContext));
-                    } catch (Exception t) {
-                        final var exception = LngException.build(ctx, t, newContext.threadContext);
-                        return Channel.Message.exception(exception);
-                    } finally {
-                        newContext.close();
-                    }
-                }, executor);
+        final var global = ctx.globalContext;
+        global.acquireThreadPermit();
+        final CompletableFuture<Channel.Message<?>> future0;
+        try {
+            future0 = CompletableFuture.supplyAsync(() -> {
+                Thread.currentThread().setName(NameGen.generateName());
+                newContext.threadContext.setThread(Thread.currentThread());
+                try (yielder) {
+                    return Channel.Message.of(command.execute(newContext));
+                } catch (Exception t) {
+                    final var exception = LngException.build(ctx, t, newContext.threadContext);
+                    return Channel.Message.exception(exception);
+                } finally {
+                    newContext.close();
+                    global.releaseThreadPermit();
+                }
+            }, global.executor());
+        } catch (RejectedExecutionException e) {
+            global.releaseThreadPermit();
+            throw new ExecutionException(e, "Cannot start async task, the interpreter is shut down");
+        }
+        var future = future0;
         if (timeLimit >= 0) {
             future = future.orTimeout(timeLimit, TimeUnit.MILLISECONDS);
             // the timeout only completes the future; the interpreter thread must also be stopped

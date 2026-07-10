@@ -8,6 +8,7 @@ module ch.turic {
     requires jdk.httpserver;
     requires java.net.http;
     exports ch.turic;
+    exports ch.turic.embed;
     exports ch. turic.builtins.functions;
     exports ch. turic.builtins.macros;
     exports ch. turic.builtins.classes;
