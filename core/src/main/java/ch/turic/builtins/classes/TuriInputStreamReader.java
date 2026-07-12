@@ -1,11 +1,15 @@
 package ch.turic.builtins.classes;
 
+import ch.turic.Capability;
+import ch.turic.RequiresCapability;
+
 import ch.turic.exceptions.ExecutionException;
 import ch.turic.LngCallable;
 import ch.turic.TuriClass;
 
 import java.io.InputStreamReader;
 
+@RequiresCapability(Capability.FILE_READ)
 public class TuriInputStreamReader implements TuriClass {
     @Override
     public Class<?> forClass() {

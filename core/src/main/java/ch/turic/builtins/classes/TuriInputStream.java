@@ -1,13 +1,16 @@
 package ch.turic.builtins.classes;
 
+import ch.turic.Capability;
+import ch.turic.RequiresCapability;
+
 import ch.turic.exceptions.ExecutionException;
 import ch.turic.LngCallable;
 import ch.turic.TuriClass;
 
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 
+@RequiresCapability(Capability.FILE_READ)
 public class TuriInputStream implements TuriClass {
     @Override
     public Class<?> forClass() {
@@ -23,14 +26,6 @@ public class TuriInputStream implements TuriClass {
         return switch (identifier) {
             case "read_all_bytes" -> new TuriMethod<>((args) -> is.readAllBytes());
             case "read" -> new TuriMethod<>((args) -> is.read());
-            case "read_char" -> new TuriMethod<>((args) -> {
-                InputStreamReader reader = new InputStreamReader(is, StandardCharsets.UTF_8);
-                int ch = reader.read();
-                if (ch == -1) {
-                    return null; // end of stream
-                }
-                return new String(Character.toChars(ch));
-            });
             case "available" -> new TuriMethod<>((args) -> is.available());
             case "close" -> new TuriMethod<>((args) -> {
                 is.close();

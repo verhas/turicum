@@ -1,5 +1,8 @@
 package ch.turic.builtins.functions;
 
+import ch.turic.Capability;
+import ch.turic.RequiresCapability;
+
 import ch.turic.BuiltIns;
 import ch.turic.Context;
 import ch.turic.exceptions.ExecutionException;
@@ -28,6 +31,7 @@ end snippet*/
  *
  * Built-in function to add Java classes to the Turi environment.
  */
+@RequiresCapability(Capability.JAVA_REFLECTION)
 public class AddJavaClasses implements TuriFunction {
 
     private final AppiaHandler handler = new AppiaHandler();

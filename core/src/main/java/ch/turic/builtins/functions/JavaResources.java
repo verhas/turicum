@@ -1,5 +1,8 @@
 package ch.turic.builtins.functions;
 
+import ch.turic.Capability;
+import ch.turic.RequiresCapability;
+
 import ch.turic.Context;
 import ch.turic.exceptions.ExecutionException;
 import ch.turic.TuriFunction;
@@ -30,6 +33,7 @@ end snippet */
 /**
  * A built-in function to read Java resource files from any of the JAR files on the classpath.
  */
+@RequiresCapability(Capability.JAVA_REFLECTION)
 public class JavaResources implements TuriFunction {
 
     @Override

@@ -1,5 +1,8 @@
 package ch.turic.builtins.functions;
 
+import ch.turic.Capability;
+import ch.turic.RequiresCapability;
+
 import ch.turic.Context;
 import ch.turic.exceptions.ExecutionException;
 import ch.turic.SnakeNamed.Name;
@@ -48,6 +51,7 @@ end snippet*/
  *
  */
 @Name("as_object")
+@RequiresCapability(Capability.JAVA_REFLECTION)
 public class Command implements TuriFunction {
 
     @Override

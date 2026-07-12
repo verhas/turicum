@@ -1,5 +1,8 @@
 package ch.turic.builtins.functions;
 
+import ch.turic.Capability;
+import ch.turic.RequiresCapability;
+
 import ch.turic.Context;
 import ch.turic.exceptions.ExecutionException;
 import ch.turic.TuriFunction;
@@ -37,6 +40,7 @@ end snippet */
  * println m.absExact(int(-5))
  * }</pre>
  */
+@RequiresCapability(Capability.JAVA_REFLECTION)
 public class JavaClass implements TuriFunction {
 
     /**
@@ -54,7 +58,7 @@ public class JavaClass implements TuriFunction {
         final var ctx = FunUtils.ctx(context);
         final var className = args.at(0).as(String.class);
         try {
-            final var klass = ctx.globalContext.classLoader.loadClass(className);
+            final var klass = ctx.globalContext.classLoader.loadClassForScript(className);
             return new ch.turic.memory.JavaClass(klass);
         } catch (ClassNotFoundException e) {
             throw new ExecutionException("Could not load class " + className, e);

@@ -1,5 +1,8 @@
 package ch.turic.builtins.functions;
 
+import ch.turic.Capability;
+import ch.turic.RequiresCapability;
+
 import ch.turic.Context;
 import ch.turic.exceptions.ExecutionException;
 import ch.turic.TuriFunction;
@@ -38,6 +41,7 @@ end snippet */
  * die "JAVA_HOME is none" when env("JAVA_HOME") == none
  * }</pre>
  */
+@RequiresCapability(Capability.ENV)
 public class Env implements TuriFunction {
 
     /**

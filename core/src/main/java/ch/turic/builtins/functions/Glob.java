@@ -1,5 +1,8 @@
 package ch.turic.builtins.functions;
 
+import ch.turic.Capability;
+import ch.turic.RequiresCapability;
+
 import ch.turic.Context;
 import ch.turic.SnakeNamed.Name;
 import ch.turic.TuriFunction;
@@ -67,6 +70,7 @@ end snippet */
  * }</pre>
  */
 @Name("glob")
+@RequiresCapability(Capability.FILE_READ)
 public class Glob implements TuriFunction {
 
     @Override

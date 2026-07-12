@@ -1,5 +1,8 @@
 package ch.turic.builtins.functions;
 
+import ch.turic.Capability;
+import ch.turic.RequiresCapability;
+
 import ch.turic.Context;
 import ch.turic.exceptions.ExecutionException;
 import ch.turic.TuriFunction;
@@ -84,6 +87,7 @@ end snippet */
  * die "" when string_repr != sample_uuid_str
  * }</pre>
  */
+@RequiresCapability(Capability.JAVA_REFLECTION)
 public class JavaCall implements TuriFunction {
 
     /**
@@ -112,7 +116,7 @@ public class JavaCall implements TuriFunction {
         final Class<?> klass;
         if (args.at(0).is_a(String.class)) { // static call
             try {
-                klass = ctx.globalContext.classLoader.loadClass(args.at(0).as(String.class));
+                klass = ctx.globalContext.classLoader.loadClassForScript(args.at(0).as(String.class));
             } catch (ClassNotFoundException e) {
                 throw new ExecutionException("Cannot find class '" + args.at(0).as(String.class) + "'.", e);
             }

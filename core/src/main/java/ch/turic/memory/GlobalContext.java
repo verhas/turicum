@@ -1,5 +1,6 @@
 package ch.turic.memory;
 
+import ch.turic.Capability;
 import ch.turic.TuriClass;
 import ch.turic.exceptions.ExecutionException;
 import ch.turic.exceptions.StepLimitReached;
@@ -52,6 +53,11 @@ public class GlobalContext {
     private volatile Semaphore threadPermits = null;
     private volatile PrintStream out = System.out;
     private volatile PrintStream err = System.err;
+    // null means full trust: every built-in is registered. A non-null set (even empty) means
+    // sandboxed: only built-ins whose required capabilities are all granted are registered.
+    private volatile Set<Capability> grantedCapabilities = null;
+    // when non-null, file-reading built-ins resolve imports strictly under this root
+    private volatile Path importRoot = null;
 
     public GlobalContext(int stepLimit) {
         this(stepLimit, 0);
@@ -334,6 +340,58 @@ public class GlobalContext {
      */
     public void setErr(PrintStream err) {
         this.err = err;
+    }
+
+    /**
+     * The capabilities granted to this interpreter, or {@code null} for full trust (every
+     * built-in registered). A built-in is registered only when this set contains every
+     * capability it requires; see {@code BuiltIns.register}.
+     *
+     * @return the granted capability set, or {@code null} for full trust
+     */
+    public Set<Capability> grantedCapabilities() {
+        return grantedCapabilities;
+    }
+
+    /**
+     * Restricts this interpreter to the given capabilities. Must be set before built-ins are
+     * registered. {@code null} (the default) means full trust.
+     *
+     * @param grantedCapabilities the capabilities to grant, or {@code null} for full trust
+     */
+    public void setGrantedCapabilities(Set<Capability> grantedCapabilities) {
+        this.grantedCapabilities = grantedCapabilities;
+    }
+
+    /**
+     * Returns {@code true} if the given built-in may be registered under the current grant.
+     * A full-trust interpreter admits every built-in; a sandboxed one admits a built-in only
+     * when all of its {@linkplain ch.turic.ServiceLoaded#capabilities() required capabilities}
+     * are granted.
+     *
+     * @param required the capabilities a built-in requires
+     * @return whether the built-in may be registered
+     */
+    public boolean capabilitiesGranted(Set<Capability> required) {
+        return grantedCapabilities == null || grantedCapabilities.containsAll(required);
+    }
+
+    /**
+     * @return the root directory under which file-reading built-ins must resolve imports, or
+     * {@code null} when imports are not restricted to a root
+     */
+    public Path importRoot() {
+        return importRoot;
+    }
+
+    /**
+     * Restricts import/glob resolution to the given root directory (see the embedding
+     * documentation on file access scoping). {@code null} (the default) does not restrict.
+     *
+     * @param importRoot the root directory, or {@code null} for no restriction
+     */
+    public void setImportRoot(Path importRoot) {
+        this.importRoot = importRoot;
     }
 
     /**

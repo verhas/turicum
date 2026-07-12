@@ -55,24 +55,40 @@ public class BuiltIns {
     }
 
     /**
-     * Registers all available Turi classes into the global context.
+     * Registers all available Turi classes into the global context, skipping any whose
+     * required capabilities are not granted (see {@link GlobalContext#capabilitiesGranted}).
      *
      * @param globalContext The global context where classes should be registered
      */
     private static void registerTuriClasses(GlobalContext globalContext) {
-        TuriClass.getInstances(globalContext.classLoader).forEach(turiClass -> globalContext.addTuriClass(turiClass.forClass(), turiClass));
+        TuriClass.getInstances(globalContext.classLoader).forEach(turiClass -> {
+            if (globalContext.capabilitiesGranted(turiClass.capabilities())) {
+                globalContext.addTuriClass(turiClass.forClass(), turiClass);
+            }
+        });
     }
 
     /**
-     * Registers all built-in functions and macros into the given context.
+     * Registers all built-in functions and macros into the given context, skipping any whose
+     * required capabilities are not granted by the sandbox. A skipped built-in is simply
+     * absent, so a script that calls it gets an ordinary "undefined symbol" error. The gate is
+     * read from the {@link GlobalContext}, so runtime re-registration (for example after
+     * {@code add_java_classes} loads a jar) honors the same policy.
      *
      * @param context The context where functions and macros should be registered
      */
     private static void registerGlobalFunctionsAndMacros(LocalContext context) {
-        TuriFunction.getInstances(context.globalContext.classLoader).forEach(
-                tf -> context.predefine(tf.name(), tf));
-        TuriMacro.getInstances(context.globalContext.classLoader).forEach(
-                tm -> context.predefine(tm.name(), tm));
+        final var globalContext = context.globalContext;
+        TuriFunction.getInstances(globalContext.classLoader).forEach(tf -> {
+            if (globalContext.capabilitiesGranted(tf.capabilities())) {
+                context.predefine(tf.name(), tf);
+            }
+        });
+        TuriMacro.getInstances(globalContext.classLoader).forEach(tm -> {
+            if (globalContext.capabilitiesGranted(tm.capabilities())) {
+                context.predefine(tm.name(), tm);
+            }
+        });
     }
 
 

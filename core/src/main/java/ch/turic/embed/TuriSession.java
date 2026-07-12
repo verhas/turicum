@@ -44,6 +44,13 @@ public final class TuriSession implements AutoCloseable {
         if (policy.err() != null) {
             globalContext.setErr(policy.err());
         }
+        // Phase 2: capability gating, class filter, and import-root scoping. Must be set
+        // before BuiltIns.register runs, so that gated built-ins are filtered out.
+        globalContext.setGrantedCapabilities(policy.grantedCapabilities());
+        globalContext.setImportRoot(policy.importRoot());
+        if (policy.classFilter() != null) {
+            globalContext.classLoader.setScriptClassFilter(policy.classFilter(), policy.modeLabel());
+        }
         this.ctx = new LocalContext(globalContext);
         BuiltIns.registerGlobalConstants(ctx);
         BuiltIns.register(ctx);

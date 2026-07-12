@@ -19,6 +19,26 @@ import java.util.*;
 public interface ServiceLoaded {
 
     /**
+     * The set of {@link Capability capabilities} a service-loaded built-in needs in order to
+     * be registered for a sandboxed session. The default reads the {@link RequiresCapability}
+     * annotation on the implementing class, so most built-ins declare their capabilities with
+     * the annotation and never override this method; a built-in with no annotation needs no
+     * capability and is always registered.
+     * <p>
+     * This is consulted only at registration time (see {@code BuiltIns.register}), never on a
+     * call, so the reflection cost is irrelevant.
+     *
+     * @return the required capabilities, or an empty set for an unrestricted built-in
+     */
+    default Set<Capability> capabilities() {
+        final var ann = this.getClass().getAnnotation(RequiresCapability.class);
+        if (ann == null) {
+            return Set.of();
+        }
+        return Set.of(ann.value());
+    }
+
+    /**
      * Load the classes that implement the interface {@code service} and are provided by the modules or are available.
      *
      * @param service the interface for which the implementing class instances are needed

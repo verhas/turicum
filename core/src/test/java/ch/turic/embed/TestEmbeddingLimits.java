@@ -20,7 +20,7 @@ class TestEmbeddingLimits {
     @Test
     void stepLimitStopsARunawayScript() {
         // snippet step_limit
-        final var policy = SandboxPolicy.builder()
+        final var policy = SandboxPolicy.trusted()
                 .stepLimit(10_000)
                 .build();
         try (final var engine = TuriEngine.create(policy);
@@ -41,7 +41,7 @@ class TestEmbeddingLimits {
     @Test
     void theScriptCannotCatchTheHalt() {
         // snippet uncatchable_halt
-        final var policy = SandboxPolicy.builder()
+        final var policy = SandboxPolicy.trusted()
                 .stepLimit(10_000)
                 .build();
         try (final var engine = TuriEngine.create(policy);
@@ -65,7 +65,7 @@ class TestEmbeddingLimits {
     @Test
     void graceStepsLetCleanupRunAfterAHalt() {
         // snippet grace_steps
-        final var policy = SandboxPolicy.builder()
+        final var policy = SandboxPolicy.trusted()
                 .stepLimit(10_000)
                 .graceSteps(1_000)
                 .build();
@@ -93,7 +93,7 @@ class TestEmbeddingLimits {
     @Timeout(10)
     void wallClockTimeoutAbortsEvenASleepingScript() {
         // snippet timeout
-        final var policy = SandboxPolicy.builder()
+        final var policy = SandboxPolicy.trusted()
                 .timeout(Duration.ofMillis(200))
                 .build();
         try (final var engine = TuriEngine.create(policy);
@@ -113,7 +113,7 @@ class TestEmbeddingLimits {
     @Timeout(10)
     void threadCapLimitsConcurrentAsyncTasks() {
         // snippet thread_cap
-        final var policy = SandboxPolicy.builder()
+        final var policy = SandboxPolicy.trusted()
                 .maxThreads(2)
                 .build();
         try (final var engine = TuriEngine.create(policy);
@@ -147,7 +147,7 @@ class TestEmbeddingLimits {
     @Timeout(10)
     void singleThreadForbidsAsyncEntirely() {
         // snippet single_thread
-        final var policy = SandboxPolicy.builder()
+        final var policy = SandboxPolicy.trusted()
                 .singleThread()             // alias for maxThreads(0)
                 .build();
         try (final var engine = TuriEngine.create(policy);
@@ -167,7 +167,7 @@ class TestEmbeddingLimits {
     @Test
     void resettingTheStepBudget() {
         // snippet reset_steps
-        final var policy = SandboxPolicy.builder()
+        final var policy = SandboxPolicy.trusted()
                 .stepLimit(10_000)
                 .build();
         try (final var engine = TuriEngine.create(policy);

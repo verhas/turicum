@@ -111,7 +111,7 @@ class TestEmbeddingBasics {
     void capturingOutput() {
         // snippet capture_output
         final var captured = new ByteArrayOutputStream();
-        final var policy = SandboxPolicy.builder()
+        final var policy = SandboxPolicy.trusted()
                 .stdout(captured)
                 .build();
         try (final var engine = TuriEngine.create(policy);

@@ -1,5 +1,8 @@
 package ch.turic.builtins.functions;
 
+import ch.turic.Capability;
+import ch.turic.RequiresCapability;
+
 import ch.turic.Context;
 import ch.turic.exceptions.ExecutionException;
 import ch.turic.TuriFunction;
@@ -54,6 +57,7 @@ end snippet */
  * println result // is 13.75 BigDecimal
  * }</pre>
  */
+@RequiresCapability(Capability.JAVA_REFLECTION)
 public class JavaObject implements TuriFunction {
 
     @Override
@@ -63,7 +67,7 @@ public class JavaObject implements TuriFunction {
         final var className = args.at(0).as(String.class);
         final var javaArgs = args.tail(1);
         try {
-            final var klass = ctx.globalContext.classLoader.loadClass(className);
+            final var klass = ctx.globalContext.classLoader.loadClassForScript(className);
             final var constructor = Reflection.getConstructorForArgs(klass, javaArgs);
             return constructor.newInstance(javaArgs);
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException |

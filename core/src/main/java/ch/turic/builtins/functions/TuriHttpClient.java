@@ -1,5 +1,8 @@
 package ch.turic.builtins.functions;
 
+import ch.turic.Capability;
+import ch.turic.RequiresCapability;
+
 import ch.turic.Context;
 import ch.turic.exceptions.ExecutionException;
 import ch.turic.SnakeNamed.Name;
@@ -27,6 +30,7 @@ end snippet */
  * Perform a http request to a remote (or not so remote) server.
  */
 @Name("http_client")
+@RequiresCapability(Capability.NETWORK)
 public class TuriHttpClient implements TuriFunction {
 
     private static String str(Object s) {

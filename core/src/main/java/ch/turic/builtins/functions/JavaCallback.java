@@ -1,5 +1,8 @@
 package ch.turic.builtins.functions;
 
+import ch.turic.Capability;
+import ch.turic.RequiresCapability;
+
 import ch.turic.Context;
 import ch.turic.LngCallable;
 import ch.turic.SnakeNamed;
@@ -30,6 +33,7 @@ The implemented conversions are listed below.
 
 end snippet */
 @SnakeNamed.Name("java_callback")
+@RequiresCapability(Capability.JAVA_REFLECTION)
 public class JavaCallback implements TuriFunction {
     @Override
     public CallbackConverter call(Context context, Object[] arguments) throws ExecutionException {

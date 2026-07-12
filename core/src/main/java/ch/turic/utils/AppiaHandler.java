@@ -114,7 +114,31 @@ public class AppiaHandler {
                     String.join("|", appiaRoots.stream().map(Path::toString).toList()),
                     new File(".").getAbsolutePath());
         }
+        // Sandbox confinement: the APPIA search above is left unchanged; a configured import root
+        // only acts as a ceiling on the result. Whatever the search found — driven by the script's
+        // own APPIA or the host environment — must resolve within the root, so '..' segments and
+        // out-of-root APPIA entries cannot read outside it. The root itself is not a search path.
+        confineToImportRoot(context, arg, sourceFile);
         return sourceFile;
+    }
+
+    /**
+     * Rejects a located import that resolves outside the sandbox import root, when one is set.
+     * The found path is absolutized and normalized (collapsing {@code ..}) before the prefix
+     * check, and a path outside the root is reported as a policy denial rather than a plain
+     * "not found", to make the cause clear. When no import root is configured this is a no-op.
+     */
+    private static void confineToImportRoot(LocalContext context, String arg, Path sourceFile) {
+        final var importRoot = context.globalContext.importRoot();
+        if (importRoot == null) {
+            return;
+        }
+        final var resolved = sourceFile.toAbsolutePath().normalize();
+        if (!resolved.startsWith(importRoot)) {
+            throw new ExecutionException(
+                    "Import '%s' resolves to '%s', outside the sandbox import root '%s', and is denied by the sandbox policy",
+                    arg, resolved, importRoot);
+        }
     }
 
     private List<Path> getAppiaRootsFrom(LngList appiaList) {

@@ -1,5 +1,7 @@
 package ch.turic.utils;
 
+import ch.turic.exceptions.ExecutionException;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.*;
@@ -9,6 +11,7 @@ import java.util.Enumeration;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 /**
@@ -18,9 +21,70 @@ public class TuricumClassLoader extends ClassLoader {
 
     private final AtomicReference<URLClassLoader> delegate = new AtomicReference<>();
 
+    // Applied ONLY to script-initiated class resolution (java_class, java_call, java_object,
+    // type annotations) via loadClassForScript. The default allows everything. Service loading
+    // and interpreter-internal class loading use loadClass directly and are never filtered, so
+    // installing a filter cannot break registration of the interpreter's own built-in classes.
+    private volatile Predicate<String> scriptClassFilter = null;
+    private volatile String sandboxModeLabel = "sandbox";
+
     public TuricumClassLoader(ClassLoader parent) {
         super(parent);
         delegate.set(new URLClassLoader(new URL[0], parent));
+    }
+
+    /**
+     * Installs the filter consulted by {@link #loadClassForScript(String)}. Passing
+     * {@code null} (the default) disables filtering: script-initiated loads then behave exactly
+     * like {@link #loadClass(String)}.
+     *
+     * @param filter    a predicate that returns {@code true} for a class a script may load, or
+     *                  {@code null} to allow everything
+     * @param modeLabel a short label naming the sandbox mode, used in the denial message
+     */
+    public void setScriptClassFilter(Predicate<String> filter, String modeLabel) {
+        this.scriptClassFilter = filter;
+        this.sandboxModeLabel = modeLabel == null ? "sandbox" : modeLabel;
+    }
+
+    /**
+     * Loads a class on behalf of a running script, first consulting the script class filter.
+     * This is the entry point every reflective built-in must use, so that a single filter
+     * governs all script-initiated Java access.
+     *
+     * @param name the fully qualified class name the script asked for
+     * @return the loaded class
+     * @throws ExecutionException     if the sandbox policy denies access to the class; this is
+     *                                not a {@link ClassNotFoundException} so a built-in's
+     *                                "class not found" handling does not mask the real reason
+     * @throws ClassNotFoundException if the class genuinely cannot be found
+     */
+    public Class<?> loadClassForScript(String name) throws ClassNotFoundException {
+        final var filter = scriptClassFilter;
+        if (filter != null && !filter.test(name)) {
+            throw new ExecutionException(
+                    "Java access to '%s' denied by the sandbox policy (%s)", name, sandboxModeLabel);
+        }
+        return loadClass(name);
+    }
+
+    /**
+     * Checks that a running script may reflectively touch the given class, consulting the same
+     * filter as {@link #loadClassForScript(String)}. Unlike that method this loads nothing: it
+     * guards <em>method and field dispatch</em> on Java objects a script already holds (for
+     * example one injected by the embedder), so that reaching an arbitrary class through
+     * {@code obj.getClass().getClassLoader().loadClass(...)} is denied even though no class was
+     * looked up by name. A {@code null} filter (full trust) and a {@code null} class are no-ops.
+     *
+     * @param klass the class whose member a script is about to invoke or read
+     * @throws ExecutionException if the sandbox policy denies script access to the class
+     */
+    public void checkScriptAccess(Class<?> klass) throws ExecutionException {
+        final var filter = scriptClassFilter;
+        if (filter != null && klass != null && !filter.test(klass.getName())) {
+            throw new ExecutionException(
+                    "Java access to '%s' denied by the sandbox policy (%s)", klass.getName(), sandboxModeLabel);
+        }
     }
 
     public void inherit(TuricumClassLoader followed) {

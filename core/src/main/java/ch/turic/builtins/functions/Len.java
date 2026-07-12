@@ -50,6 +50,14 @@ public class Len implements TuriFunction {
             case String s -> s.length();
             case LngList l -> l.size();
             case Object[] a -> a.length;
+            case byte[] b -> b.length;
+            case short[] s -> s.length;
+            case int[] i -> i.length;
+            case long[] l -> l.length;
+            case char[] c -> c.length;
+            case float[] f -> f.length;
+            case double[] d -> d.length;
+            case boolean[] b -> b.length;
             case Collection<?> c -> c.size();
             default ->
                     throw new ExecutionException("Cannot get the len(%s) for the value of %s", arg.getClass().getCanonicalName(), arg);

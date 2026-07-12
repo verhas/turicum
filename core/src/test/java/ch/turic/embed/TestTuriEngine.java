@@ -77,7 +77,7 @@ class TestTuriEngine {
     @Test
     void stdoutIsRedirected() {
         final var captured = new ByteArrayOutputStream();
-        final var policy = SandboxPolicy.builder().stdout(captured).build();
+        final var policy = SandboxPolicy.trusted().stdout(captured).build();
         try (final var engine = TuriEngine.create(policy);
              final var session = engine.newSession()) {
             session.eval("println \"hello embedder\"");
@@ -87,7 +87,7 @@ class TestTuriEngine {
 
     @Test
     void stepLimitStopsRunawayLoop() {
-        final var policy = SandboxPolicy.builder().stepLimit(10_000).build();
+        final var policy = SandboxPolicy.trusted().stepLimit(10_000).build();
         try (final var engine = TuriEngine.create(policy);
              final var session = engine.newSession()) {
             final var e = assertThrows(ExecutionException.class, () -> session.eval("""
@@ -103,7 +103,7 @@ class TestTuriEngine {
 
     @Test
     void stepLimitCannotBeCaughtByTheScript() {
-        final var policy = SandboxPolicy.builder().stepLimit(10_000).build();
+        final var policy = SandboxPolicy.trusted().stepLimit(10_000).build();
         try (final var engine = TuriEngine.create(policy);
              final var session = engine.newSession()) {
             assertThrows(ExecutionException.class, () -> session.eval("""
@@ -131,7 +131,7 @@ class TestTuriEngine {
     @Test
     @Timeout(10)
     void timeoutAbortsABusyLoop() {
-        final var policy = SandboxPolicy.builder().timeout(Duration.ofMillis(200)).build();
+        final var policy = SandboxPolicy.trusted().timeout(Duration.ofMillis(200)).build();
         try (final var engine = TuriEngine.create(policy);
              final var session = engine.newSession()) {
             assertThrows(TuriTimeoutException.class, () -> session.eval("""
@@ -150,7 +150,7 @@ class TestTuriEngine {
     @Timeout(10)
     void timeoutAbortsASleepingScript() {
         // sleep() consumes no steps; only the wall-clock watchdog can stop it
-        final var policy = SandboxPolicy.builder().timeout(Duration.ofMillis(200)).build();
+        final var policy = SandboxPolicy.trusted().timeout(Duration.ofMillis(200)).build();
         try (final var engine = TuriEngine.create(policy);
              final var session = engine.newSession()) {
             final var start = System.nanoTime();
@@ -164,7 +164,7 @@ class TestTuriEngine {
     @Test
     @Timeout(10)
     void fastScriptIsNotAffectedByTimeout() {
-        final var policy = SandboxPolicy.builder().timeout(Duration.ofSeconds(30)).build();
+        final var policy = SandboxPolicy.trusted().timeout(Duration.ofSeconds(30)).build();
         try (final var engine = TuriEngine.create(policy);
              final var session = engine.newSession()) {
             assertEquals(3L, session.eval("1 + 2"));
@@ -174,7 +174,7 @@ class TestTuriEngine {
     @Test
     @Timeout(10)
     void threadCapLimitsAsyncTasks() {
-        final var policy = SandboxPolicy.builder().maxThreads(2).build();
+        final var policy = SandboxPolicy.trusted().maxThreads(2).build();
         try (final var engine = TuriEngine.create(policy);
              final var session = engine.newSession()) {
             final var e = assertThrows(ExecutionException.class, () -> session.eval("""
@@ -190,7 +190,7 @@ class TestTuriEngine {
     @Test
     @Timeout(10)
     void threadPermitsAreReleasedWhenTasksFinish() {
-        final var policy = SandboxPolicy.builder().maxThreads(1).build();
+        final var policy = SandboxPolicy.trusted().maxThreads(1).build();
         try (final var engine = TuriEngine.create(policy);
              final var session = engine.newSession()) {
             // sequential async tasks each fit into the single permit

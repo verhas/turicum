@@ -1,5 +1,8 @@
 package ch.turic.builtins.functions;
 
+import ch.turic.Capability;
+import ch.turic.RequiresCapability;
+
 import ch.turic.Context;
 import ch.turic.SnakeNamed;
 import ch.turic.TuriFunction;
@@ -30,6 +33,7 @@ In that case, only one of them will be included with the simple name, but both a
 
 end snippet */
 @SnakeNamed.Name( "java_import")
+@RequiresCapability(Capability.JAVA_REFLECTION)
 public class JavaImport implements TuriFunction {
 
     @Override

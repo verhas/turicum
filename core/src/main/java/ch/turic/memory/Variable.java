@@ -210,7 +210,7 @@ public class Variable {
                         klassName = name.substring(5);
                     }
                     try {
-                        final var klass = ctx.globalContext.classLoader.loadClass(klassName);
+                        final var klass = ctx.globalContext.classLoader.loadClassForScript(klassName);
                         yield new Variable.Type(klass, null, new Identifier(name));
                     } catch (ClassNotFoundException e) {
                         throw new ExecutionException("Type '%s' could not be found.", name);

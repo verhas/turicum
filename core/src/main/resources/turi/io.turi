@@ -1,21 +1,21 @@
 global Path=java_class("java.nio.file.Path");
 global Files=java_class("java.nio.file.Files");
 class files {
-    fn read_all_lines(!file_name_or_path){
+    fn read_all_lines( ! file_name_or_path ){
         // format:off
         let file=if type(file_name_or_path)=="str":
                      Path.of(file_name_or_path)
                  else:
                      file_name_or_path
         // format:on
-        Files.readAllLines(file)
+        Files.readAllLines( file )
     }
-    fn write(!file_name_or_path, content){
-        let file=if type(file_name_or_path)=="str":
-            Path.of(file_name_or_path)
+    fn write( ! file_name_or_path, content ){
+        let file=if type( file_name_or_path ) == "str" :
+            Path.of( file_name_or_path )
         else:
             file_name_or_path
-        Files.writeString(file, content)
+        Files.writeString( file, content )
     }
 }
 

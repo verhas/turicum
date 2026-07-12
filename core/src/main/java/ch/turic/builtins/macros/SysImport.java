@@ -1,5 +1,8 @@
 package ch.turic.builtins.macros;
 
+import ch.turic.Capability;
+import ch.turic.RequiresCapability;
+
 import ch.turic.Context;
 import ch.turic.exceptions.ExecutionException;
 import ch.turic.TuriMacro;
@@ -47,6 +50,7 @@ end snippet*/
 /**
  * Imports a file as turi source code from the classpath.
  */
+@RequiresCapability(Capability.FILE_READ)
 public class SysImport implements TuriMacro {
 
     @Override

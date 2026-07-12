@@ -352,22 +352,84 @@ In **untrusted** mode the floor is absolute — there is deliberately no API to 
 In **trusted** mode it is on by default and can be pierced per pattern with
 `unsafeAllowJavaClasses(...)`; the `unsafe` prefix exists to be greppable in code review.
 
+**Why `ch.turic.*` is on the floor.** This entry is *defense-in-depth*, not the plugging of
+a single proven exploit — and worth spelling out because it is the least obvious floor member.
+The `ch.turic.*` package contains the very machinery that enforces the sandbox: `GlobalContext`
+holds the `steps` counter and `stepLimit`, the granted-capability set, and the `importRoot`;
+`TuricumClassLoader` holds the class filter itself and can be disarmed with
+`setScriptClassFilter(null, …)`. If a script could reach the **live** instances of these, it
+would own its own cage — reset the step counter, null the filter, unscope file access. That
+reach is not demonstrated by loading the class alone (`java_class` yields the `Class` and lets
+you construct a *new* instance or call statics, not grab the running interpreter's context),
+and `java.lang.reflect.*`/`java.lang.invoke.*` — the tools you would use to walk from a class
+to a live field — are floored too. So the entry is belt-and-suspenders on top of the reflection
+floor. The whole package is blocked rather than audited class by class because (a) several
+`ch.turic.*` classes carry process-wide static state (the shared virtual-thread executor, the
+`TuriClass` registry, `CycleGuard`'s thread-locals) that a script could corrupt or use to reach
+across sessions without ever touching the live context; (b) a per-class audit is fragile and
+would need redoing on every refactor, whereas a package prefix cannot rot; and (c) the cost to
+legitimate scripts is exactly zero — no sandboxed Turicum script has any reason to reflect on
+interpreter internals, so the block is free insurance with high downside if omitted. The floor
+applies only to *script-initiated* loads (`loadClassForScript` / `checkScriptAccess`); the
+interpreter's own use of its classes goes through normal JVM loading and is never filtered.
+
 **Granularity honesty.** The enforceable chokepoint is class loading, so the permission
 unit is the class, and an allowed class exposes *all* its public members. The documentation
 must say plainly: do not allowlist broad utility classes; write a facade class in the host
-application with exactly the operations scripts may perform, and allowlist that. Injected
-host objects (`TuriSession.set`) are reachable regardless of the filter — they are handed
-in by the embedder and count as deliberate API surface. Method-level filtering (interception
-inside `java_call`/`java_object`) is possible at a later phase but out of scope for Phase 2.
+application with exactly the operations scripts may perform, and allowlist that. Method-level
+filtering (interception inside `java_call`/`java_object`) is possible at a later phase but out
+of scope for Phase 2.
+
+**Finding (2026-07-12): reflective escape via held Java objects — fixed.** The first
+implementation filtered only *class lookups by name* (`loadClassForScript`, used by
+`java_class`/`java_call`/`java_object`/type annotations). But the interpreter also reaches Java
+methods by a second path: `LeftValue.toObject` auto-wraps *any* raw Java object into a
+`memory.JavaObject`, and `FunctionCall` then dispatches `obj.method(args)` by raw reflection
+(`Reflection.invoke`) without consulting the filter. Any object a script already holds —
+most importantly one the embedder injects with `TuriSession.set(...)`, i.e. the recommended
+facade — was therefore a full reflective foothold: `Object.getClass()` is inherited by
+everything, so
+`host.getClass().getClassLoader().loadClass("java.lang.Runtime")` reached an arbitrary class
+even in untrusted mode with `JAVA_REFLECTION` denied and the class allowlist in force. This
+was verified end-to-end. (The earlier claim in this section that "injected host objects are
+reachable regardless of the filter" was exactly the hole.)
+
+*Fix:* the class filter now governs reflective member access too, not only load-by-name.
+`TuricumClassLoader.checkScriptAccess(Class)` applies the same predicate to the runtime class
+of the target of every reflective method call (`FunctionCall`, both the `JavaClass` static and
+`JavaObject` instance branches) and field read (`JavaObject.getField`). `java.lang.Class` and
+`java.lang.ClassLoader` are added to the absolute floor. Net effect: an injected object is
+method-callable only when its class is allowlisted (the facade pattern still works), while
+`getClass()` returns an inert `Class` whose reflective methods are floored, so the pivot to an
+arbitrary class is closed. Full trust (`UNRESTRICTED`, and the plain `Interpreter`, which
+install no filter) is unaffected. Tests:
+`injectedObjectsAreReachableOnlyWhenAllowlisted`,
+`anInjectedObjectCannotBePivotedIntoAReflectiveEscape`.
 
 ### 7.5. File access scoping
 
 With `FILE_READ` granted in untrusted mode, `importRoot(Path)` is **required** (building
-without it is an `IllegalStateException`): `import`/`sys_import`/`glob` resolve strictly
-under the root, `..`-escapes rejected after normalization. In trusted mode `importRoot`
-is optional and merely convenient. APPIA-based resolution is bypassed in untrusted mode:
-the root is the only search path, so an environment variable on the host cannot widen a
-tenant's reach.
+without it is an `IllegalStateException`). In trusted mode `importRoot` is optional and
+merely convenient.
+
+`importRoot` is a **ceiling on the result, not a replacement search path** (revised
+2026-07-12). The normal APPIA search runs unchanged — driven by the script's own
+`global APPIA` or the host environment — and the file it resolves is then required to lie
+under the root: the located path is absolutized and normalized (collapsing `..`) and must
+`startsWith` the root, otherwise it is denied as a policy violation rather than reported as
+"not found". Confinement holds regardless of how APPIA points, because the check is applied
+to the *result*: a script that sets `global APPIA` to a directory outside the root still has
+its reads refused. Enforced in `AppiaHandler.locateSource` via `confineToImportRoot`.
+
+An earlier revision made `importRoot` *replace* APPIA with a single search root. That was
+changed because it altered resolution semantics (a script could resolve imports differently
+under the sandbox than during development) and could not express more than one search
+directory. The trade-off of the ceiling model: since the root no longer contributes a search
+location, the embedder must ensure APPIA (script global or host environment) includes at
+least one directory under the root, or nothing resolves. Note the confinement is a *lexical*
+`startsWith` after normalization; it does not resolve symlinks, so a symlink planted under the
+root that points outside it would be followed — out of scope for the `..`-escape threat model,
+but a `toRealPath()` variant is the hardening if symlink defense is later required.
 
 ### 7.6. Diagnostics
 

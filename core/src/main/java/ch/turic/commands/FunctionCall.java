@@ -44,6 +44,9 @@ public class FunctionCall extends FunctionCallOrCurry {
         if (myObject instanceof FieldAccess fieldAccess) {
             final var obj = LeftValue.toObject(fieldAccess.object().execute(context));
             if (obj instanceof JavaClass jc) {
+                // guard static-method dispatch: the class filter (when a sandbox is active) must
+                // apply to reflective calls, not only to class lookups by name
+                context.globalContext.classLoader.checkScriptAccess(jc.klass());
                 final var args = bareValues(evaluateClosureArguments(context, this.arguments));
                 final var method = Reflection.getStaticMethodForArgs(jc.klass(), fieldAccess.identifier(), args);
                 try {
@@ -63,6 +66,12 @@ public class FunctionCall extends FunctionCallOrCurry {
                         // invoke those methods
                         function = turi.getMethod(jo.object(), fieldAccess.identifier());
                     } else {
+                        // Raw reflective dispatch on a Java object the script holds (e.g. one the
+                        // embedder injected). Guard it with the class filter so that a script cannot
+                        // reach an arbitrary class via obj.getClass().getClassLoader().loadClass(...):
+                        // the runtime class of the target (java.lang.Class, a ClassLoader, Runtime, …)
+                        // is checked against the same floor and allowlist as a load-by-name.
+                        context.globalContext.classLoader.checkScriptAccess(jo.object().getClass());
                         final var args = bareValues(evaluateClosureArguments(context, this.arguments));
                         final var method = Reflection.getMethodForArgs(jo.object(), fieldAccess.identifier(), args);
                         if (method == null) {

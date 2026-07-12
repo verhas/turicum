@@ -1,5 +1,8 @@
 package ch.turic.builtins.macros;
 
+import ch.turic.Capability;
+import ch.turic.RequiresCapability;
+
 import ch.turic.*;
 import ch.turic.builtins.functions.FunUtils;
 import ch.turic.commands.FieldAccess;
@@ -103,6 +106,7 @@ end snippet*/
 /**
  * It loads the file based on the APPIA environment variable or .env file.
  */
+@RequiresCapability(Capability.FILE_READ)
 public class Import implements TuriMacro {
 
     private final AppiaHandler handler = new AppiaHandler();

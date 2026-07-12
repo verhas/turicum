@@ -1,5 +1,8 @@
 package ch.turic.builtins.functions;
 
+import ch.turic.Capability;
+import ch.turic.RequiresCapability;
+
 import ch.turic.Context;
 import ch.turic.exceptions.ExecutionException;
 import ch.turic.SnakeNamed.Name;
@@ -25,7 +28,8 @@ end snippet */
 /**
  * Start an HTTP server
  */
-@Name("server")
+@Name("http_server")
+@RequiresCapability(Capability.NETWORK)
 public class TuriHttpServer implements TuriFunction {
     @Override
     public String name() {

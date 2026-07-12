@@ -1,5 +1,8 @@
 package ch.turic.builtins.functions;
 
+import ch.turic.Capability;
+import ch.turic.RequiresCapability;
+
 import ch.turic.Context;
 import ch.turic.TuriFunction;
 import ch.turic.exceptions.ExecutionException;
@@ -19,6 +22,7 @@ end snippet */
 /**
  * Returns the source directory of the currently running code as a string.
  */
+@RequiresCapability(Capability.FILE_READ)
 public class SourceDirectory implements TuriFunction {
 
     @Override

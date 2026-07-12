@@ -1,5 +1,8 @@
 package ch.turic.builtins.functions;
 
+import ch.turic.Capability;
+import ch.turic.RequiresCapability;
+
 import ch.turic.Context;
 import ch.turic.exceptions.ExecutionException;
 import ch.turic.TuriFunction;
@@ -18,6 +21,7 @@ end snippet */
  * <p>
  * The returned string does not contain the {@code java.} prefix.
  */
+@RequiresCapability(Capability.JAVA_REFLECTION)
 public class JavaType implements TuriFunction {
 
     @Override

@@ -69,7 +69,7 @@ class TestEmbeddingAdvanced {
     @Timeout(10)
     void scriptsCanUseAsyncTasks() {
         // snippet async_scripts
-        final var policy = SandboxPolicy.builder()
+        final var policy = SandboxPolicy.trusted()
                 .maxThreads(4)
                 .build();
         try (final var engine = TuriEngine.create(policy);

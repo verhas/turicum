@@ -94,6 +94,10 @@ public record JavaObject(Object object) implements HasFields {
             if (turi != null) {
                 return turi.getMethod(object(), name);
             }
+            // Guard raw reflective field access with the class filter, mirroring the method-call
+            // guard in FunctionCall: a script must not read fields of a floored/denied class it
+            // reached from an injected object.
+            context.globalContext.classLoader.checkScriptAccess(object.getClass());
             Field field;
             try {
                 field = object.getClass().getField(name);
