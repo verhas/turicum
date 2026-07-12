@@ -215,7 +215,166 @@ annotations. Apply a built-in deny-list even in permissive mode:
    `globalContext.out()`. Tests: `core/src/test/java/ch/turic/embed/TestTuriEngine.java`.
 2. **Phase 2 — capabilities.**
    Capability-gated builtin registration, the class filter on `TuricumClassLoader`
-   with the default deny-list, and the import root.
+   with the default deny-list, and the import root. Specified in detail in §7.
 3. **Phase 3 — resource accounting.**
    Memory accounting and per-object caps, the CPU token bucket, and the stack-depth
    limit.
+
+## 7. Phase 2 specification — trust modes and capability handling
+
+*Status: agreed design, 2026-07-12. Not yet implemented.*
+
+### 7.1. The trust stance is explicit, not inferred
+
+Every engine has a `SandboxPolicy` (`TuriEngine.create()` uses
+`SandboxPolicy.UNRESTRICTED`), so "a policy object is present" does mean "distrust the
+script". Nor may the arrival of Phase 2 silently change what an existing policy means: a
+Phase 1 embedder who configured only `.timeout(...)` for trusted in-house scripts must not
+lose `java_class`, `import`, and `env` on upgrade. Resource limits and capability
+restrictions are orthogonal — bounding *how long* a script runs says nothing about *what it
+may reach*.
+
+Therefore the trust stance is chosen explicitly at the builder entry point, and the two
+modes get opposite defaults and opposite list semantics:
+
+| | `SandboxPolicy.trusted()` | `SandboxPolicy.untrusted()`                   |
+|---|---|-----------------------------------------------|
+| Intended for | in-house automation, build scripts, configuration | user-supplied scripts, multi-tenant servers   |
+| Capability default | **all granted** | **none granted**                              |
+| Lists act as | deny-list (`deny…` methods) | allow-list (`allow…` methods)                 |
+| Security posture | guardrails, *not* a security boundary | security boundary (within JVM limits, see §5) |
+| Deny floor (§7.4) | on, overridable via `unsafeAllow…` | absolute                                      |
+
+The former `builder()` entry point is **removed** (renamed to `trusted()`): its name
+carried no stance, and after Phase 2 every policy has one. `SandboxPolicy.UNRESTRICTED`
+remains and equals `trusted().build()`. This is a source-incompatible rename of a
+not-yet-released API; the Phase 1 tests and `EMBEDDING.md` snippets are updated with it.
+
+Naming: `trusted()`/`untrusted()` name the thing that actually differs — how much the
+embedder trusts the *script* — and are true opposites. Considered and rejected:
+`sandbox()` (stutters as `SandboxPolicy.sandbox()`, and is not the opposite of anything),
+`permissive()`/`restrictive()` (describe the mechanism, not the reason),
+`allowByDefault()`/`denyByDefault()` (unambiguous but verbose; kept instead as the
+queryable property `policy.isDenyByDefault()`).
+
+### 7.2. Two builder types, not one builder with a flag
+
+A single builder with a mode flag would let `allow…` and `deny…` calls silently change
+meaning depending on a distant line. Instead the entry points return different builder
+types sharing a common base:
+
+```java
+public sealed abstract class Builder<B extends Builder<B>> {   // shared, mode-independent
+    public B stepLimit(int limit) …
+    public B graceSteps(int steps) …
+    public B timeout(Duration timeout) …
+    public B maxThreads(int max) …          public B singleThread() …
+    public B stdout(…) …                    public B stderr(…) …
+    public SandboxPolicy build() …
+}
+
+public final class TrustedBuilder extends Builder<TrustedBuilder> {
+    public TrustedBuilder deny(Capability... capabilities) …
+    public TrustedBuilder denyJavaClasses(String... patterns) …
+    public TrustedBuilder unsafeAllowJavaClasses(String... patterns) …  // pierces the floor
+}
+
+public final class UntrustedBuilder extends Builder<UntrustedBuilder> {
+    public UntrustedBuilder allow(Capability... capabilities) …
+    public UntrustedBuilder allowJavaClasses(String... patterns) …
+    public UntrustedBuilder importRoot(Path root) …   // required if FILE_READ is granted
+}
+```
+
+Calling the wrong family is a *compile-time* error, and reading a policy declaration tells
+you its stance in the first line:
+
+```java
+// Mode 1 — trusted: guardrails only
+var policy = SandboxPolicy.trusted()
+        .timeout(Duration.ofSeconds(30))
+        .deny(Capability.NETWORK)
+        .build();
+
+// Mode 2 — untrusted: default deny
+var policy = SandboxPolicy.untrusted()
+        .stepLimit(10_000_000)
+        .timeout(Duration.ofSeconds(5))
+        .allow(Capability.JAVA_REFLECTION)
+        .allowJavaClasses("com.mycorp.scripting.api.*")
+        .build();
+```
+
+### 7.3. Capabilities gate builtin registration
+
+```java
+public enum Capability { JAVA_REFLECTION, FILE_READ, ENV, NETWORK }
+```
+
+The SPI (`TuriFunction`/`TuriMacro`/`TuriClass`, via `ServiceLoaded`) gains
+`default Set<Capability> capabilities() { return Set.of(); }`; builtins whose set is
+non-empty are registered by `BuiltIns.register(ctx, policy)` only when every listed
+capability is granted. A script calling an unregistered builtin gets the ordinary
+"undefined symbol" error. Tagging of the existing builtins:
+
+| Capability | Builtins |
+|---|---|
+| `JAVA_REFLECTION` | `java_class`, `java_call`, `java_object`, `java_import`, `java_callback`, `add_java_classes`, `java_resources`, `java_type`, `as_object` |
+| `FILE_READ` | `import`, `sys_import`, `glob`, `source_directory`, `TuriInputStream`, `TuriInputStreamReader` |
+| `ENV` | `env` |
+| `NETWORK` | `http_client`, `http_server` |
+
+The enum leaves room for `FILE_WRITE` and `PROCESS` when such builtins appear; today both
+are reachable only through reflection and are therefore handled by the class filter and
+the floor.
+
+### 7.4. The class filter and the mandatory deny floor
+
+Granting `JAVA_REFLECTION` answers *whether* the reflection builtins exist; the class
+filter answers *which classes* they may touch. All class resolution already funnels
+through `GlobalContext.classLoader` (`TuricumClassLoader`), which gains a filter consulted
+in `loadClass`/`findClass`; a denied name fails exactly like a missing class, but with an
+attributable message: `Java access to 'java.lang.Runtime' denied by the sandbox policy
+(untrusted mode)`. Patterns are FQCN literals or package prefixes with a trailing `.*`.
+
+Independent of mode, a **mandatory deny floor** is always installed:
+
+- `ch.turic.*` — a script that can load `GlobalContext` lifts its own limits;
+- `jdk.internal.*`, `sun.*` — JDK internals;
+- `java.lang.reflect.*`, `java.lang.invoke.*` — reflection escape hatches that would
+  bypass the filter one level down;
+- `java.lang.Runtime`, `java.lang.ProcessBuilder`, `java.lang.System`,
+  `java.lang.Thread` (and subclasses’ packages `java.util.concurrent.*` stay allowed only
+  in trusted mode) — process, exit, environment, and raw-thread escape hatches; raw
+  threads would also bypass the `maxThreads` permit accounting.
+
+In **untrusted** mode the floor is absolute — there is deliberately no API to pierce it.
+In **trusted** mode it is on by default and can be pierced per pattern with
+`unsafeAllowJavaClasses(...)`; the `unsafe` prefix exists to be greppable in code review.
+
+**Granularity honesty.** The enforceable chokepoint is class loading, so the permission
+unit is the class, and an allowed class exposes *all* its public members. The documentation
+must say plainly: do not allowlist broad utility classes; write a facade class in the host
+application with exactly the operations scripts may perform, and allowlist that. Injected
+host objects (`TuriSession.set`) are reachable regardless of the filter — they are handed
+in by the embedder and count as deliberate API surface. Method-level filtering (interception
+inside `java_call`/`java_object`) is possible at a later phase but out of scope for Phase 2.
+
+### 7.5. File access scoping
+
+With `FILE_READ` granted in untrusted mode, `importRoot(Path)` is **required** (building
+without it is an `IllegalStateException`): `import`/`sys_import`/`glob` resolve strictly
+under the root, `..`-escapes rejected after normalization. In trusted mode `importRoot`
+is optional and merely convenient. APPIA-based resolution is bypassed in untrusted mode:
+the root is the only search path, so an environment variable on the host cannot widen a
+tenant's reach.
+
+### 7.6. Diagnostics
+
+- `policy.isDenyByDefault()` reports the stance; `TuriEngine`/`TuriSession` expose the
+  policy they run under.
+- Every capability- or filter-denied operation names the denied thing, the mechanism, and
+  the mode in its error message — a sandbox whose refusals look like random script bugs
+  ("undefined symbol", "class not found") wastes exactly the debugging time it should save.
+  The "undefined symbol" behavior of unregistered builtins (§7.3) is the one deliberate
+  exception: hiding a builtin entirely is the point of not registering it.
