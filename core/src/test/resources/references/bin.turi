@@ -1,0 +1,6 @@
+println bin()
+println bin(3)
+println bin([65, 66, 67])
+println bin("túró")
+println bin("túró", "ISO-8859-2")
+println bin(bin([1, 2, 3]))

@@ -1,0 +1,40 @@
+println " 1. ", bin([72, 101, 108, 108, 111])
+println " 2. ", "Hello".bytes()
+println " 3. ", "Hello".bytes().text()
+println " 4. ", "Hello".bytes().hex()
+println " 5. ", "48656c6c6f".from_hex()
+println " 6. ", "Hello".bytes().base64()
+println " 7. ", "SGVsbG8=".from_base64()
+println " 8. ", "Hello".bytes().to_list()
+println " 9. ", len("Hello".bytes())
+println "10. ", "Hello".bytes()[1]
+println "11. ", "Hello".bytes()[1..4]
+println "12. ", bin([1, 2]) + bin([3])
+println "13. ", bin([7]) * 3
+println "14. ", "Hello".bytes().md5().hex()
+println "15. ", bin([1, 2, 3, 2, 1]).index_of(2)
+println "16. ", bin([1, 2, 3, 2, 1]).last_index_of(2)
+println "17. ", bin([1, 2, 3]).contains(bin([2, 3]))
+println "18. ", bin([1, 2, 3]).starts_with(bin([1]))
+println "19. ", bin([1, 2, 3]).ends_with(bin([3]))
+println "20. ", bin([1, 1, 1, 1]).count(bin([1, 1]))
+println "21. ", bin([1, 2, 3]).left(2)
+println "22. ", bin([1, 2, 3]).right(2)
+println "23. ", bin([1, 2, 3]).reverse()
+println "24. ", bin([255, 0]).xor(bin([15, 15]))
+println "25. ", bin(4).fill(7)
+println "26. ", bin(4).set(1, bin([9, 9]))
+mut b = bin(8)
+b.set_u32_at(0, 305419896)
+println "27. ", b
+println "28. ", b.u32_at(0)
+println "29. ", b.u16_at(0, "le")
+println "30. ", b.u32_at(0, "3412")
+println "31. ", bin([128]).u8_at(0), " ", bin([128]).i8_at(0)
+mut m = bin([1, 2, 3])
+m[0] = 255
+println "32. ", m
+m[1..2] = bin([8, 8, 8])
+println "33. ", m
+println "34. ", 2 in bin([1, 2, 3])
+for each x in bin([10, 20]) : println "35. ", x

@@ -1,0 +1,2 @@
+println "48656c6c6f".from_hex()
+println "0x48656C6C6F".from_hex().text()
