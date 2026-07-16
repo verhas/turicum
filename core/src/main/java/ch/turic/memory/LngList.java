@@ -173,7 +173,7 @@ public class LngList implements HasIndex, HasFields {
     public String toString() {
         return CycleGuard.toString(this, "[...]", () ->
                 "[" + array.stream()
-                        .map(s -> s == null ? "none" : s.toString())
+                        .map(ch.turic.commands.operators.Cast::toString)
                         .collect(Collectors.joining(", ")) + "]");
     }
 

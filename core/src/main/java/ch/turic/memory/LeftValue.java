@@ -92,6 +92,7 @@ public interface LeftValue {
         ExecutionException.when(existing == null, "Cannot used None as list.");
         return switch (existing) {
             case String s -> new IndexedString(s);
+            case byte[] b -> new IndexedBin(b);
             case LngList arr -> arr;
             case Object[] arr -> new JavaArray(arr);
             case List<?> list -> new JavaArray(list.toArray(Object[]::new));
@@ -104,6 +105,7 @@ public interface LeftValue {
         ExecutionException.when(existing == null, "Cannot used None as list.");
         return switch (existing) {
             case String s -> new IndexedString(s);
+            case byte[] b -> new IndexedBin(b);
             case LngList arr -> arr;
             case Object[] arr -> new JavaArray(arr);
             case List<?> list -> new JavaArray(list.toArray(Object[]::new));

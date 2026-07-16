@@ -144,6 +144,9 @@ public class AsyncEvaluation extends AbstractCommand {
             global.releaseThreadPermit();
             throw new ExecutionException(e, "Cannot start async task, the interpreter is shut down");
         }
+        // register on the spawning thread so joinThreads() can await the permit release even
+        // when the task has not started (and registered its thread) yet
+        global.registerTask(future0);
         var future = future0;
         if (timeLimit >= 0) {
             future = future.orTimeout(timeLimit, TimeUnit.MILLISECONDS);

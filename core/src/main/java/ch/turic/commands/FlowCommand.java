@@ -875,7 +875,7 @@ public class FlowCommand extends AbstractCommand {
         final var global = ctx.globalContext;
         global.acquireThreadPermit();
         try {
-            return CompletableFuture.supplyAsync(() -> {
+            final var future = CompletableFuture.supplyAsync(() -> {
                 Thread.currentThread().setName(cell.id + ":" + NameGen.generateName());
                 newContext.threadContext.setThread(Thread.currentThread());
                 try {
@@ -894,6 +894,10 @@ public class FlowCommand extends AbstractCommand {
                     global.releaseThreadPermit();
                 }
             }, global.executor());
+            // register on the spawning thread so joinThreads() can await the permit release even
+            // when the cell has not started (and registered its thread) yet
+            global.registerTask(future);
+            return future;
         } catch (RejectedExecutionException e) {
             global.releaseThreadPermit();
             newContext.close();

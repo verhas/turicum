@@ -158,7 +158,7 @@ public class StringConstant extends AbstractCommand implements HasCommands {
         } else {
             final var sb = new StringBuilder();
             for (Command command : commands) {
-                sb.append(Objects.requireNonNullElse(command.execute(context), "none"));
+                sb.append(ch.turic.commands.operators.Cast.toString(command.execute(context)));
             }
             return sb.toString();
         }

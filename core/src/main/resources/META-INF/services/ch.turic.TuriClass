@@ -5,3 +5,4 @@ ch.turic.builtins.classes.TuriIterator
 ch.turic.builtins.classes.TuriChannel
 ch.turic.builtins.classes.TuriInputStream
 ch.turic.builtins.classes.TuriInputStreamReader
+ch.turic.builtins.classes.TuriBin

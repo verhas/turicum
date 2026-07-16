@@ -24,6 +24,22 @@ public class Multiply extends AbstractOperator {
             throw new ExecutionException("Cannot '%s' * '%s'", op2, op1);
         }
 
+        // a bin is repeated like a string
+        if (op1 instanceof byte[] b) {
+            if (Cast.isLong(op2)) {
+                final var n = Cast.toLong(op2);
+                if (n < 0 || n * b.length > Integer.MAX_VALUE) {
+                    throw new ExecutionException("Cannot repeat a bin value %s times", n);
+                }
+                final var repeated = new byte[(int) (n * b.length)];
+                for (int i = 0; i < n; i++) {
+                    System.arraycopy(b, 0, repeated, i * b.length, b.length);
+                }
+                return repeated;
+            }
+            throw new ExecutionException("Cannot '%s' * '%s'", op1, op2);
+        }
+
         if (op1 instanceof LngList list1 && op2 instanceof LngList list2) {
             final var product = new LngList(list1.getFieldProvider());
             for (final var a : list1.array) {

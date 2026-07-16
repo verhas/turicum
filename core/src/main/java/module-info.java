@@ -46,7 +46,7 @@ module ch.turic {
             Uncurry, IsCurried, CurriedArity, Enumerate, JavaClass,
             DebugSessionFactory, Pack, MathFunctions.ToJavaFloat, MathFunctions.ToJavaInt, MathFunctions.ToJavaShort,
             MathFunctions.ToJavaChar, MathFunctions.ToJavaLong,JavaType, MathFunctions.ToJavaByte, MathFunctions.ToJavaDouble,
-            AddJavaClasses,JavaResources,JavaCallback,JavaImport,Mutex,Atomic,KeysAll;
+            AddJavaClasses,JavaResources,JavaCallback,JavaImport,Mutex,Atomic,KeysAll,Bin;
     provides ch.turic.TuriMacro with Export, IsDefined, Unlet, Thunk, Quote, Import, SysImport, Delete;
-    provides ch.turic.TuriClass with TuriString, TuriLong, TuriDouble, TuriIterator, TuriChannel, TuriInputStream, TuriInputStreamReader;
+    provides ch.turic.TuriClass with TuriString, TuriBin, TuriLong, TuriDouble, TuriIterator, TuriChannel, TuriInputStream, TuriInputStreamReader;
 }

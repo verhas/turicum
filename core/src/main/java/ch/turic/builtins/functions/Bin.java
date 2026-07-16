@@ -28,6 +28,8 @@ The result depends on the type of the argument:
 
 * a `bin` argument is copied to a new, independent `bin`.
 
+{%S bin%}
+
 end snippet */
 
 /**

@@ -201,6 +201,9 @@ public class Cast {
         if (obj == null) {
             return "none";
         }
+        if (obj instanceof byte[] bytes) {
+            return ch.turic.utils.BinUtils.display(bytes);
+        }
         return obj.toString();
     }
 

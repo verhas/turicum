@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -37,6 +38,10 @@ public class GlobalContext {
     private boolean debugMode = false; // true when the interpreter is in debug mode
     final DebuggerContext debuggerContext = new DebuggerContext(null, null);
     private final Map<ThreadContext, AtomicInteger> contexts = new ConcurrentHashMap<>();
+    // in-flight async task / flow cell futures; registered synchronously by the spawning thread,
+    // so every acquired thread permit has a registered future before the spawn call returns.
+    // Each future completes only after the task's finally block released its permit.
+    private final Set<CompletableFuture<?>> tasks = ConcurrentHashMap.newKeySet();
     public final TuricumClassLoader classLoader = new TuricumClassLoader(getClass().getClassLoader());
     // stores all predefined global symbols, so they do not get exported using export_all()
     public final Set<String> predefinedGlobals = new HashSet<>();
@@ -213,14 +218,41 @@ public class GlobalContext {
                 if (k.getDebuggerContext() != null) {
                     k.getDebuggerContext().close();
                 }
-                if (k.getThread() != null && k.getThread() != Thread.currentThread()) {
+                // abort even when the task has not registered its thread yet: the abort flag is
+                // checked on the task's first command, so a late-starting task exits immediately
+                if (k.getThread() != Thread.currentThread()) {
                     k.abort();
+                }
+                if (k.getThread() != null && k.getThread() != Thread.currentThread()) {
                     k.getThread().join();
                 }
 
             } catch (InterruptedException ignored) {
             }
         });
+        // wait for the tasks whose thread was not registered when the loop above ran; a task
+        // future completes only after its finally block returned the thread permit, so after
+        // this loop every permit of this interpreter is back in the pool
+        for (final var task : tasks.toArray(CompletableFuture<?>[]::new)) {
+            try {
+                task.join();
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
+    /**
+     * Registers an in-flight asynchronous task (an {@code async} block or a flow cell) so that
+     * {@link #joinThreads()} can wait for it even when the task has not started running — and
+     * thus has not registered its thread — yet. Must be called on the spawning thread, right
+     * after the task was submitted, so that a thread permit acquired for the task always has a
+     * registered future before the spawning call returns.
+     *
+     * @param task the future of the submitted task
+     */
+    public void registerTask(CompletableFuture<?> task) {
+        tasks.add(task);
+        task.whenComplete((result, throwable) -> tasks.remove(task));
     }
 
     /**

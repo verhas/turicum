@@ -92,6 +92,8 @@ public class Jsonify implements TuriFunction {
             case LngObject lngObject -> jsonifyObject(lngObject);
             case LngList lngList -> jsonifyList(lngList);
             case String s -> jsonifyString(s);
+            case byte[] ignored ->
+                    throw new ExecutionException("A bin value cannot be converted to JSON, convert it explicitly with base64(), hex() or to_list()");
             case null -> "null";
             default -> object.toString();
         };

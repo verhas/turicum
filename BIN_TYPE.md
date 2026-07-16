@@ -1,6 +1,7 @@
 # Turicum `bin` Type — Design Proposal
 
-*Status: design proposal for discussion, 2026-07-16. Nothing here is implemented yet.
+*Status: Phase 1 implemented, 2026-07-16 — all open decisions of §12 are settled
+and the type itself (§11 Phase 1) is in the code base with tests.
 This document is the precursor of the binary half of the file I/O work: it resolves
 the open decisions D6/D9 of `FILE_IO.md` by introducing a first-class byte-array
 type instead of the interim options considered there.*
@@ -38,7 +39,7 @@ argument type for binary reads and writes.
 | `len()` | `builtins.functions.Len` | **Already handles `byte[]`** — no change needed |
 | Operators | `commands.operators.Add`, `Multiply`, `Compare`, `Contains` | String cases are pattern-matched explicitly; `bin` needs its own cases (`byte[]` has identity `equals` and is not `Comparable`) |
 | Value printing | `Cast.toString()`, string interpolation, `str + x` in `Add` | All funnel through `Object.toString()`; `byte[].toString()` prints `[B@1a2b3c` — must be special-cased |
-| Existing byte producers | `TuriInputStream.read_all_bytes`, `str.bytes()`, `str.from_base64()` | First one starts returning a useful value for free; the `lst`-returning methods raise a compatibility question (D-4) |
+| Existing byte producers | `TuriInputStream.read_all_bytes`, `str.bytes()`, `str.from_base64()` | First one starts returning a useful value for free; the `lst`-returning methods switch to returning `bin` (D-4, breaking change accepted) |
 
 ## 3. Core decision: the runtime value is a raw Java `byte[]`
 
@@ -122,25 +123,36 @@ name:
 
 | direction | method | inverse |
 |---|---|---|
-| encode text | `str.bin(@charset="UTF-8") -> bin` (same job as `bin(s)`, method form) | `bin.text(@charset="UTF-8") -> str` |
-| base64 | `bin.base64() -> str`, `bin.base64_url() -> str` | `str.from_base64_bin() -> bin` |
+| encode text | `str.bytes(@charset="UTF-8") -> bin` (same job as `bin(s)`, method form) | `bin.text(@charset="UTF-8") -> str` |
+| base64 | `bin.base64() -> str`, `bin.base64_url() -> str` | `str.from_base64() -> bin` |
 | hex | `bin.hex() -> str` (lowercase, two digits per byte, no separator) | `str.from_hex() -> bin` (accepts optional `0x` prefix, even digit count required) |
 
 `bin.text()` decoding of invalid byte sequences follows the Java default
 (replacement character), matching what `new String(bytes, charset)` does; a
 strict mode is not offered in phase 1.
 
-The existing `str.bytes()` → `lst` and `str.from_base64()` → `lst` methods are
-**kept unchanged** for compatibility; see D-4 for their long-term fate.
+`str.bytes()` and `str.from_base64()` are the **existing** methods with their
+return type changed from `lst`-of-numbers to `bin` — a deliberate breaking
+change (D-4, decided). Scripts that iterated the result or indexed single
+bytes keep working shape-wise, with one value-level difference that is really
+a fix: the old lists held *signed* Java bytes (0xC3 appeared as −61), the new
+`bin` surface is uniformly unsigned (§3), so byte values ≥ 0x80 change from
+negative to their 0..255 form. Code that used list-specific operations
+(`append`, list `+`) adjusts or calls `to_list()`. `str.from_base64_str()` is
+unaffected.
 
-### 5.3 No literal syntax (phase 1)
+### 5.3 No literal syntax (D-2, decided)
 
 No lexer change. A hex constant is written `"48656c6c6f".from_hex()` or
 `bin([0x48, 0x65, ...])`. The `hex()`/`from_hex` pair is deliberately chosen so
-that the *textual representation* (§9) round-trips through it. A dedicated
-literal (`bin"48656c"` or `b"..."`) is a possible later addition and is listed
-as D-2; nothing in this design blocks it, and because no literal exists, the
-`Marshaller`/`Unmarshaller` (compiled-code serialization) needs no change.
+that the *textual representation* (§9) round-trips through it. Note that the
+lexer does already support a prefixed string form (`$"..."`,
+`Lexer.java`/`Lex.string`), so a `bin"48656c"` literal would be technically
+easy — the decision against it is deliberate, not a limitation: the method
+spelling is explicit about the hex interpretation and keeps the token grammar
+smaller. Nothing in this design blocks adding a literal later, and because no
+literal exists, the `Marshaller`/`Unmarshaller` (compiled-code serialization)
+needs no change.
 
 ## 6. Indexing, slicing, iteration — `IndexedBin`
 
@@ -294,18 +306,21 @@ unambiguous, and forward-compatible — if D-2 later introduces a literal, this
 exact form is the natural literal syntax, making `str(b)` output valid source
 code (the same round-trip property `str.quote()` provides for strings).
 
-Implementation: a `byte[]` case in `Cast.toString()`. That single point covers
-`str()`, interpolation, and `str + bin` (the `Add` string case already calls
-`Cast.toString`). Error messages that embed values via `%s` formatting go
+Implementation: a `byte[]` case in `Cast.toString()` covers `str + bin` (the
+`Add` string case already calls `Cast.toString`). Implementation revealed three
+more printing paths that append raw `Object.toString()` and had to be touched:
+the `str()` built-in (`Str.java`), the `print`/`println` command (`Print.java`),
+and string interpolation (`StringConstant._execute`) — plus `LngList.toString()`
+so a bin inside a printed list renders correctly. All now route through
+`Cast.toString()`. Error messages that embed values via `%s` formatting go
 through their own paths; they will show `[B@...` until touched, which is
 cosmetic and not worth a sweep in phase 1.
 
 `jsonify()` of a `bin` is an **error** with a helpful message ("convert
-explicitly with .base64(), .hex() or .to_list()"). JSON has no byte type;
-silently choosing base64 or a number list would bake a lossy, asymmetric
-convention into the JSON layer. The script author knows which representation
-the receiving side expects. (Revisit if practice shows one dominant choice —
-D-3.)
+explicitly with .base64(), .hex() or .to_list()") — D-3, decided. JSON has no
+byte type; silently choosing base64 or a number list would bake a lossy,
+asymmetric convention into the JSON layer. The script author knows which
+representation the receiving side expects.
 
 ## 10. Interplay with existing code
 
@@ -313,15 +328,16 @@ D-3.)
 - **`TuriInputStream.read_all_bytes`** — no code change; its return value
   simply *becomes* a useful `bin` the moment `TuriBin` is registered. Same for
   any reflection call returning `byte[]`.
-- **`str.bytes()` / `str.from_base64()`** — unchanged (return `lst`), so no
-  existing script breaks. New code should use `str.bin()` /
-  `str.from_base64_bin()`. See D-4.
+- **`str.bytes()` / `str.from_base64()`** — return type changes from `lst` to
+  `bin` (D-4, breaking change accepted; details and the signed-to-unsigned
+  value fix in §5.2). Their `REFERENCE.adoc` snippets must be updated in the
+  same commit.
 - **`FILE_IO.md` alignment** — this document resolves D6 as option (d) and D9
   as option (a): `file_read(@binary=true)` returns `bin`; `file_write` accepts
   `bin` content in binary mode; the §5.3 binary reader's `read(n)`/`read_all()`
   return `bin`; the §5.4 random-access handles' `read`/`read_at` return `bin`
-  and `write`/`write_at` accept `bin` (and, leniently, `str` encoded as UTF-8?
-  — no: accept `bin` only, keep the byte/text boundary explicit); the §5.5
+  and `write`/`write_at` accept `bin` (whether they *also* accept `str` is a
+  file-I/O API question, deferred to `FILE_IO.md` — see D-6); the §5.5
   mapped handles' `get`/`put` likewise. The latin-1-string workaround (D9(b))
   is dropped.
 - **Sandboxing** — no capability, no policy surface. `bin` neither reads nor
@@ -338,7 +354,7 @@ core/src/main/java/ch/turic/
     builtins/functions/Type.java              + case byte[]
     builtins/functions/Bin.java               NEW  built-in constructor (§5.1)
     builtins/classes/TuriBin.java             NEW  methods (§8), snippet docs
-    builtins/classes/TuriString.java          + "bin", "from_base64_bin", "from_hex"
+    builtins/classes/TuriString.java          "bytes"/"from_base64" return bin (breaking, D-4); + "from_hex"
     memory/IndexedBin.java                    NEW  HasIndex impl (§6)
     memory/LeftValue.java                     + byte[] cases in toIndexable/toIterable
     memory/ArrayElementLeftValue.java         + copy-back for range-assignment (§6)
@@ -349,6 +365,11 @@ core/src/main/java/ch/turic/
     commands/operators/Compare.java           + content equality, unsigned ordering
     commands/operators/Contains.java          + int/bin in bin
     commands/operators/Cast.java              + toString case (§9)
+    builtins/functions/Str.java               str() routed through Cast.toString (§9)
+    commands/Print.java                       print/println byte[] case (§9)
+    commands/StringConstant.java              interpolation routed through Cast.toString (§9)
+    memory/LngList.java                       toString routed through Cast.toString (§9)
+    utils/BinUtils.java                       NEW  hex/display/byte coercion/search/codec helpers
     builtins/functions/Jsonify*.java          + explicit error for byte[] (§9)
     module-info.java                          + Bin (TuriFunction), TuriBin (TuriClass)
     META-INF/services/…TuriFunction, …TuriClass
@@ -366,8 +387,11 @@ with Jamal, `--open='{%' --close='%}'`).
   `copy()` de-aliases; range-assignment re-allocation does **not** alias.
 - Operators: concat, repeat, `==` content vs `===` identity, `in`, boolean
   context error.
-- Round-trips: `text`/`bin`, `hex`/`from_hex`, `base64`/`from_base64_bin`,
+- Round-trips: `text`/`bytes`, `hex`/`from_hex`, `base64`/`from_base64`,
   `str(b)` equals `'bin"' + b.hex() + '"'`.
+- Migration of D-4: `str.bytes()` and `str.from_base64()` return `bin`;
+  existing tests asserting `lst` results are updated, including the
+  signed-to-unsigned value change for bytes ≥ 0x80.
 - Codecs: `u8_at`…`u64_at`, `i8_at`…`i64_at` and their setters for every
   width; `"be"`/`"le"` and permutation orders (round-trip `"3412"`), rejected
   malformed orders (wrong length, repeated digit, digit out of range); sign
@@ -383,28 +407,31 @@ with Jamal, `--open='{%' --close='%}'`).
    items. Self-contained; no dependency on the file I/O work.
 2. **Phase 2 — file I/O binary mode.** The `FILE_IO.md` built-ins adopt `bin`
    per §10; unblocks §5.4 random access.
-3. **Deferred.** Literal syntax (D-2), float/varint/struct codecs, growable
-   buffer (D-5), bitwise operators.
+3. **Deferred.** Float/varint/struct codecs, bitwise operators. (A literal
+   syntax and a growable buffer were considered and decided against — D-2,
+   D-5.)
 
-## 12. Open decisions (please pick / veto)
+## 12. Decisions (settled 2026-07-16)
 
-- **D-1 — Name of the decode method: `text` vs `decode` vs `str`.**
-  Recommendation: **`text(@charset)`** — `decode` invites "decode from what?"
-  confusion with base64/hex, and a method named `str` shadows the built-in
-  function name in readers' minds. Symmetric partner `str.bin(@charset)`.
-- **D-2 — Literal syntax `bin"48656c"` later?** The lexer currently has no
-  prefixed-string form. Recommendation: defer, but keep the §9 representation
-  so introducing it is purely additive.
-- **D-3 — `jsonify(bin)`.** Proposed: error with guidance (§9). Alternative:
-  base64 string (compact, but silently lossy on the way back). Veto point.
-- **D-4 — Fate of `str.bytes()` and `str.from_base64()` (`lst`-returning).**
-  Recommendation: keep working, mark deprecated in `REFERENCE.adoc` pointing to
-  `str.bin()` / `str.from_base64_bin()`; reconsider removal at the next
-  breaking-change release. Changing their return type in place would silently
-  break scripts that do list arithmetic on the result.
-- **D-5 — Growable buffer?** This design is fixed-length + copy-on-grow. A
-  builder-style growable buffer (`bin_builder()` with `append`) would help
-  byte-wise construction loops. Recommendation: defer; `lst` accumulation +
-  `bin(l)` covers the need, and the file-writer handles stream anyway.
-- **D-6 — Should the random-access `write` accept `str` too?** §10 says no
-  (explicit byte/text boundary). Cheap to relax later; impossible to tighten.
+- **D-1 — Name of the decode method — DECIDED: `text(@charset)`.** `decode`
+  invites "decode from what?" confusion with base64/hex, and a method named
+  `str` shadows the built-in function name in readers' minds. The encoding
+  partner is the existing `str.bytes(@charset)` (see D-4).
+- **D-2 — Literal syntax `bin"48656c"` — DECIDED: no literal.** Turicum's
+  lexer does support prefixed strings (`$"..."`), so this is a design choice,
+  not a technical constraint (§5.3). The §9 textual representation keeps the
+  form available should the decision ever be revisited.
+- **D-3 — `jsonify(bin)` — DECIDED: error** with guidance to convert
+  explicitly (`.base64()`, `.hex()`, `.to_list()`) — §9.
+- **D-4 — `str.bytes()` and `str.from_base64()` — DECIDED: change them to
+  return `bin`,** accepting the compatibility break (§5.2). No parallel
+  `str.bin()`/`from_base64_bin()` methods are introduced; the established
+  names simply gain the right return type, and byte values ≥ 0x80 switch from
+  signed to unsigned presentation as part of the same break.
+- **D-5 — Growable buffer — DECIDED: no; `bin` stays fixed-length** with
+  copy-on-grow operations. `lst` accumulation + `bin(l)` covers construction
+  loops, and the file-writer handles stream anyway.
+- **D-6 — Whether the random-access `write` accepts `str` — moved out:** this
+  is a file-I/O API question and belongs to `FILE_IO.md` (its D9 follow-up),
+  not to this document. This design only provides the `bin` type the handles
+  will use.

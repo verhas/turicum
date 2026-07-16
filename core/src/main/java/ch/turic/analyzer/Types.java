@@ -2,6 +2,7 @@ package ch.turic.analyzer;
 
 public interface Types {
 
+    String BIN = "bin";
     String BOOL = "bool";
     String MACRO = "macro";
     String CLS = "cls";

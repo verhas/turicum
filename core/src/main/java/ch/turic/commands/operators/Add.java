@@ -42,6 +42,17 @@ public class Add extends AbstractOperator {
             return s + Cast.toString(op2);
         }
 
+        // two bin values are concatenated into a new bin; anything else needs explicit conversion
+        if (op1 instanceof byte[] b1) {
+            if (op2 instanceof byte[] b2) {
+                final var joined = new byte[b1.length + b2.length];
+                System.arraycopy(b1, 0, joined, 0, b1.length);
+                System.arraycopy(b2, 0, joined, b1.length, b2.length);
+                return joined;
+            }
+            throw new ExecutionException("Cannot add '%s' to a bin value, convert it explicitly", Cast.toString(op2));
+        }
+
         // if the left side is a block, then result in a new block command merging the two block commands
         // In this case, the right-hand side should also be a block
         if (op1 instanceof BlockCommand bq) {

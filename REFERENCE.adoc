@@ -82,7 +82,7 @@ The Turicum project configuration is
     <extension>
         <groupId>ch.turic</groupId>
         <artifactId>turicum-maven-extension</artifactId>
-        <version>1.4.0</version>
+        <version>1.4.2</version>
     </extension>
 </extensions>
 
@@ -1682,15 +1682,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=48B4A043
+h id=33A8C9C9
 h after post increment: 1
 k: 0
-h id=2F5B8250
-k id=48B4A043
+h id=382DC417
+k id=33A8C9C9
 h after pre increment: 2
 z: 2
-h id=4821AA9F
-z id=4821AA9F
+h id=3DAF03D8
+z id=3DAF03D8
 
 ----
 
@@ -1736,15 +1736,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=4996C99
+h id=373AFD6C
 h after post increment: 1
 k: 1
-h id=4996C99
-k id=4996C99
+h id=373AFD6C
+k id=373AFD6C
 h after pre increment: 2
 z: 2
-h id=4996C99
-z id=4996C99
+h id=373AFD6C
+z id=373AFD6C
 
 ----
 
@@ -1793,15 +1793,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=79FD6F95
+h id=BB25753
 h after post decrement: -1
 k: 0
-h id=48840594
-k id=79FD6F95
+h id=EE21292
+k id=BB25753
 h after pre decrement: -2
 z: -2
-h id=49C675F0
-z id=49C675F0
+h id=40C06358
+z id=40C06358
 
 ----
 
@@ -1844,15 +1844,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=1442F788
+h id=2282400E
 h after post decrement: -1
 k: -1
-h id=1442F788
-k id=1442F788
+h id=2282400E
+k id=2282400E
 h after pre decrement: -2
 z: -2
-h id=1442F788
-z id=1442F788
+h id=2282400E
+z id=2282400E
 
 ----
 
@@ -2486,42 +2486,25 @@ If the expression is missing, the value will be `none`, and the variable is defi
 There can be multiple `identifier: type = expression` after the `let` keyword, comma-separated.
 There are predefined type names.
 
-case Types.BOOL -> new Variable.Type(Boolean.class, null, new Identifier(name));
- boolean type
-case Types.STR -> new Variable.Type(String.class, null, new Identifier(name));
- string
-case Types.NUM -> new Variable.Type(Number.class, null, new Identifier(name));
- any numeric type, integer or float
-case Types.INT -> new Variable.Type(Long.class, null, new Identifier(name));
- any integer type
-case Types.FLOAT -> new Variable.Type(Double.class, null, new Identifier(name));
- float type
-case Types.ANY -> new Variable.Type(null, null, new Identifier(name));
- the variable can hold any value
-case Types.OBJ -> new Variable.Type(LngObject.class, null, new Identifier(name));
- the variable can hold any object without restriction on the class of that object
-case Types.LST -> new Variable.Type(LngList.class, null, new Identifier(name));
- the variable has to be a list
-case Types.QUE -> new Variable.Type(Channel.class, null, new Identifier(name));
- the variable has to be a queue
-case Types.TASK -> new Variable.Type(AsyncStreamHandler.class, null, new Identifier(name));
- the variable has to be an asynchronous task
-case Types.MTX -> new Variable.Type(LngMutex.class, null, new Identifier(name));
- the variable has to be a mutex
-case Types.ATM -> new Variable.Type(LngAtomic.class, null, new Identifier(name));
- the variable has to be an atomic cell
-case Types.ERR -> new Variable.Type(LngException.class, null, new Identifier(name));
- the variable has to be an asynchronous task
-case Types.CLS -> new Variable.Type(LngClass.class, null, new Identifier(name));
- the variable has to be a class
-case Types.FN -> new Variable.Type(Closure.class, null, new Identifier(name));
- the variable value has to be a function of closure
-case Types.MACRO -> new Variable.Type(Macro.class, null, new Identifier(name));
- the variable value has to be a macro
-case Types.NONE -> new Variable.Type(NoneType.class, null, new Identifier(name));
- the variable can hold the value `none`
-case Types.SOME -> new Variable.Type(SomeType.class, null, new Identifier(name));
- the variable can hold any value, except `none`
+* `bool` boolean type
+* `str` string
+* `bin` byte array
+* `num` any numeric type, integer or float
+* `int` any integer type
+* `float` float type
+* `any` the variable can hold any value
+* `obj` the variable can hold any object without restriction on the class of that object
+* `lst` the variable has to be a list
+* `que` the variable has to be a queue
+* `task` the variable has to be an asynchronous task
+* `mtx` the variable has to be a mutex
+* `atm` the variable has to be an atomic cell
+* `err` the variable has to be an exception (error) object
+* `cls` the variable has to be a class
+* `fn` the variable value has to be a function or closure
+* `macro` the variable value has to be a macro
+* `none` the variable can hold the value `none`
+* `some` the variable can hold any value, except `none`
 
 
 If the name starts with `java.`, then the variable can hold a Java object.
@@ -5558,8 +5541,8 @@ Thread 1 generated 3
  prime read 3
 Thread 1 generated 5
  prime read 5
-Thread 1 generated  prime read 7
-7
+Thread 1 generated 7
+ prime read 7
 Thread 1 generated 11
 Thread 1 generated 13
 Thread 1 generated 17
@@ -5567,12 +5550,12 @@ Thread 1 generated 19
 Thread 1 generated 23
 stopping
 exception Task stopped.
-Thread 2 generated 3
  prime read 2
+Thread 2 generated 3
  prime read 3
 Thread 2 generated 5
-Thread 2 generated 7
  prime read 5
+Thread 2 generated 7
  prime read 7
 Thread 2 generated 11
 Thread 2 generated 13
@@ -5720,9 +5703,9 @@ fn sleeper( x ){
 [source]
 ----
 [1, 2, 3]
-315.306ms
+310.823584ms
 [1, 2, 3]
-108.561584ms
+104.343417ms
 
 ----
 
@@ -9104,7 +9087,7 @@ Ym9ycmEgc29yIG1lZ2d5b3Rvcg==
 
 
             * `from_base64` 
- create a list of numbers (bytes) from a base64 encoded string
+ create a bin (byte array) from a base64 encoded string
  
 +
 .source of snippet `string_from_base64`
@@ -9117,7 +9100,29 @@ println "Ym9ycmEgc29yIG1lZ2d5b3Rvcg==".from_base64()
 .output of snippet `string_from_base64`
 [source]
 ----
-[98, 111, 114, 114, 97, 32, 115, 111, 114, 32, 109, 101, 103, 103, 121, 111, 116, 111, 114]
+bin"626f72726120736f72206d656767796f746f72"
+
+----
+
+
+            * `from_hex` 
+ create a bin (byte array) from a hexadecimal string.
+ An optional `0x` prefix is accepted, and the number of digits has to be even.
+ 
++
+.source of snippet `string_from_hex`
+[source]
+----
+println "48656c6c6f".from_hex()
+println "0x48656C6C6F".from_hex().text()
+
+----
++
+.output of snippet `string_from_hex`
+[source]
+----
+bin"48656c6c6f"
+Hello
 
 ----
 
@@ -10462,7 +10467,7 @@ println jsonify("gropeId:artichokId:varsio,mersio,mubakka|abraka:debarbara,mucik
 
 
             * `bytes` 
- return a list that contains the bytes of the string using the given character encoding.
+ return a bin (byte array) that contains the bytes of the string using the given character encoding.
  The character coding is UTF-8 by default.
  In other cases, it has to be defined by name as a string.
  
@@ -10478,8 +10483,8 @@ println "alma ata".bytes("Cp037") // EBCDIC encoding
 .output of snippet `string_bytes`
 [source]
 ----
-[97, 108, 109, 97, 32, 97, 116, 97]
-[-127, -109, -108, -127, 64, -127, -93, -127]
+bin"616c6d6120617461"
+bin"819394814081a381"
 
 ----
 
@@ -10710,7 +10715,7 @@ println "66. ","0765".number(8), " is ", 8*8*7+8*6+5
  8. aa
  9. AA
 10. [a, b, c, d]
-11. [97, 98, 99, 100]
+11. bin"61626364"
 12. c is c
 13. 5
 14. 10
@@ -10741,7 +10746,7 @@ println "66. ","0765".number(8), " is ", 8*8*7+8*6+5
 39. 687
 40. 687
 41. MHgyQUY=
-42. [48, 120, 50, 65, 70]
+42. bin"3078324146"
 43. 0x2AF
 44. alma+van+a+fa+%3D+alarr%3A%2F%2F
 45. alma van a fa = alarr://
@@ -10765,6 +10770,243 @@ println "66. ","0765".number(8), " is ", 8*8*7+8*6+5
 65. 65is 65... literally
 65. 3.14 is 3.14
 66. 501 is 501
+
+----
+
+
+
+== Bin Values and Functions
+
+A `bin` value is a byte array.
+It is the type Turicum uses for binary data: encoded text, hashes, base64 and hex decoded content, and binary file content.
+You can create a `bin` value with the built-in function `bin()` (see the built-in functions), or from a string with the methods `bytes()`, `from_hex()`, and `from_base64()`.
+
+The bytes of a `bin` are presented unsigned on the language surface.
+Reading a byte — indexing, iteration, `to_list()` — gives an integer in the range `0..255`.
+Writing a byte accepts an integer in the range `-128..255` and stores the low 8 bits; any other value is an error.
+
+A `bin` is mutable and has a fixed length.
+Assigning to a single index, as in `b[0] = 255`, modifies the byte array in place, and the change is visible through every variable that refers to the same `bin`.
+Use the method `copy()` when you need an independent value.
+Operations that change the length — concatenation with `+`, repetition with `*`, slicing — always create a new `bin`.
+Assigning a `bin` to an index range, as in `b[1..3] = bin([9])`, may also change the length; in that case the variable is updated to hold a new byte array, and other variables that referred to the original `bin` keep the unchanged original.
+
+You can index and slice a `bin` the same way as a string: `b[1]` is the byte at position one, `b[1..3]` is a new `bin` with the bytes of the range, and negative range ends count from the end of the value.
+You can iterate over the bytes with `for each`.
+The function `len()` gives the number of bytes.
+
+The operators work on `bin` values the following way:
+
+* `+` concatenates two `bin` values into a new one; mixing a `bin` with any other type on the right side of `+` is an error, and has to be converted explicitly.
+* `*` with an integer repeats the content, like for strings.
+* `==` and `!=` compare the content, byte by byte.
+* `<`, `\<=`, `>`, `>=` order `bin` values lexicographically by the unsigned byte values.
+* `===` is `true` only when the two operands are the same byte array.
+* `in` tests containment: a byte value, as in `2 in b`, or a contiguous subsequence, as in `bin([1,2]) in b`.
+
+A `bin` cannot be used as a boolean, and `jsonify()` refuses it; convert explicitly with `base64()`, `hex()`, or `to_list()`.
+
+When a `bin` is converted to a string — printing, interpolation, `str()` — the result is `+bin"..."+` with the content in hexadecimal, for example `+bin"48656c6c6f"+`.
+The hexadecimal content is the same string the method `hex()` returns and the string method `from_hex()` accepts.
+
+The methods callable on `bin` values are the following:
+
+            * `to_string` 
+ returns the textual representation of the bin, `bin"..."` with the content in hexadecimal.
+            * `length` 
+ a convenience method that returns the number of bytes.
+ The Turicum way is to use the `len()` built-in function, but this method also works on bin values.
+            * `text` 
+ decode the bytes to a string.
+ The character encoding is UTF-8 by default; a different one can be named as an argument.
+            * `to_list` 
+ return a list that contains the byte values as integers in the range 0..255.
+            * `base64` 
+ encode the bytes with Base64 and return the string.
+            * `base64_url` 
+ encode the bytes with the URL and filename safe Base64 alphabet and return the string.
+            * `hex` 
+ return the content as a lowercase hexadecimal string, two digits per byte, no separator.
+            * `copy` 
+ return a new bin with the same content.
+ Use it to get an independent value, since bin values are mutable and assignment does not copy.
+            * `md5` 
+ calculate the md5 hash of the bytes. The result is a bin; use `hex()` on it for display.
+            * `sha_1` 
+ calculate the sha-1 hash of the bytes. The result is a bin.
+            * `sha_256` 
+ calculate the sha-256 hash of the bytes. The result is a bin.
+            * `sha_512` 
+ calculate the sha-512 hash of the bytes. The result is a bin.
+            * `digest` 
+ calculate the hash of the bytes. The algorithm name has to be provided as an argument. The result is a bin.
+            * `index_of` 
+ return the first position of the argument, or -1 when it is not found.
+ The argument is a byte value (an integer) or a bin subsequence.
+ The optional second argument is the position where the search starts.
+            * `last_index_of` 
+ return the last position of the argument, or -1 when it is not found.
+ The argument is a byte value (an integer) or a bin subsequence.
+ The optional second argument is the highest position where the occurrence may start.
+            * `contains` 
+ return `true` if the bin contains the argument, which is a byte value (an integer) or a bin subsequence.
+ The same test is available as the `in` operator.
+            * `starts_with` 
+ return `true` if the bin starts with the argument bin.
+            * `ends_with` 
+ return `true` if the bin ends with the argument bin.
+            * `count` 
+ count the non-overlapping occurrences of the argument, which is a byte value (an integer) or a bin subsequence.
+            * `is_empty` 
+ return `true` if the bin has no bytes.
+            * `is_not_empty` 
+ return `false` if the bin has no bytes.
+            * `left` 
+ return a new bin with at most the argument number of leading bytes.
+ If the argument is equal to, or larger than the length, the whole content is returned (as a new bin).
+            * `right` 
+ return a new bin with at most the argument number of trailing bytes.
+ If the argument is equal to, or larger than the length, the whole content is returned (as a new bin).
+            * `reverse` 
+ return a new bin that contains the bytes in reverse order.
+            * `xor` 
+ return a new bin that is the byte-wise XOR of this bin and the argument bin.
+ The two bins must have the same length.
+            * `fill` 
+ set a range of the bin to the given byte value, in place, and return the bin itself.
+ Without further arguments the whole bin is filled.
+ The optional second and third arguments give the start (inclusive) and the end (exclusive) of the range.
+            * `set` 
+ copy the whole argument bin into this bin starting at the given position, in place,
+ and return the bin itself. The copied content must fit.
+            * `u8_at` 
+ read the byte at the given position as an unsigned integer, 0..255.
+            * `i8_at` 
+ read the byte at the given position as a signed integer, -128..127.
+            * `u16_at` 
+ read two bytes at the given position as an unsigned integer.
+ The optional second argument is the byte order: `"be"` (default), `"le"`,
+ or a permutation of the digits 1..2 where 1 is the least significant byte.
+            * `i16_at` 
+ read two bytes at the given position as a signed integer.
+            * `u32_at` 
+ read four bytes at the given position as an unsigned integer.
+ The optional second argument is the byte order: `"be"` (default), `"le"`,
+ or a permutation of the digits 1..4, for example `"3412"` for the PDP-11 layout.
+            * `i32_at` 
+ read four bytes at the given position as a signed integer.
+            * `u64_at` 
+ read eight bytes at the given position as an unsigned integer.
+ A value above the signed 64-bit range is an error, because Turicum integers are signed 64-bit values.
+            * `i64_at` 
+ read eight bytes at the given position as a signed integer.
+            * `set_u8_at` 
+ write one byte at the given position, in place. The value must be in the range 0..255.
+            * `set_i8_at` 
+ write one byte at the given position, in place. The value must be in the range -128..127.
+            * `set_u16_at` 
+ write a value as two bytes at the given position, in place.
+ The optional third argument is the byte order, as for `u16_at`.
+            * `set_i16_at` 
+ write a signed value as two bytes at the given position, in place.
+            * `set_u32_at` 
+ write a value as four bytes at the given position, in place.
+            * `set_i32_at` 
+ write a signed value as four bytes at the given position, in place.
+            * `set_u64_at` 
+ write a non-negative value as eight bytes at the given position, in place.
+            * `set_i64_at` 
+ write a signed value as eight bytes at the given position, in place.
+
+
+The following example demonstrates the use of the `bin` methods and operators:
+
+.source of snippet `bin_functions`
+
+[source]
+----
+println " 1. ", bin([72, 101, 108, 108, 111])
+println " 2. ", "Hello".bytes()
+println " 3. ", "Hello".bytes().text()
+println " 4. ", "Hello".bytes().hex()
+println " 5. ", "48656c6c6f".from_hex()
+println " 6. ", "Hello".bytes().base64()
+println " 7. ", "SGVsbG8=".from_base64()
+println " 8. ", "Hello".bytes().to_list()
+println " 9. ", len("Hello".bytes())
+println "10. ", "Hello".bytes()[1]
+println "11. ", "Hello".bytes()[1..4]
+println "12. ", bin([1, 2]) + bin([3])
+println "13. ", bin([7]) * 3
+println "14. ", "Hello".bytes().md5().hex()
+println "15. ", bin([1, 2, 3, 2, 1]).index_of(2)
+println "16. ", bin([1, 2, 3, 2, 1]).last_index_of(2)
+println "17. ", bin([1, 2, 3]).contains(bin([2, 3]))
+println "18. ", bin([1, 2, 3]).starts_with(bin([1]))
+println "19. ", bin([1, 2, 3]).ends_with(bin([3]))
+println "20. ", bin([1, 1, 1, 1]).count(bin([1, 1]))
+println "21. ", bin([1, 2, 3]).left(2)
+println "22. ", bin([1, 2, 3]).right(2)
+println "23. ", bin([1, 2, 3]).reverse()
+println "24. ", bin([255, 0]).xor(bin([15, 15]))
+println "25. ", bin(4).fill(7)
+println "26. ", bin(4).set(1, bin([9, 9]))
+mut b = bin(8)
+b.set_u32_at(0, 305419896)
+println "27. ", b
+println "28. ", b.u32_at(0)
+println "29. ", b.u16_at(0, "le")
+println "30. ", b.u32_at(0, "3412")
+println "31. ", bin([128]).u8_at(0), " ", bin([128]).i8_at(0)
+mut m = bin([1, 2, 3])
+m[0] = 255
+println "32. ", m
+m[1..2] = bin([8, 8, 8])
+println "33. ", m
+println "34. ", 2 in bin([1, 2, 3])
+for each x in bin([10, 20]) : println "35. ", x
+
+----
+
+.output of snippet `bin_functions`
+[source]
+----
+ 1. bin"48656c6c6f"
+ 2. bin"48656c6c6f"
+ 3. Hello
+ 4. 48656c6c6f
+ 5. bin"48656c6c6f"
+ 6. SGVsbG8=
+ 7. bin"48656c6c6f"
+ 8. [72, 101, 108, 108, 111]
+ 9. 5
+10. 101
+11. bin"656c6c"
+12. bin"010203"
+13. bin"070707"
+14. 8b1a9953c4611296a827abf8c47804d7
+15. 1
+16. 3
+17. true
+18. true
+19. true
+20. 2
+21. bin"0102"
+22. bin"0203"
+23. bin"030201"
+24. bin"f00f"
+25. bin"07070707"
+26. bin"00090900"
+27. bin"1234567800000000"
+28. 305419896
+29. 13330
+30. 873625686
+31. 128 -128
+32. bin"ff0203"
+33. bin"ff08080803"
+34. true
+35. 10
+35. 20
 
 ----
 
@@ -11118,6 +11360,49 @@ When the next execution starts the variable `x` is undefined again.
 === `chr`
 
 Converts a number interpreted as a Unicode code point to a one-character string.
+
+
+=== `bin`
+
+Creates a `bin` value, a byte array.
+The result depends on the type of the argument:
+
+* without argument, the result is an empty `bin`,
+
+* an integer argument creates a `bin` of that many zero bytes,
+
+* a list argument converts the elements; each element has to be an integer in the range -128..255 and is stored as an unsigned byte,
+
+* a string argument is encoded to bytes using UTF-8, or the character set named by the optional second argument,
+
+* a `bin` argument is copied to a new, independent `bin`.
+
+.source of snippet `bin`
+
+[source]
+----
+println bin()
+println bin(3)
+println bin([65, 66, 67])
+println bin("túró")
+println bin("túró", "ISO-8859-2")
+println bin(bin([1, 2, 3]))
+
+----
+
+.output of snippet `bin`
+[source]
+----
+bin""
+bin"000000"
+bin"414243"
+bin"74c3ba72c3b3"
+bin"74fa72f3"
+bin"010203"
+
+----
+
+
 
 
 === `curried_arity`
@@ -11881,8 +12166,8 @@ println jsonify_beauty(java_import("ch.turic.exceptions"))
     "StepLimitReached": JavaClass[klass=class ch.turic.exceptions.StepLimitReached],
     "ch.turic.exceptions.BadSyntax": JavaClass[klass=class ch.turic.exceptions.BadSyntax],
     "UndefinedVariable": JavaClass[klass=class ch.turic.exceptions.UndefinedVariable],
-    "ExecutionException": JavaClass[klass=class ch.turic.exceptions.ExecutionException],
-    "ch.turic.exceptions.ExecutionAborted": JavaClass[klass=class ch.turic.exceptions.ExecutionAborted]
+    "ch.turic.exceptions.ExecutionAborted": JavaClass[klass=class ch.turic.exceptions.ExecutionAborted],
+    "ExecutionException": JavaClass[klass=class ch.turic.exceptions.ExecutionException]
 }
 
 ----
@@ -12431,7 +12716,7 @@ println nano_time()
 .output of snippet `nano_time`
 [source]
 ----
-122111529945208
+379558898072583
 
 ----
 
@@ -12710,79 +12995,77 @@ none
 task1 is not ready 0
 task2 is ready 1
 task2 is not ready 0
-task2 is not ready 1
 task1 is not ready 1
+task2 is not ready 1
+task1 is not ready 2
 task2 is not ready 2
-task1 is not ready 2
-task1 is not ready 3task2 is not ready 3
-
-task1 is ready 2
-task2 is not ready 4
-task1 is not ready 0
-task2 is not ready 5
-task1 is not ready 1
-task1 is not ready 2task2 is not ready 6
-
-task2 is ready 3task1 is not ready 3
-
-task2 is not ready 0
-task2 is not ready 1task1 is not ready 4
-
-task1 is not ready 5task2 is not ready 2
-
-task2 is ready 4
-task2 is not ready 0
-task1 is not ready 6
-task1 is not ready 7
-task2 is not ready 1
-task2 is not ready 2task1 is not ready 8
-
-task2 is not ready 3
-task1 is not ready 9
-task1 is ready 5
-task2 is not ready 4
-task1 is not ready 0
-task1 is not ready 1
-task2 is not ready 5
-task1 is not ready 2
-task2 is not ready 6
-task1 is ready 6
-task1 is not ready 0
-task2 is not ready 7
-task1 is not ready 1
-task2 is not ready 8
-task1 is not ready 2
-task2 is not ready 9
-task1 is ready 7
-task1 is not ready 0
-task2 is not ready 10
-task1 is not ready 1
-task2 is not ready 11
-task1 is not ready 2
-task2 is not ready 12
-task1 is not ready 3
-task2 is not ready 13
-task1 is ready 8
-task1 is not ready 0
-task2 is not ready 14
-task1 is not ready 1
-task2 is not ready 15
-task1 is not ready 2
-task2 is not ready 16
-task2 is ready 9
+task2 is ready 2
 task1 is not ready 3
 task2 is not ready 0
 task2 is not ready 1
 task1 is not ready 4
 task2 is not ready 2
 task1 is not ready 5
+task2 is ready 3
+task2 is not ready 0
+task1 is not ready 6
+task2 is not ready 1
+task1 is not ready 7
+task1 is not ready 8
+task2 is not ready 2
+task2 is not ready 3
+task1 is not ready 9
+task2 is ready 4
+task2 is not ready 0
+task1 is not ready 10
+task2 is not ready 1
+task1 is not ready 11
+task2 is not ready 2
+task1 is not ready 12
+task1 is not ready 13
+task2 is ready 5
+task2 is not ready 0
+task1 is not ready 14
+task2 is not ready 1
+task2 is not ready 2
+task1 is not ready 15
+task2 is ready 6task1 is not ready 16
+
+task2 is not ready 0
+task1 is not ready 17
+task2 is not ready 1
+task1 is not ready 18
+task2 is not ready 2
+task1 is not ready 19
+task2 is not ready 3
+task1 is ready 7
+task2 is not ready 4
+task1 is not ready 0
+task1 is not ready 1
+task2 is not ready 5
+task1 is not ready 2task2 is not ready 6
+
+task2 is ready 8
+task1 is not ready 3
+task2 is not ready 0
+task1 is not ready 4
+task2 is not ready 1
+task1 is not ready 5
+task2 is not ready 2
+task1 is ready 9
+task1 is not ready 0
+task2 is not ready 3
+task2 is not ready 4
+task1 is not ready 1
+task2 is not ready 5
+task1 is not ready 2
 closing the channel
 channel is closed
 1 is done false
 2 is done false
+task2 is donetask1 is done
+
 we start to wait the first time
-task1 is done
-task2 is done
 task1 done true
 task2 done true
 We start to wait the second time
@@ -13342,7 +13625,7 @@ println sleep(0.001) // sleep one milli
 .output of snippet `sleep`
 [source]
 ----
-0.002
+0.001
 
 ----
 

@@ -43,6 +43,7 @@ public class Type implements TuriFunction {
             case LngClass ignore -> Types.CLS;
             case LngList ignore -> Types.LST;
             case String ignore -> Types.STR;
+            case byte[] ignore -> Types.BIN;
             case Double ignore -> Types.FLOAT;
             case Long ignore -> Types.INT;
             case Number ignore -> Types.NUM;

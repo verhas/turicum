@@ -247,6 +247,15 @@ public class Declare {
         }
 
         /**
+         * Adds the {@code bin} type to the accepted type alternatives.
+         *
+         * @return a new parameter builder with the type appended
+         */
+        public Parameter bin() {
+            return addType(Types.BIN);
+        }
+
+        /**
          * Adds the {@code float} type to the accepted type alternatives.
          *
          * @return a new parameter builder with the type appended

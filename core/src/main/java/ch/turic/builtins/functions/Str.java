@@ -1,6 +1,7 @@
 package ch.turic.builtins.functions;
 
 import ch.turic.Context;
+import ch.turic.commands.operators.Cast;
 import ch.turic.exceptions.ExecutionException;
 import ch.turic.TuriFunction;
 
@@ -36,6 +37,6 @@ public class Str implements TuriFunction {
     @Override
     public Object call(Context ctx, Object[] arguments) throws ExecutionException {
         final var arg = FunUtils.arg(name(), arguments, Object.class);
-        return Objects.requireNonNullElse(Objects.requireNonNullElse(arg, "none").toString(),"none");
+        return Objects.requireNonNullElse(Cast.toString(arg), "none");
     }
 }

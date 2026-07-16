@@ -165,41 +165,43 @@ public class Variable {
         return switch (name) {
             // snippet types
             case Types.BOOL -> new Variable.Type(Boolean.class, null, new Identifier(name));
-            // boolean type
+            // * `bool` boolean type
             case Types.STR -> new Variable.Type(String.class, null, new Identifier(name));
-            // string
+            // * `str` string
+            case Types.BIN -> new Variable.Type(byte[].class, null, new Identifier(name));
+            // * `bin` byte array
             case Types.NUM -> new Variable.Type(Number.class, null, new Identifier(name));
-            // any numeric type, integer or float
+            // * `num` any numeric type, integer or float
             case Types.INT -> new Variable.Type(Long.class, null, new Identifier(name));
-            // any integer type
+            // * `int` any integer type
             case Types.FLOAT -> new Variable.Type(Double.class, null, new Identifier(name));
-            // float type
+            // * `float` float type
             case Types.ANY -> new Variable.Type(null, null, new Identifier(name));
-            // the variable can hold any value
+            // * `any` the variable can hold any value
             case Types.OBJ -> new Variable.Type(LngObject.class, null, new Identifier(name));
-            // the variable can hold any object without restriction on the class of that object
+            // * `obj` the variable can hold any object without restriction on the class of that object
             case Types.LST -> new Variable.Type(LngList.class, null, new Identifier(name));
-            // the variable has to be a list
+            // * `lst` the variable has to be a list
             case Types.QUE -> new Variable.Type(Channel.class, null, new Identifier(name));
-            // the variable has to be a queue
+            // * `que` the variable has to be a queue
             case Types.TASK -> new Variable.Type(AsyncStreamHandler.class, null, new Identifier(name));
-            // the variable has to be an asynchronous task
+            // * `task` the variable has to be an asynchronous task
             case Types.MTX -> new Variable.Type(LngMutex.class, null, new Identifier(name));
-            // the variable has to be a mutex
+            // * `mtx` the variable has to be a mutex
             case Types.ATM -> new Variable.Type(LngAtomic.class, null, new Identifier(name));
-            // the variable has to be an atomic cell
+            // * `atm` the variable has to be an atomic cell
             case Types.ERR -> new Variable.Type(LngException.class, null, new Identifier(name));
-            // the variable has to be an asynchronous task
+            // * `err` the variable has to be an exception (error) object
             case Types.CLS -> new Variable.Type(LngClass.class, null, new Identifier(name));
-            // the variable has to be a class
+            // * `cls` the variable has to be a class
             case Types.FN -> new Variable.Type(Closure.class, null, new Identifier(name));
-            // the variable value has to be a function of closure
+            // * `fn` the variable value has to be a function or closure
             case Types.MACRO -> new Variable.Type(Macro.class, null, new Identifier(name));
-            // the variable value has to be a macro
+            // * `macro` the variable value has to be a macro
             case Types.NONE -> new Variable.Type(NoneType.class, null, new Identifier(name));
-            // the variable can hold the value `none`
+            // * `none` the variable can hold the value `none`
             case Types.SOME -> new Variable.Type(SomeType.class, null, new Identifier(name));
-            // the variable can hold any value, except `none`
+            // * `some` the variable can hold any value, except `none`
             // end snippet
             default -> {
                 if (name.startsWith("java.")) {

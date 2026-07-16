@@ -204,6 +204,13 @@ public record ArrayElementLeftValue(LeftValue arrayLeftValue, Command index) imp
      * @throws ExecutionException if the values are not equal
      */
     private void assertNoChange(Object value, Object checkValue) {
+        // bin slices are freshly allocated arrays; equals() on arrays is identity, so compare content
+        if (value instanceof byte[] b1 && checkValue instanceof byte[] b2) {
+            if (!java.util.Arrays.equals(b1, b2)) {
+                throw new ExecutionException("Assigned value changed while calculating new value %s", this);
+            }
+            return;
+        }
         if (!Objects.equals(value, checkValue)) {
             throw new ExecutionException("Assigned value changed while calculating new value %s", this);
         }
@@ -227,6 +234,15 @@ public record ArrayElementLeftValue(LeftValue arrayLeftValue, Command index) imp
                 withIndexedContainer.set(string.toString());
             } else {
                 arrayLeftValue.assign(ctx, string.toString());
+            }
+        }
+        // a bin is modified in place, except when a range assignment changed the length: then a new
+        // array was created and it has to replace the original in the left value
+        if (embedded instanceof IndexedBin indexedBin && indexedBin.wasReplaced()) {
+            if (indexable instanceof WithIndexedContainer withIndexedContainer) {
+                withIndexedContainer.set(indexedBin.bytes());
+            } else {
+                arrayLeftValue.assign(ctx, indexedBin.bytes());
             }
         }
     }

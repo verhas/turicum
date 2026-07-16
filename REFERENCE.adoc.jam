@@ -1070,8 +1070,9 @@ There can be multiple `identifier: type = expression` after the `let` keyword, c
 There are predefined type names.
 
 {%#trimLines
-{%#replaceLines replace="~case\\s+\"(\\w+)\".*~* `$1`~" replace="~//~~"
-{%@snip types%} %}%}
+{%#replaceLines replace="~^\\s*//\\s?~~"
+{%#killLines keep pattern="//"
+{%@snip types%} %}%}%}
 
 If the name starts with `java.`, then the variable can hold a Java object.
 For example, `java.java.math.BigInteger` can hold any `java.math.BigInteger` object.
@@ -3063,6 +3064,50 @@ These methods can be called on the string objects as methods.
 {%@end%}
 
 {%S string_functions%}
+
+== Bin Values and Functions
+
+A `bin` value is a byte array.
+It is the type Turicum uses for binary data: encoded text, hashes, base64 and hex decoded content, and binary file content.
+You can create a `bin` value with the built-in function `bin()` (see the built-in functions), or from a string with the methods `bytes()`, `from_hex()`, and `from_base64()`.
+
+The bytes of a `bin` are presented unsigned on the language surface.
+Reading a byte — indexing, iteration, `to_list()` — gives an integer in the range `0..255`.
+Writing a byte accepts an integer in the range `-128..255` and stores the low 8 bits; any other value is an error.
+
+A `bin` is mutable and has a fixed length.
+Assigning to a single index, as in `b[0] = 255`, modifies the byte array in place, and the change is visible through every variable that refers to the same `bin`.
+Use the method `copy()` when you need an independent value.
+Operations that change the length — concatenation with `+`, repetition with `*`, slicing — always create a new `bin`.
+Assigning a `bin` to an index range, as in `b[1..3] = bin([9])`, may also change the length; in that case the variable is updated to hold a new byte array, and other variables that referred to the original `bin` keep the unchanged original.
+
+You can index and slice a `bin` the same way as a string: `b[1]` is the byte at position one, `b[1..3]` is a new `bin` with the bytes of the range, and negative range ends count from the end of the value.
+You can iterate over the bytes with `for each`.
+The function `len()` gives the number of bytes.
+
+The operators work on `bin` values the following way:
+
+* `+` concatenates two `bin` values into a new one; mixing a `bin` with any other type on the right side of `+` is an error, and has to be converted explicitly.
+* `*` with an integer repeats the content, like for strings.
+* `==` and `!=` compare the content, byte by byte.
+* `<`, `\<=`, `>`, `>=` order `bin` values lexicographically by the unsigned byte values.
+* `===` is `true` only when the two operands are the same byte array.
+* `in` tests containment: a byte value, as in `2 in b`, or a contiguous subsequence, as in `bin([1,2]) in b`.
+
+A `bin` cannot be used as a boolean, and `jsonify()` refuses it; convert explicitly with `base64()`, `hex()`, or `to_list()`.
+
+When a `bin` is converted to a string — printing, interpolation, `str()` — the result is `+bin"..."+` with the content in hexadecimal, for example `+bin"48656c6c6f"+`.
+The hexadecimal content is the same string the method `hex()` returns and the string method `from_hex()` accepts.
+
+The methods callable on `bin` values are the following:
+
+{%!#replaceLines replace="/case\\s*\"(.*?)\".*/* `$1` /" replace="~^\\s*//~"
+{%#killLines keep pattern="\\/\\/|case\\s"
+{%@snip bin_functions_doc%} %}%}
+
+The following example demonstrates the use of the `bin` methods and operators:
+
+{%S bin_functions%}
 
 == Built-in Functions
 

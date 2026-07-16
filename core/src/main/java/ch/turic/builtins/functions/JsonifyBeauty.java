@@ -91,6 +91,8 @@ public class JsonifyBeauty implements TuriFunction {
             case LngObject lngObject -> jsonifyObject(lngObject, tab, tabsize, margin);
             case LngList lngList -> jsonifyList(lngList, tab, tabsize, margin);
             case String s -> Jsonify.jsonifyString(s);
+            case byte[] ignored ->
+                    throw new ExecutionException("A bin value cannot be converted to JSON, convert it explicitly with base64(), hex() or to_list()");
             case null -> "null";
             default -> jsonifyAny(object, tab, tabsize, margin);
         };
@@ -102,6 +104,8 @@ public class JsonifyBeauty implements TuriFunction {
             case LngObject lngObject -> jsonifyObjectFlat(lngObject);
             case LngList lngList -> jsonifyListFlat(lngList);
             case String s -> Jsonify.jsonifyString(s);
+            case byte[] ignored ->
+                    throw new ExecutionException("A bin value cannot be converted to JSON, convert it explicitly with base64(), hex() or to_list()");
             case null -> "null";
             default -> object.toString();
         };

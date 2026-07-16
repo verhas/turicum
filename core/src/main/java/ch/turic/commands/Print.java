@@ -82,6 +82,7 @@ public class Print extends AbstractCommand implements HasCommands {
             final var arg = cmd.execute(ctx);
             final var str = switch (arg) {
                 case null -> "none";
+                case byte[] bytes -> ch.turic.utils.BinUtils.display(bytes);
                 default -> "" + arg;
             };
             out(str, ctx, printTarget);

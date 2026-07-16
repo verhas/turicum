@@ -55,6 +55,11 @@ public abstract class Compare implements Operator {
             return doubleComparator.test(Cast.toDouble(op1), Cast.toDouble(op2));
         }
 
+        // bin values are ordered lexicographically by unsigned byte values
+        if (op1 instanceof byte[] b1 && op2 instanceof byte[] b2) {
+            return comparatorTest.test(java.util.Arrays.compareUnsigned(b1, b2));
+        }
+
         if (op1 instanceof LngObject lngOp1) {
             final var method = lngOp1.getField(operator);
             if (method != null) {
@@ -162,6 +167,10 @@ public abstract class Compare implements Operator {
                 if (numeric != null) {
                     return numeric;
                 }
+                // byte[] equals() is identity; bin equality is content equality
+                if (op1 instanceof byte[] b1 && op2 instanceof byte[] b2) {
+                    return java.util.Arrays.equals(b1, b2);
+                }
                 return op1.equals(op2);
             }
         }
@@ -213,6 +222,10 @@ public abstract class Compare implements Operator {
                 final var numeric = numericEquality(op1, op2);
                 if (numeric != null) {
                     return !numeric;
+                }
+                // byte[] equals() is identity; bin equality is content equality
+                if (op1 instanceof byte[] b1 && op2 instanceof byte[] b2) {
+                    return !java.util.Arrays.equals(b1, b2);
                 }
                 return !op1.equals(op2);
             }

@@ -8,6 +8,7 @@ import ch.turic.commands.Conditional;
 import ch.turic.commands.operators.Cast;
 import ch.turic.exceptions.ExecutionException;
 import ch.turic.memory.LngList;
+import ch.turic.utils.BinUtils;
 import ch.turic.utils.CaseFolder;
 import ch.turic.utils.StringUtils;
 
@@ -248,17 +249,17 @@ public class TuriString implements TuriClass {
                         return encoder.encodeToString(string.getBytes(StandardCharsets.UTF_8));
                     });
             case "from_base64" ->
-                // create a list of numbers (bytes) from a base64 encoded string
+                // create a bin (byte array) from a base64 encoded string
                 // {%S string_from_base64%}
                     new TuriMethod<>((args) -> {
                         Base64.Decoder decoder = Base64.getDecoder();
-                        final var bytes = decoder.decode(string);
-                        final var list = new LngList();
-                        for (byte aByte : bytes) {
-                            list.array.add(aByte);
-                        }
-                        return list;
+                        return decoder.decode(string);
                     });
+            case "from_hex" ->
+                // create a bin (byte array) from a hexadecimal string.
+                // An optional `0x` prefix is accepted, and the number of digits has to be even.
+                // {%S string_from_hex%}
+                    new TuriMethod<>((args) -> BinUtils.parseHex(string));
             case "from_base64_str" ->
                 // create a string from a base64 encoded string
                 // {%S string_from_base64_str%}
@@ -702,12 +703,11 @@ public class TuriString implements TuriClass {
                         return StringUtils.msplit(string, 0, splitter, limits);
                     });
             case "bytes" ->
-                // return a list that contains the bytes of the string using the given character encoding.
+                // return a bin (byte array) that contains the bytes of the string using the given character encoding.
                 // The character coding is UTF-8 by default.
                 // In other cases, it has to be defined by name as a string.
                 // {%S string_bytes%}
                     new TuriMethod<>((args) -> {
-                        final var list = new LngList();
                         final Charset charset;
                         if( args == null || args.length == 0 ) {
                             charset = StandardCharsets.UTF_8;
@@ -718,11 +718,7 @@ public class TuriString implements TuriClass {
                                 throw new ExecutionException("bytes() needs at most one argument, the name of the character encoding");
                             }
                         }
-                        final var bytes = string.getBytes(charset);
-                        for (byte b : bytes) {
-                            list.array.add(b);
-                        }
-                        return list;
+                        return string.getBytes(charset);
                     });
             case "chars" ->
                 // return a list that contains the characters of the string, each as a string.

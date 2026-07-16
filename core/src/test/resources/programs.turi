@@ -1417,3 +1417,209 @@ h().p()
 t().p()
 die "bad typeRdefinition" when MSG != "overwritten K - original K"
 none
+-- TEST bin_constructor
+// bin() creates byte arrays from nothing, a length, a list, a string, or another bin
+let mt = bin()
+die "empty bin" when len(mt) != 0
+die "bin type" when type(mt) != "bin"
+let z = bin(3)
+die "zero filled length" when len(z) != 3
+die "zero filled content" when z[0] != 0 || z[1] != 0 || z[2] != 0
+let l = bin([1, 2, 255, -1])
+die "list length" when len(l) != 4
+die "unsigned read" when l[2] != 255
+die "negative stored unsigned" when l[3] != 255
+let s = bin("Hello")
+die "encoded length" when len(s) != 5
+die "encoded content" when s[0] != 72
+let c = bin(l)
+c[0] = 9
+die "copy is independent" when l[0] != 1
+fn must_fail(f: fn, msg: str) {
+    mut ok = false
+    try { f(); ok = true } catch e: none
+    die msg when ok
+}
+must_fail({|| bin([300])}, "byte range is not checked")
+must_fail({|| bin([1.5])}, "float byte is not checked")
+must_fail({|| bin(-1)}, "negative length is not checked")
+
+-- TEST bin_index_slice
+// single index reads are unsigned, writes are in place, range assignment reallocates
+mut b = bin([10, 20, 30, 40, 50])
+die "index read" when b[1] != 20
+die "slice" when b[0..2] != bin([10, 20])
+die "negative end slice" when b[0..-1] != bin([10, 20, 30, 40])
+b[0] = 255
+die "in place write" when b[0] != 255
+fn must_fail(f: fn, msg: str) {
+    mut ok = false
+    try { f(); ok = true } catch e: none
+    die msg when ok
+}
+must_fail({|| b[5]}, "overindexing is not checked")
+mut wrote = false
+try { b[0] = 256; wrote = true } catch e: none
+die "write range is not checked" when wrote
+die "failed write must not change the byte" when b[0] != 255
+mut c = b
+c[1] = 7
+die "aliasing" when b[1] != 7
+b[1..3] = bin([1, 2, 3])
+die "range assignment" when b != bin([255, 1, 2, 3, 40, 50])
+die "alias keeps old array after reallocation" when len(c) != 5
+mut k = 0
+for each x in bin([5, 6, 7]) : k = k + x
+die "iteration" when k != 18
+
+-- TEST bin_operators
+let a = bin([1, 2])
+let b = bin([3])
+die "concat" when a + b != bin([1, 2, 3])
+die "repeat" when b * 3 != bin([3, 3, 3])
+die "content equality" when !(a == bin([1, 2]))
+die "not equal" when a != bin([1, 2])
+die "identity" when a === bin([1, 2])
+die "unsigned ordering" when !(bin([128]) > bin([127]))
+die "lexicographic ordering" when !(bin([1, 2]) < bin([1, 2, 0]))
+die "byte in bin" when !(2 in a)
+die "byte not in bin" when 3 in a
+die "bin in bin" when !(bin([1, 2]) in bin([0, 1, 2, 3]))
+die "bin not in bin" when bin([2, 1]) in bin([0, 1, 2, 3])
+die "str plus bin" when "x" + a != "xbin\"0102\""
+die "interpolation" when str(a) != "bin\"0102\""
+fn must_fail(f: fn, msg: str) {
+    mut ok = false
+    try { f(); ok = true } catch e: none
+    die msg when ok
+}
+must_fail({|| a + 1}, "bin + int is not an error")
+must_fail({|| a + "y"}, "bin + str is not an error")
+must_fail({|| if a { } }, "bin as bool is not an error")
+must_fail({|| jsonify(a)}, "jsonify(bin) is not an error")
+
+-- TEST bin_conversions
+let h = "Hello".bytes()
+die "bytes returns bin" when type(h) != "bin"
+die "text" when h.text() != "Hello"
+die "hex" when h.hex() != "48656c6c6f"
+die "from_hex" when "48656c6c6f".from_hex() != h
+die "from_hex 0x prefix" when "0x48656C6C6F".from_hex() != h
+die "base64" when h.base64() != "SGVsbG8="
+die "from_base64" when "SGVsbG8=".from_base64() != h
+let lst = h.to_list()
+die "to_list length" when len(lst) != 5
+die "to_list values" when lst[0] != 72 || lst[4] != 111
+die "charset roundtrip" when bin("alma", "Cp037").text("Cp037") != "alma"
+die "utf8 unsigned" when "é".bytes()[0] != 195
+fn must_fail(f: fn, msg: str) {
+    mut ok = false
+    try { f(); ok = true } catch e: none
+    die msg when ok
+}
+must_fail({|| "abc".from_hex()}, "odd hex is not an error")
+must_fail({|| "4g".from_hex()}, "bad hex digit is not an error")
+die "sha_256 is bin" when type(h.sha_256()) != "bin"
+die "sha_256 length" when len(h.sha_256()) != 32
+die "md5 length" when len(h.md5()) != 16
+die "known md5" when "".bytes().md5().hex() != "d41d8cd98f00b204e9800998ecf8427e"
+
+-- TEST bin_methods
+fn must_fail(f: fn, msg: str) {
+    mut ok = false
+    try { f(); ok = true } catch e: none
+    die msg when ok
+}
+let b = bin([1, 2, 3, 2, 1])
+die "length method" when b.length() != 5
+die "index_of byte" when b.index_of(2) != 1
+die "index_of from" when b.index_of(2, 2) != 3
+die "index_of missing" when b.index_of(9) != -1
+die "index_of bin" when b.index_of(bin([3, 2])) != 2
+die "last_index_of" when b.last_index_of(2) != 3
+die "contains method" when !b.contains(bin([2, 3]))
+die "starts_with" when !b.starts_with(bin([1, 2]))
+die "ends_with" when !b.ends_with(bin([2, 1]))
+die "count" when bin([1, 1, 1, 1]).count(bin([1, 1])) != 2
+die "is_empty" when !bin().is_empty() || b.is_empty()
+die "left" when b.left(2) != bin([1, 2])
+die "left over" when b.left(99) != b
+die "right" when b.right(2) != bin([2, 1])
+die "reverse" when b.reverse() != bin([1, 2, 3, 2, 1])
+die "reverse2" when bin([1, 2]).reverse() != bin([2, 1])
+die "xor" when bin([255, 0]).xor(bin([15, 15])) != bin([240, 15])
+must_fail({|| bin([1]).xor(bin([1, 2]))}, "xor length is not checked")
+mut m = bin(4)
+m.fill(7)
+die "fill" when m != bin([7, 7, 7, 7])
+m.fill(9, 1, 3)
+die "fill range" when m != bin([7, 9, 9, 7])
+m.set(1, bin([5, 5]))
+die "set" when m != bin([7, 5, 5, 7])
+must_fail({|| m.set(3, bin([1, 2]))}, "set overflow is not checked")
+let orig = bin([1, 2, 3])
+let cp = orig.copy()
+cp[0] = 9
+die "copy" when orig[0] != 1
+
+-- TEST bin_codecs
+fn must_fail(f: fn, msg: str) {
+    mut ok = false
+    try { f(); ok = true } catch e: none
+    die msg when ok
+}
+mut b = bin(8)
+b.set_u32_at(0, 305419896)
+die "u32 be bytes" when b[0] != 18 || b[1] != 52 || b[2] != 86 || b[3] != 120
+die "u32 be read" when b.u32_at(0) != 305419896
+b.set_u32_at(0, 305419896, "le")
+die "u32 le bytes" when b[0] != 120 || b[1] != 86 || b[2] != 52 || b[3] != 18
+die "u32 le read" when b.u32_at(0, "le") != 305419896
+b.set_u32_at(0, 305419896, "3412")
+die "u32 pdp bytes" when b[0] != 52 || b[1] != 18 || b[2] != 120 || b[3] != 86
+die "u32 pdp read" when b.u32_at(0, "3412") != 305419896
+die "order equivalence le" when b.u32_at(0, "3412") != 305419896
+b.set_u16_at(0, 65534)
+die "u16 read" when b.u16_at(0) != 65534
+die "i16 read" when b.i16_at(0) != -2
+b.set_i16_at(0, -2, "le")
+die "i16 le" when b.i16_at(0, "le") != -2
+let signs = bin([128])
+die "u8" when signs.u8_at(0) != 128
+die "i8" when signs.i8_at(0) != -128
+let ff = bin([255]) * 8
+die "i64 all ones" when ff.i64_at(0) != -1
+must_fail({|| ff.u64_at(0)}, "u64 overflow is not an error")
+b.set_i64_at(0, -2)
+die "i64 roundtrip" when b.i64_at(0) != -2
+die "u64 of i64" when b.u8_at(0) != 255
+must_fail({|| b.set_u8_at(0, 256)}, "set_u8 range is not checked")
+must_fail({|| b.set_i8_at(0, 128)}, "set_i8 range is not checked")
+must_fail({|| b.set_u16_at(0, 65536)}, "set_u16 range is not checked")
+must_fail({|| b.set_u64_at(0, -1)}, "set_u64 negative is not checked")
+must_fail({|| b.u16_at(0, "123")}, "wrong order length is not checked")
+must_fail({|| b.u16_at(0, "11")}, "repeated order digit is not checked")
+must_fail({|| b.u16_at(0, "13")}, "out of range order digit is not checked")
+must_fail({|| b.u32_at(6)}, "codec overindexing is not checked")
+
+-- TEST bin_declared_type
+let b : bin = bin([1])
+die "declared bin" when type(b) != "bin"
+mut fails = false
+try { let s : bin = "x" } catch e: fails = true
+die "bin type check" when !fails
+fn f(x : bin) : bin { x + bin([2]) }
+die "bin parameter" when f(bin([1])) != bin([1, 2])
+
+-- TEST bin_must_fail_helper
+// guards the must_fail pattern used by the bin tests: a call that does NOT
+// throw has to make must_fail die, otherwise the expect-error tests are blind
+fn must_fail(f: fn, msg: str) {
+    mut ok = false
+    try { f(); ok = true } catch e: none
+    die msg when ok
+}
+mut died = false
+try { must_fail({|| 1}, "should die") } catch e: died = true
+die "must_fail does not detect a call that did not fail" when !died
+must_fail({|| bin(-1)}, "must_fail does not pass through a real failure")
