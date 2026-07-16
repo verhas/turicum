@@ -51,8 +51,8 @@ Extend `ch.turic.Capability`:
 
 | Capability | Gates | New? |
 |---|---|---|
-| `FILE_READ` | reading content and metadata: `file_read`, `file_lines`, `file_reader`, `file_exists`, `is_file`, `is_dir`, `file_stat`, `glob` (after the move), plus — unchanged — `import`/`sys_import`/`source_directory` and the input-stream classes | exists |
-| `FILE_WRITE` | modifying content of *existing* files: `file_write`, `file_writer` (both also need `FILE_CREATE` at runtime when the target does not exist) | **new** |
+| `FILE_READ` | reading content and metadata: `file_read`, `file_lines`, `file_reader`, `file_random_reader`, `file_map_reader`, `file_exists`, `is_file`, `is_dir`, `file_stat`, `glob` (after the move), plus — unchanged — `import`/`sys_import`/`source_directory` and the input-stream classes | exists |
+| `FILE_WRITE` | modifying content of *existing* files: `file_write`, `file_writer`, `file_random_editor`, `file_map_editor` (the first three also need `FILE_CREATE` at runtime when they would create the target) | **new** |
 | `FILE_CREATE` | bringing new file-system entries into existence: `mkdir`, and the create-a-new-file half of `file_write`/`file_writer`/`file_copy`/`file_move` | **new** |
 | `FILE_DELETE` | removing entries: `file_delete`, and the remove-the-source half of `file_move` | **new** |
 
@@ -273,13 +273,112 @@ Every operation on a closed handle is an error (except `close`). Any I/O error
 inside `exit` surfaces through the existing `WithCommand` close-exception
 collection.
 
-**Leak safety:** each open handle registers with the session's `GlobalContext`
-and is force-closed when the interpreter/session ends or is aborted — a sandboxed
-script that opens files in a loop and never closes them must not leak host file
-descriptors past the session. (Working name: `GlobalContext.registerCloseable()` /
-closed in the same place `joinThreads()` runs.)
+**Leak safety:** each open handle — sequential (§5.3), random-access (§5.4), and
+mapped (§5.5) — registers with the session's `GlobalContext` and is force-closed
+when the interpreter/session ends or is aborted — a sandboxed script that opens
+files in a loop and never closes them must not leak host file descriptors past
+the session. (Working name: `GlobalContext.registerCloseable()` / closed in the
+same place `joinThreads()` runs. For mapped handles "closed" means invalidated;
+see the Java 21 caveat in §5.5.)
 
-### 5.4 `turi.io` library rewrite (follow-up)
+### 5.4 Random access — `file_random_reader` / `file_random_editor`
+
+Sequential handles (§5.3) cover the common case; random access needs position
+queries, seeking, and in-place updates. Same split-by-capability principle as
+§5.3 — a read-only sandbox must not even see a function that could open a file
+for updating:
+
+```text
+fn file_random_reader(path: str)
+    -> random-access read handle                            # FILE_READ
+
+fn file_random_editor(path: str,
+                      @create: bool = false,   # create if missing (needs FILE_CREATE)
+                      @truncate: bool = false) # empty the file on open
+    -> random-access read/write handle         # FILE_WRITE (+ FILE_CREATE if create=true
+                                               #  and the target is new)
+```
+
+The editor handle can also read — write implies read (§3), and random-access
+writing is read-modify-write by nature.
+
+Reader handle methods:
+
+| method | behavior |
+|---|---|
+| `position()` | current position as byte offset from the start of the file |
+| `seek(pos)` | sets the position; `pos` past EOF is legal (reads there hit EOF) |
+| `size()` | current file size in bytes |
+| `read(n)` | up to `n` bytes from the current position, advancing it; `none` at EOF |
+| `read_at(pos, n)` | absolute-positioned read; does *not* move the position |
+| `close()` | idempotent |
+| `entry()` / `exit(e)` | `with` protocol; `exit` closes, returns `false` |
+
+Editor handle: all of the above, plus
+
+| method | behavior |
+|---|---|
+| `write(x)` | writes at the current position, advancing it; writing past EOF extends the file |
+| `write_at(pos, x)` | absolute-positioned write; does *not* move the position |
+| `truncate(size)` | cuts the file to `size` bytes (position clamps to the new end) |
+| `flush()` | forces pending writes to the file |
+
+Positions and sizes are **byte offsets** — random access is inherently
+byte-oriented. Seeking in a multibyte-encoded text file can land inside a
+character, so these handles have **no text mode**; what `read` returns and
+`write` accepts is exactly the D6 bytes question, now load-bearing (see the
+updated D6 and new D9). Backed by `SeekableByteChannel`
+(`FileChannel.open(...)`), which maps one-to-one onto this method set.
+
+### 5.5 Memory-mapped files — `file_map_reader` / `file_map_editor`
+
+For large files where seek-read loops are too slow, a mapped view. Same
+capability split:
+
+```text
+fn file_map_reader(path: str, @offset: int = 0, @length: int|none = none)
+    -> mapped read handle                                   # FILE_READ
+
+fn file_map_editor(path: str, @offset: int = 0, @length: int|none = none)
+    -> mapped read/write handle                             # FILE_WRITE
+   # length=none maps from offset to the end of the file; the editor form
+   # with an explicit length may extend the file to offset+length
+```
+
+Handle methods:
+
+| method | behavior |
+|---|---|
+| `length()` | length of the mapped region in bytes |
+| `get(pos, n)` | `n` bytes at offset `pos` within the mapping |
+| `put(pos, x)` | writes bytes at offset `pos` (editor only); cannot grow the mapping |
+| `flush()` | `MappedByteBuffer.force()` — pushes changes to the file (editor only) |
+| `close()` | invalidates the handle (see the caveat below) |
+| `entry()` / `exit(e)` | `with` protocol; `exit` calls `flush` + `close`, returns `false` |
+
+**Java 21 caveat — no deterministic unmap.** The project targets Java 21, and
+`MappedByteBuffer` has no supported unmap operation; the mapping is released
+only when the buffer is garbage-collected. The FFM API
+(`FileChannel.map(..., Arena)` returning a `MemorySegment`, with
+`Arena.close()` unmapping deterministically) is final only in Java 22.
+Consequences we must document and design around:
+
+- `close()` invalidates the *handle* (every later `get`/`put` is an error) and
+  drops the buffer reference, but the pages stay mapped until GC. On Windows
+  the file cannot be deleted or truncated while mapped.
+- Session-end force-close (§5.3) can therefore not guarantee release of
+  mappings — a real difference from stream handles that `EMBEDDING.md` must
+  state. A mapping is host virtual address space held on the sandbox's behalf.
+- Sandbox exposure: proposal to add `maxMappedBytes(long)` to
+  `SandboxPolicy.Builder` — the running total of `length` over all live
+  mappings of a session may not exceed it; untrusted default 0 (mmap built-ins
+  effectively unusable unless the host opts in), trusted/unrestricted default
+  unlimited.
+- When the project moves to Java 22+, the implementation switches to
+  `MemorySegment`/`Arena` internally and `close()` becomes a true unmap — no
+  script-visible API change. Whether to ship mmap at all before that is D10.
+
+### 5.6 `turi.io` library rewrite (follow-up)
 
 `turi/io.turi`'s `files` class is rewritten to delegate to the new built-ins
 (`files.read_all_lines` → `file_lines`, `files.write` → `file_write`), removing
@@ -300,6 +399,10 @@ core/src/main/java/ch/turic/builtins/functions/fileio/
     FileMove.java        @Name("file_move")
     FileReaderFn.java    @Name("file_reader")   (name avoids java.io.FileReader clash)
     FileWriterFn.java    @Name("file_writer")
+    FileRandomReader.java @Name("file_random_reader")
+    FileRandomEditor.java @Name("file_random_editor")
+    FileMapReader.java   @Name("file_map_reader")
+    FileMapEditor.java   @Name("file_map_editor")
     SafePath.java        shared root-confinement helper (§4)
     Glob.java            moved here later, unchanged name "glob"
 ```
@@ -324,7 +427,11 @@ with Jamal), registered in `META-INF/services/ch.turic.TuriFunction` and
 3. **Phase C — handles.** `file_reader`/`file_writer`, `with` integration
    (including the D3 decision if it touches `WithCommand`), session-end
    force-close, abort/grace-window behavior test.
-4. **Phase D — consolidation.** Move `Glob.java` into `fileio` and switch it to
+4. **Phase C2 — random access & mmap.** `file_random_reader`/`file_random_editor`
+   (§5.4) once the byte-representation decision (D6/D9) is made;
+   `file_map_reader`/`file_map_editor` (§5.5) with `maxMappedBytes` policy
+   plumbing, if D10 decides to ship it on Java 21.
+5. **Phase D — consolidation.** Move `Glob.java` into `fileio` and switch it to
    the file root sets; narrow the `importRoot` javadoc; rewrite `turi/io.turi`;
    update `Capability` javadoc, `EMBEDDING.md`, `REFERENCE.adoc` snippets.
 
@@ -369,8 +476,32 @@ with Jamal), registered in `META-INF/services/ch.turic.TuriFunction` and
   useful with reflection. Options: (a) same raw `byte[]` (cheap, useless to
   untrusted code); (b) `lst` of numbers 0–255 (sandbox-friendly, memory-heavy);
   (c) defer — ship text-only first, add `@binary` in a second step once a bytes
-  story exists. Recommendation: **(c)**, keeping `@binary` in the signatures
-  reserved (declared but rejected as "not yet supported") or omitted until then.
+  story exists; (d) a new built-in mutable buffer class (working name
+  `LngBytes`: indexable, sliceable, `to_str(charset)`/`from_str`), which would
+  also be the natural return/argument type of the §5.4 and §5.5 handles.
+  For the *sequential* API the earlier recommendation stands: **(c)**, text
+  first. But §5.4/§5.5 are byte-oriented by nature, which raises the priority
+  of (d) — see D9.
+- **D9 — Byte representation for the random-access and mmap handles** (what
+  `read`/`read_at`/`get` return and `write`/`put` accept). Options:
+  (a) the D6(d) `LngBytes` buffer class — clean, but a prerequisite feature;
+  (b) interim: latin-1 (`ISO-8859-1`) `str` values — every byte maps losslessly
+  to one char, so `str` works as a poor man's byte string with all existing
+  string operations available; cheap to ship, slightly wrong-feeling, forward
+  compatible (an `LngBytes` can be accepted *in addition* later);
+  (c) block §5.4/§5.5 on D6(d).
+  Recommendation: **(a) if we are willing to build `LngBytes` in Phase C2,
+  otherwise (b)** — but not (c) silently; random access was requested for a
+  reason.
+- **D10 — Ship mmap on Java 21?** `MappedByteBuffer` cannot be deterministically
+  unmapped on 21 (§5.5): `close()` is invalidate-only, pages release at GC, and
+  Windows keeps the file locked while mapped. Options: (a) ship with the
+  documented caveat and the `maxMappedBytes` policy cap; (b) specify now (this
+  document), implement when the project targets Java 22+ and `Arena` gives true
+  unmap; (c) implement on 21 behind trusted-mode only (deny in untrusted
+  regardless of capabilities). Recommendation: **(b)** — random access (§5.4)
+  covers most concrete needs meanwhile, and shipping a sandbox feature whose
+  resource release is GC-dependent undercuts the sandbox story.
 - **D7 — `file_delete(force=true)` scope.** Recursive directory deletion is
   the most destructive primitive here. Keep it (guarded by `FILE_DELETE` +
   read-write-root confinement), or restrict deletion to files and empty
