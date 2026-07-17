@@ -1,7 +1,12 @@
 # Turicum File I/O Built-ins — API Proposal & Implementation Plan
 
-*Status: API proposal for discussion, 2026-07-13. Nothing here is implemented yet.
-Once the API is agreed, this document grows the detailed design decisions.*
+*Status: API proposal for discussion, 2026-07-13; updated 2026-07-16 after the
+`bin` type (`BIN_TYPE.md`) was designed and implemented. `bin` settles the binary
+representation questions D6/D9: every binary read returns `bin` and every binary
+write accepts `bin` — the interim latin-1-string idea is dropped and the
+"text-only first" deferral of `@binary` is void. None of the file I/O built-ins
+themselves are implemented yet. Once the API is agreed, this document grows the
+detailed design decisions.*
 
 The plan: a family of file-access built-in functions in a new package
 `ch.turic.builtins.functions.fileio`, gated by file capabilities and confined by
@@ -38,6 +43,8 @@ rewritten to delegate to them instead of reflection, so existing scripts using
 | `with`-compatible built-in resource | `TuriHttpClient` (`http_client`) | Existing pattern: returns an `LngObject` with `entry`/`exit` fields holding `TuriMethod`s |
 | Java-object method binding | `TuriClass` SPI, e.g. `TuriInputStream` | Alternative pattern for handle objects |
 | `turi/io.turi` | system library | Current reflection-based `files.read_all_lines` / `files.write` |
+| **`bin` type** (new since the first draft) | raw `byte[]` values; `builtins.functions.Bin`, `builtins.classes.TuriBin`, `memory.IndexedBin`, `utils.BinUtils`; design in `BIN_TYPE.md` | The return/argument type for all binary I/O in this plan; `Declare` already supports `bin` parameter declarations, so built-ins can declare `content: str\|bin` |
+| `GlobalContext.registerTask()` | `ch.turic.memory.GlobalContext` (new since the first draft) | Session-end resource tracking pattern next to `joinThreads()` — the model for the `registerCloseable()` handle registry of §5.3 |
 
 One constraint discovered in `WithCommand.wrapCallingEntry()`: the resource object
 must implement **both** `HasFields` and `HasContext`, even in the `as alias` form
@@ -171,12 +178,12 @@ implemented with the `Declare.params(...)` parameter machinery like `Glob`.
 
 ```text
 fn file_read(path: str, @binary: bool = false, @charset: str = "UTF-8")
-    -> str | bytes                                          # FILE_READ
+    -> str | bin                                            # FILE_READ
 
 fn file_lines(path: str, @charset: str = "UTF-8")
     -> lst of str                                           # FILE_READ
 
-fn file_write(path: str, content,
+fn file_write(path: str, content: str | bin,
               @append: bool = false,
               @overwrite: bool = true,     # false + existing file -> error
               @mkdirs: bool = false,       # create parent dirs (needs FILE_CREATE)
@@ -184,6 +191,15 @@ fn file_write(path: str, content,
               @charset: str = "UTF-8")
     -> none                                # FILE_WRITE (+ FILE_CREATE if target is new)
 ```
+
+`file_read(@binary=true)` returns a `bin` — implementation-wise
+`Files.readAllBytes()` returned directly, zero-copy, since a `bin` *is* a raw
+`byte[]` (`BIN_TYPE.md` §3). In text mode (`@binary=false`, the default) the
+result is a `str` decoded with `@charset`.
+
+`file_write` in binary mode writes the `content` bytes verbatim; in text mode it
+writes `str(content)` encoded with `@charset`. Which argument types each mode
+accepts is D11.
 
 `file_write` with `overwrite=false` uses `CREATE_NEW` atomically — no
 check-then-create race deciding which capability applies; the runtime
@@ -242,9 +258,9 @@ Reader handle fields (all methods; the handle is read-only):
 
 | method | behavior |
 |---|---|
-| `read_line()` | next line without terminator, `none` at EOF |
-| `read(n)` | up to `n` chars (or bytes in binary mode), `none` at EOF |
-| `read_all()` | the rest of the stream as one `str`/bytes |
+| `read_line()` | next line without terminator, `none` at EOF (text mode only) |
+| `read(n)` | up to `n` chars as `str` (binary mode: up to `n` bytes as `bin`), `none` at EOF |
+| `read_all()` | the rest of the stream as one `str` (binary mode: `bin`) |
 | `close()` | idempotent |
 | `entry()` / `exit(e)` | `with` protocol; `exit` closes, returns `false` (never suppresses) |
 
@@ -252,7 +268,7 @@ Writer handle fields:
 
 | method | behavior |
 |---|---|
-| `write(x)` | writes `str(x)` (or bytes in binary mode) |
+| `write(x)` | writes `str(x)` encoded with `@charset` (binary mode: writes the `bin` bytes verbatim; accepted types per D11) |
 | `write_line(x)` | `write(x)` + newline |
 | `flush()` | flushes |
 | `close()` | flush + close, idempotent |
@@ -278,8 +294,11 @@ mapped (§5.5) — registers with the session's `GlobalContext` and is force-clo
 when the interpreter/session ends or is aborted — a sandboxed script that opens
 files in a loop and never closes them must not leak host file descriptors past
 the session. (Working name: `GlobalContext.registerCloseable()` / closed in the
-same place `joinThreads()` runs. For mapped handles "closed" means invalidated;
-see the Java 21 caveat in §5.5.)
+same place `joinThreads()` runs. `GlobalContext` has meanwhile gained exactly
+this shape of registry for async tasks — `registerTask()`, a concurrent set
+drained at `joinThreads()` with self-removal on completion — so the handle
+registry follows that established pattern. For mapped handles "closed" means
+invalidated; see the Java 21 caveat in §5.5.)
 
 ### 5.4 Random access — `file_random_reader` / `file_random_editor`
 
@@ -309,8 +328,8 @@ Reader handle methods:
 | `position()` | current position as byte offset from the start of the file |
 | `seek(pos)` | sets the position; `pos` past EOF is legal (reads there hit EOF) |
 | `size()` | current file size in bytes |
-| `read(n)` | up to `n` bytes from the current position, advancing it; `none` at EOF |
-| `read_at(pos, n)` | absolute-positioned read; does *not* move the position |
+| `read(n)` | up to `n` bytes as a `bin` from the current position, advancing it; `none` at EOF |
+| `read_at(pos, n)` | absolute-positioned read, returns `bin`; does *not* move the position |
 | `close()` | idempotent |
 | `entry()` / `exit(e)` | `with` protocol; `exit` closes, returns `false` |
 
@@ -318,17 +337,20 @@ Editor handle: all of the above, plus
 
 | method | behavior |
 |---|---|
-| `write(x)` | writes at the current position, advancing it; writing past EOF extends the file |
-| `write_at(pos, x)` | absolute-positioned write; does *not* move the position |
+| `write(x)` | writes the `bin` `x` at the current position, advancing it; writing past EOF extends the file (whether `str` is also accepted: D11) |
+| `write_at(pos, x)` | absolute-positioned write of a `bin`; does *not* move the position |
 | `truncate(size)` | cuts the file to `size` bytes (position clamps to the new end) |
 | `flush()` | forces pending writes to the file |
 
 Positions and sizes are **byte offsets** — random access is inherently
 byte-oriented. Seeking in a multibyte-encoded text file can land inside a
-character, so these handles have **no text mode**; what `read` returns and
-`write` accepts is exactly the D6 bytes question, now load-bearing (see the
-updated D6 and new D9). Backed by `SeekableByteChannel`
-(`FileChannel.open(...)`), which maps one-to-one onto this method set.
+character, so these handles have **no text mode**; `read`/`read_at` return `bin`
+and `write`/`write_at` accept `bin` (D6/D9, settled by the now-implemented `bin`
+type — `bin`'s integer codec methods `u32_at` & co. are exactly the tools for
+processing what these handles read). Backed by `SeekableByteChannel`
+(`FileChannel.open(...)`), which maps one-to-one onto this method set — and a
+`bin` being a raw `byte[]`, reads and writes wrap it in a `ByteBuffer` without
+copying.
 
 ### 5.5 Memory-mapped files — `file_map_reader` / `file_map_editor`
 
@@ -347,14 +369,14 @@ fn file_map_editor(path: str, @offset: int = 0, @length: int|none = none)
 
 Handle methods:
 
-| method | behavior |
-|---|---|
-| `length()` | length of the mapped region in bytes |
-| `get(pos, n)` | `n` bytes at offset `pos` within the mapping |
-| `put(pos, x)` | writes bytes at offset `pos` (editor only); cannot grow the mapping |
-| `flush()` | `MappedByteBuffer.force()` — pushes changes to the file (editor only) |
-| `close()` | invalidates the handle (see the caveat below) |
-| `entry()` / `exit(e)` | `with` protocol; `exit` calls `flush` + `close`, returns `false` |
+| method | behavior                                                                    |
+|---|-----------------------------------------------------------------------------|
+| `length()` | length of the mapped region in bytes                                        |
+| `get(pos, n)` | `n` bytes at offset `pos` within the mapping, as a `bin`                    |
+| `put(pos, x)` | writes the `bin` `x` at offset `pos` (editor only); cannot grow the mapping |
+| `flush()` | `MappedByteBuffer.force()` — pushes changes to the file (editor only)       |
+| `close()` | invalidates the handle (see the caveat below)                               |
+| `entry()` / `exit(e)` | `with` protocol; `exit` calls `flush` + `close`, returns `false`            |
 
 **Java 21 caveat — no deterministic unmap.** The project targets Java 21, and
 `MappedByteBuffer` has no supported unmap operation; the mapping is released
@@ -416,21 +438,24 @@ with Jamal), registered in `META-INF/services/ch.turic.TuriFunction` and
 ## 7. Implementation plan (once the API is agreed)
 
 1. **Phase A — plumbing.** `Capability.FILE_WRITE/FILE_CREATE/FILE_DELETE` with
-   the write⇒read implication; repeatable `fileReadRoot`/`fileReadWriteRoot` on
+   the write ⇒ read implication; repeatable `fileReadRoot`/`fileReadWriteRoot` on
    `SandboxPolicy.Builder` + untrusted validation rules; `GlobalContext` root-set
    fields + `TuriSession` wiring; `SafePath` helper with its own unit tests
    (`..`, absolute escapes, symlinks, multi-root resolution, relative-resolution
    rules).
-2. **Phase B — whole-file functions.** §5.1 + §5.2, tests per function: plain
-   behavior, capability hiding (symbol undefined when not granted), runtime
-   capability demands (create-on-write), root confinement, error texts.
+2. **Phase B — whole-file functions.** §5.1 + §5.2 including the `@binary`
+   modes from the start (the old "ship text-only first" idea predates the `bin`
+   type and is void), tests per function: plain behavior, capability hiding
+   (symbol undefined when not granted), runtime capability demands
+   (create-on-write), root confinement, error texts, binary round-trip
+   (`file_write(bin)` → `file_read(@binary=true)` content equality).
 3. **Phase C — handles.** `file_reader`/`file_writer`, `with` integration
    (including the D3 decision if it touches `WithCommand`), session-end
    force-close, abort/grace-window behavior test.
 4. **Phase C2 — random access & mmap.** `file_random_reader`/`file_random_editor`
-   (§5.4) once the byte-representation decision (D6/D9) is made;
-   `file_map_reader`/`file_map_editor` (§5.5) with `maxMappedBytes` policy
-   plumbing, if D10 decides to ship it on Java 21.
+   (§5.4) — no longer blocked: the byte representation (D6/D9) is the implemented
+   `bin` type; `file_map_reader`/`file_map_editor` (§5.5) with `maxMappedBytes`
+   policy plumbing, if D10 decides to ship it on Java 21.
 5. **Phase D — consolidation.** Move `Glob.java` into `fileio` and switch it to
    the file root sets; narrow the `importRoot` javadoc; rewrite `turi/io.turi`;
    update `Capability` javadoc, `EMBEDDING.md`, `REFERENCE.adoc` snippets.
@@ -443,7 +468,7 @@ with Jamal), registered in `META-INF/services/ch.turic.TuriFunction` and
 - **D2 — Split `Capability.IMPORT` out of `FILE_READ`?** Today granting
   `FILE_READ` for data files also enables `import` (confined to `importRoot`, but
   still). A separate `IMPORT` capability would let a host grant imports without
-  data reads and vice versa. Recommendation: **yes, split**, while the embedding
+  data reads and vice versa. DECIDED: **yes, split**, while the embedding
   API is young; it also makes the root separation of §4 symmetric
   (IMPORT↔importRoot, FILE_READ↔file root sets).
 - **D3 — Handle representation.** (a) `LngObject` with `entry`/`exit` fields,
@@ -452,13 +477,13 @@ with Jamal), registered in `META-INF/services/ch.turic.TuriFunction` and
   immutable field map (the `LngMutex` pattern), which requires relaxing
   `WithCommand.wrapCallingEntry()` to accept a `HasFields`-only resource in the
   `as alias` form (`HasContext` is only used by the alias-less form).
-  Recommendation: **(b)** — the relaxation is small, benefits every future
+  DECIDED: **(b)** — the relaxation is small, benefits every future
   built-in resource, and session-end force-close is cleaner with a real class.
 - **D4 — Relative path resolution under sandbox roots** (§4 item 2). Root-relative
   is recommended over CWD-relative-then-confined (root-relative gives untrusted
   scripts a stable virtual tree; CWD-relative usually just fails the confinement
   check confusingly), but with root *sets* the rule needs a convention.
-  Recommendation: for **reads**, try the roots in declaration order (read-only
+  DECIDED: for **reads**, try the roots in declaration order (read-only
   roots first, then read-write roots) and take the first candidate that exists —
   the APPIA-search flavor; when none exists, the error names all roots searched.
   For **mutations**, resolve against the *first declared read-write root* — a
@@ -467,47 +492,43 @@ with Jamal), registered in `META-INF/services/ch.turic.TuriFunction` and
   paths in as frozen globals). Alternative, stricter: relative paths are only
   legal with exactly one root of the applicable kind; with several, absolute
   paths are mandatory.
-- **D5 — Symlink policy.** Recommendation: follow symlinks but confine the
+- **D5 — Symlink policy.** DECIDED: follow symlinks but confine the
   *real* path (a symlink pointing outside the root is denied). Alternative:
   `NOFOLLOW` everywhere — stricter, but breaks legitimate in-root symlink
   layouts.
-- **D6 — Binary data representation.** Turicum has no byte-array type;
-  `TuriInputStream.read_all_bytes` returns a raw Java `byte[]`, which is only
-  useful with reflection. Options: (a) same raw `byte[]` (cheap, useless to
-  untrusted code); (b) `lst` of numbers 0–255 (sandbox-friendly, memory-heavy);
-  (c) defer — ship text-only first, add `@binary` in a second step once a bytes
-  story exists; (d) a new built-in mutable buffer class (working name
-  `LngBytes`: indexable, sliceable, `to_str(charset)`/`from_str`), which would
-  also be the natural return/argument type of the §5.4 and §5.5 handles.
-  For the *sequential* API the earlier recommendation stands: **(c)**, text
-  first. But §5.4/§5.5 are byte-oriented by nature, which raises the priority
-  of (d) — see D9.
-- **D9 — Byte representation for the random-access and mmap handles** (what
-  `read`/`read_at`/`get` return and `write`/`put` accept). Options:
-  (a) the D6(d) `LngBytes` buffer class — clean, but a prerequisite feature;
-  (b) interim: latin-1 (`ISO-8859-1`) `str` values — every byte maps losslessly
-  to one char, so `str` works as a poor man's byte string with all existing
-  string operations available; cheap to ship, slightly wrong-feeling, forward
-  compatible (an `LngBytes` can be accepted *in addition* later);
-  (c) block §5.4/§5.5 on D6(d).
-  Recommendation: **(a) if we are willing to build `LngBytes` in Phase C2,
-  otherwise (b)** — but not (c) silently; random access was requested for a
-  reason.
+- **D6 — Binary data representation — DECIDED: the `bin` type** (what the
+  first draft called option (d), working name `LngBytes`). Designed in
+  `BIN_TYPE.md` and implemented 2026-07-16: a `bin` is a raw Java `byte[]`
+  (symmetric with `str`/`String`), mutable, fixed-length, unsigned at the
+  language surface, with encoding/digest/search methods and the `u8_at` …
+  `u64_at` integer codecs. Every `@binary` read in this document returns `bin`
+  and every binary write accepts `bin`; the "text-only first" deferral is void.
+- **D9 — Byte representation for the random-access and mmap handles — DECIDED:
+  `bin`** (option (a); the prerequisite feature now exists). The latin-1
+  `str`-as-bytes interim (option (b)) is dropped. One follow-up question moved
+  here from `BIN_TYPE.md` D-6 — see D11.
+- **D11 — Do binary write methods also accept `str`?** Applies to `file_write`
+  with `@binary=true`, the binary `file_writer`'s `write`, the random-access
+  `write`/`write_at`, and the mapped `put`. Accepting a `str` would need an
+  implicit encoding choice (DECIDED: UTF-8 is the handle's `@charset` when nothing else is defined. the random-access
+  handles have none). DECIDED: **no — binary writes accept `bin` only**;
+  a script spells out `s.bytes(charset)`, keeping the encoding explicit. This
+  matches the `bin` design's no-implicit-coercion stance (`BIN_TYPE.md` §7).
+  Text mode conversely accepts anything and writes `str(x)`, as today's
+  proposal says.
 - **D10 — Ship mmap on Java 21?** `MappedByteBuffer` cannot be deterministically
   unmapped on 21 (§5.5): `close()` is invalidate-only, pages release at GC, and
   Windows keeps the file locked while mapped. Options: (a) ship with the
   documented caveat and the `maxMappedBytes` policy cap; (b) specify now (this
   document), implement when the project targets Java 22+ and `Arena` gives true
   unmap; (c) implement on 21 behind trusted-mode only (deny in untrusted
-  regardless of capabilities). Recommendation: **(b)** — random access (§5.4)
-  covers most concrete needs meanwhile, and shipping a sandbox feature whose
-  resource release is GC-dependent undercuts the sandbox story.
+  regardless of capabilities). DECIDED: **(a)** 
 - **D7 — `file_delete(force=true)` scope.** Recursive directory deletion is
   the most destructive primitive here. Keep it (guarded by `FILE_DELETE` +
   read-write-root confinement), or restrict deletion to files and empty
-  directories only? Recommendation: keep it — the root is the safety boundary,
+  directories only? DECIDED: keep it — the root is the safety boundary,
   not the feature set — but it deserves an explicit call-out in `EMBEDDING.md`.
 - **D8 — Temp files** (`tmp_file()`/`tmp_dir()`): inherently *outside* the
   read-write roots, so they would need their own rule (e.g. host pre-creates a
-  scratch dir inside a root). Recommendation: out of scope for now; a sandboxed
-  script can make its own scratch area under a read-write root with `mkdir`.
+  scratch dir inside a root). DECIDED: new capability for temp file use, read and 
+  write together (there is no need to read only temp files).

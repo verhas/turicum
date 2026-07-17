@@ -337,7 +337,7 @@ representation the receiving side expects.
   `bin` content in binary mode; the §5.3 binary reader's `read(n)`/`read_all()`
   return `bin`; the §5.4 random-access handles' `read`/`read_at` return `bin`
   and `write`/`write_at` accept `bin` (whether they *also* accept `str` is a
-  file-I/O API question, deferred to `FILE_IO.md` — see D-6); the §5.5
+  file-I/O API question, deferred to `FILE_IO.md` D11 — see D-6); the §5.5
   mapped handles' `get`/`put` likewise. The latin-1-string workaround (D9(b))
   is dropped.
 - **Sandboxing** — no capability, no policy surface. `bin` neither reads nor
@@ -432,6 +432,6 @@ with Jamal, `--open='{%' --close='%}'`).
   copy-on-grow operations. `lst` accumulation + `bin(l)` covers construction
   loops, and the file-writer handles stream anyway.
 - **D-6 — Whether the random-access `write` accepts `str` — moved out:** this
-  is a file-I/O API question and belongs to `FILE_IO.md` (its D9 follow-up),
-  not to this document. This design only provides the `bin` type the handles
-  will use.
+  is a file-I/O API question and belongs to `FILE_IO.md` (tracked there as
+  D11), not to this document. This design only provides the `bin` type the
+  handles will use.
