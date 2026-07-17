@@ -98,38 +98,48 @@ public class WithCommand extends AbstractCommand {
      */
     private static LocalContext wrapCallingEntry(LocalContext context, WithAnalyzer.WithPair pair, Object obj,
             ArrayList<HasFields> objects, LocalContext ctx) {
-        if (obj instanceof HasFields hasFields && obj instanceof HasContext hasContext) {
-            if (pair.alias() == null) {
+        if (pair.alias() == null) {
+            // the alias-less form pulls the resource's context into scope, so it needs a
+            // HasContext resource; a HasFields-only resource (a built-in handle like a file
+            // reader) is usable only through the 'as alias' form
+            if (obj instanceof HasContext hasContext) {
                 ctx = ctx.with(hasContext.context());
+            } else if (obj instanceof HasFields) {
+                throw new ExecutionException("Resource '%s' in a 'with' statement requires an 'as' alias", pair);
             } else {
-                objects.add(hasFields);
-                final var entry = hasFields.getField(METHOD_NAME_ENTRY);
-                final HasFields resourceHandle;
-                if (entry instanceof Closure closure) {
-                    final var entryResult = closure.callAsMethod(context, hasFields, METHOD_NAME_ENTRY, NO_PARAMS);
-                    if (entryResult == null) {
-                        resourceHandle = hasFields;
-                    } else {
-                        if (entryResult instanceof HasFields hasFieldsResult) {
-                            resourceHandle = hasFieldsResult;
-                        } else {
-                            throw new ExecutionException("entry for object '%s' returned a non object '%s'", closure,
-                                    entryResult);
-                        }
-                    }
-                } else if (entry instanceof TuriMethod<?> turiMethod) {
-                    resourceHandle = (HasFields) turiMethod.call(context, NO_PARAMS);
-                } else {
-                    throw new ExecutionException(
-                            "Resource in a 'with' statement without proper '%s' method is %s and %s", METHOD_NAME_ENTRY,
-                            obj, obj.getClass());
-                }
-                ctx = ctx.wrap();
-                ctx.let0(pair.alias(), resourceHandle);
+                throw new ExecutionException("expression '%s' in 'with' resulted a non-object '%s' (%s)", pair, obj,
+                        obj == null ? "none" : obj.getClass());
             }
+        } else if (obj instanceof HasFields hasFields) {
+            // the 'as alias' form only needs the resource's fields (entry/exit and the
+            // methods bound to the alias), so a HasFields-only resource suffices here
+            objects.add(hasFields);
+            final var entry = hasFields.getField(METHOD_NAME_ENTRY);
+            final HasFields resourceHandle;
+            if (entry instanceof Closure closure) {
+                final var entryResult = closure.callAsMethod(context, hasFields, METHOD_NAME_ENTRY, NO_PARAMS);
+                if (entryResult == null) {
+                    resourceHandle = hasFields;
+                } else {
+                    if (entryResult instanceof HasFields hasFieldsResult) {
+                        resourceHandle = hasFieldsResult;
+                    } else {
+                        throw new ExecutionException("entry for object '%s' returned a non object '%s'", closure,
+                                entryResult);
+                    }
+                }
+            } else if (entry instanceof TuriMethod<?> turiMethod) {
+                resourceHandle = (HasFields) turiMethod.call(context, NO_PARAMS);
+            } else {
+                throw new ExecutionException(
+                        "Resource in a 'with' statement without proper '%s' method is %s and %s", METHOD_NAME_ENTRY,
+                        obj, obj.getClass());
+            }
+            ctx = ctx.wrap();
+            ctx.let0(pair.alias(), resourceHandle);
         } else {
             throw new ExecutionException("expression '%s' in 'with' resulted a non-object '%s' (%s)", pair, obj,
-                    obj.getClass());
+                    obj == null ? "none" : obj.getClass());
         }
         return ctx;
     }

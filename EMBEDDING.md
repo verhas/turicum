@@ -15,7 +15,7 @@ from the behavior of the released code.
 
 <!--TOC min-level: 2
 max-level: 3
-_content_generated_: 1773:md5:99a466237ef73914674acbd0b6b95a7e
+_content_generated_: 1834:md5:9ecf08ed2aec7d7f3b5cc3313824e214
 # ⚠️ MANAGED CONTENT: Edits will be lost.
 # danger zone: Delete _content_generated_ to override.
 -->
@@ -36,7 +36,8 @@ _content_generated_: 1773:md5:99a466237ef73914674acbd0b6b95a7e
   - [1.4.5. Metering](#145-metering)
   - [1.4.6. Capabilities: what a script may reach](#146-capabilities-what-a-script-may-reach)
   - [1.4.7. The class-access filter and the deny floor](#147-the-class-access-filter-and-the-deny-floor)
-  - [1.4.8. Scoping file access](#148-scoping-file-access)
+  - [1.4.8. Scoping imports](#148-scoping-imports)
+  - [1.4.9. Scoping data-file access](#149-scoping-data-file-access)
 - [1.5. Scaling up](#15-scaling-up)
   - [1.5.1. Compile once, run many times](#151-compile-once-run-many-times)
   - [1.5.2. Sessions are isolated](#152-sessions-are-isolated)
@@ -665,12 +666,30 @@ its built-ins are simply not registered, and a script that names one gets an ord
 | Capability | Built-ins it gates |
 |---|---|
 | `JAVA_REFLECTION` | `java_class`, `java_call`, `java_object`, `java_import`, `java_callback`, `add_java_classes`, `java_resources`, `java_type`, `as_object` |
-| `FILE_READ` | `import`, `sys_import`, `glob`, `source_directory`, the input-stream classes |
+| `IMPORT` | `import`, `sys_import`, `source_directory` |
+| `FILE_READ` | `file_read`, `file_lines`, `file_reader`, `file_random_reader`, `file_map_reader`, `file_exists`, `is_file`, `is_dir`, `file_stat`, `file_copy`, `glob`, the input-stream classes |
+| `FILE_WRITE` | `file_write`, `file_writer`, `file_random_editor`, `file_map_editor` |
+| `FILE_CREATE` | `mkdir`, and — checked at runtime — the create-a-new-file half of `file_write`/`file_writer`/`file_copy`/`file_move` |
+| `FILE_DELETE` | `file_delete`, `file_move` (moving always removes the source) |
+| `FILE_TEMP` | `tmp_file`, `tmp_dir` |
 | `ENV` | `env` |
 | `NETWORK` | `http_client`, `http_server` |
 
 The two trust modes differ only in their default: `trusted()` grants all capabilities and
 `untrusted()` grants none.
+
+Two conventions tie the file family together. **Write implies read**: granting any of
+`FILE_WRITE`/`FILE_CREATE`/`FILE_DELETE` in untrusted mode automatically grants
+`FILE_READ`, and a trusted policy that denies `FILE_READ` while leaving a write-family
+capability granted is a build-time error — deny the whole family instead.
+**`FILE_TEMP` implies the whole family**: temp files are read-write by nature, so granting
+`FILE_TEMP` also grants `FILE_WRITE`/`FILE_CREATE`/`FILE_DELETE` (and, through them,
+`FILE_READ`), confined to the session's scratch directory when no other file root is
+configured. Some capability needs depend on the arguments and the file-system state and are
+therefore checked at runtime rather than at registration: creating a file that does not
+exist yet demands `FILE_CREATE` even though `file_write` itself is registered under
+`FILE_WRITE`, and the target side of `file_copy`/`file_move` demands `FILE_WRITE` or
+`FILE_CREATE` depending on whether the target exists.
 
 <!--INCLUDE
 from: "core/src/test/java/ch/turic/embed/TestEmbeddingCapabilities.java"
@@ -929,13 +948,15 @@ try (final var engine = TuriEngine.create(policy);
 ```
 <!--/INCLUDE-->
 
-### 1.4.8. Scoping file access
+### 1.4.8. Scoping imports
 
-When a script may read files (`FILE_READ` granted in untrusted mode), it must be told where.
-`importRoot(Path)` sets a **ceiling** on `import`/`sys_import`/`glob`: every file the normal
-`APPIA` search resolves must lie within that directory, and one that resolves outside it (via
-`..`, or via an `APPIA` entry pointing elsewhere) is denied. Granting `FILE_READ` untrusted
-without a root is a configuration error caught when the policy is built:
+When a script may import source files (`IMPORT` granted in untrusted mode), it must be told
+where from. `importRoot(Path)` sets a **ceiling** on `import`/`sys_import`: every file the
+normal `APPIA` search resolves must lie within that directory, and one that resolves outside
+it (via `..`, or via an `APPIA` entry pointing elsewhere) is denied. Data-file access is
+scoped separately — by the file roots of the next section, not by the import root. Granting
+an import or file capability untrusted without its root is a configuration error caught when
+the policy is built:
 
 <!--INCLUDE
 from: "core/src/test/java/ch/turic/embed/TestEmbeddingCapabilities.java"
@@ -944,15 +965,21 @@ postfix: "```"
 start: "// snippet import_root_required"
 end: "// end snippet"
 margin: 0
-_content_generated_: 263:md5:b5a2f1b1397191099f375c1f4a7593c7
+_content_generated_: 636:md5:2fb484b555a39f73b27313662fe5863d
 # ⚠️ MANAGED CONTENT: Edits will be lost.
 # danger zone: Delete _content_generated_ to override.
 -->
 ```java
-// granting FILE_READ in untrusted mode without scoping it to a root is a
+// granting IMPORT in untrusted mode without scoping it to an import root is a
 // configuration error, caught when the policy is built
 assertThrows(IllegalStateException.class,
+        () -> SandboxPolicy.untrusted().allow(Capability.IMPORT).build());
+// the same holds for FILE_READ and the file roots ...
+assertThrows(IllegalStateException.class,
         () -> SandboxPolicy.untrusted().allow(Capability.FILE_READ).build());
+// ... and for the write-family capabilities and the read-write file roots
+assertThrows(IllegalStateException.class,
+        () -> SandboxPolicy.untrusted().allow(Capability.FILE_WRITE).build());
 ```
 <!--/INCLUDE-->
 
@@ -968,18 +995,14 @@ or nothing will resolve.
 from: "core/src/test/java/ch/turic/embed/TestEmbeddingCapabilities.java"
 prefix: "```java"
 postfix: "```"
-start: "// snippet import_root"
+start: "// snippet import_root$"
 end: "// end snippet"
 margin: 0
-_content_generated_: 1604:md5:e8d8617be564185d3353c2240a3b27fc
+_content_generated_: 1351:md5:d43643cac8440d3d5422523541d5ce1b
 # ⚠️ MANAGED CONTENT: Edits will be lost.
 # danger zone: Delete _content_generated_ to override.
 -->
 ```java
-// granting FILE_READ in untrusted mode without scoping it to a root is a
-// configuration error, caught when the policy is built
-assertThrows(IllegalStateException.class,
-        () -> SandboxPolicy.untrusted().allow(Capability.FILE_READ).build());
 final var importRoot = Files.createDirectory(workDir.resolve("scripts"));
 // a library under the root ...
 Files.writeString(importRoot.resolve("lib.turi"), "let answer = 42\nexport_all()\n");
@@ -987,7 +1010,7 @@ Files.writeString(importRoot.resolve("lib.turi"), "let answer = 42\nexport_all()
 Files.writeString(workDir.resolve("secret.turi"), "let stolen = 1\nexport_all()\n");
 
 final var policy = SandboxPolicy.untrusted()
-        .allow(Capability.FILE_READ)
+        .allow(Capability.IMPORT)
         .importRoot(importRoot)
         .build();
 try (final var engine = TuriEngine.create(policy);
@@ -1007,6 +1030,154 @@ try (final var engine = TuriEngine.create(policy);
 }
 ```
 <!--/INCLUDE-->
+
+### 1.4.9. Scoping data-file access
+
+The file built-ins (`file_read`, `file_write`, `file_delete`, the handles, `glob`, …) are
+confined by **file roots**, configured independently of the import root. There are two kinds,
+and both builder methods are repeatable — the built-ins confine against the whole set:
+
+- `fileReadRoot(Path...)` — trees the script may only read;
+- `fileReadWriteRoot(Path...)` — trees with full access: read, write, create, and delete.
+
+A read or metadata operation must resolve under *any* root of either set; a mutation must
+resolve under a read-write root:
+
+<!--INCLUDE
+from: "core/src/test/java/ch/turic/embed/TestFileIo.java"
+prefix: "```java"
+postfix: "```"
+start: "// snippet file_roots"
+end: "// end snippet"
+margin: 0
+_content_generated_: 1095:md5:c0ab2f073d0efd04248bf78a50503e64
+# ⚠️ MANAGED CONTENT: Edits will be lost.
+# danger zone: Delete _content_generated_ to override.
+-->
+```java
+final var readOnly = Files.createDirectory(workDir.resolve("ro"));
+final var rw = Files.createDirectory(workDir.resolve("rw"));
+Files.writeString(readOnly.resolve("data.txt"), "protected");
+final var policy = SandboxPolicy.untrusted()
+        .allow(Capability.FILE_WRITE, Capability.FILE_CREATE, Capability.FILE_DELETE)
+        .fileReadRoot(readOnly)      // data the script may only read
+        .fileReadWriteRoot(rw)       // the tree it may modify
+        .build();
+try (final var engine = TuriEngine.create(policy); final var session = engine.newSession()) {
+    session.set("protected_file", readOnly.resolve("data.txt").toString());
+    // reading from the read-only root works
+    assertEquals("protected", session.eval("file_read(protected_file)"));
+    // writing and deleting there is denied
+    assertThrows(ExecutionException.class, () -> session.eval("file_write(protected_file, \"x\")"));
+    assertThrows(ExecutionException.class, () -> session.eval("file_delete(protected_file)"));
+    assertEquals("protected", Files.readString(readOnly.resolve("data.txt")));
+}
+```
+<!--/INCLUDE-->
+
+Relative script paths see a stable virtual tree independent of the host's working directory:
+a relative *read* is searched against the roots in declaration order (read-only roots first,
+then read-write roots), taking the first candidate that exists; a relative *mutation*
+resolves against the first declared read-write root — a write target is deterministic, never
+search-dependent. Symbolic links are followed, but the confinement check runs on the *real*
+path, so a symlink inside a root cannot alias a file outside it; `glob` silently omits such
+results from its listings.
+
+The capability split is enforced both at registration and at runtime. A read-only grant does
+not even register the mutating built-ins; and a built-in whose capability need depends on
+the file-system state checks it when it runs:
+
+<!--INCLUDE
+from: "core/src/test/java/ch/turic/embed/TestFileIo.java"
+prefix: "```java"
+postfix: "```"
+start: "// snippet file_create_demand"
+end: "// end snippet"
+margin: 0
+_content_generated_: 740:md5:cd02a857ae339e7905e0dea74a72f6c2
+# ⚠️ MANAGED CONTENT: Edits will be lost.
+# danger zone: Delete _content_generated_ to override.
+-->
+```java
+Files.writeString(dir.resolve("existing.txt"), "old");
+final var policy = SandboxPolicy.untrusted()
+        .allow(Capability.FILE_WRITE) // no FILE_CREATE
+        .fileReadWriteRoot(dir)
+        .build();
+try (final var engine = TuriEngine.create(policy); final var session = engine.newSession()) {
+    // updating an existing file is fine
+    session.eval("file_write(\"existing.txt\", \"new\")");
+    assertEquals("new", session.eval("file_read(\"existing.txt\")"));
+    // creating a new one demands FILE_CREATE at runtime
+    final var e = assertThrows(ExecutionException.class,
+            () -> session.eval("file_write(\"fresh.txt\", \"x\")"));
+    assertTrue(e.getMessage().contains("FILE_CREATE"), e.getMessage());
+}
+```
+<!--/INCLUDE-->
+
+A deliberate design point to be aware of: `file_delete(path, force=true)` deletes a
+directory tree **recursively**. The root confinement — not the feature set — is the safety
+boundary, so grant `FILE_DELETE` and choose the read-write roots accordingly.
+
+**Temp files.** The `FILE_TEMP` capability gives a script a scratch area without granting
+access to any host directory: `tmp_file()`/`tmp_dir()` create entries in a per-session
+scratch directory, which acts as an implicit read-write root and is deleted — with
+everything in it — when the session closes:
+
+<!--INCLUDE
+from: "core/src/test/java/ch/turic/embed/TestFileIo.java"
+prefix: "```java"
+postfix: "```"
+start: "// snippet file_temp"
+end: "// end snippet"
+margin: 0
+_content_generated_: 1404:md5:b6d201f715a04436182a53e810a161f5
+# ⚠️ MANAGED CONTENT: Edits will be lost.
+# danger zone: Delete _content_generated_ to override.
+-->
+```java
+final var policy = SandboxPolicy.untrusted()
+        .allow(Capability.FILE_TEMP)
+        .build(); // no roots needed: the scratch dir is the implicit read-write root
+assertTrue(policy.grantedCapabilities().containsAll(java.util.Set.of(
+        Capability.FILE_READ, Capability.FILE_WRITE, Capability.FILE_CREATE, Capability.FILE_DELETE)));
+final Path tmpPath;
+try (final var engine = TuriEngine.create(policy); final var session = engine.newSession()) {
+    final var tmp = (String) session.eval("tmp_file(prefix=\"job-\", suffix=\".txt\")");
+    tmpPath = Path.of(tmp);
+    assertTrue(Files.exists(tmpPath));
+    assertTrue(tmpPath.getFileName().toString().startsWith("job-"));
+    session.set("p", tmp);
+    session.eval("file_write(p, \"scratch\")");
+    assertEquals("scratch", session.eval("file_read(p)"));
+    // a directory, and a file created relative to the scratch root
+    final var d = (String) session.eval("tmp_dir()");
+    assertTrue(Files.isDirectory(Path.of(d)));
+    session.eval("file_write(\"relative.txt\", \"under the scratch root\")");
+    // absolute paths outside the scratch area stay denied
+    session.set("outside", "/etc/passwd");
+    assertThrows(ExecutionException.class, () -> session.eval("file_read(outside)"));
+}
+// the scratch area is deleted when the session closes
+assertFalse(Files.exists(tmpPath));
+assertFalse(Files.exists(tmpPath.getParent()));
+```
+<!--/INCLUDE-->
+
+**Handles and leak safety.** The handle built-ins (`file_reader`, `file_writer`,
+`file_random_reader`, `file_random_editor`, `file_map_reader`, `file_map_editor`) return
+resources that a script should close, preferably through the `with` command. A handle the
+script never closes is force-closed when the session is closed, so a sandboxed script that
+opens files in a loop cannot leak host file descriptors past the session.
+
+One caveat is inherited from Java 21: a **memory-mapped** handle's `close()` invalidates the
+handle, but the mapped pages are released only when the buffer is garbage-collected (on
+Windows the file stays locked while mapped). A mapping is therefore host virtual address
+space held on the sandbox's behalf, and the policy caps it: `maxMappedBytes(long)` bounds
+the running total of all live mappings of a session. The untrusted default is `0` — the
+mmap built-ins are effectively unusable unless the host opts in — while trusted and
+unrestricted policies default to no limit.
 
 ## 1.5. Scaling up
 

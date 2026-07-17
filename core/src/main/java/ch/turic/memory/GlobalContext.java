@@ -7,10 +7,14 @@ import ch.turic.exceptions.StepLimitReached;
 import ch.turic.memory.debugger.DebuggerContext;
 import ch.turic.utils.TuricumClassLoader;
 
+import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -19,6 +23,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * A special context holding a constant string, like built-ins, one for the interpreter.
@@ -63,6 +68,19 @@ public class GlobalContext {
     private volatile Set<Capability> grantedCapabilities = null;
     // when non-null, file-reading built-ins resolve imports strictly under this root
     private volatile Path importRoot = null;
+    // read-only and read-write file root sets; file built-ins confine against them (see
+    // ch.turic.builtins.functions.fileio.SafePath). Both empty means unconfined file access.
+    private volatile List<Path> fileReadRoots = List.of();
+    private volatile List<Path> fileReadWriteRoots = List.of();
+    // cap on the running total of live memory-mapped bytes; negative means no limit
+    private volatile long maxMappedBytes = -1;
+    private final AtomicLong mappedBytes = new AtomicLong();
+    // per-session scratch directory for tmp_file()/tmp_dir(); created lazily, acts as an
+    // additional read-write file root, deleted by closeFileResources()
+    private volatile Path tempRoot = null;
+    // open file handles (readers, writers, channels, mappings) force-closed at session end so
+    // a script that never closes them cannot leak host file descriptors past the session
+    private final Set<AutoCloseable> closeables = ConcurrentHashMap.newKeySet();
 
     public GlobalContext(int stepLimit) {
         this(stepLimit, 0);
@@ -417,13 +435,181 @@ public class GlobalContext {
     }
 
     /**
-     * Restricts import/glob resolution to the given root directory (see the embedding
+     * Restricts import resolution to the given root directory (see the embedding
      * documentation on file access scoping). {@code null} (the default) does not restrict.
      *
      * @param importRoot the root directory, or {@code null} for no restriction
      */
     public void setImportRoot(Path importRoot) {
         this.importRoot = importRoot;
+    }
+
+    /**
+     * @return the read-only file root directories the file built-ins may read under; possibly
+     * empty. The temp scratch directory ({@link #tempRoot()}) is <em>not</em> included; the
+     * confinement helper adds it separately.
+     */
+    public List<Path> fileReadRoots() {
+        return fileReadRoots;
+    }
+
+    /**
+     * @return the read-write file root directories the file built-ins may read and modify
+     * under; possibly empty
+     */
+    public List<Path> fileReadWriteRoots() {
+        return fileReadWriteRoots;
+    }
+
+    /**
+     * Sets the read-only file roots. Must be called before execution starts.
+     *
+     * @param fileReadRoots the roots; never {@code null}, possibly empty
+     */
+    public void setFileReadRoots(List<Path> fileReadRoots) {
+        this.fileReadRoots = List.copyOf(fileReadRoots);
+    }
+
+    /**
+     * Sets the read-write file roots. Must be called before execution starts.
+     *
+     * @param fileReadWriteRoots the roots; never {@code null}, possibly empty
+     */
+    public void setFileReadWriteRoots(List<Path> fileReadWriteRoots) {
+        this.fileReadWriteRoots = List.copyOf(fileReadWriteRoots);
+    }
+
+    /**
+     * @return the cap on the running total of live memory-mapped bytes of this interpreter;
+     * negative means no limit
+     */
+    public long maxMappedBytes() {
+        return maxMappedBytes;
+    }
+
+    /**
+     * Caps the running total of live memory-mapped bytes. Must be called before execution
+     * starts. Negative (the default) means no limit.
+     *
+     * @param maxMappedBytes the cap, {@code 0} to forbid mappings, negative for no limit
+     */
+    public void setMaxMappedBytes(long maxMappedBytes) {
+        this.maxMappedBytes = maxMappedBytes;
+    }
+
+    /**
+     * Reserves {@code n} bytes of memory-mapping budget, failing when the
+     * {@link #maxMappedBytes()} cap would be exceeded. Balanced by
+     * {@link #releaseMappedBytes(long)} when the mapping handle is closed.
+     *
+     * @param n the length of the mapping about to be created
+     * @throws ExecutionException if the cap would be exceeded
+     */
+    public void reserveMappedBytes(long n) throws ExecutionException {
+        final var cap = maxMappedBytes;
+        final var total = mappedBytes.addAndGet(n);
+        if (cap >= 0 && total > cap) {
+            mappedBytes.addAndGet(-n);
+            throw new ExecutionException(
+                    "Mapping %d bytes would exceed the sandbox limit of %d total mapped bytes (%d already mapped)",
+                    n, cap, total - n);
+        }
+    }
+
+    /**
+     * Returns {@code n} bytes of memory-mapping budget reserved by
+     * {@link #reserveMappedBytes(long)}.
+     *
+     * @param n the length of the mapping that was closed
+     */
+    public void releaseMappedBytes(long n) {
+        mappedBytes.addAndGet(-n);
+    }
+
+    /**
+     * Returns the per-session temp scratch directory, creating it on first call. The scratch
+     * directory backs the {@code tmp_file()}/{@code tmp_dir()} built-ins and acts as an
+     * additional read-write file root; {@link #closeFileResources()} deletes it recursively.
+     *
+     * @return the scratch directory
+     * @throws ExecutionException if the directory cannot be created
+     */
+    public Path tempRoot() throws ExecutionException {
+        var root = tempRoot;
+        if (root == null) {
+            synchronized (this) {
+                root = tempRoot;
+                if (root == null) {
+                    try {
+                        root = Files.createTempDirectory("turi-scratch-").toRealPath();
+                    } catch (IOException e) {
+                        throw new ExecutionException(e, "Cannot create the session temp directory: " + e.getMessage());
+                    }
+                    tempRoot = root;
+                }
+            }
+        }
+        return root;
+    }
+
+    /**
+     * @return the per-session temp scratch directory, or {@code null} when no temp file has
+     * been created yet; unlike {@link #tempRoot()} this never creates the directory
+     */
+    public Path tempRootIfCreated() {
+        return tempRoot;
+    }
+
+    /**
+     * Registers an open file resource (stream handle, channel, mapping) so that
+     * {@link #closeFileResources()} can force-close it when the interpreter or session ends —
+     * a script that opens files in a loop and never closes them must not leak host file
+     * descriptors past the session. The handle unregisters itself via
+     * {@link #unregisterCloseable(AutoCloseable)} when it is closed by the script.
+     *
+     * @param closeable the open resource
+     */
+    public void registerCloseable(AutoCloseable closeable) {
+        closeables.add(closeable);
+    }
+
+    /**
+     * Removes a resource registered with {@link #registerCloseable(AutoCloseable)}, typically
+     * because the script closed it in an orderly way.
+     *
+     * @param closeable the resource that was closed
+     */
+    public void unregisterCloseable(AutoCloseable closeable) {
+        closeables.remove(closeable);
+    }
+
+    /**
+     * Force-closes every file resource still registered and deletes the temp scratch
+     * directory, if one was created. Called when the interpreter or session is closed;
+     * exceptions from individual resources are suppressed — this is last-resort cleanup, the
+     * orderly path is the script's own {@code close()}/{@code with} handling.
+     */
+    public void closeFileResources() {
+        for (final var closeable : closeables.toArray(AutoCloseable[]::new)) {
+            try {
+                closeable.close();
+            } catch (Exception ignored) {
+            }
+            closeables.remove(closeable);
+        }
+        final var root = tempRoot;
+        if (root != null) {
+            tempRoot = null;
+            try (final var walk = Files.walk(root)) {
+                walk.sorted(Comparator.reverseOrder()).forEach(p -> {
+                    try {
+                        Files.deleteIfExists(p);
+                    } catch (IOException ignored) {
+                    }
+                });
+            } catch (IOException ignored) {
+            }
+        }
     }
 
     /**

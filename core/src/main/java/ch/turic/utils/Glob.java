@@ -56,6 +56,25 @@ public class Glob {
     private record DirNPath(String baseDir, Predicate<String> matcher) {
     }
 
+    /**
+     * Returns the base directory a glob of the given pattern would walk: the path up to the
+     * last slash before the first wildcard, absolutized and normalized; the process working
+     * directory when the pattern has no such prefix. Exposed for the {@code glob} built-in,
+     * which confines the base directory and the results to the sandbox file roots.
+     *
+     * @param pattern the glob pattern
+     * @return the absolute base directory of the walk
+     */
+    public static String baseDirOf(String pattern) {
+        if (pattern.contains("/")) {
+            final int lastSlash = getLastSlashBeforeWildCard(pattern);
+            if (lastSlash != -1) {
+                return Path.of(pattern.substring(0, lastSlash)).normalize().toAbsolutePath().toString();
+            }
+        }
+        return CURR_DIR;
+    }
+
     public static class Matcher implements Predicate<String> {
         final String pattern;
         final String baseDir;

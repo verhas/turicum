@@ -243,12 +243,18 @@ class TestEmbeddingCapabilities {
     // ---- import-root scoping -----------------------------------------------------------------
 
     @Test
-    void untrustedFileReadRequiresAnImportRoot() {
+    void untrustedFileCapabilitiesRequireTheirRoots() {
         // snippet import_root_required
-        // granting FILE_READ in untrusted mode without scoping it to a root is a
+        // granting IMPORT in untrusted mode without scoping it to an import root is a
         // configuration error, caught when the policy is built
         assertThrows(IllegalStateException.class,
+                () -> SandboxPolicy.untrusted().allow(Capability.IMPORT).build());
+        // the same holds for FILE_READ and the file roots ...
+        assertThrows(IllegalStateException.class,
                 () -> SandboxPolicy.untrusted().allow(Capability.FILE_READ).build());
+        // ... and for the write-family capabilities and the read-write file roots
+        assertThrows(IllegalStateException.class,
+                () -> SandboxPolicy.untrusted().allow(Capability.FILE_WRITE).build());
         // end snippet
     }
 
@@ -262,7 +268,7 @@ class TestEmbeddingCapabilities {
         Files.writeString(workDir.resolve("secret.turi"), "let stolen = 1\nexport_all()\n");
 
         final var policy = SandboxPolicy.untrusted()
-                .allow(Capability.FILE_READ)
+                .allow(Capability.IMPORT)
                 .importRoot(importRoot)
                 .build();
         try (final var engine = TuriEngine.create(policy);

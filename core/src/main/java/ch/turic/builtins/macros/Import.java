@@ -106,7 +106,7 @@ end snippet*/
 /**
  * It loads the file based on the APPIA environment variable or .env file.
  */
-@RequiresCapability(Capability.FILE_READ)
+@RequiresCapability(Capability.IMPORT)
 public class Import implements TuriMacro {
 
     private final AppiaHandler handler = new AppiaHandler();

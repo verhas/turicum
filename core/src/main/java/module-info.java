@@ -1,6 +1,7 @@
 import ch.turic.builtins.classes.*;
 import ch.turic.builtins.functions.*;
 import ch.turic.builtins.functions.debugger.DebugSessionFactory;
+import ch.turic.builtins.functions.fileio.*;
 import ch.turic.builtins.macros.*;
 
 module ch.turic {
@@ -21,6 +22,7 @@ module ch.turic {
     exports ch.turic.commands.operators;
     opens turi;
     exports ch.turic.utils.parameter; // needed to read the sysimport files as resources
+    exports ch.turic.builtins.functions.fileio;
 
     uses ch.turic.TuriFunction;
     uses ch.turic.TuriMacro;
@@ -46,7 +48,11 @@ module ch.turic {
             Uncurry, IsCurried, CurriedArity, Enumerate, JavaClass,
             DebugSessionFactory, Pack, MathFunctions.ToJavaFloat, MathFunctions.ToJavaInt, MathFunctions.ToJavaShort,
             MathFunctions.ToJavaChar, MathFunctions.ToJavaLong,JavaType, MathFunctions.ToJavaByte, MathFunctions.ToJavaDouble,
-            AddJavaClasses,JavaResources,JavaCallback,JavaImport,Mutex,Atomic,KeysAll,Bin;
+            AddJavaClasses,JavaResources,JavaCallback,JavaImport,Mutex,Atomic,KeysAll,Bin,
+            FileRead, FileLines, FileWrite, FileExists, FileExists.IsFile, FileExists.IsDir,
+            FileStat, Mkdir, FileDelete, FileCopy, FileMove, TmpFile, TmpFile.TmpDir,
+            FileReaderFn, FileWriterFn, FileRandomReader, FileRandomEditor,
+            FileMapReader, FileMapEditor;
     provides ch.turic.TuriMacro with Export, IsDefined, Unlet, Thunk, Quote, Import, SysImport, Delete;
     provides ch.turic.TuriClass with TuriString, TuriBin, TuriLong, TuriDouble, TuriIterator, TuriChannel, TuriInputStream, TuriInputStreamReader;
 }

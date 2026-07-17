@@ -48,6 +48,16 @@ public final class TuriSession implements AutoCloseable {
         // before BuiltIns.register runs, so that gated built-ins are filtered out.
         globalContext.setGrantedCapabilities(policy.grantedCapabilities());
         globalContext.setImportRoot(policy.importRoot());
+        globalContext.setFileReadRoots(policy.fileReadRoots());
+        globalContext.setFileReadWriteRoots(policy.fileReadWriteRoots());
+        globalContext.setMaxMappedBytes(policy.maxMappedBytes());
+        if (policy.isDenyByDefault()
+                && policy.grantedCapabilities().contains(ch.turic.Capability.FILE_TEMP)) {
+            // eager: the scratch directory is the implicit read-write root of an untrusted
+            // FILE_TEMP grant, so it must exist (and confine) before the first file built-in
+            // runs, not only after the first tmp_file() call
+            globalContext.tempRoot();
+        }
         if (policy.classFilter() != null) {
             globalContext.classLoader.setScriptClassFilter(policy.classFilter(), policy.modeLabel());
         }
@@ -204,14 +214,16 @@ public final class TuriSession implements AutoCloseable {
     }
 
     /**
-     * Closes the session: aborts and joins any asynchronous task it still has running and
-     * unregisters its thread context.
+     * Closes the session: aborts and joins any asynchronous task it still has running,
+     * force-closes any file handle the script left open, deletes the session's temp scratch
+     * directory, and unregisters its thread context.
      */
     @Override
     public void close() {
         if (!closed) {
             closed = true;
             globalContext.joinThreads();
+            globalContext.closeFileResources();
             ctx.close();
         }
     }

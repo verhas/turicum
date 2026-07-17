@@ -1,21 +1,28 @@
-global Path=java_class("java.nio.file.Path");
-global Files=java_class("java.nio.file.Files");
+/*
+System library for file input/output.
+
+The `files` class delegates to the `file_lines` and `file_write` built-in functions, so it
+does not need Java reflection anymore: scripts using `turi.io` also work in sandboxes that
+deny the JAVA_REFLECTION capability. The exported surface is source-compatible with the
+earlier, reflection-based implementation; a Java Path object is accepted for the file name
+as before.
+*/
 class files {
     fn read_all_lines( ! file_name_or_path ){
         // format:off
         let file=if type(file_name_or_path)=="str":
-                     Path.of(file_name_or_path)
-                 else:
                      file_name_or_path
+                 else:
+                     "" + file_name_or_path
         // format:on
-        Files.readAllLines( file )
+        file_lines( file )
     }
     fn write( ! file_name_or_path, content ){
         let file=if type( file_name_or_path ) == "str" :
-            Path.of( file_name_or_path )
-        else:
             file_name_or_path
-        Files.writeString( file, content )
+        else:
+            "" + file_name_or_path
+        file_write( file, content )
     }
 }
 

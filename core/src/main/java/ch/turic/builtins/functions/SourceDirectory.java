@@ -22,7 +22,7 @@ end snippet */
 /**
  * Returns the source directory of the currently running code as a string.
  */
-@RequiresCapability(Capability.FILE_READ)
+@RequiresCapability(Capability.IMPORT)
 public class SourceDirectory implements TuriFunction {
 
     @Override

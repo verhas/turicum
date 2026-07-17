@@ -59,12 +59,16 @@ public final class SandboxPolicy {
     private final ClassAccessFilter classFilter;       // null == UNRESTRICTED (no filtering)
     private final String modeLabel;
     private final Path importRoot;
+    private final List<Path> fileReadRoots;
+    private final List<Path> fileReadWriteRoots;
+    private final long maxMappedBytes;
 
     private SandboxPolicy(Builder<?> builder,
                           boolean denyByDefault,
                           Set<Capability> grantedCapabilities,
                           ClassAccessFilter classFilter,
-                          String modeLabel) {
+                          String modeLabel,
+                          long maxMappedBytes) {
         this.stepLimit = builder.stepLimit;
         this.graceSteps = builder.graceSteps;
         this.timeout = builder.timeout;
@@ -72,6 +76,9 @@ public final class SandboxPolicy {
         this.out = builder.out;
         this.err = builder.err;
         this.importRoot = builder.importRoot;
+        this.fileReadRoots = List.copyOf(builder.fileReadRoots);
+        this.fileReadWriteRoots = List.copyOf(builder.fileReadWriteRoots);
+        this.maxMappedBytes = maxMappedBytes;
         this.denyByDefault = denyByDefault;
         this.grantedCapabilities = grantedCapabilities;
         this.classFilter = classFilter;
@@ -87,6 +94,9 @@ public final class SandboxPolicy {
         this.out = null;
         this.err = null;
         this.importRoot = null;
+        this.fileReadRoots = List.of();
+        this.fileReadWriteRoots = List.of();
+        this.maxMappedBytes = -1;
         this.denyByDefault = false;
         this.grantedCapabilities = null;
         this.classFilter = null;
@@ -186,11 +196,36 @@ public final class SandboxPolicy {
     }
 
     /**
-     * @return the root directory under which file-reading built-ins must resolve imports, or
+     * @return the root directory under which the import built-ins must resolve sources, or
      * {@code null} when imports are not restricted to a root
      */
     public Path importRoot() {
         return importRoot;
+    }
+
+    /**
+     * @return the read-only file root directories under which {@code FILE_READ} built-ins may
+     * operate; possibly empty
+     */
+    public List<Path> fileReadRoots() {
+        return fileReadRoots;
+    }
+
+    /**
+     * @return the read-write file root directories under which every file built-in — read,
+     * write, create, delete — may operate; possibly empty
+     */
+    public List<Path> fileReadWriteRoots() {
+        return fileReadWriteRoots;
+    }
+
+    /**
+     * @return the maximum running total of memory-mapped bytes over all live mappings of one
+     * session; {@code 0} makes the mmap built-ins effectively unusable, a negative value means
+     * no limit (the default of trusted and unrestricted policies; untrusted defaults to 0)
+     */
+    public long maxMappedBytes() {
+        return maxMappedBytes;
     }
 
     /**
@@ -224,6 +259,9 @@ public final class SandboxPolicy {
         PrintStream out = null;
         PrintStream err = null;
         Path importRoot = null;
+        final List<Path> fileReadRoots = new ArrayList<>();
+        final List<Path> fileReadWriteRoots = new ArrayList<>();
+        Long maxMappedBytes = null; // null: mode default (untrusted 0, trusted/unrestricted unlimited)
 
         Builder() {
         }
@@ -357,16 +395,77 @@ public final class SandboxPolicy {
         }
 
         /**
-         * Restricts {@code import}/{@code sys_import}/{@code glob} resolution to this root
-         * directory; paths escaping it (via {@code ..}) are rejected. Required in untrusted
-         * mode when {@link Capability#FILE_READ} is granted; optional and merely convenient in
-         * trusted mode.
+         * Restricts {@code import}/{@code sys_import} resolution to this root directory; paths
+         * escaping it (via {@code ..}) are rejected. Required in untrusted mode when
+         * {@link Capability#IMPORT} is granted; optional and merely convenient in trusted
+         * mode. Data-file access is confined separately by {@link #fileReadRoot(Path...)} and
+         * {@link #fileReadWriteRoot(Path...)}.
          *
-         * @param importRoot the root directory scripts may read under
+         * @param importRoot the root directory scripts may import from
          * @return this builder
          */
         public B importRoot(Path importRoot) {
             this.importRoot = Objects.requireNonNull(importRoot).toAbsolutePath().normalize();
+            return self();
+        }
+
+        /**
+         * Adds read-only file root directories: trees where the {@link Capability#FILE_READ}
+         * built-ins ({@code file_read}, {@code glob}, {@code file_stat}, …) may operate. The
+         * method is repeatable; the built-ins confine against the whole accumulated set.
+         * Relative script paths resolve against the roots in declaration order (read-only
+         * roots first, then read-write roots), taking the first candidate that exists.
+         * <p>
+         * Required (or a {@link #fileReadWriteRoot(Path...)}) in untrusted mode when
+         * {@code FILE_READ} is granted — unless {@link Capability#FILE_TEMP} is granted, whose
+         * scratch directory is an implicit read-write root. Optional guardrail in trusted mode.
+         *
+         * @param roots the root directories scripts may read under
+         * @return this builder
+         */
+        public B fileReadRoot(Path... roots) {
+            for (final var root : roots) {
+                fileReadRoots.add(Objects.requireNonNull(root).toAbsolutePath().normalize());
+            }
+            return self();
+        }
+
+        /**
+         * Adds read-write file root directories: trees where every file built-in may operate —
+         * read, write, create, and delete alike. The method is repeatable. Relative script
+         * paths of mutating operations resolve against the <em>first</em> declared read-write
+         * root; a write target must be deterministic, never search-dependent.
+         * <p>
+         * At least one read-write root is required in untrusted mode when any of
+         * {@link Capability#FILE_WRITE}/{@link Capability#FILE_CREATE}/
+         * {@link Capability#FILE_DELETE} is granted — unless {@link Capability#FILE_TEMP} is
+         * granted, whose scratch directory is an implicit read-write root. Optional guardrail
+         * in trusted mode.
+         *
+         * @param roots the root directories scripts may read and modify under
+         * @return this builder
+         */
+        public B fileReadWriteRoot(Path... roots) {
+            for (final var root : roots) {
+                fileReadWriteRoots.add(Objects.requireNonNull(root).toAbsolutePath().normalize());
+            }
+            return self();
+        }
+
+        /**
+         * Caps the running total of memory-mapped bytes over all live mappings
+         * ({@code file_map_reader}/{@code file_map_editor}) of one session. On Java 21 a
+         * mapping's pages are released only at garbage collection, so a mapping is host
+         * virtual address space held on the sandbox's behalf; the cap bounds it.
+         *
+         * @param maxMappedBytes the maximum total mapped bytes; {@code 0} makes the mmap
+         *                       built-ins effectively unusable, a negative value means no
+         *                       limit. Untrusted policies default to {@code 0}, trusted and
+         *                       unrestricted policies to no limit.
+         * @return this builder
+         */
+        public B maxMappedBytes(long maxMappedBytes) {
+            this.maxMappedBytes = maxMappedBytes;
             return self();
         }
 
@@ -432,8 +531,21 @@ public final class SandboxPolicy {
         public SandboxPolicy build() {
             final var granted = EnumSet.allOf(Capability.class);
             granted.removeAll(denied);
+            // write implies read: a policy that denies FILE_READ but leaves a write-family
+            // capability granted would be a half-tested combination; deny the whole family
+            if (!granted.contains(Capability.FILE_READ)
+                    && (granted.contains(Capability.FILE_WRITE)
+                    || granted.contains(Capability.FILE_CREATE)
+                    || granted.contains(Capability.FILE_DELETE)
+                    || granted.contains(Capability.FILE_TEMP))) {
+                throw new IllegalStateException(
+                        "trusted policy denies FILE_READ but leaves a write-family capability " +
+                                "(FILE_WRITE/FILE_CREATE/FILE_DELETE/FILE_TEMP) granted; " +
+                                "write implies read, deny the whole file family instead");
+            }
             final var filter = new ClassAccessFilter(false, List.of(), denyClasses, unsafeAllowClasses);
-            return new SandboxPolicy(this, false, Set.copyOf(granted), filter, "trusted mode");
+            return new SandboxPolicy(this, false, Set.copyOf(granted), filter, "trusted mode",
+                    maxMappedBytes == null ? -1 : maxMappedBytes);
         }
     }
 
@@ -475,12 +587,41 @@ public final class SandboxPolicy {
 
         @Override
         public SandboxPolicy build() {
-            if (allowed.contains(Capability.FILE_READ) && importRoot == null) {
+            // capability implications, normalized here so the granted set is explicit:
+            // FILE_TEMP implies the whole file family (temp files are read-write by nature),
+            // and any write-family capability implies FILE_READ (write implies read)
+            if (allowed.contains(Capability.FILE_TEMP)) {
+                allowed.add(Capability.FILE_WRITE);
+                allowed.add(Capability.FILE_CREATE);
+                allowed.add(Capability.FILE_DELETE);
+            }
+            if (allowed.contains(Capability.FILE_WRITE)
+                    || allowed.contains(Capability.FILE_CREATE)
+                    || allowed.contains(Capability.FILE_DELETE)) {
+                allowed.add(Capability.FILE_READ);
+            }
+            if (allowed.contains(Capability.IMPORT) && importRoot == null) {
                 throw new IllegalStateException(
-                        "untrusted policy grants FILE_READ but no importRoot() is set; file reads must be scoped to a root");
+                        "untrusted policy grants IMPORT but no importRoot() is set; imports must be scoped to a root");
+            }
+            final var hasTempRoot = allowed.contains(Capability.FILE_TEMP);
+            if (allowed.contains(Capability.FILE_READ)
+                    && fileReadRoots.isEmpty() && fileReadWriteRoots.isEmpty() && !hasTempRoot) {
+                throw new IllegalStateException(
+                        "untrusted policy grants FILE_READ but no fileReadRoot() or fileReadWriteRoot() is set; " +
+                                "file reads must be scoped to a root");
+            }
+            if ((allowed.contains(Capability.FILE_WRITE)
+                    || allowed.contains(Capability.FILE_CREATE)
+                    || allowed.contains(Capability.FILE_DELETE))
+                    && fileReadWriteRoots.isEmpty() && !hasTempRoot) {
+                throw new IllegalStateException(
+                        "untrusted policy grants FILE_WRITE/FILE_CREATE/FILE_DELETE but no fileReadWriteRoot() is set; " +
+                                "file mutations must be scoped to a root");
             }
             final var filter = new ClassAccessFilter(true, allowClasses, List.of(), List.of());
-            return new SandboxPolicy(this, true, Set.copyOf(allowed), filter, "untrusted mode");
+            return new SandboxPolicy(this, true, Set.copyOf(allowed), filter, "untrusted mode",
+                    maxMappedBytes == null ? 0 : maxMappedBytes);
         }
     }
 }

@@ -1,12 +1,20 @@
 # Turicum File I/O Built-ins — API Proposal & Implementation Plan
 
-*Status: API proposal for discussion, 2026-07-13; updated 2026-07-16 after the
-`bin` type (`BIN_TYPE.md`) was designed and implemented. `bin` settles the binary
-representation questions D6/D9: every binary read returns `bin` and every binary
-write accepts `bin` — the interim latin-1-string idea is dropped and the
-"text-only first" deferral of `@binary` is void. None of the file I/O built-ins
-themselves are implemented yet. Once the API is agreed, this document grows the
-detailed design decisions.*
+*Status: IMPLEMENTED, 2026-07-17 — all phases (A–D) of §7 are in the code base
+with tests, following the decisions of §8 (all DECIDED). The `bin` type
+(`BIN_TYPE.md`, implemented 2026-07-16) supplies the binary representation:
+every binary read returns `bin` and every binary write accepts `bin` only
+(D11). Deviations from the letter of this document, chosen during
+implementation: D8's temp capability is named `FILE_TEMP` and implies the whole
+file family, with the per-session scratch directory acting as an implicit
+read-write root deleted at session close; `file_write`'s `overwrite` option is
+ignored when `append=true`; `glob` under multiple roots returns the union of
+the per-root listings (D4's first-match rule applies to single-file reads) and
+silently omits symlink escapes instead of failing the listing; paths are
+accepted as `str` only — the "harmless Java `Path`/`File` interop" of §5 was
+not implemented, keeping the `Declare` type checks strict. See
+`EMBEDDING.md` §1.4.6–§1.4.9 for the host-facing documentation and
+`REFERENCE.adoc` for the script-facing documentation.*
 
 The plan: a family of file-access built-in functions in a new package
 `ch.turic.builtins.functions.fileio`, gated by file capabilities and confined by

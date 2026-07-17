@@ -1682,15 +1682,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=33A8C9C9
+h id=6DF4AF5
 h after post increment: 1
 k: 0
-h id=382DC417
-k id=33A8C9C9
+h id=26E8FF8C
+k id=6DF4AF5
 h after pre increment: 2
 z: 2
-h id=3DAF03D8
-z id=3DAF03D8
+h id=5AA76AD2
+z id=5AA76AD2
 
 ----
 
@@ -1736,15 +1736,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=373AFD6C
+h id=251C8145
 h after post increment: 1
 k: 1
-h id=373AFD6C
-k id=373AFD6C
+h id=251C8145
+k id=251C8145
 h after pre increment: 2
 z: 2
-h id=373AFD6C
-z id=373AFD6C
+h id=251C8145
+z id=251C8145
 
 ----
 
@@ -1793,15 +1793,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=BB25753
+h id=30A7653E
 h after post decrement: -1
 k: 0
-h id=EE21292
-k id=BB25753
+h id=7CFF3F1D
+k id=30A7653E
 h after pre decrement: -2
 z: -2
-h id=40C06358
-z id=40C06358
+h id=6401188A
+z id=6401188A
 
 ----
 
@@ -1844,15 +1844,15 @@ println "z id=%X" % id_hash(z);
 [source]
 ----
 h original: 0
-h id=2282400E
+h id=510689AF
 h after post decrement: -1
 k: -1
-h id=2282400E
-k id=2282400E
+h id=510689AF
+k id=510689AF
 h after pre decrement: -2
 z: -2
-h id=2282400E
-z id=2282400E
+h id=510689AF
+z id=510689AF
 
 ----
 
@@ -5538,24 +5538,24 @@ execute("Thread 2",2)
 ----
  prime read 2
 Thread 1 generated 3
- prime read 3
-Thread 1 generated 5
- prime read 5
+ prime read Thread 1 generated 5
+3
 Thread 1 generated 7
- prime read 7
-Thread 1 generated 11
+ prime read 5
+ prime read Thread 1 generated 11
 Thread 1 generated 13
+7
 Thread 1 generated 17
 Thread 1 generated 19
 Thread 1 generated 23
 stopping
 exception Task stopped.
- prime read 2
 Thread 2 generated 3
+ prime read 2
  prime read 3
 Thread 2 generated 5
- prime read 5
 Thread 2 generated 7
+ prime read 5
  prime read 7
 Thread 2 generated 11
 Thread 2 generated 13
@@ -5703,9 +5703,9 @@ fn sleeper( x ){
 [source]
 ----
 [1, 2, 3]
-310.823584ms
+315.751416ms
 [1, 2, 3]
-104.343417ms
+103.638042ms
 
 ----
 
@@ -11742,10 +11742,7 @@ Note that in the case of `export_all()`, you cannot omit the `(` and `)`.
 
 === `glob`
 
-`_glob` is a built-in function to list files.
-The name starts with a `_` character because you are not supposed to call it directly.
-To ease the use, there is a function called `glob` in the Turicum system library.
-You can import it from the `+"turi.io"+` package.
+`glob` is a built-in function to list files.
 
    fn glob(pattern: str,@path: str|none=none,@recursive: bool=false)
 
@@ -11819,6 +11816,11 @@ println jsonify_beauty(glob("*"))
 
 
 The directories in the result list have a trailing `/` at the end of their names (it is guaranteed).
+
+In a sandbox with configured file roots, `glob` is confined by the file read/read-write
+roots (not by the import root): a relative pattern is globbed under every root and the
+results are the union over the roots; an absolute pattern must point under a root; a result
+that a symbolic link would carry outside the roots is silently omitted.
 
 
 === `id_hash`
@@ -12156,18 +12158,18 @@ println jsonify_beauty(java_import("ch.turic.exceptions"))
     "ch.turic.exceptions.StringNotTerminated": JavaClass[klass=class ch.turic.exceptions.StringNotTerminated],
     "ch.turic.exceptions.StepLimitReached": JavaClass[klass=class ch.turic.exceptions.StepLimitReached],
     "InterpreterHalt": JavaClass[klass=class ch.turic.exceptions.InterpreterHalt],
-    "BadSyntax": JavaClass[klass=class ch.turic.exceptions.BadSyntax],
     "ch.turic.exceptions.UndefinedVariable": JavaClass[klass=class ch.turic.exceptions.UndefinedVariable],
+    "BadSyntax": JavaClass[klass=class ch.turic.exceptions.BadSyntax],
     "ch.turic.exceptions.ExecutionException": JavaClass[klass=class ch.turic.exceptions.ExecutionException],
     "ch.turic.exceptions.UnexpectedCharacter": JavaClass[klass=class ch.turic.exceptions.UnexpectedCharacter],
     "ch.turic.exceptions.InterpreterHalt": JavaClass[klass=class ch.turic.exceptions.InterpreterHalt],
     "UnexpectedCharacter": JavaClass[klass=class ch.turic.exceptions.UnexpectedCharacter],
-    "StringNotTerminated": JavaClass[klass=class ch.turic.exceptions.StringNotTerminated],
     "StepLimitReached": JavaClass[klass=class ch.turic.exceptions.StepLimitReached],
+    "StringNotTerminated": JavaClass[klass=class ch.turic.exceptions.StringNotTerminated],
     "ch.turic.exceptions.BadSyntax": JavaClass[klass=class ch.turic.exceptions.BadSyntax],
     "UndefinedVariable": JavaClass[klass=class ch.turic.exceptions.UndefinedVariable],
-    "ch.turic.exceptions.ExecutionAborted": JavaClass[klass=class ch.turic.exceptions.ExecutionAborted],
-    "ExecutionException": JavaClass[klass=class ch.turic.exceptions.ExecutionException]
+    "ExecutionException": JavaClass[klass=class ch.turic.exceptions.ExecutionException],
+    "ch.turic.exceptions.ExecutionAborted": JavaClass[klass=class ch.turic.exceptions.ExecutionAborted]
 }
 
 ----
@@ -12716,7 +12718,7 @@ println nano_time()
 .output of snippet `nano_time`
 [source]
 ----
-379558898072583
+391905376482875
 
 ----
 
@@ -12992,80 +12994,82 @@ none
 .output of snippet `que`
 [source]
 ----
-task1 is not ready 0
 task2 is ready 1
+task1 is not ready 0
 task2 is not ready 0
-task1 is not ready 1
-task2 is not ready 1
-task1 is not ready 2
+task2 is not ready 1task1 is not ready 1
+
 task2 is not ready 2
-task2 is ready 2
+task1 is not ready 2
+task1 is not ready 3
+task2 is not ready 3
+task1 is ready 2
+task1 is not ready 0
+task2 is not ready 4
+task1 is not ready 1
+task2 is not ready 5
+task2 is not ready 6task1 is not ready 2
+
+task2 is ready 3
 task1 is not ready 3
 task2 is not ready 0
 task2 is not ready 1
 task1 is not ready 4
-task2 is not ready 2
 task1 is not ready 5
-task2 is ready 3
+task2 is not ready 2
+task2 is not ready 3task1 is ready 4
+
+task1 is not ready 0
+task2 is not ready 4
+task1 is not ready 1
+task2 is not ready 5
+task1 is not ready 2
+task2 is not ready 6
+task1 is not ready 3
+task1 is not ready 4
+task2 is ready 5
+task2 is not ready 0
+task2 is not ready 1task1 is not ready 5
+
+task2 is ready 6
 task2 is not ready 0
 task1 is not ready 6
 task2 is not ready 1
 task1 is not ready 7
-task1 is not ready 8
 task2 is not ready 2
-task2 is not ready 3
-task1 is not ready 9
-task2 is ready 4
+task1 is not ready 8
+task1 is not ready 9task2 is not ready 3
+
+task2 is ready 7
 task2 is not ready 0
 task1 is not ready 10
-task2 is not ready 1
 task1 is not ready 11
-task2 is not ready 2
+task2 is not ready 1
 task1 is not ready 12
-task1 is not ready 13
-task2 is ready 5
-task2 is not ready 0
-task1 is not ready 14
-task2 is not ready 1
 task2 is not ready 2
-task1 is not ready 15
-task2 is ready 6task1 is not ready 16
-
-task2 is not ready 0
-task1 is not ready 17
-task2 is not ready 1
-task1 is not ready 18
-task2 is not ready 2
-task1 is not ready 19
 task2 is not ready 3
-task1 is ready 7
-task2 is not ready 4
+task1 is ready 8
 task1 is not ready 0
-task1 is not ready 1
-task2 is not ready 5
-task1 is not ready 2task2 is not ready 6
-
-task2 is ready 8
-task1 is not ready 3
-task2 is not ready 0
-task1 is not ready 4
-task2 is not ready 1
-task1 is not ready 5
-task2 is not ready 2
-task1 is ready 9
-task1 is not ready 0
-task2 is not ready 3
 task2 is not ready 4
 task1 is not ready 1
 task2 is not ready 5
 task1 is not ready 2
+task2 is ready 9
+task1 is not ready 3
+task2 is not ready 0
+task2 is not ready 1
+task1 is not ready 4
+task1 is not ready 5task2 is not ready 2
+
+task1 is not ready 6
+task2 is not ready 3
 closing the channel
 channel is closed
 1 is done false
 2 is done false
-task2 is donetask1 is done
-
 we start to wait the first time
+task1 is done
+task2 is done
 task1 done true
 task2 done true
 We start to wait the second time
@@ -13625,7 +13629,7 @@ println sleep(0.001) // sleep one milli
 .output of snippet `sleep`
 [source]
 ----
-0.001
+0.002
 
 ----
 
@@ -14105,6 +14109,7 @@ received 2
 not ready 0
 not ready 1
 not ready 2
+not ready 3
 sending 3
 received 3
 not ready 0
@@ -14123,6 +14128,331 @@ is done true
 Note that the output of this sample is not deterministic.
 The sending happens __approximately__ every 9ms, and the reading is retried __approximately__ every 3ms.
 
+
+
+=== `file_read`
+
+Reads the whole content of a file.
+
+   fn file_read(path: str, @binary: bool = false, @charset: str = "UTF-8") -> str | bin
+
+* `path` is the file to read.
+In a sandbox with configured file roots, a relative path is resolved against the roots in
+declaration order, taking the first existing candidate; the resolved file must lie under one
+of the roots.
+
+* `binary` selects binary mode: the result is a `bin` with the exact bytes of the file.
+In text mode (the default) the result is a `str` decoded using `charset`.
+
+* `charset` is the character set used to decode the file in text mode.
+
+The function requires the `FILE_READ` capability.
+
+
+=== `file_lines`
+
+Reads a text file as a list of lines.
+
+   fn file_lines(path: str, @charset: str = "UTF-8") -> lst
+
+The result is a `lst` of `str`, one element per line, without the line terminators. Path
+resolution and sandbox confinement are the same as for `file_read`.
+
+The function requires the `FILE_READ` capability.
+
+
+=== `file_write`
+
+Writes the whole content of a file.
+
+   fn file_write(path: str, content,
+                 @append: bool = false,
+                 @overwrite: bool = true,
+                 @mkdirs: bool = false,
+                 @binary: bool = false,
+                 @charset: str = "UTF-8") -> none
+
+* `path` is the file to write.
+In a sandbox, a relative path resolves against the first declared read-write root, and the
+resolved file must lie under a read-write root.
+
+* `content` is the data to write.
+In text mode anything is accepted and its string form is encoded using `charset`; in binary
+mode the content must be a `bin`, written verbatim (convert a string explicitly, e.g. with
+`s.bytes()`).
+
+* `append` appends to the file instead of replacing its content.
+
+* `overwrite` set to `false` makes writing an *existing* file an error; the file is created
+atomically, so there is no race between the existence check and the creation.
+It is ignored when `append` is set.
+
+* `mkdirs` creates the missing parent directories of the target.
+
+* `binary` selects binary mode.
+
+The function requires the `FILE_WRITE` capability; when the target file does not exist — or
+`mkdirs` has to create parent directories — it additionally requires `FILE_CREATE` at
+runtime.
+
+
+=== `file_exists`, `is_file`, `is_dir`
+
+File-system tests.
+
+   fn file_exists(path: str) -> bool
+   fn is_file(path: str)     -> bool
+   fn is_dir(path: str)      -> bool
+
+`file_exists` returns whether the path names an existing entry; `is_file` whether it is a
+regular file; `is_dir` whether it is a directory. Symbolic links are followed. Path
+resolution and sandbox confinement are the same as for `file_read`; a relative path that
+exists under none of the configured roots simply yields `false`.
+
+The functions require the `FILE_READ` capability.
+
+
+=== `file_stat`
+
+Returns the metadata of a file-system entry as an object.
+
+   fn file_stat(path: str) -> obj
+
+The result object has the fields
+
+* `size` — the size in bytes,
+* `modified`, `created` — the modification and creation times as epoch milliseconds,
+* `is_file`, `is_dir`, `is_symlink` — the kind of the entry (`is_symlink` refers to the path
+itself; the other fields follow the link),
+* `readable`, `writable` — whether the hosting process may read/write the entry.
+
+The function requires the `FILE_READ` capability.
+
+
+=== `mkdir`
+
+Creates a directory.
+
+   fn mkdir(path: str, @recurse: bool = true) -> none
+
+With `recurse` (the default), missing parent directories are created as well, and an already
+existing directory is not an error. With `recurse=false`, exactly one directory is created;
+a missing parent or an existing target is an error. In a sandbox, the path must lie under a
+read-write root.
+
+The function requires the `FILE_CREATE` capability.
+
+
+=== `file_delete`
+
+Deletes a file or a directory.
+
+   fn file_delete(path: str, @force: bool = false, @must_exist: bool = false) -> bool
+
+The function returns whether something was deleted. Deleting a non-empty directory without
+`force` is an error; with `force=true` the directory tree is deleted recursively —
+the most destructive primitive of the file family, guarded by the `FILE_DELETE` capability
+and, in a sandbox, by the read-write root confinement. With `must_exist=true`, a missing
+path is an error instead of a `false` result.
+
+The function requires the `FILE_DELETE` capability.
+
+
+=== `file_copy`
+
+Copies a file.
+
+   fn file_copy(src: str, dst: str, @overwrite: bool = false) -> none
+
+Copies the file `src` to `dst`. When `dst` exists, it is replaced only with
+`overwrite=true`; without it, an existing target is an error. In a sandbox, `src` must lie
+under a file root (read-only or read-write) and `dst` under a read-write root.
+
+The function requires the `FILE_READ` capability; at runtime it additionally requires
+`FILE_WRITE` when the target exists and `FILE_CREATE` when it does not.
+
+
+=== `file_move`
+
+Moves (renames) a file.
+
+   fn file_move(src: str, dst: str, @overwrite: bool = false) -> none
+
+Moves the file `src` to `dst`. When `dst` exists, it is replaced only with `overwrite=true`.
+Moving always removes the source, so in a sandbox both `src` and `dst` must lie under a
+read-write root.
+
+The function requires the `FILE_DELETE` capability (it always removes the source); at
+runtime it additionally requires `FILE_WRITE` when the target exists and `FILE_CREATE` when
+it does not.
+
+
+=== `tmp_file`, `tmp_dir`
+
+Creates a temporary file or directory in the session's scratch area.
+
+   fn tmp_file(@prefix: str|none = none, @suffix: str|none = none) -> str
+   fn tmp_dir(@prefix: str|none = none) -> str
+
+Both functions return the absolute path of the freshly created entry as a string. The
+scratch area is a per-session directory created on first use; it acts as an additional
+read-write file root, so every file built-in can operate on the entries under it — and it is
+deleted, with everything in it, when the session ends.
+
+The functions require the `FILE_TEMP` capability. Granting `FILE_TEMP` implies the whole
+file capability family (`FILE_READ`, `FILE_WRITE`, `FILE_CREATE`, `FILE_DELETE`); there is
+no use case for temp files that can be created but not read and written.
+
+
+=== `file_reader`
+
+Opens a file for sequential reading and returns a read handle.
+
+   fn file_reader(path: str, @binary: bool = false, @charset: str = "UTF-8") -> handle
+
+The handle has the methods
+
+* `read_line()` — the next line without its terminator, `none` at the end of the file
+(text mode only);
+* `read(n)` — up to `n` characters as a `str` (in binary mode: up to `n` bytes as a `bin`),
+`none` at the end of the file;
+* `read_all()` — the rest of the stream as one `str` (binary mode: `bin`);
+* `close()` — closes the handle; idempotent;
+* `entry()` / `exit(e)` — the `with` protocol, so the handle can be used in a
+`with file_reader(...) as f { ... }` command, which closes it on every exit path.
+
+Every operation on a closed handle is an error (except `close`). A handle that is never
+closed is force-closed when the session ends. Path resolution and sandbox confinement are
+the same as for `file_read`.
+
+The function requires the `FILE_READ` capability.
+
+
+=== `file_writer`
+
+Opens a file for sequential writing and returns a write handle.
+
+   fn file_writer(path: str,
+                  @append: bool = false, @overwrite: bool = true,
+                  @mkdirs: bool = false,
+                  @binary: bool = false, @charset: str = "UTF-8") -> handle
+
+The options have the same meaning as for `file_write`. The handle has the methods
+
+* `write(x)` — writes the string form of `x` encoded with `charset` (in binary mode `x`
+must be a `bin`, written verbatim);
+* `write_line(x)` — `write(x)` followed by a newline (text mode only);
+* `flush()` — flushes the buffered output;
+* `close()` — flushes and closes; idempotent;
+* `entry()` / `exit(e)` — the `with` protocol:
+
+   with file_writer("report.txt") as out {
+       out.write_line("header")
+       for each line in file_lines("data.txt") {
+           out.write_line(line)
+       }
+   } // closed here, also on exception
+
+Every operation on a closed handle is an error (except `close`). A handle that is never
+closed is force-closed when the session ends.
+
+The function requires the `FILE_WRITE` capability; creating a missing target file — or
+parent directories with `mkdirs` — additionally requires `FILE_CREATE` at runtime.
+
+
+=== `file_random_reader`
+
+Opens a file for random-access reading and returns a read handle.
+
+   fn file_random_reader(path: str) -> handle
+
+Random access is inherently byte-oriented: positions and sizes are byte offsets, there is no
+text mode, and reads return `bin` values. The handle has the methods
+
+* `position()` — the current position;
+* `seek(pos)` — sets the position; a position past the end of the file is legal, reads
+there report the end of the file;
+* `size()` — the current file size in bytes;
+* `read(n)` — up to `n` bytes as a `bin` from the current position, advancing it; `none` at
+the end of the file;
+* `read_at(pos, n)` — absolute-positioned read; does *not* move the position;
+* `close()` — idempotent;
+* `entry()` / `exit(e)` — the `with` protocol.
+
+A handle that is never closed is force-closed when the session ends. Path resolution and
+sandbox confinement are the same as for `file_read`.
+
+The function requires the `FILE_READ` capability.
+
+
+=== `file_random_editor`
+
+Opens a file for random-access reading and in-place updating.
+
+   fn file_random_editor(path: str, @create: bool = false, @truncate: bool = false) -> handle
+
+* `create` creates the file when it is missing (this needs the `FILE_CREATE` capability at
+runtime); without it, a missing file is an error.
+
+* `truncate` empties the file when it is opened.
+
+The handle has every method of the `file_random_reader` handle — the editor can also read;
+write implies read — plus
+
+* `write(x)` — writes the `bin` `x` at the current position, advancing it; writing past the
+end of the file extends it;
+* `write_at(pos, x)` — absolute-positioned write; does *not* move the position;
+* `truncate(size)` — cuts the file to `size` bytes (the position clamps to the new end);
+* `flush()` — forces pending writes to the file.
+
+Writes accept `bin` values only; convert a string explicitly, e.g. with `s.bytes()`. In a
+sandbox, the path must lie under a read-write root.
+
+The function requires the `FILE_WRITE` capability.
+
+
+=== `file_map_reader`
+
+Maps a file — or a region of it — into memory for reading.
+
+   fn file_map_reader(path: str, @offset: int = 0, @length: int|none = none) -> handle
+
+`length=none` maps from `offset` to the end of the file. The handle has the methods
+
+* `length()` — the length of the mapped region in bytes;
+* `get(pos, n)` — `n` bytes at offset `pos` within the mapping, as a `bin`;
+* `close()` — invalidates the handle;
+* `entry()` / `exit(e)` — the `with` protocol.
+
+CAUTION: On Java 21 there is no deterministic unmap: `close()` invalidates the handle, but
+the mapped pages are released only when the buffer is garbage collected. On Windows, the
+file cannot be deleted or truncated while it is mapped. The total length of all live
+mappings of a session is capped by the sandbox policy's `maxMappedBytes` — the untrusted
+default is `0`, so an untrusted script can map files only when the host opts in.
+
+The function requires the `FILE_READ` capability.
+
+
+=== `file_map_editor`
+
+Maps a file — or a region of it — into memory for reading and writing.
+
+   fn file_map_editor(path: str, @offset: int = 0, @length: int|none = none) -> handle
+
+`length=none` maps from `offset` to the end of the file; an explicit `length` may extend the
+file to `offset+length` bytes. The handle has every method of the `file_map_reader` handle,
+plus
+
+* `put(pos, x)` — writes the `bin` `x` at offset `pos` within the mapping; it cannot grow
+the mapping;
+* `flush()` — pushes the changes to the file.
+
+`exit` flushes and closes, so a `with file_map_editor(...) as m { ... }` block persists its
+changes on every exit path. Writes accept `bin` values only. The Java 21 unmap caveat and
+the `maxMappedBytes` cap of `file_map_reader` apply here as well. In a sandbox, the path
+must lie under a read-write root.
+
+The function requires the `FILE_WRITE` capability.
 
 
 

@@ -220,6 +220,9 @@ public class Interpreter implements AutoCloseable {
     @Override
     public void close() {
         if (ctx != null) {
+            // force-close file handles the script left open and delete the temp scratch
+            // directory; the same cleanup TuriSession.close() performs for embedded sessions
+            ctx.globalContext.closeFileResources();
             ctx.close();
         }
     }

@@ -50,7 +50,7 @@ end snippet*/
 /**
  * Imports a file as turi source code from the classpath.
  */
-@RequiresCapability(Capability.FILE_READ)
+@RequiresCapability(Capability.IMPORT)
 public class SysImport implements TuriMacro {
 
     @Override
