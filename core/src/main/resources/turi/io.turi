@@ -1,4 +1,7 @@
 /*
+
+D E P R E C A T E D
+
 System library for file input/output.
 
 The `files` class delegates to the `file_lines` and `file_write` built-in functions, so it

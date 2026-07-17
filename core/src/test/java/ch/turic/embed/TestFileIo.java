@@ -472,12 +472,11 @@ class TestFileIo {
                 .build();
         try (final var engine = TuriEngine.create(policy); final var session = engine.newSession()) {
             session.eval("""
-                    sys_import "turi.io"
-                    files.write("greeting.txt", "hello from turi.io")
+                    file_write("greeting.txt", "hello from turi.io")
                     """);
             assertEquals("hello from turi.io", Files.readString(dir.resolve("greeting.txt")));
             assertEquals("hello from turi.io",
-                    session.eval("files.read_all_lines(\"greeting.txt\")[0]"));
+                    session.eval("file_lines(\"greeting.txt\")[0]"));
         }
     }
 
