@@ -11,10 +11,10 @@ jobs:
       matrix:
         os: [ ubuntu-latest, windows-latest, macos-latest, macos-15-intel ]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Set up JDK 25
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: '25'
           distribution: oracle
@@ -32,7 +32,7 @@ jobs:
       # Linux upload Application
       - name: Upload Linux Package Application
         if: matrix.os == 'ubuntu-latest'
-        uses: actions/upload-artifact@v4.6.2
+        uses: actions/upload-artifact@v5
         with:
           name: linux-x64
           path: ./cli/output/*.deb
@@ -40,7 +40,7 @@ jobs:
       # Linux upload Language Server
       - name: Upload Linux Package Language Server
         if: matrix.os == 'ubuntu-latest'
-        uses: actions/upload-artifact@v4.6.2
+        uses: actions/upload-artifact@v5
         with:
           name: lsp-linux-x64
           path: ./lsp/output/*.deb
@@ -48,7 +48,7 @@ jobs:
       # Windows upload Application
       - name: Upload Windows Package Application
         if: matrix.os == 'windows-latest'
-        uses: actions/upload-artifact@v4.6.2
+        uses: actions/upload-artifact@v5
         with:
           name: windows-x64
           path: |
@@ -58,7 +58,7 @@ jobs:
       # Windows upload Language Server
       - name: Upload Windows Package Language Server
         if: matrix.os == 'windows-latest'
-        uses: actions/upload-artifact@v4.6.2
+        uses: actions/upload-artifact@v5
         with:
           name: lsp-windows-x64
           path: |
@@ -68,7 +68,7 @@ jobs:
       # macOS upload Application
       - name: Upload macOS Package Application
         if: matrix.os == 'macos-latest'
-        uses: actions/upload-artifact@v4.6.2
+        uses: actions/upload-artifact@v5
         with:
           name: macos-arm64
           path: ./cli/output/*.pkg
@@ -76,7 +76,7 @@ jobs:
       # macOS upload Language Server
       - name: Upload macOS Package Language Server
         if: matrix.os == 'macos-latest'
-        uses: actions/upload-artifact@v4.6.2
+        uses: actions/upload-artifact@v5
         with:
           name: lsp-macos-arm64
           path: ./lsp/output/*.pkg
@@ -84,7 +84,7 @@ jobs:
       # macOS Intel upload Application
       - name: Upload macOS Package Application
         if: matrix.os == 'macos-15-intel'
-        uses: actions/upload-artifact@v4.6.2
+        uses: actions/upload-artifact@v5
         with:
           name: macos-x64
           path: ./cli/output/*.pkg
@@ -92,7 +92,7 @@ jobs:
       # macOS Intel upload Language Server
       - name: Upload macOS Package Language Server
         if: matrix.os == 'macos-15-intel'
-        uses: actions/upload-artifact@v4.6.2
+        uses: actions/upload-artifact@v5
         with:
           name: lsp-macos-x64
           path: ./lsp/output/*.pkg
