@@ -1,16 +1,22 @@
-// Anchor the import roots to this file's directory - the project root - instead of the
-// current working directory. This file is imported into a fresh context that inherits no
-// APPIA, and the cwd is NOT the project root when the maven extension runs inside an IDE
-// embedder (e.g., IntelliJ's embedded Maven runs with its cwd inside the IDE installation).
-// Requires a turicum version that resolves source_directory() inside an imported file
-// (fixed 2025-11-25); the extension in .mvn/extensions.xml must be recent enough.
-// NOTE: APPIA is unlet before the export_all() below, because the importing pom.turi
-// defines its own APPIA and importing a variable that is already defined is an error.
-global APPIA = ?(env("APPIA")?.split("\\|")) or [ source_directory() ];
+// TEMPORARY 1.4.0-compatible bootstrap for the 2.0.0 release: the pinned extension 1.4.0
+// (see .mvn/extensions.xml) predates the source_directory()-in-imported-file fix
+// (2025-11-25), so the import roots cannot be anchored to this file's directory. The
+// cwd-relative try/catch below is the form the 1.4.2 release was built with; it works when
+// Maven runs from the project root or from a module directory, but NOT from an IDE
+// embedder. Once .mvn/extensions.xml is bumped to 2.0.0, restore the anchored form:
+//     global APPIA = ?(env("APPIA")?.split("\\|")) or [ source_directory() ];
+//     let VERSION = import("core.src.main.resources.turi.version").`turicum.version`;
+//     ... unlet APPIA; before export_all()
 
 // we import it from the sys_import area to make it available for the turicum programs
 // here we cannot use sys_import because that would use the version that runs and not the version we build
-let VERSION = import("core.src.main.resources.turi.version").`turicum.version`;
+let VERSION={ try{ import("core.src.main.resources.turi.version") .`turicum.version`; }
+    catch( e ){
+        // when maven was started from a module and the cwd is one level below
+        global APPIA; APPIA=[ ".." ];
+        import("core.src.main.resources.turi.version") .`turicum.version`;
+    }
+}
 let `org.openjfx`= "25.0.1" ;
 
 let `maven-javadoc-plugin`= "3.12.0" ;
@@ -36,8 +42,5 @@ let JAVA_VERSION= 21 ;
 let groupId= "ch.turic" ;
 let groupIdMavenPlugin= "org.apache.maven.plugins" ;
 
-
-// APPIA served only to locate the version import above; see the comment at its definition
-unlet APPIA;
 
 export_all( );

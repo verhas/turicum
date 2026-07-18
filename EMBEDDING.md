@@ -75,7 +75,7 @@ To use the API, add the `core` module to your dependencies:
 <dependency>
     <groupId>ch.turic</groupId>
     <artifactId>core</artifactId>
-    <version>1.4.2</version>
+    <version>2.0.0</version>
 </dependency>
 ```
 
